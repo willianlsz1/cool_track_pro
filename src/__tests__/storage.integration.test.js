@@ -7,6 +7,8 @@ function createSupabaseMock({
   failDeleteTables = [],
 } = {}) {
   const upsertByTable = {
+    clientes: vi.fn().mockResolvedValue({ data: null, error: null }),
+    setores: vi.fn().mockResolvedValue({ data: null, error: null }),
     equipamentos: vi.fn().mockResolvedValue({ data: null, error: null }),
     registros: vi.fn().mockResolvedValue({ data: null, error: null }),
     tecnicos: vi.fn().mockResolvedValue({ data: null, error: null }),
@@ -94,6 +96,8 @@ function sampleState() {
       },
     ],
     tecnicos: ['Ana'],
+    clientes: [{ id: 'c-1', nome: 'Cliente 1' }],
+    setores: [{ id: 's-1', nome: 'Setor 1', cor: '#00c8e8', clienteId: 'c-1' }],
   };
 }
 
@@ -209,6 +213,7 @@ describe('Storage integration (offline-first)', () => {
     expect(supabaseMock.upsertByTable.equipamentos).toHaveBeenCalled();
     expect(supabaseMock.upsertByTable.registros).toHaveBeenCalled();
     expect(supabaseMock.upsertByTable.tecnicos).toHaveBeenCalled();
+    expect(supabaseMock.upsertByTable.clientes).toHaveBeenCalled();
     expect(localStorage.getItem('cooltrack-migrated-user-77')).toBe('1');
     expect(toastMock.info).toHaveBeenCalled();
     expect(toastMock.success).toHaveBeenCalled();
@@ -285,6 +290,7 @@ describe('Storage integration (offline-first)', () => {
     expect(supabaseMock.upsertByTable.equipamentos).toHaveBeenCalled();
     expect(supabaseMock.upsertByTable.registros).toHaveBeenCalled();
     expect(supabaseMock.upsertByTable.tecnicos).toHaveBeenCalled();
+    expect(supabaseMock.upsertByTable.clientes).toHaveBeenCalled();
 
     supabaseMock.upsertByTable.registros.mockRejectedValueOnce(new Error('sync err'));
     await Storage._syncToSupabase(state, { silent: false });
@@ -339,7 +345,58 @@ describe('Storage integration (offline-first)', () => {
 
     expect(result.equipamentos[0].id).toBe('eq-r');
     expect(supabaseMock.upsertByTable.equipamentos).not.toHaveBeenCalled();
+    expect(supabaseMock.upsertByTable.clientes).not.toHaveBeenCalled();
     expect(localStorage.getItem('cooltrack-sync-dirty-v1')).toBeNull();
     expect(localStorage.getItem('cooltrack-sync-deletions-v1')).toBeNull();
+  });
+
+  it('preserves offline temp IDs across cliente->setor->equipamento->registro sync chain', async () => {
+    const { Storage, supabaseMock } = await loadStorageModule();
+
+    const offlineState = {
+      clientes: [{ id: 'tmp-c1', nome: 'Cliente Offline' }],
+      setores: [{ id: 'tmp-s1', nome: 'Setor Offline', cor: '#00c8e8', clienteId: 'tmp-c1' }],
+      equipamentos: [
+        {
+          id: 'tmp-e1',
+          nome: 'Split 18k',
+          local: 'Sala 1',
+          status: 'ok',
+          tag: 'EQ-001',
+          tipo: 'Split',
+          modelo: '',
+          fluido: '',
+          clienteId: 'tmp-c1',
+          setorId: 'tmp-s1',
+        },
+      ],
+      registros: [
+        {
+          id: 'tmp-r1',
+          equipId: 'tmp-e1',
+          data: '2026-04-28T08:00',
+          tipo: 'Preventiva',
+          status: 'ok',
+          pecas: '',
+          proxima: '2026-05-28',
+          fotos: [],
+          tecnico: 'Ana',
+        },
+      ],
+      tecnicos: ['Ana'],
+    };
+
+    const ok = await Storage._syncToSupabase(offlineState, { silent: true });
+    expect(ok).toBe(true);
+
+    const clientesRows = supabaseMock.upsertByTable.clientes.mock.calls[0][0];
+    const setoresRows = supabaseMock.upsertByTable.setores.mock.calls[0][0];
+    const equipsRows = supabaseMock.upsertByTable.equipamentos.mock.calls[0][0];
+    const regsRows = supabaseMock.upsertByTable.registros.mock.calls[0][0];
+
+    expect(clientesRows[0].id).toBe('tmp-c1');
+    expect(setoresRows[0]).toMatchObject({ id: 'tmp-s1', cliente_id: 'tmp-c1' });
+    expect(equipsRows[0]).toMatchObject({ id: 'tmp-e1', cliente_id: 'tmp-c1', setor_id: 'tmp-s1' });
+    expect(regsRows[0]).toMatchObject({ id: 'tmp-r1', equip_id: 'tmp-e1' });
   });
 });
