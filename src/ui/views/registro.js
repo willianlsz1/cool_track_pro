@@ -22,6 +22,7 @@ import { isCachedPlanPlusOrHigher } from '../../core/plans/planCache.js';
 import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
+import { resolveRegistroContext } from '../composables/registroContext.js';
 import {
   getChecklistTemplate,
   buildEmptyChecklist,
@@ -125,6 +126,7 @@ const EDITING_KEY = 'cooltrack-editing-id';
 // Persiste o último cliente preenchido para auto-prefill no próximo registro —
 // técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
+let _currentRouteParams = {};
 
 function _loadLastClient() {
   try {
@@ -143,6 +145,116 @@ function _saveLastClient(cliente) {
   } catch (_err) {
     // localStorage indisponível — ignora
   }
+}
+
+function _updateImpactCopy(context) {
+  const title = document.getElementById('registro-impact-title');
+  const subtitle = document.getElementById('registro-impact-subtitle');
+  const hint = document.getElementById('registro-impact-hint');
+  if (!title || !subtitle || !hint) return;
+
+  if (context?.hasCompanyContext) {
+    title.innerHTML = 'Impacto no PMOC <span class="registro-details__pri">Recomendado</span>';
+    subtitle.textContent =
+      'status final, prioridade e próxima preventiva para acompanhamento do cliente';
+    hint.textContent =
+      'Esse registro atualiza o histórico do equipamento e ajuda a manter o PMOC do cliente em dia.';
+    return;
+  }
+
+  title.innerHTML =
+    'Impacto no acompanhamento <span class="registro-details__pri">Recomendado</span>';
+  subtitle.textContent = 'status final, prioridade e próxima preventiva';
+  hint.textContent =
+    'Defina o status final e a próxima preventiva para acompanhar melhor este equipamento.';
+}
+
+function _applyClienteDetailsContext(context) {
+  const details = document.getElementById('registro-cliente-details');
+  if (!details) return;
+  const subtitle = details.querySelector('.registro-details__subtitle');
+  const body = details.querySelector('.registro-details__body');
+  const add = details.querySelector('.registro-details__add');
+  const summary = document.getElementById('registro-cliente-context-summary');
+
+  if (!subtitle || !body || !summary) return;
+
+  if (context?.cliente) {
+    subtitle.textContent = 'vinculado automaticamente ao contexto';
+    body.hidden = true;
+    add?.setAttribute('hidden', 'hidden');
+    details.removeAttribute('open');
+    summary.hidden = false;
+    summary.innerHTML = `<strong>${Utils.escapeHtml(context.cliente.nome || 'Cliente vinculado')}</strong>${
+      context.cliente.documento ? ` · ${Utils.escapeHtml(context.cliente.documento)}` : ''
+    }`;
+    return;
+  }
+
+  subtitle.textContent = 'opcional — aparece na capa do PDF';
+  body.hidden = false;
+  add?.removeAttribute('hidden');
+  summary.hidden = true;
+  summary.textContent = '';
+}
+
+function _applyResolvedContext(context) {
+  const contextCard = document.getElementById('registro-context-card');
+  const contextHint = document.getElementById('registro-context-hint');
+  const clienteText = document.getElementById('registro-context-cliente');
+  const setorText = document.getElementById('registro-context-setor');
+  const equipText = document.getElementById('registro-context-equip');
+
+  if (context?.cliente) {
+    Utils.setVal('r-cliente-nome', context.cliente.nome || '');
+    Utils.setVal('r-cliente-documento', context.cliente.documento || '');
+    Utils.setVal('r-local-atendimento', context.cliente.localAtendimento || '');
+    Utils.setVal('r-cliente-contato', context.cliente.contato || '');
+  }
+
+  const hasContextCard = Boolean(context?.hasCompanyContext && contextCard);
+  if (hasContextCard) {
+    contextCard.hidden = false;
+    if (clienteText) clienteText.textContent = context.cliente?.nome || 'Não informado';
+    if (setorText) setorText.textContent = context.setor?.nome || 'Não informado';
+    if (equipText) {
+      const eq = context.equipamento;
+      const suffix = eq?.tag ? ` · TAG ${eq.tag}` : '';
+      equipText.textContent = eq?.nome ? `${eq.nome}${suffix}` : 'Não informado';
+    }
+  } else if (contextCard) {
+    contextCard.hidden = true;
+  }
+
+  if (contextHint) {
+    if (context?.missingEquipFromParams) {
+      contextHint.hidden = false;
+      contextHint.textContent =
+        'Equipamento não encontrado. Confira o cadastro ou escolha outro equipamento.';
+    } else if (context?.shouldWarnEquipmentOnly) {
+      contextHint.hidden = false;
+      contextHint.textContent = 'Este serviço ficará apenas no histórico do equipamento.';
+    } else {
+      contextHint.hidden = true;
+      contextHint.textContent = '';
+    }
+  }
+
+  _applyClienteDetailsContext(context);
+  _updateImpactCopy(context);
+}
+
+function _refreshRegistroContext() {
+  const stateNow = getState();
+  const equipId = Utils.getVal('r-equip') || _currentRouteParams?.equipId;
+  const context = resolveRegistroContext(
+    {
+      ..._currentRouteParams,
+      equipId: equipId || null,
+    },
+    stateNow,
+  );
+  _applyResolvedContext(context);
 }
 
 function resetEditingState() {
@@ -603,7 +715,10 @@ export function initRegistro(params = {}) {
       // r-equip que já existe em _bindEquipChangeWarning.
       const equipSelForChecklist = Utils.getEl('r-equip');
       if (equipSelForChecklist) {
-        equipSelForChecklist.addEventListener('change', () => renderChecklist());
+        equipSelForChecklist.addEventListener('change', () => {
+          renderChecklist();
+          _refreshRegistroContext();
+        });
       }
 
       // Toggle do campo custom quando tipo muda. Rebind só uma vez (bound flag),
@@ -720,46 +835,8 @@ export function initRegistro(params = {}) {
     if (!params.editRegistroId) resetEditingState();
     if (params.equipId) Utils.setVal('r-equip', params.equipId);
 
-    // Bug fix #99: pre-fill cliente quando o registro vem de contexto de
-    // cliente. Cobre 3 caminhos:
-    //   1. params.clienteId direto (CTA "Registrar serviço" em /clientes)
-    //   2. params.equipId — buscamos o equipamento pra ler o clienteId dele
-    //   3. cliente vinculado via setor (equip.setorId -> setor.clienteId)
-    // Idempotente: nao sobrescreve campos ja digitados pelo usuario (ex.:
-    // edit mode, ou se _loadLastClient ja preencheu antes).
-    {
-      let resolvedClienteId = params.clienteId || null;
-      const stateNow = getState();
-
-      // Caminho 2: equipId -> equip.clienteId direto
-      if (!resolvedClienteId && params.equipId) {
-        const eq = (stateNow.equipamentos || []).find((e) => e.id === params.equipId);
-        if (eq?.clienteId) resolvedClienteId = eq.clienteId;
-        // Caminho 3: equip.setorId -> setor.clienteId
-        else if (eq?.setorId) {
-          const setor = (stateNow.setores || []).find((s) => s.id === eq.setorId);
-          if (setor?.clienteId) resolvedClienteId = setor.clienteId;
-        }
-      }
-
-      if (resolvedClienteId) {
-        const cliente = (stateNow.clientes || []).find((c) => c.id === resolvedClienteId);
-        if (cliente) {
-          // Sanity: so preenche se o campo correspondente estiver vazio.
-          // Permite o user editar manualmente sem perder a edicao quando a
-          // funcao roda de novo (ex.: re-render na mesma view).
-          const setIfEmpty = (id, val) => {
-            if (!val) return;
-            const cur = Utils.getVal(id);
-            if (!cur) Utils.setVal(id, val);
-          };
-          setIfEmpty('r-cliente-nome', cliente.nome || cliente.razao_social || '');
-          setIfEmpty('r-cliente-documento', cliente.cnpj || cliente.cpf || cliente.documento || '');
-          setIfEmpty('r-local-atendimento', cliente.endereco || cliente.local || '');
-          setIfEmpty('r-cliente-contato', cliente.contato || cliente.telefone || '');
-        }
-      }
-    }
+    _currentRouteParams = { ...params };
+    _refreshRegistroContext();
 
     const rPrioridade = Utils.getEl('r-prioridade');
     if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
@@ -1339,6 +1416,7 @@ export function clearRegistro(preserveEquip = false) {
   if (heroPill) heroPill.textContent = 'Novo registro';
   const title = document.querySelector('#view-registro .section-title');
   if (title) title.textContent = 'O que foi feito hoje?';
+  _refreshRegistroContext();
 }
 export function loadRegistroForEdit(id) {
   const { registros } = getState();
@@ -1399,6 +1477,7 @@ export function loadRegistroForEdit(id) {
   if (heroPill) heroPill.textContent = 'Editando serviço';
   const title = document.querySelector('#view-registro .section-title');
   if (title) title.textContent = 'Editar serviço';
+  _refreshRegistroContext();
 }
 
 // Garante que estado de edição não persista entre sessoes do app.
