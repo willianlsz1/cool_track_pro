@@ -163,4 +163,24 @@ describe('pricing view', () => {
     expect(html).toContain('TÉCNICO AUTÔNOMO');
     expect(html).not.toContain('INTERMEDIÁRIO');
   });
+
+  it('renderiza comparação Modo Técnico x Modo Empresa com destaque no Pro', async () => {
+    const { renderPricing } = await loadPricingModule({
+      user: { id: 'user-1' },
+      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
+    });
+
+    await renderPricing();
+
+    const html = document.getElementById('view-pricing').innerHTML;
+    expect(html).toContain('Modo Técnico x Modo Empresa');
+    expect(html).toContain('Modo Técnico');
+    expect(html).toContain('Modo Empresa');
+    expect(html).toContain('Clientes organizados');
+    expect(html).toContain('Setores por local');
+    expect(html).toContain('Relatórios separados por cliente');
+    expect(html).toContain('Menos erro no envio');
+    expect(html).toContain('Mais profissionalismo');
+    expect(html).toContain('pricing-mode-card--empresa');
+  });
 });

@@ -35,6 +35,15 @@ describe('ClientesPaywallModal', () => {
     expect(overlay.textContent).toContain(
       'Você economiza tempo em cada visita porque encontra tudo no lugar certo.',
     );
+    expect(overlay.textContent).toContain('Modo Técnico x Modo Empresa');
+    expect(overlay.textContent).toContain('Modo Técnico');
+    expect(overlay.textContent).toContain('Modo Empresa');
+    expect(overlay.textContent).toContain('Clientes organizados');
+    expect(overlay.textContent).toContain('Setores por local');
+    expect(overlay.textContent).toContain('Histórico por cliente');
+    expect(overlay.textContent).toContain('Relatórios separados por cliente');
+    expect(overlay.textContent).toContain('Menos erro no envio');
+    expect(overlay.textContent).toContain('Mais profissionalismo');
     expect(overlay.textContent).toContain('Sem contrato • Cancele quando quiser');
     expect(overlay.textContent).toContain('Desbloquear clientes agora');
     expect(overlay.textContent).toContain('Agora não');
