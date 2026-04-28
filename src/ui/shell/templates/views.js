@@ -71,6 +71,45 @@ export function renderShellViews() {
               </article>
             </section>
 
+            <section class="dash__pair" id="dash-pro-ops-row" hidden>
+              <article class="dash__card" id="dash-critical-alerts-card">
+                <div class="dash__card-label">Alertas críticos</div>
+                <div class="dash__card-title" id="dash-critical-alerts-title">Tudo sob controle</div>
+                <div class="dash__card-sub" id="dash-critical-alerts-sub">Sem alertas críticos agora.</div>
+                <div class="dash__card-desc" id="dash-critical-alerts-list"></div>
+              </article>
+              <article class="dash__card" id="dash-risk-clients-card">
+                <div class="dash__card-label">Clientes em risco</div>
+                <div class="dash__card-title" id="dash-risk-clients-title">Clientes em dia</div>
+                <div class="dash__card-sub" id="dash-risk-clients-sub">Nenhum cliente exige atenção agora.</div>
+                <div class="dash__card-desc" id="dash-risk-clients-list"></div>
+              </article>
+            </section>
+
+            <section class="dash__section" id="dash-month-section">
+              <header class="dash__section-header">
+                <span class="dash__section-label" id="dash-month-label">Seu mês em campo</span>
+              </header>
+              <div class="dash__kpi-grid">
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Serviços no mês</div>
+                  <div class="dash__kpi-value" id="dash-month-services">0</div>
+                </article>
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Equipamentos atendidos</div>
+                  <div class="dash__kpi-value" id="dash-month-equips">0</div>
+                </article>
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Pendências</div>
+                  <div class="dash__kpi-value" id="dash-month-pending">0</div>
+                </article>
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Variação</div>
+                  <div class="dash__kpi-sub" id="dash-month-trend">Sem dados anteriores</div>
+                </article>
+              </div>
+            </section>
+
             <section class="dash__section" id="dash-critical-section" hidden>
               <header class="dash__section-header">
                 <span class="dash__section-label">A FAZER AGORA</span>
