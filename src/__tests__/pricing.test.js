@@ -121,9 +121,7 @@ describe('pricing view', () => {
     expect(html).toMatch(/Cadastro por foto \(IA\)[\s\S]*200/);
   });
 
-  it('Pro subtítulo referencia equipe/15+, não "pequena empresa"', async () => {
-    // Sincroniza com a landing (L-D). "Pequena empresa" soa vago; "equipe ou
-    // 15+ equipamentos" é concreto e casa com o break-even de mudar de Plus.
+  it('Pro subtítulo reforça operação com clientes, setores e PMOC', async () => {
     const { renderPricing } = await loadPricingModule({
       user: { id: 'user-1' },
       profile: { plan: 'pro', subscription_status: 'active', is_dev: false },
@@ -132,8 +130,9 @@ describe('pricing view', () => {
     await renderPricing();
 
     const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('Pra equipe ou 15+ equipamentos');
-    expect(html).not.toContain('Pra pequena empresa');
+    expect(html).toContain(
+      'Para quem atende vários clientes e precisa organizar operação, setores e PMOC.',
+    );
   });
 
   it('heroSubtitle do Pro não mostra emoji 🙌', async () => {
@@ -151,7 +150,7 @@ describe('pricing view', () => {
     expect(html).toContain('Obrigado por confiar no CoolTrack');
   });
 
-  it('Plus badge usa "TÉCNICO AUTÔNOMO" (sincroniza com landing)', async () => {
+  it('Plus badge usa "MELHOR P/ AUTÔNOMO"', async () => {
     const { renderPricing } = await loadPricingModule({
       user: { id: 'user-1' },
       profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
@@ -160,7 +159,7 @@ describe('pricing view', () => {
     await renderPricing();
 
     const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('TÉCNICO AUTÔNOMO');
+    expect(html).toContain('MELHOR P/ AUTÔNOMO');
     expect(html).not.toContain('INTERMEDIÁRIO');
   });
 
@@ -179,8 +178,8 @@ describe('pricing view', () => {
     expect(html).toContain('Clientes organizados');
     expect(html).toContain('Setores por local');
     expect(html).toContain('Relatórios separados por cliente');
-    expect(html).toContain('Menos erro no envio');
-    expect(html).toContain('Mais profissionalismo');
+    expect(html).toContain('PMOC formal anual');
+    expect(html).toContain('Escala com organização');
     expect(html).toContain('pricing-mode-card--empresa');
   });
 });
