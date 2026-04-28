@@ -21,6 +21,9 @@ describe('ClientesPaywallModal', () => {
     const overlay = document.getElementById('clientes-paywall-overlay');
     expect(overlay).toBeTruthy();
     expect(overlay.classList.contains('clientes-paywall-overlay')).toBe(true);
+    expect(
+      overlay.querySelector('.clientes-paywall__hero')?.getAttribute('aria-hidden'),
+    ).toBeNull();
     expect(overlay.textContent).toContain('Organize seus clientes de verdade');
     expect(overlay.textContent).toContain(
       'Sem Clientes, tudo fica misturado: você perde tempo buscando histórico e aumenta a chance de erro.',
@@ -35,6 +38,8 @@ describe('ClientesPaywallModal', () => {
     expect(overlay.textContent).toContain('Sem contrato • Cancele quando quiser');
     expect(overlay.textContent).toContain('Desbloquear clientes agora');
     expect(overlay.textContent).toContain('Agora não');
+    expect(overlay.querySelectorAll('.clientes-paywall__mockup-icon svg')).toHaveLength(3);
+    expect(overlay.querySelectorAll('.clientes-paywall__perk-icon svg')).toHaveLength(3);
   });
 
   it('CTA principal navega para pricing e CTA secundário volta para inicio', async () => {

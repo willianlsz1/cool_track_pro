@@ -2,6 +2,31 @@ import { goTo } from '../../core/router.js';
 
 const OVERLAY_ID = 'clientes-paywall-overlay';
 let _bound = false;
+const ICON_STROKE =
+  'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+
+const ICONS = {
+  cliente: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+    <path ${ICON_STROKE} d="M20 21v-2a4 4 0 0 0-4-4h-1" />
+    <path ${ICON_STROKE} d="M4 21v-2a4 4 0 0 1 4-4h1" />
+    <circle ${ICON_STROKE} cx="12" cy="8" r="4" />
+  </svg>`,
+  setor: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+    <path ${ICON_STROKE} d="M3 10.5 12 3l9 7.5" />
+    <path ${ICON_STROKE} d="M5 9.5V20h14V9.5" />
+    <path ${ICON_STROKE} d="M10 20v-5h4v5" />
+  </svg>`,
+  relatorio: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+    <path ${ICON_STROKE} d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+    <path ${ICON_STROKE} d="M14 3v5h5" />
+    <path ${ICON_STROKE} d="M9 13h6M9 17h6" />
+  </svg>`,
+  buscaCliente: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+    <circle ${ICON_STROKE} cx="10" cy="10" r="4.5" />
+    <path ${ICON_STROKE} d="m21 21-5.4-5.4" />
+    <path ${ICON_STROKE} d="M10 7.8v4.4M7.8 10h4.4" />
+  </svg>`,
+};
 
 function close() {
   document.getElementById(OVERLAY_ID)?.remove();
@@ -33,24 +58,24 @@ function bindOnce() {
 function buildMarkup() {
   return `
     <div class="clientes-paywall" role="document">
-      <section class="clientes-paywall__hero" aria-hidden="true">
+      <section class="clientes-paywall__hero">
         <span class="clientes-paywall__hero-orb clientes-paywall__hero-orb--a"></span>
         <span class="clientes-paywall__hero-orb clientes-paywall__hero-orb--b"></span>
         <span class="clientes-paywall__badge">RECURSO PRO</span>
 
         <div class="clientes-paywall__mockup">
           <article class="clientes-paywall__mockup-card">
-            <span class="clientes-paywall__mockup-icon clientes-paywall__mockup-icon--orange"></span>
+            <span class="clientes-paywall__mockup-icon clientes-paywall__mockup-icon--orange">${ICONS.cliente}</span>
             <span class="clientes-paywall__mockup-line clientes-paywall__mockup-line--lg"></span>
             <span class="clientes-paywall__mockup-line clientes-paywall__mockup-line--sm"></span>
           </article>
           <article class="clientes-paywall__mockup-card">
-            <span class="clientes-paywall__mockup-icon clientes-paywall__mockup-icon--blue"></span>
+            <span class="clientes-paywall__mockup-icon clientes-paywall__mockup-icon--blue">${ICONS.setor}</span>
             <span class="clientes-paywall__mockup-line clientes-paywall__mockup-line--lg"></span>
             <span class="clientes-paywall__mockup-line clientes-paywall__mockup-line--sm"></span>
           </article>
           <article class="clientes-paywall__mockup-card">
-            <span class="clientes-paywall__mockup-icon clientes-paywall__mockup-icon--teal"></span>
+            <span class="clientes-paywall__mockup-icon clientes-paywall__mockup-icon--teal">${ICONS.relatorio}</span>
             <span class="clientes-paywall__mockup-line clientes-paywall__mockup-line--lg"></span>
             <span class="clientes-paywall__mockup-line clientes-paywall__mockup-line--sm"></span>
           </article>
@@ -69,21 +94,21 @@ function buildMarkup() {
 
       <section class="clientes-paywall__perks" aria-label="Benefícios do recurso Clientes e setores">
         <article class="clientes-paywall__perk">
-          <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--cyan" aria-hidden="true"></span>
+          <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--cyan" aria-hidden="true">${ICONS.buscaCliente}</span>
           <div class="clientes-paywall__perk-body">
             <div class="clientes-paywall__perk-title">Ache o cliente certo em segundos</div>
           </div>
         </article>
 
         <article class="clientes-paywall__perk">
-          <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--amber" aria-hidden="true"></span>
+          <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--amber" aria-hidden="true">${ICONS.setor}</span>
           <div class="clientes-paywall__perk-body">
             <div class="clientes-paywall__perk-title">Evite confusão entre locais e setores</div>
           </div>
         </article>
 
         <article class="clientes-paywall__perk">
-          <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--teal" aria-hidden="true"></span>
+          <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--teal" aria-hidden="true">${ICONS.relatorio}</span>
           <div class="clientes-paywall__perk-body">
             <div class="clientes-paywall__perk-title">Entregue relatórios organizados por cliente</div>
           </div>
