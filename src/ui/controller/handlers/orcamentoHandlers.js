@@ -223,4 +223,18 @@ export function bindOrcamentoHandlers() {
     }
     await sendOrcamentoForSignature(orcamento);
   });
+
+  // Follow-up comercial: reenvio rápido para orçamento parado.
+  on('orc-follow-up', async (el) => {
+    const orcamento = findOrcamento(el.dataset.id);
+    if (!orcamento) {
+      Toast.error('Orçamento não encontrado.');
+      return;
+    }
+    if (orcamento.shareToken || orcamento.status === 'aguardando_assinatura') {
+      await sendOrcamentoForSignature(orcamento);
+      return;
+    }
+    await shareOrcamentoWhatsApp(orcamento);
+  });
 }
