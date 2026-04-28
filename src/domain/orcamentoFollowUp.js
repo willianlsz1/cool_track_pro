@@ -4,16 +4,28 @@ export const FOLLOW_UP_DAYS = 3;
 
 function getTime(value) {
   if (!value) return null;
-  const time = new Date(value).getTime();
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value).trim());
+  const time = dateOnly
+    ? new Date(
+        Number(dateOnly[1]),
+        Number(dateOnly[2]) - 1,
+        Number(dateOnly[3]),
+        0,
+        0,
+        0,
+        0,
+      ).getTime()
+    : new Date(value).getTime();
   return Number.isFinite(time) ? time : null;
 }
 
 export function getOrcamentoDisplayStatus(orcamento) {
   if (!orcamento || typeof orcamento !== 'object') return 'rascunho';
-  if (orcamento.status === 'aguardando_assinatura') {
-    return orcamento.visualizadoEm ? 'visualizado' : 'enviado';
+  const status = orcamento.status || 'rascunho';
+  if (orcamento.visualizadoEm && (status === 'aguardando_assinatura' || status === 'enviado')) {
+    return 'visualizado';
   }
-  return orcamento.status || 'rascunho';
+  return status;
 }
 
 export function getFollowUpMeta(orcamento, now = Date.now()) {

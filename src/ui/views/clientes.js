@@ -31,6 +31,7 @@ import { handleError, ErrorCodes } from '../../core/errors.js';
 import { goTo } from '../../core/router.js';
 import { getClienteAlert, daysUntilAlert } from '../../core/clienteAlerts.js';
 import { ClienteAlertModal } from '../components/clienteAlertModal.js';
+import { getEquipmentMaintenanceContext } from '../../domain/maintenance.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
 
 /* ─────────────────────── module state ──────────────────────────────── */
@@ -59,6 +60,7 @@ function _indexCliente(clientes, equipamentos, registros) {
   const idx = new Map();
   const equipsByCliente = new Map();
   const equipsById = new Map();
+  const regsByEquip = new Map();
   equipamentos.forEach((eq) => {
     equipsById.set(eq.id, eq);
     if (eq.clienteId) {
@@ -76,6 +78,10 @@ function _indexCliente(clientes, equipamentos, registros) {
   const startMonthMs = startOfMonth.getTime();
 
   registros.forEach((r) => {
+    if (r.equipId) {
+      if (!regsByEquip.has(r.equipId)) regsByEquip.set(r.equipId, []);
+      regsByEquip.get(r.equipId).push(r);
+    }
     if (!r.equipId) return;
     const eq = equipsById.get(r.equipId);
     if (!eq?.clienteId) return;
@@ -113,6 +119,10 @@ function _indexCliente(clientes, equipamentos, registros) {
     }
 
     const displayCity = _extractCity(c.endereco);
+    const pmocOverdueCount = equips.reduce((total, equip) => {
+      const context = getEquipmentMaintenanceContext(equip, regsByEquip.get(equip.id) || []);
+      return context.daysToNext != null && context.daysToNext < 0 ? total + 1 : total;
+    }, 0);
 
     idx.set(c.id, {
       equipsCount: equips.length,
@@ -122,6 +132,7 @@ function _indexCliente(clientes, equipamentos, registros) {
       sinceLast,
       status,
       displayCity,
+      pmocOverdueCount,
     });
   });
 
@@ -506,8 +517,18 @@ function _renderCard(cliente, data) {
   const servicesLabel = data.servicesCount;
   const lastLabel = _formatRelativeDate(data.lastServiceTs);
   const lastClass = _lastServiceClass(data.sinceLast);
-  const pmocSummary = data?.pmocSummary || {};
-  const pmoc = pmocSummary;
+  const pmoc = data.pmocSummary || {};
+  const pmocBlock =
+    data.pmocOverdueCount > 0
+      ? (() => {
+          const label = `${data.pmocOverdueCount} manutenção${data.pmocOverdueCount !== 1 ? 'es' : ''} atrasada${data.pmocOverdueCount !== 1 ? 's' : ''}`;
+          return `<div class="cli-pmoc" data-cli-action="pmoc-focus" data-id="${safeId}"
+           role="button" tabindex="0" aria-label="Abrir equipamentos com filtro PMOC do cliente ${nome}">
+           <span class="cli-pmoc__label">PMOC</span>
+           <span class="cli-pmoc__status">⚠️ ${label}</span>
+         </div>`;
+        })()
+      : '';
 
   // Alerta de retorno (se houver). Badge: cor varia por estado.
   const alert = getClienteAlert(cliente.id);
@@ -585,6 +606,7 @@ function _renderCard(cliente, data) {
           <div class="cli-stat__label">Última manutenção</div>
         </div>
       </div>
+      ${pmocBlock}
 
       <section class="cli-pmoc" aria-label="Resumo PMOC">
         <div class="cli-pmoc__head">
@@ -938,9 +960,20 @@ function _bindOnce() {
       case 'ver-serviços':
         _navigateVerServicos(id);
         break;
+      case 'pmoc-focus':
+        _navigatePmoc(id);
+        break;
       default:
         break;
     }
+  });
+
+  view.addEventListener('keydown', (event) => {
+    const target = event.target.closest?.('[data-cli-action="pmoc-focus"]');
+    if (!target || !view.contains(target)) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    _navigatePmoc(target.getAttribute('data-id'));
   });
 }
 
@@ -996,6 +1029,18 @@ function _navigateVerServicos(id) {
   const cliente = (getState().clientes || []).find((c) => c.id === id);
   if (!cliente) return;
   goTo('historico', { clienteId: id, clienteNome: cliente.nome });
+}
+
+function _navigatePmoc(id) {
+  const cliente = (getState().clientes || []).find((c) => c.id === id);
+  if (!cliente) return;
+  try {
+    goTo('equipamentos', {
+      equipCtx: { clienteId: id, clienteNome: cliente.nome, quickFilter: 'pmoc' },
+    });
+  } catch {
+    goTo('historico', { clienteId: id, clienteNome: cliente.nome });
+  }
 }
 
 /* ─────────────────────── search public api ─────────────────────────── */
