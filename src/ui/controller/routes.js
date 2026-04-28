@@ -90,7 +90,15 @@ export function registerAppRoutes() {
     if (!decision.resolved) {
       renderClientesPlanLoading();
       decision = await resolveClientesAccess();
-      if (window.location.hash !== '#clientes') return;
+      // Router é state-driven (history state), não hash-driven.
+      if (window.history?.state?.route !== 'clientes') return;
+    }
+
+    if (!decision.resolved) {
+      // Em erro de refresh mantemos loading em vez de bloquear com paywall
+      // para evitar falso negativo de acesso (especialmente para Pro).
+      renderClientesPlanLoading();
+      return;
     }
 
     if (!decision.canAccess) {
