@@ -57,9 +57,7 @@ describe('clientes view pmoc action', () => {
     document.querySelector('.cli-pmoc')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(goTo).toHaveBeenCalledWith('equipamentos', {
-      clienteId: 'c1',
-      filter: 'pmoc',
-      clienteNome: 'Cliente 1',
+      equipCtx: { clienteId: 'c1', clienteNome: 'Cliente 1', quickFilter: 'pmoc' },
     });
   });
 });
