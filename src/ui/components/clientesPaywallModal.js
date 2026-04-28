@@ -56,6 +56,21 @@ function bindOnce() {
 }
 
 function buildMarkup() {
+  const tecnicoItems = [
+    'Registrar serviço',
+    'Gerar relatório',
+    'Enviar PDF',
+    'Organizar equipamentos',
+  ];
+  const empresaItems = [
+    'Tudo do modo técnico +',
+    'Clientes organizados',
+    'Setores por local',
+    'Histórico por cliente',
+    'Relatórios separados por cliente',
+    'Menos erro no envio',
+    'Mais profissionalismo',
+  ];
   return `
     <div class="clientes-paywall" role="document">
       <section class="clientes-paywall__hero">
@@ -119,6 +134,26 @@ function buildMarkup() {
         <p>Você economiza tempo em cada visita porque encontra tudo no lugar certo.</p>
         <p>Você evita erros de cadastro e envio de relatório para cliente errado.</p>
         <p>Você passa uma imagem mais profissional em cada atendimento.</p>
+      </section>
+
+      <section class="clientes-paywall__mode-compare" aria-label="Comparação entre Modo Técnico e Modo Empresa">
+        <h4 class="clientes-paywall__mode-title">Modo Técnico x Modo Empresa</h4>
+        <div class="clientes-paywall__mode-grid">
+          <article class="clientes-paywall__mode-col clientes-paywall__mode-col--tecnico" aria-label="Modo Técnico para Free e Plus">
+            <p class="clientes-paywall__mode-kicker">Free e Plus</p>
+            <p class="clientes-paywall__mode-name">Modo Técnico</p>
+            <ul class="clientes-paywall__mode-list" role="list">
+              ${tecnicoItems.map((item) => `<li>${item}</li>`).join('')}
+            </ul>
+          </article>
+          <article class="clientes-paywall__mode-col clientes-paywall__mode-col--empresa" aria-label="Modo Empresa para Pro">
+            <p class="clientes-paywall__mode-kicker">Plano Pro</p>
+            <p class="clientes-paywall__mode-name">Modo Empresa</p>
+            <ul class="clientes-paywall__mode-list" role="list">
+              ${empresaItems.map((item) => `<li>${item}</li>`).join('')}
+            </ul>
+          </article>
+        </div>
       </section>
 
       <footer class="clientes-paywall__actions">

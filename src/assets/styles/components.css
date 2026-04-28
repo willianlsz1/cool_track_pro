@@ -19475,6 +19475,77 @@ select option {
   line-height: 1.5;
 }
 
+.clientes-paywall__mode-compare {
+  margin: 0 24px 6px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.clientes-paywall__mode-title {
+  margin: 0;
+  color: var(--text, #e8f2fa);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.clientes-paywall__mode-grid {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+.clientes-paywall__mode-col {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.clientes-paywall__mode-col--empresa {
+  border-color: rgba(232, 160, 32, 0.35);
+  background: rgba(232, 160, 32, 0.08);
+}
+
+.clientes-paywall__mode-kicker {
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3, #8aaac8);
+}
+
+.clientes-paywall__mode-col--empresa .clientes-paywall__mode-kicker {
+  color: #f5b54a;
+}
+
+.clientes-paywall__mode-name {
+  margin: 3px 0 0;
+  color: var(--text, #e8f2fa);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.clientes-paywall__mode-list {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 5px;
+  color: var(--text-2, #8aaac8);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (min-width: 700px) {
+  .clientes-paywall__mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .clientes-paywall__actions {
   display: flex;
   gap: 10px;
