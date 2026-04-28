@@ -56,6 +56,36 @@ export function buildLandingHtml() {
     'Terminou o serviço → relatório enviado em segundos',
   ];
 
+  const modeCards = [
+    {
+      title: 'Modo Técnico',
+      text: 'Execução rápida no campo: cadastro, registro e envio em minutos.',
+      bullets: ['Fluxo simples', 'PDF + WhatsApp rápido', 'Uso mobile/offline'],
+    },
+    {
+      title: 'Modo Empresa',
+      text: 'Operação organizada para crescer: clientes, setores e PMOC em um só app.',
+      bullets: ['Gestão por cliente', 'Setores e histórico', 'PMOC formal no Pro'],
+    },
+  ];
+
+  const evolutionSteps = [
+    { title: '1. Começa sozinho', text: 'Atende rápido e entrega profissional no mesmo dia.' },
+    { title: '2. Ganha recorrência', text: 'Passa a centralizar histórico por cliente.' },
+    { title: '3. Vira operação', text: 'Organiza setores e estrutura PMOC para escalar.' },
+  ];
+
+  const clientReasons = [
+    {
+      title: 'Sem clientes cadastrados',
+      text: 'Histórico espalhado, retrabalho e pouco controle da carteira.',
+    },
+    {
+      title: 'Com clientes organizados',
+      text: 'Atendimento previsível, histórico rastreável e mais chance de renovar contrato.',
+    },
+  ];
+
   const plans = [
     {
       name: 'Free',
@@ -143,6 +173,7 @@ export function buildLandingHtml() {
         </a>
         <nav class="lp-nav" aria-label="Seções da landing">
           <a href="#lp-problem-title">Problema</a>
+          <a href="#lp-modes-title">Dois modos</a>
           <a href="#lp-how-title">Como funciona</a>
           <a href="#lp-proof-title">Relatório</a>
           <a href="#lp-pricing-title">Planos</a>
@@ -154,9 +185,9 @@ export function buildLandingHtml() {
         <section class="lp-hero" aria-labelledby="lp-hero-title">
           <div class="lp-container lp-hero__inner">
             <div class="lp-hero__copy">
-              <p class="lp-kicker">Para técnico de ar-condicionado que precisa entregar rápido</p>
-              <h1 class="lp-hero__title" id="lp-hero-title">Relatórios de manutenção prontos em minutos, direto do celular.</h1>
-              <p class="lp-hero__sub">Chega de perder tempo com papel e planilha. Cadastre o equipamento, registre o serviço e envie o <strong class="lp-accent">PDF</strong> pelo <strong class="lp-accent">WhatsApp</strong> em <strong class="lp-accent">menos de 1 minuto</strong>.</p>
+              <p class="lp-kicker">Para técnico que precisa executar rápido e crescer com organização</p>
+              <h1 class="lp-hero__title" id="lp-hero-title">Atenda em minutos hoje. Organize sua operação para crescer amanhã.</h1>
+              <p class="lp-hero__sub">No mesmo app você começa no modo técnico (execução rápida) e evolui para modo empresa com <strong class="lp-accent">clientes</strong>, <strong class="lp-accent">setores</strong> e <strong class="lp-accent">PMOC</strong>.</p>
               <div class="lp-hero__ctas">
                 <button class="lp-btn lp-btn--primary lp-hero__cta" type="button" data-action="start-trial" data-source="hero">Testar no próximo serviço ${ICON_ARROW}</button>
                 <a class="lp-btn lp-btn--secondary lp-hero__cta-secondary" href="#lp-how-title">Ver como funciona</a>
@@ -174,6 +205,69 @@ export function buildLandingHtml() {
               <div class="lp-hero__ticket" aria-hidden="true">
                 <span>Tempo economizado</span><strong>~15 min</strong><small>por atendimento</small>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="lp-modes" aria-labelledby="lp-modes-title">
+          <div class="lp-container">
+            <div class="lp-section-head lp-section-head--center">
+              <p class="lp-section-label">Um app, dois modos</p>
+              <h2 id="lp-modes-title">Use como técnico hoje. Evolua para empresa quando precisar.</h2>
+            </div>
+            <div class="lp-modes__grid">
+              ${modeCards
+                .map(
+                  (mode) => `
+                <article class="lp-modes-card">
+                  <h3>${mode.title}</h3>
+                  <p>${mode.text}</p>
+                  <ul>
+                    ${mode.bullets.map((bullet) => `<li>${ICON_CHECK}<span>${bullet}</span></li>`).join('')}
+                  </ul>
+                </article>`,
+                )
+                .join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="lp-evolution" aria-labelledby="lp-evolution-title">
+          <div class="lp-container">
+            <div class="lp-section-head lp-section-head--center">
+              <p class="lp-section-label">Evolução do técnico</p>
+              <h2 id="lp-evolution-title">Começa sozinho. Cresce para empresa.</h2>
+            </div>
+            <div class="lp-evolution__steps">
+              ${evolutionSteps
+                .map(
+                  (step) => `
+                <article class="lp-evolution-step">
+                  <h3>${step.title}</h3>
+                  <p>${step.text}</p>
+                </article>`,
+                )
+                .join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="lp-clients" aria-labelledby="lp-clients-title">
+          <div class="lp-container">
+            <div class="lp-section-head">
+              <p class="lp-section-label">Por que usar clientes</p>
+              <h2 id="lp-clients-title">Organização por cliente deixa o Pro mais valioso no dia a dia.</h2>
+            </div>
+            <div class="lp-clients__grid">
+              ${clientReasons
+                .map(
+                  (item, index) => `
+                <article class="lp-clients-card${index === 0 ? ' is-problem' : ' is-benefit'}">
+                  <h3>${item.title}</h3>
+                  <p>${item.text}</p>
+                </article>`,
+                )
+                .join('')}
             </div>
           </div>
         </section>
@@ -204,6 +298,7 @@ export function buildLandingHtml() {
                 <ul class="lp-vs__labels">
                   <li><strong class="lp-vs__highlight">Menos de 1 minuto</strong>Relatório pronto antes de sair do local do serviço.</li>
                   <li><strong>PDF profissional com fotos e dados</strong>Sua logo, dados do equipamento, fotos.</li>
+                  <li><strong>Organização por cliente</strong>Atendimento e histórico centralizados para facilitar retorno e contrato.</li>
                   <li><strong>Histórico completo de cada equipamento</strong>Linha do tempo por Split, VRF ou Chiller.</li>
                 </ul>
               </div>
@@ -305,9 +400,9 @@ export function buildLandingHtml() {
         <section class="lp-final" aria-labelledby="lp-final-title">
           <div class="lp-container">
             <div class="lp-final__card">
-              <p class="lp-section-label">Próximo atendimento</p>
-              <h2 id="lp-final-title">Use no seu próximo atendimento</h2>
-              <p>Em menos de 10 minutos você já testa no campo e vê a diferença</p>
+              <p class="lp-section-label">Próxima fase</p>
+              <h2 id="lp-final-title">Comece no próximo atendimento e cresça com estrutura</h2>
+              <p>Primeiro você ganha velocidade no campo. Depois organiza clientes e escala com o Pro.</p>
               <button class="lp-btn lp-btn--primary" type="button" data-action="start-trial" data-source="final">Testar no próximo serviço ${ICON_ARROW}</button>
               <p class="lp-final__alt">Ou crie conta em 30 segundos — sem cartão</p>
               <p class="lp-final__meta"><span>● Plano gratuito para sempre</span><span>● Sem cartão de crédito</span><span>● Cancele quando quiser</span></p>

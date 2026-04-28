@@ -16,10 +16,10 @@ describe('LandingPage', () => {
     const hero = document.querySelector('.lp-hero');
     expect(hero).toBeTruthy();
     expect(hero.textContent).toContain(
-      'Relatórios de manutenção prontos em minutos, direto do celular.',
+      'Atenda em minutos hoje. Organize sua operação para crescer amanhã.',
     );
     expect(hero.textContent).toContain(
-      'Chega de perder tempo com papel e planilha. Cadastre o equipamento',
+      'No mesmo app você começa no modo técnico (execução rápida) e evolui para modo empresa',
     );
     expect(hero.querySelector('[data-action="start-trial"]')?.textContent).toContain(
       'Testar no próximo serviço',
@@ -42,8 +42,28 @@ describe('LandingPage', () => {
     expect(phone.textContent).toContain('Relatório enviado');
   });
 
-  it('renders problem, how, benefits, proof and final CTA sections', () => {
+  it('renders mode, evolution, clients, problem, how, benefits, proof and final CTA sections', () => {
     LandingPage.render({ onStartTrial: vi.fn(), onLogin: vi.fn() });
+
+    const modes = document.querySelectorAll('.lp-modes-card');
+    expect(modes).toHaveLength(2);
+    expect(document.querySelector('.lp-modes')?.textContent).toContain('Modo Técnico');
+    expect(document.querySelector('.lp-modes')?.textContent).toContain('Modo Empresa');
+
+    const evolution = document.querySelectorAll('.lp-evolution-step');
+    expect(evolution).toHaveLength(3);
+    expect(document.querySelector('.lp-evolution')?.textContent).toContain(
+      'Começa sozinho. Cresce para empresa.',
+    );
+
+    const clientReasons = document.querySelectorAll('.lp-clients-card');
+    expect(clientReasons).toHaveLength(2);
+    expect(document.querySelector('.lp-clients')?.textContent).toContain(
+      'Sem clientes cadastrados',
+    );
+    expect(document.querySelector('.lp-clients')?.textContent).toContain(
+      'Com clientes organizados',
+    );
 
     const problemCards = document.querySelectorAll('.lp-problem-card');
     expect(problemCards).toHaveLength(4);
@@ -67,9 +87,10 @@ describe('LandingPage', () => {
     expect(proof.textContent).toContain('O relatório que o cliente recebe');
     expect(proof.textContent).toContain('Não é planilha — é entrega de serviço');
     expect(document.querySelector('.lp-pdf')).toBeTruthy();
+    expect(document.querySelector('.lp-vs')?.textContent).toContain('Organização por cliente');
 
     const final = document.querySelector('.lp-final');
-    expect(final.textContent).toContain('Use no seu próximo atendimento');
+    expect(final.textContent).toContain('Comece no próximo atendimento e cresça com estrutura');
     expect(final.querySelector('[data-action="start-trial"]')?.textContent).toContain(
       'Testar no próximo serviço',
     );

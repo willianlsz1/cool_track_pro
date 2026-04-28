@@ -53,6 +53,7 @@ function normalizeOrcamentoRow(row) {
     // Fase 2: assinatura digital
     shareToken: row.share_token || null,
     shareTokenExpiresAt: row.share_token_expires_at || null,
+    visualizadoEm: row.visualizado_em || null,
     assinaturaClienteDataUrl: row.assinatura_cliente_dataurl || null,
     assinadoEm: row.assinado_em || null,
     assinadoNome: row.assinado_nome || null,
