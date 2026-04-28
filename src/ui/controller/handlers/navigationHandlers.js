@@ -110,6 +110,7 @@ export function bindNavigationHandlers() {
       // re-sync quando user trocar.
       import('../../views/equipamentos.js').then((m) => {
         m.syncComponenteVisibility?.();
+        m.applyEquipModalExperience?.({ triggerEl: el });
         const tipoEl = document.getElementById('eq-tipo');
         if (tipoEl && !tipoEl.dataset.componenteBound) {
           tipoEl.dataset.componenteBound = '1';
@@ -167,6 +168,9 @@ export function bindNavigationHandlers() {
               setorId: forcedSetorId || null,
               setorNome: setorNome || '',
             });
+            import('../../views/equipamentos.js').then((m) =>
+              m.applyEquipModalExperience?.({ triggerEl: el }),
+            );
           });
         })
         .catch(() => {

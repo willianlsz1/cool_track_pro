@@ -13,7 +13,7 @@ import { Profile } from '../../features/profile.js';
 import { getHealthClass, updateHeader } from './dashboard.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { checkPlanLimit } from '../../core/planLimits.js';
-import { goTo } from '../../core/router.js';
+import { currentRoute, goTo } from '../../core/router.js';
 import { trackEvent } from '../../core/telemetry.js';
 import {
   evaluateEquipmentHealth,
@@ -167,8 +167,19 @@ export function clearEditingState() {
   _editingEquipId = null;
   const titleEl = Utils.getEl('modal-add-eq-title');
   if (titleEl) titleEl.textContent = 'Qual equipamento você quer monitorar?';
-  const saveBtn = document.querySelector('[data-action="save-equip"]');
+  const saveBtn = document.getElementById('eq-save-primary');
   if (saveBtn) saveBtn.textContent = 'Cadastrar equipamento';
+  const primaryBtn = document.getElementById('eq-save-primary');
+  const secondaryBtn = document.getElementById('eq-save-secondary');
+  const tertiaryRow = document.getElementById('eq-save-tertiary-row');
+  const tertiaryBtn = document.getElementById('eq-save-tertiary');
+  if (primaryBtn) {
+    primaryBtn.textContent = 'Cadastrar equipamento';
+    primaryBtn.dataset.postAction = '';
+  }
+  if (secondaryBtn) secondaryBtn.style.display = 'none';
+  if (tertiaryRow) tertiaryRow.style.display = 'none';
+  if (tertiaryBtn) tertiaryBtn.textContent = '';
   const detailsPanel = Utils.getEl('eq-step-2');
   if (detailsPanel) {
     detailsPanel.style.display = '';
@@ -188,6 +199,96 @@ export function clearEditingState() {
   }
   resetNameplateMetadata();
   clearForcedEquipContext();
+}
+
+export function applyEquipModalExperience({ triggerEl = null } = {}) {
+  const titleEl = Utils.getEl('modal-add-eq-title');
+  const subtitleEl = Utils.getEl('modal-add-eq-subtitle');
+  const summaryEl = Utils.getEl('eq-context-summary-banner');
+  const primaryBtn = Utils.getEl('eq-save-primary');
+  const secondaryBtn = Utils.getEl('eq-save-secondary');
+  const tertiaryRow = Utils.getEl('eq-save-tertiary-row');
+  const tertiaryBtn = Utils.getEl('eq-save-tertiary');
+  const contextGroup = Utils.getEl('eq-context-group');
+  const operationSubhead = document.querySelector('.eq-details-subhead__label');
+  const isPro = isCachedPlanPro();
+  const triggerSetorId = triggerEl?.dataset?.setorId || '';
+  const triggerClienteId = triggerEl?.dataset?.clienteId || '';
+  const routeCtx = _getRouteEquipCtx();
+  const lockedClienteId =
+    _forcedEquipContext?.clienteId || triggerClienteId || routeCtx.clienteId || '';
+  const lockedSetorId = _forcedEquipContext?.setorId || triggerSetorId || routeCtx.sectorId || '';
+  const hasLockedCtx = Boolean(lockedClienteId || lockedSetorId);
+  const isGlobalEquipRoute = isPro && currentRoute() === 'equipamentos' && !hasLockedCtx;
+
+  if (titleEl) titleEl.textContent = 'Qual equipamento você quer monitorar?';
+  if (summaryEl) {
+    summaryEl.style.display = 'none';
+    summaryEl.innerHTML = '';
+  }
+  if (operationSubhead) {
+    operationSubhead.textContent = isPro ? 'Organização do parque' : 'Operação';
+  }
+  if (contextGroup) {
+    contextGroup.dataset.proGlobal = isGlobalEquipRoute ? '1' : '0';
+  }
+  if (!primaryBtn || !secondaryBtn || !tertiaryRow || !tertiaryBtn) return;
+
+  secondaryBtn.style.display = '';
+  tertiaryRow.style.display = '';
+
+  if (!isPro) {
+    if (subtitleEl) {
+      subtitleEl.innerHTML = 'Cadastre rápido o equipamento do atendimento.';
+    }
+    primaryBtn.textContent = 'Cadastrar equipamento';
+    primaryBtn.dataset.postAction = '';
+    secondaryBtn.textContent = 'Cadastrar e registrar serviço';
+    secondaryBtn.dataset.postAction = 'register';
+    tertiaryBtn.textContent = 'Cadastrar outro parecido';
+    tertiaryBtn.dataset.postAction = 'clone';
+    return;
+  }
+
+  if (subtitleEl) {
+    subtitleEl.innerHTML =
+      'Organize o parque do cliente por setor e mantenha PMOC/relatórios consistentes.';
+  }
+
+  if (hasLockedCtx) {
+    const clienteNome =
+      _forcedEquipContext?.clienteNome ||
+      triggerEl?.dataset?.clienteNome ||
+      document.querySelector('#eq-cliente option:checked')?.textContent ||
+      'Cliente selecionado';
+    const setorNome =
+      _forcedEquipContext?.setorNome ||
+      document.querySelector('#eq-setor option:checked')?.textContent ||
+      'Setor selecionado';
+    if (summaryEl) {
+      summaryEl.style.display = '';
+      summaryEl.innerHTML = `Cliente: <b>${Utils.escapeHtml(clienteNome)}</b> · Setor: <b>${Utils.escapeHtml(setorNome)}</b> · <button type="button" class="btn btn--ghost btn--sm" data-action="equip-unlock-context">Alterar contexto</button>`;
+    }
+    primaryBtn.textContent = 'Salvar no setor';
+    primaryBtn.dataset.postAction = '';
+    secondaryBtn.textContent = 'Cadastrar outro neste setor';
+    secondaryBtn.dataset.postAction = 'clone';
+    tertiaryBtn.textContent = 'Salvar e abrir PMOC';
+    tertiaryBtn.dataset.postAction = 'pmoc';
+    return;
+  }
+
+  if (summaryEl) {
+    summaryEl.style.display = '';
+    summaryEl.textContent =
+      'Visão global do parque: vincule cliente/setor agora ou salve sem cliente por enquanto.';
+  }
+  primaryBtn.textContent = 'Vincular a cliente/setor';
+  primaryBtn.dataset.postAction = '';
+  secondaryBtn.textContent = 'Salvar sem cliente por enquanto';
+  secondaryBtn.dataset.postAction = 'save-without-client';
+  tertiaryBtn.textContent = 'Cadastrar outro';
+  tertiaryBtn.dataset.postAction = 'clone';
 }
 
 export function clearForcedEquipContext() {
@@ -1729,8 +1830,12 @@ export async function openEditEquip(id, opts = {}) {
   // Atualiza textos do modal
   const titleEl = Utils.getEl('modal-add-eq-title');
   if (titleEl) titleEl.textContent = 'Editar equipamento';
-  const saveBtn = document.querySelector('[data-action="save-equip"]');
+  const saveBtn = document.getElementById('eq-save-primary');
   if (saveBtn) saveBtn.textContent = 'Salvar alterações →';
+  const secondaryBtn = document.getElementById('eq-save-secondary');
+  const tertiaryRow = document.getElementById('eq-save-tertiary-row');
+  if (secondaryBtn) secondaryBtn.style.display = 'none';
+  if (tertiaryRow) tertiaryRow.style.display = 'none';
 
   // Fecha o modal de detalhes e abre o de edição
   try {
@@ -1835,7 +1940,12 @@ function _focusEditField(fieldKey) {
   });
 }
 
-export async function saveEquip() {
+export async function saveEquip(options = {}) {
+  const postAction = String(options?.postAction || '').trim();
+  const keepOpen = postAction === 'clone';
+  const openRegistro = postAction === 'register';
+  const openPmoc = postAction === 'pmoc';
+  const saveWithoutClient = postAction === 'save-without-client';
   const { equipamentos } = getState();
 
   // Pula a verificação de limite quando está editando (não cria novo registro)
@@ -1885,7 +1995,9 @@ export async function saveEquip() {
 
   const setorId = _forcedEquipContext?.setorId || Utils.getVal('eq-setor') || null;
   // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
-  const clienteId = _forcedEquipContext?.clienteId || Utils.getVal('eq-cliente') || null;
+  const clienteId = saveWithoutClient
+    ? null
+    : _forcedEquipContext?.clienteId || Utils.getVal('eq-cliente') || null;
 
   // Dados da etiqueta (13 campos opcionais). Coletados em JSONB pra persistência
   // em equipamentos.dados_placa. Se nenhum foi preenchido, mantém object vazio
@@ -1983,34 +2095,44 @@ export async function saveEquip() {
 
   const wasEditing = Boolean(_editingEquipId);
 
-  try {
-    const { Modal: M } = await import('../../core/modal.js');
-    M.close('modal-add-eq');
-  } catch (error) {
-    handleError(error, {
-      code: ErrorCodes.NETWORK_ERROR,
-      message: 'Não foi possível fechar o modal de cadastro.',
-      context: { action: 'equipamentos.saveEquip.closeModal' },
-      severity: 'warning',
-    });
+  if (!keepOpen) {
+    try {
+      const { Modal: M } = await import('../../core/modal.js');
+      M.close('modal-add-eq');
+    } catch (error) {
+      handleError(error, {
+        code: ErrorCodes.NETWORK_ERROR,
+        message: 'Não foi possível fechar o modal de cadastro.',
+        context: { action: 'equipamentos.saveEquip.closeModal' },
+        severity: 'warning',
+      });
+    }
   }
 
-  Utils.clearVals('eq-nome', 'eq-tag', 'eq-local', 'eq-modelo', 'eq-periodicidade');
+  const fieldsToClear = ['eq-nome', 'eq-tag'];
+  if (!keepOpen) fieldsToClear.push('eq-local', 'eq-modelo', 'eq-periodicidade');
+  Utils.clearVals(...fieldsToClear);
   // Limpa os 12 inputs da etiqueta pra não "vazar" valor entre cadastros.
   Utils.clearVals(...DADOS_PLACA_INPUT_IDS);
-  Utils.setVal('eq-tipo', 'Split Hi-Wall');
-  Utils.setVal('eq-fluido', 'R-410A');
-  Utils.setVal('eq-componente', '');
+  if (!keepOpen) {
+    Utils.setVal('eq-tipo', 'Split Hi-Wall');
+    Utils.setVal('eq-fluido', 'R-410A');
+    Utils.setVal('eq-componente', '');
+  }
   syncComponenteVisibility();
-  Utils.setVal('eq-criticidade', 'media');
-  Utils.setVal('eq-prioridade', 'normal');
-  Utils.setVal('eq-frequencia', '60');
-  Utils.setVal('eq-periodicidade', String(getSuggestedPreventiveDays('Split Hi-Wall', 'media')));
+  if (!keepOpen) {
+    Utils.setVal('eq-criticidade', 'media');
+    Utils.setVal('eq-prioridade', 'normal');
+    Utils.setVal('eq-frequencia', '60');
+    Utils.setVal('eq-periodicidade', String(getSuggestedPreventiveDays('Split Hi-Wall', 'media')));
+  }
   const periodicidadeInput = Utils.getEl('eq-periodicidade');
   if (periodicidadeInput) periodicidadeInput.dataset.manual = '0';
 
   // Reset do estado de edição e UI do modal
-  clearEditingState();
+  if (!keepOpen) {
+    clearEditingState();
+  }
 
   OnboardingBanner.remove();
   try {
@@ -2027,6 +2149,28 @@ export async function saveEquip() {
   renderEquip();
   updateHeader();
   Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
+
+  if (keepOpen) {
+    const nomeInput = Utils.getEl('eq-nome');
+    if (nomeInput) nomeInput.focus();
+    return true;
+  }
+
+  if (openRegistro && equipId) {
+    goTo('registro', { equipId });
+  }
+
+  if (openPmoc) {
+    goTo('relatorio');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const pmocBtn = document.querySelector('[data-action="open-pmoc-modal"]');
+        if (!pmocBtn) return;
+        if (clienteId) pmocBtn.dataset.clienteId = clienteId;
+        pmocBtn.click();
+      });
+    });
+  }
 
   return true;
 }
