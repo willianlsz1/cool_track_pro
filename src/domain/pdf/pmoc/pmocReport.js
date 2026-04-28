@@ -27,6 +27,7 @@ import { drawPmocTermo } from './sections/termo.js';
 import { drawPmocAnexos } from './sections/anexos.js';
 import { stampPmocFooter } from './primitives.js';
 import { PMOC_MARGINS } from './constants.js';
+import { getPmocSummaryForCliente } from '../../../core/pmocProgress.js';
 
 const NUMBERING_KEY_PREFIX = 'cooltrack-pmoc-num';
 
@@ -112,6 +113,12 @@ export async function generatePmocPdf({
     equipamentos,
     registros,
     profile,
+    pmocSummary: getPmocSummaryForCliente({
+      clienteId: cliente?.id || null,
+      year: Number(ano),
+      equipamentos,
+      registros,
+    }),
   };
 
   // 1) Capa institucional + Resumo Executivo (4 cards) + Cliente + Prestador

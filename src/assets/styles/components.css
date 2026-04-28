@@ -18668,7 +18668,7 @@ select option {
 
 .cli-card__actions {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr auto auto;
   gap: 6px;
 }
 .cli-card__action {
@@ -18706,6 +18706,15 @@ select option {
 .cli-card__action--secondary:hover {
   background: rgba(168, 132, 255, 0.14);
   border-color: rgba(168, 132, 255, 0.3);
+}
+.cli-card__action--pmoc {
+  background: rgba(45, 212, 164, 0.08);
+  border: 1px solid rgba(45, 212, 164, 0.2);
+  color: #5fe6b3;
+}
+.cli-card__action--pmoc:hover {
+  background: rgba(45, 212, 164, 0.14);
+  border-color: rgba(45, 212, 164, 0.3);
 }
 .cli-card__action--ghost {
   background: transparent;
@@ -18759,9 +18768,12 @@ select option {
   .cli-card__action--secondary {
     grid-column: 1;
   }
+  .cli-card__action--pmoc {
+    grid-column: 1;
+  }
   .cli-card__action--options {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1 / span 3;
     padding: 8px;
     min-width: 36px;
   }
@@ -19676,6 +19688,59 @@ select option {
   background: rgba(224, 48, 64, 0.1);
   color: #f47082;
   border: 1px solid rgba(224, 48, 64, 0.26);
+}
+
+.cli-pmoc {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+.cli-pmoc__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text, #e8f2fa);
+}
+.cli-pmoc__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.cli-pmoc__chip--ok {
+  color: #5fe6b3;
+  border: 1px solid rgba(45, 212, 164, 0.26);
+  background: rgba(45, 212, 164, 0.1);
+}
+.cli-pmoc__chip--warn {
+  color: #f5b54a;
+  border: 1px solid rgba(232, 160, 32, 0.26);
+  background: rgba(232, 160, 32, 0.1);
+}
+.cli-pmoc__chip--danger {
+  color: #f47082;
+  border: 1px solid rgba(224, 48, 64, 0.26);
+  background: rgba(224, 48, 64, 0.1);
+}
+.cli-pmoc__chip--muted {
+  color: var(--text-2, #8aaac8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+.cli-pmoc__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 11px;
+  color: var(--text-3, #6a8ba8);
 }
 
 /* Dropdown menu do kebab (substitui o openCardMenu antigo que ia direto pra delete) */
