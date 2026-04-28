@@ -36,7 +36,7 @@ import {
   isCachedPlanPro,
   setCachedPlan,
 } from '../../core/plans/planCache.js';
-import { SETOR_NOME_MAX, validateSetorNome } from '../../core/setorRules.js';
+import { SETOR_NOME_MAX } from '../../core/setorRules.js';
 import { getEffectivePlan, hasProAccess } from '../../core/plans/subscriptionPlans.js';
 import {
   configureEquipContextState,
