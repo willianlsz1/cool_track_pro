@@ -33,6 +33,8 @@ import { Toast } from '../../core/toast.js';
 import { exportUserData, deleteUserAccount } from '../../features/userData.js';
 import { ProfileModal } from '../components/onboarding.js';
 import { PushOptInCard } from '../components/pushOptInCard.js';
+import { USAGE_RESOURCE_WHATSAPP_SHARE, getMonthlyUsageSnapshot } from '../../core/usageLimits.js';
+import { NAV_MODE_EMPRESA, getNavigationMode } from '../shell/navigationMode.js';
 
 const VIEW_ID = 'view-conta';
 
@@ -68,6 +70,28 @@ function _equipmentCount() {
   }
 }
 
+function _currentMonthServiceCount(registros = []) {
+  if (!Array.isArray(registros)) return 0;
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  return registros.filter((r) => {
+    const d = new Date(r?.data || '');
+    return !Number.isNaN(d.getTime()) && d.getMonth() === month && d.getFullYear() === year;
+  }).length;
+}
+
+function _resolveClienteCount(state = {}) {
+  const explicit = Array.isArray(state?.clientes) ? state.clientes.length : 0;
+  if (explicit > 0) return explicit;
+  const fromEquip = new Set(
+    (state?.equipamentos || [])
+      .map((e) => e?.clienteId)
+      .filter((id) => typeof id === 'string' && id),
+  );
+  return fromEquip.size;
+}
+
 /* ───────────────────────────── ícones ─────────────────────────────── */
 
 const ICON_CROWN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l4 4 5-7 5 7 4-4-2 12H5L3 7z"/></svg>`;
@@ -75,7 +99,6 @@ const ICON_SPARK = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" 
 const ICON_CHECK_CIRCLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>`;
 const ICON_INFO = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>`;
 const ICON_CALENDAR = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>`;
-const ICON_VERIFIED = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1l2.5 2.3 3.4-.5.7 3.3 3 1.7-1.4 3.1 1.4 3.1-3 1.7-.7 3.3-3.4-.5L12 21l-2.5-2.5-3.4.5-.7-3.3-3-1.7 1.4-3.1L2.4 7.8l3-1.7.7-3.3 3.4.5L12 1z" opacity="0.95"/><path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#0f1620" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
 const ICON_EXTERNAL = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M10 14L20 4"/><path d="M20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5"/></svg>`;
 const ICON_CHEV = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>`;
 const ICON_USER = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>`;
@@ -85,6 +108,11 @@ const ICON_LOGOUT = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"
 const ICON_TRASH = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="m6 6 1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>`;
 const ICON_MAIL = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>`;
 const ICON_SHIELD = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>`;
+const ICON_WRENCH = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-3 1.5-2-2 1.5-3z"/></svg>`;
+const ICON_TOOLS = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-3 1.5-2-2 1.5-3z"/><path d="M16 7l3-3"/><path d="M15 8l1 1"/></svg>`;
+const ICON_FILE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
+const ICON_PACKAGE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4"/><path d="M12 11v10"/></svg>`;
+const ICON_BUILDING = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h.01M9 13h.01M9 17h.01"/></svg>`;
 
 /* ─────────────────────────── plan helpers ─────────────────────────── */
 
@@ -246,26 +274,143 @@ function _renderHeroPlan({ planCode, planData, billingProfile }) {
 
 /* ─────────────────── render: identity card (avatar) ───────────────── */
 
-function _renderIdentity({ name, email, role }) {
+function _renderIdentity({ name, email, role, planCode, mode }) {
   const initials = _getInitials(name);
+  const subtitle =
+    mode === NAV_MODE_EMPRESA || planCode === PLAN_CODE_PRO
+      ? 'Operando com clientes'
+      : 'Técnico em refrigeração';
   return `
     <section class="conta-identity" aria-label="Sua identidade">
       <div class="conta-identity__avatar" aria-hidden="true">${initials}</div>
       <div class="conta-identity__info">
         <div class="conta-identity__name-row">
           <span class="conta-identity__name">${name || 'Usuário'}</span>
-          <span class="conta-identity__verified" aria-label="Conta verificada" title="Conta verificada">${ICON_VERIFIED}</span>
+          <span class="conta-hero__plan-badge conta-hero__plan-badge--inline">
+            <span class="conta-hero__plan-badge-ic" aria-hidden="true">${_planBadgeIcon(planCode)}</span>
+            ${planCode.toUpperCase()}
+          </span>
         </div>
         <div class="conta-identity__role">${role || 'Técnico em Refrigeração'}</div>
+        <div class="conta-identity__sub">${subtitle}</div>
         <div class="conta-identity__email">
           <span class="conta-identity__email-ic" aria-hidden="true">${ICON_MAIL}</span>
           <span>${email || ''}</span>
         </div>
       </div>
-      <button type="button" class="conta-identity__pub" data-conta-action="public-profile" aria-label="Ver perfil público">
-        <span>Ver perfil público</span>
+      <button type="button" class="conta-identity__pub" data-conta-action="edit-profile" aria-label="Editar perfil">
+        <span>Editar perfil</span>
         <span aria-hidden="true">${ICON_EXTERNAL}</span>
       </button>
+    </section>`;
+}
+
+function _renderUsageCard({
+  planCode,
+  serviceCount = 0,
+  equipmentCount = 0,
+  equipmentLimit = null,
+  reportsSent = null,
+  clientsCount = 0,
+  pmocStatus = '',
+}) {
+  const isPro = planCode === PLAN_CODE_PRO;
+  const reportMetric =
+    typeof reportsSent === 'number'
+      ? `<div class="conta-kpi"><strong>${reportsSent}</strong><span>Relatórios enviados</span></div>`
+      : '';
+  const clientsMetric = isPro
+    ? `<div class="conta-kpi"><strong>${clientsCount}</strong><span>Clientes ativos</span></div>`
+    : '';
+  const limitLine =
+    Number.isFinite(equipmentLimit) && !isPro
+      ? `<p class="conta-usage__hint">Limite do plano: ${equipmentLimit} equipamentos.</p>`
+      : '';
+  const pmocLine = isPro
+    ? `<p class="conta-usage__hint">${pmocStatus || 'PMOC sem dados ainda'}</p>`
+    : '';
+  return `
+    <section class="conta-usage" aria-label="Seu uso este mês">
+      <div class="conta-section__kicker">SEU USO ESTE MÊS</div>
+      <div class="conta-usage__grid">
+        <div class="conta-kpi"><strong>${serviceCount}</strong><span>Serviços</span></div>
+        ${reportMetric}
+        ${clientsMetric}
+        <div class="conta-kpi"><strong>${equipmentCount}</strong><span>Equipamentos</span></div>
+      </div>
+      ${limitLine}
+      ${pmocLine}
+    </section>`;
+}
+
+function _renderPlanCard({ planCode }) {
+  if (planCode === PLAN_CODE_PRO) {
+    return `
+      <section class="conta-plan-card" aria-label="Plano atual">
+        <div class="conta-section__kicker">PLANO ATUAL</div>
+        <h2>CoolTrack Pro</h2>
+        <p>Clientes, setores, PMOC e operação completa liberados.</p>
+        <ul>
+          <li>clientes organizados</li><li>setores por local</li><li>equipamentos ilimitados</li>
+          <li>PMOC formal</li><li>suporte prioritário</li>
+        </ul>
+        <button type="button" class="btn btn--outline btn--sm" data-conta-action="manage-plan">Gerenciar assinatura</button>
+      </section>`;
+  }
+  if (planCode === PLAN_CODE_PLUS) {
+    return `
+      <section class="conta-plan-card" aria-label="Plano atual">
+        <div class="conta-section__kicker">PLANO ATUAL</div>
+        <h2>Plano Plus</h2>
+        <p>Feito para técnico autônomo.</p>
+        <ul>
+          <li>até 15 equipamentos</li><li>relatórios profissionais</li><li>assinatura digital</li>
+          <li>IA para cadastro por foto</li><li>envio via WhatsApp</li>
+        </ul>
+        <button type="button" class="btn btn--outline btn--sm" data-conta-action="upgrade">Ver Pro</button>
+      </section>`;
+  }
+  return `
+    <section class="conta-plan-card" aria-label="Plano atual">
+      <div class="conta-section__kicker">PLANO ATUAL</div>
+      <h2>Plano Gratuito</h2>
+      <p>Você já consegue testar o fluxo básico.</p>
+      <ul>
+        <li>até 3 equipamentos</li><li>registros de serviço</li><li>relatório com marca d'água</li>
+        <li>funciona offline</li>
+      </ul>
+      <button type="button" class="btn btn--primary btn--sm" data-conta-action="upgrade">Ver planos</button>
+    </section>`;
+}
+
+function _renderQuickActions({ planCode }) {
+  const items =
+    planCode === PLAN_CODE_PRO
+      ? [
+          { icon: ICON_BUILDING, label: 'Clientes', action: 'go-clientes' },
+          { icon: ICON_TOOLS, label: 'Gerar PMOC', action: 'go-pmoc' },
+          { icon: ICON_FILE, label: 'Relatórios', action: 'go-relatorio' },
+          { icon: ICON_WRENCH, label: 'Registrar serviço', action: 'go-registro' },
+        ]
+      : [
+          { icon: ICON_WRENCH, label: 'Registrar serviço', action: 'go-registro' },
+          { icon: ICON_PACKAGE, label: 'Ver equipamentos', action: 'go-equipamentos' },
+          { icon: ICON_FILE, label: 'Ver relatórios', action: 'go-relatorio' },
+          { icon: ICON_CARD, label: 'Ver planos', action: 'upgrade' },
+        ];
+  return `<section class="conta-quick" aria-label="Ações rápidas">
+      <div class="conta-section__kicker">AÇÕES RÁPIDAS</div>
+      <div class="conta-quick__grid">
+        ${items
+          .map(
+            (
+              item,
+            ) => `<button type="button" class="conta-quick__btn" data-conta-action="${item.action}">
+              <span aria-hidden="true">${item.icon}</span><span>${item.label}</span>
+            </button>`,
+          )
+          .join('')}
+      </div>
     </section>`;
 }
 
@@ -285,7 +430,7 @@ function _renderSection({ label, rows }) {
           .map(
             (row) => `
             <button type="button" class="conta-row conta-row--${row.tone || 'neutral'}"
-              id="${row.id}" data-action="${row.action}">
+              id="${row.id}" data-conta-action="${row.action}">
               <span class="conta-row__icon conta-row__icon--${row.iconTint || 'cyan'}" aria-hidden="true">${row.icon}</span>
               <span class="conta-row__body">
                 <span class="conta-row__title">${row.title}</span>
@@ -346,6 +491,15 @@ function _renderAllSections({ planCode }) {
         title: 'Exportar meus dados',
         sub: 'Baixe seus dados e relatórios gerados no CoolTrack.',
         action: 'conta-export-data',
+        tone: 'neutral',
+      },
+      {
+        id: 'conta-row-notification',
+        icon: ICON_CHECK_CIRCLE,
+        iconTint: 'violet',
+        title: 'Notificações push',
+        sub: 'Gerencie lembretes e alertas operacionais.',
+        action: 'conta-notifications',
         tone: 'neutral',
       },
     ],
@@ -438,20 +592,41 @@ function _bindOnce() {
     switch (action) {
       case 'edit-profile':
       case 'public-profile':
+      case 'conta-edit-profile':
         ProfileModal.open();
         break;
       case 'manage-plan':
       case 'upgrade':
+      case 'conta-manage-plan':
         goTo('pricing');
         break;
+      case 'go-registro':
+        goTo('registro');
+        break;
+      case 'go-equipamentos':
+        goTo('equipamentos');
+        break;
+      case 'go-relatorio':
+        goTo('relatorio');
+        break;
+      case 'go-clientes':
+      case 'go-pmoc':
+        goTo('clientes');
+        break;
       case 'export-data':
+      case 'conta-export-data':
         await _handleExport(target);
         break;
       case 'signout':
+      case 'conta-signout':
         Auth.signOut();
         break;
       case 'delete-account':
+      case 'conta-delete-account':
         _openDeleteDialog();
+        break;
+      case 'conta-notifications':
+        Toast.info('Use o card de notificações abaixo para ajustar o push.');
         break;
       case 'open-privacy':
         goTo('privacidade');
@@ -580,17 +755,48 @@ export async function renderConta() {
   }
 
   const localProfile = Profile.get() || {};
+  const navMode = getNavigationMode();
+  const state = getState() || {};
   const planSource = billingProfile || localProfile;
   const planCode = getEffectivePlan(planSource);
   const planData = PLAN_CATALOG[planCode] || PLAN_CATALOG[PLAN_CODE_FREE];
   const name = localProfile.nome || localProfile.empresa || 'Usuário';
   const role = localProfile.cargo || 'Técnico em Refrigeração';
   const email = user?.email || localProfile.email || '';
+  const equipmentCount = Array.isArray(state?.equipamentos) ? state.equipamentos.length : 0;
+  const serviceCount = _currentMonthServiceCount(state?.registros || []);
+  const clientsCount = _resolveClienteCount(state);
+  let reportsSent;
+  try {
+    const usage = await getMonthlyUsageSnapshot(user?.id || '');
+    reportsSent =
+      typeof usage?.[USAGE_RESOURCE_WHATSAPP_SHARE] === 'number'
+        ? usage[USAGE_RESOURCE_WHATSAPP_SHARE]
+        : null;
+  } catch {
+    reportsSent = undefined;
+  }
+  const pmocStatus =
+    planCode === PLAN_CODE_PRO
+      ? clientsCount > 0
+        ? 'PMOC em acompanhamento'
+        : 'PMOC sem dados ainda'
+      : '';
 
   const html = `
     <div class="conta-page">
-      ${_renderHeroPlan({ planCode, planData, billingProfile: planSource })}
-      ${_renderIdentity({ name, email, role })}
+      ${_renderIdentity({ name, email, role, planCode, mode: navMode })}
+      ${_renderUsageCard({
+        planCode,
+        serviceCount,
+        equipmentCount,
+        equipmentLimit: planData?.limits?.equipamentos,
+        reportsSent,
+        clientsCount,
+        pmocStatus,
+      })}
+      ${_renderPlanCard({ planCode })}
+      ${_renderQuickActions({ planCode })}
       <div class="conta-sections">
         ${_renderAllSections({ planCode })}
       </div>
@@ -603,10 +809,15 @@ export async function renderConta() {
 
 // Plus-aware re-export pra possibilitar testes ou pre-carregamento.
 export const __test__ = {
-  _renderHeroPlan,
   _renderIdentity,
+  _renderUsageCard,
+  _renderPlanCard,
+  _renderQuickActions,
   _renderAllSections,
   _renderLgpdFooter,
-  _planFeatureChips,
+  _currentMonthServiceCount,
+  _resolveClienteCount,
+  PLAN_CODE_FREE,
   PLAN_CODE_PLUS,
+  PLAN_CODE_PRO,
 };
