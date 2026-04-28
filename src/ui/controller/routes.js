@@ -1,4 +1,4 @@
-import { registerRoute } from '../../core/router.js';
+import { currentRoute, registerRoute } from '../../core/router.js';
 import { renderDashboard, updateHeader } from '../views/dashboard.js';
 import { renderEquip, populateEquipSelects } from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
@@ -90,8 +90,7 @@ export function registerAppRoutes() {
     if (!decision.resolved) {
       renderClientesPlanLoading();
       decision = await resolveClientesAccess();
-      // Router é state-driven (history state), não hash-driven.
-      if (window.history?.state?.route !== 'clientes') return;
+      if (currentRoute() !== 'clientes') return;
     }
 
     if (!decision.resolved) {
