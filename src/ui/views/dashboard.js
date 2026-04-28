@@ -10,7 +10,7 @@
  */
 
 import { Utils } from '../../core/utils.js';
-import { getState, findEquip, regsForEquip } from '../../core/state.js';
+import { getState, findEquip, findSetor, regsForEquip } from '../../core/state.js';
 import { Storage } from '../../core/storage.js';
 import { Auth } from '../../core/auth.js';
 import { Alerts } from '../../domain/alerts.js';
@@ -45,6 +45,8 @@ import { getActionPriorityScore } from '../../domain/actionPriority.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { getEquipmentVisualMeta } from '../components/equipmentVisual.js';
 import { ALERT_SEVERITY_WEIGHT } from '../../domain/constants/alerts.js';
+import { buildClientePmocDetails } from '../../core/clientePmoc.js';
+import { NAV_MODE_EMPRESA, getNavigationMode } from '../shell/navigationMode.js';
 import {
   STATUS_OPERACIONAL,
   PRIORIDADE_LABEL,
@@ -88,6 +90,28 @@ function _trendTag(current, previous) {
   if (diff === 0) return { text: 'Igual ao mês passado', cls: 'neutral' };
   if (diff > 0) return { text: `+${diff} vs mês passado`, cls: 'up' };
   return { text: `-${Math.abs(diff)} vs mês passado`, cls: 'down' };
+}
+
+function _modeLabel({ isEmpresaPro }) {
+  return isEmpresaPro ? 'empresa' : 'tecnico';
+}
+
+function _resolveClienteNome(clientes = [], clienteId = null) {
+  if (!clienteId) return '';
+  return clientes.find((cliente) => cliente.id === clienteId)?.nome || '';
+}
+
+function _resolveSetorNome(equipamento = null) {
+  if (!equipamento?.setorId) return '';
+  return findSetor(equipamento.setorId)?.nome || '';
+}
+
+function _composeEquipmentContext({ equipamento, clientes, includeBusinessContext }) {
+  const equipNome = equipamento?.nome || 'Equipamento';
+  if (!includeBusinessContext) return equipNome;
+  const clienteNome = _resolveClienteNome(clientes, equipamento?.clienteId);
+  const setorNome = _resolveSetorNome(equipamento);
+  return [clienteNome, setorNome, equipNome].filter(Boolean).join(' • ');
 }
 
 // Sparkline SVG inline — gradient fill + linha com ponto final destacado
@@ -449,7 +473,7 @@ function _equipCardMini(eq) {
 // ═══════════════════════════════════════════════════════
 // Hero Status Card
 // ═══════════════════════════════════════════════════════
-function _renderHero({ tier, tone, userName, equipCount, mesCount }) {
+function _renderHero({ tier, tone, userName, equipCount, mesCount, clienteCount, isEmpresaPro }) {
   const hero = document.getElementById('dash-hero');
   const dashRoot = document.getElementById('dash');
   if (!hero || !dashRoot) return;
@@ -461,19 +485,18 @@ function _renderHero({ tier, tone, userName, equipCount, mesCount }) {
   // Greeting + datetime
   const greetingEl = document.getElementById('dash-hero-greeting');
   if (greetingEl) {
-    // Mostra o nome completo como o usuário salvou no Profile ("Guilherme
-    // Brigs" vira "Olá, Guilherme Brigs"). Quem preferir curto pode salvar
-    // só o primeiro nome — a decisão fica com o técnico, não com a lib.
-    // Os fallbacks (user_metadata do OAuth e prettifyEmail) já entregam
-    // strings higienizadas, então o trim simples basta aqui.
     const name = (userName || '').trim() || 'Técnico';
-    greetingEl.textContent = `Olá, ${name}`;
+    greetingEl.textContent = isEmpresaPro ? 'Operação em andamento' : `Olá, ${name}`;
   }
   const summaryEl = document.getElementById('dash-hero-summary');
   if (summaryEl) {
-    const equipLabel = `${equipCount} equipamento${equipCount === 1 ? '' : 's'}`;
-    const mesLabel = `${mesCount} serviço${mesCount === 1 ? '' : 's'} no mês`;
-    summaryEl.textContent = `${equipLabel} • ${mesLabel}`;
+    if (isEmpresaPro) {
+      summaryEl.textContent = `${clienteCount} clientes • ${equipCount} equipamentos • ${mesCount} serviços no mês`;
+    } else {
+      const equipLabel = `${equipCount} equipamento${equipCount === 1 ? '' : 's'}`;
+      const mesLabel = `${mesCount} serviço${mesCount === 1 ? '' : 's'} no mês`;
+      summaryEl.textContent = `${equipLabel} • ${mesLabel}`;
+    }
   }
 
   // CTA primário + secundário.
@@ -492,11 +515,19 @@ function _renderHero({ tier, tone, userName, equipCount, mesCount }) {
     ctaLabel.textContent = 'Registrar serviço';
     if (ctaSecondary) {
       ctaSecondary.hidden = false;
-      ctaSecondary.setAttribute('data-action', 'open-modal');
-      ctaSecondary.setAttribute('data-id', 'modal-add-eq');
-      ctaSecondary.removeAttribute('data-nav');
+      if (isEmpresaPro) {
+        ctaSecondary.removeAttribute('data-action');
+        ctaSecondary.removeAttribute('data-id');
+        ctaSecondary.setAttribute('data-nav', 'clientes');
+      } else {
+        ctaSecondary.setAttribute('data-action', 'open-modal');
+        ctaSecondary.setAttribute('data-id', 'modal-add-eq');
+        ctaSecondary.removeAttribute('data-nav');
+      }
       const secondaryLabel = document.getElementById('dash-hero-cta-secondary-label');
-      if (secondaryLabel) secondaryLabel.textContent = 'Cadastrar equipamento';
+      if (secondaryLabel) {
+        secondaryLabel.textContent = isEmpresaPro ? 'Ver clientes' : 'Cadastrar equipamento';
+      }
     }
   }
 }
@@ -586,22 +617,86 @@ function _renderKPIs({ equipamentos, registros, alerts }) {
 // ═══════════════════════════════════════════════════════
 // Próxima Ação + Último Serviço
 // ═══════════════════════════════════════════════════════
-function _renderNextActionCard({ alerts, equipCount }) {
-  const titleEl = document.getElementById('dash-next-title');
-  if (!titleEl) return;
+export function selectNextBestAction({ alerts, equipamentos, registros }) {
+  const pmocLate = alerts.find((alert) =>
+    String(alert?.title || '')
+      .toLowerCase()
+      .includes('pmoc'),
+  );
+  if (pmocLate) return { priority: 1, kind: 'pmoc', alert: pmocLate };
+  const critical = alerts.find((alert) => alert.kind === 'critical');
+  if (critical) return { priority: 2, kind: 'critical', alert: critical };
+  const overdue = alerts.find((alert) => alert.kind === 'overdue');
+  if (overdue) return { priority: 3, kind: 'overdue', alert: overdue };
+  const upcoming = alerts.find((alert) => alert.kind === 'upcoming');
+  if (upcoming) return { priority: 4, kind: 'upcoming', alert: upcoming };
+  if (registros.length) return { priority: 5, kind: 'last-service', registro: registros[0] };
+  if (!equipamentos.length) return { priority: 6, kind: 'empty-equip' };
+  return { priority: 6, kind: 'none' };
+}
 
-  const primary = _getMostSevereAlert(alerts);
-  if (primary) {
-    titleEl.textContent = `Atenção: ${primary.title || 'Ação recomendada'}`;
+function _renderNextActionCard({ alerts, equipamentos, registros, isEmpresaPro, clientes }) {
+  const card = document.getElementById('dash-next-action-card');
+  const titleEl = document.getElementById('dash-next-title');
+  const subEl = document.getElementById('dash-next-sub');
+  const cta = document.getElementById('dash-next-cta');
+  const ctaLabel = document.getElementById('dash-next-cta-label');
+  if (!titleEl || !subEl || !cta || !ctaLabel || !card) return;
+
+  const sortedRegs = [...(registros || [])].sort((a, b) =>
+    String(b.data).localeCompare(String(a.data)),
+  );
+  const action = selectNextBestAction({ alerts, equipamentos, registros: sortedRegs });
+  const mode = _modeLabel({ isEmpresaPro });
+
+  card.dataset.tone = action.priority <= 3 ? 'danger' : action.priority === 4 ? 'warn' : 'ok';
+  cta.removeAttribute('data-nav');
+  cta.removeAttribute('data-action');
+  cta.removeAttribute('data-id');
+
+  if (action.alert?.eq) {
+    const context = _composeEquipmentContext({
+      equipamento: action.alert.eq,
+      clientes,
+      includeBusinessContext: mode === 'empresa',
+    });
+    titleEl.textContent = action.alert.title || 'Ação recomendada';
+    subEl.textContent = `${context} • ${action.alert.subtitle || 'Exige acompanhamento'}`;
+    cta.dataset.action = 'go-register-equip';
+    cta.dataset.id = action.alert.eq.id || '';
+    ctaLabel.textContent = action.priority <= 4 ? 'Resolver agora' : 'Ver histórico';
     return;
   }
 
-  titleEl.textContent = equipCount ? 'Nenhuma ação urgente' : 'Cadastre seu primeiro equipamento';
+  if (action.kind === 'last-service' && action.registro) {
+    const equipamento = findEquip(action.registro.equipId);
+    const context = _composeEquipmentContext({
+      equipamento,
+      clientes,
+      includeBusinessContext: mode === 'empresa',
+    });
+    titleEl.textContent = 'Sem pendências urgentes';
+    subEl.textContent = `Último serviço: ${context} • ${_recencia(action.registro.data)}`;
+    cta.dataset.nav = 'historico';
+    ctaLabel.textContent = 'Ver histórico';
+    return;
+  }
+
+  titleEl.textContent =
+    action.kind === 'empty-equip' && mode === 'empresa'
+      ? 'Monte sua operação começando por cliente ou equipamento'
+      : action.kind === 'empty-equip'
+        ? 'Cadastre seu primeiro equipamento'
+        : 'Nenhuma ação urgente';
+  subEl.textContent = 'Sem pendências imediatas no momento.';
+  cta.dataset.nav = 'historico';
+  ctaLabel.textContent = 'Ver histórico';
 }
 
-function _renderLastServiceCard({ registros }) {
+function _renderLastServiceCard({ registros, isEmpresaPro, clientes }) {
   const card = document.getElementById('dash-last-service');
   const titleEl = document.getElementById('dash-last-title');
+  const subEl = document.getElementById('dash-last-sub');
   if (!card || !titleEl) return;
 
   if (!registros.length) {
@@ -611,10 +706,119 @@ function _renderLastServiceCard({ registros }) {
 
   const last = [...registros].sort((a, b) => b.data.localeCompare(a.data))[0];
   const eq = findEquip(last.equipId);
+  const clienteNome = isEmpresaPro ? _resolveClienteNome(clientes, eq?.clienteId) : '';
+  const setorNome = isEmpresaPro ? _resolveSetorNome(eq) : '';
   card.hidden = false;
-  titleEl.textContent = [last.tipo || 'Serviço', eq?.nome || '—', _recencia(last.data)]
-    .filter(Boolean)
-    .join(' • ');
+  titleEl.textContent = [last.tipo || 'Serviço', eq?.nome || '—'].filter(Boolean).join(' • ');
+  if (subEl) {
+    const context = isEmpresaPro
+      ? [clienteNome, setorNome, _recencia(last.data)].filter(Boolean).join(' • ')
+      : _recencia(last.data);
+    subEl.textContent = context;
+  }
+}
+
+function _renderMonthView({ registros, alerts, isEmpresaPro }) {
+  const label = document.getElementById('dash-month-label');
+  const servicesEl = document.getElementById('dash-month-services');
+  const equipsEl = document.getElementById('dash-month-equips');
+  const pendingEl = document.getElementById('dash-month-pending');
+  const trendEl = document.getElementById('dash-month-trend');
+  if (!label || !servicesEl || !equipsEl || !pendingEl || !trendEl) return;
+
+  const monthRegs = (registros || []).filter((registro) => _countRegistrosNoMes([registro], 0) > 0);
+  const uniqueEquips = new Set(monthRegs.map((registro) => registro.equipId).filter(Boolean));
+  const previous = _countRegistrosNoMes(registros || [], 1);
+  const trend = _trendTag(monthRegs.length, previous);
+
+  label.textContent = isEmpresaPro ? 'Visão da operação' : 'Seu mês em campo';
+  servicesEl.textContent = String(monthRegs.length);
+  equipsEl.textContent = String(uniqueEquips.size);
+  pendingEl.textContent = String(
+    (alerts || []).filter((alerta) => alerta.severity !== 'info').length,
+  );
+  trendEl.textContent = trend.text.replace(/&uarr;|&darr;/g, '').trim();
+}
+
+function _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores }) {
+  const row = document.getElementById('dash-pro-ops-row');
+  const criticalTitle = document.getElementById('dash-critical-alerts-title');
+  const criticalSub = document.getElementById('dash-critical-alerts-sub');
+  const criticalList = document.getElementById('dash-critical-alerts-list');
+  const clientsTitle = document.getElementById('dash-risk-clients-title');
+  const clientsSub = document.getElementById('dash-risk-clients-sub');
+  const clientsList = document.getElementById('dash-risk-clients-list');
+  if (
+    !row ||
+    !criticalTitle ||
+    !criticalSub ||
+    !criticalList ||
+    !clientsTitle ||
+    !clientsSub ||
+    !clientsList
+  ) {
+    return;
+  }
+
+  if (!isEmpresaPro) {
+    row.hidden = true;
+    return;
+  }
+
+  row.hidden = false;
+  const criticalAlerts = (alerts || [])
+    .filter(
+      (alert) =>
+        ['critical', 'overdue', 'attention'].includes(alert.kind) || alert.severity === 'danger',
+    )
+    .slice(0, 3);
+  if (!criticalAlerts.length) {
+    criticalTitle.textContent = 'Tudo sob controle';
+    criticalSub.textContent = 'Sem alertas críticos agora.';
+    criticalList.textContent = '';
+  } else {
+    criticalTitle.textContent = 'Alertas críticos';
+    criticalSub.textContent = `${criticalAlerts.length} itens exigem ação`;
+    criticalList.innerHTML = criticalAlerts
+      .map((alert) => {
+        const equip = alert.eq;
+        const context = _composeEquipmentContext({
+          equipamento: equip,
+          clientes,
+          includeBusinessContext: true,
+        });
+        return `<button class="dash__card-cta" data-action="go-register-equip" data-id="${Utils.escapeAttr(equip?.id || '')}">${Utils.escapeHtml(alert.title)} · ${Utils.escapeHtml(context)} · Resolver</button>`;
+      })
+      .join('');
+  }
+
+  const riscoClientes = (clientes || [])
+    .map((cliente) => {
+      const summary = buildClientePmocDetails({
+        cliente,
+        equipamentos,
+        registros,
+        setores,
+      });
+      return { cliente, summary };
+    })
+    .filter(({ summary }) => summary?.status === 'atrasado' || summary?.status === 'atencao')
+    .slice(0, 3);
+
+  if (!riscoClientes.length) {
+    clientsTitle.textContent = 'Clientes em dia';
+    clientsSub.textContent = 'Nenhum cliente exige atenção agora.';
+    clientsList.textContent = '';
+  } else {
+    clientsTitle.textContent = 'Clientes em risco';
+    clientsSub.textContent = `${riscoClientes.length} clientes exigem atenção`;
+    clientsList.innerHTML = riscoClientes
+      .map(
+        ({ cliente, summary }) =>
+          `<button class="dash__card-cta" data-nav="clientes">${Utils.escapeHtml(cliente?.nome || 'Cliente')} · ${Utils.escapeHtml(summary.statusLabel)} · Ver cliente</button>`,
+      )
+      .join('');
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -753,7 +957,7 @@ function _renderCriticosSection({ equipamentos, alerts }) {
   container.innerHTML = `<div class="dash-criticos-list">${critical.map((eq) => _equipCardMini(eq)).join('')}</div>`;
 }
 
-function _renderRecentesSection({ registros }) {
+function _renderRecentesSection({ registros, isEmpresaPro, clientes }) {
   const section = document.getElementById('dash-recentes-section');
   const container = document.getElementById('dash-recentes');
   if (!section || !container) return;
@@ -771,10 +975,15 @@ function _renderRecentesSection({ registros }) {
   container.innerHTML = `<div class="dash-recentes-grid">${recent
     .map((r) => {
       const eq = findEquip(r.equipId);
+      const clienteNome = isEmpresaPro ? _resolveClienteNome(clientes, eq?.clienteId) : '';
+      const setorNome = isEmpresaPro ? _resolveSetorNome(eq) : '';
+      const contexto = isEmpresaPro
+        ? [clienteNome, setorNome, eq?.nome || '—'].filter(Boolean).join(' • ')
+        : eq?.nome || '—';
       return `<article class="card recent-card" data-nav="historico">
         <div class="recent-card__date">${Utils.formatDatetime(r.data)}</div>
         <div class="recent-card__title">${Utils.escapeHtml(r.tipo)}</div>
-        <div class="recent-card__equip">${Utils.escapeHtml(eq?.nome ?? '—')} · ${Utils.escapeHtml(eq?.tag ?? '')}</div>
+        <div class="recent-card__equip">${Utils.escapeHtml(contexto)}${!isEmpresaPro && eq?.tag ? ` · ${Utils.escapeHtml(eq.tag)}` : ''}</div>
         <div class="recent-card__obs">${Utils.escapeHtml(Utils.truncate(r.obs, 70))}</div>
       </article>`;
     })
@@ -1062,10 +1271,11 @@ export async function renderDashboard() {
   // que o usuário nunca veja a view em branco enquanto buscamos billing.
   withSkeleton(viewInicio, { enabled: true, variant: 'generic', count: 4 }, async () => {
     const planContext = await resolveDashboardPlanContext();
-    const { equipamentos, registros } = getState();
+    const { equipamentos, registros, clientes, setores } = getState();
     const alerts = Alerts.getAll();
 
     const tier = _planTier(planContext.planCode);
+    const isEmpresaPro = planContext.hasPro && getNavigationMode() === NAV_MODE_EMPRESA;
 
     // Tier no root pra theming
     const dashRoot = document.getElementById('dash');
@@ -1089,13 +1299,17 @@ export async function renderDashboard() {
       emptyHost.hidden = false;
       emptyHost.innerHTML = emptyStateHtml({
         icon: '🔧',
-        title: 'Seu painel está pronto',
-        description:
-          'Cadastre seu primeiro equipamento em menos de 1 minuto. A foto da etiqueta preenche os principais dados.',
+        title: isEmpresaPro
+          ? 'Monte sua operação começando por cliente ou equipamento'
+          : 'Cadastre seu primeiro equipamento',
+        description: isEmpresaPro
+          ? 'Comece vinculando cliente, setor e equipamento para ter visão completa da operação.'
+          : 'Cadastre seu primeiro equipamento em menos de 1 minuto. A foto da etiqueta preenche os principais dados.',
         cta: {
-          label: '+ Cadastrar meu primeiro equipamento',
-          action: 'open-modal',
-          id: 'modal-add-eq',
+          label: isEmpresaPro ? 'Ver clientes' : '+ Cadastrar meu primeiro equipamento',
+          action: isEmpresaPro ? undefined : 'open-modal',
+          id: isEmpresaPro ? undefined : 'modal-add-eq',
+          nav: isEmpresaPro ? 'clientes' : undefined,
           tone: 'primary',
           autoWidth: true,
           centered: true,
@@ -1137,18 +1351,28 @@ export async function renderDashboard() {
       userName,
       equipCount: equipamentos.length,
       mesCount,
+      clienteCount: clientes.length,
+      isEmpresaPro,
     });
 
     _populateHeaderIdentity({ tier, userName });
 
-    _renderNextActionCard({ alerts, equipCount: equipamentos.length });
-    _renderLastServiceCard({ registros });
+    _renderNextActionCard({
+      alerts,
+      equipamentos,
+      registros,
+      isEmpresaPro,
+      clientes,
+    });
+    _renderLastServiceCard({ registros, isEmpresaPro, clientes });
+    _renderMonthView({ registros, alerts, isEmpresaPro });
+    _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
 
     // Seções secundárias
     _renderCriticalNowSection(equipamentos);
     _renderAlertsMiniSection({ alerts, planContext });
     _renderCriticosSection({ equipamentos, alerts });
-    _renderRecentesSection({ registros });
+    _renderRecentesSection({ registros, isEmpresaPro, clientes });
 
     // Plan extras: onboarding + overflow banner (Free only)
     OnboardingBanner.render({ userId: planContext.userId });
