@@ -11,6 +11,11 @@ import { Utils } from '../../core/utils.js';
 import { getState } from '../../core/state.js';
 import { Toast } from '../../core/toast.js';
 import {
+  FOLLOW_UP_DAYS,
+  getFollowUpMeta,
+  getOrcamentoDisplayStatus,
+} from '../../domain/orcamentoFollowUp.js';
+import {
   loadOrcamentos,
   deleteOrcamento,
   upsertOrcamento,
@@ -24,12 +29,7 @@ let _busca = '';
 const STATUS_META = {
   rascunho: { label: 'Rascunho', color: '#8aaac8', bg: 'rgba(255,255,255,0.06)' },
   enviado: { label: 'Enviado', color: '#51a3ff', bg: 'rgba(81,163,255,0.12)' },
-  // Fase 2: orçamento aguardando assinatura digital do cliente
-  aguardando_assinatura: {
-    label: 'Aguardando assinatura',
-    color: '#06b6d4',
-    bg: 'rgba(6,182,212,0.14)',
-  },
+  visualizado: { label: 'Visualizado', color: '#06b6d4', bg: 'rgba(6,182,212,0.14)' },
   aprovado: { label: 'Aprovado', color: '#10b981', bg: 'rgba(16,185,129,0.14)' },
   recusado: { label: 'Recusado', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
   expirado: { label: 'Expirado', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
@@ -51,6 +51,24 @@ function statusPillHtml(status) {
     <span class="orc-status-pill" style="color:${meta.color};background:${meta.bg};border:1px solid ${meta.color}33">
       ${Utils.escapeHtml(meta.label)}
     </span>`;
+}
+
+function timelineEvent(label, date, done) {
+  return `
+    <div class="orc-timeline__item${done ? ' is-done' : ''}">
+      <span class="orc-timeline__dot" aria-hidden="true"></span>
+      <span class="orc-timeline__label">${label}</span>
+      <span class="orc-timeline__date">${date ? formatDate(date) : '—'}</span>
+    </div>`;
+}
+
+function timelineHtml(o) {
+  return `
+    <div class="orc-timeline" aria-label="Linha do tempo do orçamento">
+      ${timelineEvent('Criado', o.createdAt, !!o.createdAt)}
+      ${timelineEvent('Enviado', o.enviadoEm, !!o.enviadoEm)}
+      ${timelineEvent('Assinado', o.assinadoEm, !!o.assinadoEm)}
+    </div>`;
 }
 
 function buildKpis(orcamentos) {
@@ -120,6 +138,7 @@ function renderFilters() {
     { id: 'todos', label: 'Todos' },
     { id: 'rascunho', label: 'Rascunho' },
     { id: 'enviado', label: 'Enviado' },
+    { id: 'visualizado', label: 'Visualizado' },
     { id: 'aprovado', label: 'Aprovado' },
     { id: 'recusado', label: 'Recusado' },
     { id: 'expirado', label: 'Expirado' },
@@ -150,6 +169,8 @@ function renderFilters() {
 }
 
 function renderCard(o) {
+  const displayStatus = getOrcamentoDisplayStatus(o);
+  const followUp = getFollowUpMeta(o);
   const validUntil = o.enviadoEm
     ? new Date(new Date(o.enviadoEm).getTime() + o.validadeDias * 24 * 60 * 60 * 1000)
     : null;
@@ -157,13 +178,13 @@ function renderCard(o) {
     ? `<span class="orc-card__validity">Vale até ${formatDate(validUntil.toISOString())}</span>`
     : '';
   return `
-    <article class="orc-card" data-id="${Utils.escapeAttr(o.id)}">
+    <article class="orc-card" data-id="${Utils.escapeAttr(o.id)}" data-status="${Utils.escapeAttr(displayStatus)}">
       <header class="orc-card__head">
         <div>
           <span class="orc-card__numero">${Utils.escapeHtml(o.numero)}</span>
-          ${statusPillHtml(o.status)}
+          ${statusPillHtml(displayStatus)}
         </div>
-        <div class="orc-card__total">${brl(o.total)}</div>
+        <div class="orc-card__total" aria-label="Valor total">${brl(o.total)}</div>
       </header>
       <div class="orc-card__body">
         <h3 class="orc-card__title">${Utils.escapeHtml(o.titulo || 'Sem título')}</h3>
@@ -178,6 +199,7 @@ function renderCard(o) {
           <span>Criado ${formatDate(o.createdAt)}</span>
           ${validityHtml}
         </div>
+        ${timelineHtml(o)}
         ${
           o.assinadoEm
             ? `<div class="orc-card__signed">
@@ -209,12 +231,18 @@ function renderCard(o) {
             : ''
         }
         ${
-          // WhatsApp tradicional (PDF) fica como secundário pra quem prefere
-          // o fluxo antigo. Sempre disponível.
           o.status === 'rascunho' || o.status === 'enviado' || o.status === 'aguardando_assinatura'
             ? `<button type="button" class="btn btn--outline btn--sm" data-action="orc-share"
                 data-id="${Utils.escapeAttr(o.id)}">
                 WhatsApp (PDF)
+              </button>`
+            : ''
+        }
+        ${
+          followUp.shouldShow
+            ? `<button type="button" class="btn btn--outline btn--sm" data-action="orc-follow-up"
+                data-id="${Utils.escapeAttr(o.id)}" title="Recomendado após ${FOLLOW_UP_DAYS} dias sem retorno">
+                Reenviar para cliente (${followUp.daysOpen}d)
               </button>`
             : ''
         }
@@ -254,7 +282,7 @@ function renderCard(o) {
 function applyFilters(orcamentos) {
   let list = orcamentos.slice();
   if (_statusFilter !== 'todos') {
-    list = list.filter((o) => o.status === _statusFilter);
+    list = list.filter((o) => getOrcamentoDisplayStatus(o) === _statusFilter);
   }
   if (_busca) {
     const q = _busca.toLowerCase();

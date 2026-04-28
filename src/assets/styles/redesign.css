@@ -180,6 +180,11 @@
   background: var(--ct-success-soft) !important;
   color: var(--ct-success) !important;
 }
+.orc-status-pill--visualizado,
+[data-status='visualizado'] .orc-status-pill {
+  background: rgba(34, 211, 238, 0.12) !important;
+  color: #22d3ee !important;
+}
 .orc-status-pill--rascunho,
 [data-status='rascunho'] .orc-status-pill {
   background: rgba(155, 161, 176, 0.1) !important;
@@ -246,8 +251,13 @@
   color: var(--ct-text-muted) !important;
 }
 .orc-card__total {
-  color: var(--ct-text) !important;
-  font-weight: 500 !important;
+  color: #e2f3ff !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+}
+.orc-card__validity {
+  color: var(--ct-warn) !important;
+  font-weight: 600 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
