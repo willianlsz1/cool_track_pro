@@ -1,6 +1,5 @@
 import { goTo } from '../../core/router.js';
-import { getCachedPlan } from '../../core/plans/planCache.js';
-import { PLAN_CODE_PRO } from '../../core/plans/subscriptionPlans.js';
+import { getClientesAccessSnapshot } from '../../core/plans/clientesAccess.js';
 
 export const NAV_MODE_KEY = 'cooltrack_nav_mode';
 export const NAV_MODE_RAPIDO = 'rapido';
@@ -69,7 +68,7 @@ function closePrompt() {
 }
 
 function canUseEmpresaMode() {
-  return getCachedPlan() === PLAN_CODE_PRO;
+  return getClientesAccessSnapshot().canAccess;
 }
 
 function iconBriefcase() {

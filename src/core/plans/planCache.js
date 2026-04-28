@@ -19,6 +19,7 @@ import {
 import { trackEvent } from '../telemetry.js';
 
 const LS_KEY = 'cooltrack-cached-plan';
+let _hydratedInSession = false;
 
 /**
  * Planos pagos (sinal de conversão monetária).
@@ -27,6 +28,7 @@ const PAID_PLANS = new Set([PLAN_CODE_PLUS, PLAN_CODE_PRO]);
 
 export function setCachedPlan(planCode) {
   const normalized = normalizePlanCode(planCode);
+  _hydratedInSession = true;
   try {
     // Lê o valor ANTES de sobrescrever pra detectar transições.
     // setCachedPlan roda em todo boot; queremos emitir upgrade_completed
@@ -82,6 +84,10 @@ export function getCachedPlan() {
   }
 
   return normalizePlanCode(localStorage.getItem(LS_KEY) || PLAN_CODE_FREE);
+}
+
+export function hasHydratedPlanInSession() {
+  return _hydratedInSession;
 }
 
 export function isCachedPlanPro() {
