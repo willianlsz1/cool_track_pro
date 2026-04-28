@@ -438,7 +438,7 @@ function groupRegistrosByDate(list) {
     { id: 'hoje', label: 'Hoje', items: [] },
     { id: 'ontem', label: 'Ontem', items: [] },
     { id: 'semana', label: 'Esta semana', items: [] },
-    { id: 'mês', label: 'Este mês', items: [] },
+    { id: 'mes', label: 'Este mês', items: [] },
     { id: 'antigos', label: 'Anteriores', items: [] },
   ];
   const byId = Object.fromEntries(buckets.map((b) => [b.id, b]));
@@ -1031,7 +1031,7 @@ function renderTimelineItem(
 
 /** Popula o select de setor e controla sua visibilidade. */
 function syncSetorSelect(currentSetorId) {
-  const { setores, equipamentos } = getState();
+  const { setores = [], equipamentos = [] } = getState() || {};
   const el = Utils.getEl('hist-setor');
   if (!el) return;
 
@@ -1078,7 +1078,7 @@ export function renderHist() {
   // Suporta deep linking: ?periodo=7d&setor=xyz aplica filtros direto.
   hydrateFiltersFromUrl();
 
-  const { registros, equipamentos, setores } = getState();
+  const { registros = [], equipamentos = [], setores = [] } = getState() || {};
   cleanupOrphanSignatures(registros.map((r) => r.id));
 
   syncSetorSelect();
@@ -1094,7 +1094,9 @@ export function renderHist() {
 
   // Todos os planos têm histórico completo — o filtro temporal foi removido
   // porque histórico é parte essencial do valor do produto pra técnico de campo.
-  let list = [...registros].sort((a, b) => b.data.localeCompare(a.data));
+  let list = [...registros]
+    .filter((r) => r && r.equipId && typeof r.data === 'string' && r.data.length >= 10)
+    .sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')));
 
   if (filtSetor) list = list.filter((r) => equipIdsNoSetor.has(r.equipId));
   if (filtEq) list = list.filter((r) => r.equipId === filtEq);
@@ -1113,8 +1115,8 @@ export function renderHist() {
     list = list.filter((r) => {
       const eq = findEquip(r.equipId);
       return (
-        r.obs.toLowerCase().includes(busca) ||
-        r.tipo.toLowerCase().includes(busca) ||
+        (r.obs || '').toLowerCase().includes(busca) ||
+        (r.tipo || '').toLowerCase().includes(busca) ||
         (eq?.nome || '').toLowerCase().includes(busca) ||
         (r.tecnico || '').toLowerCase().includes(busca)
       );
@@ -1391,7 +1393,7 @@ function attachFilterHandlers(container) {
     });
   }
 
-  const { registros, equipamentos } = getState();
+  const { registros = [], equipamentos = [] } = getState() || {};
 
   // Handlers vivem em múltiplos containers agora (slots fora do #timeline).
   // Usamos document.querySelectorAll pra capturar tudo — é seguro porque cada
