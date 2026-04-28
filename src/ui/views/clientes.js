@@ -618,7 +618,9 @@ function _renderCard(cliente, data) {
         </div>
         <div class="cli-pmoc__meta">
           <span>Última atualização: ${Utils.escapeHtml(pmoc.lastUpdateLabel || 'Sem atualização')}</span>
-          <span>Progresso: ${Number(pmoc.doneCount || 0)}/${Number(pmoc.plannedCount || 0)}</span>
+          <span>${Number(pmoc.doneCount || 0)} de ${Number(pmoc.plannedCount || 0)} manutenções realizadas</span>
+          <span>Próxima manutenção: ${Utils.escapeHtml(pmoc.nextMaintenanceLabel || 'Sem manutenção prevista')}</span>
+          <span>${Utils.escapeHtml(pmoc.statusHelp || 'Sem cronograma ativo para este cliente.')}</span>
         </div>
       </section>
 

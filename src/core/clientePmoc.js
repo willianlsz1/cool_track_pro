@@ -77,6 +77,14 @@ function calcPrevistosAnuais(equipamentosResumo = []) {
   }, 0);
 }
 
+function statusExplanation(status) {
+  if (status === 'em_dia') return 'Em dia: manutenções registradas dentro do prazo.';
+  if (status === 'atencao')
+    return 'Atenção: há equipamento sem registro ou sem periodicidade definida.';
+  if (status === 'atrasado') return 'Atrasado: existe equipamento com manutenção vencida.';
+  return 'Sem cronograma: cadastre equipamentos e registre o primeiro serviço.';
+}
+
 export function buildClientePmocDetails({
   cliente,
   equipamentos = [],
@@ -144,6 +152,12 @@ export function buildClientePmocDetails({
   }).length;
 
   const previstos = calcPrevistosAnuais(equipamentosResumo);
+  const equipamentosSemRegistro = equipamentosResumo.filter((item) => !item.hasRegistro).length;
+  const proximaManutencaoIso =
+    equipamentosResumo
+      .map((item) => item.proximaManutencao)
+      .filter(Boolean)
+      .sort()[0] || null;
 
   const ultimaAtualizacao = equipamentosResumo
     .map((item) => item.ultimoServico)
@@ -156,8 +170,14 @@ export function buildClientePmocDetails({
     year,
     status,
     statusLabel,
+    statusHelp: statusExplanation(status),
     equipamentosResumo,
     progresso: { feitos, previstos },
+    equipamentosSemRegistro,
+    proximaManutencaoIso,
+    proximaManutencaoLabel: proximaManutencaoIso
+      ? Utils.formatDate(proximaManutencaoIso)
+      : 'Sem manutenção prevista',
     ultimaAtualizacao,
     ultimaAtualizacaoLabel: ultimaAtualizacao
       ? Utils.formatDate(ultimaAtualizacao)

@@ -11,14 +11,34 @@
 import { numberedSectionHeader, txt } from '../primitives.js';
 import { PMOC_COLORS as PC, PMOC_TYPO as PT } from '../constants.js';
 
-const ANEXOS_PADRAO = [
-  'Relatórios de execução das manutenções',
-  'Registro fotográfico das atividades realizadas',
-  'Comprovantes de limpeza e substituição de filtros',
-  'Outros documentos pertinentes (laudos, certificados, planos)',
-];
+function getAnexosStatus(ctx) {
+  const totalRegistros = Number(ctx?.executionSummary?.totalRegistros || 0);
+  const totalComChecklist = Number(ctx?.executionSummary?.totalComChecklist || 0);
+  const totalComAssinaturaCliente = Number(ctx?.executionSummary?.totalComAssinaturaCliente || 0);
+  const hasFotos = (ctx?.executionSummary?.filteredRegistros || []).some(
+    (registro) => Array.isArray(registro?.fotos) && registro.fotos.length > 0,
+  );
+  return [
+    {
+      label: 'Relatórios de execução das manutenções',
+      checked: totalRegistros > 0,
+    },
+    {
+      label: 'Registro fotográfico das atividades realizadas',
+      checked: hasFotos,
+    },
+    {
+      label: 'Checklists PMOC preenchidos',
+      checked: totalComChecklist > 0,
+    },
+    {
+      label: 'Assinaturas do cliente nos registros',
+      checked: totalComAssinaturaCliente > 0,
+    },
+  ];
+}
 
-export function drawPmocAnexos(doc, pageWidth, pageHeight, margins, _ctx) {
+export function drawPmocAnexos(doc, pageWidth, pageHeight, margins, ctx) {
   // V2 fix: SEMPRE inicia em pagina nova. Antes estava chutando
   // `margins.top + 100` (posicao fixa) que sobrepunha o termo
   // quando este tinha bastante conteudo.
@@ -43,18 +63,19 @@ export function drawPmocAnexos(doc, pageWidth, pageHeight, margins, _ctx) {
   y += 10; // espaco extra pra acomodar wrap se necessario
 
   // Lista de anexos com checkbox + label
-  ANEXOS_PADRAO.forEach((item) => {
+  getAnexosStatus(ctx).forEach((item) => {
     // Checkbox quadrado navy
     doc.setDrawColor(...PC.navy);
     doc.setLineWidth(0.4);
     doc.rect(left, y - 3.5, 4, 4, 'S');
-    // V check
-    doc.setLineWidth(0.6);
-    doc.line(left + 0.7, y - 1.5, left + 1.7, y - 0.5);
-    doc.line(left + 1.7, y - 0.5, left + 3.3, y - 3);
+    if (item.checked) {
+      doc.setLineWidth(0.6);
+      doc.line(left + 0.7, y - 1.5, left + 1.7, y - 0.5);
+      doc.line(left + 1.7, y - 0.5, left + 3.3, y - 3);
+    }
 
     // Texto do item — afastado do checkbox pra nao colar
-    txt(doc, item, left + 7, y, {
+    txt(doc, `${item.label}${item.checked ? '' : ' (pendente)'}`, left + 7, y, {
       typo: { ...PT.body, size: 10 },
       color: PC.text,
     });

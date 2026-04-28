@@ -47,6 +47,7 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
             Documento anual conforme NBR 13971 — capa institucional, cadastro técnico,
             cronograma 12 meses e termo de responsabilidade técnica.
           </p>
+          <p class="pmoc-modal__sub">O PMOC é montado automaticamente com os serviços registrados.</p>
         </div>
         <button type="button" class="pmoc-modal__close" id="pmoc-close" aria-label="Fechar">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"

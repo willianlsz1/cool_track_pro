@@ -109,4 +109,17 @@ describe('getPmocSummaryForCliente', () => {
     expect(summary.isActive).toBe(true);
     expect(summary.doneCount).toBe(1);
   });
+
+  it('expõe próxima manutenção e explicação de status', () => {
+    const summary = getPmocSummaryForCliente({
+      clienteId: 'cli-next',
+      year: 2026,
+      equipamentos: [{ id: 'eq-next', clienteId: 'cli-next', periodicidadePreventivaDias: 30 }],
+      registros: [{ equipId: 'eq-next', data: '2026-01-10', tipo: 'Preventiva' }],
+    });
+
+    expect(summary.nextMaintenanceLabel).toMatch(/\d{2}\/\d{2}\/\d{4}/);
+    expect(typeof summary.statusHelp).toBe('string');
+    expect(summary.statusHelp.length).toBeGreaterThan(0);
+  });
 });

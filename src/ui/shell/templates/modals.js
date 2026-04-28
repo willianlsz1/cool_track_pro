@@ -307,6 +307,7 @@ export function renderShellModals() {
                 </select>
               </div>
             </div>
+            <div id="eq-context-locked-summary" class="form-hint" style="display:none" aria-live="polite"></div>
 
               <!--
                 V4: O bloco de fotos foi MOVIDO pra fora do modal de cadastro.
