@@ -152,12 +152,12 @@ export function renderShellViews() {
             </defs>
           </svg>
 
-          <!-- Hero "Organizar parque" — visível no overview (PRO com setores ou FREE/Plus). -->
+          <!-- Hero "Atenção agora" — visível quando há itens críticos/vencidos. -->
           <section class="equip-hero" id="equip-hero" aria-labelledby="equip-hero-title" hidden>
             <span class="equip-hero__orb equip-hero__orb--tl" aria-hidden="true"></span>
             <span class="equip-hero__orb equip-hero__orb--br" aria-hidden="true"></span>
             <div class="equip-hero__head">
-              <h1 class="equip-hero__title" id="equip-hero-title">Organizar parque</h1>
+              <h1 class="equip-hero__title" id="equip-hero-title">Atenção agora</h1>
               <p class="equip-hero__sub" id="equip-hero-sub"></p>
               <div class="equip-hero__cta" id="equip-hero-sem-setor-cta" hidden></div>
             </div>
@@ -168,11 +168,15 @@ export function renderShellViews() {
           <nav class="equip-filters" id="equip-filters" aria-label="Filtrar equipamentos" hidden></nav>
 
           <div class="page-toolbar">
-            <div class="section-title" id="equip-page-title">Parque de Equipamentos</div>
+            <div>
+              <div class="section-title" id="equip-page-title">Equipamentos</div>
+              <p class="section-subtitle" id="equip-page-subtitle"></p>
+            </div>
             <div id="equip-toolbar-actions" style="display:flex;gap:8px;align-items:center">
               <button class="btn btn--primary btn--sm" data-action="open-modal" data-id="modal-add-eq">+ Novo equipamento</button>
             </div>
           </div>
+          <div id="equip-context-chip"></div>
           <!--
             Wrapper flex que coloca search bar + toggle Lista/Grade na mesma
             linha. Antes o toggle estava DENTRO da .search-bar (que é só
@@ -189,7 +193,7 @@ export function renderShellViews() {
                   <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2" />
                   <path d="M9.5 9.5L12 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
                 </svg></span>
-              <input class="form-control search-bar__input" id="equip-busca" type="text" placeholder="Buscar por nome, TAG ou local..."
+              <input class="form-control search-bar__input" id="equip-busca" type="text" placeholder="Buscar equipamento, cliente, setor ou TAG..."
                 aria-label="Buscar equipamento" />
             </div>
             <div class="equip-view-toggle" role="group" aria-label="Modo de visualização">
