@@ -22573,3 +22573,116 @@ select option {
 .cliente-pmoc__footer {
   margin-top: 14px;
 }
+
+/* Serviços · Central de Operação (mobile-first) */
+.hist-op-summary {
+  margin: 10px 0 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(18, 26, 38, 0.92), rgba(10, 16, 24, 0.92));
+}
+.hist-op-summary__head {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b9d8ff;
+  margin-bottom: 8px;
+}
+.hist-op-summary__kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.hist-op-summary__kpi {
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: grid;
+  gap: 2px;
+}
+.hist-op-summary__kpi strong {
+  font-size: 18px;
+  line-height: 1;
+  color: #f2f8ff;
+}
+.hist-op-summary__kpi span {
+  font-size: 11px;
+  color: #93a8bf;
+}
+.hist-op-summary__cta {
+  margin-top: 10px;
+  width: 100%;
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: #01c286;
+  color: #062016;
+  font-weight: 700;
+}
+
+.hist-attention {
+  margin: 0 0 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 180, 90, 0.32);
+  background: rgba(255, 183, 77, 0.08);
+}
+.hist-attention__head {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffcf94;
+  margin-bottom: 8px;
+}
+.hist-attention__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(12, 18, 28, 0.85);
+  border: 1px solid rgba(255, 180, 90, 0.22);
+}
+.hist-attention__item + .hist-attention__item {
+  margin-top: 8px;
+}
+.hist-attention__item--danger {
+  border-color: rgba(255, 105, 105, 0.35);
+}
+.hist-attention__content {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.hist-attention__content strong {
+  color: #f0f6ff;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hist-attention__content span {
+  color: #a6bad0;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hist-attention__cta {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(142, 190, 255, 0.35);
+  background: rgba(26, 45, 73, 0.72);
+  color: #b9d8ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.timeline__item__context {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #91a8c1;
+}

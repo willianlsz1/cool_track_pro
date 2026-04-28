@@ -6,7 +6,7 @@ export const SavedHighlight = {
   },
   applyIfPending() {
     const id = sessionStorage.getItem(HIGHLIGHT_KEY);
-    if (!id) return;
+    if (!id) return false;
     sessionStorage.removeItem(HIGHLIGHT_KEY);
     requestAnimationFrame(() => {
       const el = Array.from(document.querySelectorAll('[data-reg-id]')).find(
@@ -17,5 +17,6 @@ export const SavedHighlight = {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => el.classList.remove('timeline__item--saved'), 3000);
     });
+    return true;
   },
 };
