@@ -264,6 +264,15 @@ async function bootstrap() {
     setCurrentUser(user?.id || 'anon');
 
     if (!user) {
+      // Race de hidratação pós-login:
+      // onAuthStateChange pode já ter entrado no app (_appInitialized=true)
+      // enquanto getSessionUser() ainda retorna null (aba recém-redirecionada
+      // do OAuth, restauração lenta de storage, etc). Nesse caso NÃO devemos
+      // renderizar Landing por cima da sessão válida.
+      if (_appInitialized) {
+        _setAuthLoading(false);
+        return;
+      }
       // Sem usuário autenticado → landing page.
       // Code-split: carrega landingPage (JS + CSS ~48KB) só pra quem não tá logado.
       const { LandingPage } = await import('./ui/components/landingPage.js');
