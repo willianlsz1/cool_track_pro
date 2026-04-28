@@ -148,6 +148,16 @@ export function drawPmocSchedule(doc, pageWidth, pageHeight, margins, ctx) {
 
   y = numberedSectionHeader(doc, left, y, innerW, 3, `Cronograma anual de manutenção (${ano})`);
   y += 2;
+  const realizados = Number(ctx?.executionSummary?.totalRegistros || 0);
+  const realizadosComChecklist = Number(ctx?.executionSummary?.totalComChecklist || 0);
+  txt(
+    doc,
+    `Planejado x realizado: use "P" para atividades previstas e "R/C/L" somente quando houver registro real. Registros com checklist: ${realizadosComChecklist}/${realizados}.`,
+    left,
+    y + 2,
+    { typo: { font: 'helvetica', size: 7.3 }, color: PC.text2, maxWidth: innerW },
+  );
+  y += 8;
 
   // Filtra equipamentos do cliente; ordena por TAG/nome.
   const filtered = (

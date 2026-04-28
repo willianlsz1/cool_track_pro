@@ -613,7 +613,7 @@ export function renderShellViews() {
                 </span>
                 <div class="registro-details__titles">
                   <div class="registro-details__title">
-                    Checklist NBR 13971
+                    Checklist PMOC preenchível (NBR 13971)
                     <span class="registro-details__pri" id="r-checklist-pri" hidden>Recomendado p/ PMOC</span>
                   </div>
                   <div class="registro-details__subtitle" id="r-checklist-summary">selecione o equipamento primeiro</div>

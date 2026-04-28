@@ -68,6 +68,8 @@ function brTodayLong() {
 
 export function drawPmocTermo(doc, pageWidth, pageHeight, margins, ctx) {
   const { profile } = ctx;
+  const totalAssinaturasCliente = Number(ctx?.executionSummary?.totalComAssinaturaCliente || 0);
+  const clienteAssinaturaNome = String(ctx?.executionSummary?.clienteAssinaturaNome || '').trim();
   doc.addPage();
 
   const left = margins.left;
@@ -141,18 +143,24 @@ export function drawPmocTermo(doc, pageWidth, pageHeight, margins, ctx) {
     name: profile?.responsavel_tecnico || profile?.nome || 'Responsável Técnico',
     role: 'Responsável Técnico',
     subtitle:
-      profile?.crea_cft || profile?.crea
-        ? `CREA/CFT ${profile.crea_cft || profile.crea}`
-        : profile?.art_rrt
-          ? `ART/RRT ${profile.art_rrt}`
-          : '',
+      totalAssinaturasCliente > 0
+        ? `Registros com assinatura do cliente: ${totalAssinaturasCliente}`
+        : profile?.crea_cft || profile?.crea
+          ? `CREA/CFT ${profile.crea_cft || profile.crea}`
+          : profile?.art_rrt
+            ? `ART/RRT ${profile.art_rrt}`
+            : '',
   });
 
   drawSignatureBlock(doc, left + sigW + sigGap, sigYStart, sigW, {
     label: 'Assinatura do cliente',
-    name: '',
+    name:
+      totalAssinaturasCliente > 0 ? clienteAssinaturaNome || 'Assinatura coletada em registro' : '',
     role: '',
-    subtitle: 'Data: ___ / ___ / ______',
+    subtitle:
+      totalAssinaturasCliente > 0
+        ? `${totalAssinaturasCliente} registro${totalAssinaturasCliente > 1 ? 's' : ''} com assinatura`
+        : 'Data: ___ / ___ / ______',
   });
   // Rodape legal
   const footY = pageHeight - margins.bottom - 8;

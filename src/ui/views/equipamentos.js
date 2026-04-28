@@ -114,6 +114,7 @@ let _renderEquipPlanToken = 0;
 let _renderEquipPlanNeedsRefresh = true;
 let _renderEquipPlanEventsBound = false;
 let _renderEquipPlanRefreshPromise = null;
+let _forcedEquipContext = null;
 
 function _bindRenderEquipPlanInvalidationEvents() {
   if (_renderEquipPlanEventsBound || typeof window === 'undefined') return;
@@ -186,6 +187,72 @@ export function clearEditingState() {
     /* review UI ainda não renderizada */
   }
   resetNameplateMetadata();
+  clearForcedEquipContext();
+}
+
+export function clearForcedEquipContext() {
+  _forcedEquipContext = null;
+  const setorTrigger = document.getElementById('eq-setor-trigger');
+  const clienteTrigger = document.getElementById('eq-cliente-trigger');
+  const createClienteBtn = document.querySelector(
+    '#eq-cliente-wrapper .eq-context-card__create-link',
+  );
+  const lockedSummary = document.getElementById('eq-context-locked-summary');
+  if (setorTrigger) setorTrigger.disabled = false;
+  if (clienteTrigger) clienteTrigger.disabled = false;
+  if (createClienteBtn) createClienteBtn.style.display = '';
+  if (lockedSummary) {
+    lockedSummary.style.display = 'none';
+    lockedSummary.textContent = '';
+  }
+}
+
+export function lockEquipContext({
+  clienteId = null,
+  clienteNome = '',
+  setorId = null,
+  setorNome = '',
+} = {}) {
+  _forcedEquipContext =
+    clienteId || setorId
+      ? {
+          clienteId: clienteId || null,
+          clienteNome: clienteNome || '',
+          setorId: setorId || null,
+          setorNome: setorNome || '',
+        }
+      : null;
+
+  const setorTrigger = document.getElementById('eq-setor-trigger');
+  const clienteTrigger = document.getElementById('eq-cliente-trigger');
+  const createClienteBtn = document.querySelector(
+    '#eq-cliente-wrapper .eq-context-card__create-link',
+  );
+  const lockedSummary = document.getElementById('eq-context-locked-summary');
+
+  if (!_forcedEquipContext) {
+    clearForcedEquipContext();
+    return;
+  }
+
+  if (_forcedEquipContext.clienteId) {
+    Utils.setVal('eq-cliente', _forcedEquipContext.clienteId);
+    document.getElementById('eq-cliente')?.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (_forcedEquipContext.setorId) {
+    Utils.setVal('eq-setor', _forcedEquipContext.setorId);
+    document.getElementById('eq-setor')?.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  if (setorTrigger && _forcedEquipContext.setorId) setorTrigger.disabled = true;
+  if (clienteTrigger && _forcedEquipContext.clienteId) clienteTrigger.disabled = true;
+  if (createClienteBtn && _forcedEquipContext.clienteId) createClienteBtn.style.display = 'none';
+  if (lockedSummary) {
+    const cliente = _forcedEquipContext.clienteNome || 'Cliente definido no contexto';
+    const setor = _forcedEquipContext.setorNome || 'Setor definido no contexto';
+    lockedSummary.style.display = '';
+    lockedSummary.textContent = `Contexto travado: Cliente ${cliente} / Setor ${setor}.`;
+  }
 }
 
 /**
@@ -1804,9 +1871,9 @@ export async function saveEquip() {
     criticidade,
   );
 
-  const setorId = Utils.getVal('eq-setor') || null;
+  const setorId = _forcedEquipContext?.setorId || Utils.getVal('eq-setor') || null;
   // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
-  const clienteId = Utils.getVal('eq-cliente') || null;
+  const clienteId = _forcedEquipContext?.clienteId || Utils.getVal('eq-cliente') || null;
 
   // Dados da etiqueta (13 campos opcionais). Coletados em JSONB pra persistência
   // em equipamentos.dados_placa. Se nenhum foi preenchido, mantém object vazio

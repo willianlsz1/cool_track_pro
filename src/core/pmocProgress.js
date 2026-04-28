@@ -38,6 +38,44 @@ function getRegistroEquipId(registro) {
   return registro?.equipId ?? registro?.equip_id ?? null;
 }
 
+function toIsoDate(value) {
+  const raw = value ? String(value).slice(0, 10) : '';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  return raw;
+}
+
+function addDaysIso(isoDate, days) {
+  if (!isoDate || !Number.isFinite(days) || days <= 0) return null;
+  const base = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(base.getTime())) return null;
+  base.setDate(base.getDate() + days);
+  const y = base.getFullYear();
+  const m = String(base.getMonth() + 1).padStart(2, '0');
+  const d = String(base.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function computeNextMaintenanceIso(equips = [], registros = []) {
+  const regsByEquip = new Map();
+  (registros || []).forEach((r) => {
+    const equipId = getRegistroEquipId(r);
+    const iso = toIsoDate(r?.proxima) || toIsoDate(r?.data);
+    if (!equipId || !iso) return;
+    const previous = regsByEquip.get(equipId);
+    if (!previous || previous < iso) regsByEquip.set(equipId, iso);
+  });
+
+  let nearest = null;
+  (equips || []).forEach((eq) => {
+    const periodicidade = Number(eq?.periodicidadePreventivaDias);
+    const lastRef = regsByEquip.get(eq.id) || null;
+    const next = toIsoDate(eq?.proxima) || (lastRef ? addDaysIso(lastRef, periodicidade) : null);
+    if (!next) return;
+    if (!nearest || next < nearest) nearest = next;
+  });
+  return nearest;
+}
+
 function isPmocExecutionType(tipo) {
   const normalized = String(tipo || '')
     .trim()
@@ -72,6 +110,9 @@ export function getPmocSummaryForCliente({
       activeLabel: `PMOC ${safeYear} inativo`,
       lastUpdateIso: null,
       lastUpdateLabel: 'Sem atualização',
+      nextMaintenanceIso: null,
+      nextMaintenanceLabel: 'Sem manutenção prevista',
+      statusHelp: 'Cadastre equipamentos e registre serviços para iniciar o PMOC.',
     };
   }
 
@@ -118,6 +159,18 @@ export function getPmocSummaryForCliente({
   const lastUpdateLabel = lastUpdateTs
     ? new Date(lastUpdateTs).toLocaleDateString('pt-BR')
     : 'Sem atualização';
+  const nextMaintenanceIso = computeNextMaintenanceIso(equips, registros);
+  const nextMaintenanceLabel = nextMaintenanceIso
+    ? new Date(`${nextMaintenanceIso}T00:00:00`).toLocaleDateString('pt-BR')
+    : 'Sem manutenção prevista';
+  const statusHelp =
+    status === 'em_dia'
+      ? 'Em dia: manutenções realizadas no ritmo esperado.'
+      : status === 'atencao'
+        ? 'Atenção: existem manutenções pendentes para o período atual.'
+        : status === 'atrasado'
+          ? 'Atrasado: cronograma abaixo do esperado para o ano.'
+          : 'Sem cronograma ativo para este cliente.';
 
   const isActive = equips.length > 0;
   return {
@@ -132,5 +185,8 @@ export function getPmocSummaryForCliente({
     activeLabel: `PMOC ${safeYear} ${isActive ? 'ativo' : 'inativo'}`,
     lastUpdateIso,
     lastUpdateLabel,
+    nextMaintenanceIso,
+    nextMaintenanceLabel,
+    statusHelp,
   };
 }

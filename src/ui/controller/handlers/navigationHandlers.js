@@ -10,8 +10,10 @@ import { OnboardingChecklist } from '../../components/onboarding/onboardingCheck
 import { AuthScreen } from '../../components/authscreen.js';
 import {
   clearEditingState as clearEquipEditingState,
+  clearForcedEquipContext,
   clearSetorEditingState,
   clearEquipPhotosEditingState,
+  lockEquipContext,
 } from '../../views/equipamentos.js';
 import {
   applyNameplateCtaGate,
@@ -102,6 +104,7 @@ export function bindNavigationHandlers() {
     // Ao abrir o modal de equipamento via "+ Novo", garante que não estamos em modo edição
     if (id === 'modal-add-eq') {
       clearEquipEditingState();
+      clearForcedEquipContext();
       // Sync visibilidade do select de componente (evap/cond) baseado no
       // tipo atual. Também bind one-time do change listener no tipo pra
       // re-sync quando user trocar.
@@ -145,6 +148,26 @@ export function bindNavigationHandlers() {
               clienteSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
           }
+          return import('../../views/equipamentos/contextState.js').then((ctxModule) => {
+            const routeCtx = ctxModule.getRouteEquipCtx?.() || {};
+            const forcedClienteId = clienteId || routeCtx.clienteId || '';
+            const forcedSetorId = setorId || routeCtx.sectorId || '';
+            if (!forcedClienteId && !forcedSetorId) return;
+            const clienteNome =
+              el.dataset.clienteNome ||
+              routeCtx.clienteNome ||
+              document.querySelector('#eq-cliente option:checked')?.textContent ||
+              '';
+            const setorNome =
+              document.querySelector('#eq-setor option:checked')?.textContent ||
+              (forcedSetorId ? 'Setor selecionado' : '');
+            lockEquipContext({
+              clienteId: forcedClienteId || null,
+              clienteNome: clienteNome || '',
+              setorId: forcedSetorId || null,
+              setorNome: setorNome || '',
+            });
+          });
         })
         .catch(() => {
           /* no-op: campo cliente é opcional */

@@ -74,12 +74,16 @@ function buildHtml(summary) {
       </header>
       <section class="cliente-pmoc__now">
         <strong>O que precisa ser feito agora</strong>
+        <p>O PMOC é montado automaticamente com os serviços registrados.</p>
         <p>${Utils.escapeHtml(needsActionText(summary))}</p>
       </section>
       <section class="cliente-pmoc__summary">
         <span>Ano PMOC: <strong>${summary.year}</strong></span>
         <span>Status geral: <strong class="cliente-pmoc__status ${statusClass(summary.status)}">${Utils.escapeHtml(summary.statusLabel)}</strong></span>
-        <span>Progresso: <strong>${summary.progresso.feitos}/${summary.progresso.previstos}</strong></span>
+        <span>${Utils.escapeHtml(summary.statusHelp || '')}</span>
+        <span>Realizadas: <strong>${summary.progresso.feitos} de ${summary.progresso.previstos}</strong></span>
+        <span>Próxima manutenção: <strong>${Utils.escapeHtml(summary.proximaManutencaoLabel || 'Sem manutenção prevista')}</strong></span>
+        <span>Equipamentos sem registro: <strong>${summary.equipamentosSemRegistro || 0}</strong></span>
         <span>Última atualização: <strong>${Utils.escapeHtml(summary.ultimaAtualizacaoLabel)}</strong></span>
       </section>
       <section class="cliente-pmoc__list" aria-label="Lista de equipamentos PMOC">

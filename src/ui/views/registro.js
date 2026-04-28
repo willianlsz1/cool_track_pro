@@ -417,8 +417,15 @@ function _updateChecklistSummary() {
     summaryEl.textContent = 'sem template para esse tipo';
     return;
   }
+  const equip = findEquip(Utils.getVal('r-equip'));
+  const periodicidade = Number(equip?.periodicidadePreventivaDias);
+  const periodicidadeLabel =
+    Number.isFinite(periodicidade) && periodicidade > 0
+      ? `${periodicidade} dias`
+      : 'periodicidade não definida';
+  const tipoServico = Utils.getVal('r-tipo') || 'Serviço';
   const filled = s.ok + s.fail + s.na;
-  summaryEl.textContent = `${filled}/${s.total} itens · ${s.ok} OK · ${s.fail} falha · ${s.na} N/A`;
+  summaryEl.textContent = `${tipoServico} · ${periodicidadeLabel} · ${filled}/${s.total} itens preenchidos`;
 }
 
 function _refreshChecklistPriBadge() {
