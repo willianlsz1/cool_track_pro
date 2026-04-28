@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const getState = vi.fn();
-const goTo = vi.fn();
+const openPmocPanel = vi.fn();
 
 vi.mock('../core/state.js', () => ({ getState }));
-vi.mock('../core/router.js', () => ({ goTo }));
+vi.mock('../core/router.js', () => ({ goTo: vi.fn() }));
 vi.mock('../core/clientes.js', () => ({
   loadClientes: vi.fn().mockResolvedValue([]),
   deleteCliente: vi.fn(),
@@ -21,6 +21,9 @@ vi.mock('../core/clienteAlerts.js', () => ({
   daysUntilAlert: vi.fn().mockReturnValue(null),
 }));
 vi.mock('../ui/components/clienteAlertModal.js', () => ({ ClienteAlertModal: { open: vi.fn() } }));
+vi.mock('../ui/components/clientePmocPanel.js', () => ({
+  ClientePmocPanel: { open: openPmocPanel },
+}));
 vi.mock('../domain/maintenance.js', () => ({
   getEquipmentMaintenanceContext: vi.fn(() => ({ daysToNext: -5 })),
 }));
@@ -37,29 +40,32 @@ describe('clientes view pmoc action', () => {
         { id: 'e1', clienteId: 'c1', nome: 'Split 1', tipo: 'Split Hi-Wall', status: 'ok' },
       ],
       registros: [{ id: 'r1', equipId: 'e1', data: '2025-01-01', tipo: 'preventiva' }],
+      setores: [],
     });
   });
 
-  it('renderiza bloco PMOC acionável com copy de manutenções atrasadas', async () => {
+  it('renderiza resumo PMOC como área clicável no card do cliente', async () => {
     const { renderClientes } = await import('../ui/views/clientes.js');
     await renderClientes();
 
-    const pmoc = document.querySelector('.cli-pmoc');
+    const pmoc = document.querySelector('[data-cli-action="open-pmoc-panel"]');
     expect(pmoc).toBeTruthy();
-    expect(pmoc?.getAttribute('role')).toBe('button');
-    expect(pmoc?.textContent).toContain('⚠️ 1 manutenção atrasada');
+    expect(pmoc?.textContent).toContain('PMOC');
   });
 
-  it('navega para equipamentos com filtro pmoc ao clicar no bloco', async () => {
+  it('abre painel PMOC do cliente ao clicar no resumo PMOC', async () => {
     const { renderClientes } = await import('../ui/views/clientes.js');
     await renderClientes();
 
-    document.querySelector('.cli-pmoc')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    document
+      .querySelector('[data-cli-action="open-pmoc-panel"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-    expect(goTo).toHaveBeenCalledWith('equipamentos', {
-      clienteId: 'c1',
-      filter: 'pmoc',
-      clienteNome: 'Cliente 1',
+    expect(openPmocPanel).toHaveBeenCalledWith({
+      cliente: expect.objectContaining({ id: 'c1', nome: 'Cliente 1' }),
+      equipamentos: expect.any(Array),
+      registros: expect.any(Array),
+      setores: expect.any(Array),
     });
   });
 });

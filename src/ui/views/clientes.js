@@ -33,6 +33,7 @@ import { getClienteAlert, daysUntilAlert } from '../../core/clienteAlerts.js';
 import { ClienteAlertModal } from '../components/clienteAlertModal.js';
 import { getEquipmentMaintenanceContext } from '../../domain/maintenance.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
+import { ClientePmocPanel } from '../components/clientePmocPanel.js';
 
 /* ─────────────────────── module state ──────────────────────────────── */
 
@@ -608,7 +609,7 @@ function _renderCard(cliente, data) {
       </div>
       ${pmocBlock}
 
-      <section class="cli-pmoc" aria-label="Resumo PMOC">
+      <section class="cli-pmoc" aria-label="Resumo PMOC" role="button" tabindex="0" data-cli-action="open-pmoc-panel" data-id="${safeId}">
         <div class="cli-pmoc__head">
           <strong>${Utils.escapeHtml(pmoc.activeLabel || 'PMOC inativo')}</strong>
           <span class="cli-pmoc__chip ${_pmocStatusClass(pmoc.status)}">
@@ -631,7 +632,7 @@ function _renderCard(cliente, data) {
           ${ICON_CLOCK_SM}<span>Ver serviços</span>
         </button>
         <button type="button" class="cli-card__action cli-card__action--pmoc"
-          data-action="open-pmoc-modal" data-cliente-id="${safeId}">
+          data-cli-action="open-pmoc-panel" data-id="${safeId}">
           ${ICON_FILE}<span>PMOC</span>
         </button>
         <button type="button" class="cli-card__action cli-card__action--ghost cli-card__action--options"
@@ -961,7 +962,8 @@ function _bindOnce() {
         _navigateVerServicos(id);
         break;
       case 'pmoc-focus':
-        _navigatePmoc(id);
+      case 'open-pmoc-panel':
+        _openPmocPanel(id);
         break;
       default:
         break;
@@ -969,11 +971,13 @@ function _bindOnce() {
   });
 
   view.addEventListener('keydown', (event) => {
-    const target = event.target.closest?.('[data-cli-action="pmoc-focus"]');
+    const target = event.target.closest?.(
+      '[data-cli-action="pmoc-focus"], [data-cli-action="open-pmoc-panel"]',
+    );
     if (!target || !view.contains(target)) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
-    _navigatePmoc(target.getAttribute('data-id'));
+    _openPmocPanel(target.getAttribute('data-id'));
   });
 }
 
@@ -1031,14 +1035,11 @@ function _navigateVerServicos(id) {
   goTo('historico', { clienteId: id, clienteNome: cliente.nome });
 }
 
-function _navigatePmoc(id) {
-  const cliente = (getState().clientes || []).find((c) => c.id === id);
+function _openPmocPanel(id) {
+  const { clientes = [], equipamentos = [], registros = [], setores = [] } = getState();
+  const cliente = clientes.find((c) => c.id === id);
   if (!cliente) return;
-  try {
-    goTo('equipamentos', { clienteId: id, filter: 'pmoc', clienteNome: cliente.nome });
-  } catch {
-    goTo('historico', { clienteId: id, clienteNome: cliente.nome });
-  }
+  ClientePmocPanel.open({ cliente, equipamentos, registros, setores });
 }
 
 /* ─────────────────────── search public api ─────────────────────────── */

@@ -22473,3 +22473,103 @@ select option {
   color: var(--text-3);
   font-size: 13px;
 }
+
+/* ── Cliente PMOC panel (fluxo rápido no card do cliente) ───────────── */
+.cliente-pmoc-overlay {
+  align-items: flex-end;
+}
+
+.cliente-pmoc {
+  width: min(860px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+  border-radius: 16px 16px 0 0;
+  padding: 16px;
+}
+
+.cliente-pmoc__head,
+.cliente-pmoc__summary,
+.cliente-pmoc__equip-head,
+.cliente-pmoc__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cliente-pmoc__head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.cliente-pmoc__close {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.cliente-pmoc__now {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.cliente-pmoc__summary {
+  flex-wrap: wrap;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.cliente-pmoc__status--ok,
+.cliente-pmoc__equip-status--ok {
+  color: #0f766e;
+}
+
+.cliente-pmoc__status--warn,
+.cliente-pmoc__equip-status--warn {
+  color: #a16207;
+}
+
+.cliente-pmoc__status--danger,
+.cliente-pmoc__equip-status--danger {
+  color: #b91c1c;
+}
+
+.cliente-pmoc__status--muted {
+  color: var(--muted);
+}
+
+.cliente-pmoc__list {
+  display: grid;
+  gap: 10px;
+}
+
+.cliente-pmoc__equip {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.cliente-pmoc__equip-meta {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.cliente-pmoc__cta {
+  margin-top: 10px;
+  border: 1px solid #1d4ed8;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.cliente-pmoc__footer {
+  margin-top: 14px;
+}
