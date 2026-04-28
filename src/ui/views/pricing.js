@@ -47,21 +47,17 @@ const ICON_X = `<svg class="pricing-features__icon pricing-features__icon--no" w
 const FREE_FEATURES = [
   'Até 3 equipamentos cadastrados',
   'Registros de serviço ilimitados',
-  'Histórico completo do equipamento',
   "Relatórios com marca d'água",
   '5 envios via WhatsApp/mês',
-  'Cadastro por foto (IA): 1 análise/mês',
-  'Fotos nos registros de serviço',
-  'Alertas de manutenção preventiva',
+  'Alertas básicos de manutenção',
   'Funciona offline',
 ];
 
 const PLUS_DELTA_FEATURES = [
   'Até <strong>15 equipamentos</strong> cadastrados',
-  '<strong>Registros de serviço ilimitados</strong> para rotina em campo',
-  '<strong>Todo o histórico</strong> de manutenções',
+  '<strong>Histórico completo</strong> do equipamento e serviços',
   "<strong>Relatórios PDF profissionais</strong> sem marca d'água, ilimitados",
-  '60 envios via WhatsApp/mês',
+  '<strong>60 envios</strong> via WhatsApp/mês',
   '<strong>Cadastro por foto (IA)</strong> — até 30 análises/mês',
   '<strong>Assinatura digital</strong> do cliente no PDF',
   '<strong>Fotos dos equipamentos</strong> (até 3 por equip.)',
@@ -69,29 +65,32 @@ const PLUS_DELTA_FEATURES = [
 
 const PRO_DELTA_FEATURES = [
   '<strong>Equipamentos ilimitados</strong>',
+  '<strong>Clientes organizados</strong> para operação recorrente',
+  '<strong>Setores por local</strong> para organizar contratos',
+  '<strong>Histórico por cliente</strong> com rastreabilidade',
+  '<strong>Relatórios separados por cliente</strong>',
   '<strong>PMOC formal anual</strong> (NBR 13971) com termo de RT',
   '<strong>PDFs ilimitados</strong>',
   '<strong>WhatsApp ilimitado</strong>',
   '<strong>Cadastro por foto (IA)</strong> — até 200 análises/mês',
-  '<strong>Agrupamento por setores</strong>',
   'Suporte prioritário',
 ];
 
 const MODO_TECNICO_ITEMS = [
-  'Registrar serviço',
-  'Gerar relatório',
-  'Enviar PDF',
+  'Execução rápida no campo',
+  'Registrar serviço e enviar relatório',
   'Organizar equipamentos',
+  'Fluxo ideal para técnico autônomo',
 ];
 
 const MODO_EMPRESA_ITEMS = [
   'Tudo do modo técnico +',
-  'Clientes organizados',
+  'Gestão por cliente',
   'Setores por local',
   'Histórico por cliente',
   'Relatórios separados por cliente',
-  'Menos erro no envio',
-  'Mais profissionalismo',
+  'PMOC formal anual',
+  'Escala com organização',
 ];
 
 function renderFeaturesList(features) {
@@ -106,7 +105,7 @@ function renderModoComparison() {
     <section class="pricing-mode-compare" aria-label="Comparação entre Modo Técnico e Modo Empresa">
       <h3 class="pricing-mode-compare__title">Modo Técnico x Modo Empresa</h3>
       <p class="pricing-mode-compare__subtitle">
-        Compare o dia a dia de quem atende sozinho com o fluxo de quem precisa organizar clientes.
+        Modo Técnico foca execução rápida. Modo Empresa adiciona gestão por cliente para escalar operação.
       </p>
       <div class="pricing-mode-compare__grid">
         <article class="pricing-mode-card pricing-mode-card--tecnico" aria-label="Modo Técnico para Free e Plus">
@@ -259,10 +258,10 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
           aria-label="Plano Gratuito"
         >
           <span class="pricing-badge ${isFree ? 'pricing-badge--current' : 'pricing-badge--neutral'}">
-            ${isFree ? 'PLANO ATUAL' : 'BASE'}
+            ${isFree ? 'PLANO ATUAL' : 'ENTRADA'}
           </span>
           <h2 class="pricing-card__title">Gratuito</h2>
-          <p class="pricing-card__subtitle">Pra começar sem compromisso</p>
+          <p class="pricing-card__subtitle">Para testar e começar</p>
 
           <div class="pricing-card__price-group">
             <p class="pricing-card__price">R$ 0</p>
@@ -271,7 +270,7 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
 
           <div class="pricing-card__cta-group">
             <button class="btn btn--outline pricing-card__cta" type="button" disabled aria-disabled="true">
-              ${isFree ? 'Plano atual' : 'Downgrade disponível no portal'}
+              ${isFree ? 'Plano atual' : 'Começar grátis'}
             </button>
           </div>
 
@@ -289,10 +288,10 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
           aria-label="Plano Plus"
         >
           <span class="pricing-badge ${isPlus ? 'pricing-badge--current' : 'pricing-badge--plus'}">
-            ${isPlus ? 'PLANO ATUAL' : 'TÉCNICO AUTÔNOMO'}
+            ${isPlus ? 'PLANO ATUAL' : 'MELHOR P/ AUTÔNOMO'}
           </span>
           <h2 class="pricing-card__title">Plus</h2>
-          <p class="pricing-card__subtitle">Pra quem atende sozinho</p>
+          <p class="pricing-card__subtitle">Para quem atende sozinho e quer entregar serviço com aparência profissional.</p>
 
           <div class="pricing-card__price-group">
             <p class="pricing-card__price pricing-card__price--plus" id="plus-price-monthly">
@@ -353,10 +352,10 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
           aria-label="Plano Pro"
         >
           <span class="pricing-badge ${isPro ? 'pricing-badge--current' : 'pricing-badge--popular'}">
-            ${isPro ? 'PLANO ATUAL' : 'RECOMENDADO PRA EMPRESA'}
+            ${isPro ? 'PLANO ATUAL' : 'MELHOR P/ EMPRESA'}
           </span>
           <h2 class="pricing-card__title">Pro</h2>
-          <p class="pricing-card__subtitle">Pra equipe ou 15+ equipamentos</p>
+          <p class="pricing-card__subtitle">Para quem atende vários clientes e precisa organizar operação, setores e PMOC.</p>
 
           <div class="pricing-card__price-group">
             <p class="pricing-card__price pricing-card__price--pro" id="pro-price-monthly">
@@ -493,7 +492,25 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
                 <td>${ICON_CHECK}</td>
               </tr>
               <tr>
-                <th scope="row">Agrupamento por setores</th>
+                <th scope="row">Clientes organizados</th>
+                <td>${ICON_X}</td>
+                <td>${ICON_X}</td>
+                <td>${ICON_CHECK}</td>
+              </tr>
+              <tr>
+                <th scope="row">Setores por local</th>
+                <td>${ICON_X}</td>
+                <td>${ICON_X}</td>
+                <td>${ICON_CHECK}</td>
+              </tr>
+              <tr>
+                <th scope="row">Histórico por cliente</th>
+                <td>${ICON_X}</td>
+                <td>${ICON_X}</td>
+                <td>${ICON_CHECK}</td>
+              </tr>
+              <tr>
+                <th scope="row">Relatórios por cliente</th>
                 <td>${ICON_X}</td>
                 <td>${ICON_X}</td>
                 <td>${ICON_CHECK}</td>
@@ -522,8 +539,8 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
         <details class="pricing-faq__item">
           <summary>Qual a diferença entre Plus e Pro?</summary>
           <p>
-            <strong>Plus</strong> é pensado pra <strong>técnico autônomo</strong>: até 15 equipamentos, relatórios PDF sem marca d'água ilimitados, assinatura digital do cliente, 60 envios de WhatsApp/mês e <strong>30 cadastros por foto (IA) por mês</strong>.
-            <strong>Pro</strong> é pra <strong>equipe ou operação maior</strong>: equipamentos, PDFs e WhatsApp ilimitados, <strong>200 cadastros por foto (IA) por mês</strong>, agrupamento por setores e suporte prioritário.
+            <strong>Plus</strong> é pensado pra <strong>técnico autônomo</strong>: até 15 equipamentos, relatórios sem marca d'água, assinatura digital, fotos, histórico completo e mais envios no WhatsApp.
+            <strong>Pro</strong> é pra <strong>empresa/operação com clientes</strong>: inclui tudo do Modo Técnico + clientes, setores, histórico e relatórios por cliente, PMOC formal anual e escala com suporte prioritário.
           </p>
         </details>
 

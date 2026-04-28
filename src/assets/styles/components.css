@@ -22188,9 +22188,9 @@ select option {
   text-transform: uppercase;
 }
 .orc-card__total {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--primary);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
   letter-spacing: -0.01em;
 }
 .orc-card__body {
@@ -22224,6 +22224,43 @@ select option {
   flex-wrap: wrap;
 }
 .orc-card__validity {
+  font-weight: 700;
+  color: var(--warn, #f59e0b);
+}
+.orc-timeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.orc-timeline__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 8px;
+}
+.orc-timeline__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--text-3);
+}
+.orc-timeline__item.is-done .orc-timeline__dot {
+  background: var(--primary);
+}
+.orc-timeline__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 700;
+  color: var(--text-3);
+}
+.orc-timeline__date {
+  font-size: 11px;
+  color: var(--text-2);
   font-weight: 600;
 }
 /* Fase 2: linha de assinatura digital aprovada */
