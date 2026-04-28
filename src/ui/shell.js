@@ -157,15 +157,9 @@ function _applyNavigationMode() {
     el.classList.toggle('app-sidebar__nav-item--secondary', sidebarSecondary.has(route));
   });
 
-  // Atalhos secundários em mobile (menu de configurações).
-  _setElementVisible(
-    document.getElementById('header-help-go-clientes'),
-    mobileSecondary.has('clientes'),
-  );
-  _setElementVisible(
-    document.getElementById('header-help-go-registro'),
-    mobileSecondary.has('registro'),
-  );
+  // Menu de configurações premium: Clientes só no Pro (não depende mais de slot secundário mobile).
+  _setElementVisible(document.getElementById('header-help-go-clientes'), isPro);
+  _setElementVisible(document.getElementById('header-help-clientes-upsell'), !isPro);
 }
 
 export function updateShellSidebar() {
@@ -189,6 +183,8 @@ export function updateShellSidebar() {
   // e so aparece pra planos pagos que tem essa info.
   const planCode = _getCurrentPlanCode();
   const planMeta = _PLAN_LABELS[planCode] || _PLAN_LABELS[PLAN_CODE_FREE];
+  const helpMenuEl = document.getElementById('header-help-menu');
+  if (helpMenuEl) helpMenuEl.dataset.plan = planCode;
 
   const cardEl = document.getElementById('sidenav-plan-card');
   if (cardEl) cardEl.setAttribute('data-plan', planCode);
