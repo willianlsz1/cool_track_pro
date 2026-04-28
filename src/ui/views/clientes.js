@@ -32,6 +32,7 @@ import { goTo } from '../../core/router.js';
 import { getClienteAlert, daysUntilAlert } from '../../core/clienteAlerts.js';
 import { ClienteAlertModal } from '../components/clienteAlertModal.js';
 import { getEquipmentMaintenanceContext } from '../../domain/maintenance.js';
+import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
 
 /* ─────────────────────── module state ──────────────────────────────── */
 
@@ -516,6 +517,7 @@ function _renderCard(cliente, data) {
   const servicesLabel = data.servicesCount;
   const lastLabel = _formatRelativeDate(data.lastServiceTs);
   const lastClass = _lastServiceClass(data.sinceLast);
+  const pmoc = data.pmocSummary || {};
   const pmocBlock =
     data.pmocOverdueCount > 0
       ? (() => {
@@ -1033,7 +1035,9 @@ function _navigatePmoc(id) {
   const cliente = (getState().clientes || []).find((c) => c.id === id);
   if (!cliente) return;
   try {
-    goTo('equipamentos', { clienteId: id, filter: 'pmoc', clienteNome: cliente.nome });
+    goTo('equipamentos', {
+      equipCtx: { clienteId: id, clienteNome: cliente.nome, quickFilter: 'pmoc' },
+    });
   } catch {
     goTo('historico', { clienteId: id, clienteNome: cliente.nome });
   }

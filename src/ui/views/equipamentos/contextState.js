@@ -8,7 +8,7 @@ export function configureEquipContextState({ renderEquip } = {}) {
 
 export function normalizeEquipCtx(rawCtx = {}) {
   const source = rawCtx && typeof rawCtx === 'object' ? rawCtx : {};
-  const quickFilterRaw = source.quickFilter;
+  const quickFilterRaw = source.quickFilter || source.filter;
   const quickFilter =
     typeof quickFilterRaw === 'string' && quickFilterRaw && quickFilterRaw !== 'todos'
       ? quickFilterRaw
@@ -34,7 +34,12 @@ export function getRouteEquipCtx() {
   const routeParams = currentRouteParams?.() || {};
   if (routeParams.equipCtx) return normalizeEquipCtx(routeParams.equipCtx);
   // Compat: params antigos passados sem o wrapper equipCtx.
-  if ('sectorId' in routeParams || 'quickFilter' in routeParams || 'clienteId' in routeParams) {
+  if (
+    'sectorId' in routeParams ||
+    'quickFilter' in routeParams ||
+    'filter' in routeParams ||
+    'clienteId' in routeParams
+  ) {
     return normalizeEquipCtx(routeParams);
   }
   return normalizeEquipCtx();
@@ -45,6 +50,7 @@ export function resolveEquipCtx(options = {}) {
   if (
     'sectorId' in (options || {}) ||
     'quickFilter' in (options || {}) ||
+    'filter' in (options || {}) ||
     'clienteId' in (options || {})
   ) {
     return normalizeEquipCtx(options);
