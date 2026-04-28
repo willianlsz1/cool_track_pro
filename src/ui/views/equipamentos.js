@@ -311,8 +311,10 @@ export { computeEquipKpis, renderEquipHero, renderEquipFilters };
  *  de setor — não via toolbar global). */
 function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   const titleEl = Utils.getEl('equip-page-title');
+  const subtitleEl = Utils.getEl('equip-page-subtitle');
   const actionsEl = Utils.getEl('equip-toolbar-actions');
-  if (titleEl) titleEl.textContent = title || 'Parque de Equipamentos';
+  if (titleEl) titleEl.textContent = title || 'Equipamentos';
+  if (subtitleEl) subtitleEl.textContent = '';
   if (actionsEl) {
     // CTA único "+ Novo equipamento". Antes eram 2 botões ("Cadastrar com
     // foto" primário + "Novo equipamento" outline), o que duplicava a ação
@@ -329,6 +331,22 @@ function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
       ${defaultCta}
     `;
   }
+}
+
+function _renderEquipContextChip({ clienteId = null, clienteNome = '', setorId = null } = {}) {
+  const el = Utils.getEl('equip-context-chip');
+  if (!el) return;
+  if (!clienteId && !setorId) {
+    el.innerHTML = '';
+    return;
+  }
+  const label = setorId
+    ? `Filtrando: ${setorId === '__sem_setor__' ? 'Sem setor' : 'Setor'}`
+    : `Filtrando: Cliente ${Utils.escapeHtml(clienteNome || '')}`;
+  el.innerHTML = `<div class="equip-breadcrumb">
+    <span class="equip-breadcrumb__item equip-breadcrumb__item--current">${label}</span>
+    <button type="button" class="equip-breadcrumb__item" data-action="equip-clear-cliente-filter">Limpar filtro</button>
+  </div>`;
 }
 
 /**
@@ -611,7 +629,9 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 7));
   } else if (options.statusFilter === 'preventiva-30d') {
     allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 30));
-  } else if (options.statusFilter === 'em-atenção') {
+  } else if (options.statusFilter === 'preventiva-vencida') {
+    allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 0));
+  } else if (options.statusFilter === 'em-atencao' || options.statusFilter === 'em-atenção') {
     allowedIds = new Set(
       equipamentos
         .filter((e) => {
@@ -646,11 +666,15 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     // Filtra por cliente se vier do "Ver equipamentos" da view Clientes.
     if (filterClienteId && e.clienteId !== filterClienteId) return false;
     const matchesStatus = !allowedIds || allowedIds.has(e.id);
+    const clienteNome = (getState().clientes || []).find((c) => c.id === e.clienteId)?.nome || '';
+    const setorNome = (e.setorId && findSetor(e.setorId)?.nome) || '';
     const matchesSearch =
       !q ||
       e.nome.toLowerCase().includes(q) ||
       e.local.toLowerCase().includes(q) ||
-      (e.tag || '').toLowerCase().includes(q);
+      (e.tag || '').toLowerCase().includes(q) ||
+      clienteNome.toLowerCase().includes(q) ||
+      setorNome.toLowerCase().includes(q);
     return matchesStatus && matchesSearch;
   });
 
@@ -698,6 +722,7 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
       };
     }
     switch (options.statusFilter) {
+      case 'em-atencao':
       case 'em-atenção':
         return {
           title: 'Nenhum equipamento pedindo atenção',
@@ -710,8 +735,9 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
         };
       case 'preventiva-7d':
       case 'preventiva-30d':
+      case 'preventiva-vencida':
         return {
-          title: 'Nenhuma preventiva vencendo',
+          title: 'Nenhuma preventiva vencida',
           description: 'Agenda de manutenção em dia.',
         };
       default:
@@ -720,9 +746,9 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
         // a conta — mostra tempo estimado pra reduzir fricção inicial.
         if (!filtro && !equipamentos.length) {
           return {
-            title: 'Você ainda não tem equipamentos cadastrados',
+            title: 'Nenhum equipamento ainda',
             description:
-              'Cadastre o primeiro em menos de 1 minuto. A foto da etiqueta já preenche a maioria dos campos.',
+              'Cadastre o primeiro equipamento para registrar serviços e gerar relatórios.',
           };
         }
         return {
@@ -770,12 +796,18 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
               size: 'sm',
               autoWidth: true,
             };
-        el.innerHTML = emptyStateHtml({
-          icon: emptyCopy.ctaAction ? '👥' : '🔧',
-          title: emptyCopy.title,
-          description: emptyCopy.description,
-          cta,
-        });
+        const proEmptyExtra =
+          isCachedPlanPro() && !filterClienteId
+            ? `<p class="empty-state__hint">Use Clientes quando quiser organizar por empresa e setor.</p>
+               <button class="btn btn--outline btn--sm" data-nav="clientes">Cadastrar cliente primeiro</button>`
+            : '';
+        el.innerHTML =
+          emptyStateHtml({
+            icon: emptyCopy.ctaAction ? '👥' : '🔧',
+            title: emptyCopy.title,
+            description: emptyCopy.description,
+            cta,
+          }) + proEmptyExtra;
         return;
       }
       // Banner quick-move: aparece quando estamos vendo equips "sem setor"
@@ -843,6 +875,8 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
         }
       }
 
+      const listTitle =
+        '<h2 class="section-title" style="margin:8px 0 10px">Todos os equipamentos</h2>';
       if (clusterActive) {
         const idleCardsHtml = idleList
           .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
@@ -851,9 +885,13 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
           .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
           .join('');
         el.innerHTML =
-          quickMoveBannerHtml + _idleClusterHtml(idleCardsHtml, idleList.length) + activeCardsHtml;
+          listTitle +
+          quickMoveBannerHtml +
+          _idleClusterHtml(idleCardsHtml, idleList.length) +
+          activeCardsHtml;
       } else {
         el.innerHTML =
+          listTitle +
           quickMoveBannerHtml +
           sortedList.map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx })).join('');
       }
@@ -907,6 +945,12 @@ export async function renderEquip(filtro = '', options = {}) {
   // Renderiza imediatamente com snapshot local do plano (não bloqueia a tela).
   // O refresh assíncrono corrige drift e evita fetch repetido em cada render.
   const isPro = isCachedPlanPro();
+  const subtitleEl = Utils.getEl('equip-page-subtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = isPro
+      ? 'Ação rápida em todos os clientes e setores.'
+      : 'Acompanhe seus equipamentos e registre serviços rápido.';
+  }
   populateSetorSelect(isPro);
   if (!options?.__skipPlanRefresh && _renderEquipPlanNeedsRefresh) {
     _refreshRenderEquipPlan({
@@ -919,16 +963,13 @@ export async function renderEquip(filtro = '', options = {}) {
 
   // Hero + filters sempre no topo da view (hidden quando não há equipamentos).
   // Em contexto cliente eles são escondidos (parte da view global do parque).
-  if (activeClienteId) {
-    // Esconde explicitamente caso renderizado em sessão anterior
-    const heroEl = Utils.getEl('equip-hero');
-    if (heroEl) heroEl.hidden = true;
-    const filtersEl = Utils.getEl('equip-filters');
-    if (filtersEl) filtersEl.hidden = true;
-  } else {
-    renderEquipHero({ isPro });
-    renderEquipFilters();
-  }
+  renderEquipHero({ isPro });
+  renderEquipFilters();
+  _renderEquipContextChip({
+    clienteId: activeClienteId,
+    clienteNome: activeClienteNome || '',
+    setorId: activeSectorId,
+  });
 
   // Quick filter ativo sobrescreve o fluxo normal: vai pra flat list com
   // statusFilter correspondente. Sempre rende com a toolbar "← Todos" pra dar
@@ -938,9 +979,9 @@ export async function renderEquip(filtro = '', options = {}) {
     if (searchBar) searchBar.style.display = '';
     const titleMap = {
       'sem-setor': 'Sem setor',
-      'em-atenção': 'Em atenção',
+      'em-atencao': 'Em atenção',
       criticos: 'Críticos',
-      'preventiva-30d': 'Preventivas ≤30d',
+      'preventiva-vencida': 'Preventiva vencida',
     };
     _setToolbar({
       title: titleMap[activeQuickFilter] || 'Equipamentos',
@@ -955,38 +996,9 @@ export async function renderEquip(filtro = '', options = {}) {
     return;
   }
 
-  // Filtro por cliente (vindo de /clientes -> "Ver equipamentos"): hierarquia
-  // Cliente -> Setor -> Equipamento. Mostra grade de setores DESTE cliente.
-  // Drill-down num setor preserva o clienteId no equipCtx (atrayes do
-  // setActiveSector chain que usa _navigateEquipCtx).
-  // Se vem com sectorId também (drill-down dentro do cliente), pula direto
-  // pra flat list filtrada por cliente + setor.
-  if (activeClienteId && !activeSectorId) {
-    renderSetorGridForCliente(activeClienteId, activeClienteNome);
-    return;
-  }
-
   const searchBar = Utils.getEl('equip-search-bar');
-  const { setores } = getState();
 
-  if (isPro && activeSectorId === null) {
-    // Pro COM setores → grade de setores (organização por grupo).
-    // Pro SEM setores ainda → lista flat igual Free, mas com CTA "+ Novo setor"
-    // na toolbar. O usuário escolhe quando começar a organizar por setor —
-    // a gente não bloqueia o acesso aos equipamentos só pra forçar a criação.
-    if (setores.length) {
-      renderSetorGrid();
-      return;
-    }
-
-    if (searchBar) searchBar.style.display = '';
-    _setToolbar({
-      title: 'Parque de Equipamentos',
-      extraBtn: `<button class="btn btn--outline btn--sm" data-action="open-setor-modal">+ Novo setor</button>`,
-    });
-    renderFlatList(filtro, renderOptionsWithClient, null);
-    return;
-  }
+  if (isPro && activeSectorId === null && searchBar) searchBar.style.display = '';
 
   // Vista lista (FREE ou drill-down de setor)
   if (searchBar) searchBar.style.display = '';
@@ -1025,7 +1037,7 @@ export async function renderEquip(filtro = '', options = {}) {
     // O upgrade aparece naturalmente no hero/empty state quando o user
     // já tem 5+ equipamentos sem setor (ver hero.js).
     _setToolbar({
-      title: 'Parque de Equipamentos',
+      title: 'Equipamentos',
     });
   }
 
