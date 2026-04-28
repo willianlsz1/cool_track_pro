@@ -51,8 +51,10 @@ export async function resolveClientesAccess() {
     return buildDecision(planCode, { resolved: true, source: 'billing_fetch' });
   } catch {
     return buildDecision(snapshot.planCode, {
-      resolved: true,
-      source: 'fallback_cache_on_error',
+      // Não fecha como "resolved" em erro de refresh para evitar paywall
+      // indevido (ex.: usuário Pro com cache stale free durante boot).
+      resolved: false,
+      source: 'pending_on_error',
       errored: true,
     });
   }
