@@ -59,6 +59,7 @@ import {
   restoreDadosPlaca,
 } from './equipamentos/placaData.js';
 import { setorCardHtml } from './equipamentos/setores.js';
+import { bindEquipCardImageFallbacks as _bindEquipCardImageFallbacks } from './equipamentos/cardIconFallbacks.js';
 import {
   EDIT_FOCUS_ESSENCIAIS,
   EDIT_FOCUS_ETIQUETA_MORE,
@@ -78,7 +79,7 @@ configureEquipPhotos({ viewEquip });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
 export { setorCardHtml } from './equipamentos/setores.js';
-export { setorContrastWithWhite } from './equipamentos/setorHelpers.js';
+export { setorContrastWithWhite };
 export {
   applyEquipPhotosEditorGate,
   applyEquipPhotosGate,
@@ -1003,34 +1004,6 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   );
 }
 
-function _bindEquipCardImageFallbacks(root) {
-  const scope = root instanceof Element ? root : document;
-  scope.querySelectorAll('.equip-card__type-icon--photo img').forEach((img) => {
-    if (!(img instanceof HTMLImageElement)) return;
-    if (img.dataset.fallbackBound === '1') return;
-    img.dataset.fallbackBound = '1';
-    const iconWrap = img.closest('.equip-card__type-icon');
-    if (!iconWrap) return;
-
-    const markLoaded = () => {
-      iconWrap.classList.add('equip-card__type-icon--loaded');
-    };
-    const applyFallback = () => {
-      iconWrap.classList.add('equip-card__type-icon--fallback');
-      img.remove();
-    };
-
-    img.addEventListener('load', markLoaded, { once: true });
-    img.addEventListener('error', applyFallback, { once: true });
-
-    // Cobertura para imagens já resolvidas no momento do bind (cache quente).
-    if (img.complete) {
-      if (img.naturalWidth > 0) markLoaded();
-      else applyFallback();
-    }
-  });
-}
-
 export async function renderEquip(filtro = '', options = {}) {
   _bindRenderEquipPlanInvalidationEvents();
   const renderToken = ++_renderEquipPlanToken;
@@ -1364,7 +1337,7 @@ function _syncSetorModalPreview() {
 
   const nome = (Utils.getVal('setor-nome') || '').trim();
   const cor = Utils.getEl('setor-cor')?.value || SETOR_PALETTE[0].hex;
-  const entry = findPaletteEntry(SETOR_PALETTE, cor);
+  const entry = findPaletteEntry(cor, SETOR_PALETTE);
 
   // Nome do card (placeholder "Novo setor" quando vazio)
   const nameEl = Utils.getEl('setor-modal-preview-name');
@@ -1612,16 +1585,19 @@ export async function assignEquipToSetor(equipId, setorId) {
  * Centraliza pra triggers passarem só o nome lógico, sem acoplar com IDs.
  * Quando adicionar campo novo, basta estender aqui.
  */
+
 /**
  * Lista de fieldKeys que vivem dentro de #eq-etiqueta-more (progressive
  * disclosure dos campos avançados da etiqueta). Quando o foco for em um
  * desses, o painel precisa ser aberto antes do scroll.
  */
+
 /**
  * fieldKeys que vivem fora do accordion "Detalhes técnicos" (#eq-step-2):
  * são os campos da seção Essenciais + Contexto, sempre visíveis.
  * Os demais exigem expandir o accordion antes do scroll.
  */
+
 /**
  * Abre o modal-add-eq em modo edição e, opcionalmente, foca um campo
  * específico — expandindo accordions intermediários se necessário.

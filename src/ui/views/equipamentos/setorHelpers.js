@@ -1,6 +1,6 @@
 import { validateSetorNome } from '../../../core/setorRules.js';
 
-export function getSetorNomeValidation(nomeRaw = '') {
+export function getSetorNomeValidation(nomeRaw) {
   const { empty, tooLong, isValid } = validateSetorNome(nomeRaw);
   return { empty, tooLong, isValid };
 }
@@ -20,7 +20,7 @@ export function setorContrastWithWhite(hex) {
   return 1.05 / (L + 0.05);
 }
 
-export function findPaletteEntry(palette, hex) {
+export function findPaletteEntry(hex, palette) {
   if (!hex) return null;
   const target = String(hex).toLowerCase();
   return palette.find((p) => p.hex.toLowerCase() === target) || null;

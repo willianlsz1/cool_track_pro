@@ -24,40 +24,30 @@ export const SETOR_PALETTE = [
 ];
 
 export const SETOR_DESC_LIMIT = 120;
+
 export const EDIT_FOCUS_FIELD_MAP = {
   nome: 'eq-nome',
   local: 'eq-local',
   setor: 'eq-setor',
-  tag: 'eq-tag',
   tipo: 'eq-tipo',
-  fluido: 'eq-fluido',
+  capacidade: 'eq-capacidade',
+  componente: 'eq-componente',
+  tag: 'eq-tag',
+  serial: 'eq-serial',
+  fabricante: 'eq-fabricante',
   modelo: 'eq-modelo',
-  serie: 'eq-número-serie',
-  capacidade: 'eq-capacidade-btu',
-  tensao: 'eq-tensao',
-  frequencia: 'eq-frequencia',
-  fase: 'eq-fase',
-  potencia: 'eq-potencia',
-  'corrente-refrig': 'eq-corrente-refrig',
-  'corrente-aquec': 'eq-corrente-aquec',
-  'pressao-suc': 'eq-pressao-suc',
-  'pressao-desc': 'eq-pressao-desc',
-  'grau-protecao': 'eq-grau-protecao',
-  ano: 'eq-ano-fabricacao',
-  criticidade: 'eq-criticidade',
-  prioridade: 'eq-prioridade',
-  periodicidade: 'eq-periodicidade',
+  observacoes: 'eq-observacoes',
 };
+
 export const EDIT_FOCUS_ETIQUETA_MORE = new Set([
-  'tensao',
-  'frequencia',
-  'fase',
-  'potencia',
-  'corrente-refrig',
-  'corrente-aquec',
-  'pressao-suc',
-  'pressao-desc',
-  'grau-protecao',
-  'ano',
+  'tag',
+  'serial',
+  'fabricante',
+  'modelo',
+  'observacoes',
+  'tipo',
+  'capacidade',
+  'componente',
 ]);
+
 export const EDIT_FOCUS_ESSENCIAIS = new Set(['nome', 'local', 'setor']);
