@@ -77,65 +77,82 @@ export function renderShellHeader() {
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
               </svg>
             </button>
-            <div class="header-help-menu" id="header-help-menu" hidden>
-              <!-- UX V2 audit fix #84: itens visiveis SO em mobile (CSS via
-                   .is-mobile-only). Em desktop sidebar ja cobre alertas e
-                   meu perfil, entao nao mostra duplicado. -->
-              <button type="button" class="header-help-menu__item is-mobile-only" data-action="go-alertas">
-                <span>🔔 Alertas</span>
-                <span class="header-help-menu__badge" id="header-help-menu-alert-badge" hidden>0</span>
-              </button>
-              <button type="button" class="header-help-menu__item is-mobile-only" data-action="open-profile">
-                👤 Meu perfil
-              </button>
-              <!-- V2 (#127): Orçamentos não cabe no bottom nav (5 slots cheios)
-                   então vive aqui no menu mobile. Em desktop a sidebar já cobre. -->
-              <button type="button" class="header-help-menu__item is-mobile-only" data-action="go-orcamentos">
-                📋 Orçamentos
-              </button>
-              <button
-                type="button"
-                class="header-help-menu__item is-mobile-only"
-                id="header-help-go-clientes"
-                data-nav="clientes"
-                hidden
-              >
-                👥 Clientes
-              </button>
-              <button
-                type="button"
-                class="header-help-menu__item is-mobile-only"
-                id="header-help-go-registro"
-                data-nav="registro"
-                hidden
-              >
-                ➕ Registrar serviço
-              </button>
-              <div class="header-help-menu__sep is-mobile-only" aria-hidden="true"></div>
-              <button type="button" class="header-help-menu__item" data-action="help-open-tutorial">
-                Ver tutorial
-              </button>
-              <button type="button" class="header-help-menu__item" data-action="help-score-info">
-                Como funciona o score
-              </button>
-              <button type="button" class="header-help-menu__item" data-action="toggle-theme">
-                <span id="header-theme-label">Alternar tema</span>
-              </button>
-              <!-- "Meus clientes" removido daqui — agora vive no bottom nav (mobile)
-                   e sidebar (desktop), não precisa duplicar no help menu. -->
-              <!-- PMOC Fase 6: atalho global pra abrir o gerador PMOC + doc -->
-              <button type="button" class="header-help-menu__item" data-action="open-pmoc-modal">
-                📜 Gerar documento PMOC
-              </button>
-              <button type="button" class="header-help-menu__item" data-action="open-pmoc-info">
-                ℹ️ Sobre o PMOC
-              </button>
-              <button type="button" class="header-help-menu__item" data-action="help-support">
-                💬 Suporte
-              </button>
-              <button type="button" class="header-help-menu__item" data-action="help-feedback">
-                ⭐ Enviar feedback
-              </button>
+            <div class="header-help-menu" id="header-help-menu" data-plan="free" hidden>
+              <div class="header-help-menu__top-cta">
+                <button type="button" class="header-help-menu__cta header-help-menu__cta--primary" data-nav="registro">
+                  ➕ Registrar serviço
+                </button>
+                <button type="button" class="header-help-menu__cta header-help-menu__cta--secondary" data-action="go-orcamentos">
+                  📋 Novo orçamento
+                </button>
+              </div>
+
+              <section class="header-help-menu__section" aria-label="Actions">
+                <p class="header-help-menu__section-title">ACTIONS</p>
+                <button type="button" class="header-help-menu__item" data-action="go-alertas">
+                  🔔 Alertas
+                  <span class="header-help-menu__badge" id="header-help-menu-alert-badge" hidden>0</span>
+                </button>
+                <button type="button" class="header-help-menu__item" data-action="go-orcamentos">
+                  🧾 Orçamentos
+                </button>
+              </section>
+
+              <section class="header-help-menu__section" aria-label="Operation">
+                <p class="header-help-menu__section-title">OPERATION</p>
+                <button type="button" class="header-help-menu__item" data-action="open-pmoc-modal">
+                  📜 Gerar PMOC
+                </button>
+                <button type="button" class="header-help-menu__item" data-action="open-pmoc-info">
+                  ℹ️ Sobre PMOC
+                </button>
+              </section>
+
+              <section class="header-help-menu__section" aria-label="Organization">
+                <p class="header-help-menu__section-title">ORGANIZATION</p>
+                <button type="button" class="header-help-menu__item" id="header-help-go-clientes" data-nav="clientes" hidden>
+                  👥 Clientes
+                </button>
+                <button type="button" class="header-help-menu__item" id="header-help-clientes-upsell" data-action="open-upgrade">
+                  🚀 Organizar por cliente (Pro)
+                </button>
+              </section>
+
+              <section class="header-help-menu__section" aria-label="Account">
+                <p class="header-help-menu__section-title">ACCOUNT</p>
+                <button type="button" class="header-help-menu__item" data-action="open-profile">
+                  👤 Meu perfil
+                </button>
+                <button type="button" class="header-help-menu__item" data-action="toggle-theme">
+                  <span id="header-theme-label">Alternar tema</span>
+                </button>
+              </section>
+
+              <section class="header-help-menu__section" aria-label="Help">
+                <p class="header-help-menu__section-title">HELP</p>
+                <button type="button" class="header-help-menu__item" data-action="help-open-tutorial">
+                  ▶️ Ver tutorial
+                </button>
+                <button type="button" class="header-help-menu__item" data-action="help-score-info">
+                  🧠 Como funciona o score
+                </button>
+                <button type="button" class="header-help-menu__item" data-action="help-support">
+                  💬 Suporte
+                </button>
+                <button type="button" class="header-help-menu__item" data-action="help-feedback">
+                  ⭐ Enviar feedback
+                </button>
+              </section>
+
+              <section class="header-help-menu__section" aria-label="Upgrade">
+                <p class="header-help-menu__section-title">UPGRADE</p>
+                <button type="button" class="header-help-menu__status-card header-help-menu__status-card--upsell" data-action="open-upgrade">
+                  Desbloqueie o modo Empresa
+                </button>
+                <div class="header-help-menu__status-card header-help-menu__status-card--active" hidden>
+                  Plano PRO ativo
+                </div>
+              </section>
             </div>
           </div>
 

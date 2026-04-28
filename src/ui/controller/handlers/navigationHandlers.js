@@ -64,7 +64,7 @@ function setHelpMenuState(open, anchorEl = null) {
       document.body.appendChild(menu);
     }
     const rect = anchorEl.getBoundingClientRect();
-    const menuWidth = 210;
+    const menuWidth = Math.min(320, window.innerWidth - 16);
     const left = Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8));
     const bottom = Math.max(8, window.innerHeight - rect.top + 8);
     menu.style.cssText = `position: fixed !important; left: ${left}px !important; bottom: ${bottom}px !important; right: auto !important; top: auto !important; z-index: 9999 !important; display: grid !important;`;

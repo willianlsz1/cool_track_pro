@@ -506,7 +506,8 @@ function _renderCard(cliente, data) {
   const servicesLabel = data.servicesCount;
   const lastLabel = _formatRelativeDate(data.lastServiceTs);
   const lastClass = _lastServiceClass(data.sinceLast);
-  const pmoc = data.pmocSummary || {};
+  const pmocSummary = data?.pmocSummary || {};
+  const pmoc = pmocSummary;
 
   // Alerta de retorno (se houver). Badge: cor varia por estado.
   const alert = getClienteAlert(cliente.id);

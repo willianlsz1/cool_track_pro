@@ -693,7 +693,8 @@ function bindPmocFormal() {
     } catch (error) {
       handleError(error, {
         code: ErrorCodes.NETWORK_ERROR,
-        message: 'Não foi possível abrir a documentação do PMOC.',
+        message:
+          'Não conseguimos abrir a página do PMOC agora. Tente novamente em instantes ou use o suporte pelo menu.',
         context: { action: 'controller.open-pmoc-info' },
       });
     }
