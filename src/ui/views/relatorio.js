@@ -12,11 +12,13 @@
 
 import { Utils } from '../../core/utils.js';
 import { getState, findEquip } from '../../core/state.js';
+import { getCachedPlan } from '../../core/plans/planCache.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { CRITICIDADE_LABEL, PRIORIDADE_OPERACIONAL_LABEL } from '../../domain/maintenance.js';
 import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { PdfQuotaBadge } from '../components/pdfQuotaBadge.js';
 import { getSignatureForRecord, SignatureViewerModal } from '../components/signature.js';
+import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
 
 // ──────────────────────────────────────────────────────────────────────
 // Constantes de design — mapeamento granular dos 12 tipos reais
@@ -26,6 +28,7 @@ import { getSignatureForRecord, SignatureViewerModal } from '../components/signa
 const VIEW_MODE_STORAGE_KEY = 'cooltrack_relatorio_view_mode';
 const VIEW_MODE_COMPACT = 'compact';
 const VIEW_MODE_DETAILED = 'detailed';
+const PLAN_CODE_PRO = 'pro';
 
 // tone = classe CSS .rel-tipo--<tone> (cores no components.css)
 const TIPO_META = {
@@ -313,7 +316,16 @@ export function getProximasAcoes(
 // ──────────────────────────────────────────────────────────────────────
 // Hero summary
 // ──────────────────────────────────────────────────────────────────────
-function renderHero({ kpis, periodoTxt, equipTxt, viewMode, narrative, emittedAt }) {
+function renderHero({
+  kpis,
+  periodoTxt,
+  equipTxt,
+  viewMode,
+  narrative,
+  emittedAt,
+  modeCopy,
+  context,
+}) {
   const dueState = (() => {
     if (kpis.count === 0 || !kpis.nextDue) return 'default';
     if (kpis.nextDue.n < 0) return 'red';
@@ -354,13 +366,22 @@ function renderHero({ kpis, periodoTxt, equipTxt, viewMode, narrative, emittedAt
     ? `<span class="rel-hero__emitted" aria-label="Emitido em ${Utils.escapeAttr(emittedAt)}">Emitido em ${Utils.escapeHtml(emittedAt)}</span>`
     : '';
 
+  const contextMeta = [
+    context?.cliente?.nome ? `Cliente: ${context.cliente.nome}` : null,
+    context?.setor?.nome ? `Setor: ${context.setor.nome}` : null,
+    context?.equipamento?.nome ? `Equipamento: ${context.equipamento.nome}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  const metaText = contextMeta || `${periodoTxt} · ${equipTxt}`;
+
   return `
     <div class="rel-hero__brand">
       <span class="rel-hero__brand-ic" aria-hidden="true">${icon('clipboardCheck', 14)}</span>
-      <span class="rel-hero__brand-label">Relatório de Serviços</span>
+      <span class="rel-hero__brand-label">${Utils.escapeHtml(modeCopy.heroBrand)}</span>
     </div>
     <div class="rel-hero__head">
-      <h2 id="rel-hero-title" class="rel-hero__title">Resumo do período</h2>
+      <h2 id="rel-hero-title" class="rel-hero__title">${Utils.escapeHtml(modeCopy.heroTitle)}</h2>
       <div class="rel-segmented" role="radiogroup" aria-label="Modo de visualização">
         <button type="button" class="rel-segmented__opt${viewMode === VIEW_MODE_COMPACT ? ' is-active' : ''}"
           role="radio" aria-checked="${viewMode === VIEW_MODE_COMPACT}"
@@ -371,7 +392,7 @@ function renderHero({ kpis, periodoTxt, equipTxt, viewMode, narrative, emittedAt
       </div>
     </div>
     <div class="rel-hero__meta">
-      <span class="rel-hero__meta-period">${Utils.escapeHtml(periodoTxt)} · ${Utils.escapeHtml(equipTxt)}</span>
+      <span class="rel-hero__meta-period">${Utils.escapeHtml(metaText)}</span>
       ${emittedHtml}
     </div>
     ${narrativeHtml}
@@ -418,6 +439,75 @@ function renderHero({ kpis, periodoTxt, equipTxt, viewMode, narrative, emittedAt
           : ''
       }
     </div>
+  `;
+}
+
+function resolveModeCopy({ isPro }) {
+  if (isPro) {
+    return {
+      pageTitle: 'Relatórios da empresa',
+      pageSubtitle: 'Acompanhe serviços por cliente, setor, equipamento e PMOC.',
+      heroTitle: 'Contexto do relatório',
+      heroBrand: 'Relatórios da empresa',
+    };
+  }
+  return {
+    pageTitle: 'Relatório rápido',
+    pageSubtitle: 'Gere e envie o PDF do serviço em poucos toques.',
+    heroTitle: 'Resumo dos serviços',
+    heroBrand: 'Relatório rápido',
+  };
+}
+
+function buildReportContext({ isPro, equipFiltrado, clientes, setores }) {
+  const cliente = equipFiltrado?.clienteId
+    ? clientes.find((item) => item.id === equipFiltrado.clienteId) || null
+    : null;
+  const setor = equipFiltrado?.setorId
+    ? setores.find((item) => item.id === equipFiltrado.setorId) || null
+    : null;
+  const equipamento = equipFiltrado?.nome ? equipFiltrado : null;
+  if (!isPro) return { cliente: null, setor: null, equipamento };
+  return { cliente, setor, equipamento };
+}
+
+function renderModeSegment({ isPro, context }) {
+  if (!isPro) return '';
+  const active = context.cliente ? 'cliente' : context.setor ? 'setor' : 'servicos';
+  const option = (key, label) =>
+    `<span class="rel-mode-segment__item${active === key ? ' is-active' : ''}">${label}</span>`;
+  return `
+    <div class="rel-mode-segment" role="group" aria-label="Contexto dos relatórios">
+      ${option('servicos', 'Serviços')}
+      ${option('cliente', 'Cliente')}
+      ${option('setor', 'Setor')}
+      ${option('pmoc', 'PMOC')}
+    </div>
+  `;
+}
+
+function renderCompanyPmocBlock({ isPro, hasPmocAttention }) {
+  if (!isPro) return '';
+  return `
+    <section class="rel-company-pmoc" aria-label="PMOC da empresa">
+      <div class="rel-company-pmoc__head">
+        <h3>PMOC</h3>
+        ${
+          hasPmocAttention
+            ? `<span class="rel-company-pmoc__alert">PMOC precisa de atenção</span>`
+            : ''
+        }
+      </div>
+      <p class="rel-company-pmoc__desc">Documento anual com cronograma, evidências e assinaturas.</p>
+      <div class="rel-company-pmoc__actions">
+        <button type="button" class="btn btn--primary btn--sm" data-action="open-pmoc-modal">Gerar PMOC formal</button>
+        ${
+          hasPmocAttention
+            ? '<button type="button" class="btn btn--ghost btn--sm" data-nav="clientes">Ver pendências</button>'
+            : ''
+        }
+      </div>
+    </section>
   `;
 }
 
@@ -474,6 +564,7 @@ function renderFilterChips({
   hasPeriodoFilter,
   hasEquipFilter,
   advancedOpen,
+  isPro,
 }) {
   const anyActive = hasPeriodoFilter || hasEquipFilter;
   const periodoChip = `
@@ -494,7 +585,7 @@ function renderFilterChips({
     <button type="button" class="rel-chip rel-chip--dashed"
       data-action="rel-toggle-advanced" aria-expanded="${advancedOpen}" aria-controls="rel-filters-advanced">
       <span class="rel-chip__icon">${icon(advancedOpen ? 'x' : 'plus', 12)}</span>
-      <span class="rel-chip__label">${advancedOpen ? 'Fechar filtros' : 'Mais filtros'}</span>
+      <span class="rel-chip__label">${advancedOpen ? 'Fechar filtros' : isPro ? 'Mais filtros' : 'Mais opções'}</span>
     </button>
   `;
   const clearBtn = anyActive
@@ -502,7 +593,7 @@ function renderFilterChips({
          ${icon('x', 12)} <span>Limpar filtros</span>
        </button>`
     : '';
-  return `${periodoChip}${equipChip}${newFilterChip}${clearBtn}`;
+  return `${periodoChip}${equipChip}${isPro ? newFilterChip : ''}${clearBtn}`;
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -867,7 +958,7 @@ function wireHandlers({ registros, equipamentos, expandedIds, viewMode, rerender
 const expandedIds = new Set();
 
 export function renderRelatorio(options = {}) {
-  const { equipamentos, registros } = getState();
+  const { equipamentos, registros, clientes = [], setores = [] } = getState();
   const filtEq = Utils.getVal('rel-equip');
   const de = Utils.getVal('rel-de');
   const ate = Utils.getVal('rel-ate');
@@ -884,6 +975,10 @@ export function renderRelatorio(options = {}) {
   const heroEl = Utils.getEl('rel-hero');
   const chipsEl = Utils.getEl('rel-filters-chips');
   const corpoEl = Utils.getEl('relatorio-corpo');
+  const pageTitleEl = Utils.getEl('rel-main-title');
+  const pageSubtitleEl = Utils.getEl('rel-main-subtitle');
+  const modeSegmentEl = Utils.getEl('rel-mode-segment-slot');
+  const companyPmocEl = Utils.getEl('rel-company-pmoc-slot');
   if (!heroEl || !chipsEl || !corpoEl) return;
 
   const hoje = new Date().toLocaleDateString('pt-BR');
@@ -905,6 +1000,20 @@ export function renderRelatorio(options = {}) {
     : 'Todos os equipamentos';
 
   const singleEquipFilter = hasEquipFilter;
+  const isPro = getCachedPlan() === PLAN_CODE_PRO;
+  const modeCopy = resolveModeCopy({ isPro });
+  const context = buildReportContext({ isPro, equipFiltrado, clientes, setores });
+  const pmocSummary = context.cliente?.id
+    ? getPmocSummaryForCliente({
+        clienteId: context.cliente.id,
+        year: new Date().getFullYear(),
+        equipamentos,
+        registros,
+      })
+    : null;
+  const hasPmocAttention = Boolean(
+    pmocSummary && (pmocSummary.status === 'atencao' || pmocSummary.status === 'atrasado'),
+  );
 
   const kpis = computeKPIs(list);
   const narrative = buildPeriodNarrative(list);
@@ -913,11 +1022,43 @@ export function renderRelatorio(options = {}) {
   const proximasAcoes = getProximasAcoes(list, equipamentos);
 
   const advancedEl = Utils.getEl('rel-filters-advanced');
-  const advancedOpen = options.keepAdvancedOpen ?? !(advancedEl?.hasAttribute('hidden') ?? true);
+  const advancedOpen =
+    options.keepAdvancedOpen ?? (!isPro ? true : !(advancedEl?.hasAttribute('hidden') ?? true));
 
   const rerender = (opts = {}) => renderRelatorio(opts);
 
   const renderContent = () => {
+    if (pageTitleEl) pageTitleEl.textContent = modeCopy.pageTitle;
+    if (pageSubtitleEl) pageSubtitleEl.textContent = modeCopy.pageSubtitle;
+    if (modeSegmentEl) modeSegmentEl.innerHTML = renderModeSegment({ isPro, context });
+    if (companyPmocEl)
+      companyPmocEl.innerHTML = renderCompanyPmocBlock({ isPro, hasPmocAttention });
+    if (advancedEl) {
+      if (advancedOpen) advancedEl.removeAttribute('hidden');
+      else advancedEl.setAttribute('hidden', '');
+    }
+
+    const pmocMainItem = Utils.getEl('rel-dd-pmoc-main');
+    const pmocInfoItem = Utils.getEl('rel-dd-pmoc-info');
+    if (pmocMainItem && pmocInfoItem) {
+      if (isPro) {
+        pmocMainItem.removeAttribute('hidden');
+        pmocInfoItem.removeAttribute('hidden');
+      } else {
+        pmocMainItem.setAttribute('hidden', '');
+        pmocInfoItem.setAttribute('hidden', '');
+      }
+    }
+
+    const pmocNudgeItem = Utils.getEl('rel-dd-pmoc-nudge');
+    if (pmocNudgeItem) {
+      if (isPro) {
+        pmocNudgeItem.setAttribute('hidden', '');
+      } else {
+        pmocNudgeItem.removeAttribute('hidden');
+      }
+    }
+
     // Hero
     heroEl.innerHTML = renderHero({
       kpis,
@@ -926,6 +1067,8 @@ export function renderRelatorio(options = {}) {
       viewMode,
       narrative,
       emittedAt: hoje,
+      modeCopy,
+      context,
     });
 
     // Chips
@@ -935,6 +1078,7 @@ export function renderRelatorio(options = {}) {
       hasPeriodoFilter,
       hasEquipFilter,
       advancedOpen,
+      isPro,
     });
 
     // Records

@@ -841,6 +841,7 @@ export function renderShellViews() {
                 </button>
                 <div class="rel-export-dd__menu" id="rel-export-dd-menu" role="menu" hidden>
                   <button type="button" class="rel-export-dd__item rel-export-dd__item--pmoc rel-export-dd__item--featured"
+                    id="rel-dd-pmoc-main"
                     role="menuitem" data-action="open-pmoc-modal" data-tier="unknown"
                     title="Documento PMOC formal anual conforme NBR 13971 — Pro.">
                     <span class="rel-export-dd__item-icon" aria-hidden="true">
@@ -864,6 +865,7 @@ export function renderShellViews() {
                     </span>
                   </button>
                   <button type="button" class="rel-export-dd__item rel-export-dd__item--meta"
+                    id="rel-dd-pmoc-info"
                     role="menuitem" data-action="open-pmoc-info" title="Saiba quando usar cada um.">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   
@@ -872,13 +874,25 @@ export function renderShellViews() {
                     </svg>
                     <span>Sobre o PMOC</span>
                   </button>
+                  <button type="button" class="rel-export-dd__item rel-export-dd__item--meta"
+                    id="rel-dd-pmoc-nudge"
+                    role="menuitem" data-nav="pricing" hidden
+                    title="Conheça o plano Pro para PMOC formal.">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 3l2.5 5.3L20 9l-4 3.9.9 5.6L12 16l-4.9 2.5.9-5.6L4 9l5.5-.7z"/>
+                    </svg>
+                    <span>Conheça o Pro (PMOC)</span>
+                  </button>
                 </div>
               </div>
               <div id="pdf-quota-slot" class="rel-toolbar__quota-slot"></div>
             </div>
           </div>
 
-          <h1 class="rel-title">Relatório de Manutenção</h1>
+          <h1 id="rel-main-title" class="rel-title">Relatório rápido</h1>
+          <p id="rel-main-subtitle" class="rel-subtitle">Gere e envie o PDF do serviço em poucos toques.</p>
+          <div id="rel-mode-segment-slot"></div>
 
           <div id="rel-hero" class="rel-hero" aria-live="polite"></div>
 
@@ -903,6 +917,8 @@ export function renderShellViews() {
               </div>
             </div>
           </div>
+
+          <div id="rel-company-pmoc-slot"></div>
 
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>
