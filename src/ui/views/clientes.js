@@ -1035,9 +1035,7 @@ function _navigatePmoc(id) {
   const cliente = (getState().clientes || []).find((c) => c.id === id);
   if (!cliente) return;
   try {
-    goTo('equipamentos', {
-      equipCtx: { clienteId: id, clienteNome: cliente.nome, quickFilter: 'pmoc' },
-    });
+    goTo('equipamentos', { clienteId: id, filter: 'pmoc', clienteNome: cliente.nome });
   } catch {
     goTo('historico', { clienteId: id, clienteNome: cliente.nome });
   }
