@@ -59,12 +59,27 @@ import {
   restoreDadosPlaca,
 } from './equipamentos/placaData.js';
 import { setorCardHtml } from './equipamentos/setores.js';
+import { bindEquipCardImageFallbacks as _bindEquipCardImageFallbacks } from './equipamentos/cardIconFallbacks.js';
+import {
+  EDIT_FOCUS_ESSENCIAIS,
+  EDIT_FOCUS_ETIQUETA_MORE,
+  EDIT_FOCUS_FIELD_MAP,
+  SETOR_DESC_LIMIT,
+  SETOR_PALETTE,
+  TIPOS_COM_COMPONENTE,
+} from './equipamentos/setorConstants.js';
+import {
+  findPaletteEntry,
+  getSetorNomeValidation,
+  setorContrastWithWhite,
+} from './equipamentos/setorHelpers.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
 export { setorCardHtml } from './equipamentos/setores.js';
+export { setorContrastWithWhite };
 export {
   applyEquipPhotosEditorGate,
   applyEquipPhotosGate,
@@ -77,18 +92,6 @@ export {
 // ── Tipos de climatização que tem componente (evap/cond/única) ────────────
 // Lista de tipos onde o select de "componente" aparece no modal. Outros tipos
 // (Geladeira, Freezer, etc) não tem split, entao o campo fica oculto.
-const TIPOS_COM_COMPONENTE = new Set([
-  'Split Hi-Wall',
-  'Split Cassette',
-  'Split Piso Teto',
-  'VRF / VRV',
-  'GHP',
-  'Fan Coil',
-  'Chiller',
-  'Self Contained',
-  'Roof Top',
-]);
-
 /**
  * Mostra/esconde o select de componente baseado no tipo selecionado.
  * Idempotente — pode ser chamado a qualquer momento (open modal, change tipo,
@@ -1001,34 +1004,6 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   );
 }
 
-function _bindEquipCardImageFallbacks(root) {
-  const scope = root instanceof Element ? root : document;
-  scope.querySelectorAll('.equip-card__type-icon--photo img').forEach((img) => {
-    if (!(img instanceof HTMLImageElement)) return;
-    if (img.dataset.fallbackBound === '1') return;
-    img.dataset.fallbackBound = '1';
-    const iconWrap = img.closest('.equip-card__type-icon');
-    if (!iconWrap) return;
-
-    const markLoaded = () => {
-      iconWrap.classList.add('equip-card__type-icon--loaded');
-    };
-    const applyFallback = () => {
-      iconWrap.classList.add('equip-card__type-icon--fallback');
-      img.remove();
-    };
-
-    img.addEventListener('load', markLoaded, { once: true });
-    img.addEventListener('error', applyFallback, { once: true });
-
-    // Cobertura para imagens já resolvidas no momento do bind (cache quente).
-    if (img.complete) {
-      if (img.naturalWidth > 0) markLoaded();
-      else applyFallback();
-    }
-  });
-}
-
 export async function renderEquip(filtro = '', options = {}) {
   _bindRenderEquipPlanInvalidationEvents();
   const renderToken = ++_renderEquipPlanToken;
@@ -1178,49 +1153,6 @@ async function ensureProForSetores({ action = 'manage' } = {}) {
 //
 // Paleta de 10 cores (expandida de 6) pra dar mais identidade visual aos
 // setores sem virar arco-íris. Default = --primary (#00c8e8, Ciano).
-const SETOR_PALETTE = [
-  { hex: '#00c8e8', nome: 'Ciano' },
-  { hex: '#00c853', nome: 'Esmeralda' },
-  { hex: '#ffab40', nome: 'Âmbar' },
-  { hex: '#ff5252', nome: 'Coral' },
-  { hex: '#7c4dff', nome: 'Violeta' },
-  { hex: '#448aff', nome: 'Azul' },
-  { hex: '#f06292', nome: 'Rosa' },
-  { hex: '#9ccc65', nome: 'Verde-lima' },
-  { hex: '#ff7043', nome: 'Laranja' },
-  { hex: '#26a69a', nome: 'Teal' },
-];
-const SETOR_DESC_LIMIT = 120;
-
-function _getSetorNomeValidation(nomeRaw = Utils.getVal('setor-nome') || '') {
-  const { empty, tooLong, isValid } = validateSetorNome(nomeRaw);
-  return { empty, tooLong, isValid };
-}
-
-/** Relative luminance (WCAG). hex deve estar em forma #RRGGBB. */
-function _hexLuminance(hex) {
-  const h = String(hex || '').replace('#', '');
-  if (h.length !== 6) return 0;
-  const r = parseInt(h.slice(0, 2), 16) / 255;
-  const g = parseInt(h.slice(2, 4), 16) / 255;
-  const b = parseInt(h.slice(4, 6), 16) / 255;
-  const toLin = (v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-  return 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
-}
-
-/** Contraste entre uma cor de acento e branco (pro badge do preview). */
-export function setorContrastWithWhite(hex) {
-  const L = _hexLuminance(hex);
-  return 1.05 / (L + 0.05);
-}
-
-/** Busca metadados da paleta por hex. Retorna null se não encontrado. */
-function _findPaletteEntry(hex) {
-  if (!hex) return null;
-  const target = String(hex).toLowerCase();
-  return SETOR_PALETTE.find((p) => p.hex.toLowerCase() === target) || null;
-}
-
 function _setSaveBtnLabel(text) {
   const btn = Utils.getEl('setor-save-btn');
   if (!btn) return;
@@ -1242,7 +1174,7 @@ function _setSetorNomeValidationState({ showError, focus = false, markTouched = 
 function _syncSetorSaveButtonState() {
   const saveBtn = Utils.getEl('setor-save-btn');
   if (!saveBtn) return;
-  const { isValid } = _getSetorNomeValidation();
+  const { isValid } = getSetorNomeValidation(Utils.getVal('setor-nome') || '', validateSetorNome);
   saveBtn.disabled = !isValid;
   saveBtn.setAttribute('aria-disabled', isValid ? 'false' : 'true');
 }
@@ -1405,7 +1337,7 @@ function _syncSetorModalPreview() {
 
   const nome = (Utils.getVal('setor-nome') || '').trim();
   const cor = Utils.getEl('setor-cor')?.value || SETOR_PALETTE[0].hex;
-  const entry = _findPaletteEntry(cor);
+  const entry = findPaletteEntry(cor, SETOR_PALETTE);
 
   // Nome do card (placeholder "Novo setor" quando vazio)
   const nameEl = Utils.getEl('setor-modal-preview-name');
@@ -1502,14 +1434,14 @@ export function initSetorColorPicker() {
     if (nomeInput) {
       nomeInput.addEventListener('input', () => {
         nomeInput.dataset.interacted = '1';
-        const { empty, tooLong } = _getSetorNomeValidation(nomeInput.value);
+        const { empty, tooLong } = getSetorNomeValidation(nomeInput.value, validateSetorNome);
         const wasTouched = nomeInput.dataset.touched === '1';
         _setSetorNomeValidationState({ showError: wasTouched && (empty || tooLong) });
         _syncSetorModalPreview();
         _syncSetorModalCounters();
       });
       nomeInput.addEventListener('blur', () => {
-        const { empty, tooLong } = _getSetorNomeValidation(nomeInput.value);
+        const { empty, tooLong } = getSetorNomeValidation(nomeInput.value, validateSetorNome);
         const wasTouched = nomeInput.dataset.touched === '1';
         const interacted = nomeInput.dataset.interacted === '1';
         if ((!empty && !tooLong) || (!wasTouched && !interacted)) return;
@@ -1534,7 +1466,7 @@ export async function saveSetor() {
   if (!allowed) return false;
 
   const nomeRaw = Utils.getVal('setor-nome') || '';
-  const { empty, tooLong } = _getSetorNomeValidation(nomeRaw);
+  const { empty, tooLong } = getSetorNomeValidation(nomeRaw, validateSetorNome);
   if (empty || tooLong) {
     // Validação inline: mostra erro abaixo do input + foco + toast leve.
     // Marca o campo como "touched" pra que o erro passe a reaparecer
@@ -1653,55 +1585,18 @@ export async function assignEquipToSetor(equipId, setorId) {
  * Centraliza pra triggers passarem só o nome lógico, sem acoplar com IDs.
  * Quando adicionar campo novo, basta estender aqui.
  */
-const _EDIT_FOCUS_FIELD_MAP = {
-  nome: 'eq-nome',
-  local: 'eq-local',
-  setor: 'eq-setor',
-  tag: 'eq-tag',
-  tipo: 'eq-tipo',
-  fluido: 'eq-fluido',
-  modelo: 'eq-modelo',
-  serie: 'eq-número-serie',
-  capacidade: 'eq-capacidade-btu',
-  tensao: 'eq-tensao',
-  frequencia: 'eq-frequencia',
-  fase: 'eq-fase',
-  potencia: 'eq-potencia',
-  'corrente-refrig': 'eq-corrente-refrig',
-  'corrente-aquec': 'eq-corrente-aquec',
-  'pressao-suc': 'eq-pressao-suc',
-  'pressao-desc': 'eq-pressao-desc',
-  'grau-protecao': 'eq-grau-protecao',
-  ano: 'eq-ano-fabricacao',
-  criticidade: 'eq-criticidade',
-  prioridade: 'eq-prioridade',
-  periodicidade: 'eq-periodicidade',
-};
 
 /**
  * Lista de fieldKeys que vivem dentro de #eq-etiqueta-more (progressive
  * disclosure dos campos avançados da etiqueta). Quando o foco for em um
  * desses, o painel precisa ser aberto antes do scroll.
  */
-const _EDIT_FOCUS_ETIQUETA_MORE = new Set([
-  'tensao',
-  'frequencia',
-  'fase',
-  'potencia',
-  'corrente-refrig',
-  'corrente-aquec',
-  'pressao-suc',
-  'pressao-desc',
-  'grau-protecao',
-  'ano',
-]);
 
 /**
  * fieldKeys que vivem fora do accordion "Detalhes técnicos" (#eq-step-2):
  * são os campos da seção Essenciais + Contexto, sempre visíveis.
  * Os demais exigem expandir o accordion antes do scroll.
  */
-const _EDIT_FOCUS_ESSENCIAIS = new Set(['nome', 'local', 'setor']);
 
 /**
  * Abre o modal-add-eq em modo edição e, opcionalmente, foca um campo
@@ -1869,7 +1764,7 @@ export async function openEditEquip(id, opts = {}) {
  * normalmente.
  */
 function _focusEditField(fieldKey) {
-  const targetId = _EDIT_FOCUS_FIELD_MAP[fieldKey];
+  const targetId = EDIT_FOCUS_FIELD_MAP[fieldKey];
   if (!targetId) {
     console.warn(`[equipamentos] focusField desconhecido: "${fieldKey}"`);
     return;
@@ -1878,7 +1773,7 @@ function _focusEditField(fieldKey) {
   // Step 1: garante que a seção "Detalhes técnicos" (#eq-step-2) está aberta
   // se o campo não é um dos Essenciais/Contexto. Isso porque o accordion
   // fica fechado por default e o input nem está renderizado-visível antes.
-  const needsTechExpand = !_EDIT_FOCUS_ESSENCIAIS.has(fieldKey);
+  const needsTechExpand = !EDIT_FOCUS_ESSENCIAIS.has(fieldKey);
   if (needsTechExpand) {
     const expandBtn = document.getElementById('eq-expand-details');
     const expandPanel = document.getElementById('eq-step-2');
@@ -1892,7 +1787,7 @@ function _focusEditField(fieldKey) {
 
   // Step 2: se for um campo avançado da etiqueta, expande o sub-painel
   // #eq-etiqueta-more (progressive disclosure dentro de #eq-step-2).
-  if (_EDIT_FOCUS_ETIQUETA_MORE.has(fieldKey)) {
+  if (EDIT_FOCUS_ETIQUETA_MORE.has(fieldKey)) {
     const moreToggle = document.getElementById('eq-etiqueta-more-toggle');
     const morePanel = document.getElementById('eq-etiqueta-more');
     if (moreToggle && morePanel) {
