@@ -308,3 +308,37 @@ describe('histórico — acesso completo para todos os planos (sem corte por dat
     expect(source).not.toMatch(/HIST_FREE_LIMIT_DAYS/);
   });
 });
+
+describe('renderHist runtime safety', () => {
+  it('não quebra com registros do mês e com dados malformados', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-28T12:00:00Z'));
+
+    document.body.innerHTML = `
+      <input id="hist-busca" value="" />
+      <select id="hist-equip"></select>
+      <select id="hist-setor"></select>
+      <div id="hist-quickfilters-slot"></div>
+      <div id="hist-active-chips-slot"></div>
+      <div id="hist-count"></div>
+      <div id="timeline"></div>
+    `;
+
+    const stateMod = await import('../core/state.js');
+    stateMod.getState.mockReturnValue({
+      registros: [
+        { id: 'r-mes', equipId: 'e1', data: '2026-04-10', tipo: 'preventiva', obs: 'ok' },
+        { id: 'r-bad-1', equipId: 'e1', data: null, tipo: null, obs: null },
+        { id: 'r-bad-2', equipId: null, data: '2026-04-22' },
+      ],
+      equipamentos: [{ id: 'e1', nome: 'Split 01', status: 'ok' }],
+      setores: [],
+    });
+
+    const { renderHist } = await import('../ui/views/historico.js');
+
+    expect(() => renderHist()).not.toThrow();
+
+    vi.useRealTimers();
+  });
+});
