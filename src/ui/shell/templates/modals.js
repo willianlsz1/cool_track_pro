@@ -22,6 +22,7 @@ export function renderShellModals() {
             <p class="modal__subtitle modal__subtitle--muted" id="modal-add-eq-subtitle">
               Só precisa de <b>nome</b> e <b>onde fica</b> — o resto é opcional.
             </p>
+            <div class="form-hint" id="eq-context-summary-banner" style="display:none" aria-live="polite"></div>
             <nav class="modal-breadcrumb" aria-label="Seções do cadastro">
               <span class="modal-breadcrumb__item modal-breadcrumb__item--active" id="crumb-essenciais">
                 <span class="modal-breadcrumb__dot" aria-hidden="true">●</span> Essenciais
@@ -596,7 +597,11 @@ export function renderShellModals() {
 
       <div class="btn-group modal__footer">
         <button class="btn btn--outline" data-action="close-modal" data-id="modal-add-eq">Cancelar</button>
-        <button class="btn btn--primary" data-action="save-equip">Cadastrar equipamento</button>
+        <button class="btn btn--ghost" data-action="save-equip" data-post-action="secondary" id="eq-save-secondary" style="display:none"></button>
+        <button class="btn btn--primary" data-action="save-equip" id="eq-save-primary">Cadastrar equipamento</button>
+      </div>
+      <div class="btn-group modal__footer" id="eq-save-tertiary-row" style="display:none">
+        <button class="btn btn--outline" data-action="save-equip" data-post-action="tertiary" id="eq-save-tertiary"></button>
       </div>
       <p class="modal-trust-note modal-trust-note--footer">&#10003; Você pode editar ou excluir a qualquer momento
       </p>

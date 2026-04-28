@@ -18,6 +18,8 @@ import {
   clearSetorEditingState,
   moveEquipsToSetor,
   renderEquip,
+  clearForcedEquipContext,
+  applyEquipModalExperience,
 } from '../../views/equipamentos.js';
 import { runAsyncAction } from '../../components/actionFeedback.js';
 
@@ -92,7 +94,7 @@ export function bindEquipmentHandlers() {
   on('save-equip', async (el) => {
     try {
       await runAsyncAction(el, { loadingLabel: 'Salvando...' }, async () => {
-        const saved = await saveEquip();
+        const saved = await saveEquip({ postAction: el?.dataset?.postAction || '' });
         if (!saved) return;
       });
     } catch (error) {
@@ -102,6 +104,11 @@ export function bindEquipmentHandlers() {
         context: { action: 'controller.save-equip' },
       });
     }
+  });
+
+  on('equip-unlock-context', () => {
+    clearForcedEquipContext();
+    applyEquipModalExperience();
   });
 
   on('view-equip', async (el) => {
