@@ -56,41 +56,56 @@ function buildMarkup() {
           </article>
         </div>
 
-        <h3 class="clientes-paywall__title" id="clientes-lock-title">Clientes e setores</h3>
-        <p class="clientes-paywall__sub">Organize clientes, setores e equipamentos em um só lugar.</p>
+        <h3 class="clientes-paywall__title" id="clientes-lock-title">Organize seus clientes de verdade</h3>
+        <p class="clientes-paywall__sub">
+          Sem Clientes, tudo fica misturado: você perde tempo buscando histórico e aumenta a chance de erro.
+          Com este recurso, cada equipamento fica no cliente certo desde o primeiro toque.
+        </p>
+      </section>
+
+      <section class="clientes-paywall__context" aria-label="Contexto de bloqueio do recurso">
+        Você tentou acessar <strong>Clientes</strong>. Esse recurso está disponível no plano Pro.
       </section>
 
       <section class="clientes-paywall__perks" aria-label="Benefícios do recurso Clientes e setores">
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--cyan" aria-hidden="true"></span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Separe equipamentos por cliente</div>
+            <div class="clientes-paywall__perk-title">Ache o cliente certo em segundos</div>
           </div>
         </article>
 
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--amber" aria-hidden="true"></span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Controle setores e locais</div>
+            <div class="clientes-paywall__perk-title">Evite confusão entre locais e setores</div>
           </div>
         </article>
 
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--teal" aria-hidden="true"></span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Gere relatórios por cliente</div>
+            <div class="clientes-paywall__perk-title">Entregue relatórios organizados por cliente</div>
           </div>
         </article>
       </section>
 
+      <section class="clientes-paywall__impact" aria-label="Impacto do recurso Clientes">
+        <p>Você economiza tempo em cada visita porque encontra tudo no lugar certo.</p>
+        <p>Você evita erros de cadastro e envio de relatório para cliente errado.</p>
+        <p>Você passa uma imagem mais profissional em cada atendimento.</p>
+      </section>
+
       <footer class="clientes-paywall__actions">
         <button type="button" class="clientes-paywall__cancel" data-clientes-lock-action="continue">
-          Continuar no app
+          Agora não
         </button>
         <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing">
-          Ver planos
+          Desbloquear clientes agora
         </button>
       </footer>
+
+      <p class="clientes-paywall__trust">Sem contrato • Cancele quando quiser</p>
     </div>`;
 }
 
