@@ -10,9 +10,9 @@ const INITIAL_STATE = {
   registros: [],
   tecnicos: [],
   setores: [],
-  // V2 PMOC (abr/2026): clientes (carteira do técnico). Hidratado on-demand
-  // via core/clientes.js#loadClientes — não persiste em localStorage porque
-  // clientes vivem só no Supabase (sem queue offline na fase 2).
+  // V2 PMOC (abr/2026): clientes (carteira do técnico). Também entra no
+  // snapshot offline-first para preservar vínculos temporários com setores e
+  // equipamentos quando a criação ocorre sem conectividade.
   clientes: [],
   // V3 Instalação (abr/2026): orçamentos de instalação. Mesmo padrão dos
   // clientes — hidratado on-demand via core/orcamentos.js#loadOrcamentos.

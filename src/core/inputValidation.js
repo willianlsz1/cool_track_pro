@@ -303,8 +303,10 @@ export function sanitizePersistedSetor(payload) {
 
   const responsavelRaw = normalizeInlineText(payload.responsavel);
   const responsavel = responsavelRaw ? responsavelRaw.slice(0, SETOR_RESPONSAVEL_MAX) : '';
+  const clienteIdRaw = payload.clienteId ?? payload.cliente_id ?? null;
+  const clienteId = clienteIdRaw ? String(clienteIdRaw).trim() : null;
 
-  return { id, nome, cor, descricao, responsavel };
+  return { id, nome, cor, descricao, responsavel, clienteId: clienteId || null };
 }
 
 export function sanitizePersistedRegistro(payload, { existingEquipamentos = [] } = {}) {

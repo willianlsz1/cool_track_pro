@@ -194,6 +194,43 @@ function normalizeRegistro(r, equipamentoIds) {
   };
 }
 
+function sanitizePersistedCliente(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+  const id = String(payload.id || '').trim();
+  const nome = String(payload.nome || '').trim();
+  if (!id || !nome) return null;
+  return {
+    id,
+    nome,
+    razaoSocial: payload.razaoSocial ? String(payload.razaoSocial).trim() : '',
+    cnpj: payload.cnpj ? String(payload.cnpj).trim() : '',
+    inscricaoEstadual: payload.inscricaoEstadual ? String(payload.inscricaoEstadual).trim() : '',
+    inscricaoMunicipal: payload.inscricaoMunicipal ? String(payload.inscricaoMunicipal).trim() : '',
+    endereco: payload.endereco ? String(payload.endereco).trim() : '',
+    contato: payload.contato ? String(payload.contato).trim() : '',
+    urlChamados: payload.urlChamados ? String(payload.urlChamados).trim() : '',
+    finalidade: payload.finalidade ? String(payload.finalidade).trim() : '',
+    observacoes: payload.observacoes ? String(payload.observacoes).trim() : '',
+  };
+}
+
+function mapClienteRow(cliente, userId) {
+  return {
+    id: cliente.id,
+    user_id: userId,
+    nome: cliente.nome,
+    razao_social: cliente.razaoSocial || null,
+    cnpj: cliente.cnpj || null,
+    inscricao_estadual: cliente.inscricaoEstadual || null,
+    inscricao_municipal: cliente.inscricaoMunicipal || null,
+    endereco: cliente.endereco || null,
+    contato: cliente.contato || null,
+    url_chamados: cliente.urlChamados || null,
+    finalidade: cliente.finalidade || null,
+    observacoes: cliente.observacoes || null,
+  };
+}
+
 async function migrateLegacyPhotosInState(state, userId) {
   if (!state?.registros?.length) {
     return { state, migratedCount: 0, failedCount: 0 };
@@ -516,6 +553,30 @@ async function pushSetores(setores, userId) {
   }
 }
 
+async function pushClientes(clientes, userId) {
+  if (!clientes?.length) return;
+  const sanitized = clientes.map(sanitizePersistedCliente).filter(Boolean);
+  if (!sanitized.length) return;
+  try {
+    const rows = sanitized.map((cliente) => mapClienteRow(cliente, userId));
+    const { error } = await supabase.from('clientes').upsert(rows, { onConflict: 'id' });
+    if (error) {
+      const msg = String(error?.message || '').toLowerCase();
+      if (error.code === '42P01' || msg.includes('does not exist')) return;
+      throw error;
+    }
+  } catch (error) {
+    const msg = String(error?.message || '').toLowerCase();
+    if (error?.code === '42P01' || msg.includes('does not exist')) return;
+    throw new AppError('Falha ao sincronizar clientes.', ErrorCodes.SYNC_FAILED, 'warning', {
+      action: 'pushClientes',
+      quantidade: clientes.length,
+      userId,
+      cause: error?.message,
+    });
+  }
+}
+
 async function deleteRemoteRegistros(ids, userId) {
   const uniqueIds = [...new Set((ids || []).map(String).filter(Boolean))];
   if (!uniqueIds.length) return;
@@ -589,8 +650,9 @@ async function pullFromSupabase(userId) {
   let regRes;
   let tecRes;
   let setRes;
+  let cliRes;
   try {
-    [eqRes, regRes, tecRes, setRes] = await Promise.all([
+    [eqRes, regRes, tecRes, setRes, cliRes] = await Promise.all([
       supabase.from('equipamentos').select('*').eq('user_id', userId),
       supabase.from('registros').select('*').eq('user_id', userId),
       supabase.from('tecnicos').select('nome').eq('user_id', userId),
@@ -598,14 +660,21 @@ async function pullFromSupabase(userId) {
       // o erro é absorvido e seguimos com lista vazia.
       supabase
         .from('setores')
-        .select('id, nome, cor, descricao, responsavel')
+        .select('id, nome, cor, descricao, responsavel, cliente_id')
         .eq('user_id', userId),
+      supabase.from('clientes').select('*').eq('user_id', userId),
     ]);
     // Fallback: se o schema remoto ainda não tem descricao/responsavel (P1 não
     // migrado), refaz o SELECT só com as colunas legacy. Assim o pull continua
     // funcionando e os setores aparecem no app sem descrição/responsável até
     // a migration rodar.
     if (setRes?.error && isMissingSetorColumnError(setRes.error)) {
+      setRes = await supabase
+        .from('setores')
+        .select('id, nome, cor, cliente_id')
+        .eq('user_id', userId);
+    }
+    if (setRes?.error && isMissingSetorClienteSchemaError(setRes.error)) {
       setRes = await supabase.from('setores').select('id, nome, cor').eq('user_id', userId);
     }
     if (eqRes.error || regRes.error || tecRes.error) {
@@ -670,13 +739,16 @@ async function pullFromSupabase(userId) {
     .filter((r) => equipIds.has(r.equipId));
 
   const tecnicos = (tecRes.data || []).map((t) => t.nome);
+  const clientes = cliRes?.error
+    ? []
+    : (cliRes?.data || []).map((row) => sanitizePersistedCliente(row)).filter(Boolean);
 
   // Setores: absorve erro se tabela ainda não existe
   const setores = setRes?.error
     ? []
     : (setRes?.data || []).map((s) => sanitizePersistedSetor(s)).filter(Boolean);
 
-  return { equipamentos, registros, tecnicos, setores };
+  return { equipamentos, registros, tecnicos, setores, clientes };
 }
 
 /* Migracao automatica localStorage -> Supabase */
@@ -704,6 +776,7 @@ async function migrateIfNeeded(userId) {
     }
 
     Toast.info('Migrando seus dados para a nuvem...');
+    await pushClientes(parsed.clientes || [], userId);
     // Setores primeiro para satisfazer FK
     await pushSetores(parsed.setores || [], userId);
     await pushEquipamentos(parsed.equipamentos, userId);
@@ -807,6 +880,9 @@ export const Storage = {
       const setores = (Array.isArray(parsed.setores) ? parsed.setores : [])
         .map(sanitizePersistedSetor)
         .filter(Boolean);
+      const clientes = (Array.isArray(parsed.clientes) ? parsed.clientes : [])
+        .map(sanitizePersistedCliente)
+        .filter(Boolean);
       const setorIds = new Set(setores.map((s) => s.id));
       const equipamentos = (Array.isArray(parsed.equipamentos) ? parsed.equipamentos : [])
         .map(normalizeEquip)
@@ -825,7 +901,7 @@ export const Storage = {
             ...new Set(parsed.tecnicos.filter((t) => typeof t === 'string').map((t) => t.trim())),
           ].filter(Boolean)
         : [];
-      return { equipamentos, registros, tecnicos, setores };
+      return { equipamentos, registros, tecnicos, setores, clientes };
     } catch (err) {
       handleError(err, {
         code: ErrorCodes.DATA_CORRUPT,
@@ -915,6 +991,7 @@ export const Storage = {
 
       // IMPORTANTE: push setores ANTES de equipamentos para não violar FK.
       // (equipamentos.setor_id referencia setores.id)
+      await pushClientes(syncState.clientes || [], userId);
       await pushSetores(syncState.setores || [], userId);
       await pushEquipamentos(syncState.equipamentos, userId);
       await pushRegistros(syncState.registros, userId);
