@@ -42,6 +42,7 @@ let _currentPage = 1;
 let _pageSize = 6;
 let _hydrated = false;
 let _bound = false;
+let _summaryCollapsed = true;
 
 /* ─────────────────────── derivacao de dados ────────────────────────── */
 
@@ -252,6 +253,7 @@ const ICON_CLOCK_SM = `<svg width="13" height="13" viewBox="0 0 24 24" fill="non
 const ICON_BELL_SM = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9Z"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
 const ICON_PEN = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4l6 6-11 11H3v-6L14 4z"/></svg>`;
 
+const ICON_CHEV_DOWN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>`;
 /* ─────────────────────── KPIs ──────────────────────────────────────── */
 
 function _renderKpis({ clientes, equipamentos, registros, indexed }) {
@@ -343,6 +345,49 @@ function _renderKpis({ clientes, equipamentos, registros, indexed }) {
           <div class="cli-kpi__sub cli-kpi__sub--${pendentes > 0 ? 'warn' : 'ok'}">${pendentes > 0 ? 'Requerem atenção' : 'Tudo em dia'}</div>
         </div>
       </article>
+    </div>`;
+}
+
+function _renderSummary({ clientes, equipamentos, registros, indexed }) {
+  const mobileCollapsed =
+    typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(max-width: 720px)').matches
+      : false;
+  const collapsed = mobileCollapsed ? _summaryCollapsed : false;
+  return `
+    <section class="cli-summary ${collapsed ? 'is-collapsed' : ''}" aria-label="Resumo da carteira">
+      <button type="button" class="cli-summary__toggle" data-cli-action="toggle-summary"
+        aria-expanded="${collapsed ? 'false' : 'true'}">
+        <span class="cli-summary__title">Resumo</span>
+        <span class="cli-summary__hint">KPIs da carteira</span>
+        <span class="cli-summary__chev" aria-hidden="true">${ICON_CHEV_DOWN}</span>
+      </button>
+      <div class="cli-summary__content">
+        ${_renderKpis({ clientes, equipamentos, registros, indexed })}
+      </div>
+    </section>`;
+}
+
+function _renderActiveContext() {
+  const chips = [];
+  if (_searchTerm.trim())
+    chips.push(
+      `<span class="cli-context__chip">Busca: <b>${Utils.escapeHtml(_searchTerm.trim())}</b></span>`,
+    );
+  if (_statusFilter !== 'todos')
+    chips.push(
+      `<span class="cli-context__chip">Status: <b>${Utils.escapeHtml(_statusFilter.replaceAll('_', ' '))}</b></span>`,
+    );
+  if (_cityFilter !== 'todas')
+    chips.push(
+      `<span class="cli-context__chip">Cidade: <b>${Utils.escapeHtml(_cityFilter)}</b></span>`,
+    );
+  if (!chips.length) return '';
+  return `
+    <div class="cli-context" role="status" aria-label="Filtros ativos">
+      <span class="cli-context__label">Contexto ativo</span>
+      <div class="cli-context__chips">${chips.join('')}</div>
+      <button type="button" class="cli-context__clear" data-cli-action="clear-filters">Limpar</button>
     </div>`;
 }
 
@@ -543,7 +588,7 @@ function _renderCard(cliente, data) {
           data-cli-action="card-menu" data-id="${safeId}"
           aria-label="Mais opções para ${nome}" title="Opções"
           aria-haspopup="menu" aria-expanded="false">
-          ${ICON_KEBAB}<span>Opções</span>
+          ${ICON_KEBAB}<span class="cli-card__options-label">Opções</span>
         </button>
       </footer>
     </article>`;
@@ -724,9 +769,10 @@ export async function renderClientes() {
   root.innerHTML = `
     <div class="cli-page">
       ${headerHtml}
-      ${_renderKpis({ clientes, equipamentos, registros, indexed })}
-      ${_renderAlertStrip({ indexed })}
       ${_renderFilters({ cities })}
+      ${_renderActiveContext()}
+      ${_renderAlertStrip({ indexed })}
+      ${_renderSummary({ clientes, equipamentos, registros, indexed })}
       ${
         pageItems.length
           ? `<div class="cli-grid" role="list">${cardsHtml}</div>`
@@ -817,6 +863,10 @@ function _bindOnce() {
         _cityFilter = 'todas';
         _sortBy = 'mais_ativos';
         _currentPage = 1;
+        renderClientes();
+        break;
+      case 'toggle-summary':
+        _summaryCollapsed = !_summaryCollapsed;
         renderClientes();
         break;
       case 'filter-pending':

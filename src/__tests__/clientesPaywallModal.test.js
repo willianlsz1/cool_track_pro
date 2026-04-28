@@ -21,15 +21,25 @@ describe('ClientesPaywallModal', () => {
     const overlay = document.getElementById('clientes-paywall-overlay');
     expect(overlay).toBeTruthy();
     expect(overlay.classList.contains('clientes-paywall-overlay')).toBe(true);
-    expect(overlay.textContent).toContain('Clientes e setores');
+    expect(
+      overlay.querySelector('.clientes-paywall__hero')?.getAttribute('aria-hidden'),
+    ).toBeNull();
+    expect(overlay.textContent).toContain('Organize seus clientes de verdade');
     expect(overlay.textContent).toContain(
-      'Organize clientes, setores e equipamentos em um só lugar.',
+      'Sem Clientes, tudo fica misturado: você perde tempo buscando histórico e aumenta a chance de erro.',
     );
-    expect(overlay.textContent).toContain('Separe equipamentos por cliente');
-    expect(overlay.textContent).toContain('Controle setores e locais');
-    expect(overlay.textContent).toContain('Gere relatórios por cliente');
-    expect(overlay.textContent).toContain('Ver planos');
-    expect(overlay.textContent).toContain('Continuar no app');
+    expect(overlay.textContent).toContain('Você tentou acessar Clientes');
+    expect(overlay.textContent).toContain('Ache o cliente certo em segundos');
+    expect(overlay.textContent).toContain('Evite confusão entre locais e setores');
+    expect(overlay.textContent).toContain('Entregue relatórios organizados por cliente');
+    expect(overlay.textContent).toContain(
+      'Você economiza tempo em cada visita porque encontra tudo no lugar certo.',
+    );
+    expect(overlay.textContent).toContain('Sem contrato • Cancele quando quiser');
+    expect(overlay.textContent).toContain('Desbloquear clientes agora');
+    expect(overlay.textContent).toContain('Agora não');
+    expect(overlay.querySelectorAll('.clientes-paywall__mockup-icon svg')).toHaveLength(3);
+    expect(overlay.querySelectorAll('.clientes-paywall__perk-icon svg')).toHaveLength(3);
   });
 
   it('CTA principal navega para pricing e CTA secundário volta para inicio', async () => {
