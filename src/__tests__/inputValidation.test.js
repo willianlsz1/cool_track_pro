@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   sanitizePersistedEquipamento,
   sanitizePersistedRegistro,
+  sanitizePersistedSetor,
   validateEquipamentoPayload,
   validateRegistroPayload,
 } from '../core/inputValidation.js';
@@ -122,5 +123,23 @@ describe('inputValidation', () => {
     );
 
     expect(registro.status).toBe('ok');
+  });
+
+  it('preserves clienteId in setor sanitization (camelCase and snake_case)', () => {
+    const setorCamel = sanitizePersistedSetor({
+      id: 's1',
+      nome: ' Setor A ',
+      cor: '#00c8e8',
+      clienteId: 'c1',
+    });
+    expect(setorCamel?.clienteId).toBe('c1');
+
+    const setorSnake = sanitizePersistedSetor({
+      id: 's2',
+      nome: 'Setor B',
+      cor: '#00c8e8',
+      cliente_id: 'c2',
+    });
+    expect(setorSnake?.clienteId).toBe('c2');
   });
 });

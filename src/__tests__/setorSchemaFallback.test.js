@@ -102,7 +102,14 @@ describe('pushSetores fallback (schema não migrado)', () => {
         registros: [],
         tecnicos: [],
         setores: [
-          { id: 's1', nome: 'Cozinha', cor: '#00c8e8', descricao: 'desc', responsavel: 'Ana' },
+          {
+            id: 's1',
+            nome: 'Cozinha',
+            cor: '#00c8e8',
+            descricao: 'desc',
+            responsavel: 'Ana',
+            clienteId: 'c1',
+          },
         ],
       },
       { silent: true },
@@ -114,6 +121,7 @@ describe('pushSetores fallback (schema não migrado)', () => {
     const firstCall = supabaseMock.upsertCalls.setores[0].rows[0];
     expect(firstCall).toHaveProperty('descricao', 'desc');
     expect(firstCall).toHaveProperty('responsavel', 'Ana');
+    expect(firstCall).toHaveProperty('cliente_id', 'c1');
 
     const secondCall = supabaseMock.upsertCalls.setores[1].rows[0];
     expect(secondCall).not.toHaveProperty('descricao');
@@ -162,7 +170,7 @@ describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
         },
         // Retry com select legacy
         {
-          data: [{ id: 's1', nome: 'Cozinha', cor: '#00c8e8' }],
+          data: [{ id: 's1', nome: 'Cozinha', cor: '#00c8e8', cliente_id: 'c1' }],
           error: null,
         },
       ],
@@ -173,13 +181,43 @@ describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
 
     // Setor foi trazido via legacy select (sem descricao/responsavel)
     expect(result.setores).toHaveLength(1);
-    expect(result.setores[0]).toMatchObject({ id: 's1', nome: 'Cozinha', cor: '#00c8e8' });
+    expect(result.setores[0]).toMatchObject({
+      id: 's1',
+      nome: 'Cozinha',
+      cor: '#00c8e8',
+      clienteId: 'c1',
+    });
 
     // Confirma que 2 SELECTs foram feitos: primeiro full, segundo legacy
     expect(supabaseMock.selectCalls.setores).toHaveLength(2);
     expect(supabaseMock.selectCalls.setores[0]).toContain('descricao');
     expect(supabaseMock.selectCalls.setores[0]).toContain('responsavel');
+    expect(supabaseMock.selectCalls.setores[0]).toContain('cliente_id');
     expect(supabaseMock.selectCalls.setores[1]).not.toContain('descricao');
     expect(supabaseMock.selectCalls.setores[1]).not.toContain('responsavel');
+    expect(supabaseMock.selectCalls.setores[1]).toContain('cliente_id');
+  });
+
+  it('faz fallback sem cliente_id quando o schema remoto ainda não tem essa coluna', async () => {
+    const supabaseMock = createSupabaseMock({
+      setoresSelectQueue: [
+        { data: null, error: { message: `column setores.cliente_id does not exist` } },
+        { data: [{ id: 's1', nome: 'Cozinha', cor: '#00c8e8' }], error: null },
+      ],
+    });
+
+    const Storage = await loadStorage(supabaseMock);
+    const result = await Storage.loadFromSupabase();
+
+    expect(result.setores).toHaveLength(1);
+    expect(result.setores[0]).toMatchObject({
+      id: 's1',
+      nome: 'Cozinha',
+      cor: '#00c8e8',
+      clienteId: null,
+    });
+    expect(supabaseMock.selectCalls.setores).toHaveLength(2);
+    expect(supabaseMock.selectCalls.setores[0]).toContain('cliente_id');
+    expect(supabaseMock.selectCalls.setores[1]).not.toContain('cliente_id');
   });
 });
