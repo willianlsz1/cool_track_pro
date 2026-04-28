@@ -43,4 +43,18 @@ describe('clientesAccess', () => {
     expect(decision.canAccess).toBe(true);
     expect(localStorage.getItem('cooltrack-cached-plan')).toBe('pro');
   });
+
+  it('não resolve como bloqueado quando refresh falha com cache free não hidratado', async () => {
+    localStorage.setItem('cooltrack-cached-plan', 'free');
+    getCachedBillingProfileSnapshot.mockReturnValue(null);
+    fetchMyProfileBillingCached.mockRejectedValue(new Error('network'));
+
+    const { resolveClientesAccess } = await import('../core/plans/clientesAccess.js');
+    const decision = await resolveClientesAccess();
+
+    expect(decision.resolved).toBe(false);
+    expect(decision.errored).toBe(true);
+    expect(decision.planCode).toBe('free');
+    expect(decision.canAccess).toBe(false);
+  });
 });
