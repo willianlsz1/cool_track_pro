@@ -17539,6 +17539,16 @@ select option {
   font-size: 13px;
   color: rgba(232, 242, 250, 0.7);
 }
+.conta-identity__sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-3, #6a8ba8);
+}
+.conta-hero__plan-badge--inline {
+  margin-left: auto;
+  padding: 3px 8px;
+  font-size: 10px;
+}
 
 .conta-identity__email {
   margin-top: 8px;
@@ -17586,6 +17596,73 @@ select option {
 }
 .conta-identity__pub svg {
   display: block;
+}
+
+.conta-usage,
+.conta-plan-card,
+.conta-quick {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface, #0e1820);
+  padding: 14px;
+}
+.conta-usage__grid,
+.conta-quick__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.conta-kpi {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.conta-kpi strong {
+  font-size: 18px;
+  line-height: 1;
+}
+.conta-kpi span {
+  font-size: 11px;
+  color: var(--text-3, #6a8ba8);
+}
+.conta-usage__hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--text-3, #6a8ba8);
+}
+.conta-plan-card h2 {
+  margin: 6px 0;
+  font-size: 18px;
+}
+.conta-plan-card p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text-3, #6a8ba8);
+}
+.conta-plan-card ul {
+  margin: 0 0 12px;
+  padding-left: 16px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.conta-plan-card li {
+  margin-bottom: 4px;
+}
+.conta-quick__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 12px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
