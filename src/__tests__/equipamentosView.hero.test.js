@@ -185,19 +185,15 @@ describe('renderEquipHero', () => {
     expect(document.getElementById('equip-hero').hasAttribute('hidden')).toBe(true);
   });
 
-  it('hero esconde quando semSetor = 0 (métricas vivem nos chips, hero só aparece pra "Organizar parque")', async () => {
-    // Pós-simplificação UX: o hero só tem utilidade quando há equipamentos
-    // sem setor — aí o CTA "Organizar agora" (ou upsell) fica relevante.
-    // Quando tudo tá organizado, os chips contadorados abaixo já comunicam
-    // críticos/atenção/preventiva, sem precisar do hero.
+  it('hero esconde quando não há críticos/preventiva vencida', async () => {
     getState.mockReturnValue({
       equipamentos: [
-        { id: 'e1', setorId: 's1', status: 'ok' },
-        { id: 'e2', setorId: 's1', status: 'danger' },
+        { id: 'e1', setorId: null, status: 'ok' },
+        { id: 'e2', setorId: 's1', status: 'ok' },
       ],
       registros: [],
     });
-    getPreventivaDueEquipmentIds.mockReturnValue(['e2']);
+    getPreventivaDueEquipmentIds.mockReturnValue([]);
 
     const { renderEquipHero } = await import('../ui/views/equipamentos.js');
     renderEquipHero();
@@ -205,10 +201,10 @@ describe('renderEquipHero', () => {
     expect(document.getElementById('equip-hero').hasAttribute('hidden')).toBe(true);
   });
 
-  it('hero aparece quando há equipamentos sem setor', async () => {
+  it('hero aparece quando há equipamento crítico', async () => {
     getState.mockReturnValue({
       equipamentos: [
-        { id: 'e1', setorId: null, status: 'ok' },
+        { id: 'e1', setorId: null, status: 'danger' },
         { id: 'e2', setorId: 's1', status: 'ok' },
       ],
       registros: [],
@@ -221,7 +217,7 @@ describe('renderEquipHero', () => {
     expect(hero.hasAttribute('hidden')).toBe(false);
   });
 
-  it('sub copy menciona equipamentos sem setor quando hero aparece', async () => {
+  it('sub copy menciona ação imediata', async () => {
     getState.mockReturnValue({
       equipamentos: [
         { id: 'e1', setorId: null, status: 'ok' },
@@ -232,75 +228,21 @@ describe('renderEquipHero', () => {
     const { renderEquipHero } = await import('../ui/views/equipamentos.js');
     renderEquipHero();
 
-    expect(document.getElementById('equip-hero-sub').textContent).toMatch(/sem setor/i);
-    expect(document.getElementById('equip-hero-sub').textContent).toMatch(/2 equipamentos/);
+    expect(document.getElementById('equip-hero-sub').textContent).toMatch(/ação imediata/i);
+    expect(document.getElementById('equip-hero-sub').textContent).toMatch(/1 equipamento/);
   });
 
-  it('não renderiza mais tiles de KPI no hero (movidos pros chips)', async () => {
+  it('renderiza lista de atenção agora com CTA de registrar serviço', async () => {
     getState.mockReturnValue({
-      equipamentos: [{ id: 'e1', setorId: null, status: 'ok' }],
+      equipamentos: [{ id: 'e1', setorId: null, status: 'danger', nome: 'Split 1' }],
       registros: [],
     });
     const { renderEquipHero } = await import('../ui/views/equipamentos.js');
     renderEquipHero();
 
     const kpisSlot = document.getElementById('equip-hero-kpis');
-    expect(kpisSlot.innerHTML).toBe('');
-    expect(document.querySelectorAll('.equip-hero__kpi').length).toBe(0);
-  });
-
-  it('CTA Sem setor: Pro vê atalho "Organizar agora" com data-action equip-quickfilter', async () => {
-    getState.mockReturnValue({
-      equipamentos: [
-        { id: 'e1', setorId: null, status: 'ok' },
-        { id: 'e2', setorId: null, status: 'ok' },
-      ],
-      registros: [],
-    });
-    const { renderEquipHero } = await import('../ui/views/equipamentos.js');
-    renderEquipHero({ isPro: true });
-
-    const cta = document.getElementById('equip-hero-sem-setor-cta');
-    expect(cta.hasAttribute('hidden')).toBe(false);
-
-    const btn = cta.querySelector('button');
-    expect(btn).not.toBeNull();
-    expect(btn.dataset.action).toBe('equip-quickfilter');
-    expect(btn.dataset.id).toBe('sem-setor');
-    expect(btn.textContent).toMatch(/organizar agora/i);
-    expect(btn.classList.contains('equip-hero__cta-btn--action')).toBe(true);
-  });
-
-  it('CTA Sem setor: Free vê upsell "Ver como setores funcionam" com data-action open-upgrade', async () => {
-    getState.mockReturnValue({
-      equipamentos: [{ id: 'e1', setorId: null, status: 'ok' }],
-      registros: [],
-    });
-    const { renderEquipHero } = await import('../ui/views/equipamentos.js');
-    renderEquipHero({ isPro: false });
-
-    const cta = document.getElementById('equip-hero-sem-setor-cta');
-    expect(cta.hasAttribute('hidden')).toBe(false);
-
-    const btn = cta.querySelector('button');
-    expect(btn).not.toBeNull();
-    expect(btn.dataset.action).toBe('open-upgrade');
-    expect(btn.dataset.upgradeSource).toBe('equip_sem_setor');
-    expect(btn.dataset.highlightPlan).toBe('pro');
-    expect(btn.textContent).toMatch(/setores funcionam/i);
-    expect(btn.classList.contains('equip-hero__cta-btn--upsell')).toBe(true);
-  });
-
-  it('CTA Sem setor: sem opts assume Free (conservador) e mostra upsell', async () => {
-    getState.mockReturnValue({
-      equipamentos: [{ id: 'e1', setorId: null, status: 'ok' }],
-      registros: [],
-    });
-    const { renderEquipHero } = await import('../ui/views/equipamentos.js');
-    renderEquipHero(); // sem opts → default isPro=false
-
-    const btn = document.querySelector('#equip-hero-sem-setor-cta button');
-    expect(btn.dataset.action).toBe('open-upgrade');
+    expect(kpisSlot.innerHTML).toContain('Registrar serviço');
+    expect(document.querySelectorAll('.equip-hero__kpi').length).toBe(1);
   });
 });
 
@@ -351,7 +293,7 @@ describe('renderEquipFilters', () => {
     expect(countOf('todos')).toBe('3');
     expect(countOf('sem-setor')).toBe('2');
     expect(countOf('criticos')).toBe('1');
-    expect(countOf('preventiva-30d')).toBe('1');
+    expect(countOf('preventiva-vencida')).toBe('1');
   });
 
   it('chips com count=0 recebem modifier --empty (não "todos")', async () => {
@@ -365,7 +307,7 @@ describe('renderEquipFilters', () => {
     renderEquipFilters();
 
     const bar = document.getElementById('equip-filters');
-    // sem-setor = 0, em-atencao = 0, criticos = 0, preventiva-30d = 0
+    // sem-setor = 0, em-atencao = 0, criticos = 0, preventiva-vencida = 0
     expect(
       bar.querySelector('[data-id="sem-setor"]').classList.contains('equip-filter--empty'),
     ).toBe(true);
@@ -524,14 +466,9 @@ describe('renderEquip memoization on large lists', () => {
 
     // Com memo local por render, cada métrica pesada roda 1x por equipamento.
     expect(evaluateEquipmentRiskMock).toHaveBeenCalledTimes(2);
-    // Depois do refino UX (abr/2026) o hero não calcula mais KPIs próprios,
-    // mas renderEquipFilters passou a precisar de kpis pra contadores dos
-    // chips — então `computeEquipKpis` roda 1x no fluxo hero (condicional
-    // semSetor) + 1x no fluxo filters. Em equipamentos com setorId definido,
-    // cada chamada de `evaluateEquipmentPriority` roda 1x por equip. Isso
-    // resulta em 2 equips × (2 chamadas de computeEquipKpis + 1 no sort) =
-    // 6 chamadas totais.
-    expect(evaluateEquipmentPriorityMock).toHaveBeenCalledTimes(6);
+    // Hero "Atenção agora" não usa mais evaluateEquipmentPriority; as chamadas
+    // vêm de computeEquipKpis (filters) + sort.
+    expect(evaluateEquipmentPriorityMock).toHaveBeenCalledTimes(4);
     expect(getActionPriorityScoreMock).toHaveBeenCalledTimes(2);
   });
 
