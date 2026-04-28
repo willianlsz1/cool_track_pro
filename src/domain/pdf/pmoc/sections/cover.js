@@ -139,7 +139,7 @@ function drawInfoBlock(doc, x, y, width, lines) {
 }
 
 export function drawPmocCover(doc, pageWidth, pageHeight, margins, ctx) {
-  const { ano, docNumber, cliente, profile, equipamentos = [] } = ctx;
+  const { ano, docNumber, cliente, profile, equipamentos = [], pmocSummary = {} } = ctx;
   const left = margins.left;
   const right = pageWidth - margins.right;
   const innerW = right - left;
@@ -196,7 +196,22 @@ export function drawPmocCover(doc, pageWidth, pageHeight, margins, ctx) {
   const cardGap = 4;
   const cardW = (innerW - cardGap * 3) / 4;
   const cardH = 22;
-  const equipCount = equipamentos.length;
+  const equipCount = Number.isFinite(pmocSummary.equipamentoCount)
+    ? pmocSummary.equipamentoCount
+    : equipamentos.length;
+  const plannedCount = Number(pmocSummary.plannedCount || 0);
+  const conformidadePct =
+    plannedCount > 0
+      ? `${Math.min(100, Math.round((pmocSummary.doneCount / plannedCount) * 100))}%`
+      : '0%';
+  const planStatus =
+    pmocSummary.status === 'em_dia'
+      ? 'Em dia'
+      : pmocSummary.status === 'atencao'
+        ? 'Em atenção'
+        : pmocSummary.status === 'atrasado'
+          ? 'Atrasado'
+          : 'Sem dados';
 
   summaryCard(
     doc,
@@ -213,13 +228,13 @@ export function drawPmocCover(doc, pageWidth, pageHeight, margins, ctx) {
     y,
     cardW,
     cardH,
-    'Mensal',
-    ['Periodicidade', 'padrão'],
+    String(plannedCount),
+    ['Intervenções', 'planejadas'],
     { smallValue: true },
   );
-  summaryCard(doc, left + (cardW + cardGap) * 2, y, cardW, cardH, '100%', [
-    'Conformidade',
-    'normativa',
+  summaryCard(doc, left + (cardW + cardGap) * 2, y, cardW, cardH, conformidadePct, [
+    'Execução',
+    'anual',
   ]);
   summaryCard(
     doc,
@@ -227,8 +242,8 @@ export function drawPmocCover(doc, pageWidth, pageHeight, margins, ctx) {
     y,
     cardW,
     cardH,
-    'Manutenção',
-    ['preventiva', 'programada'],
+    planStatus,
+    ['Status do', 'cronograma'],
     { smallValue: true },
   );
   y += cardH + 10;

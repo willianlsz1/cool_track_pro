@@ -261,6 +261,7 @@ const ICON_SEARCH = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
 const ICON_FILTER = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>`;
 const ICON_MONITOR_SM = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`;
 const ICON_CLOCK_SM = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
+const ICON_FILE = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
 const ICON_BELL_SM = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9Z"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
 const ICON_PEN = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4l6 6-11 11H3v-6L14 4z"/></svg>`;
 
@@ -491,6 +492,13 @@ function _lastServiceClass(sinceLast) {
   return 'cli-stat__value--ok';
 }
 
+function _pmocStatusClass(status) {
+  if (status === 'em_dia') return 'cli-pmoc__chip--ok';
+  if (status === 'atencao') return 'cli-pmoc__chip--warn';
+  if (status === 'atrasado') return 'cli-pmoc__chip--danger';
+  return 'cli-pmoc__chip--muted';
+}
+
 function _renderCard(cliente, data) {
   const safeId = Utils.escapeAttr(cliente.id);
   const nome = Utils.escapeHtml(cliente.nome || 'Cliente');
@@ -598,6 +606,19 @@ function _renderCard(cliente, data) {
       </div>
       ${pmocBlock}
 
+      <section class="cli-pmoc" aria-label="Resumo PMOC">
+        <div class="cli-pmoc__head">
+          <strong>${Utils.escapeHtml(pmoc.activeLabel || 'PMOC inativo')}</strong>
+          <span class="cli-pmoc__chip ${_pmocStatusClass(pmoc.status)}">
+            ${Utils.escapeHtml(pmoc.statusLabel || 'Sem cronograma')}
+          </span>
+        </div>
+        <div class="cli-pmoc__meta">
+          <span>Última atualização: ${Utils.escapeHtml(pmoc.lastUpdateLabel || 'Sem atualização')}</span>
+          <span>Progresso: ${Number(pmoc.doneCount || 0)}/${Number(pmoc.plannedCount || 0)}</span>
+        </div>
+      </section>
+
       <footer class="cli-card__actions">
         <button type="button" class="cli-card__action cli-card__action--primary"
           data-cli-action="ver-equipamentos" data-id="${safeId}">
@@ -606,6 +627,10 @@ function _renderCard(cliente, data) {
         <button type="button" class="cli-card__action cli-card__action--secondary"
           data-cli-action="ver-serviços" data-id="${safeId}">
           ${ICON_CLOCK_SM}<span>Ver serviços</span>
+        </button>
+        <button type="button" class="cli-card__action cli-card__action--pmoc"
+          data-action="open-pmoc-modal" data-cliente-id="${safeId}">
+          ${ICON_FILE}<span>PMOC</span>
         </button>
         <button type="button" class="cli-card__action cli-card__action--ghost cli-card__action--options"
           data-cli-action="card-menu" data-id="${safeId}"
@@ -751,6 +776,19 @@ export async function renderClientes() {
 
   const { clientes = [], equipamentos = [], registros = [] } = getState();
   const indexed = _indexCliente(clientes, equipamentos, registros);
+  const currentYear = new Date().getFullYear();
+  clientes.forEach((cliente) => {
+    const current = indexed.get(cliente.id) || {};
+    indexed.set(cliente.id, {
+      ...current,
+      pmocSummary: getPmocSummaryForCliente({
+        clienteId: cliente.id,
+        year: currentYear,
+        equipamentos,
+        registros,
+      }),
+    });
+  });
 
   // Header sempre visível
   const headerHtml = `
