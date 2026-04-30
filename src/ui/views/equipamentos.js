@@ -10,7 +10,7 @@ import { Toast } from '../../core/toast.js';
 import { OnboardingBanner } from '../components/onboarding.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { Profile } from '../../features/profile.js';
-import { getHealthClass, updateHeader } from './dashboard.js';
+import { calcHealthScore, getHealthClass, updateHeader } from './dashboard.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { checkPlanLimit } from '../../core/planLimits.js';
 import { currentRoute, goTo } from '../../core/router.js';
@@ -21,6 +21,7 @@ import {
   getSuggestedPreventiveDays,
   normalizePeriodicidadePreventivaDias,
 } from '../../domain/maintenance.js';
+import { ACTION_CODE } from '../../domain/suggestedAction.js';
 import { getPreventivaDueEquipmentIds } from '../../domain/alerts.js';
 import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { DadosPlacaValidationError, formatDecimalHint } from '../../domain/dadosPlacaValidation.js';
@@ -47,9 +48,7 @@ import {
 } from './equipamentos/contextState.js';
 import {
   _createEquipRenderEvalContext,
-  _idleClusterHtml,
   _resolveIdleClusterCollapsed,
-  equipCardHtml,
 } from './equipamentos/equipmentCards.js';
 import { configureEquipPhotos, syncContextGroupVisibility } from './equipamentos/fotos.js';
 import {
@@ -74,6 +73,11 @@ import {
   getSetorNomeValidation,
   setorContrastWithWhite,
 } from './equipamentos/setorHelpers.js';
+import {
+  PRIORIDADE_LABEL,
+  RISK_CLASS_LABEL,
+  STATUS_OPERACIONAL,
+} from './equipamentos/constants.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -119,6 +123,34 @@ let _renderEquipPlanNeedsRefresh = true;
 let _renderEquipPlanEventsBound = false;
 let _renderEquipPlanRefreshPromise = null;
 let _forcedEquipContext = null;
+let _equipamentosListBridgePromise = null;
+let _equipamentosListBridge = null;
+let _equipamentosListRenderGeneration = 0;
+
+function loadEquipamentosListBridge() {
+  _equipamentosListBridgePromise ??=
+    import('../../react/entrypoints/equipamentosListIsland.jsx').then((bridge) => {
+      _equipamentosListBridge = bridge;
+      return bridge;
+    });
+  return _equipamentosListBridgePromise;
+}
+
+export function unmountEquipamentosList() {
+  _equipamentosListRenderGeneration += 1;
+  const root = document.getElementById('lista-equip');
+  if (!root?.dataset.reactEquipamentosListMounted) return null;
+
+  if (_equipamentosListBridge?.unmountEquipamentosListReact) {
+    _equipamentosListBridge.unmountEquipamentosListReact(root);
+    return null;
+  }
+
+  return loadEquipamentosListBridge().then(({ unmountEquipamentosListReact }) => {
+    unmountEquipamentosListReact(root);
+    return null;
+  });
+}
 
 function _bindRenderEquipPlanInvalidationEvents() {
   if (_renderEquipPlanEventsBound || typeof window === 'undefined') return;
@@ -529,6 +561,7 @@ export function setActiveSector(id) {
 function renderSetorGrid() {
   const el = Utils.getEl('lista-equip');
   if (!el) return;
+  unmountEquipamentosList();
 
   const { setores, equipamentos } = getState();
   const searchBar = Utils.getEl('equip-search-bar');
@@ -576,6 +609,7 @@ function renderSetorGrid() {
 function renderSetorGridForCliente(clienteId, clienteNome) {
   const el = Utils.getEl('lista-equip');
   if (!el) return;
+  unmountEquipamentosList();
 
   const { setores, equipamentos } = getState();
   // Esconde search bar + view toggle em contexto cliente (irrelevantes na
@@ -720,6 +754,205 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
   el.innerHTML = `<div class="setor-grid">${setorCards.join('')}${semSetorTile}</div>`;
 }
 
+const EQUIP_TONE_LABELS = {
+  ok: 'Estável',
+  warn: 'Em atenção',
+  danger: 'Crítico',
+};
+
+const COMPONENT_PILL_META = {
+  evaporadora: { label: 'Evap.', tint: 'cyan' },
+  condensadora: { label: 'Cond.', tint: 'orange' },
+  unidade_unica: { label: 'Unidade unica', tint: 'neutral' },
+};
+
+const POSITIVE_FACTOR_PATTERNS = [
+  'em dia',
+  'preventivas consecutivas',
+  'sem corretivas',
+  'dentro da rotina',
+  'rotina estavel',
+  'estavel',
+  'sem alertas',
+  'historico limpo',
+];
+
+function normalizeText(value = '') {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function classifyRiskFactor(factor) {
+  const normalized = normalizeText(factor);
+  return POSITIVE_FACTOR_PATTERNS.some((pattern) => normalized.includes(pattern))
+    ? 'positive'
+    : 'neutral';
+}
+
+function componentPillModel(componente) {
+  return COMPONENT_PILL_META[componente] || null;
+}
+
+function recencia(data) {
+  const diff = Math.round((new Date() - new Date(data)) / 86400000);
+  if (diff === 0) return 'hoje';
+  if (diff === 1) return 'ontem';
+  if (diff < 30) return `há ${diff} dias`;
+  if (diff < 60) return 'há 1 mês';
+  return `há ${Math.floor(diff / 30)} meses`;
+}
+
+function ctaLabelForAction(actionCode) {
+  if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE_IMMEDIATE)
+    return 'Registrar serviço corretivo agora';
+  if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE) return 'Registrar serviço corretivo';
+  if (actionCode === ACTION_CODE.REGISTER_PREVENTIVE) return 'Registrar serviço preventivo';
+  if (actionCode === ACTION_CODE.SCHEDULE_PREVENTIVE) return 'Programar serviço preventivo';
+  if (actionCode === ACTION_CODE.COLLECT_DATA) return 'Registrar última manutenção';
+  return 'Registrar serviço';
+}
+
+function preventiveTimelineModel(context = {}) {
+  if (!context.proximaPreventiva) return null;
+  const diff = Utils.daysDiff(context.proximaPreventiva);
+  if (diff < 0) return { nextLabel: `vencida há ${Math.abs(diff)}d`, nextTone: 'danger' };
+  if (diff === 0) return { nextLabel: 'hoje', nextTone: 'danger' };
+  if (diff <= 7) return { nextLabel: `${diff} dia${diff > 1 ? 's' : ''}`, nextTone: 'warn' };
+  return { nextLabel: `${diff} dias`, nextTone: 'neutral' };
+}
+
+function buildEquipamentoListCardModel(eq, evalCtx) {
+  const eqRegs = evalCtx.getRegs(eq.id);
+  const context = evalCtx.getMaintenanceContext(eq);
+  const last = context.ultimoRegistro;
+  const score = calcHealthScore(eq.id);
+  const healthClass = getHealthClass(score);
+  const statusClass = Utils.safeStatus(eq.status);
+  const priorityLabel = PRIORIDADE_LABEL[eq.criticidade] || PRIORIDADE_LABEL.media;
+  const risk = evalCtx.getRisk(eq);
+  const suggestedAction = evalCtx.getSuggestedAction(eq);
+  const hasAction =
+    suggestedAction.actionCode !== ACTION_CODE.NONE &&
+    suggestedAction.actionCode !== ACTION_CODE.MONITOR;
+  const hasMetrics = Boolean(last) || Boolean(context.proximaPreventiva);
+  const isFullyIdle = evalCtx.isFullyIdle(eq);
+  const isActivationPending = !last && suggestedAction.actionCode === ACTION_CODE.COLLECT_DATA;
+  const ctaLabel = !last && !hasAction ? 'Começar' : ctaLabelForAction(suggestedAction.actionCode);
+  const isUrgent =
+    statusClass === 'danger' ||
+    (risk.factors || []).some((factor) => /parado desde|preventiva vencida/i.test(String(factor)));
+  const primaryLabel = isActivationPending
+    ? 'STATUS INICIAL'
+    : isUrgent
+      ? 'AÇÃO URGENTE'
+      : 'PRÓXIMA AÇÃO';
+  const timeline = hasMetrics
+    ? {
+        lastLabel: last ? recencia(last.data) : '—',
+        ...(preventiveTimelineModel(context) || { nextLabel: 'sem agenda', nextTone: 'neutral' }),
+      }
+    : null;
+  const visual = getEquipmentVisualMeta(eq);
+
+  return {
+    id: String(eq.id || ''),
+    name: String(eq.nome || ''),
+    statusClass,
+    statusLabel: EQUIP_TONE_LABELS[statusClass] || EQUIP_TONE_LABELS.ok,
+    ariaLabel: `${eq.nome || ''} — ${STATUS_OPERACIONAL[statusClass] || ''}`,
+    isIdle: isFullyIdle,
+    visual,
+    nameClass: statusClass === 'danger' ? 'equip-card__name--danger' : '',
+    tagParts: [
+      isFullyIdle && eq.tag && String(eq.tag).trim() ? String(eq.tag).trim() : eq.tag || '—',
+      eq.fluido || eq.tipo || '—',
+      priorityLabel,
+    ].filter((part, index) => (isFullyIdle && index === 0 ? Boolean(part && part !== '—') : true)),
+    componentPill: componentPillModel(eq.componente),
+    subtitle: eq.local || 'Local não informado',
+    score,
+    healthClass,
+    risk: {
+      classification: risk.classification || 'baixo',
+      label: RISK_CLASS_LABEL[risk.classification] || RISK_CLASS_LABEL.baixo,
+      score: Number(risk.score) || 0,
+      factors: (risk.factors || []).map((factor) => ({
+        label: String(factor || ''),
+        tone: classifyRiskFactor(factor),
+      })),
+    },
+    timeline,
+    primaryLabel,
+    primaryTitle: isActivationPending
+      ? 'Sem manutenção recente ⚠️'
+      : hasAction
+        ? suggestedAction.actionLabel
+        : ctaLabel,
+    primaryMeta: hasAction && last?.tecnico ? `Por ${last.tecnico} · ${recencia(last.data)}` : '',
+    ctaLabel,
+    eqRegsCount: eqRegs.length,
+  };
+}
+
+function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
+  const fallback = {
+    title: 'Nenhum equipamento encontrado',
+    description: 'Tente outro termo ou cadastre um novo.',
+    cta: {
+      label: '+ Novo equipamento',
+      action: 'open-modal',
+      id: 'modal-add-eq',
+    },
+  };
+  const source = emptyCopy || fallback;
+  const cta = source.cta?.action
+    ? {
+        label: source.cta.label,
+        action: source.cta.action,
+        id: source.cta.id || '',
+        tone: 'primary',
+        size: 'sm',
+        autoWidth: true,
+      }
+    : {
+        label: '+ Novo equipamento',
+        action: 'open-modal',
+        id: 'modal-add-eq',
+        tone: 'primary',
+        size: 'sm',
+        autoWidth: true,
+      };
+
+  return {
+    icon: source.cta?.action === 'eq-add-for-cliente' ? '👥' : '🔧',
+    title: source.title,
+    description: source.description,
+    cta,
+    proHint: Boolean(isPro && !filterClienteId),
+  };
+}
+
+function buildReactListViewModel(viewModel, { evalCtx, clusterActive, filterClienteId, isPro }) {
+  const cards = viewModel.sortedItems.map((eq) => buildEquipamentoListCardModel(eq, evalCtx));
+  const cardsById = new Map(cards.map((card) => [card.id, card]));
+  const toCards = (items) =>
+    (items || []).map((eq) => cardsById.get(String(eq.id || ''))).filter(Boolean);
+
+  return {
+    listTitle: 'Todos os equipamentos',
+    cards,
+    idleCards: toCards(viewModel.idleItems),
+    activeCards: toCards(viewModel.activeItems),
+    clusterActive,
+    quickMove: viewModel.quickMove,
+    emptyState: cards.length
+      ? null
+      : buildReactListEmptyState(viewModel.emptyState, { filterClienteId, isPro }),
+  };
+}
+
 /** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
 function renderFlatList(filtro = '', options = {}, setorId = null) {
   const { equipamentos, registros, clientes, setores } = getState();
@@ -754,9 +987,6 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   const el = Utils.getEl('lista-equip');
   if (!el) return;
 
-  const sortedList = viewModel.sortedItems;
-  const emptyCopy = viewModel.emptyState;
-
   // PR4 §12.3 · Particiona idle vs ativo pra decidir sobre idle-cluster.
   //  · Cluster coleta idles quando ≥5 (histerese solta ≤2).
   //  · Posição: cluster sempre acima dos cards ativos — mas só se houver
@@ -766,128 +996,25 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   const activeList = viewModel.activeItems;
   const clusterActive =
     _resolveIdleClusterCollapsed(idleList.length) && idleList.length > 0 && activeList.length > 0;
-
-  withSkeleton(el, { enabled: true, variant: 'equipment', count: viewModel.skeletonCount }, () => {
-    if (!sortedList.length) {
-      // Cliente filter: usa CTA customizado que pre-seleciona o cliente no
-      // modal-add-eq. Outros casos: CTA padrao "Novo equipamento".
-      const cta = emptyCopy.cta?.action
-        ? {
-            label: emptyCopy.cta.label,
-            action: emptyCopy.cta.action,
-            id: emptyCopy.cta.id || '',
-            tone: 'primary',
-            size: 'sm',
-            autoWidth: true,
-          }
-        : {
-            label: '+ Novo equipamento',
-            action: 'open-modal',
-            id: 'modal-add-eq',
-            tone: 'primary',
-            size: 'sm',
-            autoWidth: true,
-          };
-      const proEmptyExtra =
-        isCachedPlanPro() && !filterClienteId
-          ? `<p class="empty-state__hint">Use Clientes quando quiser organizar por empresa e setor.</p>
-               <button class="btn btn--outline btn--sm" data-nav="clientes">Cadastrar cliente primeiro</button>`
-          : '';
-      el.innerHTML =
-        emptyStateHtml({
-          icon: emptyCopy.cta?.action === 'eq-add-for-cliente' ? '👥' : '🔧',
-          title: emptyCopy.title,
-          description: emptyCopy.description,
-          cta,
-        }) + proEmptyExtra;
-      return;
-    }
-    // Banner quick-move: aparece quando estamos vendo equips "sem setor"
-    // dentro do contexto cliente E ha setores disponiveis. Inclui:
-    //   1. Setores já vinculados a este cliente (priority)
-    //   2. Setores "orphan" sem cliente (legacy) — ao escolher, o setor eh
-    //      auto-vinculado ao cliente durante o move (preenche o gap da
-    //      hierarquia Cliente -> Setor -> Equipamento).
-    let quickMoveBannerHtml = '';
-    if (filterClienteId && setorId === '__sem_setor__' && sortedList.length > 0) {
-      const { setores } = getState();
-      const setoresDoCliente = (setores || []).filter((s) => s.clienteId === filterClienteId);
-      const setoresOrfaos = (setores || []).filter((s) => !s.clienteId);
-      const totalDisponiveis = setoresDoCliente.length + setoresOrfaos.length;
-
-      if (totalDisponiveis > 0) {
-        const equipIds = sortedList.map((e) => e.id).join(',');
-
-        // Constroi options agrupadas: do cliente primeiro, depois orphan
-        // (com label visual indicando que serão vinculados ao cliente).
-        const optClientes = setoresDoCliente
-          .map(
-            (s) => `<option value="${Utils.escapeAttr(s.id)}">${Utils.escapeHtml(s.nome)}</option>`,
-          )
-          .join('');
-        const optOrfaos = setoresOrfaos
-          .map(
-            (s) =>
-              `<option value="${Utils.escapeAttr(s.id)}">${Utils.escapeHtml(s.nome)} (sem cliente — sera vinculado)</option>`,
-          )
-          .join('');
-        const setorOptions =
-          (setoresDoCliente.length
-            ? `<optgroup label="Setores deste cliente">${optClientes}</optgroup>`
-            : '') +
-          (setoresOrfaos.length
-            ? `<optgroup label="Setores sem cliente (sera vinculado)">${optOrfaos}</optgroup>`
-            : '');
-        quickMoveBannerHtml = `
-            <div class="quick-move-banner" data-equip-ids="${Utils.escapeAttr(equipIds)}">
-              <div class="quick-move-banner__icon" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                </svg>
-              </div>
-              <div class="quick-move-banner__body">
-                <strong>Organizar ${sortedList.length} equipamento${sortedList.length !== 1 ? 's' : ''} sem setor</strong>
-                <p>Escolha um setor para mover todos de uma vez. Ou edite cada equipamento individualmente.</p>
-              </div>
-              <div class="quick-move-banner__action">
-                <select class="quick-move-banner__select" id="quick-move-target-setor"
-                  aria-label="Setor de destino">
-                  <option value="">Selecione um setor...</option>
-                  ${setorOptions}
-                </select>
-                <button type="button" class="quick-move-banner__btn"
-                  data-action="quick-move-equip-batch">
-                  Mover todos
-                </button>
-              </div>
-            </div>`;
-      }
-    }
-
-    const listTitle =
-      '<h2 class="section-title" style="margin:8px 0 10px">Todos os equipamentos</h2>';
-    if (clusterActive) {
-      const idleCardsHtml = idleList
-        .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
-        .join('');
-      const activeCardsHtml = activeList
-        .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
-        .join('');
-      el.innerHTML =
-        listTitle +
-        quickMoveBannerHtml +
-        _idleClusterHtml(idleCardsHtml, idleList.length) +
-        activeCardsHtml;
-    } else {
-      el.innerHTML =
-        listTitle +
-        quickMoveBannerHtml +
-        sortedList.map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx })).join('');
-    }
-    _bindEquipCardImageFallbacks(el);
+  const reactViewModel = buildReactListViewModel(viewModel, {
+    evalCtx,
+    clusterActive,
+    filterClienteId,
+    isPro: isCachedPlanPro(),
   });
+  const renderGeneration = ++_equipamentosListRenderGeneration;
+
+  return withSkeleton(
+    el,
+    { enabled: true, variant: 'equipment', count: viewModel.skeletonCount },
+    () =>
+      loadEquipamentosListBridge().then(({ mountEquipamentosListReact }) => {
+        if (renderGeneration !== _equipamentosListRenderGeneration) return null;
+        const mounted = mountEquipamentosListReact(el, { viewModel: reactViewModel });
+        _bindEquipCardImageFallbacks(el);
+        return mounted;
+      }),
+  );
 }
 
 export async function renderEquip(filtro = '', options = {}) {
@@ -951,11 +1078,13 @@ export async function renderEquip(filtro = '', options = {}) {
     });
 
     if (activeQuickFilter === 'sem-setor') {
-      renderFlatList(filtro, renderOptionsWithClient, '__sem_setor__');
-    } else {
-      renderFlatList(filtro, { ...renderOptionsWithClient, statusFilter: activeQuickFilter }, null);
+      return renderFlatList(filtro, renderOptionsWithClient, '__sem_setor__');
     }
-    return;
+    return renderFlatList(
+      filtro,
+      { ...renderOptionsWithClient, statusFilter: activeQuickFilter },
+      null,
+    );
   }
 
   const searchBar = Utils.getEl('equip-search-bar');
@@ -1005,7 +1134,7 @@ export async function renderEquip(filtro = '', options = {}) {
 
   // O filtro de cliente já foi tratado mais cedo via early-return — aqui
   // segue o flow normal de drill-down em setor ou lista flat default.
-  renderFlatList(filtro, renderOptionsWithClient, activeSectorId);
+  return renderFlatList(filtro, renderOptionsWithClient, activeSectorId);
 }
 
 // ─── Setor CRUD ───────────────────────────────────────────────────────────────

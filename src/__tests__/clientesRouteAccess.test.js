@@ -22,6 +22,7 @@ vi.mock('../ui/views/dashboard.js', () => ({
 vi.mock('../ui/views/equipamentos.js', () => ({
   renderEquip: vi.fn(),
   populateEquipSelects: vi.fn(),
+  unmountEquipamentosList: vi.fn(),
 }));
 vi.mock('../ui/views/historico.js', () => ({
   renderHist: vi.fn(),

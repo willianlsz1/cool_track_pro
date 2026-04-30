@@ -1,6 +1,10 @@
 import { currentRoute, registerRoute } from '../../core/router.js';
 import { renderDashboard, updateHeader } from '../views/dashboard.js';
-import { renderEquip, populateEquipSelects } from '../views/equipamentos.js';
+import {
+  renderEquip,
+  populateEquipSelects,
+  unmountEquipamentosList,
+} from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
 import { renderAlertas, unmountAlertas } from '../views/alertas.js';
 import { renderRelatorio, populateRelatorioSelects } from '../views/relatorio.js';
@@ -32,11 +36,18 @@ export function registerAppRoutes() {
     renderDashboard();
   });
 
-  registerRoute('equipamentos', (params = {}) => {
-    populateEquipSelects();
-    renderEquip('', params);
-    updateHeader();
-  });
+  registerRoute(
+    'equipamentos',
+    (params = {}) => {
+      populateEquipSelects();
+      const renderResult = renderEquip('', params);
+      updateHeader();
+      return renderResult;
+    },
+    () => {
+      unmountEquipamentosList();
+    },
+  );
 
   registerRoute('registro', (params = {}) => {
     populateEquipSelects();
