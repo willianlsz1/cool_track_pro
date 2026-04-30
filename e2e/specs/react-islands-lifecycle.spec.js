@@ -48,6 +48,40 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator(markerSelector)).toHaveCount(1);
   }
 
+  async function assertDashboardKpisIsland(page) {
+    await expect(page.locator('#view-inicio')).toHaveCount(1);
+    await expect(page.locator('#dash-kpis-root')).toHaveCount(1);
+    await expect(page.locator('#dash-kpis-root')).toHaveAttribute(
+      'data-react-dashboard-kpis-mounted',
+      'true',
+    );
+    await expect(
+      page.locator('#dash-kpis-root[data-react-dashboard-kpis-mounted="true"]'),
+    ).toHaveCount(1);
+
+    await expect(page.locator('#dash-kpi-ativos')).toHaveCount(1);
+    await expect(page.locator('#dash-kpi-ef')).toHaveCount(1);
+    await expect(page.locator('#dash-kpi-anom')).toHaveCount(1);
+    await expect(page.locator('#dash-kpi-mes')).toHaveCount(1);
+    await expect(page.locator('#dash-kpis-root .dash__kpi')).toHaveCount(4);
+    await expect(page.locator('#dash-kpis-root .dash__kpi-value')).toHaveCount(4);
+    expect(await page.locator('#dash-kpis-root [data-tone]').count()).toBeGreaterThan(0);
+  }
+
+  test('dashboard KPIs saem e voltam sem duplicar root React', async ({ page }) => {
+    await assertNoDuplicateCreateRoot(page, async () => {
+      await assertDashboardKpisIsland(page);
+
+      await page.click('#sidenav-clientes');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'clientes');
+      await expect(page.locator('#clientes-root')).toHaveCount(1);
+
+      await page.click('#sidenav-inicio');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
+      await assertDashboardKpisIsland(page);
+    });
+  });
+
   test('clientes sai e volta sem duplicar root React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, () =>
       cycleIsland(page, {

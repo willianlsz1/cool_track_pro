@@ -60,6 +60,8 @@ import { DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
 
 let dashboardKpisBridgePromise = null;
 let dashboardKpisBridge = null;
+let dashboardNextActionBridgePromise = null;
+let dashboardNextActionBridge = null;
 
 function loadDashboardKpisBridge() {
   dashboardKpisBridgePromise ??= import('../../react/entrypoints/dashboardKpisIsland.jsx').then(
@@ -78,6 +80,19 @@ function getDashboardKpisRoot() {
   );
 }
 
+function loadDashboardNextActionBridge() {
+  dashboardNextActionBridgePromise ??=
+    import('../../react/entrypoints/dashboardNextActionIsland.jsx').then((bridge) => {
+      dashboardNextActionBridge = bridge;
+      return bridge;
+    });
+  return dashboardNextActionBridgePromise;
+}
+
+function getDashboardNextActionRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.nextActionCard);
+}
+
 export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
   if (!root) return undefined;
   if (dashboardKpisBridge?.unmountDashboardKpisReact) {
@@ -86,6 +101,17 @@ export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
   }
   return loadDashboardKpisBridge().then(({ unmountDashboardKpisReact }) => {
     unmountDashboardKpisReact(root);
+  });
+}
+
+export function unmountDashboardNextAction(root = getDashboardNextActionRoot()) {
+  if (!root) return undefined;
+  if (dashboardNextActionBridge?.unmountDashboardNextActionReact) {
+    dashboardNextActionBridge.unmountDashboardNextActionReact(root);
+    return undefined;
+  }
+  return loadDashboardNextActionBridge().then(({ unmountDashboardNextActionReact }) => {
+    unmountDashboardNextActionReact(root);
   });
 }
 
@@ -663,14 +689,25 @@ function _renderNextActionCard({
   clientes,
   viewModel,
 }) {
+  const model = viewModel?.nextAction;
+  const root = getDashboardNextActionRoot();
+  if (root && model) {
+    if (dashboardNextActionBridge?.mountDashboardNextActionReact) {
+      dashboardNextActionBridge.mountDashboardNextActionReact(root, { nextAction: model });
+      return Promise.resolve();
+    }
+    return loadDashboardNextActionBridge().then(({ mountDashboardNextActionReact }) => {
+      mountDashboardNextActionReact(root, { nextAction: model });
+    });
+  }
+
   const card = document.getElementById('dash-next-action-card');
   const titleEl = document.getElementById('dash-next-title');
   const subEl = document.getElementById('dash-next-sub');
   const cta = document.getElementById('dash-next-cta');
   const ctaLabel = document.getElementById('dash-next-cta-label');
-  if (!titleEl || !subEl || !cta || !ctaLabel || !card) return;
+  if (!titleEl || !subEl || !cta || !ctaLabel || !card) return Promise.resolve();
 
-  const model = viewModel?.nextAction;
   if (model) {
     card.dataset.tone = model.tone;
     cta.removeAttribute('data-nav');
@@ -1429,7 +1466,7 @@ export async function renderDashboard() {
 
     _populateHeaderIdentity({ tier, userName });
 
-    _renderNextActionCard({
+    await _renderNextActionCard({
       alerts,
       equipamentos,
       registros,
