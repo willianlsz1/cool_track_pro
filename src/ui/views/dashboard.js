@@ -62,6 +62,8 @@ let dashboardKpisBridgePromise = null;
 let dashboardKpisBridge = null;
 let dashboardNextActionBridgePromise = null;
 let dashboardNextActionBridge = null;
+let dashboardLastServiceBridgePromise = null;
+let dashboardLastServiceBridge = null;
 
 function loadDashboardKpisBridge() {
   dashboardKpisBridgePromise ??= import('../../react/entrypoints/dashboardKpisIsland.jsx').then(
@@ -93,6 +95,19 @@ function getDashboardNextActionRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.nextActionCard);
 }
 
+function loadDashboardLastServiceBridge() {
+  dashboardLastServiceBridgePromise ??=
+    import('../../react/entrypoints/dashboardLastServiceIsland.jsx').then((bridge) => {
+      dashboardLastServiceBridge = bridge;
+      return bridge;
+    });
+  return dashboardLastServiceBridgePromise;
+}
+
+function getDashboardLastServiceRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.lastServiceCard);
+}
+
 export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
   if (!root) return undefined;
   if (dashboardKpisBridge?.unmountDashboardKpisReact) {
@@ -112,6 +127,17 @@ export function unmountDashboardNextAction(root = getDashboardNextActionRoot()) 
   }
   return loadDashboardNextActionBridge().then(({ unmountDashboardNextActionReact }) => {
     unmountDashboardNextActionReact(root);
+  });
+}
+
+export function unmountDashboardLastService(root = getDashboardLastServiceRoot()) {
+  if (!root) return undefined;
+  if (dashboardLastServiceBridge?.unmountDashboardLastServiceReact) {
+    dashboardLastServiceBridge.unmountDashboardLastServiceReact(root);
+    return undefined;
+  }
+  return loadDashboardLastServiceBridge().then(({ unmountDashboardLastServiceReact }) => {
+    unmountDashboardLastServiceReact(root);
   });
 }
 
@@ -773,23 +799,34 @@ function _renderNextActionCard({
 }
 
 function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }) {
+  const model = viewModel?.lastService;
+  const root = getDashboardLastServiceRoot();
+  if (root && model) {
+    if (dashboardLastServiceBridge?.mountDashboardLastServiceReact) {
+      dashboardLastServiceBridge.mountDashboardLastServiceReact(root, { lastService: model });
+      return Promise.resolve();
+    }
+    return loadDashboardLastServiceBridge().then(({ mountDashboardLastServiceReact }) => {
+      mountDashboardLastServiceReact(root, { lastService: model });
+    });
+  }
+
   const card = document.getElementById('dash-last-service');
   const titleEl = document.getElementById('dash-last-title');
   const subEl = document.getElementById('dash-last-sub');
-  if (!card || !titleEl) return;
+  if (!card || !titleEl) return Promise.resolve();
 
-  const model = viewModel?.lastService;
   if (model) {
     card.hidden = Boolean(model.hidden);
-    if (model.hidden) return;
+    if (model.hidden) return Promise.resolve();
     titleEl.textContent = model.title;
     if (subEl) subEl.textContent = model.subtitle;
-    return;
+    return Promise.resolve();
   }
 
   if (!registros.length) {
     card.hidden = true;
-    return;
+    return Promise.resolve();
   }
 
   const last = [...registros].sort((a, b) => b.data.localeCompare(a.data))[0];
@@ -804,6 +841,7 @@ function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }
       : _recencia(last.data);
     subEl.textContent = context;
   }
+  return Promise.resolve();
 }
 
 function _renderMonthView({ registros, alerts, isEmpresaPro, viewModel }) {
@@ -1474,7 +1512,12 @@ export async function renderDashboard() {
       clientes,
       viewModel: dashboardReadModel,
     });
-    _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel: dashboardReadModel });
+    await _renderLastServiceCard({
+      registros,
+      isEmpresaPro,
+      clientes,
+      viewModel: dashboardReadModel,
+    });
     _renderMonthView({ registros, alerts, isEmpresaPro, viewModel: dashboardReadModel });
     _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
 

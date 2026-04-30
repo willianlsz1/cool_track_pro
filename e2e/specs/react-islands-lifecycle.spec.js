@@ -68,9 +68,37 @@ test.describe('React islands lifecycle', () => {
     expect(await page.locator('#dash-kpis-root [data-tone]').count()).toBeGreaterThan(0);
   }
 
-  test('dashboard KPIs saem e voltam sem duplicar root React', async ({ page }) => {
+  async function assertDashboardNextActionIsland(page) {
+    const card = page.locator('#dash-next-action-card');
+    const cta = page.locator('#dash-next-cta');
+
+    await expect(card).toHaveCount(1);
+    await expect(card).toHaveClass(/dash__card/);
+    await expect(card).toHaveClass(/dash__card--next-action/);
+    await expect(card).toHaveAttribute('data-react-dashboard-next-action-mounted', 'true');
+    await expect(
+      page.locator('#dash-next-action-card[data-react-dashboard-next-action-mounted="true"]'),
+    ).toHaveCount(1);
+    await expect(card).toHaveAttribute('data-tone', /.+/);
+
+    await expect(page.locator('#dash-next-title')).toHaveCount(1);
+    await expect(page.locator('#dash-next-sub')).toHaveCount(1);
+    await expect(cta).toHaveCount(1);
+    await expect(cta).toHaveClass(/dash__card-cta/);
+    await expect(page.locator('#dash-next-cta-label')).toHaveCount(1);
+
+    const ctaAttrs = await cta.evaluate((node) => ({
+      action: node.getAttribute('data-action'),
+      id: node.getAttribute('data-id'),
+      nav: node.getAttribute('data-nav'),
+    }));
+    expect(Boolean(ctaAttrs.nav || ctaAttrs.action || ctaAttrs.id)).toBe(true);
+  }
+
+  test('dashboard KPIs e próxima ação saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
+      await assertDashboardNextActionIsland(page);
 
       await page.click('#sidenav-clientes');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'clientes');
@@ -79,6 +107,7 @@ test.describe('React islands lifecycle', () => {
       await page.click('#sidenav-inicio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
       await assertDashboardKpisIsland(page);
+      await assertDashboardNextActionIsland(page);
     });
   });
 
