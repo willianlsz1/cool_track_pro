@@ -95,10 +95,30 @@ test.describe('React islands lifecycle', () => {
     expect(Boolean(ctaAttrs.nav || ctaAttrs.action || ctaAttrs.id)).toBe(true);
   }
 
-  test('dashboard KPIs e próxima ação saem e voltam sem duplicar roots React', async ({ page }) => {
+  async function assertDashboardLastServiceIsland(page) {
+    const card = page.locator('#dash-last-service');
+
+    await expect(card).toHaveCount(1);
+    await expect(card).toHaveClass(/dash__card/);
+    await expect(card).toHaveClass(/dash__card--last-service/);
+    await expect(card).toHaveAttribute('data-react-dashboard-last-service-mounted', 'true');
+    await expect(
+      page.locator('#dash-last-service[data-react-dashboard-last-service-mounted="true"]'),
+    ).toHaveCount(1);
+
+    await expect(page.locator('#dash-last-title')).toHaveCount(1);
+    await expect(page.locator('#dash-last-sub')).toHaveCount(1);
+    await expect(page.locator('#dash-last-desc')).toHaveCount(1);
+    await expect(card.locator('.dash__card-label')).toHaveCount(1);
+    await expect(card.locator('.dash__card-title')).toHaveCount(1);
+    await expect(card.locator('.dash__card-sub')).toHaveCount(1);
+  }
+
+  test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
       await assertDashboardNextActionIsland(page);
+      await assertDashboardLastServiceIsland(page);
 
       await page.click('#sidenav-clientes');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'clientes');
@@ -108,6 +128,7 @@ test.describe('React islands lifecycle', () => {
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
       await assertDashboardKpisIsland(page);
       await assertDashboardNextActionIsland(page);
+      await assertDashboardLastServiceIsland(page);
     });
   });
 
