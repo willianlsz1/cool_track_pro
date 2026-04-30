@@ -42,6 +42,12 @@ vi.mock('../ui/views/dashboard.js', () => ({
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'Em dia' })),
 }));
+vi.mock('../core/plans/planCache.js', () => ({
+  isCachedPlanPro: vi.fn(() => false),
+}));
+vi.mock('../core/clientePmoc.js', () => ({
+  buildClientePmocDetails: vi.fn(() => ({ status: 'em_dia', statusLabel: 'Em dia' })),
+}));
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -242,6 +248,43 @@ describe('getProximaStatus', () => {
   });
 });
 
+describe('getTodaySummary', () => {
+  it('resume apenas os registros de hoje e conta equipamentos únicos', async () => {
+    const { getTodaySummary } = await import('../ui/views/historico.js');
+    const today = localDateString();
+    const result = getTodaySummary([
+      { id: '1', equipId: 'eq-1', data: `${today}T08:00:00.000Z` },
+      { id: '2', equipId: 'eq-1', data: `${today}T09:00:00.000Z` },
+      { id: '3', equipId: 'eq-2', data: `${today}T10:00:00.000Z` },
+      { id: '4', equipId: 'eq-3', data: `${localDateOffset(-1)}T10:00:00.000Z` },
+    ]);
+    expect(result).toEqual({ totalServicosHoje: 3, totalEquipHoje: 2 });
+  });
+});
+
+describe('getAttentionItems', () => {
+  it('retorna atenção para próxima manutenção vencida e status crítico', async () => {
+    const { getAttentionItems } = await import('../ui/views/historico.js');
+    const attention = getAttentionItems({
+      registros: [
+        {
+          id: 'r1',
+          equipId: 'eq-1',
+          data: `${localDateString()}T08:00:00.000Z`,
+          proxima: localDateOffset(-2),
+        },
+      ],
+      equipamentos: [{ id: 'eq-1', nome: 'Split Sala', status: 'danger' }],
+      clientes: [],
+      setores: [],
+      isPro: false,
+    });
+    expect(attention.length).toBeGreaterThan(0);
+    expect(attention.some((i) => i.id === 'proxima-eq-1')).toBe(true);
+    expect(attention.some((i) => i.id === 'status-eq-1')).toBe(true);
+  });
+});
+
 describe('getEquipStatusPill', () => {
   it('retorna null quando eq está ausente ou sem status', async () => {
     const { getEquipStatusPill } = await import('../ui/views/historico.js');
@@ -306,5 +349,39 @@ describe('histórico — acesso completo para todos os planos (sem corte por dat
     const source = fs.readFileSync(path.resolve('./src/ui/views/historico.js'), 'utf-8');
     expect(source).not.toMatch(/isCachedPlanPlusOrHigher/);
     expect(source).not.toMatch(/HIST_FREE_LIMIT_DAYS/);
+  });
+});
+
+describe('renderHist runtime safety', () => {
+  it('não quebra com registros do mês e com dados malformados', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-28T12:00:00Z'));
+
+    document.body.innerHTML = `
+      <input id="hist-busca" value="" />
+      <select id="hist-equip"></select>
+      <select id="hist-setor"></select>
+      <div id="hist-quickfilters-slot"></div>
+      <div id="hist-active-chips-slot"></div>
+      <div id="hist-count"></div>
+      <div id="timeline"></div>
+    `;
+
+    const stateMod = await import('../core/state.js');
+    stateMod.getState.mockReturnValue({
+      registros: [
+        { id: 'r-mes', equipId: 'e1', data: '2026-04-10', tipo: 'preventiva', obs: 'ok' },
+        { id: 'r-bad-1', equipId: 'e1', data: null, tipo: null, obs: null },
+        { id: 'r-bad-2', equipId: null, data: '2026-04-22' },
+      ],
+      equipamentos: [{ id: 'e1', nome: 'Split 01', status: 'ok' }],
+      setores: [],
+    });
+
+    const { renderHist } = await import('../ui/views/historico.js');
+
+    expect(() => renderHist()).not.toThrow();
+
+    vi.useRealTimers();
   });
 });

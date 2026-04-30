@@ -71,6 +71,45 @@ export function renderShellViews() {
               </article>
             </section>
 
+            <section class="dash__pair" id="dash-pro-ops-row" hidden>
+              <article class="dash__card" id="dash-critical-alerts-card">
+                <div class="dash__card-label">Alertas críticos</div>
+                <div class="dash__card-title" id="dash-critical-alerts-title">Tudo sob controle</div>
+                <div class="dash__card-sub" id="dash-critical-alerts-sub">Sem alertas críticos agora.</div>
+                <div class="dash__card-desc" id="dash-critical-alerts-list"></div>
+              </article>
+              <article class="dash__card" id="dash-risk-clients-card">
+                <div class="dash__card-label">Clientes em risco</div>
+                <div class="dash__card-title" id="dash-risk-clients-title">Clientes em dia</div>
+                <div class="dash__card-sub" id="dash-risk-clients-sub">Nenhum cliente exige atenção agora.</div>
+                <div class="dash__card-desc" id="dash-risk-clients-list"></div>
+              </article>
+            </section>
+
+            <section class="dash__section" id="dash-month-section">
+              <header class="dash__section-header">
+                <span class="dash__section-label" id="dash-month-label">Seu mês em campo</span>
+              </header>
+              <div class="dash__kpi-grid">
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Serviços no mês</div>
+                  <div class="dash__kpi-value" id="dash-month-services">0</div>
+                </article>
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Equipamentos atendidos</div>
+                  <div class="dash__kpi-value" id="dash-month-equips">0</div>
+                </article>
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Pendências</div>
+                  <div class="dash__kpi-value" id="dash-month-pending">0</div>
+                </article>
+                <article class="dash__kpi">
+                  <div class="dash__kpi-label">Variação</div>
+                  <div class="dash__kpi-sub" id="dash-month-trend">Sem dados anteriores</div>
+                </article>
+              </div>
+            </section>
+
             <section class="dash__section" id="dash-critical-section" hidden>
               <header class="dash__section-header">
                 <span class="dash__section-label">A FAZER AGORA</span>
@@ -152,12 +191,12 @@ export function renderShellViews() {
             </defs>
           </svg>
 
-          <!-- Hero "Organizar parque" — visível no overview (PRO com setores ou FREE/Plus). -->
+          <!-- Hero "Atenção agora" — visível quando há itens críticos/vencidos. -->
           <section class="equip-hero" id="equip-hero" aria-labelledby="equip-hero-title" hidden>
             <span class="equip-hero__orb equip-hero__orb--tl" aria-hidden="true"></span>
             <span class="equip-hero__orb equip-hero__orb--br" aria-hidden="true"></span>
             <div class="equip-hero__head">
-              <h1 class="equip-hero__title" id="equip-hero-title">Organizar parque</h1>
+              <h1 class="equip-hero__title" id="equip-hero-title">Atenção agora</h1>
               <p class="equip-hero__sub" id="equip-hero-sub"></p>
               <div class="equip-hero__cta" id="equip-hero-sem-setor-cta" hidden></div>
             </div>
@@ -168,11 +207,15 @@ export function renderShellViews() {
           <nav class="equip-filters" id="equip-filters" aria-label="Filtrar equipamentos" hidden></nav>
 
           <div class="page-toolbar">
-            <div class="section-title" id="equip-page-title">Parque de Equipamentos</div>
+            <div>
+              <div class="section-title" id="equip-page-title">Equipamentos</div>
+              <p class="section-subtitle" id="equip-page-subtitle"></p>
+            </div>
             <div id="equip-toolbar-actions" style="display:flex;gap:8px;align-items:center">
               <button class="btn btn--primary btn--sm" data-action="open-modal" data-id="modal-add-eq">+ Novo equipamento</button>
             </div>
           </div>
+          <div id="equip-context-chip"></div>
           <!--
             Wrapper flex que coloca search bar + toggle Lista/Grade na mesma
             linha. Antes o toggle estava DENTRO da .search-bar (que é só
@@ -189,7 +232,7 @@ export function renderShellViews() {
                   <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2" />
                   <path d="M9.5 9.5L12 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
                 </svg></span>
-              <input class="form-control search-bar__input" id="equip-busca" type="text" placeholder="Buscar por nome, TAG ou local..."
+              <input class="form-control search-bar__input" id="equip-busca" type="text" placeholder="Buscar equipamento, cliente, setor ou TAG..."
                 aria-label="Buscar equipamento" />
             </div>
             <div class="equip-view-toggle" role="group" aria-label="Modo de visualização">
@@ -443,10 +486,18 @@ export function renderShellViews() {
               </div>
             </section>
 
+            <div class="registro-context-card" id="registro-context-card" hidden>
+              <div class="registro-context-card__title">Atendimento em</div>
+              <div class="registro-context-card__line"><strong>Cliente:</strong> <span id="registro-context-cliente">Não informado</span></div>
+              <div class="registro-context-card__line"><strong>Setor/local:</strong> <span id="registro-context-setor">Não informado</span></div>
+              <div class="registro-context-card__line"><strong>Equipamento:</strong> <span id="registro-context-equip">Não informado</span></div>
+            </div>
+            <p class="registro-context-hint" id="registro-context-hint" hidden></p>
+
             <!-- ============== Blocos opcionais ============== -->
             <div class="registro-kicker">Detalhes opcionais</div>
 
-            <details class="registro-details">
+            <details class="registro-details" id="registro-cliente-details">
               <summary class="registro-details__summary">
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-user"/></svg></span>
                 <div class="registro-details__titles">
@@ -455,6 +506,7 @@ export function renderShellViews() {
                 </div>
                 <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
               </summary>
+              <p class="registro-context-summary" id="registro-cliente-context-summary" hidden></p>
               <div class="registro-details__body">
                 <div class="registro-field">
                   <label class="registro-field__label" for="r-cliente-nome">Nome ou razão social</label>
@@ -558,13 +610,13 @@ export function renderShellViews() {
               <summary class="registro-details__summary">
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-signal"/></svg></span>
                 <div class="registro-details__titles">
-                  <div class="registro-details__title">O que vem a seguir <span class="registro-details__pri">Recomendado</span></div>
-                  <div class="registro-details__subtitle">prioridade, status e próxima preventiva</div>
+                  <div class="registro-details__title" id="registro-impact-title">Impacto no acompanhamento <span class="registro-details__pri">Recomendado</span></div>
+                  <div class="registro-details__subtitle" id="registro-impact-subtitle">prioridade, status e próxima preventiva</div>
                 </div>
                 <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
               </summary>
               <div class="registro-details__body">
-                <p class="registro-bloco__hint">Como o equipamento saiu do serviço? Quando deve voltar?</p>
+                <p class="registro-bloco__hint" id="registro-impact-hint">Defina o status final e a próxima preventiva para acompanhar melhor este equipamento.</p>
                 <div class="registro-field__row">
                   <div class="registro-field registro-field--select">
                     <label class="registro-field__label" for="r-prioridade">Prioridade sugerida</label>
@@ -613,7 +665,7 @@ export function renderShellViews() {
                 </span>
                 <div class="registro-details__titles">
                   <div class="registro-details__title">
-                    Checklist NBR 13971
+                    Checklist PMOC preenchível (NBR 13971)
                     <span class="registro-details__pri" id="r-checklist-pri" hidden>Recomendado p/ PMOC</span>
                   </div>
                   <div class="registro-details__subtitle" id="r-checklist-summary">selecione o equipamento primeiro</div>
@@ -837,6 +889,7 @@ export function renderShellViews() {
                 </button>
                 <div class="rel-export-dd__menu" id="rel-export-dd-menu" role="menu" hidden>
                   <button type="button" class="rel-export-dd__item rel-export-dd__item--pmoc rel-export-dd__item--featured"
+                    id="rel-dd-pmoc-main"
                     role="menuitem" data-action="open-pmoc-modal" data-tier="unknown"
                     title="Documento PMOC formal anual conforme NBR 13971 — Pro.">
                     <span class="rel-export-dd__item-icon" aria-hidden="true">
@@ -860,6 +913,7 @@ export function renderShellViews() {
                     </span>
                   </button>
                   <button type="button" class="rel-export-dd__item rel-export-dd__item--meta"
+                    id="rel-dd-pmoc-info"
                     role="menuitem" data-action="open-pmoc-info" title="Saiba quando usar cada um.">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   
@@ -868,13 +922,25 @@ export function renderShellViews() {
                     </svg>
                     <span>Sobre o PMOC</span>
                   </button>
+                  <button type="button" class="rel-export-dd__item rel-export-dd__item--meta"
+                    id="rel-dd-pmoc-nudge"
+                    role="menuitem" data-nav="pricing" hidden
+                    title="Conheça o plano Pro para PMOC formal.">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 3l2.5 5.3L20 9l-4 3.9.9 5.6L12 16l-4.9 2.5.9-5.6L4 9l5.5-.7z"/>
+                    </svg>
+                    <span>Conheça o Pro (PMOC)</span>
+                  </button>
                 </div>
               </div>
               <div id="pdf-quota-slot" class="rel-toolbar__quota-slot"></div>
             </div>
           </div>
 
-          <h1 class="rel-title">Relatório de Manutenção</h1>
+          <h1 id="rel-main-title" class="rel-title">Relatório rápido</h1>
+          <p id="rel-main-subtitle" class="rel-subtitle">Gere e envie o PDF do serviço em poucos toques.</p>
+          <div id="rel-mode-segment-slot"></div>
 
           <div id="rel-hero" class="rel-hero" aria-live="polite"></div>
 
@@ -899,6 +965,8 @@ export function renderShellViews() {
               </div>
             </div>
           </div>
+
+          <div id="rel-company-pmoc-slot"></div>
 
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>

@@ -10,8 +10,10 @@ import { OnboardingChecklist } from '../../components/onboarding/onboardingCheck
 import { AuthScreen } from '../../components/authscreen.js';
 import {
   clearEditingState as clearEquipEditingState,
+  clearForcedEquipContext,
   clearSetorEditingState,
   clearEquipPhotosEditingState,
+  lockEquipContext,
 } from '../../views/equipamentos.js';
 import {
   applyNameplateCtaGate,
@@ -64,7 +66,7 @@ function setHelpMenuState(open, anchorEl = null) {
       document.body.appendChild(menu);
     }
     const rect = anchorEl.getBoundingClientRect();
-    const menuWidth = 210;
+    const menuWidth = Math.min(320, window.innerWidth - 16);
     const left = Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8));
     const bottom = Math.max(8, window.innerHeight - rect.top + 8);
     menu.style.cssText = `position: fixed !important; left: ${left}px !important; bottom: ${bottom}px !important; right: auto !important; top: auto !important; z-index: 9999 !important; display: grid !important;`;
@@ -102,11 +104,13 @@ export function bindNavigationHandlers() {
     // Ao abrir o modal de equipamento via "+ Novo", garante que não estamos em modo edição
     if (id === 'modal-add-eq') {
       clearEquipEditingState();
+      clearForcedEquipContext();
       // Sync visibilidade do select de componente (evap/cond) baseado no
       // tipo atual. Também bind one-time do change listener no tipo pra
       // re-sync quando user trocar.
       import('../../views/equipamentos.js').then((m) => {
         m.syncComponenteVisibility?.();
+        m.applyEquipModalExperience?.({ triggerEl: el });
         const tipoEl = document.getElementById('eq-tipo');
         if (tipoEl && !tipoEl.dataset.componenteBound) {
           tipoEl.dataset.componenteBound = '1';
@@ -145,6 +149,29 @@ export function bindNavigationHandlers() {
               clienteSelect.dispatchEvent(new Event('change', { bubbles: true }));
             }
           }
+          return import('../../views/equipamentos/contextState.js').then((ctxModule) => {
+            const routeCtx = ctxModule.getRouteEquipCtx?.() || {};
+            const forcedClienteId = clienteId || routeCtx.clienteId || '';
+            const forcedSetorId = setorId || routeCtx.sectorId || '';
+            if (!forcedClienteId && !forcedSetorId) return;
+            const clienteNome =
+              el.dataset.clienteNome ||
+              routeCtx.clienteNome ||
+              document.querySelector('#eq-cliente option:checked')?.textContent ||
+              '';
+            const setorNome =
+              document.querySelector('#eq-setor option:checked')?.textContent ||
+              (forcedSetorId ? 'Setor selecionado' : '');
+            lockEquipContext({
+              clienteId: forcedClienteId || null,
+              clienteNome: clienteNome || '',
+              setorId: forcedSetorId || null,
+              setorNome: setorNome || '',
+            });
+            import('../../views/equipamentos.js').then((m) =>
+              m.applyEquipModalExperience?.({ triggerEl: el }),
+            );
+          });
         })
         .catch(() => {
           /* no-op: campo cliente é opcional */

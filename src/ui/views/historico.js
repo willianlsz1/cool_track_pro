@@ -27,6 +27,8 @@ import { withSkeleton } from '../components/skeleton.js';
 import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
 import { updateHeader } from './dashboard.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
+import { isCachedPlanPro } from '../../core/plans/planCache.js';
+import { buildClientePmocDetails } from '../../core/clientePmoc.js';
 
 // Histórico é parte do core do produto e não tem corte por data em nenhum
 // plano — Free, Plus e Pro veem todos os registros salvos. Outros limites
@@ -418,6 +420,145 @@ export function getEquipStatusPill(eq) {
   return { tone, label };
 }
 
+export function getTodaySummary(registros = []) {
+  const today = Utils.localDateString();
+  const todayRegs = (registros || []).filter((r) => String(r?.data || '').slice(0, 10) === today);
+  const equipIds = new Set(todayRegs.map((r) => r?.equipId).filter(Boolean));
+  return {
+    totalServicosHoje: todayRegs.length,
+    totalEquipHoje: equipIds.size,
+  };
+}
+
+function createAttentionItem({
+  id,
+  tone = 'warn',
+  title,
+  reason,
+  ctaLabel = 'Resolver',
+  equipId = null,
+}) {
+  return { id, tone, title, reason, ctaLabel, equipId };
+}
+
+export function getAttentionItems({
+  registros = [],
+  equipamentos = [],
+  clientes = [],
+  setores = [],
+  isPro = false,
+}) {
+  const list = [];
+  const byEquip = new Map((equipamentos || []).map((eq) => [eq.id, eq]));
+  const latestByEquip = new Map();
+  [...(registros || [])]
+    .filter((r) => r?.equipId && r?.data)
+    .sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')))
+    .forEach((r) => {
+      if (!latestByEquip.has(r.equipId)) latestByEquip.set(r.equipId, r);
+    });
+
+  latestByEquip.forEach((reg, equipId) => {
+    const eq = byEquip.get(equipId);
+    const prox = getProximaStatus(reg?.proxima);
+    const eqName = eq?.nome?.trim() || 'Equipamento';
+    if (prox?.tone === 'danger') {
+      list.push(
+        createAttentionItem({
+          id: `proxima-${equipId}`,
+          tone: 'danger',
+          title: eqName,
+          reason: prox.label,
+          ctaLabel: 'Resolver',
+          equipId,
+        }),
+      );
+    }
+
+    const statusPill = getEquipStatusPill(eq);
+    if (statusPill && statusPill.tone !== 'ok') {
+      list.push(
+        createAttentionItem({
+          id: `status-${equipId}`,
+          tone: statusPill.tone,
+          title: eqName,
+          reason: `Status: ${statusPill.label}`,
+          ctaLabel: 'Ver equipamento',
+          equipId,
+        }),
+      );
+    }
+  });
+
+  if (isPro) {
+    (clientes || []).forEach((cliente) => {
+      const pmoc = buildClientePmocDetails({
+        cliente,
+        equipamentos,
+        registros,
+        setores,
+        today: Utils.localDateString(),
+      });
+      if (pmoc.status === 'atrasado' || pmoc.status === 'atencao') {
+        list.push(
+          createAttentionItem({
+            id: `pmoc-${cliente.id}`,
+            tone: pmoc.status === 'atrasado' ? 'danger' : 'warn',
+            title: cliente?.nome?.trim() || 'Cliente',
+            reason: `PMOC ${pmoc.statusLabel.toLowerCase()}`,
+            ctaLabel: 'Resolver',
+          }),
+        );
+      }
+    });
+  }
+
+  return list.slice(0, 6);
+}
+
+function renderOperationSummary({ totalServicosHoje, totalEquipHoje }) {
+  return `<section class="hist-op-summary" aria-label="Resumo de hoje">
+    <div class="hist-op-summary__head">Resumo de hoje</div>
+    <div class="hist-op-summary__kpis">
+      <div class="hist-op-summary__kpi">
+        <strong>${totalServicosHoje}</strong>
+        <span>serviços realizados</span>
+      </div>
+      <div class="hist-op-summary__kpi">
+        <strong>${totalEquipHoje}</strong>
+        <span>equipamentos atendidos</span>
+      </div>
+    </div>
+    <button type="button" class="hist-op-summary__cta" data-nav="registro">Registrar serviço</button>
+  </section>`;
+}
+
+function renderAttentionSection(items = []) {
+  if (!Array.isArray(items) || !items.length) return '';
+  const rows = items
+    .map((item) => {
+      const toneCls = item.tone === 'danger' ? ' hist-attention__item--danger' : '';
+      const actionAttrs = item.equipId
+        ? `data-hist-action="hist-filter-equip" data-equip-id="${Utils.escapeAttr(item.equipId)}"`
+        : 'data-nav="equipamentos"';
+      return `<article class="hist-attention__item${toneCls}">
+        <div class="hist-attention__content">
+          <strong>${Utils.escapeHtml(item.title || 'Item')}</strong>
+          <span>${Utils.escapeHtml(item.reason || 'Exige atenção')}</span>
+        </div>
+        <button type="button" class="hist-attention__cta" ${actionAttrs}>
+          ${Utils.escapeHtml(item.ctaLabel || 'Resolver')}
+        </button>
+      </article>`;
+    })
+    .join('');
+
+  return `<section class="hist-attention" aria-label="Itens em atenção">
+    <div class="hist-attention__head">Atenção</div>
+    ${rows}
+  </section>`;
+}
+
 // Agrupa lista de registros por categoria de data relativa pra renderizar
 // headers tipo "Hoje", "Ontem", "Esta semana" entre os grupos.
 // Espera lista já ordenada (mais recente primeiro). Retorna lista de grupos
@@ -438,7 +579,7 @@ function groupRegistrosByDate(list) {
     { id: 'hoje', label: 'Hoje', items: [] },
     { id: 'ontem', label: 'Ontem', items: [] },
     { id: 'semana', label: 'Esta semana', items: [] },
-    { id: 'mês', label: 'Este mês', items: [] },
+    { id: 'mes', label: 'Este mês', items: [] },
     { id: 'antigos', label: 'Anteriores', items: [] },
   ];
   const byId = Object.fromEntries(buckets.map((b) => [b.id, b]));
@@ -840,7 +981,15 @@ function renderSignatureBlock(registro) {
 
 function renderTimelineItem(
   r,
-  { isFirst, equipamentos, setoresById, currentFilterEquipId = '', groupId = '' },
+  {
+    isFirst,
+    equipamentos,
+    setoresById,
+    clientesById,
+    isPro = false,
+    currentFilterEquipId = '',
+    groupId = '',
+  },
 ) {
   const eq = equipamentos.find((e) => e.id === r.equipId) || findEquip(r.equipId);
   const setorNome = eq?.setorId ? setoresById.get(eq.setorId)?.nome || '' : '';
@@ -877,6 +1026,7 @@ function renderTimelineItem(
 
   // Tag do setor em maiúsculas compactas (ex: "SALA 1"). Evita tag vazia.
   const setorTag = setorNome ? setorNome.slice(0, 12).toUpperCase().replace(/\s+/g, ' ') : '';
+  const clienteNome = eq?.clienteId ? clientesById.get(eq.clienteId)?.nome || '' : '';
 
   const equipTag = (eq?.tag || eq?.local || '').trim();
 
@@ -988,6 +1138,13 @@ function renderTimelineItem(
         ${setorNome ? `<span class="timeline__item__equipment-tag">${Utils.escapeHtml(setorNome)}</span>` : ''}
         ${setorTag ? `<span class="hist-pill hist-pill--neutral">${Utils.escapeHtml(setorTag)}</span>` : ''}
       </div>
+      ${
+        isPro && (clienteNome || setorNome || eq?.nome)
+          ? `<div class="timeline__item__context">${Utils.escapeHtml(
+              [clienteNome, setorNome, eq?.nome].filter(Boolean).join(' · '),
+            )}</div>`
+          : ''
+      }
       ${r.obs ? `<p class="timeline__item__obs">${Utils.escapeHtml(r.obs)}</p>` : ''}
       ${metaHtml}
       ${photoStrip}
@@ -1031,7 +1188,7 @@ function renderTimelineItem(
 
 /** Popula o select de setor e controla sua visibilidade. */
 function syncSetorSelect(currentSetorId) {
-  const { setores, equipamentos } = getState();
+  const { setores = [], equipamentos = [] } = getState() || {};
   const el = Utils.getEl('hist-setor');
   if (!el) return;
 
@@ -1078,7 +1235,7 @@ export function renderHist() {
   // Suporta deep linking: ?periodo=7d&setor=xyz aplica filtros direto.
   hydrateFiltersFromUrl();
 
-  const { registros, equipamentos, setores } = getState();
+  const { registros = [], equipamentos = [], setores = [], clientes = [] } = getState() || {};
   cleanupOrphanSignatures(registros.map((r) => r.id));
 
   syncSetorSelect();
@@ -1094,7 +1251,9 @@ export function renderHist() {
 
   // Todos os planos têm histórico completo — o filtro temporal foi removido
   // porque histórico é parte essencial do valor do produto pra técnico de campo.
-  let list = [...registros].sort((a, b) => b.data.localeCompare(a.data));
+  let list = [...registros]
+    .filter((r) => r && r.equipId && typeof r.data === 'string' && r.data.length >= 10)
+    .sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')));
 
   if (filtSetor) list = list.filter((r) => equipIdsNoSetor.has(r.equipId));
   if (filtEq) list = list.filter((r) => r.equipId === filtEq);
@@ -1113,8 +1272,8 @@ export function renderHist() {
     list = list.filter((r) => {
       const eq = findEquip(r.equipId);
       return (
-        r.obs.toLowerCase().includes(busca) ||
-        r.tipo.toLowerCase().includes(busca) ||
+        (r.obs || '').toLowerCase().includes(busca) ||
+        (r.tipo || '').toLowerCase().includes(busca) ||
         (eq?.nome || '').toLowerCase().includes(busca) ||
         (r.tecnico || '').toLowerCase().includes(busca)
       );
@@ -1164,14 +1323,6 @@ export function renderHist() {
   // Sincroniza URL apos cada render. URLSearchParams omite chaves vazias,
   // entao ?busca=foo&periodo=7d nunca vira ?busca=&periodo=&setor=&equip=&tipo=.
   writeFiltersToUrl({ busca, setor: filtSetor, equip: filtEq, periodo: period, tipo });
-  const activeFilterCount = [
-    activeFilters.setorLabel,
-    activeFilters.equipLabel,
-    activeFilters.tipo,
-    activeFilters.period !== 'tudo' ? activeFilters.period : '',
-    activeFilters.busca,
-  ].filter(Boolean).length;
-
   // Slots fora do #timeline: mount quickfilters e chips nos seus slots dedicados.
   const quickSlot = Utils.getEl('hist-quickfilters-slot');
   if (quickSlot) quickSlot.innerHTML = renderQuickFilters({ period, tipo });
@@ -1180,6 +1331,16 @@ export function renderHist() {
   if (chipsSlot) chipsSlot.innerHTML = renderActiveFilterChips(activeFilters);
 
   const setoresById = new Map(setores.map((s) => [s.id, s]));
+  const clientesById = new Map(clientes.map((c) => [c.id, c]));
+  const isProMode = isCachedPlanPro();
+  const todaySummary = getTodaySummary(registros);
+  const attentionItems = getAttentionItems({
+    registros,
+    equipamentos,
+    clientes,
+    setores,
+    isPro: isProMode,
+  });
 
   const recurring = getRecurringEquips(list);
 
@@ -1187,7 +1348,7 @@ export function renderHist() {
     // Card gigante de resumo removido — usuário reportou que ocupava espaço
     // demais e duplicava o CTA "Gerar Relatório" do header. Insights numéricos
     // continuam disponíveis no Painel.
-    const preList = '';
+    const preList = renderOperationSummary(todaySummary) + renderAttentionSection(attentionItems);
     void recurring; // ainda calculado pra eventual reuso (alerta de recorrência)
 
     if (!list.length) {
@@ -1202,14 +1363,13 @@ export function renderHist() {
               variant: 'engaging',
               ariaLabel: 'Histórico vazio',
               icon: '📋',
-              title: 'Nenhum serviço registrado ainda',
-              description:
-                'Cada serviço registrado vira um relatório profissional pronto para o cliente. Técnicos que registram aqui economizam em média 3 horas por semana.',
+              title: 'Nenhum serviço registrado ainda.',
+              description: 'Depois do registro, seu histórico aparece aqui.',
               cta: {
-                label: 'Registrar meu primeiro serviço →',
+                label: 'Registrar primeiro serviço',
                 nav: 'registro',
               },
-              microcopy: 'Leva menos de 2 minutos',
+              microcopy: '',
             })}`;
       attachFilterHandlers(el);
       return;
@@ -1227,6 +1387,8 @@ export function renderHist() {
               isFirst: globalIdx === 0,
               equipamentos,
               setoresById,
+              clientesById,
+              isPro: isProMode,
               currentFilterEquipId: filtEq || '',
               groupId: group.id,
             });
@@ -1249,7 +1411,9 @@ export function renderHist() {
       });
     }
 
-    SavedHighlight.applyIfPending();
+    if (SavedHighlight.applyIfPending()) {
+      Toast.success('Serviço registrado.');
+    }
   };
 
   withSkeleton(
@@ -1391,7 +1555,7 @@ function attachFilterHandlers(container) {
     });
   }
 
-  const { registros, equipamentos } = getState();
+  const { registros = [], equipamentos = [] } = getState() || {};
 
   // Handlers vivem em múltiplos containers agora (slots fora do #timeline).
   // Usamos document.querySelectorAll pra capturar tudo — é seguro porque cada

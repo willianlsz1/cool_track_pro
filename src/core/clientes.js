@@ -6,12 +6,11 @@
  * `storage.js` (offline queue, normalizers complexos, sync background)
  * porque:
  *
- *   1. Clientes raramente são editados offline (técnico tá no escritório
- *      quando cadastra cliente, ou na hora de gerar PMOC — momentos com rede).
- *   2. Volume baixo: técnico médio tem 5-30 clientes. Não compensa cache
- *      sofisticado.
- *   3. Fase 2 entrega valor rapidamente. Se virar pain point real,
- *      refatora pra usar o storage.js master loop.
+ *   1. Volume baixo: técnico médio tem 5-30 clientes. Não compensa cache
+ *      sofisticado dedicado só para essa entidade.
+ *   2. O snapshot offline-first do storage agora preserva clientes no estado
+ *      local para manter a cadeia Cliente->Setor->Equipamento consistente
+ *      mesmo sem conectividade.
  *
  * Estado: state.clientes (Map-friendly array). Hidratado on-demand.
  * Persistência: tabela `public.clientes` no Supabase. RLS já aplicada
@@ -67,6 +66,16 @@ function denormalizeCliente(cliente, userId) {
     finalidade: cliente.finalidade?.trim() || null,
     observacoes: cliente.observacoes?.trim() || null,
   };
+}
+
+function isNetworkLikeError(error) {
+  const msg = String(error?.message || '').toLowerCase();
+  return (
+    msg.includes('network') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('timeout') ||
+    msg.includes('connection')
+  );
 }
 
 /**
@@ -156,14 +165,23 @@ export async function upsertCliente(cliente) {
     .select()
     .single();
 
-  if (error) {
+  if (error && !isNetworkLikeError(error)) {
     throw new AppError('Falha ao salvar cliente.', ErrorCodes.SYNC_FAILED, 'error', {
       action: 'upsertCliente',
       cause: error.message,
     });
   }
 
-  const normalized = normalizeClienteRow(data);
+  const normalized =
+    normalizeClienteRow(data) ||
+    normalizeClienteRow({
+      ...payload,
+      id:
+        payload.id ||
+        (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : String(Date.now())),
+    });
 
   // Atualiza state local: substitui se existir, adiciona se novo.
   setState((prev) => {
@@ -175,6 +193,16 @@ export async function upsertCliente(cliente) {
     next.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
     return { ...prev, clientes: next };
   });
+
+  if (error && isNetworkLikeError(error)) {
+    handleError(error, {
+      code: ErrorCodes.NETWORK_ERROR,
+      severity: 'warning',
+      message: 'Cliente salvo offline. Sincronizaremos quando a rede voltar.',
+      context: { action: 'upsertCliente.offlineFallback', id: normalized.id },
+      showToast: false,
+    });
+  }
 
   return normalized;
 }

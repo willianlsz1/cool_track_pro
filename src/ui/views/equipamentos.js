@@ -13,7 +13,7 @@ import { Profile } from '../../features/profile.js';
 import { getHealthClass, updateHeader } from './dashboard.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { checkPlanLimit } from '../../core/planLimits.js';
-import { goTo } from '../../core/router.js';
+import { currentRoute, goTo } from '../../core/router.js';
 import { trackEvent } from '../../core/telemetry.js';
 import {
   evaluateEquipmentHealth,
@@ -36,7 +36,7 @@ import {
   isCachedPlanPro,
   setCachedPlan,
 } from '../../core/plans/planCache.js';
-import { SETOR_NOME_MAX, validateSetorNome } from '../../core/setorRules.js';
+import { SETOR_NOME_MAX } from '../../core/setorRules.js';
 import { getEffectivePlan, hasProAccess } from '../../core/plans/subscriptionPlans.js';
 import {
   configureEquipContextState,
@@ -59,12 +59,27 @@ import {
   restoreDadosPlaca,
 } from './equipamentos/placaData.js';
 import { setorCardHtml } from './equipamentos/setores.js';
+import { bindEquipCardImageFallbacks as _bindEquipCardImageFallbacks } from './equipamentos/cardIconFallbacks.js';
+import {
+  EDIT_FOCUS_ESSENCIAIS,
+  EDIT_FOCUS_ETIQUETA_MORE,
+  EDIT_FOCUS_FIELD_MAP,
+  SETOR_DESC_LIMIT,
+  SETOR_PALETTE,
+  TIPOS_COM_COMPONENTE,
+} from './equipamentos/setorConstants.js';
+import {
+  findPaletteEntry,
+  getSetorNomeValidation,
+  setorContrastWithWhite,
+} from './equipamentos/setorHelpers.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
 export { setorCardHtml } from './equipamentos/setores.js';
+export { setorContrastWithWhite };
 export {
   applyEquipPhotosEditorGate,
   applyEquipPhotosGate,
@@ -77,18 +92,6 @@ export {
 // ── Tipos de climatização que tem componente (evap/cond/única) ────────────
 // Lista de tipos onde o select de "componente" aparece no modal. Outros tipos
 // (Geladeira, Freezer, etc) não tem split, entao o campo fica oculto.
-const TIPOS_COM_COMPONENTE = new Set([
-  'Split Hi-Wall',
-  'Split Cassette',
-  'Split Piso Teto',
-  'VRF / VRV',
-  'GHP',
-  'Fan Coil',
-  'Chiller',
-  'Self Contained',
-  'Roof Top',
-]);
-
 /**
  * Mostra/esconde o select de componente baseado no tipo selecionado.
  * Idempotente — pode ser chamado a qualquer momento (open modal, change tipo,
@@ -114,6 +117,7 @@ let _renderEquipPlanToken = 0;
 let _renderEquipPlanNeedsRefresh = true;
 let _renderEquipPlanEventsBound = false;
 let _renderEquipPlanRefreshPromise = null;
+let _forcedEquipContext = null;
 
 function _bindRenderEquipPlanInvalidationEvents() {
   if (_renderEquipPlanEventsBound || typeof window === 'undefined') return;
@@ -166,8 +170,19 @@ export function clearEditingState() {
   _editingEquipId = null;
   const titleEl = Utils.getEl('modal-add-eq-title');
   if (titleEl) titleEl.textContent = 'Qual equipamento você quer monitorar?';
-  const saveBtn = document.querySelector('[data-action="save-equip"]');
+  const saveBtn = document.getElementById('eq-save-primary');
   if (saveBtn) saveBtn.textContent = 'Cadastrar equipamento';
+  const primaryBtn = document.getElementById('eq-save-primary');
+  const secondaryBtn = document.getElementById('eq-save-secondary');
+  const tertiaryRow = document.getElementById('eq-save-tertiary-row');
+  const tertiaryBtn = document.getElementById('eq-save-tertiary');
+  if (primaryBtn) {
+    primaryBtn.textContent = 'Cadastrar equipamento';
+    primaryBtn.dataset.postAction = '';
+  }
+  if (secondaryBtn) secondaryBtn.style.display = 'none';
+  if (tertiaryRow) tertiaryRow.style.display = 'none';
+  if (tertiaryBtn) tertiaryBtn.textContent = '';
   const detailsPanel = Utils.getEl('eq-step-2');
   if (detailsPanel) {
     detailsPanel.style.display = '';
@@ -186,6 +201,162 @@ export function clearEditingState() {
     /* review UI ainda não renderizada */
   }
   resetNameplateMetadata();
+  clearForcedEquipContext();
+}
+
+export function applyEquipModalExperience({ triggerEl = null } = {}) {
+  const titleEl = Utils.getEl('modal-add-eq-title');
+  const subtitleEl = Utils.getEl('modal-add-eq-subtitle');
+  const summaryEl = Utils.getEl('eq-context-summary-banner');
+  const primaryBtn = Utils.getEl('eq-save-primary');
+  const secondaryBtn = Utils.getEl('eq-save-secondary');
+  const tertiaryRow = Utils.getEl('eq-save-tertiary-row');
+  const tertiaryBtn = Utils.getEl('eq-save-tertiary');
+  const contextGroup = Utils.getEl('eq-context-group');
+  const operationSubhead = document.querySelector('.eq-details-subhead__label');
+  const isPro = isCachedPlanPro();
+  const triggerSetorId = triggerEl?.dataset?.setorId || '';
+  const triggerClienteId = triggerEl?.dataset?.clienteId || '';
+  const routeCtx = _getRouteEquipCtx();
+  const lockedClienteId =
+    _forcedEquipContext?.clienteId || triggerClienteId || routeCtx.clienteId || '';
+  const lockedSetorId = _forcedEquipContext?.setorId || triggerSetorId || routeCtx.sectorId || '';
+  const hasLockedCtx = Boolean(lockedClienteId || lockedSetorId);
+  const isGlobalEquipRoute = isPro && currentRoute() === 'equipamentos' && !hasLockedCtx;
+
+  if (titleEl) titleEl.textContent = 'Qual equipamento você quer monitorar?';
+  if (summaryEl) {
+    summaryEl.style.display = 'none';
+    summaryEl.innerHTML = '';
+  }
+  if (operationSubhead) {
+    operationSubhead.textContent = isPro ? 'Organização do parque' : 'Operação';
+  }
+  if (contextGroup) {
+    contextGroup.dataset.proGlobal = isGlobalEquipRoute ? '1' : '0';
+  }
+  if (!primaryBtn || !secondaryBtn || !tertiaryRow || !tertiaryBtn) return;
+
+  secondaryBtn.style.display = '';
+  tertiaryRow.style.display = '';
+
+  if (!isPro) {
+    if (subtitleEl) {
+      subtitleEl.innerHTML = 'Cadastre rápido o equipamento do atendimento.';
+    }
+    primaryBtn.textContent = 'Cadastrar equipamento';
+    primaryBtn.dataset.postAction = '';
+    secondaryBtn.textContent = 'Cadastrar e registrar serviço';
+    secondaryBtn.dataset.postAction = 'register';
+    tertiaryBtn.textContent = 'Cadastrar outro parecido';
+    tertiaryBtn.dataset.postAction = 'clone';
+    return;
+  }
+
+  if (subtitleEl) {
+    subtitleEl.innerHTML =
+      'Organize o parque do cliente por setor e mantenha PMOC/relatórios consistentes.';
+  }
+
+  if (hasLockedCtx) {
+    const clienteNome =
+      _forcedEquipContext?.clienteNome ||
+      triggerEl?.dataset?.clienteNome ||
+      document.querySelector('#eq-cliente option:checked')?.textContent ||
+      'Cliente selecionado';
+    const setorNome =
+      _forcedEquipContext?.setorNome ||
+      document.querySelector('#eq-setor option:checked')?.textContent ||
+      'Setor selecionado';
+    if (summaryEl) {
+      summaryEl.style.display = '';
+      summaryEl.innerHTML = `Cliente: <b>${Utils.escapeHtml(clienteNome)}</b> · Setor: <b>${Utils.escapeHtml(setorNome)}</b> · <button type="button" class="btn btn--ghost btn--sm" data-action="equip-unlock-context">Alterar contexto</button>`;
+    }
+    primaryBtn.textContent = 'Salvar no setor';
+    primaryBtn.dataset.postAction = '';
+    secondaryBtn.textContent = 'Cadastrar outro neste setor';
+    secondaryBtn.dataset.postAction = 'clone';
+    tertiaryBtn.textContent = 'Salvar e abrir PMOC';
+    tertiaryBtn.dataset.postAction = 'pmoc';
+    return;
+  }
+
+  if (summaryEl) {
+    summaryEl.style.display = '';
+    summaryEl.textContent =
+      'Visão global do parque: vincule cliente/setor agora ou salve sem cliente por enquanto.';
+  }
+  primaryBtn.textContent = 'Vincular a cliente/setor';
+  primaryBtn.dataset.postAction = '';
+  secondaryBtn.textContent = 'Salvar sem cliente por enquanto';
+  secondaryBtn.dataset.postAction = 'save-without-client';
+  tertiaryBtn.textContent = 'Cadastrar outro';
+  tertiaryBtn.dataset.postAction = 'clone';
+}
+
+export function clearForcedEquipContext() {
+  _forcedEquipContext = null;
+  const setorTrigger = document.getElementById('eq-setor-trigger');
+  const clienteTrigger = document.getElementById('eq-cliente-trigger');
+  const createClienteBtn = document.querySelector(
+    '#eq-cliente-wrapper .eq-context-card__create-link',
+  );
+  const lockedSummary = document.getElementById('eq-context-locked-summary');
+  if (setorTrigger) setorTrigger.disabled = false;
+  if (clienteTrigger) clienteTrigger.disabled = false;
+  if (createClienteBtn) createClienteBtn.style.display = '';
+  if (lockedSummary) {
+    lockedSummary.style.display = 'none';
+    lockedSummary.textContent = '';
+  }
+}
+
+export function lockEquipContext({
+  clienteId = null,
+  clienteNome = '',
+  setorId = null,
+  setorNome = '',
+} = {}) {
+  _forcedEquipContext =
+    clienteId || setorId
+      ? {
+          clienteId: clienteId || null,
+          clienteNome: clienteNome || '',
+          setorId: setorId || null,
+          setorNome: setorNome || '',
+        }
+      : null;
+
+  const setorTrigger = document.getElementById('eq-setor-trigger');
+  const clienteTrigger = document.getElementById('eq-cliente-trigger');
+  const createClienteBtn = document.querySelector(
+    '#eq-cliente-wrapper .eq-context-card__create-link',
+  );
+  const lockedSummary = document.getElementById('eq-context-locked-summary');
+
+  if (!_forcedEquipContext) {
+    clearForcedEquipContext();
+    return;
+  }
+
+  if (_forcedEquipContext.clienteId) {
+    Utils.setVal('eq-cliente', _forcedEquipContext.clienteId);
+    document.getElementById('eq-cliente')?.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (_forcedEquipContext.setorId) {
+    Utils.setVal('eq-setor', _forcedEquipContext.setorId);
+    document.getElementById('eq-setor')?.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  if (setorTrigger && _forcedEquipContext.setorId) setorTrigger.disabled = true;
+  if (clienteTrigger && _forcedEquipContext.clienteId) clienteTrigger.disabled = true;
+  if (createClienteBtn && _forcedEquipContext.clienteId) createClienteBtn.style.display = 'none';
+  if (lockedSummary) {
+    const cliente = _forcedEquipContext.clienteNome || 'Cliente definido no contexto';
+    const setor = _forcedEquipContext.setorNome || 'Setor definido no contexto';
+    lockedSummary.style.display = '';
+    lockedSummary.textContent = `Contexto travado: Cliente ${cliente} / Setor ${setor}.`;
+  }
 }
 
 /**
@@ -244,8 +415,10 @@ export { computeEquipKpis, renderEquipHero, renderEquipFilters };
  *  de setor — não via toolbar global). */
 function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   const titleEl = Utils.getEl('equip-page-title');
+  const subtitleEl = Utils.getEl('equip-page-subtitle');
   const actionsEl = Utils.getEl('equip-toolbar-actions');
-  if (titleEl) titleEl.textContent = title || 'Parque de Equipamentos';
+  if (titleEl) titleEl.textContent = title || 'Equipamentos';
+  if (subtitleEl) subtitleEl.textContent = '';
   if (actionsEl) {
     // CTA único "+ Novo equipamento". Antes eram 2 botões ("Cadastrar com
     // foto" primário + "Novo equipamento" outline), o que duplicava a ação
@@ -262,6 +435,22 @@ function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
       ${defaultCta}
     `;
   }
+}
+
+function _renderEquipContextChip({ clienteId = null, clienteNome = '', setorId = null } = {}) {
+  const el = Utils.getEl('equip-context-chip');
+  if (!el) return;
+  if (!clienteId && !setorId) {
+    el.innerHTML = '';
+    return;
+  }
+  const label = setorId
+    ? `Filtrando: ${setorId === '__sem_setor__' ? 'Sem setor' : 'Setor'}`
+    : `Filtrando: Cliente ${Utils.escapeHtml(clienteNome || '')}`;
+  el.innerHTML = `<div class="equip-breadcrumb">
+    <span class="equip-breadcrumb__item equip-breadcrumb__item--current">${label}</span>
+    <button type="button" class="equip-breadcrumb__item" data-action="equip-clear-cliente-filter">Limpar filtro</button>
+  </div>`;
 }
 
 /**
@@ -544,7 +733,9 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 7));
   } else if (options.statusFilter === 'preventiva-30d') {
     allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 30));
-  } else if (options.statusFilter === 'em-atenção') {
+  } else if (options.statusFilter === 'preventiva-vencida') {
+    allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 0));
+  } else if (options.statusFilter === 'em-atencao' || options.statusFilter === 'em-atenção') {
     allowedIds = new Set(
       equipamentos
         .filter((e) => {
@@ -579,11 +770,15 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     // Filtra por cliente se vier do "Ver equipamentos" da view Clientes.
     if (filterClienteId && e.clienteId !== filterClienteId) return false;
     const matchesStatus = !allowedIds || allowedIds.has(e.id);
+    const clienteNome = (getState().clientes || []).find((c) => c.id === e.clienteId)?.nome || '';
+    const setorNome = (e.setorId && findSetor(e.setorId)?.nome) || '';
     const matchesSearch =
       !q ||
       e.nome.toLowerCase().includes(q) ||
       e.local.toLowerCase().includes(q) ||
-      (e.tag || '').toLowerCase().includes(q);
+      (e.tag || '').toLowerCase().includes(q) ||
+      clienteNome.toLowerCase().includes(q) ||
+      setorNome.toLowerCase().includes(q);
     return matchesStatus && matchesSearch;
   });
 
@@ -631,6 +826,7 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
       };
     }
     switch (options.statusFilter) {
+      case 'em-atencao':
       case 'em-atenção':
         return {
           title: 'Nenhum equipamento pedindo atenção',
@@ -643,8 +839,9 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
         };
       case 'preventiva-7d':
       case 'preventiva-30d':
+      case 'preventiva-vencida':
         return {
-          title: 'Nenhuma preventiva vencendo',
+          title: 'Nenhuma preventiva vencida',
           description: 'Agenda de manutenção em dia.',
         };
       default:
@@ -653,9 +850,9 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
         // a conta — mostra tempo estimado pra reduzir fricção inicial.
         if (!filtro && !equipamentos.length) {
           return {
-            title: 'Você ainda não tem equipamentos cadastrados',
+            title: 'Nenhum equipamento ainda',
             description:
-              'Cadastre o primeiro em menos de 1 minuto. A foto da etiqueta já preenche a maioria dos campos.',
+              'Cadastre o primeiro equipamento para registrar serviços e gerar relatórios.',
           };
         }
         return {
@@ -703,12 +900,18 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
               size: 'sm',
               autoWidth: true,
             };
-        el.innerHTML = emptyStateHtml({
-          icon: emptyCopy.ctaAction ? '👥' : '🔧',
-          title: emptyCopy.title,
-          description: emptyCopy.description,
-          cta,
-        });
+        const proEmptyExtra =
+          isCachedPlanPro() && !filterClienteId
+            ? `<p class="empty-state__hint">Use Clientes quando quiser organizar por empresa e setor.</p>
+               <button class="btn btn--outline btn--sm" data-nav="clientes">Cadastrar cliente primeiro</button>`
+            : '';
+        el.innerHTML =
+          emptyStateHtml({
+            icon: emptyCopy.ctaAction ? '👥' : '🔧',
+            title: emptyCopy.title,
+            description: emptyCopy.description,
+            cta,
+          }) + proEmptyExtra;
         return;
       }
       // Banner quick-move: aparece quando estamos vendo equips "sem setor"
@@ -776,6 +979,8 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
         }
       }
 
+      const listTitle =
+        '<h2 class="section-title" style="margin:8px 0 10px">Todos os equipamentos</h2>';
       if (clusterActive) {
         const idleCardsHtml = idleList
           .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
@@ -784,43 +989,19 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
           .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
           .join('');
         el.innerHTML =
-          quickMoveBannerHtml + _idleClusterHtml(idleCardsHtml, idleList.length) + activeCardsHtml;
+          listTitle +
+          quickMoveBannerHtml +
+          _idleClusterHtml(idleCardsHtml, idleList.length) +
+          activeCardsHtml;
       } else {
         el.innerHTML =
+          listTitle +
           quickMoveBannerHtml +
           sortedList.map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx })).join('');
       }
       _bindEquipCardImageFallbacks(el);
     },
   );
-}
-
-function _bindEquipCardImageFallbacks(root) {
-  const scope = root instanceof Element ? root : document;
-  scope.querySelectorAll('.equip-card__type-icon--photo img').forEach((img) => {
-    if (!(img instanceof HTMLImageElement)) return;
-    if (img.dataset.fallbackBound === '1') return;
-    img.dataset.fallbackBound = '1';
-    const iconWrap = img.closest('.equip-card__type-icon');
-    if (!iconWrap) return;
-
-    const markLoaded = () => {
-      iconWrap.classList.add('equip-card__type-icon--loaded');
-    };
-    const applyFallback = () => {
-      iconWrap.classList.add('equip-card__type-icon--fallback');
-      img.remove();
-    };
-
-    img.addEventListener('load', markLoaded, { once: true });
-    img.addEventListener('error', applyFallback, { once: true });
-
-    // Cobertura para imagens já resolvidas no momento do bind (cache quente).
-    if (img.complete) {
-      if (img.naturalWidth > 0) markLoaded();
-      else applyFallback();
-    }
-  });
 }
 
 export async function renderEquip(filtro = '', options = {}) {
@@ -840,6 +1021,12 @@ export async function renderEquip(filtro = '', options = {}) {
   // Renderiza imediatamente com snapshot local do plano (não bloqueia a tela).
   // O refresh assíncrono corrige drift e evita fetch repetido em cada render.
   const isPro = isCachedPlanPro();
+  const subtitleEl = Utils.getEl('equip-page-subtitle');
+  if (subtitleEl) {
+    subtitleEl.textContent = isPro
+      ? 'Ação rápida em todos os clientes e setores.'
+      : 'Acompanhe seus equipamentos e registre serviços rápido.';
+  }
   populateSetorSelect(isPro);
   if (!options?.__skipPlanRefresh && _renderEquipPlanNeedsRefresh) {
     _refreshRenderEquipPlan({
@@ -852,16 +1039,13 @@ export async function renderEquip(filtro = '', options = {}) {
 
   // Hero + filters sempre no topo da view (hidden quando não há equipamentos).
   // Em contexto cliente eles são escondidos (parte da view global do parque).
-  if (activeClienteId) {
-    // Esconde explicitamente caso renderizado em sessão anterior
-    const heroEl = Utils.getEl('equip-hero');
-    if (heroEl) heroEl.hidden = true;
-    const filtersEl = Utils.getEl('equip-filters');
-    if (filtersEl) filtersEl.hidden = true;
-  } else {
-    renderEquipHero({ isPro });
-    renderEquipFilters();
-  }
+  renderEquipHero({ isPro });
+  renderEquipFilters();
+  _renderEquipContextChip({
+    clienteId: activeClienteId,
+    clienteNome: activeClienteNome || '',
+    setorId: activeSectorId,
+  });
 
   // Quick filter ativo sobrescreve o fluxo normal: vai pra flat list com
   // statusFilter correspondente. Sempre rende com a toolbar "← Todos" pra dar
@@ -871,9 +1055,9 @@ export async function renderEquip(filtro = '', options = {}) {
     if (searchBar) searchBar.style.display = '';
     const titleMap = {
       'sem-setor': 'Sem setor',
-      'em-atenção': 'Em atenção',
+      'em-atencao': 'Em atenção',
       criticos: 'Críticos',
-      'preventiva-30d': 'Preventivas ≤30d',
+      'preventiva-vencida': 'Preventiva vencida',
     };
     _setToolbar({
       title: titleMap[activeQuickFilter] || 'Equipamentos',
@@ -888,38 +1072,9 @@ export async function renderEquip(filtro = '', options = {}) {
     return;
   }
 
-  // Filtro por cliente (vindo de /clientes -> "Ver equipamentos"): hierarquia
-  // Cliente -> Setor -> Equipamento. Mostra grade de setores DESTE cliente.
-  // Drill-down num setor preserva o clienteId no equipCtx (atrayes do
-  // setActiveSector chain que usa _navigateEquipCtx).
-  // Se vem com sectorId também (drill-down dentro do cliente), pula direto
-  // pra flat list filtrada por cliente + setor.
-  if (activeClienteId && !activeSectorId) {
-    renderSetorGridForCliente(activeClienteId, activeClienteNome);
-    return;
-  }
-
   const searchBar = Utils.getEl('equip-search-bar');
-  const { setores } = getState();
 
-  if (isPro && activeSectorId === null) {
-    // Pro COM setores → grade de setores (organização por grupo).
-    // Pro SEM setores ainda → lista flat igual Free, mas com CTA "+ Novo setor"
-    // na toolbar. O usuário escolhe quando começar a organizar por setor —
-    // a gente não bloqueia o acesso aos equipamentos só pra forçar a criação.
-    if (setores.length) {
-      renderSetorGrid();
-      return;
-    }
-
-    if (searchBar) searchBar.style.display = '';
-    _setToolbar({
-      title: 'Parque de Equipamentos',
-      extraBtn: `<button class="btn btn--outline btn--sm" data-action="open-setor-modal">+ Novo setor</button>`,
-    });
-    renderFlatList(filtro, renderOptionsWithClient, null);
-    return;
-  }
+  if (isPro && activeSectorId === null && searchBar) searchBar.style.display = '';
 
   // Vista lista (FREE ou drill-down de setor)
   if (searchBar) searchBar.style.display = '';
@@ -958,7 +1113,7 @@ export async function renderEquip(filtro = '', options = {}) {
     // O upgrade aparece naturalmente no hero/empty state quando o user
     // já tem 5+ equipamentos sem setor (ver hero.js).
     _setToolbar({
-      title: 'Parque de Equipamentos',
+      title: 'Equipamentos',
     });
   }
 
@@ -998,49 +1153,6 @@ async function ensureProForSetores({ action = 'manage' } = {}) {
 //
 // Paleta de 10 cores (expandida de 6) pra dar mais identidade visual aos
 // setores sem virar arco-íris. Default = --primary (#00c8e8, Ciano).
-const SETOR_PALETTE = [
-  { hex: '#00c8e8', nome: 'Ciano' },
-  { hex: '#00c853', nome: 'Esmeralda' },
-  { hex: '#ffab40', nome: 'Âmbar' },
-  { hex: '#ff5252', nome: 'Coral' },
-  { hex: '#7c4dff', nome: 'Violeta' },
-  { hex: '#448aff', nome: 'Azul' },
-  { hex: '#f06292', nome: 'Rosa' },
-  { hex: '#9ccc65', nome: 'Verde-lima' },
-  { hex: '#ff7043', nome: 'Laranja' },
-  { hex: '#26a69a', nome: 'Teal' },
-];
-const SETOR_DESC_LIMIT = 120;
-
-function _getSetorNomeValidation(nomeRaw = Utils.getVal('setor-nome') || '') {
-  const { empty, tooLong, isValid } = validateSetorNome(nomeRaw);
-  return { empty, tooLong, isValid };
-}
-
-/** Relative luminance (WCAG). hex deve estar em forma #RRGGBB. */
-function _hexLuminance(hex) {
-  const h = String(hex || '').replace('#', '');
-  if (h.length !== 6) return 0;
-  const r = parseInt(h.slice(0, 2), 16) / 255;
-  const g = parseInt(h.slice(2, 4), 16) / 255;
-  const b = parseInt(h.slice(4, 6), 16) / 255;
-  const toLin = (v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
-  return 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
-}
-
-/** Contraste entre uma cor de acento e branco (pro badge do preview). */
-export function setorContrastWithWhite(hex) {
-  const L = _hexLuminance(hex);
-  return 1.05 / (L + 0.05);
-}
-
-/** Busca metadados da paleta por hex. Retorna null se não encontrado. */
-function _findPaletteEntry(hex) {
-  if (!hex) return null;
-  const target = String(hex).toLowerCase();
-  return SETOR_PALETTE.find((p) => p.hex.toLowerCase() === target) || null;
-}
-
 function _setSaveBtnLabel(text) {
   const btn = Utils.getEl('setor-save-btn');
   if (!btn) return;
@@ -1062,7 +1174,7 @@ function _setSetorNomeValidationState({ showError, focus = false, markTouched = 
 function _syncSetorSaveButtonState() {
   const saveBtn = Utils.getEl('setor-save-btn');
   if (!saveBtn) return;
-  const { isValid } = _getSetorNomeValidation();
+  const { isValid } = getSetorNomeValidation(Utils.getVal('setor-nome') || '');
   saveBtn.disabled = !isValid;
   saveBtn.setAttribute('aria-disabled', isValid ? 'false' : 'true');
 }
@@ -1225,7 +1337,7 @@ function _syncSetorModalPreview() {
 
   const nome = (Utils.getVal('setor-nome') || '').trim();
   const cor = Utils.getEl('setor-cor')?.value || SETOR_PALETTE[0].hex;
-  const entry = _findPaletteEntry(cor);
+  const entry = findPaletteEntry(cor, SETOR_PALETTE);
 
   // Nome do card (placeholder "Novo setor" quando vazio)
   const nameEl = Utils.getEl('setor-modal-preview-name');
@@ -1322,14 +1434,14 @@ export function initSetorColorPicker() {
     if (nomeInput) {
       nomeInput.addEventListener('input', () => {
         nomeInput.dataset.interacted = '1';
-        const { empty, tooLong } = _getSetorNomeValidation(nomeInput.value);
+        const { empty, tooLong } = getSetorNomeValidation(nomeInput.value);
         const wasTouched = nomeInput.dataset.touched === '1';
         _setSetorNomeValidationState({ showError: wasTouched && (empty || tooLong) });
         _syncSetorModalPreview();
         _syncSetorModalCounters();
       });
       nomeInput.addEventListener('blur', () => {
-        const { empty, tooLong } = _getSetorNomeValidation(nomeInput.value);
+        const { empty, tooLong } = getSetorNomeValidation(nomeInput.value);
         const wasTouched = nomeInput.dataset.touched === '1';
         const interacted = nomeInput.dataset.interacted === '1';
         if ((!empty && !tooLong) || (!wasTouched && !interacted)) return;
@@ -1354,7 +1466,7 @@ export async function saveSetor() {
   if (!allowed) return false;
 
   const nomeRaw = Utils.getVal('setor-nome') || '';
-  const { empty, tooLong } = _getSetorNomeValidation(nomeRaw);
+  const { empty, tooLong } = getSetorNomeValidation(nomeRaw);
   if (empty || tooLong) {
     // Validação inline: mostra erro abaixo do input + foco + toast leve.
     // Marca o campo como "touched" pra que o erro passe a reaparecer
@@ -1473,55 +1585,18 @@ export async function assignEquipToSetor(equipId, setorId) {
  * Centraliza pra triggers passarem só o nome lógico, sem acoplar com IDs.
  * Quando adicionar campo novo, basta estender aqui.
  */
-const _EDIT_FOCUS_FIELD_MAP = {
-  nome: 'eq-nome',
-  local: 'eq-local',
-  setor: 'eq-setor',
-  tag: 'eq-tag',
-  tipo: 'eq-tipo',
-  fluido: 'eq-fluido',
-  modelo: 'eq-modelo',
-  serie: 'eq-número-serie',
-  capacidade: 'eq-capacidade-btu',
-  tensao: 'eq-tensao',
-  frequencia: 'eq-frequencia',
-  fase: 'eq-fase',
-  potencia: 'eq-potencia',
-  'corrente-refrig': 'eq-corrente-refrig',
-  'corrente-aquec': 'eq-corrente-aquec',
-  'pressao-suc': 'eq-pressao-suc',
-  'pressao-desc': 'eq-pressao-desc',
-  'grau-protecao': 'eq-grau-protecao',
-  ano: 'eq-ano-fabricacao',
-  criticidade: 'eq-criticidade',
-  prioridade: 'eq-prioridade',
-  periodicidade: 'eq-periodicidade',
-};
 
 /**
  * Lista de fieldKeys que vivem dentro de #eq-etiqueta-more (progressive
  * disclosure dos campos avançados da etiqueta). Quando o foco for em um
  * desses, o painel precisa ser aberto antes do scroll.
  */
-const _EDIT_FOCUS_ETIQUETA_MORE = new Set([
-  'tensao',
-  'frequencia',
-  'fase',
-  'potencia',
-  'corrente-refrig',
-  'corrente-aquec',
-  'pressao-suc',
-  'pressao-desc',
-  'grau-protecao',
-  'ano',
-]);
 
 /**
  * fieldKeys que vivem fora do accordion "Detalhes técnicos" (#eq-step-2):
  * são os campos da seção Essenciais + Contexto, sempre visíveis.
  * Os demais exigem expandir o accordion antes do scroll.
  */
-const _EDIT_FOCUS_ESSENCIAIS = new Set(['nome', 'local', 'setor']);
 
 /**
  * Abre o modal-add-eq em modo edição e, opcionalmente, foca um campo
@@ -1650,8 +1725,12 @@ export async function openEditEquip(id, opts = {}) {
   // Atualiza textos do modal
   const titleEl = Utils.getEl('modal-add-eq-title');
   if (titleEl) titleEl.textContent = 'Editar equipamento';
-  const saveBtn = document.querySelector('[data-action="save-equip"]');
+  const saveBtn = document.getElementById('eq-save-primary');
   if (saveBtn) saveBtn.textContent = 'Salvar alterações →';
+  const secondaryBtn = document.getElementById('eq-save-secondary');
+  const tertiaryRow = document.getElementById('eq-save-tertiary-row');
+  if (secondaryBtn) secondaryBtn.style.display = 'none';
+  if (tertiaryRow) tertiaryRow.style.display = 'none';
 
   // Fecha o modal de detalhes e abre o de edição
   try {
@@ -1685,7 +1764,7 @@ export async function openEditEquip(id, opts = {}) {
  * normalmente.
  */
 function _focusEditField(fieldKey) {
-  const targetId = _EDIT_FOCUS_FIELD_MAP[fieldKey];
+  const targetId = EDIT_FOCUS_FIELD_MAP[fieldKey];
   if (!targetId) {
     console.warn(`[equipamentos] focusField desconhecido: "${fieldKey}"`);
     return;
@@ -1694,7 +1773,7 @@ function _focusEditField(fieldKey) {
   // Step 1: garante que a seção "Detalhes técnicos" (#eq-step-2) está aberta
   // se o campo não é um dos Essenciais/Contexto. Isso porque o accordion
   // fica fechado por default e o input nem está renderizado-visível antes.
-  const needsTechExpand = !_EDIT_FOCUS_ESSENCIAIS.has(fieldKey);
+  const needsTechExpand = !EDIT_FOCUS_ESSENCIAIS.has(fieldKey);
   if (needsTechExpand) {
     const expandBtn = document.getElementById('eq-expand-details');
     const expandPanel = document.getElementById('eq-step-2');
@@ -1708,7 +1787,7 @@ function _focusEditField(fieldKey) {
 
   // Step 2: se for um campo avançado da etiqueta, expande o sub-painel
   // #eq-etiqueta-more (progressive disclosure dentro de #eq-step-2).
-  if (_EDIT_FOCUS_ETIQUETA_MORE.has(fieldKey)) {
+  if (EDIT_FOCUS_ETIQUETA_MORE.has(fieldKey)) {
     const moreToggle = document.getElementById('eq-etiqueta-more-toggle');
     const morePanel = document.getElementById('eq-etiqueta-more');
     if (moreToggle && morePanel) {
@@ -1756,7 +1835,12 @@ function _focusEditField(fieldKey) {
   });
 }
 
-export async function saveEquip() {
+export async function saveEquip(options = {}) {
+  const postAction = String(options?.postAction || '').trim();
+  const keepOpen = postAction === 'clone';
+  const openRegistro = postAction === 'register';
+  const openPmoc = postAction === 'pmoc';
+  const saveWithoutClient = postAction === 'save-without-client';
   const { equipamentos } = getState();
 
   // Pula a verificação de limite quando está editando (não cria novo registro)
@@ -1804,9 +1888,11 @@ export async function saveEquip() {
     criticidade,
   );
 
-  const setorId = Utils.getVal('eq-setor') || null;
+  const setorId = _forcedEquipContext?.setorId || Utils.getVal('eq-setor') || null;
   // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
-  const clienteId = Utils.getVal('eq-cliente') || null;
+  const clienteId = saveWithoutClient
+    ? null
+    : _forcedEquipContext?.clienteId || Utils.getVal('eq-cliente') || null;
 
   // Dados da etiqueta (13 campos opcionais). Coletados em JSONB pra persistência
   // em equipamentos.dados_placa. Se nenhum foi preenchido, mantém object vazio
@@ -1904,34 +1990,44 @@ export async function saveEquip() {
 
   const wasEditing = Boolean(_editingEquipId);
 
-  try {
-    const { Modal: M } = await import('../../core/modal.js');
-    M.close('modal-add-eq');
-  } catch (error) {
-    handleError(error, {
-      code: ErrorCodes.NETWORK_ERROR,
-      message: 'Não foi possível fechar o modal de cadastro.',
-      context: { action: 'equipamentos.saveEquip.closeModal' },
-      severity: 'warning',
-    });
+  if (!keepOpen) {
+    try {
+      const { Modal: M } = await import('../../core/modal.js');
+      M.close('modal-add-eq');
+    } catch (error) {
+      handleError(error, {
+        code: ErrorCodes.NETWORK_ERROR,
+        message: 'Não foi possível fechar o modal de cadastro.',
+        context: { action: 'equipamentos.saveEquip.closeModal' },
+        severity: 'warning',
+      });
+    }
   }
 
-  Utils.clearVals('eq-nome', 'eq-tag', 'eq-local', 'eq-modelo', 'eq-periodicidade');
+  const fieldsToClear = ['eq-nome', 'eq-tag'];
+  if (!keepOpen) fieldsToClear.push('eq-local', 'eq-modelo', 'eq-periodicidade');
+  Utils.clearVals(...fieldsToClear);
   // Limpa os 12 inputs da etiqueta pra não "vazar" valor entre cadastros.
   Utils.clearVals(...DADOS_PLACA_INPUT_IDS);
-  Utils.setVal('eq-tipo', 'Split Hi-Wall');
-  Utils.setVal('eq-fluido', 'R-410A');
-  Utils.setVal('eq-componente', '');
+  if (!keepOpen) {
+    Utils.setVal('eq-tipo', 'Split Hi-Wall');
+    Utils.setVal('eq-fluido', 'R-410A');
+    Utils.setVal('eq-componente', '');
+  }
   syncComponenteVisibility();
-  Utils.setVal('eq-criticidade', 'media');
-  Utils.setVal('eq-prioridade', 'normal');
-  Utils.setVal('eq-frequencia', '60');
-  Utils.setVal('eq-periodicidade', String(getSuggestedPreventiveDays('Split Hi-Wall', 'media')));
+  if (!keepOpen) {
+    Utils.setVal('eq-criticidade', 'media');
+    Utils.setVal('eq-prioridade', 'normal');
+    Utils.setVal('eq-frequencia', '60');
+    Utils.setVal('eq-periodicidade', String(getSuggestedPreventiveDays('Split Hi-Wall', 'media')));
+  }
   const periodicidadeInput = Utils.getEl('eq-periodicidade');
   if (periodicidadeInput) periodicidadeInput.dataset.manual = '0';
 
   // Reset do estado de edição e UI do modal
-  clearEditingState();
+  if (!keepOpen) {
+    clearEditingState();
+  }
 
   OnboardingBanner.remove();
   try {
@@ -1948,6 +2044,28 @@ export async function saveEquip() {
   renderEquip();
   updateHeader();
   Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
+
+  if (keepOpen) {
+    const nomeInput = Utils.getEl('eq-nome');
+    if (nomeInput) nomeInput.focus();
+    return true;
+  }
+
+  if (openRegistro && equipId) {
+    goTo('registro', { equipId });
+  }
+
+  if (openPmoc) {
+    goTo('relatorio');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const pmocBtn = document.querySelector('[data-action="open-pmoc-modal"]');
+        if (!pmocBtn) return;
+        if (clienteId) pmocBtn.dataset.clienteId = clienteId;
+        pmocBtn.click();
+      });
+    });
+  }
 
   return true;
 }

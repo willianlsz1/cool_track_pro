@@ -1,4 +1,4 @@
-import { registerRoute } from '../../core/router.js';
+import { currentRoute, registerRoute } from '../../core/router.js';
 import { renderDashboard, updateHeader } from '../views/dashboard.js';
 import { renderEquip, populateEquipSelects } from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
@@ -8,13 +8,25 @@ import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
 import { renderClientes, setClientesSearch } from '../views/clientes.js';
 import { ClientesPaywallModal } from '../components/clientesPaywallModal.js';
-import { getCachedPlan } from '../../core/plans/planCache.js';
-import { PLAN_CODE_PRO } from '../../core/plans/subscriptionPlans.js';
+import {
+  getClientesAccessSnapshot,
+  resolveClientesAccess,
+} from '../../core/plans/clientesAccess.js';
 import { renderConta } from '../views/conta.js';
 import { renderPrivacidade } from '../views/privacidade.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 
 export function registerAppRoutes() {
+  function renderClientesPlanLoading() {
+    const container = document.querySelector('#view-clientes .view-content');
+    if (!container) return;
+    container.innerHTML = `
+      <div class="view-loading" role="status" aria-live="polite" style="padding:16px">
+        Validando plano...
+      </div>
+    `;
+  }
+
   registerRoute('inicio', () => {
     updateHeader();
     renderDashboard();
@@ -79,12 +91,23 @@ export function registerAppRoutes() {
     updateHeader();
   });
 
-  registerRoute('clientes', () => {
-    // Pro-gate: Free/Plus veem paywall em vez de view. Cache eh sync; refresh
-    // assincrono nao eh necessario aqui porque o paywall eh apenas teaser
-    // (real billing check acontece no momento do upgrade no Stripe).
-    const planCode = getCachedPlan() || 'free';
-    if (planCode !== PLAN_CODE_PRO) {
+  registerRoute('clientes', async () => {
+    let decision = getClientesAccessSnapshot();
+
+    if (!decision.resolved) {
+      renderClientesPlanLoading();
+      decision = await resolveClientesAccess();
+      if (currentRoute() !== 'clientes') return;
+    }
+
+    if (!decision.resolved) {
+      // Em erro de refresh mantemos loading em vez de bloquear com paywall
+      // para evitar falso negativo de acesso (especialmente para Pro).
+      renderClientesPlanLoading();
+      return;
+    }
+
+    if (!decision.canAccess) {
       ClientesPaywallModal.open();
       return;
     }

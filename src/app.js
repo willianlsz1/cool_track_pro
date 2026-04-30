@@ -259,11 +259,18 @@ async function bootstrap() {
     const user = await Auth.getSessionUser();
     Auth.finalizeOAuthRedirect(user);
 
-    // Escopo de storage por usuário — chaves subsequentes vão pra
-    // `ct:<userId>:<key>`. Sem usuário, cai em `ct:anon:*`.
-    setCurrentUser(user?.id || 'anon');
-
     if (!user) {
+      // Race de hidratação pós-login:
+      // onAuthStateChange pode já ter entrado no app (_appInitialized=true)
+      // enquanto getSessionUser() ainda retorna null (aba recém-redirecionada
+      // do OAuth, restauração lenta de storage, etc). Nesse caso NÃO devemos
+      // renderizar Landing por cima da sessão válida.
+      if (_appInitialized) {
+        _setAuthLoading(false);
+        return;
+      }
+      // Escopo anônimo só quando realmente não há sessão autenticada ativa.
+      setCurrentUser('anon');
       // Sem usuário autenticado → landing page.
       // Code-split: carrega landingPage (JS + CSS ~48KB) só pra quem não tá logado.
       const { LandingPage } = await import('./ui/components/landingPage.js');
@@ -271,6 +278,9 @@ async function bootstrap() {
       _setAuthLoading(false);
       return;
     }
+    // Escopo de storage por usuário — chaves subsequentes vão pra
+    // `ct:<userId>:<key>`.
+    setCurrentUser(user.id);
     await _enterAuthenticatedApp(user);
     _setAuthLoading(false);
 

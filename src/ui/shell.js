@@ -6,6 +6,7 @@ import { renderShellModals } from './shell/templates/modals.js';
 import { Profile } from '../features/profile.js';
 import { PLAN_CODE_PLUS, PLAN_CODE_PRO, PLAN_CODE_FREE } from '../core/plans/subscriptionPlans.js';
 import { getCachedPlan } from '../core/plans/planCache.js';
+import { getClientesAccessSnapshot } from '../core/plans/clientesAccess.js';
 import {
   ensureNavigationModePreference,
   getNavigationLayout,
@@ -43,7 +44,7 @@ ${renderShellViews()}
 }
 
 function _getCurrentPlanCode() {
-  return getCachedPlan() || PLAN_CODE_FREE;
+  return getClientesAccessSnapshot().planCode || PLAN_CODE_FREE;
 }
 
 function _rerenderMobileNav(planCode = _getCurrentPlanCode()) {
@@ -111,8 +112,7 @@ function _applyNavigationMode() {
   if (typeof document === 'undefined') return;
   const mode = getNavigationMode();
   const layout = getNavigationLayout(mode);
-  const planCode = getCachedPlan() || PLAN_CODE_FREE;
-  const isPro = planCode === PLAN_CODE_PRO;
+  const isPro = getClientesAccessSnapshot().canAccess;
   const mobilePrimary = new Set(layout.mobilePrimary || []);
   const sidebarPrimary = new Set(layout.sidebarPrimary || []);
   const mobileSecondary = new Set(layout.mobileSecondary || []);
@@ -157,15 +157,9 @@ function _applyNavigationMode() {
     el.classList.toggle('app-sidebar__nav-item--secondary', sidebarSecondary.has(route));
   });
 
-  // Atalhos secundários em mobile (menu de configurações).
-  _setElementVisible(
-    document.getElementById('header-help-go-clientes'),
-    mobileSecondary.has('clientes'),
-  );
-  _setElementVisible(
-    document.getElementById('header-help-go-registro'),
-    mobileSecondary.has('registro'),
-  );
+  // Menu de configurações premium: Clientes só no Pro (não depende mais de slot secundário mobile).
+  _setElementVisible(document.getElementById('header-help-go-clientes'), isPro);
+  _setElementVisible(document.getElementById('header-help-clientes-upsell'), !isPro);
 }
 
 export function updateShellSidebar() {
@@ -187,8 +181,10 @@ export function updateShellSidebar() {
   // Plan card V3 — nome + status sub + (data se Plus/Pro) + CTA contextual.
   // Cache sync; data de renovacao vem do mesmo profile (subscription_current_period_end)
   // e so aparece pra planos pagos que tem essa info.
-  const planCode = getCachedPlan() || PLAN_CODE_FREE;
+  const planCode = _getCurrentPlanCode();
   const planMeta = _PLAN_LABELS[planCode] || _PLAN_LABELS[PLAN_CODE_FREE];
+  const helpMenuEl = document.getElementById('header-help-menu');
+  if (helpMenuEl) helpMenuEl.dataset.plan = planCode;
 
   const cardEl = document.getElementById('sidenav-plan-card');
   if (cardEl) cardEl.setAttribute('data-plan', planCode);
@@ -220,7 +216,7 @@ export function updateShellSidebar() {
   // e abre o paywall em vez de renderizar a view.
   const clientesItem = document.getElementById('sidenav-clientes');
   const clientesLock = document.getElementById('sidenav-clientes-lock');
-  const isPro = planCode === PLAN_CODE_PRO;
+  const isPro = getClientesAccessSnapshot().canAccess;
   if (clientesLock) clientesLock.hidden = isPro;
   if (clientesItem) {
     clientesItem.classList.toggle('app-sidebar__nav-item--locked', !isPro);

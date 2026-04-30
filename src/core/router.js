@@ -8,6 +8,8 @@ import { Toast } from './toast.js';
 import { handleError, ErrorCodes } from './errors.js';
 import { Modal } from './modal.js';
 
+const safeWindow = typeof window !== 'undefined' ? window : undefined;
+
 // ──────────────────────────────────────────────────────────────────────
 // Registry de "blocking layers" — modais ou overlays que precisam ser
 // fechados pelo botao voltar do browser. UI camadas se REGISTRAM aqui em
@@ -77,13 +79,13 @@ function afterAnimation(element, fallbackMs, callback) {
     if (settled) return;
     settled = true;
     element.removeEventListener('animationend', onAnimationEnd);
-    window.clearTimeout(timeoutId);
+    clearTimeout(timeoutId);
     callback();
   };
   const onAnimationEnd = (event) => {
     if (event.target === element) finish();
   };
-  const timeoutId = window.setTimeout(finish, fallbackMs);
+  const timeoutId = setTimeout(finish, fallbackMs);
 
   element.addEventListener('animationend', onAnimationEnd);
 }
@@ -188,15 +190,15 @@ function countOpenBlockingLayers() {
 }
 
 function syncBlockingLayerHistoryDepth() {
-  if (typeof window === 'undefined' || !window.history || _blockingLayerSyncSuspended) return;
+  if (!safeWindow?.history || _blockingLayerSyncSuspended) return;
   if (!_current) return;
   const nextDepth = countOpenBlockingLayers();
   if (nextDepth < _blockingLayerDepth) {
     const delta = _blockingLayerDepth - nextDepth;
     _blockingLayerDepth = nextDepth;
-    if (window.history.state?.blockingLayer) {
+    if (safeWindow.history.state?.blockingLayer) {
       _blockingLayerHistoryCompacting = true;
-      window.history.go(-delta);
+      safeWindow.history.go(-delta);
     }
     return;
   }
@@ -206,10 +208,10 @@ function syncBlockingLayerHistoryDepth() {
 
   const delta = nextDepth - _blockingLayerDepth;
   for (let i = 0; i < delta; i += 1) {
-    window.history.pushState(
+    safeWindow.history.pushState(
       buildHistoryState(_current, _currentParams, { blockingLayer: true }),
       '',
-      window.location.pathname + window.location.search,
+      safeWindow.location.pathname + safeWindow.location.search,
     );
   }
   _blockingLayerDepth = nextDepth;
@@ -321,10 +323,14 @@ export function goTo(name, params = {}, options = {}) {
 
     emitRouteChanged(name, name);
 
-    if (!fromHistory && typeof window !== 'undefined' && window.history) {
+    if (!fromHistory && safeWindow?.history) {
       // Mesma rota + params: evita poluir stack com entradas idênticas.
       const state = buildHistoryState(name, safeParams);
-      window.history.replaceState(state, '', window.location.pathname + window.location.search);
+      safeWindow.history.replaceState(
+        state,
+        '',
+        safeWindow.location.pathname + safeWindow.location.search,
+      );
     }
 
     return;
@@ -401,7 +407,7 @@ function _handleViewError(name, el, error) {
     </div>
   `;
   container.querySelector('.view-error-boundary__retry')?.addEventListener('click', () => {
-    window.location.reload();
+    safeWindow?.location?.reload?.();
   });
 }
 
@@ -444,18 +450,27 @@ function _activateRoute(name, el, params, options = {}) {
   emitRouteChanged(name, previousRoute);
   _transitioning = false;
 
-  if (!fromHistory && typeof window !== 'undefined' && window.history) {
+  if (!fromHistory && safeWindow?.history) {
     const state = buildHistoryState(name, safeParams);
     if (replaceHistory)
-      window.history.replaceState(state, '', window.location.pathname + window.location.search);
-    else window.history.pushState(state, '', window.location.pathname + window.location.search);
+      safeWindow.history.replaceState(
+        state,
+        '',
+        safeWindow.location.pathname + safeWindow.location.search,
+      );
+    else
+      safeWindow.history.pushState(
+        state,
+        '',
+        safeWindow.location.pathname + safeWindow.location.search,
+      );
   }
 
   // Scroll + foco
   const scrollRoot = getScrollRoot();
   scrollRoot?.focus?.();
   if (scrollRoot) scrollRoot.scrollTop = 0;
-  else window.scrollTo(0, 0);
+  else safeWindow?.scrollTo?.(0, 0);
   requestAnimationFrame(() => setRoutingState(false));
 }
 
@@ -468,30 +483,30 @@ export function currentRouteParams() {
 }
 
 export function initHistory() {
-  if (_historyBound || typeof window === 'undefined') return;
+  if (_historyBound || !safeWindow) return;
   _historyBound = true;
 
   // Garante que a entrada atual da rota tenha shape consistente
   // ({ route, params, uiCtxVersion }). Sem isso, um reload profundo pode
   // deixar `history.state` nulo e o primeiro back perde contexto da UI.
-  if (_current && window.history) {
-    const { route, params } = parseHistoryState(window.history.state);
+  if (_current && safeWindow.history) {
+    const { route, params } = parseHistoryState(safeWindow.history.state);
     if (route !== _current) {
-      window.history.replaceState(
+      safeWindow.history.replaceState(
         buildHistoryState(_current, _currentParams),
         '',
-        window.location.pathname + window.location.search,
+        safeWindow.location.pathname + safeWindow.location.search,
       );
     } else if (JSON.stringify(params) !== JSON.stringify(_currentParams)) {
-      window.history.replaceState(
+      safeWindow.history.replaceState(
         buildHistoryState(_current, _currentParams),
         '',
-        window.location.pathname + window.location.search,
+        safeWindow.location.pathname + safeWindow.location.search,
       );
     }
   }
 
-  window.addEventListener('popstate', (e) => {
+  safeWindow.addEventListener('popstate', (e) => {
     if (_blockingLayerHistoryCompacting) {
       _blockingLayerHistoryCompacting = false;
       return;
@@ -524,7 +539,7 @@ export function initHistory() {
     }
     if (_current && _current !== 'inicio') {
       e.preventDefault?.();
-      window.history.back();
+      safeWindow.history.back();
     }
   });
 

@@ -70,22 +70,34 @@ export function computeEquipKpis(state = getState()) {
  * Free/Plus vê upsell educacional.
  */
 export function renderEquipHero(opts = {}) {
-  const { isPro = false } = opts || {};
+  const { evalCtx = null } = opts || {};
   const hero = Utils.getEl('equip-hero');
   if (!hero) return;
-  const { equipamentos = [] } = getState();
+  const { equipamentos = [], registros = [] } = getState();
 
   if (!equipamentos.length) {
     hero.setAttribute('hidden', '');
     return;
   }
 
-  const kpis = computeEquipKpis();
+  const preventivaVencidaIds = new Set(getPreventivaDueEquipmentIds(registros, 0));
+  const pending = equipamentos
+    .filter((eq) => {
+      const isCritico = Utils.safeStatus(eq.status) === 'danger';
+      const isVencido = preventivaVencidaIds.has(eq.id);
+      return isCritico || isVencido;
+    })
+    .sort((a, b) => {
+      const aCrit = Utils.safeStatus(a.status) === 'danger' ? 1 : 0;
+      const bCrit = Utils.safeStatus(b.status) === 'danger' ? 1 : 0;
+      if (bCrit !== aCrit) return bCrit - aCrit;
+      const aPriority = evalCtx?.getActionPriority?.(a)?.actionPriorityScore ?? 0;
+      const bPriority = evalCtx?.getActionPriority?.(b)?.actionPriorityScore ?? 0;
+      return bPriority - aPriority;
+    })
+    .slice(0, 3);
 
-  // Hero só aparece quando há equipamentos sem setor — é o único caso em que
-  // "Organizar parque" tem utilidade acionável. Os chips contadorados abaixo
-  // cobrem críticos/atenção/preventiva sem precisar de duplicação aqui.
-  if (kpis.semSetor <= 0) {
+  if (!pending.length) {
     hero.setAttribute('hidden', '');
     return;
   }
@@ -94,37 +106,30 @@ export function renderEquipHero(opts = {}) {
 
   const sub = Utils.getEl('equip-hero-sub');
   if (sub) {
-    const plural = kpis.semSetor !== 1 ? 's' : '';
-    sub.textContent = `${kpis.semSetor} equipamento${plural} sem setor — organize pra acompanhar por área.`;
+    const plural = pending.length !== 1 ? 's' : '';
+    sub.textContent = `${pending.length} equipamento${plural} precisando ação imediata.`;
   }
 
   const ctaSlot = Utils.getEl('equip-hero-sem-setor-cta');
   if (ctaSlot) {
-    ctaSlot.removeAttribute('hidden');
-    if (isPro) {
-      ctaSlot.innerHTML = `
-        <button type="button" class="equip-hero__cta-btn equip-hero__cta-btn--action"
-                data-action="equip-quickfilter" data-id="sem-setor"
-                aria-label="Organizar equipamentos sem setor agora">
-          <span>Organizar agora</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </button>`;
-    } else {
-      ctaSlot.innerHTML = `
-        <button type="button" class="equip-hero__cta-btn equip-hero__cta-btn--upsell"
-                data-action="open-upgrade" data-upgrade-source="equip_sem_setor" data-highlight-plan="pro"
-                aria-label="Ver como setores funcionam no plano Pro">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5L18.2 21 12 16.5 5.8 21l2.4-7.1L2 9.4h7.6z"/></svg>
-          <span>Ver como setores funcionam</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </button>`;
-    }
+    ctaSlot.setAttribute('hidden', '');
+    ctaSlot.innerHTML = '';
   }
 
   // Slot de KPIs: esvaziado pós-simplificação (mantido no HTML pra não
   // exigir mudança no shell template, mas sem conteúdo renderizado).
   const slot = Utils.getEl('equip-hero-kpis');
-  if (slot) slot.innerHTML = '';
+  if (slot) {
+    slot.innerHTML = pending
+      .map(
+        (eq) => `<article class="equip-hero__kpi">
+        <strong>${Utils.escapeHtml(eq.nome || 'Equipamento')}</strong>
+        <button type="button" class="equip-hero__cta-btn equip-hero__cta-btn--action"
+          data-action="go-register-equip" data-id="${Utils.escapeAttr(eq.id)}">Registrar serviço</button>
+      </article>`,
+      )
+      .join('');
+  }
 }
 
 /** Renderiza os chips de quick filter no slot #equip-filters.
@@ -150,13 +155,13 @@ export function renderEquipFilters() {
 
   const chips = [
     { id: 'todos', label: 'Todos', count: equipamentos.length, tone: 'neutral' },
-    { id: 'sem-setor', label: 'Sem setor', count: kpis.semSetor, tone: 'neutral' },
     { id: 'em-atencao', label: 'Em atenção', count: kpis.emAtencao, tone: 'warn' },
     { id: 'criticos', label: 'Críticos', count: kpis.criticos, tone: 'danger' },
+    { id: 'sem-setor', label: 'Sem setor', count: kpis.semSetor, tone: 'neutral' },
     {
-      id: 'preventiva-30d',
-      label: 'Preventivas em 30 dias',
-      count: kpis.preventiva30d,
+      id: 'preventiva-vencida',
+      label: 'Preventiva vencida',
+      count: getPreventivaDueEquipmentIds(getState().registros || [], 0).length,
       tone: 'cyan',
     },
   ];

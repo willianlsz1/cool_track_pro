@@ -27,6 +27,7 @@ import { drawPmocTermo } from './sections/termo.js';
 import { drawPmocAnexos } from './sections/anexos.js';
 import { stampPmocFooter } from './primitives.js';
 import { PMOC_MARGINS } from './constants.js';
+import { getPmocSummaryForCliente } from '../../../core/pmocProgress.js';
 
 const NUMBERING_KEY_PREFIX = 'cooltrack-pmoc-num';
 
@@ -74,6 +75,47 @@ function buildFileName(docNumber, cliente, ano) {
   return `${safeNumber}${clientPart}_${ano}.pdf`;
 }
 
+function isChecklistFilled(registro) {
+  return (
+    registro?.checklist &&
+    typeof registro.checklist === 'object' &&
+    Array.isArray(registro.checklist.items) &&
+    registro.checklist.items.some((item) => item?.status)
+  );
+}
+
+function buildExecutionSummary({ ano, cliente, equipamentos, registros }) {
+  const from = `${ano}-01-01`;
+  const to = `${ano}-12-31`;
+  const filteredEquipamentos = cliente
+    ? (equipamentos || []).filter((e) => e?.clienteId === cliente.id)
+    : (equipamentos || []).slice();
+  const equipIds = new Set(filteredEquipamentos.map((e) => e.id));
+  const filteredRegistros = (registros || []).filter((r) => {
+    const data = String(r?.data || '').slice(0, 10);
+    return equipIds.has(r?.equipId) && data >= from && data <= to;
+  });
+
+  const registrosComChecklist = filteredRegistros.filter(isChecklistFilled);
+  const registrosComAssinaturaCliente = filteredRegistros.filter(
+    (r) => Boolean(r?.assinatura) || Boolean(r?.clienteAssinatura),
+  );
+  const ultimoComAssinatura = registrosComAssinaturaCliente
+    .slice()
+    .sort((a, b) => String(a?.data || '').localeCompare(String(b?.data || '')))
+    .at(-1);
+
+  return {
+    filteredEquipamentos,
+    filteredRegistros,
+    totalRegistros: filteredRegistros.length,
+    totalComChecklist: registrosComChecklist.length,
+    totalComAssinaturaCliente: registrosComAssinaturaCliente.length,
+    clienteAssinaturaNome:
+      ultimoComAssinatura?.clienteNome || cliente?.nome || ultimoComAssinatura?.cliente || '',
+  };
+}
+
 /**
  * Gera o PDF PMOC completo.
  * @param {Object} params
@@ -112,6 +154,18 @@ export async function generatePmocPdf({
     equipamentos,
     registros,
     profile,
+    pmocSummary: getPmocSummaryForCliente({
+      clienteId: cliente?.id || null,
+      year: Number(ano),
+      equipamentos,
+      registros,
+    }),
+    executionSummary: buildExecutionSummary({
+      ano: Number(ano),
+      cliente,
+      equipamentos,
+      registros,
+    }),
   };
 
   // 1) Capa institucional + Resumo Executivo (4 cards) + Cliente + Prestador
