@@ -1,3 +1,4 @@
+import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 async function loadAlertasView({
@@ -23,13 +24,15 @@ async function loadAlertasView({
   return { ...module, mocks: { getState, getAll, getPreventivaDueEquipmentIds } };
 }
 
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 describe('alertas view security', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    document.body.innerHTML = '<div id="alertas-contextual"></div><div id="lista-alertas"></div>';
+    document.body.innerHTML = '<div id="view-alertas"></div>';
   });
 
-  it('escapes dynamic alert content before writing with innerHTML', async () => {
+  it('escapes dynamic alert content when rendering the React island', async () => {
     const { renderAlertas } = await loadAlertasView({
       alerts: [
         {
@@ -44,7 +47,9 @@ describe('alertas view security', () => {
       ],
     });
 
-    renderAlertas();
+    await act(async () => {
+      await renderAlertas();
+    });
 
     const html = document.getElementById('lista-alertas').innerHTML;
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');

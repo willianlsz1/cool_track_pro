@@ -41,11 +41,16 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ['**/*.js', '**/*.mjs'],
+    files: ['**/*.js', '**/*.jsx', '**/*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: baseGlobals,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
     },
     rules: {
       'no-unused-vars': [
@@ -59,7 +64,12 @@ export default [
     },
   },
   {
-    files: ['src/**/*.test.js', 'src/**/__tests__/**/*.js'],
+    files: [
+      'src/**/*.test.js',
+      'src/**/*.test.jsx',
+      'src/**/__tests__/**/*.js',
+      'src/**/__tests__/**/*.jsx',
+    ],
     languageOptions: {
       globals: testGlobals,
     },

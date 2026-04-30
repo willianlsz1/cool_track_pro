@@ -355,7 +355,36 @@ describe('shareReport — shareReportPdf orchestrator', () => {
 });
 
 describe('shareReport — downloadPdfLocally', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
   it('retorna false com blob nulo', () => {
     expect(downloadPdfLocally({ pdfBlob: null })).toBe(false);
+  });
+
+  it('tolera ambiente sem URL.revokeObjectURL durante limpeza assíncrona', () => {
+    vi.useFakeTimers();
+
+    const origCreateURL = URL.createObjectURL;
+    const origRevokeURL = URL.revokeObjectURL;
+    URL.createObjectURL = () => 'blob:fake';
+    URL.revokeObjectURL = undefined;
+
+    try {
+      const origCreate = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag) => {
+        const el = origCreate(tag);
+        if (tag === 'a') el.click = vi.fn();
+        return el;
+      });
+
+      expect(downloadPdfLocally({ pdfBlob: makePdfBlob(), fileName: 'r.pdf' })).toBe(true);
+      expect(() => vi.runOnlyPendingTimers()).not.toThrow();
+    } finally {
+      URL.createObjectURL = origCreateURL;
+      URL.revokeObjectURL = origRevokeURL;
+    }
   });
 });

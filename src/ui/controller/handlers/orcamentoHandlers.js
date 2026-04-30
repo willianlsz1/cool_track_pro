@@ -13,6 +13,7 @@ import {
   markOrcamentoApproved,
   renderOrcamentos,
 } from '../../views/orcamentos.js';
+import { ORCAMENTO_ACTIONS } from '../../viewModels/orcamentosViewModel.js';
 import { OrcamentoModal } from '../../components/orcamentoModal.js';
 import { CustomConfirm } from '../../../core/modal.js';
 import { OnboardingChecklist } from '../../components/onboarding/onboardingChecklist.js';
@@ -170,7 +171,7 @@ export async function shareOrcamentoWhatsApp(orcamento) {
 
 export function bindOrcamentoHandlers() {
   // Abrir modal — create ou edit
-  on('open-orcamento-modal', (el) => {
+  on(ORCAMENTO_ACTIONS.openModal, (el) => {
     const mode = el.dataset.mode || 'create';
     if (mode === 'edit') {
       OrcamentoModal.openEdit(el.dataset.id);
@@ -180,22 +181,22 @@ export function bindOrcamentoHandlers() {
   });
 
   // Filtros de status
-  on('orc-set-status-filter', (el) => {
+  on(ORCAMENTO_ACTIONS.setStatusFilter, (el) => {
     setOrcStatusFilter(el.dataset.status || 'todos');
   });
 
   // Apagar (com confirm)
-  on('orc-delete', (el) => {
+  on(ORCAMENTO_ACTIONS.delete, (el) => {
     deleteOrcamentoFlow(el.dataset.id);
   });
 
   // Marcar como aprovado (manual — quando cliente respondeu OK no WhatsApp)
-  on('orc-mark-approved', (el) => {
+  on(ORCAMENTO_ACTIONS.markApproved, (el) => {
     markOrcamentoApproved(el.dataset.id);
   });
 
   // Compartilhar via WhatsApp (PDF + mensagem)
-  on('orc-share', async (el) => {
+  on(ORCAMENTO_ACTIONS.share, async (el) => {
     const orcamento = findOrcamento(el.dataset.id);
     if (!orcamento) {
       Toast.error('Orçamento não encontrado.');
@@ -205,7 +206,7 @@ export function bindOrcamentoHandlers() {
   });
 
   // Baixar PDF localmente (sem share — pra imprimir/email/arquivar)
-  on('orc-download', async (el) => {
+  on(ORCAMENTO_ACTIONS.download, async (el) => {
     const orcamento = findOrcamento(el.dataset.id);
     if (!orcamento) {
       Toast.error('Orçamento não encontrado.');
@@ -215,7 +216,7 @@ export function bindOrcamentoHandlers() {
   });
 
   // Fase 2: enviar para assinatura digital (gera token + share WhatsApp)
-  on('orc-send-signature', async (el) => {
+  on(ORCAMENTO_ACTIONS.sendSignature, async (el) => {
     const orcamento = findOrcamento(el.dataset.id);
     if (!orcamento) {
       Toast.error('Orçamento não encontrado.');

@@ -2,7 +2,7 @@ import { registerRoute } from '../../core/router.js';
 import { renderDashboard, updateHeader } from '../views/dashboard.js';
 import { renderEquip, populateEquipSelects } from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
-import { renderAlertas } from '../views/alertas.js';
+import { renderAlertas, unmountAlertas } from '../views/alertas.js';
 import { renderRelatorio, populateRelatorioSelects } from '../views/relatorio.js';
 import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
@@ -51,10 +51,17 @@ export function registerAppRoutes() {
     updateHeader();
   });
 
-  registerRoute('alertas', () => {
-    renderAlertas();
-    updateHeader();
-  });
+  registerRoute(
+    'alertas',
+    () => {
+      const renderResult = renderAlertas();
+      updateHeader();
+      return renderResult;
+    },
+    () => {
+      unmountAlertas();
+    },
+  );
 
   registerRoute('relatorio', (params = {}) => {
     populateRelatorioSelects();
@@ -104,9 +111,16 @@ export function registerAppRoutes() {
 
   // V3 Instalação (abr/2026): orçamentos disponiveis em todos os planos
   // (Free com limite de 1/mês como porta de entrada).
-  registerRoute('orcamentos', async () => {
-    updateHeader();
-    const { loadAndRenderOrcamentos } = await import('../views/orcamentos.js');
-    await loadAndRenderOrcamentos();
-  });
+  registerRoute(
+    'orcamentos',
+    async () => {
+      updateHeader();
+      const { loadAndRenderOrcamentos } = await import('../views/orcamentos.js');
+      await loadAndRenderOrcamentos();
+    },
+    async () => {
+      const { unmountOrcamentos } = await import('../views/orcamentos.js');
+      await unmountOrcamentos();
+    },
+  );
 }

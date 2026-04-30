@@ -223,8 +223,12 @@ export function downloadPdfLocally({ pdfBlob, fileName } = {}) {
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (a.parentNode) {
+        a.parentNode.removeChild(a);
+      }
+      if (typeof URL.revokeObjectURL === 'function') {
+        URL.revokeObjectURL(url);
+      }
     }, 100);
     // Onboarding: marca passo "PDF gerado" — efeito colateral safe
     // (no-op se OnboardingChecklist.init() ainda não foi chamado).

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
 
 const ANALYZE = process.env.ANALYZE === 'true';
@@ -100,7 +101,7 @@ export default defineConfig(async () => ({
     open: true,
     host: true,
   },
-  plugins: await buildPlugins(),
+  plugins: [react(), ...(await buildPlugins())],
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
