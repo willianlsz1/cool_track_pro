@@ -64,6 +64,8 @@ let dashboardNextActionBridgePromise = null;
 let dashboardNextActionBridge = null;
 let dashboardLastServiceBridgePromise = null;
 let dashboardLastServiceBridge = null;
+let dashboardMonthSummaryBridgePromise = null;
+let dashboardMonthSummaryBridge = null;
 
 function loadDashboardKpisBridge() {
   dashboardKpisBridgePromise ??= import('../../react/entrypoints/dashboardKpisIsland.jsx').then(
@@ -108,6 +110,19 @@ function getDashboardLastServiceRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.lastServiceCard);
 }
 
+function loadDashboardMonthSummaryBridge() {
+  dashboardMonthSummaryBridgePromise ??=
+    import('../../react/entrypoints/dashboardMonthSummaryIsland.jsx').then((bridge) => {
+      dashboardMonthSummaryBridge = bridge;
+      return bridge;
+    });
+  return dashboardMonthSummaryBridgePromise;
+}
+
+function getDashboardMonthSummaryRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.monthSection);
+}
+
 export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
   if (!root) return undefined;
   if (dashboardKpisBridge?.unmountDashboardKpisReact) {
@@ -138,6 +153,17 @@ export function unmountDashboardLastService(root = getDashboardLastServiceRoot()
   }
   return loadDashboardLastServiceBridge().then(({ unmountDashboardLastServiceReact }) => {
     unmountDashboardLastServiceReact(root);
+  });
+}
+
+export function unmountDashboardMonthSummary(root = getDashboardMonthSummaryRoot()) {
+  if (!root) return undefined;
+  if (dashboardMonthSummaryBridge?.unmountDashboardMonthSummaryReact) {
+    dashboardMonthSummaryBridge.unmountDashboardMonthSummaryReact(root);
+    return undefined;
+  }
+  return loadDashboardMonthSummaryBridge().then(({ unmountDashboardMonthSummaryReact }) => {
+    unmountDashboardMonthSummaryReact(root);
   });
 }
 
@@ -845,21 +871,32 @@ function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }
 }
 
 function _renderMonthView({ registros, alerts, isEmpresaPro, viewModel }) {
+  const model = viewModel?.month;
+  const root = getDashboardMonthSummaryRoot();
+  if (root && model) {
+    if (dashboardMonthSummaryBridge?.mountDashboardMonthSummaryReact) {
+      dashboardMonthSummaryBridge.mountDashboardMonthSummaryReact(root, { month: model });
+      return Promise.resolve();
+    }
+    return loadDashboardMonthSummaryBridge().then(({ mountDashboardMonthSummaryReact }) => {
+      mountDashboardMonthSummaryReact(root, { month: model });
+    });
+  }
+
   const label = document.getElementById('dash-month-label');
   const servicesEl = document.getElementById('dash-month-services');
   const equipsEl = document.getElementById('dash-month-equips');
   const pendingEl = document.getElementById('dash-month-pending');
   const trendEl = document.getElementById('dash-month-trend');
-  if (!label || !servicesEl || !equipsEl || !pendingEl || !trendEl) return;
+  if (!label || !servicesEl || !equipsEl || !pendingEl || !trendEl) return Promise.resolve();
 
-  const model = viewModel?.month;
   if (model) {
     label.textContent = model.label;
     servicesEl.textContent = String(model.servicesCount);
     equipsEl.textContent = String(model.equipmentsCount);
     pendingEl.textContent = String(model.pendingCount);
     trendEl.textContent = model.trendLabel;
-    return;
+    return Promise.resolve();
   }
 
   const monthRegs = (registros || []).filter((registro) => _countRegistrosNoMes([registro], 0) > 0);
@@ -874,6 +911,7 @@ function _renderMonthView({ registros, alerts, isEmpresaPro, viewModel }) {
     (alerts || []).filter((alerta) => alerta.severity !== 'info').length,
   );
   trendEl.textContent = trend.text.replace(/&uarr;|&darr;/g, '').trim();
+  return Promise.resolve();
 }
 
 function _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores }) {
@@ -1518,7 +1556,7 @@ export async function renderDashboard() {
       clientes,
       viewModel: dashboardReadModel,
     });
-    _renderMonthView({ registros, alerts, isEmpresaPro, viewModel: dashboardReadModel });
+    await _renderMonthView({ registros, alerts, isEmpresaPro, viewModel: dashboardReadModel });
     _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
 
     // Seções secundárias

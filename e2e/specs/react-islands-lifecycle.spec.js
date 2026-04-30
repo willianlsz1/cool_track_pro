@@ -114,11 +114,34 @@ test.describe('React islands lifecycle', () => {
     await expect(card.locator('.dash__card-sub')).toHaveCount(1);
   }
 
+  async function assertDashboardMonthSummaryIsland(page) {
+    const section = page.locator('#dash-month-section');
+
+    await expect(section).toHaveCount(1);
+    await expect(section).toHaveClass(/dash__section/);
+    await expect(section).toHaveAttribute('data-react-dashboard-month-summary-mounted', 'true');
+    await expect(
+      page.locator('#dash-month-section[data-react-dashboard-month-summary-mounted="true"]'),
+    ).toHaveCount(1);
+
+    await expect(page.locator('#dash-month-label')).toHaveCount(1);
+    await expect(page.locator('#dash-month-services')).toHaveCount(1);
+    await expect(page.locator('#dash-month-equips')).toHaveCount(1);
+    await expect(page.locator('#dash-month-pending')).toHaveCount(1);
+    await expect(page.locator('#dash-month-trend')).toHaveCount(1);
+    await expect(section.locator('.dash__section-header')).toHaveCount(1);
+    await expect(section.locator('.dash__section-label')).toHaveCount(1);
+    await expect(section.locator('.dash__kpi-grid')).toHaveCount(1);
+    await expect(section.locator('.dash__kpi')).toHaveCount(4);
+    await expect(section.locator('.dash__kpi-value')).toHaveCount(3);
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
+      await assertDashboardMonthSummaryIsland(page);
 
       await page.click('#sidenav-clientes');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'clientes');
@@ -129,6 +152,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardKpisIsland(page);
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
+      await assertDashboardMonthSummaryIsland(page);
     });
   });
 
