@@ -52,6 +52,42 @@ import {
   PRIORIDADE_LABEL,
   RISK_CLASS_LABEL,
 } from '../../domain/constants/statuses.js';
+import {
+  buildDashboardViewModel,
+  selectNextDashboardAction,
+} from '../viewModels/dashboardViewModel.js';
+import { DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
+
+let dashboardKpisBridgePromise = null;
+let dashboardKpisBridge = null;
+
+function loadDashboardKpisBridge() {
+  dashboardKpisBridgePromise ??= import('../../react/entrypoints/dashboardKpisIsland.jsx').then(
+    (bridge) => {
+      dashboardKpisBridge = bridge;
+      return bridge;
+    },
+  );
+  return dashboardKpisBridgePromise;
+}
+
+function getDashboardKpisRoot() {
+  return (
+    document.getElementById(DASHBOARD_PUBLIC_IDS.kpiRoot) ||
+    document.querySelector('#dash .dash__kpi-grid[aria-label="Indicadores principais"]')
+  );
+}
+
+export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
+  if (!root) return undefined;
+  if (dashboardKpisBridge?.unmountDashboardKpisReact) {
+    dashboardKpisBridge.unmountDashboardKpisReact(root);
+    return undefined;
+  }
+  return loadDashboardKpisBridge().then(({ unmountDashboardKpisReact }) => {
+    unmountDashboardKpisReact(root);
+  });
+}
 
 // ═══════════════════════════════════════════════════════
 // Helpers de métricas (preservados)
@@ -243,6 +279,30 @@ export function calcHealthScore(eqId) {
 
 export function getHealthClass(score) {
   return getMaintenanceHealthClass(score);
+}
+
+function _buildDashboardReadModel({
+  equipamentos = [],
+  registros = [],
+  clientes = [],
+  setores = [],
+  alerts = [],
+  planContext = {},
+  navigationMode = '',
+  userName = '',
+} = {}) {
+  return buildDashboardViewModel({
+    equipamentos,
+    registros,
+    clientes,
+    setores,
+    alerts,
+    planContext,
+    navigationMode,
+    userName,
+    getHealthScore: (eq) => calcHealthScore(eq?.id),
+    getHealthClass,
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -473,10 +533,25 @@ function _equipCardMini(eq) {
 // ═══════════════════════════════════════════════════════
 // Hero Status Card
 // ═══════════════════════════════════════════════════════
-function _renderHero({ tier, tone, userName, equipCount, mesCount, clienteCount, isEmpresaPro }) {
+function _renderHero({
+  tier,
+  tone,
+  userName,
+  equipCount,
+  mesCount,
+  clienteCount,
+  isEmpresaPro,
+  viewModel,
+}) {
   const hero = document.getElementById('dash-hero');
   const dashRoot = document.getElementById('dash');
   if (!hero || !dashRoot) return;
+
+  const model = viewModel?.hero;
+  if (model) {
+    tier = model.tier;
+    tone = model.tone;
+  }
 
   dashRoot.setAttribute('data-tier', tier);
   dashRoot.setAttribute('data-tone', tone);
@@ -486,11 +561,14 @@ function _renderHero({ tier, tone, userName, equipCount, mesCount, clienteCount,
   const greetingEl = document.getElementById('dash-hero-greeting');
   if (greetingEl) {
     const name = (userName || '').trim() || 'Técnico';
-    greetingEl.textContent = isEmpresaPro ? 'Operação em andamento' : `Olá, ${name}`;
+    greetingEl.textContent =
+      model?.greeting || (isEmpresaPro ? 'Operação em andamento' : `Olá, ${name}`);
   }
   const summaryEl = document.getElementById('dash-hero-summary');
   if (summaryEl) {
-    if (isEmpresaPro) {
+    if (model?.summary) {
+      summaryEl.textContent = model.summary;
+    } else if (isEmpresaPro) {
       summaryEl.textContent = `${clienteCount} clientes • ${equipCount} equipamentos • ${mesCount} serviços no mês`;
     } else {
       const equipLabel = `${equipCount} equipamento${equipCount === 1 ? '' : 's'}`;
@@ -509,24 +587,32 @@ function _renderHero({ tier, tone, userName, equipCount, mesCount, clienteCount,
   const ctaLabel = document.getElementById('dash-hero-cta-label');
   const ctaSecondary = document.getElementById('dash-hero-cta-secondary');
   if (ctaBtn && ctaLabel) {
+    const primaryCta = model?.primaryCta || { nav: 'registro', label: 'Registrar serviço' };
     ctaBtn.removeAttribute('data-action');
     ctaBtn.removeAttribute('data-id');
-    ctaBtn.setAttribute('data-nav', 'registro');
-    ctaLabel.textContent = 'Registrar serviço';
+    ctaBtn.removeAttribute('data-nav');
+    if (primaryCta.action) ctaBtn.setAttribute('data-action', primaryCta.action);
+    if (primaryCta.id) ctaBtn.setAttribute('data-id', primaryCta.id);
+    if (primaryCta.nav) ctaBtn.setAttribute('data-nav', primaryCta.nav);
+    ctaLabel.textContent = primaryCta.label;
     if (ctaSecondary) {
+      const secondaryCta = model?.secondaryCta;
       ctaSecondary.hidden = false;
-      if (isEmpresaPro) {
-        ctaSecondary.removeAttribute('data-action');
-        ctaSecondary.removeAttribute('data-id');
-        ctaSecondary.setAttribute('data-nav', 'clientes');
-      } else {
+      ctaSecondary.removeAttribute('data-action');
+      ctaSecondary.removeAttribute('data-id');
+      ctaSecondary.removeAttribute('data-nav');
+      if (secondaryCta?.action) ctaSecondary.setAttribute('data-action', secondaryCta.action);
+      if (secondaryCta?.id) ctaSecondary.setAttribute('data-id', secondaryCta.id);
+      if (secondaryCta?.nav) ctaSecondary.setAttribute('data-nav', secondaryCta.nav);
+      if (!secondaryCta && isEmpresaPro) ctaSecondary.setAttribute('data-nav', 'clientes');
+      if (!secondaryCta && !isEmpresaPro) {
         ctaSecondary.setAttribute('data-action', 'open-modal');
         ctaSecondary.setAttribute('data-id', 'modal-add-eq');
-        ctaSecondary.removeAttribute('data-nav');
       }
       const secondaryLabel = document.getElementById('dash-hero-cta-secondary-label');
       if (secondaryLabel) {
-        secondaryLabel.textContent = isEmpresaPro ? 'Ver clientes' : 'Cadastrar equipamento';
+        secondaryLabel.textContent =
+          secondaryCta?.label || (isEmpresaPro ? 'Ver clientes' : 'Cadastrar equipamento');
       }
     }
   }
@@ -535,113 +621,69 @@ function _renderHero({ tier, tone, userName, equipCount, mesCount, clienteCount,
 // ═══════════════════════════════════════════════════════
 // KPI Grid
 // ═══════════════════════════════════════════════════════
-function _renderKPIs({ equipamentos, registros, alerts }) {
-  const total = equipamentos.length;
-  const active = equipamentos.filter((e) => e.status !== 'danger').length;
-  const faults = total - active;
-  const alertCount = alerts.length;
-  const mesCount = _countRegistrosNoMes(registros, 0);
-  const mesPrev = _countRegistrosNoMes(registros, 1);
-  const sparkData = _sparklineData(registros, 6);
+function _renderKPIs({ equipamentos, registros, alerts, viewModel }) {
+  const kpis =
+    viewModel?.kpis || _buildDashboardReadModel({ equipamentos, registros, alerts }).kpis;
+  const root = getDashboardKpisRoot();
 
-  // Ativos
-  const ativosEl = document.getElementById('dash-kpi-ativos');
-  const ativosSub = document.getElementById('dash-kpi-ativos-sub');
-  if (ativosEl) ativosEl.textContent = total ? `${active}/${total}` : '—';
-  if (ativosSub) {
-    ativosSub.textContent = !total ? 'sem cadastro' : faults > 0 ? `${faults} fora` : 'estável';
-    ativosSub.dataset.tone = faults > 0 ? 'danger' : 'ok';
-  }
-
-  // Eficiência
-  let efficiency = null;
-  const efEl = document.getElementById('dash-kpi-ef');
-  const efSub = document.getElementById('dash-kpi-ef-sub');
-  const efSpark = document.getElementById('dash-kpi-ef-spark');
-  if (total) {
-    const scores = equipamentos.map((eq) => calcHealthScore(eq.id));
-    efficiency = Math.round(scores.reduce((a, b) => a + b, 0) / Math.max(scores.length, 1));
-    if (efEl) efEl.textContent = `${efficiency}%`;
-    const cls = getHealthClass(efficiency);
-    if (efEl) efEl.dataset.tone = cls === 'ok' ? 'ok' : cls === 'warn' ? 'warn' : 'danger';
-    if (efSub) {
-      efSub.textContent =
-        efficiency >= 90
-          ? 'excelente'
-          : efficiency >= 75
-            ? 'saudável'
-            : efficiency >= 50
-              ? 'atenção'
-              : 'intervenção';
-      efSub.dataset.tone = cls === 'ok' ? 'ok' : cls === 'warn' ? 'warn' : 'danger';
+  if (root) {
+    if (dashboardKpisBridge?.mountDashboardKpisReact) {
+      dashboardKpisBridge.mountDashboardKpisReact(root, { kpis });
+    } else {
+      const mountPromise = loadDashboardKpisBridge().then(({ mountDashboardKpisReact }) => {
+        mountDashboardKpisReact(root, { kpis });
+      });
+      return {
+        efficiency: kpis.eficiencia.value,
+        mesCount: kpis.mes.count,
+        mountPromise,
+      };
     }
-    if (efSpark) efSpark.innerHTML = _sparklineSvg(scores.slice(-6));
-  } else {
-    if (efEl) efEl.textContent = '—';
-    if (efEl) efEl.dataset.tone = 'muted';
-    if (efSub) efSub.textContent = 'sem dados';
-    if (efSpark) efSpark.innerHTML = '';
   }
 
-  // Anomalias
-  const anomEl = document.getElementById('dash-kpi-anom');
-  const anomSub = document.getElementById('dash-kpi-anom-sub');
-  if (anomEl) {
-    anomEl.textContent = String(alertCount);
-    anomEl.dataset.tone = alertCount > 0 ? 'danger' : 'ok';
-  }
-  if (anomSub) {
-    anomSub.textContent = !alertCount
-      ? 'sem alerta'
-      : alertCount === 1
-        ? '1 alerta ativo'
-        : `${alertCount} alertas ativos`;
-    anomSub.dataset.tone = alertCount > 0 ? 'danger' : 'ok';
-  }
-
-  // Serviços / mês
-  const mesEl = document.getElementById('dash-kpi-mes');
-  const mesSub = document.getElementById('dash-kpi-mes-sub');
-  const mesSpark = document.getElementById('dash-kpi-mes-spark');
-  if (mesEl) mesEl.textContent = String(mesCount);
-  if (mesSub) {
-    const tr = _trendTag(mesCount, mesPrev);
-    mesSub.textContent = tr.text;
-    mesSub.dataset.tone = tr.cls === 'up' ? 'ok' : tr.cls === 'down' ? 'warn' : 'muted';
-  }
-  if (mesSpark) mesSpark.innerHTML = _sparklineSvg(sparkData);
-
-  return { efficiency, mesCount };
+  return {
+    efficiency: kpis.eficiencia.value,
+    mesCount: kpis.mes.count,
+    mountPromise: Promise.resolve(),
+  };
 }
 
 // ═══════════════════════════════════════════════════════
 // Próxima Ação + Último Serviço
 // ═══════════════════════════════════════════════════════
 export function selectNextBestAction({ alerts, equipamentos, registros }) {
-  const pmocLate = alerts.find((alert) =>
-    String(alert?.title || '')
-      .toLowerCase()
-      .includes('pmoc'),
-  );
-  if (pmocLate) return { priority: 1, kind: 'pmoc', alert: pmocLate };
-  const critical = alerts.find((alert) => alert.kind === 'critical');
-  if (critical) return { priority: 2, kind: 'critical', alert: critical };
-  const overdue = alerts.find((alert) => alert.kind === 'overdue');
-  if (overdue) return { priority: 3, kind: 'overdue', alert: overdue };
-  const upcoming = alerts.find((alert) => alert.kind === 'upcoming');
-  if (upcoming) return { priority: 4, kind: 'upcoming', alert: upcoming };
-  if (registros.length) return { priority: 5, kind: 'last-service', registro: registros[0] };
-  if (!equipamentos.length) return { priority: 6, kind: 'empty-equip' };
-  return { priority: 6, kind: 'none' };
+  return selectNextDashboardAction({ alerts, equipamentos, registros });
 }
 
-function _renderNextActionCard({ alerts, equipamentos, registros, isEmpresaPro, clientes }) {
+function _renderNextActionCard({
+  alerts,
+  equipamentos,
+  registros,
+  isEmpresaPro,
+  clientes,
+  viewModel,
+}) {
   const card = document.getElementById('dash-next-action-card');
   const titleEl = document.getElementById('dash-next-title');
   const subEl = document.getElementById('dash-next-sub');
   const cta = document.getElementById('dash-next-cta');
   const ctaLabel = document.getElementById('dash-next-cta-label');
   if (!titleEl || !subEl || !cta || !ctaLabel || !card) return;
+
+  const model = viewModel?.nextAction;
+  if (model) {
+    card.dataset.tone = model.tone;
+    cta.removeAttribute('data-nav');
+    cta.removeAttribute('data-action');
+    cta.removeAttribute('data-id');
+    if (model.cta?.nav) cta.dataset.nav = model.cta.nav;
+    if (model.cta?.action) cta.dataset.action = model.cta.action;
+    if (model.cta?.id) cta.dataset.id = model.cta.id;
+    titleEl.textContent = model.title;
+    subEl.textContent = model.subtitle;
+    ctaLabel.textContent = model.cta?.label || 'Ver histórico';
+    return;
+  }
 
   const sortedRegs = [...(registros || [])].sort((a, b) =>
     String(b.data).localeCompare(String(a.data)),
@@ -693,11 +735,20 @@ function _renderNextActionCard({ alerts, equipamentos, registros, isEmpresaPro, 
   ctaLabel.textContent = 'Ver histórico';
 }
 
-function _renderLastServiceCard({ registros, isEmpresaPro, clientes }) {
+function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }) {
   const card = document.getElementById('dash-last-service');
   const titleEl = document.getElementById('dash-last-title');
   const subEl = document.getElementById('dash-last-sub');
   if (!card || !titleEl) return;
+
+  const model = viewModel?.lastService;
+  if (model) {
+    card.hidden = Boolean(model.hidden);
+    if (model.hidden) return;
+    titleEl.textContent = model.title;
+    if (subEl) subEl.textContent = model.subtitle;
+    return;
+  }
 
   if (!registros.length) {
     card.hidden = true;
@@ -718,13 +769,23 @@ function _renderLastServiceCard({ registros, isEmpresaPro, clientes }) {
   }
 }
 
-function _renderMonthView({ registros, alerts, isEmpresaPro }) {
+function _renderMonthView({ registros, alerts, isEmpresaPro, viewModel }) {
   const label = document.getElementById('dash-month-label');
   const servicesEl = document.getElementById('dash-month-services');
   const equipsEl = document.getElementById('dash-month-equips');
   const pendingEl = document.getElementById('dash-month-pending');
   const trendEl = document.getElementById('dash-month-trend');
   if (!label || !servicesEl || !equipsEl || !pendingEl || !trendEl) return;
+
+  const model = viewModel?.month;
+  if (model) {
+    label.textContent = model.label;
+    servicesEl.textContent = String(model.servicesCount);
+    equipsEl.textContent = String(model.equipmentsCount);
+    pendingEl.textContent = String(model.pendingCount);
+    trendEl.textContent = model.trendLabel;
+    return;
+  }
 
   const monthRegs = (registros || []).filter((registro) => _countRegistrosNoMes([registro], 0) > 0);
   const uniqueEquips = new Set(monthRegs.map((registro) => registro.equipId).filter(Boolean));
@@ -1269,13 +1330,23 @@ export async function renderDashboard() {
 
   // Skeleton cobre TODO o ciclo — incluindo o await do planContext — para
   // que o usuário nunca veja a view em branco enquanto buscamos billing.
-  withSkeleton(viewInicio, { enabled: true, variant: 'generic', count: 4 }, async () => {
+  return withSkeleton(viewInicio, { enabled: true, variant: 'generic', count: 4 }, async () => {
     const planContext = await resolveDashboardPlanContext();
     const { equipamentos, registros, clientes, setores } = getState();
     const alerts = Alerts.getAll();
 
     const tier = _planTier(planContext.planCode);
-    const isEmpresaPro = planContext.hasPro && getNavigationMode() === NAV_MODE_EMPRESA;
+    const navigationMode = getNavigationMode();
+    const isEmpresaPro = planContext.hasPro && navigationMode === NAV_MODE_EMPRESA;
+    let dashboardReadModel = _buildDashboardReadModel({
+      equipamentos,
+      registros,
+      clientes,
+      setores,
+      alerts,
+      planContext,
+      navigationMode,
+    });
 
     // Tier no root pra theming
     const dashRoot = document.getElementById('dash');
@@ -1297,31 +1368,20 @@ export async function renderDashboard() {
     const emptyHost = document.getElementById('dash-empty');
     if (!equipamentos.length && emptyHost) {
       emptyHost.hidden = false;
-      emptyHost.innerHTML = emptyStateHtml({
-        icon: '🔧',
-        title: isEmpresaPro
-          ? 'Monte sua operação começando por cliente ou equipamento'
-          : 'Cadastre seu primeiro equipamento',
-        description: isEmpresaPro
-          ? 'Comece vinculando cliente, setor e equipamento para ter visão completa da operação.'
-          : 'Cadastre seu primeiro equipamento em menos de 1 minuto. A foto da etiqueta preenche os principais dados.',
-        cta: {
-          label: isEmpresaPro ? 'Ver clientes' : '+ Cadastrar meu primeiro equipamento',
-          action: isEmpresaPro ? undefined : 'open-modal',
-          id: isEmpresaPro ? undefined : 'modal-add-eq',
-          nav: isEmpresaPro ? 'clientes' : undefined,
-          tone: 'primary',
-          autoWidth: true,
-          centered: true,
-        },
-      });
+      emptyHost.innerHTML = emptyStateHtml(dashboardReadModel.emptyState);
     } else if (emptyHost) {
       emptyHost.hidden = true;
       emptyHost.innerHTML = '';
     }
 
     // KPIs (retorna eficiência e mesCount pro hero)
-    const { mesCount } = _renderKPIs({ equipamentos, registros, alerts });
+    const { mesCount, mountPromise: kpisMountPromise } = _renderKPIs({
+      equipamentos,
+      registros,
+      alerts,
+      viewModel: dashboardReadModel,
+    });
+    await kpisMountPromise;
 
     // Tone do hero
     const hasCritical = alerts.some((a) => a.severity === 'danger');
@@ -1345,6 +1405,17 @@ export async function renderDashboard() {
       // sem fallback: userName fica vazio e o hero cai em "Técnico"
     }
 
+    dashboardReadModel = _buildDashboardReadModel({
+      equipamentos,
+      registros,
+      clientes,
+      setores,
+      alerts,
+      planContext,
+      navigationMode,
+      userName,
+    });
+
     _renderHero({
       tier,
       tone,
@@ -1353,6 +1424,7 @@ export async function renderDashboard() {
       mesCount,
       clienteCount: clientes.length,
       isEmpresaPro,
+      viewModel: dashboardReadModel,
     });
 
     _populateHeaderIdentity({ tier, userName });
@@ -1363,9 +1435,10 @@ export async function renderDashboard() {
       registros,
       isEmpresaPro,
       clientes,
+      viewModel: dashboardReadModel,
     });
-    _renderLastServiceCard({ registros, isEmpresaPro, clientes });
-    _renderMonthView({ registros, alerts, isEmpresaPro });
+    _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel: dashboardReadModel });
+    _renderMonthView({ registros, alerts, isEmpresaPro, viewModel: dashboardReadModel });
     _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
 
     // Seções secundárias

@@ -84,4 +84,29 @@ test.describe('React islands lifecycle', () => {
       }),
     );
   });
+
+  test('equipamentos sai e volta sem duplicar root React da lista flat', async ({ page }) => {
+    await assertNoDuplicateCreateRoot(page, () =>
+      cycleIsland(page, {
+        navSelector: '#sidenav-equipamentos',
+        route: 'equipamentos',
+        rootSelector: '#lista-equip',
+        markerSelector: '#lista-equip [data-testid="equipamentos-list"]',
+      }),
+    );
+
+    await expect(page.locator('#view-equipamentos')).toHaveCount(1);
+    await expect(page.locator('#lista-equip')).toHaveCount(1);
+    await expect(page.locator('#lista-equip [data-testid="equipamentos-list"]')).toHaveCount(1);
+
+    const equipCards = page.locator('#lista-equip .equip-card');
+    const cardCount = await equipCards.count();
+    if (cardCount > 0) {
+      const firstCard = equipCards.first();
+      await expect(firstCard).toHaveAttribute('data-id', /.+/);
+      await expect(firstCard).toHaveAttribute('data-action', 'view-equip');
+    } else {
+      await expect(page.locator('#lista-equip .empty-state')).toHaveCount(1);
+    }
+  });
 });

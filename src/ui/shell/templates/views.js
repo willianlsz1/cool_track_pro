@@ -23,7 +23,7 @@ export function renderShellViews() {
             <div id="dash-onboarding"></div>
             <div id="dash-overflow-banner"></div>
 
-            <section class="dash__kpi-grid" aria-label="Indicadores principais">
+            <section class="dash__kpi-grid" id="dash-kpis-root" aria-label="Indicadores principais">
               <article class="dash__kpi">
                 <div class="dash__kpi-label">Ativos</div>
                 <div class="dash__kpi-value" id="dash-kpi-ativos">—</div>
