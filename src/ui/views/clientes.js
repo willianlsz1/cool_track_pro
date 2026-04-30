@@ -32,21 +32,8 @@ import { goTo } from '../../core/router.js';
 import { getClienteAlert, daysUntilAlert } from '../../core/clienteAlerts.js';
 import { ClienteAlertModal } from '../components/clienteAlertModal.js';
 import { ClientePmocPanel } from '../components/clientePmocPanel.js';
-import { ICON_PLUS } from './clientes/constants.js';
 import { buildClientesViewModel } from '../viewModels/clientesViewModel.js';
 import { CLIENTES_ACTIONS, CLIENTES_PUBLIC_IDS } from '../viewModels/clientesContracts.js';
-import {
-  renderCard,
-  renderEmptyFilter,
-  renderEmptyState,
-  renderFilters,
-  renderPagination,
-} from './clientes/renderers.js';
-import {
-  renderActiveContext,
-  renderAlertStrip,
-  renderSummary,
-} from './clientes/summaryRenderer.js';
 
 /* ─────────────────────── module state ──────────────────────────────── */
 
@@ -59,6 +46,31 @@ let _pageSize = 6;
 let _hydrated = false;
 let _bound = false;
 let _summaryCollapsed = true;
+let renderGeneration = 0;
+let clientesBridgePromise = null;
+
+function loadClientesBridge() {
+  clientesBridgePromise ??= import('../../react/entrypoints/clientesIsland.jsx');
+  return clientesBridgePromise;
+}
+
+function buildClienteAlerts(pageItems = []) {
+  return pageItems.reduce((alerts, cliente) => {
+    const alert = getClienteAlert(cliente.id);
+    if (!alert) return alerts;
+
+    alerts[cliente.id] = {
+      daysRemaining: daysUntilAlert(cliente.id),
+    };
+    return alerts;
+  }, {});
+}
+
+function shouldCollapseSummary() {
+  const mobileCollapsed =
+    typeof window !== 'undefined' && window.matchMedia?.('(max-width: 720px)').matches === true;
+  return Boolean(mobileCollapsed && _summaryCollapsed);
+}
 
 /* ─────────────────────── derivacao de dados ────────────────────────── */
 
@@ -98,54 +110,29 @@ export async function renderClientes() {
   _currentPage = viewModel.pagination.currentPage;
   _pageSize = viewModel.pagination.pageSize;
 
-  // Header sempre visível
-  const headerHtml = `
-    <header class="cli-page__header">
-      <div>
-        <h1 class="cli-page__title">Meus clientes</h1>
-        <p class="cli-page__sub">Cadastre e gerencie seus clientes, organize equipamentos por carteira e gere relatórios PMOC formais.</p>
-      </div>
-      <button type="button" class="cli-page__cta"
-        data-action="${CLIENTES_ACTIONS.openModal}" data-mode="create">
-        ${ICON_PLUS}<span>Novo cliente</span>
-      </button>
-    </header>`;
+  const generation = ++renderGeneration;
+  const clienteAlerts = buildClienteAlerts(viewModel.pageItems);
+  const { mountClientesReact } = await loadClientesBridge();
+  if (generation !== renderGeneration) return null;
 
-  // Empty inicial (sem clientes cadastrados)
-  if (viewModel.isEmpty) {
-    root.innerHTML = `
-      <div class="cli-page">
-        ${headerHtml}
-        ${renderEmptyState()}
-      </div>`;
-    _bindOnce();
-    return;
-  }
-
-  const cardsHtml = viewModel.pageItems.length
-    ? viewModel.pageItems
-        .map((c) =>
-          renderCard(c, viewModel.indexed.get(c.id) || {}, { getClienteAlert, daysUntilAlert }),
-        )
-        .join('')
-    : '';
-
-  root.innerHTML = `
-      <div class="cli-page">
-      ${headerHtml}
-      ${renderFilters({ cities: viewModel.cities, searchTerm: viewModel.filters.searchTerm, statusFilter: viewModel.filters.statusFilter, cityFilter: viewModel.filters.cityFilter, sortBy: viewModel.filters.sortBy })}
-      ${renderActiveContext({ searchTerm: viewModel.filters.searchTerm, statusFilter: viewModel.filters.statusFilter, cityFilter: viewModel.filters.cityFilter })}
-      ${renderAlertStrip({ indexed: viewModel.indexed })}
-      ${renderSummary({ clientes: viewModel.clientes, equipamentos: viewModel.equipamentos, registros: viewModel.registros, indexed: viewModel.indexed, summaryCollapsed: viewModel.summaryCollapsed })}
-      ${
-        viewModel.pageItems.length
-          ? `<div class="cli-grid" role="list">${cardsHtml}</div>`
-          : renderEmptyFilter(viewModel.filters.searchTerm)
-      }
-      ${renderPagination(viewModel.pagination.filteredCount, { currentPage: viewModel.pagination.currentPage, pageSize: viewModel.pagination.pageSize })}
-    </div>`;
-
+  const mounted = mountClientesReact(root, {
+    viewModel,
+    clienteAlerts,
+    isSummaryCollapsed: shouldCollapseSummary(),
+  });
   _bindOnce();
+  return mounted;
+}
+
+export function unmountClientes() {
+  renderGeneration += 1;
+  const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
+  if (!root?.dataset.reactClientesMounted) return null;
+
+  return loadClientesBridge().then(({ unmountClientesReact }) => {
+    unmountClientesReact(root);
+    return null;
+  });
 }
 
 /* ─────────────────────── interactions ──────────────────────────────── */
@@ -351,7 +338,7 @@ function _openPmocPanel(id) {
 export function setClientesSearch(term) {
   _searchTerm = String(term || '');
   _currentPage = 1;
-  renderClientes();
+  return renderClientes();
 }
 
 /* ─────────────────────── delete / select ───────────────────────────── */
