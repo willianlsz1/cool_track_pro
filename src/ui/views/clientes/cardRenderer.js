@@ -1,9 +1,6 @@
 import { Utils } from '../../../core/utils.js';
 import { formatCnpjOrCpf } from '../../../core/clientes.js';
-<<<<<<< HEAD
 import { CLIENTES_ACTIONS } from '../../viewModels/clientesContracts.js';
-=======
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
 import {
   ICON_BELL_SM,
   ICON_CLOCK_SM,
@@ -47,11 +44,7 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
     safeData.pmocOverdueCount > 0
       ? (() => {
           const label = `${safeData.pmocOverdueCount} manutenção${safeData.pmocOverdueCount !== 1 ? 'es' : ''} atrasada${safeData.pmocOverdueCount !== 1 ? 's' : ''}`;
-<<<<<<< HEAD
           return `<div class="cli-pmoc" data-cli-action="${CLIENTES_ACTIONS.pmocFocus}" data-id="${safeId}"
-=======
-          return `<div class="cli-pmoc" data-cli-action="pmoc-focus" data-id="${safeId}"
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
            role="button" tabindex="0" aria-label="Abrir equipamentos com filtro PMOC do cliente ${nome}">
            <span class="cli-pmoc__label">PMOC</span>
            <span class="cli-pmoc__status">⚠️ ${label}</span>
@@ -92,29 +85,17 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
         ${statusPill(safeData.status)}
         <div class="cli-card__menu" id="cli-card-menu-${safeId}" role="menu" hidden>
           <button type="button" class="cli-card__menu-item"
-<<<<<<< HEAD
             data-cli-action="${CLIENTES_ACTIONS.alert}" data-id="${safeId}" role="menuitem">
-=======
-            data-cli-action="alert" data-id="${safeId}" role="menuitem">
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
             ${ICON_BELL_SM}
             <span>${alert ? 'Alterar alerta' : 'Definir alerta'}</span>
           </button>
           <button type="button" class="cli-card__menu-item"
-<<<<<<< HEAD
             data-cli-action="${CLIENTES_ACTIONS.edit}" data-id="${safeId}" role="menuitem">
-=======
-            data-cli-action="edit" data-id="${safeId}" role="menuitem">
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
             ${ICON_PEN}
             <span>Editar cliente</span>
           </button>
           <button type="button" class="cli-card__menu-item cli-card__menu-item--danger"
-<<<<<<< HEAD
             data-cli-action="${CLIENTES_ACTIONS.delete}" data-id="${safeId}" role="menuitem">
-=======
-            data-cli-action="delete" data-id="${safeId}" role="menuitem">
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M3 6h18"/>
@@ -148,11 +129,7 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
       </div>
       ${pmocBlock}
 
-<<<<<<< HEAD
       <section class="cli-pmoc" aria-label="Resumo PMOC" role="button" tabindex="0" data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}" data-id="${safeId}">
-=======
-      <section class="cli-pmoc" aria-label="Resumo PMOC" role="button" tabindex="0" data-cli-action="open-pmoc-panel" data-id="${safeId}">
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         <div class="cli-pmoc__head">
           <strong>${Utils.escapeHtml(pmoc.activeLabel || 'PMOC inativo')}</strong>
           <span class="cli-pmoc__chip ${pmocStatusClass(pmoc.status)}">
@@ -169,7 +146,6 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
 
       <footer class="cli-card__actions">
         <button type="button" class="cli-card__action cli-card__action--primary"
-<<<<<<< HEAD
           data-cli-action="${CLIENTES_ACTIONS.verEquipamentos}" data-id="${safeId}">
           ${ICON_MONITOR_SM}<span>Ver equipamentos</span>
         </button>
@@ -183,21 +159,6 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
         </button>
         <button type="button" class="cli-card__action cli-card__action--ghost cli-card__action--options"
           data-cli-action="${CLIENTES_ACTIONS.cardMenu}" data-id="${safeId}"
-=======
-          data-cli-action="ver-equipamentos" data-id="${safeId}">
-          ${ICON_MONITOR_SM}<span>Ver equipamentos</span>
-        </button>
-        <button type="button" class="cli-card__action cli-card__action--secondary"
-          data-cli-action="ver-serviços" data-id="${safeId}">
-          ${ICON_CLOCK_SM}<span>Ver serviços</span>
-        </button>
-        <button type="button" class="cli-card__action cli-card__action--pmoc"
-          data-cli-action="open-pmoc-panel" data-id="${safeId}">
-          ${ICON_FILE}<span>PMOC</span>
-        </button>
-        <button type="button" class="cli-card__action cli-card__action--ghost cli-card__action--options"
-          data-cli-action="card-menu" data-id="${safeId}"
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
           aria-label="Mais opções para ${nome}" title="Opções"
           aria-haspopup="menu" aria-expanded="false">
           ${ICON_KEBAB}<span class="cli-card__options-label">Opções</span>

@@ -1,8 +1,5 @@
 import { Utils } from '../../../core/utils.js';
-<<<<<<< HEAD
 import { CLIENTES_ACTIONS } from '../../viewModels/clientesContracts.js';
-=======
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
 import {
   ICON_ALERT,
   ICON_CALENDAR,
@@ -109,11 +106,7 @@ export function renderSummary({
   const collapsed = mobileCollapsed ? summaryCollapsed : false;
   return `
     <section class="cli-summary ${collapsed ? 'is-collapsed' : ''}" aria-label="Resumo da carteira">
-<<<<<<< HEAD
       <button type="button" class="cli-summary__toggle" data-cli-action="${CLIENTES_ACTIONS.toggleSummary}"
-=======
-      <button type="button" class="cli-summary__toggle" data-cli-action="toggle-summary"
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         aria-expanded="${collapsed ? 'false' : 'true'}">
         <span class="cli-summary__title">Resumo</span>
         <span class="cli-summary__hint">KPIs da carteira</span>
@@ -147,11 +140,7 @@ export function renderActiveContext({ searchTerm, statusFilter, cityFilter }) {
     <div class="cli-context" role="status" aria-label="Filtros ativos">
       <span class="cli-context__label">Contexto ativo</span>
       <div class="cli-context__chips">${chips.join('')}</div>
-<<<<<<< HEAD
       <button type="button" class="cli-context__clear" data-cli-action="${CLIENTES_ACTIONS.clearFilters}">Limpar</button>
-=======
-      <button type="button" class="cli-context__clear" data-cli-action="clear-filters">Limpar</button>
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
     </div>`;
 }
 
@@ -167,11 +156,7 @@ export function renderAlertStrip({ indexed }) {
         <div class="cli-alert__title">${stale} cliente${stale !== 1 ? 's' : ''} sem manutenção há mais de 60 dias</div>
         <div class="cli-alert__desc">Mantenha a regularidade e evite falhas nos equipamentos.</div>
       </div>
-<<<<<<< HEAD
       <button type="button" class="cli-alert__cta" data-cli-action="${CLIENTES_ACTIONS.filterPending}">
-=======
-      <button type="button" class="cli-alert__cta" data-cli-action="filter-pending">
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         Ver clientes
         <span aria-hidden="true">${ICON_CHEV_R}</span>
       </button>

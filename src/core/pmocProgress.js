@@ -7,14 +7,13 @@ function endOfYearMs(year) {
 }
 
 function parseDateMs(value) {
-<<<<<<< HEAD
-  const raw = value ? String(value) : '';
+  if (!value) return Number.NaN;
+
+  const raw = String(value);
   const ts = /^\d{4}-\d{2}-\d{2}$/.test(raw)
     ? new Date(`${raw}T00:00:00`).getTime()
     : new Date(raw).getTime();
-=======
-  const ts = value ? new Date(value).getTime() : Number.NaN;
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
+
   return Number.isFinite(ts) ? ts : Number.NaN;
 }
 

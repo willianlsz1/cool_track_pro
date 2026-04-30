@@ -79,7 +79,6 @@ export async function renderClientes() {
   }
 
   const { clientes = [], equipamentos = [], registros = [] } = getState();
-<<<<<<< HEAD
   const viewModel = buildClientesViewModel({
     clientes,
     equipamentos,
@@ -98,22 +97,6 @@ export async function renderClientes() {
   _sortBy = viewModel.filters.sortBy;
   _currentPage = viewModel.pagination.currentPage;
   _pageSize = viewModel.pagination.pageSize;
-=======
-  const indexed = buildClienteIndex({ clientes, equipamentos, registros });
-  const currentYear = new Date().getFullYear();
-  clientes.forEach((cliente) => {
-    const current = indexed.get(cliente.id) || {};
-    indexed.set(cliente.id, {
-      ...current,
-      pmocSummary: getPmocSummaryForCliente({
-        clienteId: cliente.id,
-        year: currentYear,
-        equipamentos,
-        registros,
-      }),
-    });
-  });
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
 
   // Header sempre visível
   const headerHtml = `
@@ -139,60 +122,27 @@ export async function renderClientes() {
     return;
   }
 
-<<<<<<< HEAD
   const cardsHtml = viewModel.pageItems.length
     ? viewModel.pageItems
         .map((c) =>
           renderCard(c, viewModel.indexed.get(c.id) || {}, { getClienteAlert, daysUntilAlert }),
         )
-=======
-  const filtered = filterAndSortClientes(clientes, indexed, {
-    searchTerm: _searchTerm,
-    statusFilter: _statusFilter,
-    cityFilter: _cityFilter,
-    sortBy: _sortBy,
-  });
-  // Clamp page se filtragem reduzir o total
-  const totalPages = Math.max(1, Math.ceil(filtered.length / _pageSize));
-  if (_currentPage > totalPages) _currentPage = totalPages;
-  const start = (_currentPage - 1) * _pageSize;
-  const pageItems = filtered.slice(start, start + _pageSize);
-
-  const cities = clientes.map((c) => indexed.get(c.id)?.displayCity).filter(Boolean);
-
-  const cardsHtml = pageItems.length
-    ? pageItems
-        .map((c) => renderCard(c, indexed.get(c.id) || {}, { getClienteAlert, daysUntilAlert }))
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         .join('')
     : '';
 
   root.innerHTML = `
       <div class="cli-page">
       ${headerHtml}
-<<<<<<< HEAD
       ${renderFilters({ cities: viewModel.cities, searchTerm: viewModel.filters.searchTerm, statusFilter: viewModel.filters.statusFilter, cityFilter: viewModel.filters.cityFilter, sortBy: viewModel.filters.sortBy })}
       ${renderActiveContext({ searchTerm: viewModel.filters.searchTerm, statusFilter: viewModel.filters.statusFilter, cityFilter: viewModel.filters.cityFilter })}
       ${renderAlertStrip({ indexed: viewModel.indexed })}
       ${renderSummary({ clientes: viewModel.clientes, equipamentos: viewModel.equipamentos, registros: viewModel.registros, indexed: viewModel.indexed, summaryCollapsed: viewModel.summaryCollapsed })}
-=======
-      ${renderFilters({ cities, searchTerm: _searchTerm, statusFilter: _statusFilter, cityFilter: _cityFilter, sortBy: _sortBy })}
-      ${renderActiveContext({ searchTerm: _searchTerm, statusFilter: _statusFilter, cityFilter: _cityFilter })}
-      ${renderAlertStrip({ indexed })}
-      ${renderSummary({ clientes, equipamentos, registros, indexed, summaryCollapsed: _summaryCollapsed })}
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
       ${
         viewModel.pageItems.length
           ? `<div class="cli-grid" role="list">${cardsHtml}</div>`
-<<<<<<< HEAD
           : renderEmptyFilter(viewModel.filters.searchTerm)
       }
       ${renderPagination(viewModel.pagination.filteredCount, { currentPage: viewModel.pagination.currentPage, pageSize: viewModel.pagination.pageSize })}
-=======
-          : renderEmptyFilter(_searchTerm)
-      }
-      ${renderPagination(filtered.length, { currentPage: _currentPage, pageSize: _pageSize })}
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
     </div>`;
 
   _bindOnce();
@@ -279,19 +229,11 @@ function _bindOnce() {
         _currentPage = 1;
         renderClientes();
         break;
-<<<<<<< HEAD
       case CLIENTES_ACTIONS.toggleSummary:
         _summaryCollapsed = !_summaryCollapsed;
         renderClientes();
         break;
       case CLIENTES_ACTIONS.filterPending:
-=======
-      case 'toggle-summary':
-        _summaryCollapsed = !_summaryCollapsed;
-        renderClientes();
-        break;
-      case 'filter-pending':
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         _statusFilter = 'sem_manutencao';
         _currentPage = 1;
         renderClientes();
@@ -319,13 +261,8 @@ function _bindOnce() {
       case CLIENTES_ACTIONS.verServicos:
         _navigateVerServicos(id);
         break;
-<<<<<<< HEAD
       case CLIENTES_ACTIONS.pmocFocus:
       case CLIENTES_ACTIONS.openPmocPanel:
-=======
-      case 'pmoc-focus':
-      case 'open-pmoc-panel':
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         _openPmocPanel(id);
         break;
       default:
@@ -335,11 +272,7 @@ function _bindOnce() {
 
   view.addEventListener('keydown', (event) => {
     const target = event.target.closest?.(
-<<<<<<< HEAD
       `[data-cli-action="${CLIENTES_ACTIONS.pmocFocus}"], [data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}"]`,
-=======
-      '[data-cli-action="pmoc-focus"], [data-cli-action="open-pmoc-panel"]',
->>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
     );
     if (!target || !view.contains(target)) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
