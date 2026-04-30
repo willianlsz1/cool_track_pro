@@ -1,5 +1,8 @@
 import { Utils } from '../../../core/utils.js';
+<<<<<<< HEAD
 import { CLIENTES_ACTIONS } from '../../viewModels/clientesContracts.js';
+=======
+>>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
 import { ICON_PLUS, ICON_USERS } from './constants.js';
 
 export function renderEmptyState() {
@@ -12,7 +15,11 @@ export function renderEmptyState() {
         relatórios PMOC formais.
       </p>
       <button type="button" class="cli-empty__cta"
+<<<<<<< HEAD
         data-action="${CLIENTES_ACTIONS.openModal}" data-mode="create">
+=======
+        data-action="open-cliente-modal" data-mode="create">
+>>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         ${ICON_PLUS}<span>Cadastrar primeiro cliente</span>
       </button>
     </section>`;
@@ -25,6 +32,10 @@ export function renderEmptyFilter(searchTerm) {
     <div class="cli-empty cli-empty--filter">
       <p class="cli-empty__sub">Nenhum cliente encontrado ${hint}.</p>
       <button type="button" class="cli-empty__cta cli-empty__cta--ghost"
+<<<<<<< HEAD
         data-cli-action="${CLIENTES_ACTIONS.clearFilters}">Limpar filtros</button>
+=======
+        data-cli-action="clear-filters">Limpar filtros</button>
+>>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
     </div>`;
 }

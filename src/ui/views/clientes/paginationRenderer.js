@@ -1,8 +1,11 @@
+<<<<<<< HEAD
 import {
   CLIENTES_ACTIONS,
   CLIENTES_PAGE_SIZE_OPTIONS,
   CLIENTES_PUBLIC_IDS,
 } from '../../viewModels/clientesContracts.js';
+=======
+>>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
 import { ICON_CHEV_L, ICON_CHEV_R } from './constants.js';
 
 export function renderPagination(filteredCount, { currentPage, pageSize }) {
@@ -15,7 +18,11 @@ export function renderPagination(filteredCount, { currentPage, pageSize }) {
   for (let p = 1; p <= totalPages; p++) {
     const active = p === currentPage ? ' is-active' : '';
     pageBtns.push(
+<<<<<<< HEAD
       `<button type="button" class="cli-pag__page${active}" data-cli-action="${CLIENTES_ACTIONS.gotoPage}" data-page="${p}" aria-label="Pagina ${p}" aria-current="${p === currentPage ? 'page' : 'false'}">${p}</button>`,
+=======
+      `<button type="button" class="cli-pag__page${active}" data-cli-action="goto-page" data-page="${p}" aria-label="Pagina ${p}" aria-current="${p === currentPage ? 'page' : 'false'}">${p}</button>`,
+>>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
     );
   }
 
@@ -23,6 +30,7 @@ export function renderPagination(filteredCount, { currentPage, pageSize }) {
   const nextDisabled = currentPage >= totalPages ? 'disabled' : '';
 
   return `
+<<<<<<< HEAD
     <div class="cli-pag" role="navigation" aria-label="Pagina\u00e7\u00e3o">
       <div class="cli-pag__info">Mostrando ${from}-${to} de ${filteredCount}</div>
       <div class="cli-pag__controls">
@@ -39,6 +47,23 @@ export function renderPagination(filteredCount, { currentPage, pageSize }) {
             (option) =>
               `<option value="${option}" ${pageSize === option ? 'selected' : ''}>${option}</option>`,
           ).join('')}
+=======
+    <div class="cli-pag" role="navigation" aria-label="Paginação">
+      <div class="cli-pag__info">Mostrando ${from}-${to} de ${filteredCount}</div>
+      <div class="cli-pag__controls">
+        <button type="button" class="cli-pag__btn" data-cli-action="prev-page"
+          aria-label="Pagina anterior" ${prevDisabled}>${ICON_CHEV_L}</button>
+        <div class="cli-pag__pages">${pageBtns.join('')}</div>
+        <button type="button" class="cli-pag__btn" data-cli-action="next-page"
+          aria-label="Próxima pagina" ${nextDisabled}>${ICON_CHEV_R}</button>
+      </div>
+      <label class="cli-select cli-pag__size">
+        <span class="cli-select__label">Por página</span>
+        <select id="cli-page-size" class="cli-select__input" aria-label="Itens por página">
+          <option value="6" ${pageSize === 6 ? 'selected' : ''}>6</option>
+          <option value="12" ${pageSize === 12 ? 'selected' : ''}>12</option>
+          <option value="24" ${pageSize === 24 ? 'selected' : ''}>24</option>
+>>>>>>> aa5925ea165d894e783e65b3a2a80ff11830860c
         </select>
       </label>
     </div>`;
