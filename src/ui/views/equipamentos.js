@@ -25,6 +25,7 @@ import { getPreventivaDueEquipmentIds } from '../../domain/alerts.js';
 import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { DadosPlacaValidationError, formatDecimalHint } from '../../domain/dadosPlacaValidation.js';
 import { emptyStateHtml } from '../components/emptyState.js';
+import { buildEquipamentosViewModel } from '../viewModels/equipamentosViewModel.js';
 import { validateEquipamentoPayload } from '../../core/inputValidation.js';
 import { EquipmentPhotos } from '../components/equipmentPhotos.js';
 import { resetCamposExtrasState, setCamposExtrasState } from '../components/nameplateCapture.js';
@@ -721,237 +722,123 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
 
 /** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
 function renderFlatList(filtro = '', options = {}, setorId = null) {
-  const { equipamentos, registros } = getState();
+  const { equipamentos, registros, clientes, setores } = getState();
   const evalCtx = _createEquipRenderEvalContext();
-  const q = filtro.toLowerCase();
-  // Filtros por statusFilter — cada um constrói um Set de IDs permitidos (null = sem filtro).
-  //  · 'preventiva-7d' (legado do handler "go-alertas")
-  //  · 'preventiva-30d' (quick filter novo)
-  //  · 'em-atenção' / 'criticos' (quick filters novos, avaliados via priority engine)
-  let allowedIds = null;
-  if (options.statusFilter === 'preventiva-7d') {
-    allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 7));
-  } else if (options.statusFilter === 'preventiva-30d') {
-    allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 30));
-  } else if (options.statusFilter === 'preventiva-vencida') {
-    allowedIds = new Set(getPreventivaDueEquipmentIds(registros, 0));
-  } else if (options.statusFilter === 'em-atencao' || options.statusFilter === 'em-atenção') {
-    allowedIds = new Set(
-      equipamentos
-        .filter((e) => {
-          const status = Utils.safeStatus(e.status);
-          if (status === 'danger') return false; // críticos têm chip próprio
-          try {
-            const pr = evalCtx.getPriority(e);
-            return pr.priorityLevel >= 3 || status === 'warn';
-          } catch {
-            return status === 'warn';
-          }
-        })
-        .map((e) => e.id),
-    );
-  } else if (options.statusFilter === 'criticos') {
-    allowedIds = new Set(
-      equipamentos.filter((e) => Utils.safeStatus(e.status) === 'danger').map((e) => e.id),
-    );
-  }
 
   // Filtro por cliente vindo da view /clientes ("Ver equipamentos"). Se
   // setado em options.clienteId, restringe a lista a equipamentos vinculados.
   const filterClienteId = options.clienteId || null;
-
-  let list = equipamentos.filter((e) => {
-    // Filtra por setor se estiver em drill-down
-    if (setorId === '__sem_setor__') {
-      if (e.setorId) return false;
-    } else if (setorId) {
-      if (e.setorId !== setorId) return false;
-    }
-    // Filtra por cliente se vier do "Ver equipamentos" da view Clientes.
-    if (filterClienteId && e.clienteId !== filterClienteId) return false;
-    const matchesStatus = !allowedIds || allowedIds.has(e.id);
-    const clienteNome = (getState().clientes || []).find((c) => c.id === e.clienteId)?.nome || '';
-    const setorNome = (e.setorId && findSetor(e.setorId)?.nome) || '';
-    const matchesSearch =
-      !q ||
-      e.nome.toLowerCase().includes(q) ||
-      e.local.toLowerCase().includes(q) ||
-      (e.tag || '').toLowerCase().includes(q) ||
-      clienteNome.toLowerCase().includes(q) ||
-      setorNome.toLowerCase().includes(q);
-    return matchesStatus && matchesSearch;
+  const viewModel = buildEquipamentosViewModel({
+    equipamentos,
+    clientes,
+    setores,
+    filtro,
+    setorId,
+    clienteId: filterClienteId,
+    clienteNome: options.clienteNome || '',
+    statusFilter: options.statusFilter || '',
+    preventiva7dIds:
+      options.statusFilter === 'preventiva-7d' ? getPreventivaDueEquipmentIds(registros, 7) : [],
+    preventiva30dIds:
+      options.statusFilter === 'preventiva-30d' ? getPreventivaDueEquipmentIds(registros, 30) : [],
+    preventivaVencidaIds:
+      options.statusFilter === 'preventiva-vencida'
+        ? getPreventivaDueEquipmentIds(registros, 0)
+        : [],
+    getActionPriority: evalCtx.getActionPriority,
+    getPriority: evalCtx.getPriority,
+    getRisk: evalCtx.getRisk,
+    isFullyIdle: evalCtx.isFullyIdle,
   });
 
   const el = Utils.getEl('lista-equip');
   if (!el) return;
 
-  const sortedList = [...list].sort((a, b) => {
-    const apA = evalCtx.getActionPriority(a);
-    const apB = evalCtx.getActionPriority(b);
-    if (apB.actionPriorityScore !== apA.actionPriorityScore)
-      return apB.actionPriorityScore - apA.actionPriorityScore;
-    const pa = evalCtx.getPriority(a);
-    const pb = evalCtx.getPriority(b);
-    if (pb.priorityLevel !== pa.priorityLevel) return pb.priorityLevel - pa.priorityLevel;
-    const ra = evalCtx.getRisk(a).score;
-    const rb = evalCtx.getRisk(b).score;
-    return rb - ra;
-  });
-
-  // Copy contextual do empty state: depende do que o usuário tentou filtrar.
-  const emptyCopy = (() => {
-    // Filtro por cliente vindo de /clientes -> "Ver equipamentos". Empty state
-    // customizado com nome do cliente e CTA pra adicionar o primeiro.
-    if (filterClienteId) {
-      const clienteNomeFromOpts = options.clienteNome || 'este cliente';
-      return {
-        title: `${clienteNomeFromOpts} ainda não tem equipamentos`,
-        description:
-          'Adicione o primeiro equipamento deste cliente pra começar a registrar manutenções e gerar relatórios.',
-        ctaLabel: 'Adicionar primeiro equipamento',
-        ctaAction: 'eq-add-for-cliente',
-        ctaClienteId: filterClienteId,
-      };
-    }
-    if (setorId === '__sem_setor__') {
-      return {
-        title: 'Nenhum equipamento órfão',
-        description: 'Todos os equipamentos já estão atribuídos a um setor. 👏',
-      };
-    }
-    if (setorId) {
-      return {
-        title: 'Nenhum equipamento neste setor',
-        description: 'Atribua equipamentos a este setor ao cadastrá-los.',
-      };
-    }
-    switch (options.statusFilter) {
-      case 'em-atencao':
-      case 'em-atenção':
-        return {
-          title: 'Nenhum equipamento pedindo atenção',
-          description: 'Parque em ordem — nada pra olhar com lupa agora.',
-        };
-      case 'criticos':
-        return {
-          title: 'Nenhum equipamento crítico',
-          description: 'Tudo operacional. Volte aqui se algum alerta aparecer.',
-        };
-      case 'preventiva-7d':
-      case 'preventiva-30d':
-      case 'preventiva-vencida':
-        return {
-          title: 'Nenhuma preventiva vencida',
-          description: 'Agenda de manutenção em dia.',
-        };
-      default:
-        // Distingue primeiro uso (nenhum equipamento cadastrado) vs filtro
-        // sem resultado. Copy mais acolhedor pro técnico que acabou de criar
-        // a conta — mostra tempo estimado pra reduzir fricção inicial.
-        if (!filtro && !equipamentos.length) {
-          return {
-            title: 'Nenhum equipamento ainda',
-            description:
-              'Cadastre o primeiro equipamento para registrar serviços e gerar relatórios.',
-          };
-        }
-        return {
-          title: 'Nenhum equipamento encontrado',
-          description: 'Tente outro termo ou cadastre um novo.',
-        };
-    }
-  })();
+  const sortedList = viewModel.sortedItems;
+  const emptyCopy = viewModel.emptyState;
 
   // PR4 §12.3 · Particiona idle vs ativo pra decidir sobre idle-cluster.
   //  · Cluster coleta idles quando ≥5 (histerese solta ≤2).
   //  · Posição: cluster sempre acima dos cards ativos — mas só se houver
   //    ao menos 1 card ativo pra contrastar. Em lista só-de-idle o cluster
   //    perde valor (nada pra "esconder") e volta a render linear.
-  const idleList = [];
-  const activeList = [];
-  sortedList.forEach((eq) => {
-    if (evalCtx.isFullyIdle(eq)) idleList.push(eq);
-    else activeList.push(eq);
-  });
+  const idleList = viewModel.idleItems;
+  const activeList = viewModel.activeItems;
   const clusterActive =
     _resolveIdleClusterCollapsed(idleList.length) && idleList.length > 0 && activeList.length > 0;
 
-  withSkeleton(
-    el,
-    { enabled: true, variant: 'equipment', count: Math.min(Math.max(list.length, 3), 5) },
-    () => {
-      if (!sortedList.length) {
-        // Cliente filter: usa CTA customizado que pre-seleciona o cliente no
-        // modal-add-eq. Outros casos: CTA padrao "Novo equipamento".
-        const cta = emptyCopy.ctaAction
-          ? {
-              label: emptyCopy.ctaLabel,
-              action: emptyCopy.ctaAction,
-              id: emptyCopy.ctaClienteId || '',
-              tone: 'primary',
-              size: 'sm',
-              autoWidth: true,
-            }
-          : {
-              label: '+ Novo equipamento',
-              action: 'open-modal',
-              id: 'modal-add-eq',
-              tone: 'primary',
-              size: 'sm',
-              autoWidth: true,
-            };
-        const proEmptyExtra =
-          isCachedPlanPro() && !filterClienteId
-            ? `<p class="empty-state__hint">Use Clientes quando quiser organizar por empresa e setor.</p>
+  withSkeleton(el, { enabled: true, variant: 'equipment', count: viewModel.skeletonCount }, () => {
+    if (!sortedList.length) {
+      // Cliente filter: usa CTA customizado que pre-seleciona o cliente no
+      // modal-add-eq. Outros casos: CTA padrao "Novo equipamento".
+      const cta = emptyCopy.cta?.action
+        ? {
+            label: emptyCopy.cta.label,
+            action: emptyCopy.cta.action,
+            id: emptyCopy.cta.id || '',
+            tone: 'primary',
+            size: 'sm',
+            autoWidth: true,
+          }
+        : {
+            label: '+ Novo equipamento',
+            action: 'open-modal',
+            id: 'modal-add-eq',
+            tone: 'primary',
+            size: 'sm',
+            autoWidth: true,
+          };
+      const proEmptyExtra =
+        isCachedPlanPro() && !filterClienteId
+          ? `<p class="empty-state__hint">Use Clientes quando quiser organizar por empresa e setor.</p>
                <button class="btn btn--outline btn--sm" data-nav="clientes">Cadastrar cliente primeiro</button>`
-            : '';
-        el.innerHTML =
-          emptyStateHtml({
-            icon: emptyCopy.ctaAction ? '👥' : '🔧',
-            title: emptyCopy.title,
-            description: emptyCopy.description,
-            cta,
-          }) + proEmptyExtra;
-        return;
-      }
-      // Banner quick-move: aparece quando estamos vendo equips "sem setor"
-      // dentro do contexto cliente E ha setores disponiveis. Inclui:
-      //   1. Setores já vinculados a este cliente (priority)
-      //   2. Setores "orphan" sem cliente (legacy) — ao escolher, o setor eh
-      //      auto-vinculado ao cliente durante o move (preenche o gap da
-      //      hierarquia Cliente -> Setor -> Equipamento).
-      let quickMoveBannerHtml = '';
-      if (filterClienteId && setorId === '__sem_setor__' && sortedList.length > 0) {
-        const { setores } = getState();
-        const setoresDoCliente = (setores || []).filter((s) => s.clienteId === filterClienteId);
-        const setoresOrfaos = (setores || []).filter((s) => !s.clienteId);
-        const totalDisponiveis = setoresDoCliente.length + setoresOrfaos.length;
+          : '';
+      el.innerHTML =
+        emptyStateHtml({
+          icon: emptyCopy.cta?.action === 'eq-add-for-cliente' ? '👥' : '🔧',
+          title: emptyCopy.title,
+          description: emptyCopy.description,
+          cta,
+        }) + proEmptyExtra;
+      return;
+    }
+    // Banner quick-move: aparece quando estamos vendo equips "sem setor"
+    // dentro do contexto cliente E ha setores disponiveis. Inclui:
+    //   1. Setores já vinculados a este cliente (priority)
+    //   2. Setores "orphan" sem cliente (legacy) — ao escolher, o setor eh
+    //      auto-vinculado ao cliente durante o move (preenche o gap da
+    //      hierarquia Cliente -> Setor -> Equipamento).
+    let quickMoveBannerHtml = '';
+    if (filterClienteId && setorId === '__sem_setor__' && sortedList.length > 0) {
+      const { setores } = getState();
+      const setoresDoCliente = (setores || []).filter((s) => s.clienteId === filterClienteId);
+      const setoresOrfaos = (setores || []).filter((s) => !s.clienteId);
+      const totalDisponiveis = setoresDoCliente.length + setoresOrfaos.length;
 
-        if (totalDisponiveis > 0) {
-          const equipIds = sortedList.map((e) => e.id).join(',');
+      if (totalDisponiveis > 0) {
+        const equipIds = sortedList.map((e) => e.id).join(',');
 
-          // Constroi options agrupadas: do cliente primeiro, depois orphan
-          // (com label visual indicando que serão vinculados ao cliente).
-          const optClientes = setoresDoCliente
-            .map(
-              (s) =>
-                `<option value="${Utils.escapeAttr(s.id)}">${Utils.escapeHtml(s.nome)}</option>`,
-            )
-            .join('');
-          const optOrfaos = setoresOrfaos
-            .map(
-              (s) =>
-                `<option value="${Utils.escapeAttr(s.id)}">${Utils.escapeHtml(s.nome)} (sem cliente — sera vinculado)</option>`,
-            )
-            .join('');
-          const setorOptions =
-            (setoresDoCliente.length
-              ? `<optgroup label="Setores deste cliente">${optClientes}</optgroup>`
-              : '') +
-            (setoresOrfaos.length
-              ? `<optgroup label="Setores sem cliente (sera vinculado)">${optOrfaos}</optgroup>`
-              : '');
-          quickMoveBannerHtml = `
+        // Constroi options agrupadas: do cliente primeiro, depois orphan
+        // (com label visual indicando que serão vinculados ao cliente).
+        const optClientes = setoresDoCliente
+          .map(
+            (s) => `<option value="${Utils.escapeAttr(s.id)}">${Utils.escapeHtml(s.nome)}</option>`,
+          )
+          .join('');
+        const optOrfaos = setoresOrfaos
+          .map(
+            (s) =>
+              `<option value="${Utils.escapeAttr(s.id)}">${Utils.escapeHtml(s.nome)} (sem cliente — sera vinculado)</option>`,
+          )
+          .join('');
+        const setorOptions =
+          (setoresDoCliente.length
+            ? `<optgroup label="Setores deste cliente">${optClientes}</optgroup>`
+            : '') +
+          (setoresOrfaos.length
+            ? `<optgroup label="Setores sem cliente (sera vinculado)">${optOrfaos}</optgroup>`
+            : '');
+        quickMoveBannerHtml = `
             <div class="quick-move-banner" data-equip-ids="${Utils.escapeAttr(equipIds)}">
               <div class="quick-move-banner__icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -976,32 +863,31 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
                 </button>
               </div>
             </div>`;
-        }
       }
+    }
 
-      const listTitle =
-        '<h2 class="section-title" style="margin:8px 0 10px">Todos os equipamentos</h2>';
-      if (clusterActive) {
-        const idleCardsHtml = idleList
-          .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
-          .join('');
-        const activeCardsHtml = activeList
-          .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
-          .join('');
-        el.innerHTML =
-          listTitle +
-          quickMoveBannerHtml +
-          _idleClusterHtml(idleCardsHtml, idleList.length) +
-          activeCardsHtml;
-      } else {
-        el.innerHTML =
-          listTitle +
-          quickMoveBannerHtml +
-          sortedList.map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx })).join('');
-      }
-      _bindEquipCardImageFallbacks(el);
-    },
-  );
+    const listTitle =
+      '<h2 class="section-title" style="margin:8px 0 10px">Todos os equipamentos</h2>';
+    if (clusterActive) {
+      const idleCardsHtml = idleList
+        .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
+        .join('');
+      const activeCardsHtml = activeList
+        .map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx }))
+        .join('');
+      el.innerHTML =
+        listTitle +
+        quickMoveBannerHtml +
+        _idleClusterHtml(idleCardsHtml, idleList.length) +
+        activeCardsHtml;
+    } else {
+      el.innerHTML =
+        listTitle +
+        quickMoveBannerHtml +
+        sortedList.map((eq) => equipCardHtml(eq, { showLocal: !setorId, evalCtx })).join('');
+    }
+    _bindEquipCardImageFallbacks(el);
+  });
 }
 
 export async function renderEquip(filtro = '', options = {}) {

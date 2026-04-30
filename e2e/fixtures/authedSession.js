@@ -62,22 +62,28 @@ function storageKeyFor(baseUrl) {
   }
 }
 
-export async function setupAuthedPage(page) {
+export async function setupAuthedPage(page, options = {}) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
+  const profile = { ...FAKE_PROFILE, ...(options.profile || {}) };
 
   // 1. Pre-popula a sessão no localStorage antes do app rodar.
   await page.addInitScript(
-    ({ key, session }) => {
+    ({ key, session, profile }) => {
       try {
         localStorage.setItem(key, JSON.stringify(session));
         // Silencia FTX + tour pra não interferirem com os asserts.
         localStorage.setItem('cooltrack-ftx-done', '1');
         localStorage.setItem('cooltrack-tour-done', '1');
+        if (profile?.plan === 'pro') {
+          localStorage.setItem('cooltrack-cached-plan', 'pro');
+          localStorage.setItem('cooltrack-dev-mode', 'true');
+          localStorage.setItem('cooltrack-dev-plan-override', 'pro');
+        }
       } catch {
         /* storage indisponível — deixa o app quebrar natural */
       }
     },
-    { key: storageKeyFor(supabaseUrl), session: FAKE_SESSION },
+    { key: storageKeyFor(supabaseUrl), session: FAKE_SESSION, profile },
   );
 
   // 2. Intercepta chamadas ao backend Supabase.
@@ -109,13 +115,13 @@ export async function setupAuthedPage(page) {
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([FAKE_PROFILE]),
+        body: JSON.stringify([profile]),
       });
     }
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(FAKE_PROFILE),
+      body: JSON.stringify(profile),
     });
   });
 

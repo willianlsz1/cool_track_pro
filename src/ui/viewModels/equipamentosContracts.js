@@ -1,0 +1,98 @@
+export const EQUIPAMENTOS_PUBLIC_IDS = Object.freeze({
+  view: 'view-equipamentos',
+  list: 'lista-equip',
+  hero: 'equip-hero',
+  heroTitle: 'equip-hero-title',
+  heroSubtitle: 'equip-hero-sub',
+  heroCta: 'equip-hero-sem-setor-cta',
+  heroKpis: 'equip-hero-kpis',
+  filters: 'equip-filters',
+  pageTitle: 'equip-page-title',
+  pageSubtitle: 'equip-page-subtitle',
+  toolbarActions: 'equip-toolbar-actions',
+  contextChip: 'equip-context-chip',
+  searchBar: 'equip-search-bar',
+  searchInput: 'equip-busca',
+  quickMoveTargetSetor: 'quick-move-target-setor',
+  addModal: 'modal-add-eq',
+  detailModal: 'modal-eq-det',
+  photosModal: 'modal-eq-photos',
+  setorModal: 'modal-add-setor',
+});
+
+export const EQUIPAMENTOS_ACTIONS = Object.freeze({
+  viewEquip: 'view-equip',
+  editEquip: 'edit-equip',
+  deleteEquip: 'delete-equip',
+  goRegisterEquip: 'go-register-equip',
+  openModal: 'open-modal',
+  openSetor: 'open-setor',
+  backToSetores: 'back-to-setores',
+  openSetorModal: 'open-setor-modal',
+  editSetor: 'edit-setor',
+  deleteSetor: 'delete-setor',
+  toggleSetorMenu: 'toggle-setor-menu',
+  quickFilter: 'equip-quickfilter',
+  clearClienteFilter: 'equip-clear-cliente-filter',
+  addForCliente: 'eq-add-for-cliente',
+  quickMoveEquipBatch: 'quick-move-equip-batch',
+  toggleIdleCluster: 'toggle-idle-cluster',
+  setViewMode: 'equip-set-view-mode',
+  openPhotosEditor: 'open-eq-photos-editor',
+  savePhotos: 'save-eq-photos',
+  toggleDetailMenu: 'toggle-eq-detail-menu',
+  unlockContext: 'equip-unlock-context',
+  photosUpsell: 'eq-photos-upsell-cta',
+});
+
+export const EQUIPAMENTOS_DATA_ATTRIBUTES = Object.freeze([
+  'data-action',
+  'data-id',
+  'data-source',
+  'data-testid',
+  'data-setor-id',
+  'data-cliente-id',
+  'data-equip-ids',
+  'data-mode',
+  'data-focus-field',
+  'data-after-save',
+  'data-expanded',
+  'data-tier',
+]);
+
+export const EQUIPAMENTOS_PUBLIC_CLASSES = Object.freeze([
+  'equip-card',
+  'equip-card__type-icon',
+  'equip-card__primary-cta',
+  'equip-idle-cluster',
+  'equip-hero',
+  'equip-filter',
+  'equip-search-row',
+  'equip-view-toggle',
+  'quick-move-banner',
+  'setor-card',
+  'setor-grid',
+  'setor-card__menu',
+  'empty-state',
+]);
+
+export const EQUIPAMENTOS_QUICK_FILTERS = Object.freeze([
+  Object.freeze({ id: 'todos', label: 'Todos', statusFilter: null }),
+  Object.freeze({ id: 'em-atencao', label: 'Em atenção', statusFilter: 'em-atencao' }),
+  Object.freeze({ id: 'criticos', label: 'Críticos', statusFilter: 'criticos' }),
+  Object.freeze({ id: 'sem-setor', label: 'Sem setor', sectorId: '__sem_setor__' }),
+  Object.freeze({
+    id: 'preventiva-vencida',
+    label: 'Preventiva vencida',
+    statusFilter: 'preventiva-vencida',
+  }),
+]);
+
+export const EQUIPAMENTOS_STATUS_FILTERS = Object.freeze([
+  'preventiva-7d',
+  'preventiva-30d',
+  'preventiva-vencida',
+  'em-atencao',
+  'em-atenção',
+  'criticos',
+]);

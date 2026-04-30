@@ -6,7 +6,7 @@ import { renderAlertas, unmountAlertas } from '../views/alertas.js';
 import { renderRelatorio, populateRelatorioSelects } from '../views/relatorio.js';
 import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
-import { renderClientes, setClientesSearch } from '../views/clientes.js';
+import { renderClientes, setClientesSearch, unmountClientes } from '../views/clientes.js';
 import { ClientesPaywallModal } from '../components/clientesPaywallModal.js';
 import {
   getClientesAccessSnapshot,
@@ -91,36 +91,42 @@ export function registerAppRoutes() {
     updateHeader();
   });
 
-  registerRoute('clientes', async () => {
-    let decision = getClientesAccessSnapshot();
+  registerRoute(
+    'clientes',
+    async () => {
+      let decision = getClientesAccessSnapshot();
 
-    if (!decision.resolved) {
-      renderClientesPlanLoading();
-      decision = await resolveClientesAccess();
-      if (currentRoute() !== 'clientes') return;
-    }
+      if (!decision.resolved) {
+        renderClientesPlanLoading();
+        decision = await resolveClientesAccess();
+        if (currentRoute() !== 'clientes') return;
+      }
 
-    if (!decision.resolved) {
-      // Em erro de refresh mantemos loading em vez de bloquear com paywall
-      // para evitar falso negativo de acesso (especialmente para Pro).
-      renderClientesPlanLoading();
-      return;
-    }
+      if (!decision.resolved) {
+        // Em erro de refresh mantemos loading em vez de bloquear com paywall
+        // para evitar falso negativo de acesso (especialmente para Pro).
+        renderClientesPlanLoading();
+        return;
+      }
 
-    if (!decision.canAccess) {
-      ClientesPaywallModal.open();
-      return;
-    }
-    renderClientes();
-    updateHeader();
-    const search = document.getElementById('clientes-busca');
-    if (search && !search.dataset.bound) {
-      search.dataset.bound = '1';
-      search.addEventListener('input', (e) => {
-        setClientesSearch(e.target.value || '');
-      });
-    }
-  });
+      if (!decision.canAccess) {
+        ClientesPaywallModal.open();
+        return;
+      }
+      renderClientes();
+      updateHeader();
+      const search = document.getElementById('clientes-busca');
+      if (search && !search.dataset.bound) {
+        search.dataset.bound = '1';
+        search.addEventListener('input', (e) => {
+          setClientesSearch(e.target.value || '');
+        });
+      }
+    },
+    () => {
+      unmountClientes();
+    },
+  );
 
   registerRoute('conta', () => {
     renderConta();

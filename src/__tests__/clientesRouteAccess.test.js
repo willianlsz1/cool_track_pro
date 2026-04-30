@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   registerRoute: vi.fn(),
   currentRoute: vi.fn(() => 'clientes'),
   renderClientes: vi.fn(),
+  unmountClientes: vi.fn(),
   updateHeader: vi.fn(),
   openPaywall: vi.fn(),
   getClientesAccessSnapshot: vi.fn(),
@@ -43,6 +44,7 @@ vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
 vi.mock('../ui/views/clientes.js', () => ({
   renderClientes: mocks.renderClientes,
   setClientesSearch: vi.fn(),
+  unmountClientes: mocks.unmountClientes,
 }));
 vi.mock('../ui/views/conta.js', () => ({ renderConta: vi.fn() }));
 vi.mock('../ui/views/privacidade.js', () => ({ renderPrivacidade: vi.fn() }));
@@ -93,5 +95,21 @@ describe('clientes route access contract', () => {
     expect(mocks.openPaywall).not.toHaveBeenCalled();
     expect(mocks.renderClientes).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(1);
+  });
+
+  it('desmonta a ilha React de clientes ao sair da rota', async () => {
+    mocks.getClientesAccessSnapshot.mockReturnValue({ resolved: true, canAccess: true });
+
+    const { registerAppRoutes } = await import('../ui/controller/routes.js');
+    registerAppRoutes();
+    const route = getClientesRoute();
+
+    await route.onEnter();
+    await route.onLeave();
+    await route.onEnter();
+
+    expect(mocks.unmountClientes).toHaveBeenCalledTimes(1);
+    expect(mocks.renderClientes).toHaveBeenCalledTimes(2);
+    expect(mocks.updateHeader).toHaveBeenCalledTimes(2);
   });
 });
