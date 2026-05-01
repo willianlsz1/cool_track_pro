@@ -14,7 +14,7 @@ import {
   unmountRelatorioControls,
   unmountRelatorioCards,
 } from '../views/relatorio.js';
-import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
+import { initRegistro, loadRegistroForEdit, unmountRegistroHeader } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
 import { renderClientes, setClientesSearch, unmountClientes } from '../views/clientes.js';
 import { ClientesPaywallModal } from '../components/clientesPaywallModal.js';
@@ -55,17 +55,23 @@ export function registerAppRoutes() {
     },
   );
 
-  registerRoute('registro', (params = {}) => {
-    populateEquipSelects();
-    initRegistro(params);
-    if (params.editRegistroId) loadRegistroForEdit(params.editRegistroId);
-    // UX V2 audit fix: equipamento picker com search + group por setor.
-    // Lazy import (carrega so quando entra em /registro).
-    import('../components/registroEquipPicker.js').then((m) => {
-      m.initRegistroEquipPicker?.();
-    });
-    updateHeader();
-  });
+  registerRoute(
+    'registro',
+    (params = {}) => {
+      populateEquipSelects();
+      initRegistro(params);
+      if (params.editRegistroId) loadRegistroForEdit(params.editRegistroId);
+      // UX V2 audit fix: equipamento picker com search + group por setor.
+      // Lazy import (carrega so quando entra em /registro).
+      import('../components/registroEquipPicker.js').then((m) => {
+        m.initRegistroEquipPicker?.();
+      });
+      updateHeader();
+    },
+    () => {
+      unmountRegistroHeader();
+    },
+  );
 
   registerRoute(
     'historico',

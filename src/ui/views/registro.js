@@ -451,7 +451,7 @@ const _fields = [
       return true;
     },
   },
-  { id: 'r-técnico', validate: (v) => v.trim() !== '' },
+  { id: 'r-tecnico', validate: (v) => v.trim() !== '' },
   { id: 'r-obs', validate: (v) => v.trim().length >= 10 },
 ];
 
@@ -1489,7 +1489,7 @@ export function clearRegistro(preserveEquip = false) {
     'r-pecas',
     'r-obs',
     'r-próxima',
-    'r-técnico',
+    'r-tecnico',
     'r-custo-pecas',
     'r-custo-mao-obra',
     'r-prioridade',

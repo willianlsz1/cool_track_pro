@@ -43,6 +43,7 @@ vi.mock('../ui/views/relatorio.js', () => ({
 vi.mock('../ui/views/registro.js', () => ({
   initRegistro: vi.fn(),
   loadRegistroForEdit: vi.fn(),
+  unmountRegistroHeader: vi.fn(),
 }));
 vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
 vi.mock('../ui/views/clientes.js', () => ({

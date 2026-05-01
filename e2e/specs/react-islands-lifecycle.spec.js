@@ -307,6 +307,24 @@ test.describe('React islands lifecycle', () => {
     }
   }
 
+  async function assertRegistroHeaderIsland(page) {
+    const headerRoot = page.locator('#registro-header-root');
+
+    await expect(page.locator('#view-registro')).toHaveCount(1);
+    await expect(headerRoot).toHaveCount(1);
+    await expect(headerRoot).toHaveAttribute('data-react-registro-header-mounted', 'true');
+    await expect(
+      page.locator('#registro-header-root[data-react-registro-header-mounted="true"]'),
+    ).toHaveCount(1);
+
+    await expect(page.locator('#registro-hero')).toHaveCount(1);
+    await expect(page.locator('#r-equip')).toHaveCount(1);
+    await expect(page.locator('#r-data')).toHaveCount(1);
+    await expect(page.locator('#r-tipo')).toHaveCount(1);
+    await expect(page.locator('#r-obs')).toHaveCount(1);
+    await expect(page.locator('#r-tecnico')).toHaveCount(1);
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
@@ -444,6 +462,24 @@ test.describe('React islands lifecycle', () => {
       await assertRelatorioControlsIsland(page);
       await assertRelatorioHeroIsland(page);
       await assertRelatorioCardsIsland(page);
+    });
+  });
+
+  test('registro sai e volta sem duplicar root React do header', async ({ page }) => {
+    await assertNoDuplicateCreateRoot(page, async () => {
+      await page.click('#sidenav-registro');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
+      await assertRegistroHeaderIsland(page);
+
+      await page.click('#sidenav-inicio');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
+      await expect(
+        page.locator('#registro-header-root[data-react-registro-header-mounted="true"]'),
+      ).toHaveCount(0);
+
+      await page.click('#sidenav-registro');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
+      await assertRegistroHeaderIsland(page);
     });
   });
 });

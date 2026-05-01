@@ -2,14 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   registerRoute: vi.fn(),
-  renderEquip: vi.fn(),
   populateEquipSelects: vi.fn(),
-  unmountEquipamentosList: vi.fn(),
+  initRegistro: vi.fn(),
+  loadRegistroForEdit: vi.fn(),
+  unmountRegistroHeader: vi.fn(),
   updateHeader: vi.fn(),
 }));
 
 vi.mock('../core/router.js', () => ({
-  currentRoute: vi.fn(() => 'equipamentos'),
+  currentRoute: vi.fn(() => 'registro'),
   registerRoute: mocks.registerRoute,
 }));
 
@@ -19,9 +20,9 @@ vi.mock('../ui/views/dashboard.js', () => ({
 }));
 
 vi.mock('../ui/views/equipamentos.js', () => ({
-  renderEquip: mocks.renderEquip,
+  renderEquip: vi.fn(),
   populateEquipSelects: mocks.populateEquipSelects,
-  unmountEquipamentosList: mocks.unmountEquipamentosList,
+  unmountEquipamentosList: vi.fn(),
 }));
 
 vi.mock('../ui/views/historico.js', () => ({
@@ -44,9 +45,9 @@ vi.mock('../ui/views/relatorio.js', () => ({
 }));
 
 vi.mock('../ui/views/registro.js', () => ({
-  initRegistro: vi.fn(),
-  loadRegistroForEdit: vi.fn(),
-  unmountRegistroHeader: vi.fn(),
+  initRegistro: mocks.initRegistro,
+  loadRegistroForEdit: mocks.loadRegistroForEdit,
+  unmountRegistroHeader: mocks.unmountRegistroHeader,
 }));
 
 vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
@@ -68,31 +69,32 @@ vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   OnboardingChecklist: { markStep: vi.fn() },
 }));
 
-function getEquipamentosRoute() {
-  const call = mocks.registerRoute.mock.calls.find(([name]) => name === 'equipamentos');
-  if (!call) throw new Error('equipamentos route was not registered');
+function getRegistroRoute() {
+  const call = mocks.registerRoute.mock.calls.find(([name]) => name === 'registro');
+  if (!call) throw new Error('registro route was not registered');
   return { onEnter: call[1], onLeave: call[2] };
 }
 
-describe('equipamentos route lifecycle', () => {
+describe('registro route lifecycle', () => {
   beforeEach(() => {
     vi.resetModules();
     Object.values(mocks).forEach((mock) => mock.mockClear?.());
   });
 
-  it('unmounts the React flat list island when leaving equipamentos', async () => {
+  it('unmounts the React header island when leaving registro', async () => {
     const { registerAppRoutes } = await import('../ui/controller/routes.js');
     registerAppRoutes();
-    const route = getEquipamentosRoute();
+    const route = getRegistroRoute();
 
-    route.onEnter({ sectorId: '__sem_setor__' });
+    route.onEnter({ equipId: 'eq-1' });
     route.onLeave();
-    route.onEnter();
+    route.onEnter({ editRegistroId: 'reg-1' });
 
     expect(mocks.populateEquipSelects).toHaveBeenCalledTimes(2);
-    expect(mocks.renderEquip).toHaveBeenCalledTimes(2);
-    expect(mocks.renderEquip).toHaveBeenNthCalledWith(1, '', { sectorId: '__sem_setor__' });
-    expect(mocks.unmountEquipamentosList).toHaveBeenCalledTimes(1);
+    expect(mocks.initRegistro).toHaveBeenCalledTimes(2);
+    expect(mocks.initRegistro).toHaveBeenNthCalledWith(1, { equipId: 'eq-1' });
+    expect(mocks.loadRegistroForEdit).toHaveBeenCalledWith('reg-1');
+    expect(mocks.unmountRegistroHeader).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(2);
   });
 });
