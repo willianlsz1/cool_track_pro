@@ -7,7 +7,11 @@ import {
 } from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
 import { renderAlertas, unmountAlertas } from '../views/alertas.js';
-import { renderRelatorio, populateRelatorioSelects } from '../views/relatorio.js';
+import {
+  renderRelatorio,
+  populateRelatorioSelects,
+  unmountRelatorioHero,
+} from '../views/relatorio.js';
 import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
 import { renderClientes, setClientesSearch, unmountClientes } from '../views/clientes.js';
@@ -94,16 +98,22 @@ export function registerAppRoutes() {
     },
   );
 
-  registerRoute('relatorio', (params = {}) => {
-    populateRelatorioSelects();
-    if (params.equipId) {
-      const select = document.getElementById('rel-equip');
-      if (select) select.value = String(params.equipId);
-    }
-    renderRelatorio();
-    updateHeader();
-    OnboardingChecklist.markStep('relatorio');
-  });
+  registerRoute(
+    'relatorio',
+    (params = {}) => {
+      populateRelatorioSelects();
+      if (params.equipId) {
+        const select = document.getElementById('rel-equip');
+        if (select) select.value = String(params.equipId);
+      }
+      renderRelatorio();
+      updateHeader();
+      OnboardingChecklist.markStep('relatorio');
+    },
+    () => {
+      unmountRelatorioHero();
+    },
+  );
 
   registerRoute('pricing', (params = {}) => {
     renderPricing(params);

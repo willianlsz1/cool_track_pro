@@ -40,6 +40,42 @@ const VIEW_MODE_STORAGE_KEY = 'cooltrack_relatorio_view_mode';
 const VIEW_MODE_COMPACT = RELATORIO_VIEW_MODES.compact;
 const VIEW_MODE_DETAILED = RELATORIO_VIEW_MODES.detailed;
 const PLAN_CODE_PRO = RELATORIO_PLAN_CODES.pro;
+let relatorioHeroBridgePromise = null;
+let relatorioHeroBridge = null;
+let relatorioHeroRenderGeneration = 0;
+
+function loadRelatorioHeroBridge() {
+  if (relatorioHeroBridge) return Promise.resolve(relatorioHeroBridge);
+  if (!relatorioHeroBridgePromise) {
+    relatorioHeroBridgePromise = import('../../react/entrypoints/relatorioHeroIsland.jsx')
+      .then((bridge) => {
+        relatorioHeroBridge = bridge;
+        return bridge;
+      })
+      .catch((error) => {
+        relatorioHeroBridgePromise = null;
+        throw error;
+      });
+  }
+  return relatorioHeroBridgePromise;
+}
+
+export function unmountRelatorioHero() {
+  relatorioHeroRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById('rel-hero');
+  if (!root?.dataset.reactRelatorioHeroMounted) return null;
+
+  if (relatorioHeroBridge?.unmountRelatorioHeroReact) {
+    relatorioHeroBridge.unmountRelatorioHeroReact(root);
+    return null;
+  }
+
+  return loadRelatorioHeroBridge().then((bridge) => {
+    bridge.unmountRelatorioHeroReact?.(root);
+  });
+}
 
 // tone = classe CSS .rel-tipo--<tone> (cores no components.css)
 const TIPO_META = {
@@ -160,7 +196,7 @@ export function populateRelatorioSelects() {
 // ──────────────────────────────────────────────────────────────────────
 // Hero summary
 // ──────────────────────────────────────────────────────────────────────
-function renderHero({
+function buildRelatorioHeroReactViewModel({
   kpis,
   periodoTxt,
   equipTxt,
@@ -190,7 +226,7 @@ function renderHero({
   const tipoTitle =
     kpis.count === 0 || !kpis.mostCommonType
       ? ''
-      : `title="${Utils.escapeAttr(`${kpis.mostCommonCount} × ${kpis.mostCommonType}`)}"`;
+      : `${kpis.mostCommonCount} × ${kpis.mostCommonType}`;
 
   // Custo total "R$ 0,00" vira "—" pra não ser lido como "serviço gratuito".
   // Prestadores nem sempre registram custos — o hero precisa refletir
@@ -200,15 +236,6 @@ function renderHero({
   const custoAriaLabel = hasCusto
     ? `Custo total: ${Utils.fmtBRL(kpis.total)}`
     : 'Custo total não registrado no período';
-  const custoTitleAttr = hasCusto ? '' : ` title="Nenhum custo registrado nos serviços do período"`;
-
-  const narrativeHtml = narrative?.text
-    ? `<p class="rel-hero__narrative">${Utils.escapeHtml(narrative.text)}</p>`
-    : '';
-
-  const emittedHtml = emittedAt
-    ? `<span class="rel-hero__emitted" aria-label="Emitido em ${Utils.escapeAttr(emittedAt)}">Emitido em ${Utils.escapeHtml(emittedAt)}</span>`
-    : '';
 
   const contextMeta = [
     context?.cliente?.nome ? `Cliente: ${context.cliente.nome}` : null,
@@ -219,71 +246,78 @@ function renderHero({
     .join(' · ');
   const metaText = contextMeta || `${periodoTxt} · ${equipTxt}`;
 
-  return `
-    <div class="rel-hero__brand">
-      <span class="rel-hero__brand-ic" aria-hidden="true">${icon('clipboardCheck', 14)}</span>
-      <span class="rel-hero__brand-label">${Utils.escapeHtml(modeCopy.heroBrand)}</span>
-    </div>
-    <div class="rel-hero__head">
-      <h2 id="rel-hero-title" class="rel-hero__title">${Utils.escapeHtml(modeCopy.heroTitle)}</h2>
-      <div class="rel-segmented" role="radiogroup" aria-label="Modo de visualização">
-        <button type="button" class="rel-segmented__opt${viewMode === VIEW_MODE_COMPACT ? ' is-active' : ''}"
-          role="radio" aria-checked="${viewMode === VIEW_MODE_COMPACT}"
-          data-view-mode="${VIEW_MODE_COMPACT}">Compacto</button>
-        <button type="button" class="rel-segmented__opt${viewMode === VIEW_MODE_DETAILED ? ' is-active' : ''}"
-          role="radio" aria-checked="${viewMode === VIEW_MODE_DETAILED}"
-          data-view-mode="${VIEW_MODE_DETAILED}">Detalhado</button>
-      </div>
-    </div>
-    <div class="rel-hero__meta">
-      <span class="rel-hero__meta-period">${Utils.escapeHtml(metaText)}</span>
-      ${emittedHtml}
-    </div>
-    ${narrativeHtml}
-    <div class="rel-hero__divider" role="presentation"></div>
-    <div class="rel-hero__kpis">
-      <div class="rel-kpi" aria-label="Registros: ${kpis.count}">
-        <div class="rel-kpi__row">
-          <span class="rel-kpi__icon rel-kpi__icon--cyan">${icon('clipboardCheck')}</span>
-          <span class="rel-kpi__value">${kpis.count}</span>
-        </div>
-        <div class="rel-kpi__label">Registros</div>
-      </div>
-      ${
-        hasCusto
-          ? `<div class="rel-kpi" aria-label="${custoAriaLabel}"${custoTitleAttr}>
-        <div class="rel-kpi__row">
-          <span class="rel-kpi__icon rel-kpi__icon--cyan">${icon('dollarSign')}</span>
-          <span class="rel-kpi__value">${custoValue}</span>
-        </div>
-        <div class="rel-kpi__label">Custo total</div>
-      </div>`
-          : ''
-      }
-      ${
-        kpis.mostCommonType
-          ? `<div class="rel-kpi" ${tipoTitle}>
-        <div class="rel-kpi__row">
-          <span class="rel-kpi__icon rel-kpi__icon--cyan">${icon('shieldCheck')}</span>
-          <span class="rel-kpi__value rel-kpi__value--compact">${Utils.escapeHtml(tipoValue)}</span>
-        </div>
-        <div class="rel-kpi__label">Tipo mais comum</div>
-      </div>`
-          : ''
-      }
-      ${
-        kpis.nextDue
-          ? `<div class="rel-kpi" aria-label="Próximo vencimento: ${Utils.escapeAttr(dueValue)}">
-        <div class="rel-kpi__row">
-          <span class="rel-kpi__icon rel-kpi__icon--${dueState === 'red' ? 'red' : dueState === 'gold' ? 'gold' : 'cyan'}">${icon('calendarClock')}</span>
-          <span class="rel-kpi__value rel-kpi__value--${dueState}">${Utils.escapeHtml(dueValue)}</span>
-        </div>
-        <div class="rel-kpi__label">Próx. vencimento</div>
-      </div>`
-          : ''
-      }
-    </div>
-  `;
+  const items = [
+    {
+      key: 'records',
+      icon: 'clipboardCheck',
+      iconTone: 'cyan',
+      value: String(kpis.count),
+      label: 'Registros',
+      ariaLabel: `Registros: ${kpis.count}`,
+    },
+  ];
+
+  if (hasCusto) {
+    items.push({
+      key: 'total',
+      icon: 'dollarSign',
+      iconTone: 'cyan',
+      value: custoValue,
+      label: 'Custo total',
+      ariaLabel: custoAriaLabel,
+    });
+  }
+
+  if (kpis.mostCommonType) {
+    items.push({
+      key: 'type',
+      icon: 'shieldCheck',
+      iconTone: 'cyan',
+      value: tipoValue,
+      valueClass: 'rel-kpi__value--compact',
+      label: 'Tipo mais comum',
+      title: tipoTitle || undefined,
+    });
+  }
+
+  if (kpis.nextDue) {
+    items.push({
+      key: 'nextDue',
+      icon: 'calendarClock',
+      iconTone: dueState === 'red' ? 'red' : dueState === 'gold' ? 'gold' : 'cyan',
+      value: dueValue,
+      valueClass: `rel-kpi__value--${dueState}`,
+      label: 'Próx. vencimento',
+      ariaLabel: `Próximo vencimento: ${dueValue}`,
+    });
+  }
+
+  return {
+    brand: modeCopy.heroBrand,
+    title: modeCopy.heroTitle,
+    metaText,
+    emittedAt,
+    narrativeText: narrative?.text || '',
+    viewMode,
+    kpis: items,
+  };
+}
+
+function mountRelatorioHero({ root, hero }) {
+  if (!root) return null;
+  root.classList.add('rel-hero');
+  const renderGeneration = (relatorioHeroRenderGeneration += 1);
+
+  const mountWithBridge = (bridge) => {
+    if (renderGeneration !== relatorioHeroRenderGeneration) return null;
+    return bridge.mountRelatorioHeroReact(root, { hero });
+  };
+
+  if (relatorioHeroBridge?.mountRelatorioHeroReact) {
+    return mountWithBridge(relatorioHeroBridge);
+  }
+
+  return loadRelatorioHeroBridge().then(mountWithBridge);
 }
 
 function renderModeSegment({ isPro, context }) {
@@ -875,7 +909,7 @@ export function renderRelatorio(options = {}) {
     }
 
     // Hero
-    heroEl.innerHTML = renderHero({
+    const heroViewModel = buildRelatorioHeroReactViewModel({
       kpis,
       periodoTxt,
       equipTxt,
@@ -885,6 +919,7 @@ export function renderRelatorio(options = {}) {
       modeCopy,
       context,
     });
+    const heroMountResult = mountRelatorioHero({ root: heroEl, hero: heroViewModel });
 
     // Chips
     chipsEl.innerHTML = renderFilterChips({
@@ -921,16 +956,23 @@ export function renderRelatorio(options = {}) {
       corpoEl.innerHTML = `${bannerHtml}${proximasHtml}${recordsHtml}`;
     }
 
-    wireHandlers({
-      registros,
-      equipamentos,
-      expandedIds,
-      viewMode,
-      rerender,
-    });
+    const bindHandlers = () =>
+      wireHandlers({
+        registros,
+        equipamentos,
+        expandedIds,
+        viewMode,
+        rerender,
+      });
+
+    if (heroMountResult && typeof heroMountResult.then === 'function') {
+      return heroMountResult.then(bindHandlers);
+    }
+    bindHandlers();
+    return null;
   };
 
-  withSkeleton(
+  return withSkeleton(
     corpoEl,
     { enabled: true, variant: 'report', count: Math.min(Math.max(list.length, 3), 4) },
     renderContent,
