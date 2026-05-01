@@ -2,6 +2,7 @@ import {
   ORCAMENTO_ACTIONS,
   ORCAMENTO_STATUS_META,
 } from '../../ui/viewModels/orcamentosViewModel.js';
+import { Badge, Button } from '../components/ui/index.js';
 
 function DownloadIcon() {
   return (
@@ -125,15 +126,16 @@ function Header({ kpis }) {
     <div className="orc-header">
       <div className="orc-header__title-row">
         <h1 className="orc-header__title">Orçamentos</h1>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="sm"
           className="btn btn--primary btn--sm"
           data-action={ORCAMENTO_ACTIONS.openModal}
           data-mode="create"
         >
           <PlusIcon />
           Novo orçamento
-        </button>
+        </Button>
       </div>
       <div className="orc-kpis">
         <div className="orc-kpi">
@@ -187,15 +189,16 @@ function Filters({ viewModel, onSearchInput }) {
       </div>
       <div className="orc-filter-chips" role="group" aria-label="Filtrar por status">
         {statusFilters.map((status) => (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             className={['orc-chip', status.isActive ? 'is-active' : ''].filter(Boolean).join(' ')}
             data-action={ORCAMENTO_ACTIONS.setStatusFilter}
             data-status={status.id}
             key={status.id}
           >
             {status.label}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
@@ -214,23 +217,27 @@ function EmptyState({ emptyState }) {
       <p className="orc-empty__sub">
         Crie orçamentos profissionais de instalação e envie pelo WhatsApp em segundos.
       </p>
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="md"
         className="btn btn--primary orc-empty__cta"
         data-action={action}
         data-mode={mode}
       >
         + Novo orçamento
-      </button>
+      </Button>
     </div>
   );
 }
 
-function StatusPill({ statusMeta }) {
+function StatusPill({ status, statusMeta }) {
   const meta = statusMeta || ORCAMENTO_STATUS_META.rascunho;
   return (
-    <span
+    <Badge
+      tone="neutral"
+      size="sm"
       className="orc-status-pill"
+      data-status={status || 'rascunho'}
       style={{
         color: meta.color,
         background: meta.bg,
@@ -238,7 +245,7 @@ function StatusPill({ statusMeta }) {
       }}
     >
       {meta.label}
-    </span>
+    </Badge>
   );
 }
 
@@ -342,7 +349,7 @@ function OrcamentoCard({ card }) {
       <header className="orc-card__head">
         <div>
           <span className="orc-card__numero">{card.numero}</span>
-          <StatusPill statusMeta={card.statusMeta} />
+          <StatusPill status={card.status} statusMeta={card.statusMeta} />
         </div>
         <div className="orc-card__total">{card.totalLabel}</div>
       </header>

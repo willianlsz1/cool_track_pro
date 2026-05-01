@@ -31,6 +31,7 @@ function createViewModel(overrides = {}) {
       {
         id: 'orc-1',
         numero: 'ORC-2026-0001',
+        status: 'enviado',
         statusLabel: 'Enviado',
         statusMeta: { label: 'Enviado', color: '#51a3ff', bg: 'rgba(81,163,255,0.12)' },
         totalLabel: 'R$ 1.250,00',
@@ -109,6 +110,7 @@ describe('orcamentos React island', () => {
     expect(card).not.toBeNull();
     expect(card?.querySelector('.orc-card__numero')?.textContent).toContain('ORC-2026-0001');
     expect(card?.querySelector('.orc-status-pill')?.textContent).toContain('Enviado');
+    expect(card?.querySelector('.orc-status-pill')?.dataset.status).toBe('enviado');
     expect(
       card?.querySelector('[data-action="open-orcamento-modal"][data-mode="edit"]'),
     ).not.toBeNull();
@@ -232,6 +234,36 @@ describe('orcamentos React island', () => {
     expect(html).not.toContain('<img src=x onerror=alert(1)>');
 
     const source = readFileSync('src/react/pages/OrcamentosPage.jsx', 'utf8');
+    expect(source).toContain("from '../components/ui/index.js'");
+    expect(source).toContain('<Button');
+    expect(source).toContain('<Badge');
     expect(source).not.toMatch(/dangerouslySetInnerHTML|innerHTML/);
+  });
+
+  it('keeps Button and Badge as visual wrappers preserving legacy action contracts', async () => {
+    document.body.innerHTML = '<div id="view-orcamentos"></div>';
+    const root = document.getElementById('view-orcamentos');
+
+    await act(async () => {
+      mountOrcamentosReact(root, { viewModel: createViewModel() });
+    });
+
+    const createButton = root?.querySelector(
+      '.orc-header [data-action="open-orcamento-modal"][data-mode="create"]',
+    );
+    const statusChip = root?.querySelector(
+      '.orc-filter-chips .orc-chip[data-action="orc-set-status-filter"][data-status="enviado"]',
+    );
+    const statusBadge = root?.querySelector('.orc-status-pill[data-status="enviado"]');
+
+    expect(createButton?.classList.contains('btn')).toBe(true);
+    expect(createButton?.classList.contains('btn--primary')).toBe(true);
+    expect(createButton?.className).toContain('tw-');
+    expect(statusChip?.classList.contains('orc-chip')).toBe(true);
+    expect(statusChip?.dataset.status).toBe('enviado');
+    expect(statusChip?.className).toContain('tw-');
+    expect(statusBadge?.classList.contains('orc-status-pill')).toBe(true);
+    expect(statusBadge?.textContent).toContain('Enviado');
+    expect(statusBadge?.className).toContain('tw-');
   });
 });
