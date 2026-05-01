@@ -435,18 +435,139 @@ describe('equipamentos legacy render adapter', () => {
     expect(document.querySelector('[data-reactroot]')).toBeNull();
   });
 
-  it('mantém contratos de setor sem introduzir import React no legado', async () => {
+  it('preserva contratos completos dos cards de setor sem acionar CRUD real', async () => {
     const { setorCardHtml } = await import('../ui/views/equipamentos.js');
-    const html = setorCardHtml({ id: 's1', nome: 'Casa de Máquinas', cor: '#00c8e8' }, [
-      { ...activeEquip, setorId: 's1' },
-    ]);
+    const malicious = `"><img src=x onerror=alert(1)><script>alert(2)</script>`;
+    const html = `
+      ${setorCardHtml(
+        {
+          id: 's-empty',
+          nome: malicious,
+          descricao: malicious,
+          responsavel: malicious,
+          cor: '#00c8e8',
+        },
+        [],
+      )}
+      ${setorCardHtml({ id: 's1', nome: 'Casa de Máquinas', cor: '#00c853' }, [
+        { ...activeEquip, nome: malicious, setorId: 's1' },
+      ])}
+    `;
 
     const wrapper = document.createElement('div');
     wrapper.innerHTML = `<div class="setor-grid">${html}</div>`;
-    expect(wrapper.querySelector('.setor-grid')).not.toBeNull();
+    const grid = wrapper.querySelector('.setor-grid');
+    const emptyCard = wrapper.querySelector('.setor-card[data-id="s-empty"]');
+    const activeCard = wrapper.querySelector('.setor-card[data-id="s1"]');
+
+    expect(grid).not.toBeNull();
+    expect(emptyCard?.getAttribute('data-action')).toBe('open-setor');
+    expect(emptyCard?.classList.contains('setor-card--empty')).toBe(true);
+    expect(emptyCard?.querySelector('.setor-card__empty')).not.toBeNull();
+    expect(emptyCard?.querySelector('.setor-card__footer')).not.toBeNull();
     expect(
-      wrapper.querySelector('.setor-card[data-action="open-setor"][data-id="s1"]'),
+      emptyCard?.querySelector('[data-action="edit-setor"][data-id="s-empty"]'),
     ).not.toBeNull();
+    expect(
+      emptyCard?.querySelector('[data-action="toggle-setor-menu"][data-id="s-empty"]'),
+    ).not.toBeNull();
+    expect(
+      emptyCard?.querySelector('[data-action="delete-setor"][data-id="s-empty"]'),
+    ).not.toBeNull();
+    expect(
+      emptyCard?.querySelector('[data-action="open-setor"][data-id="s-empty"]'),
+    ).not.toBeNull();
+    expect(emptyCard?.querySelector('.setor-card__menu')?.hasAttribute('hidden')).toBe(true);
+
+    expect(activeCard?.querySelector('.setor-card__meta')).not.toBeNull();
+    expect(activeCard?.querySelector('.setor-card__equips-preview')).not.toBeNull();
+    expect(activeCard?.querySelector('.setor-card__equip-preview-name')?.textContent).toContain(
+      '<script>',
+    );
+
+    expect(wrapper.querySelector('script')).toBeNull();
+    expect(wrapper.querySelector('[onerror]')).toBeNull();
+    expect(wrapper.querySelector('[onclick]')).toBeNull();
+    expect(grid?.innerHTML).toContain('&lt;script&gt;alert(2)&lt;/script&gt;');
+  });
+
+  it('bloqueia injeção por cor maliciosa no contrato visual do setor', async () => {
+    const { setorCardHtml } = await import('../ui/views/equipamentos.js');
+
+    const html = setorCardHtml(
+      {
+        id: 's-color',
+        nome: 'Setor seguro',
+        cor: '#00c8e8;background-image:url(javascript:alert(1))',
+      },
+      [],
+    );
+
+    expect(html).toContain('style="--setor-cor:#00c8e8"');
+    expect(html).not.toContain('javascript:');
+    expect(html).not.toContain('background-image');
+  });
+
+  it('preserva contratos principais do detalhe/modal sem executar fluxos complexos', async () => {
+    const malicious = `"><img src=x onerror=alert(1)><script>alert(2)</script>`;
+    stateMocks.isPro = true;
+    setState({
+      equipamentos: [
+        {
+          ...activeEquip,
+          id: 'eq-detail',
+          nome: malicious,
+          local: malicious,
+          tag: malicious,
+          fluido: malicious,
+          modelo: malicious,
+          setorId: 's1',
+          fotos: [],
+        },
+      ],
+      setores: [{ id: 's1', nome: malicious }],
+      registros: [
+        {
+          id: 'r1',
+          equipId: 'eq-detail',
+          data: '2026-04-30T10:00:00.000Z',
+          tipo: malicious,
+        },
+      ],
+    });
+
+    const { viewEquip } = await renderEquip();
+    await viewEquip('eq-detail');
+
+    const detailRoot = document.getElementById('eq-det-corpo');
+    expect(detailRoot?.querySelector('.eq-detail-view')).not.toBeNull();
+    expect(detailRoot?.querySelector('#eq-det-title')?.textContent).toContain('<script>');
+    expect(detailRoot?.querySelector('.eq-detail-cover')).not.toBeNull();
+    expect(detailRoot?.querySelector('.eq-detail-hero')).not.toBeNull();
+    expect(detailRoot?.querySelector('.eq-risk-panel')).not.toBeNull();
+    expect(detailRoot?.querySelector('.eq-tech-sheet-wrap')).not.toBeNull();
+    expect(detailRoot?.querySelector('.eq-svc-section')).not.toBeNull();
+    expect(detailRoot?.querySelector('.eq-modal-footer')).not.toBeNull();
+    expect(
+      detailRoot?.querySelector('[data-action="open-eq-photos-editor"][data-id="eq-detail"]'),
+    ).not.toBeNull();
+    expect(
+      detailRoot?.querySelector('[data-action="go-register-equip"][data-id="eq-detail"]'),
+    ).not.toBeNull();
+    expect(
+      detailRoot?.querySelector('[data-action="edit-equip"][data-id="eq-detail"]'),
+    ).not.toBeNull();
+    expect(
+      detailRoot?.querySelector('[data-action="toggle-eq-detail-menu"][data-id="eq-detail"]'),
+    ).not.toBeNull();
+    expect(
+      detailRoot?.querySelector('[data-action="delete-equip"][data-id="eq-detail"]'),
+    ).not.toBeNull();
+    expect(detailRoot?.querySelector('.eq-modal-footer__menu')?.hasAttribute('hidden')).toBe(true);
+
+    expect(detailRoot?.querySelector('script')).toBeNull();
+    expect(detailRoot?.querySelector('[onerror]')).toBeNull();
+    expect(detailRoot?.querySelector('[onclick]')).toBeNull();
 
     const source = readFileSync('src/ui/views/equipamentos.js', 'utf-8');
     expect(source).not.toMatch(/from ['"]react['"]/);

@@ -1,10 +1,12 @@
-# Plano de limpeza React + Tailwind 90-100
+# Plano de limpeza React + Tailwind pos-migracao
 
 ## 1. Branch e commit analisados
 
-- Data da analise: 2026-05-01.
+- Data da analise original: 2026-05-01.
+- Atualizacao de fechamento: 2026-05-01.
 - Branch: `main`.
-- Commit analisado: `dbe8c9f` (`dbe8c9f (HEAD -> main, origin/main, origin/HEAD) Update validation workflow`).
+- Commit analisado originalmente: `dbe8c9f` (`dbe8c9f (HEAD -> main, origin/main, origin/HEAD) Update validation workflow`).
+- Commit observado no fechamento: `757cd5d` (`757cd5d (HEAD -> main, origin/main, origin/HEAD) Enforce repo validation workflow`).
 - `git status --short`: vazio no inicio da analise.
 - Checagem de conflito usada: `git grep -n -E "^(<<<<<<<|=======|>>>>>>>)($| )"`.
 - Resultado da checagem de conflito: sem marcadores reais; o comando retorna exit code 1 quando nao encontra matches.
@@ -24,16 +26,18 @@ Ultimos commits vistos em `git log --oneline --decorate -10`:
 
 ## 2. Resumo executivo
 
-A migracao esta de fato proxima de 90%, mas ainda nao esta pronta para apagar o legado em bloco. O React ja renderiza as principais superficies de `alertas`, `orcamentos`, `clientes`, lista flat de `equipamentos`, blocos principais do `dashboard`, filtros/timeline do `historico`, hero/controles/cards do `relatorio` e blocos principais do `registro`.
+A migracao visual principal React + Tailwind esta concluida. O React renderiza as superficies visuais principais de `alertas`, `orcamentos`, `clientes`, `equipamentos`, `dashboard`, `historico`, `relatorio` e `registro`.
+
+O documento de status final fica em `docs/migration/react-tailwind-final-status.md`. Este plano continua existindo como guia de hardening e limpeza, nao como lista de migracoes visuais amplas pendentes.
 
 O legado restante se divide em tres grupos:
 
-- Legado util: adapters que ainda leem estado, resolvem plano, chamam view models e conectam handlers legados a DOM emitido por React.
-- Legado temporario: fallbacks de render, wrappers de root, handlers delegados e componentes visuais pequenos que existem porque nem todos os fluxos foram migrados.
+- Legado deliberado: adapters, handlers globais, fluxos externos e infraestrutura que continuam fora de React por risco ou responsabilidade propria.
+- Hardening: testes e provas adicionais para integracoes entre ilhas React e handlers legados.
 - Codigo possivelmente morto: renders de fallback para roots que hoje sempre existem, seletores antigos e CSS que parece sobrar, mas que ainda precisa de prova por teste e QA visual antes de remocao.
 - Limpeza ja iniciada: o probe temporario React e o seletor legado `#clientes-busca` foram removidos no PR de limpeza de 2026-05-01; Clientes preserva `#clientes-root` e `#cli-search-input`.
 
-O caminho seguro para 100% nao e apagar `components.css` ou remover `data-action` de uma vez. O caminho e: provar cada contrato, remover fallback por fallback, migrar as ultimas superficies visuais pequenas, depois reduzir CSS e handlers globais com inventario automatizado.
+O caminho seguro daqui em diante nao e apagar `components.css` ou remover `data-action` de uma vez. O caminho e: provar cada contrato restante, tratar legados deliberados como excecoes documentadas, reduzir CSS por prefixo e substituir handlers globais por callbacks apenas quando uma tela estiver estavel e coberta.
 
 ## 3. Estado atual da migracao
 
@@ -142,7 +146,9 @@ Baixa seguranca por enquanto:
 - `src/ui/shell/templates/views.js`: ainda contem os containers publicos que as ilhas usam.
 - CSS legado carregado por `index.html`, especialmente `components.css`, `layout.css`, `theme-premium.css`, `redesign.css` e parciais em `src/assets/styles/components/*`.
 
-## 7. Plano de PRs pequenos para 90 -> 100
+## 7. Plano de PRs pequenos pos-migracao
+
+A partir do fechamento visual, os PRs abaixo deixam de ser "migracao principal" e passam a ser hardening, isolamento ou limpeza. Fluxos externos como PDF, WhatsApp, assinatura, fotos, PMOC, storage/backend, charts e header global continuam fora do React ate decisao explicita por fatia.
 
 ### PR 1: Remover probes e seletores obsoletos comprovados
 
@@ -215,7 +221,8 @@ Baixa seguranca por enquanto:
 
 ### PR 7: Registro rodape visual e pos-save visual
 
-- Escopo: migrar somente rodape visual de acoes e UI pos-save/CTAs, mantendo handlers de `save-registro`, `save-and-share-registro`, PDF e WhatsApp legados.
+- Status: reclassificado como hardening opcional, nao bloqueia o fechamento visual principal.
+- Escopo possivel: migrar somente rodape visual de acoes e UI pos-save/CTAs, mantendo handlers de `save-registro`, `save-and-share-registro`, PDF e WhatsApp legados.
 - Fora do escopo: salvamento, assinatura real, fotos, PDF, WhatsApp, route guard e storage.
 - Testes: island, post-save legado, E2E save e save-and-share com mocks.
 - Risco: alto.
@@ -237,7 +244,7 @@ Baixa seguranca por enquanto:
 - Risco: alto se feito em lote.
 - Criterio: cada PR remove uma familia de classes com evidencia de uso zero.
 
-### PR 10: Criterio final de 100%
+### PR 10: Criterio final de limpeza pos-fechamento
 
 - Escopo: consolidar docs, apagar testes legacy obsoletos substituidos por testes React/adapter, revisar imports dinamicos/estaticos e atualizar `docs/migration/react-tailwind-current-state.md`.
 - Risco: baixo/medio.
@@ -286,15 +293,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-Sheet mobile de filtros do Historico isolado como legado deliberado neste PR:
+O proximo PR recomendado e proteger o render/adapter legado de setores e detalhe de Equipamentos.
 
-- Contratos/modelo centralizados em `src/ui/components/historicoFiltersSheetModel.js`.
-- Adapter `HistoricoFiltersSheet` continua dono de overlay dinamico, `attachDialogA11y`, animacao de fechamento e callbacks `onApply`/`onReset`.
-- Contratos preservados: `#hist-filters-sheet-overlay`, `#hist-filters-sheet-title`, `#hfs-setor`, `#hfs-equip`, `#hfs-close`, `#hfs-reset`, `#hfs-apply`, classes `hist-filters-sheet*` e `data-tipo-id`.
-- Decisao recomendada: manter este sheet como legado deliberado por enquanto. A migracao para React deve vir apenas se for criado um root/lifecycle explicito para overlay ou se o fluxo de a11y/fechamento for coberto por E2E mobile dedicado.
+Motivo: Equipamentos ja tem header/filtros/contexto e lista flat em React, mas setores, detalhe/modal, fotos, CRUD, nameplate, plano/paywall e storage/backend continuam legados. Antes de qualquer nova migracao ou limpeza de CSS em Equipamentos, esses contratos precisam ficar cobertos de forma granular.
 
-O proximo PR recomendado agora e proteger os handlers de integracao do sheet mobile do Historico.
-
-Motivo: o render do sheet e o helper puro estao protegidos, mas ainda vale cobrir a integracao completa `open-filters-sheet -> onApply/onReset -> renderHist` sem tocar em timeline, fotos, assinatura, delete ou navegacao.
-
-Nao iniciar por CSS. O CSS legado ainda e a maior fonte de risco e deve vir depois que os contratos por tela estiverem estabilizados.
+Nao iniciar por CSS. O CSS legado ainda e a maior fonte de risco e deve vir depois que os contratos por tela estiverem estabilizados e documentados como React concluido, legado deliberado, hardening ou limpeza futura.

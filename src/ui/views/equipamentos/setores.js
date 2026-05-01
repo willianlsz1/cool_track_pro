@@ -2,6 +2,13 @@ import { Utils } from '../../../core/utils.js';
 import { regsForEquip } from '../../../core/state.js';
 
 const _SETOR_CORES = ['#00c8e8', '#00c853', '#ffab40', '#ff5252', '#7c4dff', '#448aff'];
+const _SETOR_DEFAULT_COLOR = '#00c8e8';
+const _SETOR_SAFE_HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+function safeSetorColor(value) {
+  const color = String(value || '').trim();
+  return _SETOR_SAFE_HEX_RE.test(color) ? color : _SETOR_DEFAULT_COLOR;
+}
 
 /** Status "pior" de uma lista de equipamentos: danger > warn > ok. */
 function worstStatus(eqs) {
@@ -154,7 +161,7 @@ export function setorCardHtml(
   { isFallback: _isFallback = false } = {},
 ) {
   const count = equipamentosDoSetor.length;
-  const cor = setor.cor || '#00c8e8';
+  const cor = safeSetorColor(setor.cor || _SETOR_DEFAULT_COLOR);
   const safeId = Utils.escapeAttr(setor.id);
   const kpis = getSetorKpis(equipamentosDoSetor);
   const healthTone = setorHealthTone(equipamentosDoSetor);
