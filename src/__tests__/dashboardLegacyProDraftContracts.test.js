@@ -436,6 +436,11 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     );
     expect(dashboardSource).toContain('../../react/entrypoints/dashboardProDraftIsland.jsx');
     expect(dashboardSource).toContain('mountDashboardProDraftReact');
+    expect(dashboardSource).not.toContain('function _renderProCards');
+    expect(dashboardSource).not.toContain('function _renderContinueDraftCard');
+    expect(dashboardSource).not.toContain('criticalList.innerHTML');
+    expect(dashboardSource).not.toContain('clientsList.innerHTML');
+    expect(dashboardSource).not.toContain('insertAdjacentHTML');
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot/);
   });
 });
