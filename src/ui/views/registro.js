@@ -24,7 +24,11 @@ import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportE
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
-import { REGISTRO_SIGNATURE_ROOT_ID } from '../viewModels/registroSignatureModel.js';
+import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
+import {
+  REGISTRO_SIGNATURE_ROOT_ID,
+  isSafeRegistroSignatureSrc,
+} from '../viewModels/registroSignatureModel.js';
 import {
   getChecklistTemplate,
   buildEmptyChecklist,
@@ -136,6 +140,7 @@ let _registroChecklistRenderGeneration = 0;
 let _registroSignatureBridgePromise = null;
 let _registroSignatureBridge = null;
 let _registroSignatureRenderGeneration = 0;
+let _registroSignatureDraftSrc = '';
 // Persiste o último cliente preenchido para auto-prefill no próximo registro —
 // técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
@@ -726,6 +731,7 @@ function loadRegistroSignatureBridge() {
 function buildRegistroSignatureReactProps() {
   return {
     isPlusOrHigher: isCachedPlanPlusOrHigher(),
+    signatureSrc: _registroSignatureDraftSrc,
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
       goTo('pricing', { highlightPlan: 'plus' });
@@ -769,6 +775,81 @@ export function unmountRegistroSignature() {
   return loadRegistroSignatureBridge().then((bridge) => {
     bridge.unmountRegistroSignatureReact?.(root);
   });
+}
+
+function getRegistroSignatureDraftRecordId(el = null) {
+  const explicitId = String(el?.dataset?.id || '').trim();
+  if (explicitId) return explicitId;
+
+  try {
+    return sessionStorage.getItem(EDITING_KEY) || 'registro-draft';
+  } catch (_err) {
+    return 'registro-draft';
+  }
+}
+
+function getRegistroSignatureEquipName() {
+  const equipId = Utils.getVal('r-equip');
+  return findEquip(equipId)?.nome || 'Equipamento';
+}
+
+function readRegistroSignatureSrc(el = null) {
+  const candidates = [
+    el?.dataset?.signatureSrc,
+    document
+      .getElementById(REGISTRO_SIGNATURE_ROOT_ID)
+      ?.querySelector('.registro-sig-hint__preview-img')
+      ?.getAttribute('src'),
+    _registroSignatureDraftSrc,
+  ];
+  return candidates.find((src) => isSafeRegistroSignatureSrc(src))?.trim() || '';
+}
+
+export async function captureRegistroSignatureFromHint(el = null) {
+  if (!isCachedPlanPlusOrHigher()) return false;
+
+  const { SignatureModal } = await import('../components/signature.js');
+  if (!SignatureModal?.request) return false;
+
+  const result = await SignatureModal.request(
+    getRegistroSignatureDraftRecordId(el),
+    getRegistroSignatureEquipName(),
+  );
+
+  if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
+    _registroSignatureDraftSrc = String(result).trim();
+    await mountRegistroSignature();
+    return _registroSignatureDraftSrc;
+  }
+
+  if (result && result !== SignatureModal.CANCELED) {
+    Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
+  }
+
+  return null;
+}
+
+export async function openRegistroSignatureFromHint(el = null) {
+  const signatureSrc = readRegistroSignatureSrc(el);
+  if (!signatureSrc) return false;
+
+  const { SignatureViewerModal } = await import('../components/signature.js');
+  if (!SignatureViewerModal?.open) return false;
+
+  await SignatureViewerModal.open(
+    {
+      id: getRegistroSignatureDraftRecordId(el),
+      assinatura: signatureSrc,
+    },
+    { equipNome: getRegistroSignatureEquipName() },
+  );
+  return true;
+}
+
+export async function removeRegistroSignatureFromHint() {
+  _registroSignatureDraftSrc = '';
+  await mountRegistroSignature();
+  return true;
 }
 
 function _updateChecklistSummary() {
@@ -1319,7 +1400,7 @@ export async function saveRegistro({ andShare = false } = {}) {
 
   // Modo criação — continua fluxo normal
   const novoId = Utils.uid();
-  let fotosRegistro = [...Photos.pending];
+  let fotosRegistro = [...Photos.pending].filter(isSafeRegistroPhotoSrc);
 
   // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
   // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
@@ -1538,6 +1619,8 @@ export function clearRegistro(preserveEquip = false) {
   Utils.setVal('r-prioridade', 'media');
   Utils.setVal('r-data', Utils.nowDatetime());
   Photos.clear();
+  _registroSignatureDraftSrc = '';
+  mountRegistroSignature();
 
   // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
   _syncTipoCustomVisibility();

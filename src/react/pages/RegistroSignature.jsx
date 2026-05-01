@@ -46,8 +46,13 @@ function SignatureActions({ model, onCaptureSignature, onOpenSignature, onRemove
         <button
           type="button"
           className="registro-sig-hint__cta"
+          data-action={REGISTRO_SIGNATURE_ACTIONS.capture}
           data-r-action={REGISTRO_SIGNATURE_ACTIONS.capture}
-          onClick={() => onCaptureSignature?.()}
+          onClick={(event) => {
+            if (!onCaptureSignature) return;
+            event.stopPropagation();
+            onCaptureSignature();
+          }}
         >
           Capturar assinatura
         </button>
@@ -57,16 +62,26 @@ function SignatureActions({ model, onCaptureSignature, onOpenSignature, onRemove
           <button
             type="button"
             className="registro-sig-hint__cta"
+            data-action={REGISTRO_SIGNATURE_ACTIONS.open}
             data-r-action={REGISTRO_SIGNATURE_ACTIONS.open}
-            onClick={() => onOpenSignature?.(model.safeSignatureSrc)}
+            onClick={(event) => {
+              if (!onOpenSignature) return;
+              event.stopPropagation();
+              onOpenSignature(model.safeSignatureSrc);
+            }}
           >
             Abrir assinatura
           </button>
           <button
             type="button"
             className="registro-sig-hint__cta"
+            data-action={REGISTRO_SIGNATURE_ACTIONS.remove}
             data-r-action={REGISTRO_SIGNATURE_ACTIONS.remove}
-            onClick={() => onRemoveSignature?.()}
+            onClick={(event) => {
+              if (!onRemoveSignature) return;
+              event.stopPropagation();
+              onRemoveSignature();
+            }}
           >
             Remover assinatura
           </button>

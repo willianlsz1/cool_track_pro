@@ -8,9 +8,13 @@ import {
   setChecklistItemStatus,
   setChecklistItemObs,
   setChecklistItemMeasure,
+  captureRegistroSignatureFromHint,
+  openRegistroSignatureFromHint,
+  removeRegistroSignatureFromHint,
 } from '../../views/registro.js';
 import { deleteReg } from '../../views/historico.js';
 import { runAsyncAction } from '../../components/actionFeedback.js';
+import { REGISTRO_SIGNATURE_ACTIONS } from '../../viewModels/registroSignatureModel.js';
 
 export function bindRegistroHandlers() {
   on('save-registro', async (el) => {
@@ -47,6 +51,9 @@ export function bindRegistroHandlers() {
 
   on('clear-registro', () => clearRegistro());
   on('quick-service-template', (el) => applyQuickTemplate(el.dataset.template, el));
+  on(REGISTRO_SIGNATURE_ACTIONS.capture, (el) => captureRegistroSignatureFromHint(el));
+  on(REGISTRO_SIGNATURE_ACTIONS.open, (el) => openRegistroSignatureFromHint(el));
+  on(REGISTRO_SIGNATURE_ACTIONS.remove, (el) => removeRegistroSignatureFromHint(el));
 
   // PMOC Fase 3: handlers do checklist NBR. Click nos botões ✓/✗/⊘ alterna
   // status; input no textarea persiste obs no state local. Os handlers só

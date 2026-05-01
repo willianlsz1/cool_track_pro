@@ -384,6 +384,34 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator('#photo-preview')).toHaveClass(/photo-grid/);
   }
 
+  async function assertRegistroSignatureIsland(page) {
+    const signatureRoot = page.locator('#registro-signature-hint');
+    const marker = page.locator(
+      '#registro-signature-hint[data-react-registro-signature-mounted="true"]',
+    );
+
+    await expect(page.locator('#view-registro')).toHaveCount(1);
+    await expect(signatureRoot).toHaveCount(1);
+    await expect(signatureRoot).toHaveClass(/registro-sig-hint/);
+    await expect(signatureRoot).toHaveAttribute('data-react-registro-signature-mounted', 'true');
+    await expect(marker).toHaveCount(1);
+    expect(
+      await signatureRoot
+        .locator('[class^="registro-sig-hint"], [class*=" registro-sig-hint"]')
+        .count(),
+    ).toBeGreaterThan(0);
+
+    const upsellCta = signatureRoot.locator('[data-action="signature-upsell-cta"]');
+    if ((await upsellCta.count()) > 0) {
+      await expect(upsellCta.first()).toHaveAttribute('data-action', 'signature-upsell-cta');
+    }
+
+    const signatureActions = signatureRoot.locator('[data-r-action]');
+    if ((await signatureActions.count()) > 0) {
+      await expect(signatureActions.first()).toHaveAttribute('data-r-action', /.+/);
+    }
+  }
+
   async function exerciseRegistroPhotoFlow(page) {
     const photosDetails = page
       .locator('#registro-photos-root')
@@ -429,6 +457,7 @@ test.describe('React islands lifecycle', () => {
     await page.locator('#r-equip').dispatchEvent('change');
     await assertRegistroChecklistIsland(page);
     await assertRegistroPhotosIsland(page);
+    await assertRegistroSignatureIsland(page);
   }
 
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
@@ -571,7 +600,7 @@ test.describe('React islands lifecycle', () => {
     });
   });
 
-  test('registro sai e volta sem duplicar roots React do header, checklist e fotos', async ({
+  test('registro sai e volta sem duplicar roots React do header, checklist, fotos e assinatura', async ({
     page,
   }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
@@ -588,6 +617,9 @@ test.describe('React islands lifecycle', () => {
       ).toHaveCount(0);
       await expect(
         page.locator('#registro-photos-root[data-react-registro-photos-mounted="true"]'),
+      ).toHaveCount(0);
+      await expect(
+        page.locator('#registro-signature-hint[data-react-registro-signature-mounted="true"]'),
       ).toHaveCount(0);
 
       await openRegistroWithChecklist(page);
