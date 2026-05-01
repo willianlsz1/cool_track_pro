@@ -169,33 +169,27 @@
   background: currentColor;
 }
 
-/* Variantes (a view atual usa --status="enviado/aprovado/etc" via classe ou atributo) */
-.orc-status-pill--enviado,
+/* Variantes por atributo preservadas como contrato legado */
 [data-status='enviado'] .orc-status-pill {
   background: var(--ct-brand-soft) !important;
   color: var(--ct-brand-text) !important;
 }
-.orc-status-pill--aprovado,
 [data-status='aprovado'] .orc-status-pill {
   background: var(--ct-success-soft) !important;
   color: var(--ct-success) !important;
 }
-.orc-status-pill--visualizado,
 [data-status='visualizado'] .orc-status-pill {
   background: rgba(34, 211, 238, 0.12) !important;
   color: #22d3ee !important;
 }
-.orc-status-pill--rascunho,
 [data-status='rascunho'] .orc-status-pill {
   background: rgba(155, 161, 176, 0.1) !important;
   color: var(--ct-text-muted) !important;
 }
-.orc-status-pill--recusado,
 [data-status='recusado'] .orc-status-pill {
   background: var(--ct-error-soft) !important;
   color: var(--ct-error) !important;
 }
-.orc-status-pill--expirado,
 [data-status='expirado'] .orc-status-pill {
   background: var(--ct-warn-soft) !important;
   color: var(--ct-warn) !important;
