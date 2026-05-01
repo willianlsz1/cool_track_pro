@@ -113,6 +113,31 @@ test.describe('React islands lifecycle', () => {
     expect(await page.locator('#dash-kpis-root [data-tone]').count()).toBeGreaterThan(0);
   }
 
+  async function assertDashboardHeroIsland(page) {
+    const hero = page.locator('#dash-hero');
+
+    await expect(page.locator('#view-inicio')).toHaveCount(1);
+    await expect(hero).toHaveCount(1);
+    await expect(hero).toHaveClass(/dash__hero/);
+    await expect(hero).toHaveClass(/dash__hero--quick/);
+    await expect(hero).toHaveAttribute('data-react-dashboard-hero-mounted', 'true');
+    await expect(page.locator('#dash-hero[data-react-dashboard-hero-mounted="true"]')).toHaveCount(
+      1,
+    );
+    await expect(hero).toHaveAttribute('data-tier', /.+/);
+    await expect(hero).toHaveAttribute('data-tone', /.+/);
+
+    await expect(page.locator('#dash-hero-greeting')).toHaveCount(1);
+    await expect(page.locator('#dash-hero-summary')).toHaveCount(1);
+    await expect(page.locator('#dash-hero-cta')).toHaveCount(1);
+    await expect(page.locator('#dash-hero-cta')).toHaveAttribute('data-nav', 'registro');
+    await expect(page.locator('#dash-hero-cta-secondary')).toHaveCount(1);
+    await expect(hero.locator('.dash__hero-body')).toHaveCount(1);
+    await expect(hero.locator('.dash__hero-cta-wrap')).toHaveCount(1);
+    await expect(hero.locator('.dash__hero-cta')).toHaveCount(2);
+    await expect(hero.locator('.dash__hero-cta-label')).toHaveCount(2);
+  }
+
   async function assertDashboardNextActionIsland(page) {
     const card = page.locator('#dash-next-action-card');
     const cta = page.locator('#dash-next-cta');
@@ -462,6 +487,7 @@ test.describe('React islands lifecycle', () => {
 
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
+      await assertDashboardHeroIsland(page);
       await assertDashboardKpisIsland(page);
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
@@ -473,6 +499,7 @@ test.describe('React islands lifecycle', () => {
 
       await page.click('#sidenav-inicio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
+      await assertDashboardHeroIsland(page);
       await assertDashboardKpisIsland(page);
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);

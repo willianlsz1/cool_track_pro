@@ -58,6 +58,8 @@ import {
 } from '../viewModels/dashboardViewModel.js';
 import { DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
 
+let dashboardHeroBridgePromise = null;
+let dashboardHeroBridge = null;
 let dashboardKpisBridgePromise = null;
 let dashboardKpisBridge = null;
 let dashboardNextActionBridgePromise = null;
@@ -66,6 +68,20 @@ let dashboardLastServiceBridgePromise = null;
 let dashboardLastServiceBridge = null;
 let dashboardMonthSummaryBridgePromise = null;
 let dashboardMonthSummaryBridge = null;
+
+function loadDashboardHeroBridge() {
+  dashboardHeroBridgePromise ??= import('../../react/entrypoints/dashboardHeroIsland.jsx').then(
+    (bridge) => {
+      dashboardHeroBridge = bridge;
+      return bridge;
+    },
+  );
+  return dashboardHeroBridgePromise;
+}
+
+function getDashboardHeroRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.hero);
+}
 
 function loadDashboardKpisBridge() {
   dashboardKpisBridgePromise ??= import('../../react/entrypoints/dashboardKpisIsland.jsx').then(
@@ -121,6 +137,17 @@ function loadDashboardMonthSummaryBridge() {
 
 function getDashboardMonthSummaryRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.monthSection);
+}
+
+export function unmountDashboardHero(root = getDashboardHeroRoot()) {
+  if (!root) return undefined;
+  if (dashboardHeroBridge?.unmountDashboardHeroReact) {
+    dashboardHeroBridge.unmountDashboardHeroReact(root);
+    return undefined;
+  }
+  return loadDashboardHeroBridge().then(({ unmountDashboardHeroReact }) => {
+    unmountDashboardHeroReact(root);
+  });
 }
 
 export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
@@ -598,89 +625,30 @@ function _equipCardMini(eq) {
 // ═══════════════════════════════════════════════════════
 // Hero Status Card
 // ═══════════════════════════════════════════════════════
-function _renderHero({
-  tier,
-  tone,
-  userName,
-  equipCount,
-  mesCount,
-  clienteCount,
-  isEmpresaPro,
-  viewModel,
-}) {
-  const hero = document.getElementById('dash-hero');
-  const dashRoot = document.getElementById('dash');
-  if (!hero || !dashRoot) return;
-
+function _renderHero({ viewModel }) {
   const model = viewModel?.hero;
-  if (model) {
-    tier = model.tier;
-    tone = model.tone;
+  const root = getDashboardHeroRoot();
+  const dashRoot = document.getElementById(DASHBOARD_PUBLIC_IDS.root);
+
+  if (!model) return Promise.resolve();
+
+  if (dashRoot) {
+    dashRoot.setAttribute('data-tier', model.tier);
+    dashRoot.setAttribute('data-tone', model.tone);
   }
 
-  dashRoot.setAttribute('data-tier', tier);
-  dashRoot.setAttribute('data-tone', tone);
-  hero.setAttribute('data-tone', tone);
-
-  // Greeting + datetime
-  const greetingEl = document.getElementById('dash-hero-greeting');
-  if (greetingEl) {
-    const name = (userName || '').trim() || 'Técnico';
-    greetingEl.textContent =
-      model?.greeting || (isEmpresaPro ? 'Operação em andamento' : `Olá, ${name}`);
-  }
-  const summaryEl = document.getElementById('dash-hero-summary');
-  if (summaryEl) {
-    if (model?.summary) {
-      summaryEl.textContent = model.summary;
-    } else if (isEmpresaPro) {
-      summaryEl.textContent = `${clienteCount} clientes • ${equipCount} equipamentos • ${mesCount} serviços no mês`;
-    } else {
-      const equipLabel = `${equipCount} equipamento${equipCount === 1 ? '' : 's'}`;
-      const mesLabel = `${mesCount} serviço${mesCount === 1 ? '' : 's'} no mês`;
-      summaryEl.textContent = `${equipLabel} • ${mesLabel}`;
-    }
+  if (root && dashboardHeroBridge?.mountDashboardHeroReact) {
+    dashboardHeroBridge.mountDashboardHeroReact(root, { hero: model });
+    return Promise.resolve();
   }
 
-  // CTA primário + secundário.
-  // Regras:
-  //   tone=alert            → primário = ação do alerta (safety first), sem secundário
-  //   equipCount===0        → primário = "Cadastrar meu primeiro" (abre modal), sem secundário
-  //   "tudo operando" (ok)  → primário = "Cadastrar com foto" (IA, diferenciador),
-  //                           secundário = "Registrar serviço" (muscle memory)
-  const ctaBtn = document.getElementById('dash-hero-cta');
-  const ctaLabel = document.getElementById('dash-hero-cta-label');
-  const ctaSecondary = document.getElementById('dash-hero-cta-secondary');
-  if (ctaBtn && ctaLabel) {
-    const primaryCta = model?.primaryCta || { nav: 'registro', label: 'Registrar serviço' };
-    ctaBtn.removeAttribute('data-action');
-    ctaBtn.removeAttribute('data-id');
-    ctaBtn.removeAttribute('data-nav');
-    if (primaryCta.action) ctaBtn.setAttribute('data-action', primaryCta.action);
-    if (primaryCta.id) ctaBtn.setAttribute('data-id', primaryCta.id);
-    if (primaryCta.nav) ctaBtn.setAttribute('data-nav', primaryCta.nav);
-    ctaLabel.textContent = primaryCta.label;
-    if (ctaSecondary) {
-      const secondaryCta = model?.secondaryCta;
-      ctaSecondary.hidden = false;
-      ctaSecondary.removeAttribute('data-action');
-      ctaSecondary.removeAttribute('data-id');
-      ctaSecondary.removeAttribute('data-nav');
-      if (secondaryCta?.action) ctaSecondary.setAttribute('data-action', secondaryCta.action);
-      if (secondaryCta?.id) ctaSecondary.setAttribute('data-id', secondaryCta.id);
-      if (secondaryCta?.nav) ctaSecondary.setAttribute('data-nav', secondaryCta.nav);
-      if (!secondaryCta && isEmpresaPro) ctaSecondary.setAttribute('data-nav', 'clientes');
-      if (!secondaryCta && !isEmpresaPro) {
-        ctaSecondary.setAttribute('data-action', 'open-modal');
-        ctaSecondary.setAttribute('data-id', 'modal-add-eq');
-      }
-      const secondaryLabel = document.getElementById('dash-hero-cta-secondary-label');
-      if (secondaryLabel) {
-        secondaryLabel.textContent =
-          secondaryCta?.label || (isEmpresaPro ? 'Ver clientes' : 'Cadastrar equipamento');
-      }
-    }
+  if (root) {
+    return loadDashboardHeroBridge().then(({ mountDashboardHeroReact }) => {
+      mountDashboardHeroReact(root, { hero: model });
+    });
   }
+
+  return Promise.resolve();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1341,18 +1309,14 @@ export async function renderDashboard() {
       emptyHost.innerHTML = '';
     }
 
-    // KPIs (retorna eficiência e mesCount pro hero)
-    const { mesCount, mountPromise: kpisMountPromise } = _renderKPIs({
+    // KPIs
+    const { mountPromise: kpisMountPromise } = _renderKPIs({
       equipamentos,
       registros,
       alerts,
       viewModel: dashboardReadModel,
     });
     await kpisMountPromise;
-
-    // Tone do hero
-    const hasCritical = alerts.some((a) => a.severity === 'danger');
-    const tone = hasCritical ? 'alert' : 'ok';
 
     // Nome do usuário — cascata priorizando o que o próprio usuário digitou
     // no FTX (Profile local). O Supabase popula `user_metadata.name` com o
@@ -1383,16 +1347,7 @@ export async function renderDashboard() {
       userName,
     });
 
-    _renderHero({
-      tier,
-      tone,
-      userName,
-      equipCount: equipamentos.length,
-      mesCount,
-      clienteCount: clientes.length,
-      isEmpresaPro,
-      viewModel: dashboardReadModel,
-    });
+    await _renderHero({ viewModel: dashboardReadModel });
 
     _populateHeaderIdentity({ tier, userName });
 
