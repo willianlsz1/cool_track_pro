@@ -27,6 +27,7 @@ import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { DadosPlacaValidationError, formatDecimalHint } from '../../domain/dadosPlacaValidation.js';
 import { emptyStateHtml } from '../components/emptyState.js';
 import { buildEquipamentosViewModel } from '../viewModels/equipamentosViewModel.js';
+import { buildEquipamentosHeaderViewModel } from '../viewModels/equipamentosHeaderModel.js';
 import { validateEquipamentoPayload } from '../../core/inputValidation.js';
 import { EquipmentPhotos } from '../components/equipmentPhotos.js';
 import { resetCamposExtrasState, setCamposExtrasState } from '../components/nameplateCapture.js';
@@ -123,9 +124,21 @@ let _renderEquipPlanNeedsRefresh = true;
 let _renderEquipPlanEventsBound = false;
 let _renderEquipPlanRefreshPromise = null;
 let _forcedEquipContext = null;
+let _equipamentosHeaderBridgePromise = null;
+let _equipamentosHeaderBridge = null;
+let _equipamentosHeaderRenderGeneration = 0;
 let _equipamentosListBridgePromise = null;
 let _equipamentosListBridge = null;
 let _equipamentosListRenderGeneration = 0;
+
+function loadEquipamentosHeaderBridge() {
+  _equipamentosHeaderBridgePromise ??=
+    import('../../react/entrypoints/equipamentosHeaderIsland.jsx').then((bridge) => {
+      _equipamentosHeaderBridge = bridge;
+      return bridge;
+    });
+  return _equipamentosHeaderBridgePromise;
+}
 
 function loadEquipamentosListBridge() {
   _equipamentosListBridgePromise ??=
@@ -134,6 +147,22 @@ function loadEquipamentosListBridge() {
       return bridge;
     });
   return _equipamentosListBridgePromise;
+}
+
+export function unmountEquipamentosHeader() {
+  _equipamentosHeaderRenderGeneration += 1;
+  const root = document.getElementById('equip-hero');
+  if (!root?.dataset.reactEquipamentosHeaderMounted) return null;
+
+  if (_equipamentosHeaderBridge?.unmountEquipamentosHeaderReact) {
+    _equipamentosHeaderBridge.unmountEquipamentosHeaderReact(root);
+    return null;
+  }
+
+  return loadEquipamentosHeaderBridge().then(({ unmountEquipamentosHeaderReact }) => {
+    unmountEquipamentosHeaderReact(root);
+    return null;
+  });
 }
 
 export function unmountEquipamentosList() {
@@ -470,20 +499,17 @@ function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   }
 }
 
-function _renderEquipContextChip({ clienteId = null, clienteNome = '', setorId = null } = {}) {
-  const el = Utils.getEl('equip-context-chip');
-  if (!el) return;
-  if (!clienteId && !setorId) {
-    el.innerHTML = '';
-    return;
-  }
-  const label = setorId
-    ? `Filtrando: ${setorId === '__sem_setor__' ? 'Sem setor' : 'Setor'}`
-    : `Filtrando: Cliente ${Utils.escapeHtml(clienteNome || '')}`;
-  el.innerHTML = `<div class="equip-breadcrumb">
-    <span class="equip-breadcrumb__item equip-breadcrumb__item--current">${label}</span>
-    <button type="button" class="equip-breadcrumb__item" data-action="equip-clear-cliente-filter">Limpar filtro</button>
-  </div>`;
+function mountEquipamentosHeader(viewModel) {
+  const root = Utils.getEl('equip-hero');
+  if (!root) return null;
+  const filtersRoot = Utils.getEl('equip-filters');
+  const contextRoot = Utils.getEl('equip-context-chip');
+  const renderGeneration = ++_equipamentosHeaderRenderGeneration;
+
+  return loadEquipamentosHeaderBridge().then(({ mountEquipamentosHeaderReact }) => {
+    if (renderGeneration !== _equipamentosHeaderRenderGeneration) return null;
+    return mountEquipamentosHeaderReact(root, { viewModel, filtersRoot, contextRoot });
+  });
 }
 
 /**
@@ -1050,14 +1076,19 @@ export async function renderEquip(filtro = '', options = {}) {
     });
   }
 
-  // Hero + filters sempre no topo da view (hidden quando não há equipamentos).
-  // Em contexto cliente eles são escondidos (parte da view global do parque).
-  renderEquipHero({ isPro });
-  renderEquipFilters();
-  _renderEquipContextChip({
-    clienteId: activeClienteId,
-    clienteNome: activeClienteNome || '',
-    setorId: activeSectorId,
+  const headerState = getState();
+  const headerRegistros = Array.isArray(headerState.registros) ? headerState.registros : [];
+  const headerPreventivaVencidaIds = getPreventivaDueEquipmentIds(headerRegistros, 0);
+  const headerRender = mountEquipamentosHeader({
+    ...buildEquipamentosHeaderViewModel({
+      equipamentos: headerState.equipamentos,
+      activeQuickFilter,
+      activeClienteId,
+      activeClienteNome: activeClienteNome || '',
+      activeSectorId,
+      kpis: computeEquipKpis(headerState),
+      preventivaVencidaIds: headerPreventivaVencidaIds,
+    }),
   });
 
   // Quick filter ativo sobrescreve o fluxo normal: vai pra flat list com
@@ -1078,13 +1109,15 @@ export async function renderEquip(filtro = '', options = {}) {
     });
 
     if (activeQuickFilter === 'sem-setor') {
-      return renderFlatList(filtro, renderOptionsWithClient, '__sem_setor__');
+      const listRender = renderFlatList(filtro, renderOptionsWithClient, '__sem_setor__');
+      return Promise.all([headerRender, listRender]).then(([, result]) => result);
     }
-    return renderFlatList(
+    const listRender = renderFlatList(
       filtro,
       { ...renderOptionsWithClient, statusFilter: activeQuickFilter },
       null,
     );
+    return Promise.all([headerRender, listRender]).then(([, result]) => result);
   }
 
   const searchBar = Utils.getEl('equip-search-bar');
@@ -1134,7 +1167,8 @@ export async function renderEquip(filtro = '', options = {}) {
 
   // O filtro de cliente já foi tratado mais cedo via early-return — aqui
   // segue o flow normal de drill-down em setor ou lista flat default.
-  return renderFlatList(filtro, renderOptionsWithClient, activeSectorId);
+  const listRender = renderFlatList(filtro, renderOptionsWithClient, activeSectorId);
+  return Promise.all([headerRender, listRender]).then(([, result]) => result);
 }
 
 // ─── Setor CRUD ───────────────────────────────────────────────────────────────

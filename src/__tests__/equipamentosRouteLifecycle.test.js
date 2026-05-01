@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   registerRoute: vi.fn(),
   renderEquip: vi.fn(),
   populateEquipSelects: vi.fn(),
+  unmountEquipamentosHeader: vi.fn(),
   unmountEquipamentosList: vi.fn(),
   updateHeader: vi.fn(),
 }));
@@ -21,6 +22,7 @@ vi.mock('../ui/views/dashboard.js', () => ({
 vi.mock('../ui/views/equipamentos.js', () => ({
   renderEquip: mocks.renderEquip,
   populateEquipSelects: mocks.populateEquipSelects,
+  unmountEquipamentosHeader: mocks.unmountEquipamentosHeader,
   unmountEquipamentosList: mocks.unmountEquipamentosList,
 }));
 
@@ -82,7 +84,7 @@ describe('equipamentos route lifecycle', () => {
     Object.values(mocks).forEach((mock) => mock.mockClear?.());
   });
 
-  it('unmounts the React flat list island when leaving equipamentos', async () => {
+  it('unmounts the React header and flat list islands when leaving equipamentos', async () => {
     const { registerAppRoutes } = await import('../ui/controller/routes.js');
     registerAppRoutes();
     const route = getEquipamentosRoute();
@@ -94,6 +96,7 @@ describe('equipamentos route lifecycle', () => {
     expect(mocks.populateEquipSelects).toHaveBeenCalledTimes(2);
     expect(mocks.renderEquip).toHaveBeenCalledTimes(2);
     expect(mocks.renderEquip).toHaveBeenNthCalledWith(1, '', { sectorId: '__sem_setor__' });
+    expect(mocks.unmountEquipamentosHeader).toHaveBeenCalledTimes(1);
     expect(mocks.unmountEquipamentosList).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(2);
   });

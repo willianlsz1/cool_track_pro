@@ -3,6 +3,7 @@ import { renderDashboard, updateHeader } from '../views/dashboard.js';
 import {
   renderEquip,
   populateEquipSelects,
+  unmountEquipamentosHeader,
   unmountEquipamentosList,
 } from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
@@ -58,6 +59,7 @@ export function registerAppRoutes() {
       return renderResult;
     },
     () => {
+      unmountEquipamentosHeader();
       unmountEquipamentosList();
     },
   );
