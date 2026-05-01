@@ -389,7 +389,7 @@ describe('dashboard legacy month summary render adapter', () => {
     expect(monthText(DASHBOARD_PUBLIC_IDS.monthPending)).toBe('1');
   });
 
-  it('keeps month summary contracts legacy-only without requiring React or charts', () => {
+  it('delegates month summary rendering to the React island without manual DOM fallback', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
@@ -416,6 +416,12 @@ describe('dashboard legacy month summary render adapter', () => {
       expect.arrayContaining(['data-action', 'data-id', 'data-nav']),
     );
     expect(dashboardSource).not.toMatch(/from ['"]react|react-dom\/client|createRoot/);
+    expect(dashboardSource).toContain('../../react/entrypoints/dashboardMonthSummaryIsland.jsx');
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-month-label'\)/);
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-month-services'\)/);
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-month-equips'\)/);
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-month-pending'\)/);
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-month-trend'\)/);
     expect(document.getElementById('chart-status-pie')).toBeNull();
     expect(document.getElementById('dash-onboarding')).not.toBeNull();
     expect(document.getElementById('app-header')).toBeNull();

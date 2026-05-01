@@ -363,7 +363,7 @@ describe('dashboard legacy last service render adapter', () => {
     expect(card?.querySelector('[onerror]')).toBeNull();
   });
 
-  it('keeps last service contracts legacy-only without requiring React or charts', () => {
+  it('delegates last service rendering to the React island without manual DOM fallback', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_CLASSES).toEqual(
@@ -373,6 +373,10 @@ describe('dashboard legacy last service render adapter', () => {
       expect.arrayContaining(['data-action', 'data-id', 'data-nav']),
     );
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot|mountDashboardReact/);
+    expect(dashboardSource).toContain('../../react/entrypoints/dashboardLastServiceIsland.jsx');
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-last-title'\)/);
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-last-sub'\)/);
+    expect(dashboardSource).not.toMatch(/getElementById\('dash-last-desc'\)/);
     expect(document.getElementById('chart-status-pie')).toBeNull();
     expect(document.getElementById('dash-onboarding')).not.toBeNull();
     expect(document.getElementById('app-header')).toBeNull();

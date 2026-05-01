@@ -197,15 +197,6 @@ function _sparklineData(registros, months = 6) {
   return Array.from({ length: months }, (_, i) => _countRegistrosNoMes(registros, months - 1 - i));
 }
 
-function _trendTag(current, previous) {
-  if (previous === 0 && current === 0) return { text: 'Sem dados anteriores', cls: 'neutral' };
-  if (previous === 0 && current > 0) return { text: `+${current} este mês`, cls: 'up' };
-  const diff = current - previous;
-  if (diff === 0) return { text: 'Igual ao mês passado', cls: 'neutral' };
-  if (diff > 0) return { text: `+${diff} vs mês passado`, cls: 'up' };
-  return { text: `-${Math.abs(diff)} vs mês passado`, cls: 'down' };
-}
-
 function _resolveClienteNome(clientes = [], clienteId = null) {
   if (!clienteId) return '';
   return clientes.find((cliente) => cliente.id === clienteId)?.nome || '';
@@ -745,7 +736,7 @@ function _renderNextActionCard({ viewModel }) {
   return Promise.resolve();
 }
 
-function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }) {
+function _renderLastServiceCard({ viewModel }) {
   const model = viewModel?.lastService;
   const root = getDashboardLastServiceRoot();
   if (root && model) {
@@ -758,40 +749,10 @@ function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }
     });
   }
 
-  const card = document.getElementById('dash-last-service');
-  const titleEl = document.getElementById('dash-last-title');
-  const subEl = document.getElementById('dash-last-sub');
-  if (!card || !titleEl) return Promise.resolve();
-
-  if (model) {
-    card.hidden = Boolean(model.hidden);
-    if (model.hidden) return Promise.resolve();
-    titleEl.textContent = model.title;
-    if (subEl) subEl.textContent = model.subtitle;
-    return Promise.resolve();
-  }
-
-  if (!registros.length) {
-    card.hidden = true;
-    return Promise.resolve();
-  }
-
-  const last = [...registros].sort((a, b) => b.data.localeCompare(a.data))[0];
-  const eq = findEquip(last.equipId);
-  const clienteNome = isEmpresaPro ? _resolveClienteNome(clientes, eq?.clienteId) : '';
-  const setorNome = isEmpresaPro ? _resolveSetorNome(eq) : '';
-  card.hidden = false;
-  titleEl.textContent = [last.tipo || 'Serviço', eq?.nome || '—'].filter(Boolean).join(' • ');
-  if (subEl) {
-    const context = isEmpresaPro
-      ? [clienteNome, setorNome, _recencia(last.data)].filter(Boolean).join(' • ')
-      : _recencia(last.data);
-    subEl.textContent = context;
-  }
   return Promise.resolve();
 }
 
-function _renderMonthView({ registros, alerts, isEmpresaPro, viewModel }) {
+function _renderMonthView({ viewModel }) {
   const model = viewModel?.month;
   const root = getDashboardMonthSummaryRoot();
   if (root && model) {
@@ -804,34 +765,6 @@ function _renderMonthView({ registros, alerts, isEmpresaPro, viewModel }) {
     });
   }
 
-  const label = document.getElementById('dash-month-label');
-  const servicesEl = document.getElementById('dash-month-services');
-  const equipsEl = document.getElementById('dash-month-equips');
-  const pendingEl = document.getElementById('dash-month-pending');
-  const trendEl = document.getElementById('dash-month-trend');
-  if (!label || !servicesEl || !equipsEl || !pendingEl || !trendEl) return Promise.resolve();
-
-  if (model) {
-    label.textContent = model.label;
-    servicesEl.textContent = String(model.servicesCount);
-    equipsEl.textContent = String(model.equipmentsCount);
-    pendingEl.textContent = String(model.pendingCount);
-    trendEl.textContent = model.trendLabel;
-    return Promise.resolve();
-  }
-
-  const monthRegs = (registros || []).filter((registro) => _countRegistrosNoMes([registro], 0) > 0);
-  const uniqueEquips = new Set(monthRegs.map((registro) => registro.equipId).filter(Boolean));
-  const previous = _countRegistrosNoMes(registros || [], 1);
-  const trend = _trendTag(monthRegs.length, previous);
-
-  label.textContent = isEmpresaPro ? 'Visão da operação' : 'Seu mês em campo';
-  servicesEl.textContent = String(monthRegs.length);
-  equipsEl.textContent = String(uniqueEquips.size);
-  pendingEl.textContent = String(
-    (alerts || []).filter((alerta) => alerta.severity !== 'info').length,
-  );
-  trendEl.textContent = trend.text.replace(/&uarr;|&darr;/g, '').trim();
   return Promise.resolve();
 }
 
@@ -1464,13 +1397,8 @@ export async function renderDashboard() {
     _populateHeaderIdentity({ tier, userName });
 
     await _renderNextActionCard({ viewModel: dashboardReadModel });
-    await _renderLastServiceCard({
-      registros,
-      isEmpresaPro,
-      clientes,
-      viewModel: dashboardReadModel,
-    });
-    await _renderMonthView({ registros, alerts, isEmpresaPro, viewModel: dashboardReadModel });
+    await _renderLastServiceCard({ viewModel: dashboardReadModel });
+    await _renderMonthView({ viewModel: dashboardReadModel });
     _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
 
     // Seções secundárias
