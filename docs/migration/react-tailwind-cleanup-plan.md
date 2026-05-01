@@ -267,6 +267,7 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 9. Estrategia para reduzir CSS legado
 
+- Status do congelamento: `src/assets/styles/components.css` foi formalmente congelado em 2026-05-01. A politica fica em `docs/migration/css-freeze-policy.md`; novas UIs React devem usar `src/react/components/ui` ou Tailwind `tw-*`.
 - Nao remover CSS por grep simples: classes dinamicas como `equip-card--${tone}` e `rel-tipo--${tone}` geram falsos positivos.
 - Usar `npm run lint:css:dead` como triagem, nao como prova final; o inventario de 2026-05-01 registrou que o script precisa de `purgecss` para rodar neste checkout.
 - Mapa inicial por prefixo: `docs/migration/css-legacy-inventory.md`.
@@ -295,8 +296,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e remover de forma cirurgica a microfamilia CSS `orc-timeline*`, ja provada morta em `docs/migration/css-orc-timeline-proof.md`.
+O proximo PR recomendado e criar as primeiras primitives de design system em `src/react/components/ui`: `Button` e `Badge`, sem aplicar em telas ainda.
 
-Motivo: a prova confirmou que Orcamentos nao renderiza `orc-timeline*` em `OrcamentosPage.jsx`, nao retorna dados de timeline em `orcamentosViewModel.js` e nao usa essa familia em modal, assinatura, handlers, testes ou E2E. As ocorrencias reais ficaram restritas a `src/assets/styles/components.css` e docs.
+Motivo: o congelamento de `components.css` impede crescimento do CSS legado, mas a reducao acelerada depende de componentes reutilizaveis antes de remover familias grandes. `Button` e `Badge` sao os menores blocos transversais e permitem preparar Orcamentos sem tocar em PDF, assinatura, WhatsApp, storage/backend, modais ou handlers.
 
-Escopo recomendado: remover apenas os seletores `orc-timeline*` de `src/assets/styles/components.css`, preservando `timeline*` generico do Historico, `equip-card__timeline-*` de Equipamentos e `is-done` transversal. Validar Orcamentos com lista vazia e cards/status principais antes de concluir; nao mexer em React, handlers, rotas, Tailwind/preflight, PDF, assinatura, WhatsApp, storage/backend ou modais.
+Escopo recomendado: criar `Button.jsx`, `Badge.jsx`, `index.js` e testes focados em variantes, `data-*`, `aria-*`, `disabled` e `className`. Nao aplicar os componentes em telas e nao remover CSS nesse PR.

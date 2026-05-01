@@ -1,3 +1,8 @@
+/* CSS LEGADO CONGELADO: nao adicionar novas classes visuais aqui.
+   Novas UIs React devem usar src/react/components/ui ou Tailwind tw-*.
+   Edicoes neste arquivo exigem PR proprio: bug/seguranca comprovado,
+   remocao de CSS morto comprovado ou ajuste minimo documentado. */
+
 /* ============================================================
    components.css — Componentes UI — CoolTrack Pro v4.0
    Design industrial HVAC: bordas técnicas, tipografia densa,
