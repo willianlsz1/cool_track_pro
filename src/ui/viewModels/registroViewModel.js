@@ -242,6 +242,8 @@ function buildActions() {
     clear: { action: REGISTRO_ACTIONS.clear },
     quickTemplate: { action: REGISTRO_ACTIONS.quickTemplate },
     checklistSet: { action: REGISTRO_ACTIONS.checklistSet },
+    checklistMeasure: { action: REGISTRO_ACTIONS.checklistMeasure },
+    checklistObs: { action: REGISTRO_ACTIONS.checklistObs },
   };
 }
 

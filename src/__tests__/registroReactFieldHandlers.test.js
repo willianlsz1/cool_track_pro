@@ -348,7 +348,7 @@ describe('registro React header fields legacy handlers contract', () => {
 
     await act(async () => {
       quickHandler(chip);
-      await Promise.resolve();
+      await flushAsyncWork();
     });
 
     expect(tipo.value).toBe('Limpeza de Filtros');
@@ -403,7 +403,7 @@ describe('registro React header fields legacy handlers contract', () => {
     chip.dataset.template = 'javascript:alert(1)';
     await act(async () => {
       mocks.handlers.get('quick-service-template')(chip);
-      await Promise.resolve();
+      await flushAsyncWork();
     });
 
     expect(document.getElementById('r-obs')?.value).toBe(MALICIOUS);

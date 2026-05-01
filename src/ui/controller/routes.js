@@ -14,7 +14,12 @@ import {
   unmountRelatorioControls,
   unmountRelatorioCards,
 } from '../views/relatorio.js';
-import { initRegistro, loadRegistroForEdit, unmountRegistroHeader } from '../views/registro.js';
+import {
+  initRegistro,
+  loadRegistroForEdit,
+  unmountRegistroHeader,
+  unmountRegistroChecklist,
+} from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
 import { renderClientes, setClientesSearch, unmountClientes } from '../views/clientes.js';
 import { ClientesPaywallModal } from '../components/clientesPaywallModal.js';
@@ -70,6 +75,7 @@ export function registerAppRoutes() {
     },
     () => {
       unmountRegistroHeader();
+      unmountRegistroChecklist();
     },
   );
 

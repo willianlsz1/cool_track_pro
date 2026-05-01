@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   initRegistro: vi.fn(),
   loadRegistroForEdit: vi.fn(),
   unmountRegistroHeader: vi.fn(),
+  unmountRegistroChecklist: vi.fn(),
   updateHeader: vi.fn(),
 }));
 
@@ -48,6 +49,7 @@ vi.mock('../ui/views/registro.js', () => ({
   initRegistro: mocks.initRegistro,
   loadRegistroForEdit: mocks.loadRegistroForEdit,
   unmountRegistroHeader: mocks.unmountRegistroHeader,
+  unmountRegistroChecklist: mocks.unmountRegistroChecklist,
 }));
 
 vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
@@ -95,6 +97,7 @@ describe('registro route lifecycle', () => {
     expect(mocks.initRegistro).toHaveBeenNthCalledWith(1, { equipId: 'eq-1' });
     expect(mocks.loadRegistroForEdit).toHaveBeenCalledWith('reg-1');
     expect(mocks.unmountRegistroHeader).toHaveBeenCalledTimes(1);
+    expect(mocks.unmountRegistroChecklist).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(2);
   });
 });

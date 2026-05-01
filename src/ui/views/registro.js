@@ -39,6 +39,7 @@ const HERO_PILL_TEXT_ID = 'registro-hero-pill-text';
 const PROGRESS_COUNT_ID = 'form-progress-count';
 const METER_ID = 'registro-hero-meter';
 const REGISTRO_HEADER_ROOT_ID = 'registro-header-root';
+const REGISTRO_CHECKLIST_ROOT_ID = 'r-checklist-body';
 const QUICK_TEMPLATE_MAP = {
   limpeza: {
     tipo: 'Limpeza de Filtros',
@@ -128,6 +129,9 @@ const EDITING_KEY = 'cooltrack-editing-id';
 let _registroHeaderBridgePromise = null;
 let _registroHeaderBridge = null;
 let _registroHeaderRenderGeneration = 0;
+let _registroChecklistBridgePromise = null;
+let _registroChecklistBridge = null;
+let _registroChecklistRenderGeneration = 0;
 // Persiste o último cliente preenchido para auto-prefill no próximo registro —
 // técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
@@ -597,61 +601,98 @@ function _isPreventivaTipo(tipoValue) {
     .includes('preventiva');
 }
 
-function _renderChecklistGroupHtml(groupName, items, snapshotMap) {
-  const rows = items
-    .map((item) => {
-      const snap = snapshotMap.get(item.id) || { status: null, obs: '', measure: null };
-      const safeId = Utils.escapeAttr(item.id);
-      const safeLabel = Utils.escapeHtml(item.label);
-      const safeObs = Utils.escapeHtml(snap.obs || '');
-      const required = item.mandatory
-        ? '<span class="r-checklist__req" title="Obrigatório p/ PMOC formal">*</span>'
-        : '';
-      const statusBtn = (status, label, title) => {
-        const active = snap.status === status ? ' is-active' : '';
-        return `<button type="button" class="r-checklist__status r-checklist__status--${status}${active}"
-          data-action="r-checklist-set" data-item="${safeId}" data-status="${status}"
-          aria-pressed="${snap.status === status}" title="${title}">${label}</button>`;
-      };
-      // PMOC Fase 4: input numérico inline pra items measurable.
-      // Mostra unit como suffix; salva no state via 'r-checklist-measure'.
-      const measureHtml = item.measurable
-        ? (() => {
-            const safeUnit = Utils.escapeAttr(item.unit || '');
-            const safeUnitDisplay = Utils.escapeHtml(item.unit || '');
-            const currentValue =
-              snap.measure && snap.measure.value != null ? String(snap.measure.value) : '';
-            return `<label class="r-checklist__measure">
-              <input type="number" step="any" inputmode="decimal"
-                class="r-checklist__measure-input"
-                data-action="r-checklist-measure" data-item="${safeId}"
-                data-unit="${safeUnit}"
-                value="${Utils.escapeAttr(currentValue)}"
-                placeholder="valor" aria-label="Medição em ${safeUnitDisplay}" />
-              <span class="r-checklist__measure-unit" aria-hidden="true">${safeUnitDisplay}</span>
-            </label>`;
-          })()
-        : '';
-      return `
-        <div class="r-checklist__row${item.measurable ? ' r-checklist__row--measurable' : ''}" data-item-id="${safeId}">
-          <div class="r-checklist__label">${safeLabel}${required}</div>
-          <div class="r-checklist__statuses" role="group" aria-label="Status: ${safeLabel}">
-            ${statusBtn('ok', '✓', 'Conforme')}
-            ${statusBtn('fail', '✗', 'Não conforme')}
-            ${statusBtn('na', '⊘', 'Não aplicável')}
-          </div>
-          ${measureHtml}
-          <textarea class="r-checklist__obs"
-            data-action="r-checklist-obs" data-item="${safeId}"
-            rows="1" maxlength="200" placeholder="Observação (opcional)">${safeObs}</textarea>
-        </div>`;
-    })
-    .join('');
-  return `
-    <div class="r-checklist__group">
-      <div class="r-checklist__group-label">${Utils.escapeHtml(groupName)}</div>
-      ${rows}
-    </div>`;
+function loadRegistroChecklistBridge() {
+  if (_registroChecklistBridge) return Promise.resolve(_registroChecklistBridge);
+  if (!_registroChecklistBridgePromise) {
+    _registroChecklistBridgePromise = import('../../react/entrypoints/registroChecklistIsland.jsx')
+      .then((bridge) => {
+        _registroChecklistBridge = bridge;
+        return bridge;
+      })
+      .catch((error) => {
+        _registroChecklistBridgePromise = null;
+        throw error;
+      });
+  }
+  return _registroChecklistBridgePromise;
+}
+
+function buildRegistroChecklistReactProps(template) {
+  const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
+  const snapshotMap = new Map(_asArray(_currentChecklist?.items).map((item) => [item.id, item]));
+  const groupsOrder = [];
+  const groupBuckets = new Map();
+
+  _asArray(template?.items).forEach((item) => {
+    const group = String(item?.group || '');
+    if (!groupBuckets.has(group)) {
+      groupsOrder.push(group);
+      groupBuckets.set(group, []);
+    }
+    groupBuckets.get(group).push(item);
+  });
+
+  return {
+    checklist: {
+      label: String(template?.label || ''),
+      groups: groupsOrder.map((group) => ({
+        label: group,
+        items: groupBuckets.get(group).map((item) => {
+          const snap = snapshotMap.get(item.id) || { status: null, obs: '', measure: null };
+          return {
+            id: String(item?.id || ''),
+            label: String(item?.label || ''),
+            mandatory: Boolean(item?.mandatory),
+            measurable: Boolean(item?.measurable),
+            unit: String(item?.unit || ''),
+            status: snap.status || null,
+            obs: String(snap.obs || ''),
+            measureValue:
+              snap.measure && snap.measure.value != null ? String(snap.measure.value) : '',
+          };
+        }),
+      })),
+    },
+    actions: viewModel.actions,
+  };
+}
+
+function mountRegistroChecklist(template) {
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
+  if (!root) return null;
+
+  const renderGeneration = (_registroChecklistRenderGeneration += 1);
+  const props = buildRegistroChecklistReactProps(template);
+
+  const mountWithBridge = (bridge) => {
+    if (renderGeneration !== _registroChecklistRenderGeneration) return null;
+    return bridge.mountRegistroChecklistReact(root, props);
+  };
+
+  if (_registroChecklistBridge?.mountRegistroChecklistReact) {
+    return mountWithBridge(_registroChecklistBridge);
+  }
+
+  return loadRegistroChecklistBridge().then(mountWithBridge);
+}
+
+export function unmountRegistroChecklist() {
+  _registroChecklistRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
+  if (!root?.dataset.reactRegistroChecklistMounted) return null;
+
+  if (_registroChecklistBridge?.unmountRegistroChecklistReact) {
+    _registroChecklistBridge.unmountRegistroChecklistReact(root);
+    return null;
+  }
+
+  return loadRegistroChecklistBridge().then((bridge) => {
+    bridge.unmountRegistroChecklistReact?.(root);
+  });
 }
 
 function _updateChecklistSummary() {
@@ -701,12 +742,14 @@ export function renderChecklist() {
   if (!equipId) {
     wrapper.hidden = true;
     _currentChecklist = null;
+    unmountRegistroChecklist();
     _updateChecklistSummary();
     return;
   }
   const equip = findEquip(equipId);
   if (!equip) {
     wrapper.hidden = true;
+    unmountRegistroChecklist();
     return;
   }
 
@@ -720,31 +763,7 @@ export function renderChecklist() {
   wrapper.hidden = false;
   _refreshChecklistPriBadge();
 
-  const snapshotMap = new Map((_currentChecklist.items || []).map((i) => [i.id, i]));
-  // Agrupa por `group` preservando ordem natural do template
-  const groupsOrder = [];
-  const groupBuckets = new Map();
-  tpl.items.forEach((item) => {
-    if (!groupBuckets.has(item.group)) {
-      groupsOrder.push(item.group);
-      groupBuckets.set(item.group, []);
-    }
-    groupBuckets.get(item.group).push(item);
-  });
-
-  body.innerHTML = `
-    <div class="r-checklist__intro">
-      <strong>${Utils.escapeHtml(tpl.label)}</strong>
-      <span class="r-checklist__legend">
-        <span class="r-checklist__legend-item">✓ conforme</span>
-        <span class="r-checklist__legend-item">✗ não-conforme</span>
-        <span class="r-checklist__legend-item">⊘ N/A</span>
-      </span>
-    </div>
-    ${groupsOrder
-      .map((g) => _renderChecklistGroupHtml(g, groupBuckets.get(g), snapshotMap))
-      .join('')}
-  `;
+  mountRegistroChecklist(tpl);
 
   _updateChecklistSummary();
 }
@@ -812,7 +831,8 @@ export function getCurrentChecklist() {
 export function resetChecklist() {
   _currentChecklist = null;
   const body = document.getElementById('r-checklist-body');
-  if (body) body.innerHTML = '';
+  unmountRegistroChecklist();
+  if (body) body.textContent = '';
   const wrapper = document.getElementById('r-checklist-details');
   if (wrapper) wrapper.hidden = true;
   _updateChecklistSummary();
