@@ -23,7 +23,7 @@ test.describe('CoolTrack PRO — fluxos críticos', () => {
   });
 
   test('usuário sem equipamentos vê empty state acolhedor em Equipamentos', async ({ page }) => {
-    await page.click('#nav-equipamentos');
+    await goToEquipamentos(page);
     await expect(page.locator('body')).toHaveAttribute('data-route', 'equipamentos');
 
     // Comportamento: CTA de equipamento está visível na rota. Usamos o
@@ -34,7 +34,7 @@ test.describe('CoolTrack PRO — fluxos críticos', () => {
   });
 
   test('abrir e fechar o modal "Novo equipamento" pela UI', async ({ page }) => {
-    await page.click('#nav-equipamentos');
+    await goToEquipamentos(page);
     await expect(page.locator('body')).toHaveAttribute('data-route', 'equipamentos');
 
     // Abre modal via CTA estável da rota equipamentos.
@@ -52,7 +52,7 @@ test.describe('CoolTrack PRO — fluxos críticos', () => {
   });
 
   test('back do navegador fecha modal quando aberto, sem navegar de rota', async ({ page }) => {
-    await page.click('#nav-equipamentos');
+    await goToEquipamentos(page);
     await expect(page.locator('body')).toHaveAttribute('data-route', 'equipamentos');
 
     await page.getByTestId('equipamentos-add-equipment').click();
@@ -69,3 +69,7 @@ test.describe('CoolTrack PRO — fluxos críticos', () => {
     await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
   });
 });
+
+async function goToEquipamentos(page) {
+  await page.getByRole('button', { name: /^Equipamentos$/ }).click();
+}
