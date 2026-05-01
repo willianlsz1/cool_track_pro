@@ -4,9 +4,9 @@ Data da prova: 2026-05-01.
 
 ## Objetivo
 
-Provar se a microfamilia CSS `orc-status-pill--*` esta viva, morta ou inconclusiva antes de qualquer remocao de CSS.
+Provar se a microfamilia CSS `orc-status-pill--*` estava viva, morta ou inconclusiva antes de qualquer remocao de CSS, e registrar a remocao cirurgica aplicada depois da prova.
 
-Escopo desta prova: documentacao apenas. Nenhum CSS foi removido.
+Escopo da prova original: documentacao apenas. Remocao aplicada em PR posterior: somente os seletores de classe `orc-status-pill--*` foram removidos de `src/assets/styles/redesign.css`; `.orc-status-pill` e `[data-status='...'] .orc-status-pill` foram preservados.
 
 ## Buscas executadas
 
@@ -35,11 +35,11 @@ git grep -n "ORCAMENTO_ACTIONS" src/react src/ui/viewModels src/__tests__ e2e do
 git grep -n "data-status" src/react src/ui src/__tests__ e2e docs
 ```
 
-## Definicoes CSS encontradas
+## Definicoes CSS encontradas antes da remocao
 
 Arquivo: `src/assets/styles/redesign.css`.
 
-Variantes da microfamilia:
+Variantes da microfamilia antes da remocao:
 
 | Variante                       | Linha aproximada | Seletor completo encontrado     |
 | ------------------------------ | ---------------: | ------------------------------- |
@@ -50,14 +50,36 @@ Variantes da microfamilia:
 | `orc-status-pill--recusado`    |              193 | `.orc-status-pill--recusado`    |
 | `orc-status-pill--expirado`    |              198 | `.orc-status-pill--expirado`    |
 
-As variantes estao agrupadas com seletores de atributo:
+As variantes estavam agrupadas com seletores de atributo:
 
 ```css
 .orc-status-pill--enviado,
 [data-status='enviado'] .orc-status-pill { ... }
 ```
 
-O mesmo padrao existe para `aprovado`, `visualizado`, `rascunho`, `recusado` e `expirado`.
+O mesmo padrao existia para `aprovado`, `visualizado`, `rascunho`, `recusado` e `expirado`.
+
+## Remocao aplicada
+
+Removidos de `src/assets/styles/redesign.css`:
+
+- `.orc-status-pill--enviado`
+- `.orc-status-pill--aprovado`
+- `.orc-status-pill--visualizado`
+- `.orc-status-pill--rascunho`
+- `.orc-status-pill--recusado`
+- `.orc-status-pill--expirado`
+
+Preservados:
+
+- `.orc-status-pill`
+- `.orc-status-pill::before`
+- `[data-status='enviado'] .orc-status-pill`
+- `[data-status='aprovado'] .orc-status-pill`
+- `[data-status='visualizado'] .orc-status-pill`
+- `[data-status='rascunho'] .orc-status-pill`
+- `[data-status='recusado'] .orc-status-pill`
+- `[data-status='expirado'] .orc-status-pill`
 
 Bases ainda vivas:
 
@@ -94,18 +116,20 @@ Nao foi encontrado card de orcamento com `data-status` envolvendo `.orc-status-p
 
 ## Resultado dos greps
 
-`git grep -n "orc-status-pill--"` encontrou:
+Antes da remocao, `git grep -n "orc-status-pill--"` encontrou:
 
 - documentos de inventario/plano;
 - definicoes em `src/assets/styles/redesign.css`;
 - nenhum uso em React, views, components, shell, viewModels, core, domain, tests ou E2E.
+
+Apos a remocao, `git grep -n "orc-status-pill--"` encontra apenas docs historicos/prova.
 
 `git grep -n "orc-status-pill"` encontrou:
 
 - `.orc-status-pill` base em CSS;
 - teste da ilha React;
 - `className="orc-status-pill"` em `OrcamentosPage.jsx`;
-- definicoes `orc-status-pill--*` em `redesign.css`;
+- antes da remocao, definicoes `orc-status-pill--*` em `redesign.css`;
 - nenhum uso das variantes como classes de produto.
 
 `git grep -n "status-pill"` encontrou outras familias nao relacionadas:
@@ -149,26 +173,26 @@ Observacoes:
 
 ## Classificacao
 
-| Classe                         | Classificacao             | Evidencia                                                         |
-| ------------------------------ | ------------------------- | ----------------------------------------------------------------- |
-| `orc-status-pill--enviado`     | Morta candidata a remocao | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
-| `orc-status-pill--aprovado`    | Morta candidata a remocao | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
-| `orc-status-pill--visualizado` | Morta candidata a remocao | Apenas definicao CSS/docs; status nem existe no view model atual. |
-| `orc-status-pill--rascunho`    | Morta candidata a remocao | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
-| `orc-status-pill--recusado`    | Morta candidata a remocao | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
-| `orc-status-pill--expirado`    | Morta candidata a remocao | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
+| Classe                         | Classificacao  | Evidencia                                                         |
+| ------------------------------ | -------------- | ----------------------------------------------------------------- |
+| `orc-status-pill--enviado`     | Morta removida | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
+| `orc-status-pill--aprovado`    | Morta removida | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
+| `orc-status-pill--visualizado` | Morta removida | Apenas definicao CSS/docs; status nem existe no view model atual. |
+| `orc-status-pill--rascunho`    | Morta removida | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
+| `orc-status-pill--recusado`    | Morta removida | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
+| `orc-status-pill--expirado`    | Morta removida | Apenas definicao CSS/docs; status vivo usa `statusMeta` inline.   |
 
-Classificacao da familia: morta candidata a remocao, com ressalva de remocao cirurgica.
+Classificacao da familia: morta, removida de forma cirurgica.
 
 ## Ressalvas
 
-- As variantes estao agrupadas no CSS com seletores `[data-status='...'] .orc-status-pill`.
+- As variantes estavam agrupadas no CSS com seletores `[data-status='...'] .orc-status-pill`.
 - Esta prova classifica apenas as classes `orc-status-pill--*`.
-- Remover o bloco inteiro alteraria tambem seletores por atributo; isso deve ser evitado sem prova propria.
+- Remover o bloco inteiro alteraria tambem seletores por atributo; isso foi evitado.
 - A classe base `.orc-status-pill` esta viva e nao deve ser removida.
 
 ## Decisao recomendada
 
-Proximo PR pode remover apenas os seletores de classe `orc-status-pill--*` de `src/assets/styles/redesign.css`, preservando os seletores `[data-status='...'] .orc-status-pill` e as regras base `.orc-status-pill`.
+Remocao aplicada: apenas os seletores de classe `orc-status-pill--*` foram removidos de `src/assets/styles/redesign.css`, preservando os seletores `[data-status='...'] .orc-status-pill` e as regras base `.orc-status-pill`.
 
-Antes da remocao, rodar um teste/E2E pequeno ou screenshot de Orcamentos com cards nos status `rascunho`, `enviado`, `aprovado`, `recusado` e `expirado`, confirmando que o visual continua vindo de `statusMeta` inline.
+Proxima decisao recomendada: provar uma nova microfamilia pequena, como `orc-timeline*`, antes de qualquer nova remocao.

@@ -295,8 +295,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e remover de forma cirurgica os seletores de classe `orc-status-pill--*`, ja provados mortos em `docs/migration/css-orc-status-pill-proof.md`.
+O proximo PR recomendado e provar uma nova microfamilia CSS pequena antes de qualquer nova remocao.
 
-Motivo: a prova confirmou que Orcamentos renderiza somente `.orc-status-pill` base e aplica cor/background por `ORCAMENTO_STATUS_META` inline. Nao ha uso real, `className`, `classList`, template string ou builder dinamico gerando `orc-status-pill--*`.
+Motivo: a remocao controlada de `orc-status-pill--*` ja foi aplicada em `src/assets/styles/redesign.css`, preservando `.orc-status-pill` e os seletores `[data-status='...'] .orc-status-pill`. A proxima etapa deve repetir o fluxo de prova antes de remover outra familia.
 
-Escopo recomendado: remover apenas os seletores `.orc-status-pill--enviado`, `.orc-status-pill--aprovado`, `.orc-status-pill--visualizado`, `.orc-status-pill--rascunho`, `.orc-status-pill--recusado` e `.orc-status-pill--expirado` de `src/assets/styles/redesign.css`, preservando `.orc-status-pill` base e os seletores `[data-status='...'] .orc-status-pill`. Validar Orcamentos com status `rascunho`, `enviado`, `aprovado`, `recusado` e `expirado` antes de concluir.
+Escopo recomendado: investigar `orc-timeline*` em PR documental pequeno, rodando greps diretos e buscas dinamicas, classificando como viva, morta ou inconclusiva. Nao remover CSS nesse proximo PR; manter Tailwind/preflight intactos.
