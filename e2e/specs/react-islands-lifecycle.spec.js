@@ -231,6 +231,29 @@ test.describe('React islands lifecycle', () => {
     await expect(root.locator('.dash__section-label')).toHaveCount(4);
   }
 
+  async function assertDashboardProDraftIsland(page) {
+    const root = page.locator('#dash-pro-ops-row');
+
+    await expect(root).toHaveCount(1);
+    await expect(root).toHaveClass(/dash__pair/);
+    await expect(root).toHaveAttribute('data-react-dashboard-pro-draft-mounted', 'true');
+    await expect(
+      page.locator('#dash-pro-ops-row[data-react-dashboard-pro-draft-mounted="true"]'),
+    ).toHaveCount(1);
+    await expect(root).toHaveAttribute('data-tier', /.+/);
+
+    await expect(page.locator('#dash-pro-draft-root')).toHaveCount(1);
+    await expect(page.locator('#dash-critical-alerts-card')).toHaveCount(1);
+    await expect(page.locator('#dash-risk-clients-card')).toHaveCount(1);
+    await expect(page.locator('#dash-critical-alerts-title')).toHaveCount(1);
+    await expect(page.locator('#dash-critical-alerts-sub')).toHaveCount(1);
+    await expect(page.locator('#dash-critical-alerts-list')).toHaveCount(1);
+    await expect(page.locator('#dash-risk-clients-title')).toHaveCount(1);
+    await expect(page.locator('#dash-risk-clients-sub')).toHaveCount(1);
+    await expect(page.locator('#dash-risk-clients-list')).toHaveCount(1);
+    await expect(root.locator('.dash__card')).toHaveCount(2);
+  }
+
   async function assertHistoricoTimelineIsland(page) {
     const timelineRoot = page.locator('#timeline');
     const marker = page.locator('#timeline[data-react-historico-timeline-mounted="true"]');
@@ -517,6 +540,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
       await assertDashboardMonthSummaryIsland(page);
+      await assertDashboardProDraftIsland(page);
       await assertDashboardReadOnlyBlocksIsland(page);
 
       await page.click('#sidenav-clientes');
@@ -530,6 +554,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
       await assertDashboardMonthSummaryIsland(page);
+      await assertDashboardProDraftIsland(page);
       await assertDashboardReadOnlyBlocksIsland(page);
     });
   });

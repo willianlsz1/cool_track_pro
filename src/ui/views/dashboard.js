@@ -56,7 +56,7 @@ import {
   buildDashboardViewModel,
   selectNextDashboardAction,
 } from '../viewModels/dashboardViewModel.js';
-import { DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
+import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
 
 let dashboardHeroBridgePromise = null;
 let dashboardHeroBridge = null;
@@ -70,6 +70,8 @@ let dashboardMonthSummaryBridgePromise = null;
 let dashboardMonthSummaryBridge = null;
 let dashboardReadOnlyBlocksBridgePromise = null;
 let dashboardReadOnlyBlocksBridge = null;
+let dashboardProDraftBridgePromise = null;
+let dashboardProDraftBridge = null;
 
 function loadDashboardHeroBridge() {
   dashboardHeroBridgePromise ??= import('../../react/entrypoints/dashboardHeroIsland.jsx').then(
@@ -154,6 +156,23 @@ function getDashboardReadOnlyBlocksRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.readOnlyBlocksRoot);
 }
 
+function loadDashboardProDraftBridge() {
+  dashboardProDraftBridgePromise ??=
+    import('../../react/entrypoints/dashboardProDraftIsland.jsx').then((bridge) => {
+      dashboardProDraftBridge = bridge;
+      return bridge;
+    });
+  return dashboardProDraftBridgePromise;
+}
+
+function getDashboardProDraftRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.proOpsRow);
+}
+
+function getDashboardProDraftPortalRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.proDraftRoot);
+}
+
 export function unmountDashboardHero(root = getDashboardHeroRoot()) {
   if (!root) return undefined;
   if (dashboardHeroBridge?.unmountDashboardHeroReact) {
@@ -217,6 +236,17 @@ export function unmountDashboardReadOnlyBlocks(root = getDashboardReadOnlyBlocks
   }
   return loadDashboardReadOnlyBlocksBridge().then(({ unmountDashboardReadOnlyBlocksReact }) => {
     unmountDashboardReadOnlyBlocksReact(root);
+  });
+}
+
+export function unmountDashboardProDraft(root = getDashboardProDraftRoot()) {
+  if (!root) return undefined;
+  if (dashboardProDraftBridge?.unmountDashboardProDraftReact) {
+    dashboardProDraftBridge.unmountDashboardProDraftReact(root);
+    return undefined;
+  }
+  return loadDashboardProDraftBridge().then(({ unmountDashboardProDraftReact }) => {
+    unmountDashboardProDraftReact(root);
   });
 }
 
@@ -775,6 +805,129 @@ function _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, aler
 // ═══════════════════════════════════════════════════════
 // Seções secundárias (critical-now, alertas-mini, criticos, recentes)
 // ═══════════════════════════════════════════════════════
+function _buildContinueDraftModel({ equipamentos = [], registros = [] }) {
+  let editingId = null;
+  try {
+    editingId = sessionStorage.getItem('cooltrack-editing-id');
+  } catch (_e) {
+    /* sessionStorage indisponivel */
+  }
+  if (!editingId) return null;
+
+  const reg = (registros || []).find((r) => r.id === editingId);
+  const eq = reg?.equipId ? (equipamentos || []).find((e) => e.id === reg.equipId) : null;
+
+  return {
+    visible: true,
+    id: editingId,
+    isEdit: Boolean(reg),
+    equipmentName: eq?.nome || '',
+    nav: 'registro',
+  };
+}
+
+function _buildProDraftModel({
+  tier,
+  isEmpresaPro,
+  clientes,
+  equipamentos,
+  registros,
+  alerts,
+  setores,
+}) {
+  const criticalAlerts = (alerts || [])
+    .filter(
+      (alert) =>
+        ['critical', 'overdue', 'attention'].includes(alert.kind) || alert.severity === 'danger',
+    )
+    .slice(0, 3);
+  const critical = criticalAlerts.length
+    ? {
+        label: 'Alertas críticos',
+        title: 'Alertas críticos',
+        subtitle: `${criticalAlerts.length} itens exigem ação`,
+        actions: criticalAlerts.map((alert) => {
+          const equip = alert.eq;
+          const context = _composeEquipmentContext({
+            equipamento: equip,
+            clientes,
+            includeBusinessContext: true,
+          });
+          return {
+            label: `${alert.title} · ${context} · Resolver`,
+            action: DASHBOARD_ACTIONS.goRegisterEquip,
+            id: equip?.id || '',
+          };
+        }),
+      }
+    : {
+        label: 'Alertas críticos',
+        title: 'Tudo sob controle',
+        subtitle: 'Sem alertas críticos agora.',
+        actions: [],
+      };
+
+  const riscoClientes = (clientes || [])
+    .map((cliente) => {
+      const summary = buildClientePmocDetails({
+        cliente,
+        equipamentos,
+        registros,
+        setores,
+      });
+      return { cliente, summary };
+    })
+    .filter(({ summary }) => summary?.status === 'atrasado' || summary?.status === 'atencao')
+    .slice(0, 3);
+  const riskClients = riscoClientes.length
+    ? {
+        label: 'Clientes em risco',
+        title: 'Clientes em risco',
+        subtitle: `${riscoClientes.length} clientes exigem atenção`,
+        actions: riscoClientes.map(({ cliente, summary }) => ({
+          label: `${cliente?.nome || 'Cliente'} · ${summary.statusLabel} · Ver cliente`,
+          nav: 'clientes',
+        })),
+      }
+    : {
+        label: 'Clientes em risco',
+        title: 'Clientes em dia',
+        subtitle: 'Nenhum cliente exige atenção agora.',
+        actions: [],
+      };
+
+  return {
+    tier,
+    proCards: {
+      visible: Boolean(isEmpresaPro),
+      upgradeCta: isEmpresaPro
+        ? null
+        : {
+            label: 'Conhecer Pro',
+            nav: 'pricing',
+          },
+      critical,
+      riskClients,
+    },
+    draft: _buildContinueDraftModel({ equipamentos, registros }),
+  };
+}
+
+function _renderProDraftBlocks({ proDraft }) {
+  const root = getDashboardProDraftRoot();
+  const draftRoot = getDashboardProDraftPortalRoot();
+  if (!root || !proDraft) return Promise.resolve();
+
+  if (dashboardProDraftBridge?.mountDashboardProDraftReact) {
+    dashboardProDraftBridge.mountDashboardProDraftReact(root, { proDraft, draftRoot });
+    return Promise.resolve();
+  }
+
+  return loadDashboardProDraftBridge().then(({ mountDashboardProDraftReact }) => {
+    mountDashboardProDraftReact(root, { proDraft, draftRoot });
+  });
+}
+
 function _buildCriticalNowBlock(equipamentos) {
   if (!equipamentos.length) {
     return { visible: false, count: 0, groups: [] };
@@ -1266,6 +1419,15 @@ export async function renderDashboard() {
     const tier = _planTier(planContext.planCode);
     const navigationMode = getNavigationMode();
     const isEmpresaPro = planContext.hasPro && navigationMode === NAV_MODE_EMPRESA;
+    const proDraft = _buildProDraftModel({
+      tier,
+      isEmpresaPro,
+      clientes,
+      equipamentos,
+      registros,
+      alerts,
+      setores,
+    });
     let dashboardReadModel = _buildDashboardReadModel({
       equipamentos,
       registros,
@@ -1283,8 +1445,6 @@ export async function renderDashboard() {
     // ─── Continue card (UX V2 audit fix) ──────────────────────────────
     // Se ha rascunho de registro em sessionStorage, mostra card sticky no
     // topo "Continuar registro de [Equipamento]" pra resgatar o flow.
-    _renderContinueDraftCard(equipamentos);
-
     // Onboarding checklist: card "Primeiros passos" aparece no topo do
     // painel até o usuário completar 5/5 ou dispensar. Auto-detecta cliente,
     // equipamento e serviço via getState(). Relatório e PDF requerem hooks
@@ -1347,7 +1507,7 @@ export async function renderDashboard() {
     await _renderNextActionCard({ viewModel: dashboardReadModel });
     await _renderLastServiceCard({ viewModel: dashboardReadModel });
     await _renderMonthView({ viewModel: dashboardReadModel });
-    _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
+    await _renderProDraftBlocks({ proDraft });
 
     // Seções secundárias read-only
     await _renderReadOnlyBlocks({

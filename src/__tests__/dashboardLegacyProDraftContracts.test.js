@@ -14,7 +14,9 @@ function buildDashboardDom() {
       <section class="dash dash--quick" id="dash" data-tier="free" data-tone="ok">
         <article class="dash__hero dash__hero--quick" id="dash-hero" data-tone="ok"></article>
         <div id="dash-empty" class="dash__empty" hidden></div>
-        <div id="dash-onboarding"></div>
+        <div id="dash-onboarding">
+          <div id="dash-pro-draft-root" style="display: contents;"></div>
+        </div>
         <div id="dash-overflow-banner"></div>
         <section class="dash__kpi-grid" id="dash-kpis-root"></section>
         <article class="dash__card dash__card--next-action" id="dash-next-action-card"></article>
@@ -297,7 +299,7 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
         true,
       );
       expect(byId(DASHBOARD_PUBLIC_IDS.root)?.getAttribute('data-tier')).toBe(planCode);
-      expect(document.querySelector('[data-nav="pricing"]')).toBeNull();
+      expect(document.querySelector('[data-nav="pricing"]')?.hasAttribute('hidden')).toBe(true);
     }
   });
 
@@ -376,6 +378,7 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     expect(document.querySelector('.dash__continue-card')).toBeNull();
 
     sessionStorage.setItem('cooltrack-editing-id', 'reg-draft');
+    document.body.innerHTML = buildDashboardDom();
     ({ renderDashboard } = await setupDashboardModule({ state }));
 
     await renderDashboard();
@@ -395,11 +398,12 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     assertNoUnsafeHtml(card);
   });
 
-  it('documents current legacy contracts without adding a Pro/draft React island', () => {
+  it('documents current adapter contracts with Pro/draft React island mounted outside dashboard.js', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
       proOpsRow: 'dash-pro-ops-row',
+      proDraftRoot: 'dash-pro-draft-root',
       criticalAlertsCard: 'dash-critical-alerts-card',
       criticalAlertsTitle: 'dash-critical-alerts-title',
       criticalAlertsSubtitle: 'dash-critical-alerts-sub',
@@ -430,11 +434,8 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     expect(DASHBOARD_DATA_ATTRIBUTES).toEqual(
       expect.arrayContaining(['data-action', 'data-id', 'data-nav', 'data-tier']),
     );
-    expect(dashboardSource).toContain('function _renderProCards');
-    expect(dashboardSource).toContain('function _renderContinueDraftCard');
-    expect(dashboardSource).not.toMatch(
-      /dashboard(Pro|Draft).*Island|mountDashboard(Pro|Draft).*React/,
-    );
+    expect(dashboardSource).toContain('../../react/entrypoints/dashboardProDraftIsland.jsx');
+    expect(dashboardSource).toContain('mountDashboardProDraftReact');
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot/);
   });
 });

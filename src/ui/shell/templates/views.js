@@ -20,7 +20,9 @@ export function renderShellViews() {
             </article>
 
             <div id="dash-empty" class="dash__empty" hidden></div>
-            <div id="dash-onboarding"></div>
+            <div id="dash-onboarding">
+              <div id="dash-pro-draft-root" style="display: contents;"></div>
+            </div>
             <div id="dash-overflow-banner"></div>
 
             <section class="dash__kpi-grid" id="dash-kpis-root" aria-label="Indicadores principais">
