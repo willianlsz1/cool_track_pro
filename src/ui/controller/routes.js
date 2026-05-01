@@ -19,6 +19,7 @@ import {
   loadRegistroForEdit,
   unmountRegistroHeader,
   unmountRegistroChecklist,
+  unmountRegistroPhotos,
 } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
 import { renderClientes, setClientesSearch, unmountClientes } from '../views/clientes.js';
@@ -76,6 +77,7 @@ export function registerAppRoutes() {
     () => {
       unmountRegistroHeader();
       unmountRegistroChecklist();
+      unmountRegistroPhotos();
     },
   );
 

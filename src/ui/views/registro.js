@@ -699,6 +699,10 @@ export function unmountRegistroChecklist() {
   });
 }
 
+export function unmountRegistroPhotos() {
+  return Photos.unmount?.();
+}
+
 function _updateChecklistSummary() {
   const summaryEl = document.getElementById('r-checklist-summary');
   if (!summaryEl) return;
@@ -917,6 +921,7 @@ export function initRegistro(params = {}) {
       _syncTipoCustomVisibility();
       _updateProgressBar();
       _renderHeroSub();
+      Photos.render?.();
 
       // Data padrão "Hoje agora" — UX V2 audit fix
       if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());

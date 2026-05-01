@@ -1,7 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Photos } from '../ui/components/photos.js';
 import { renderShellViews } from '../ui/shell/templates/views.js';
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const mocks = vi.hoisted(() => ({
   storageUsage: vi.fn(() => ({ percent: 0 })),
@@ -36,6 +39,22 @@ function setupRegistroPhotosDom() {
   `;
 }
 
+async function flushAsyncWork() {
+  if (typeof vi.dynamicImportSettled === 'function') {
+    await vi.dynamicImportSettled();
+  }
+  for (let i = 0; i < 5; i += 1) {
+    await Promise.resolve();
+  }
+}
+
+async function renderPhotos() {
+  await act(async () => {
+    Photos.render();
+    await flushAsyncWork();
+  });
+}
+
 function expectNoUnsafeMarkup(root) {
   expect(root.querySelector('script')).toBeNull();
   expect(root.querySelector('[onclick]')).toBeNull();
@@ -60,8 +79,14 @@ describe('registro legacy photos render adapter', () => {
     Photos.pending = [];
   });
 
-  it('preserva bloco vazio de fotos/anexos com ids, classes e inputs publicos', () => {
-    Photos.render();
+  afterEach(async () => {
+    await act(async () => {
+      await Photos.unmount?.();
+    });
+  });
+
+  it('preserva bloco vazio de fotos/anexos com ids, classes e inputs publicos', async () => {
+    await renderPhotos();
 
     const dropZone = document.getElementById('photo-drop-zone');
     const dropText = document.getElementById('photo-drop-text');
@@ -86,10 +111,10 @@ describe('registro legacy photos render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('renderiza previews seguros preservando contratos de abrir/remover sem executar fluxos', () => {
+  it('renderiza previews seguros preservando contratos de abrir/remover sem executar fluxos', async () => {
     Photos.pending = [SAFE_JPEG, SAFE_PNG];
 
-    Photos.render();
+    await renderPhotos();
 
     const preview = document.getElementById('photo-preview');
     const cards = preview.querySelectorAll('.photo-thumb');
@@ -110,7 +135,7 @@ describe('registro legacy photos render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('bloqueia URLs inseguras e payloads HTML sem renderizar preview clicavel', () => {
+  it('bloqueia URLs inseguras e payloads HTML sem renderizar preview clicavel', async () => {
     Photos.pending = [
       'javascript:alert(1)',
       `data:text/html,${MALICIOUS}`,
@@ -118,7 +143,7 @@ describe('registro legacy photos render adapter', () => {
       SAFE_JPEG,
     ];
 
-    Photos.render();
+    await renderPhotos();
     Photos.openLightbox('javascript:alert(2)');
 
     const preview = document.getElementById('photo-preview');

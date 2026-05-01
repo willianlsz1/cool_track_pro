@@ -6,28 +6,51 @@
 import { Utils, MAX_PHOTOS_PER_RECORD, MAX_PHOTO_WIDTH, PHOTO_QUALITY } from '../../core/utils.js';
 import { Toast } from '../../core/toast.js';
 import { Storage } from '../../core/storage.js';
+import {
+  REGISTRO_PHOTOS_DEFAULT_DROP_TEXT,
+  REGISTRO_PHOTOS_ROOT_ID,
+  isSafeRegistroPhotoSrc,
+} from '../viewModels/registroPhotosModel.js';
 
-const REGISTRO_PHOTO_ACTIONS = Object.freeze({
-  open: 'registro-photo-open',
-  remove: 'registro-photo-remove',
-});
+let _registroPhotosBridgePromise = null;
+let _registroPhotosBridge = null;
+let _registroPhotosRenderGeneration = 0;
 
-function isSafePhotoSrc(src) {
-  const value = String(src || '').trim();
-  if (!value || /[<>"'\s]/.test(value)) return false;
-  if (/^data:image\/(?:jpe?g|png|webp|gif);base64,[a-z0-9+/=]+$/i.test(value)) return true;
-  if (/^blob:/i.test(value)) return true;
-
-  try {
-    const base =
-      typeof window !== 'undefined' && window.location?.origin
-        ? window.location.origin
-        : 'http://localhost';
-    const url = new URL(value, base);
-    return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch (_error) {
-    return false;
+function loadRegistroPhotosBridge() {
+  if (_registroPhotosBridge) return Promise.resolve(_registroPhotosBridge);
+  if (!_registroPhotosBridgePromise) {
+    _registroPhotosBridgePromise = import('../../react/entrypoints/registroPhotosIsland.jsx').then(
+      (mod) => {
+        _registroPhotosBridge = mod;
+        return mod;
+      },
+    );
   }
+  return _registroPhotosBridgePromise;
+}
+
+function ensureRegistroPhotosRoot() {
+  let root = Utils.getEl(REGISTRO_PHOTOS_ROOT_ID);
+  if (root) return root;
+
+  const dropZone = Utils.getEl('photo-drop-zone');
+  const preview = Utils.getEl('photo-preview');
+  if (!dropZone?.parentNode || !preview) return null;
+
+  root = document.createElement('div');
+  root.id = REGISTRO_PHOTOS_ROOT_ID;
+  root.style.display = 'contents';
+  dropZone.parentNode.insertBefore(root, dropZone);
+
+  let node = dropZone;
+  while (node) {
+    const next = node.nextSibling;
+    root.appendChild(node);
+    if (node === preview) break;
+    node = next;
+  }
+
+  return root;
 }
 
 function compressImage(file) {
@@ -76,6 +99,8 @@ function compressImage(file) {
 
 export const Photos = {
   pending: [],
+  _dropText: REGISTRO_PHOTOS_DEFAULT_DROP_TEXT,
+  _dropDisabled: false,
 
   async add(input) {
     const files = Array.from(input.files || []);
@@ -95,10 +120,9 @@ export const Photos = {
       );
     }
 
-    const dropText = Utils.getEl('photo-drop-text');
-    const dropZone = Utils.getEl('photo-drop-zone');
-    if (dropZone) dropZone.style.pointerEvents = 'none';
-    if (dropText) dropText.textContent = `Processando ${toProcess.length} foto(s)...`;
+    this._dropDisabled = true;
+    this._dropText = `Processando ${toProcess.length} foto(s)...`;
+    this.render();
 
     try {
       for (const file of toProcess) {
@@ -110,9 +134,10 @@ export const Photos = {
         }
       }
     } finally {
-      if (dropText) dropText.textContent = 'Toque para adicionar fotos';
-      if (dropZone) dropZone.style.pointerEvents = 'auto';
+      this._dropDisabled = false;
+      this._dropText = REGISTRO_PHOTOS_DEFAULT_DROP_TEXT;
       input.value = '';
+      this.render();
     }
 
     // Aviso de storage após adicionar fotos
@@ -131,11 +156,13 @@ export const Photos = {
 
   clear() {
     this.pending = [];
+    this._dropDisabled = false;
+    this._dropText = REGISTRO_PHOTOS_DEFAULT_DROP_TEXT;
     this.render();
   },
 
   openLightbox(src) {
-    if (!isSafePhotoSrc(src)) return;
+    if (!isSafeRegistroPhotoSrc(src)) return;
     const lightboxImg = Utils.getEl('lightbox-img');
     const lightbox = Utils.getEl('lightbox');
     if (!lightboxImg || !lightbox) return;
@@ -144,48 +171,51 @@ export const Photos = {
   },
 
   closeLightbox() {
-    Utils.getEl('lightbox').classList.remove('is-open');
+    Utils.getEl('lightbox')?.classList.remove('is-open');
   },
 
   render() {
-    const c = Utils.getEl('photo-preview');
-    if (!c) return;
-    c.innerHTML = '';
+    if (typeof document === 'undefined') return null;
 
-    const f = document.createDocumentFragment();
-    const safePhotos = this.pending
-      .map((src, index) => ({ index, src: String(src || '').trim() }))
-      .filter(({ src }) => isSafePhotoSrc(src));
-    safePhotos.forEach(({ src, index }, displayIndex) => {
-      const card = document.createElement('div');
-      card.className = 'photo-thumb';
-      card.setAttribute('role', 'listitem');
+    const root = ensureRegistroPhotosRoot();
+    if (!root) return null;
 
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = `Foto ${displayIndex + 1}`;
-      img.dataset.rAction = REGISTRO_PHOTO_ACTIONS.open;
-      img.dataset.photoIndex = String(index);
-      img.addEventListener('click', () => this.openLightbox(src));
+    const renderGeneration = (_registroPhotosRenderGeneration += 1);
+    const props = {
+      photos: this.pending,
+      dropText: this._dropText,
+      dropDisabled: this._dropDisabled,
+      onAddPhotos: (input) => this.add(input),
+      onOpenPhoto: (src) => this.openLightbox(src),
+      onRemovePhoto: (index) => this.remove(index),
+    };
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'photo-thumb__remove';
-      btn.textContent = '✕';
-      btn.dataset.rAction = REGISTRO_PHOTO_ACTIONS.remove;
-      btn.dataset.photoIndex = String(index);
-      btn.setAttribute('aria-label', `Remover foto ${displayIndex + 1}`);
-      btn.addEventListener('click', () => this.remove(index));
+    const mountWithBridge = (bridge) => {
+      if (renderGeneration !== _registroPhotosRenderGeneration) return null;
+      return bridge.mountRegistroPhotosReact(root, props);
+    };
 
-      card.append(img, btn);
-      f.appendChild(card);
-    });
-    c.appendChild(f);
-
-    // Contador de fotos
-    const counter = c.parentElement?.querySelector('.photo-counter');
-    if (counter) {
-      counter.textContent = `${this.pending.length}/${MAX_PHOTOS_PER_RECORD} fotos`;
+    if (_registroPhotosBridge?.mountRegistroPhotosReact) {
+      return mountWithBridge(_registroPhotosBridge);
     }
+
+    return loadRegistroPhotosBridge().then(mountWithBridge);
+  },
+
+  unmount() {
+    _registroPhotosRenderGeneration += 1;
+    if (typeof document === 'undefined') return null;
+
+    const root = Utils.getEl(REGISTRO_PHOTOS_ROOT_ID);
+    if (!root?.dataset.reactRegistroPhotosMounted) return null;
+
+    if (_registroPhotosBridge?.unmountRegistroPhotosReact) {
+      _registroPhotosBridge.unmountRegistroPhotosReact(root);
+      return null;
+    }
+
+    return loadRegistroPhotosBridge().then((bridge) => {
+      bridge.unmountRegistroPhotosReact?.(root);
+    });
   },
 };
