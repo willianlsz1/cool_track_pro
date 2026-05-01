@@ -1,15 +1,3 @@
-/**
- * CoolTrack Pro - Relatório View v6.0 (redesign)
- * Funções: renderRelatorio, populateRelatorioSelects
- *
- * Arquitetura:
- *  - Hero summary com 4 KPIs (Registros, Custo Total, Tipo mais comum, Próx. vencimento)
- *  - Filtro em chips + disclosure "Mais filtros" (form legado preservado embaixo)
- *  - Cards expansíveis com cabeçalho compacto (tipo+ícone+status) e disclosure p/ detalhes
- *  - Preview de assinatura inline (reaproveita SignatureViewerModal / getSignatureForRecord)
- *  - Segmentado "Compacto / Detalhado" persistido em localStorage
- */
-
 import { Utils } from '../../core/utils.js';
 import { getState, findEquip } from '../../core/state.js';
 import { getCachedPlan } from '../../core/plans/planCache.js';
@@ -46,6 +34,9 @@ let relatorioHeroRenderGeneration = 0;
 let relatorioControlsBridgePromise = null;
 let relatorioControlsBridge = null;
 let relatorioControlsRenderGeneration = 0;
+let relatorioCardsBridgePromise = null;
+let relatorioCardsBridge = null;
+let relatorioCardsRenderGeneration = 0;
 let lastRelatorioFilters = {
   equipId: '',
   de: '',
@@ -108,6 +99,22 @@ function loadRelatorioControlsBridge() {
   return relatorioControlsBridgePromise;
 }
 
+function loadRelatorioCardsBridge() {
+  if (relatorioCardsBridge) return Promise.resolve(relatorioCardsBridge);
+  if (!relatorioCardsBridgePromise) {
+    relatorioCardsBridgePromise = import('../../react/entrypoints/relatorioCardsIsland.jsx')
+      .then((bridge) => {
+        relatorioCardsBridge = bridge;
+        return bridge;
+      })
+      .catch((error) => {
+        relatorioCardsBridgePromise = null;
+        throw error;
+      });
+  }
+  return relatorioCardsBridgePromise;
+}
+
 export function unmountRelatorioHero() {
   relatorioHeroRenderGeneration += 1;
   if (typeof document === 'undefined') return null;
@@ -140,6 +147,23 @@ export function unmountRelatorioControls() {
 
   return loadRelatorioControlsBridge().then((bridge) => {
     bridge.unmountRelatorioControlsReact?.(root);
+  });
+}
+
+export function unmountRelatorioCards() {
+  relatorioCardsRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById('relatorio-corpo');
+  if (!root?.dataset.reactRelatorioCardsMounted) return null;
+
+  if (relatorioCardsBridge?.unmountRelatorioCardsReact) {
+    relatorioCardsBridge.unmountRelatorioCardsReact(root);
+    return null;
+  }
+
+  return loadRelatorioCardsBridge().then((bridge) => {
+    bridge.unmountRelatorioCardsReact?.(root);
   });
 }
 
@@ -209,13 +233,6 @@ const REL_STATUS_LABEL = {
   warn: 'Atenção',
   danger: 'Crítico',
 };
-
-// Banner de corretivas: só aparece quando o volume é relevante. 2 registros
-// é o mínimo absoluto pra falar em "recorrência", e 30% evita que 3 corretivas
-// num relatório de 100 registros apareça como alarme — nesse caso é ruído.
-// Próximas ações: janela de 14 dias pra frente + qualquer coisa vencida.
-// Empírico — acima disso o leitor já não trata como "próxima" e o bloco vira
-// lista longa sem urgência.
 
 // ──────────────────────────────────────────────────────────────────────
 // View mode persistence
@@ -404,6 +421,136 @@ function buildRelatorioControlsReactViewModel({
   };
 }
 
+function buildRelatorioCardsReactViewModel({
+  list,
+  viewMode,
+  hoje,
+  singleEquipFilter,
+  expandedIds,
+  showCorretivasBanner,
+  corretivasCount,
+  proximasAcoes,
+}) {
+  return {
+    today: hoje,
+    viewMode,
+    isEmpty: !list.length,
+    showCorretivasBanner,
+    corretivasBanner: showCorretivasBanner
+      ? {
+          count: corretivasCount,
+          total: list.length,
+          pct: list.length > 0 ? Math.round((corretivasCount / list.length) * 100) : 0,
+        }
+      : null,
+    proximasAcoes: proximasAcoes.map((item) => ({
+      equipNome: item.equipNome,
+      dateText: Utils.formatDate(item.proximaIso),
+      tone: item.tone,
+      label: item.label,
+    })),
+    records: list.map((r) =>
+      buildRelatorioRecordReactViewModel({
+        r,
+        eq: findEquip(r.equipId),
+        expanded: expandedIds.has(r.id),
+        singleEquipFilter,
+      }),
+    ),
+  };
+}
+
+function buildRelatorioRecordReactViewModel({ r, eq, expanded, singleEquipFilter }) {
+  const tipoMeta = TIPO_META[r.tipo] || DEFAULT_TIPO_META;
+  const safeStatus = Utils.safeStatus(r.status);
+  const statusTone = STATUS_TONE[safeStatus] || 'ok';
+
+  const custoPecas = parseFloat(r.custoPecas) || 0;
+  const custoMao = parseFloat(r.custoMaoObra) || 0;
+  const custoTotal = custoPecas + custoMao;
+  const isCostZero = custoTotal <= 0;
+
+  const nProx = r.proxima ? Utils.daysUntil(r.proxima) : null;
+  const proxTone = nProx == null ? null : nProx < 0 ? 'red' : nProx <= 7 ? 'gold' : 'default';
+
+  const equipNome = eq?.nome || r.equipNome || '—';
+  const equipTag = eq?.tag || '—';
+  const equipLocal = eq?.local || '—';
+  const equipFluido = eq?.fluido || '—';
+  const equipCriticidade = CRITICIDADE_LABEL[eq?.criticidade] || CRITICIDADE_LABEL.media;
+  const equipPrioridade =
+    PRIORIDADE_OPERACIONAL_LABEL[eq?.prioridadeOperacional] || PRIORIDADE_OPERACIONAL_LABEL.normal;
+  const equipRotina = eq?.periodicidadePreventivaDias
+    ? `${eq.periodicidadePreventivaDias} dias`
+    : '—';
+  const dadosPlacaRows = formatDadosPlacaRows(eq?.dadosPlaca);
+
+  const equipmentSpecs = [
+    { label: 'Equipamento', value: equipNome },
+    { label: 'TAG', value: equipTag, mono: true },
+    { label: 'Local', value: equipLocal },
+    { label: 'Fluido', value: equipFluido },
+    { label: 'Criticidade', value: equipCriticidade },
+    { label: 'Prior. operacional', value: equipPrioridade },
+    { label: 'Rotina', value: equipRotina },
+    ...dadosPlacaRows.map((row) => ({
+      label: row.label,
+      value: row.value,
+      mono: Boolean(row.mono),
+    })),
+  ];
+
+  return {
+    id: r.id,
+    title: r.tipo || 'Outro',
+    tipoTone: tipoMeta.tone,
+    tipoIcon: tipoMeta.icon,
+    statusTone,
+    statusLabel: REL_STATUS_LABEL[statusTone] || REL_STATUS_LABEL.ok,
+    dateText: Utils.fmtDateTimeShort(r.data),
+    relativeText: Utils.getRelativeTime(r.data),
+    singleEquipFilter,
+    equipName: equipNome,
+    equipTag,
+    technician: r.tecnico || '—',
+    cost: isCostZero
+      ? null
+      : {
+          totalText: Utils.fmtBRL(custoTotal),
+          partsText: Utils.fmtBRL(custoPecas),
+          laborText: Utils.fmtBRL(custoMao),
+        },
+    signature: buildRelatorioSignatureReactViewModel(r),
+    equipmentSpecs,
+    pecas: r.pecas || '',
+    proxima: r.proxima
+      ? {
+          dateText: Utils.formatDate(r.proxima),
+          tone: proxTone,
+          label: Utils.fmtDueRelative(r.proxima),
+        }
+      : null,
+    obs: r.obs || '',
+    expanded,
+  };
+}
+
+function buildRelatorioSignatureReactViewModel(registro) {
+  if (!registro?.assinatura) {
+    return { state: 'none' };
+  }
+  const dataUrl = getSafeSignatureUrl(getSignatureForRecord(registro.id));
+  if (!dataUrl) {
+    return { state: 'unavailable' };
+  }
+  return {
+    state: 'available',
+    recordId: registro.id,
+    clienteNome: registro.clienteNome?.trim() || 'cliente',
+    dataUrl,
+  };
+}
+
 function mountRelatorioHero({ root, hero }) {
   if (!root) return null;
   root.classList.add('rel-hero');
@@ -435,6 +582,22 @@ function mountRelatorioControls({ root, controls }) {
   }
 
   return loadRelatorioControlsBridge().then(mountWithBridge);
+}
+
+function mountRelatorioCards({ root, cards }) {
+  if (!root) return null;
+  const renderGeneration = (relatorioCardsRenderGeneration += 1);
+
+  const mountWithBridge = (bridge) => {
+    if (renderGeneration !== relatorioCardsRenderGeneration) return null;
+    return bridge.mountRelatorioCardsReact(root, { cards });
+  };
+
+  if (relatorioCardsBridge?.mountRelatorioCardsReact) {
+    return mountWithBridge(relatorioCardsBridge);
+  }
+
+  return loadRelatorioCardsBridge().then(mountWithBridge);
 }
 
 function renderModeSegment({ isPro, context }) {
@@ -472,50 +635,6 @@ function renderCompanyPmocBlock({ isPro, hasPmocAttention }) {
             ? '<button type="button" class="btn btn--ghost btn--sm" data-nav="clientes">Ver pendências</button>'
             : ''
         }
-      </div>
-    </section>
-  `;
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// Próximas ações & banner de corretivas (inseridos entre hero e records)
-// ──────────────────────────────────────────────────────────────────────
-function renderProximasAcoes(items) {
-  if (!items.length) return '';
-  const listHtml = items
-    .map((item) => {
-      const dtDisplay = Utils.formatDate(item.proximaIso);
-      return `
-        <li class="rel-proximas__item">
-          <span class="rel-proximas__equip" title="${Utils.escapeAttr(item.equipNome)}">${Utils.escapeHtml(item.equipNome)}</span>
-          <span class="rel-proximas__date">${Utils.escapeHtml(dtDisplay)}</span>
-          <span class="rel-proximas__label rel-proximas__label--${item.tone}">${Utils.escapeHtml(item.label)}</span>
-        </li>`;
-    })
-    .join('');
-
-  return `
-    <section class="rel-próximas" aria-labelledby="rel-próximas-title">
-      <header class="rel-proximas__head">
-        <span class="rel-proximas__icon" aria-hidden="true">${icon('calendarClock', 14)}</span>
-        <h3 id="rel-proximas-title" class="rel-proximas__title">Próximas ações recomendadas</h3>
-        <span class="rel-proximas__count" aria-hidden="true">${items.length}</span>
-      </header>
-      <ul class="rel-proximas__list" role="list">
-        ${listHtml}
-      </ul>
-    </section>
-  `;
-}
-
-function renderCorretivasBanner(count, total) {
-  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-  return `
-    <section class="rel-corretivas-banner" role="status" aria-live="polite">
-      <span class="rel-corretivas-banner__icon" aria-hidden="true">${icon('wrench', 18)}</span>
-      <div class="rel-corretivas-banner__text">
-        <strong>${count} ${count === 1 ? 'corretiva' : 'corretivas'} no período (${pct}%)</strong>
-        <span>Volume alto de corretivas pode indicar oportunidade de reforçar o plano preventivo.</span>
       </div>
     </section>
   `;
@@ -562,255 +681,10 @@ function renderFilterChips({
   return `${periodoChip}${equipChip}${isPro ? newFilterChip : ''}${clearBtn}`;
 }
 
-// ──────────────────────────────────────────────────────────────────────
-// Empty state
-// ──────────────────────────────────────────────────────────────────────
-function renderEmpty({ hoje }) {
-  return `
-    <section class="rel-empty" aria-label="Sem dados para relatório">
-      <div class="rel-empty__icon">${icon('snowflake', 32)}</div>
-      <h3 class="rel-empty__title">Sem registros no período selecionado</h3>
-      <p class="rel-empty__desc">Registre um serviço e veja seu relatório profissional pronto para envio em segundos.</p>
-      <div class="rel-empty__preview" role="presentation">
-        <div class="rel-empty__preview-brand">
-          <span class="rel-empty__preview-flake">${icon('snowflake', 14)}</span>
-          <span>CoolTrack Pro · Relatório de Serviço</span>
-        </div>
-        <div class="rel-empty__preview-meta">
-          <div><span>Técnico</span><strong>Seu nome</strong></div>
-          <div><span>Data</span><strong>${Utils.escapeHtml(hoje)}</strong></div>
-          <div><span>Equipamento</span><strong>Split Loja Centro</strong></div>
-          <div><span>Tipo</span><strong>Manutenção Prev.</strong></div>
-        </div>
-        <table class="rel-empty__preview-table" aria-label="Preview de relatório">
-          <thead><tr><th>Serviço</th><th>Status</th><th>Obs.</th></tr></thead>
-          <tbody>
-            <tr><td>Limpeza de filtros</td><td>Concluído</td><td>Fluxo ok</td></tr>
-            <tr><td>Inspeção elétrica</td><td>Concluído</td><td>Sem observação</td></tr>
-            <tr><td>Verificação dreno</td><td>Concluído</td><td>Sem observação</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <button type="button" class="rel-empty__cta" data-nav="registro">
-        Registrar serviço para gerar relatório ${icon('arrowRight', 14)}
-      </button>
-    </section>
-  `;
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// Signature thumb (reaproveita pattern do Histórico)
-// ──────────────────────────────────────────────────────────────────────
-function renderSignatureThumb(registro) {
-  if (!registro?.assinatura) {
-    return `<span class="rel-sigthumb rel-sigthumb--none" title="Cliente não assinou este registro">
-      ${icon('edit2', 12)} Sem assinatura
-    </span>`;
-  }
-  const dataUrl = getSignatureForRecord(registro.id);
-  if (!dataUrl) {
-    return `<span class="rel-sigthumb rel-sigthumb--unavailable"
-        title="Assinatura coletada em outro dispositivo — armazenada localmente por padrão">
-      ${icon('edit2', 12)} Assinatura em outro dispositivo
-    </span>`;
-  }
-  const clienteNome = registro.clienteNome?.trim() || 'cliente';
-  return `<button type="button" class="rel-sigthumb rel-sigthumb--btn"
-      data-action="rel-view-signature" data-id="${Utils.escapeAttr(registro.id)}"
-      aria-label="Ver assinatura de ${Utils.escapeAttr(clienteNome)} em tamanho grande">
-      <img src="${Utils.escapeAttr(dataUrl)}" alt="Assinatura registrada" />
-    </button>`;
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// Record card
-// ──────────────────────────────────────────────────────────────────────
-function renderRecordCard({ r, eq, expanded, singleEquipFilter }) {
-  const tipoMeta = TIPO_META[r.tipo] || DEFAULT_TIPO_META;
-  const safeStatus = Utils.safeStatus(r.status);
-  const statusTone = STATUS_TONE[safeStatus] || 'ok';
-
-  const custoPecas = parseFloat(r.custoPecas) || 0;
-  const custoMao = parseFloat(r.custoMaoObra) || 0;
-  const custoTotal = custoPecas + custoMao;
-  const isCostZero = custoTotal <= 0;
-
-  const nProx = r.proxima ? Utils.daysUntil(r.proxima) : null;
-  const proxTone = nProx == null ? null : nProx < 0 ? 'red' : nProx <= 7 ? 'gold' : 'default';
-
-  const equipNome = eq?.nome || r.equipNome || '—';
-  const equipTag = eq?.tag || '—';
-  const equipLocal = eq?.local || '—';
-  const equipFluido = eq?.fluido || '—';
-  const equipCriticidade = CRITICIDADE_LABEL[eq?.criticidade] || CRITICIDADE_LABEL.media;
-  const equipPrioridade =
-    PRIORIDADE_OPERACIONAL_LABEL[eq?.prioridadeOperacional] || PRIORIDADE_OPERACIONAL_LABEL.normal;
-  const equipRotina = eq?.periodicidadePreventivaDias
-    ? `${eq.periodicidadePreventivaDias} dias`
-    : '—';
-
-  // Dados da placa (12 campos opcionais, populados via IA ou manualmente).
-  // Cada um vira uma .rel-spec na mesma grid das specs fixas — omite campos
-  // sem valor pra não poluir com linhas "—". Se o equip foi cadastrado antes
-  // da feature, dadosPlacaRows === [] e o HTML fica vazio.
-  const dadosPlacaRows = formatDadosPlacaRows(eq?.dadosPlaca);
-  const dadosPlacaSpecsHtml = dadosPlacaRows
-    .map(
-      (row) => `
-            <div class="rel-spec">
-              <div class="rel-spec__label">${Utils.escapeHtml(row.label)}</div>
-              <div class="rel-spec__value${row.mono ? ' rel-spec__value--mono' : ''}">${Utils.escapeHtml(row.value)}</div>
-            </div>`,
-    )
-    .join('');
-
-  const tipoLabel = r.tipo || 'Outro';
-  const titleText = tipoLabel;
-
-  const equipInSummary = singleEquipFilter
-    ? ''
-    : `
-      <span class="rel-record__equip-name">${Utils.escapeHtml(equipNome)}</span>
-      <span class="rel-record__sep">·</span>
-      <span class="rel-record__equip-tag">${Utils.escapeHtml(equipTag)}</span>
-      <span class="rel-record__sep">·</span>
-    `;
-
-  return `
-    <article class="rel-record${expanded ? ' is-expanded' : ''}" data-id="${Utils.escapeAttr(r.id)}"
-      aria-labelledby="rec-${Utils.escapeAttr(r.id)}-title">
-      <div class="rel-record__head">
-        <span class="rel-tipo-icon rel-tipo-icon--${tipoMeta.tone}">${icon(tipoMeta.icon, 14)}</span>
-        <div id="rec-${Utils.escapeAttr(r.id)}-title" class="rel-record__title">${Utils.escapeHtml(titleText)}</div>
-        <span class="rel-status rel-status--${statusTone}" aria-label="Status: ${Utils.escapeAttr(REL_STATUS_LABEL[statusTone] || REL_STATUS_LABEL.ok)}">
-          ${REL_STATUS_LABEL[statusTone] || REL_STATUS_LABEL.ok}
-        </span>
-      </div>
-      <div class="rel-record__meta">
-        <span>${Utils.escapeHtml(Utils.fmtDateTimeShort(r.data))}</span>
-        <span class="rel-record__sep">·</span>
-        <span>${Utils.escapeHtml(Utils.getRelativeTime(r.data))}</span>
-      </div>
-
-      <div class="rel-record__divider" role="presentation"></div>
-
-      <div class="rel-record__body${isCostZero ? ' is-cost-zero' : ''}">
-        <div class="rel-record__summary">
-          <div class="rel-record__summary-line">
-            ${equipInSummary}
-            <span class="rel-record__tech">
-              <span class="rel-record__tech-ic">${icon('user', 12)}</span>
-              ${Utils.escapeHtml(r.tecnico || '—')}
-            </span>
-          </div>
-          <div class="rel-record__signature">
-            ${renderSignatureThumb(r)}
-          </div>
-        </div>
-        ${
-          isCostZero
-            ? ''
-            : `<div class="rel-record__cost">
-                <div class="rel-record__cost-value">${Utils.fmtBRL(custoTotal)}</div>
-                <div class="rel-record__cost-label">Total do serviço</div>
-              </div>`
-        }
-      </div>
-
-      <button type="button" class="rel-record__toggle"
-        data-rel-action="rel-toggle-card" data-id="${Utils.escapeAttr(r.id)}"
-        aria-expanded="${expanded}" aria-controls="rec-${Utils.escapeAttr(r.id)}-details">
-        <span>${expanded ? 'Ocultar detalhes' : 'Ver detalhes'}</span>
-        <span class="rel-record__toggle-chev" aria-hidden="true">${icon('chevronDown', 12)}</span>
-      </button>
-
-      <div id="rec-${Utils.escapeAttr(r.id)}-details" class="rel-record__details"${expanded ? '' : ' hidden'}>
-        <section class="rel-record__section">
-          <div class="rel-record__section-title">Especificações do equipamento</div>
-          <div class="rel-record__specs">
-            <div class="rel-spec">
-              <div class="rel-spec__label">Equipamento</div>
-              <div class="rel-spec__value">${Utils.escapeHtml(equipNome)}</div>
-            </div>
-            <div class="rel-spec">
-              <div class="rel-spec__label">TAG</div>
-              <div class="rel-spec__value rel-spec__value--mono">${Utils.escapeHtml(equipTag)}</div>
-            </div>
-            <div class="rel-spec">
-              <div class="rel-spec__label">Local</div>
-              <div class="rel-spec__value">${Utils.escapeHtml(equipLocal)}</div>
-            </div>
-            <div class="rel-spec">
-              <div class="rel-spec__label">Fluido</div>
-              <div class="rel-spec__value">${Utils.escapeHtml(equipFluido)}</div>
-            </div>
-            <div class="rel-spec">
-              <div class="rel-spec__label">Criticidade</div>
-              <div class="rel-spec__value">${Utils.escapeHtml(equipCriticidade)}</div>
-            </div>
-            <div class="rel-spec">
-              <div class="rel-spec__label">Prior. operacional</div>
-              <div class="rel-spec__value">${Utils.escapeHtml(equipPrioridade)}</div>
-            </div>
-            <div class="rel-spec">
-              <div class="rel-spec__label">Rotina</div>
-              <div class="rel-spec__value">${Utils.escapeHtml(equipRotina)}</div>
-            </div>
-            ${dadosPlacaSpecsHtml}
-          </div>
-        </section>
-
-        ${
-          r.pecas
-            ? `<section class="rel-record__section">
-                <div class="rel-record__section-title">Peças / Materiais</div>
-                <div class="rel-record__pecas">${Utils.escapeHtml(r.pecas)}</div>
-              </section>`
-            : ''
-        }
-
-        ${
-          isCostZero
-            ? ''
-            : `<section class="rel-record__section">
-                <div class="rel-record__section-title">Custos</div>
-                <div class="rel-record__cost-breakdown">
-                  <span class="rel-cost-row__label">Peças</span>
-                  <span class="rel-cost-row__value">${Utils.fmtBRL(custoPecas)}</span>
-                  <span class="rel-cost-row__label">Mão de obra</span>
-                  <span class="rel-cost-row__value">${Utils.fmtBRL(custoMao)}</span>
-                  <span class="rel-cost-row__rule" aria-hidden="true"></span>
-                  <span class="rel-cost-row__label rel-cost-row__label--total">Total</span>
-                  <span class="rel-cost-row__value rel-cost-row__value--total">${Utils.fmtBRL(custoTotal)}</span>
-                </div>
-              </section>`
-        }
-
-        ${
-          r.proxima
-            ? `<section class="rel-record__section">
-                <div class="rel-record__section-title">Próxima manutenção</div>
-                <div class="rel-record__prox">
-                  <span class="rel-record__prox-date">${Utils.formatDate(r.proxima)}</span>
-                  <span class="rel-record__prox-badge rel-record__prox-badge--${proxTone}">
-                    ${Utils.escapeHtml(Utils.fmtDueRelative(r.proxima))}
-                  </span>
-                </div>
-              </section>`
-            : ''
-        }
-
-        ${
-          r.obs
-            ? `<section class="rel-record__section">
-                <div class="rel-record__section-title">Observações</div>
-                <div class="rel-record__obs">${Utils.escapeHtml(r.obs)}</div>
-              </section>`
-            : ''
-        }
-      </div>
-    </article>
-  `;
+function getSafeSignatureUrl(value) {
+  const url = String(value || '').trim();
+  if (/^data:image\/(?:png|jpe?g|gif|webp|bmp|avif);base64,/i.test(url)) return url;
+  return null;
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -1053,30 +927,16 @@ export function renderRelatorio(options = {}) {
       }
     }
 
-    // Records
-    if (!list.length) {
-      corpoEl.innerHTML = renderEmpty({ hoje });
-    } else {
-      // Banner âmbar de corretivas (quando volume relevante) e bloco de
-      // "Próximas ações" entram antes dos cards — leitura de alto nível
-      // antes do detalhe registro-por-registro.
-      const bannerHtml = showCorretivasBanner
-        ? renderCorretivasBanner(corretivasCount, list.length)
-        : '';
-      const proximasHtml = proximasAcoes.length ? renderProximasAcoes(proximasAcoes) : '';
-      const recordsHtml = list
-        .map((r) => {
-          const eq = findEquip(r.equipId);
-          return renderRecordCard({
-            r,
-            eq,
-            expanded: expandedIds.has(r.id),
-            singleEquipFilter,
-          });
-        })
-        .join('');
-      corpoEl.innerHTML = `${bannerHtml}${proximasHtml}${recordsHtml}`;
-    }
+    const cardsViewModel = buildRelatorioCardsReactViewModel({
+      list,
+      viewMode,
+      hoje,
+      singleEquipFilter,
+      expandedIds,
+      showCorretivasBanner,
+      corretivasCount,
+      proximasAcoes,
+    });
 
     const bindHandlers = () => {
       PdfQuotaBadge.refresh();
@@ -1114,10 +974,21 @@ export function renderRelatorio(options = {}) {
       return null;
     };
 
+    const mountCardsThenHeroAndBind = () => {
+      const cardsMountResult = mountRelatorioCards({
+        root: corpoEl,
+        cards: cardsViewModel,
+      });
+      if (cardsMountResult && typeof cardsMountResult.then === 'function') {
+        return cardsMountResult.then(mountHeroAndBind);
+      }
+      return mountHeroAndBind();
+    };
+
     if (controlsMountResult && typeof controlsMountResult.then === 'function') {
-      return controlsMountResult.then(mountHeroAndBind);
+      return controlsMountResult.then(mountCardsThenHeroAndBind);
     }
-    return mountHeroAndBind();
+    return mountCardsThenHeroAndBind();
   };
 
   return withSkeleton(

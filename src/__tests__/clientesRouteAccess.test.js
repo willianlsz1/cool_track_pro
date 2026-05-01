@@ -36,6 +36,9 @@ vi.mock('../ui/views/alertas.js', () => ({
 vi.mock('../ui/views/relatorio.js', () => ({
   renderRelatorio: vi.fn(),
   populateRelatorioSelects: vi.fn(),
+  unmountRelatorioHero: vi.fn(),
+  unmountRelatorioControls: vi.fn(),
+  unmountRelatorioCards: vi.fn(),
 }));
 vi.mock('../ui/views/registro.js', () => ({
   initRegistro: vi.fn(),

@@ -12,6 +12,7 @@ import {
   populateRelatorioSelects,
   unmountRelatorioHero,
   unmountRelatorioControls,
+  unmountRelatorioCards,
 } from '../views/relatorio.js';
 import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
@@ -114,6 +115,7 @@ export function registerAppRoutes() {
     () => {
       unmountRelatorioHero();
       unmountRelatorioControls();
+      unmountRelatorioCards();
     },
   );
 

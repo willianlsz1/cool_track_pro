@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act } from 'react';
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 async function loadRelatorioView({ state = { registros: [] }, equipamento = null } = {}) {
   vi.resetModules();
@@ -68,7 +71,9 @@ describe('relatorio view security', () => {
       },
     });
 
-    renderRelatorio();
+    await act(async () => {
+      await renderRelatorio();
+    });
 
     const html = document.getElementById('relatorio-corpo').innerHTML;
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
