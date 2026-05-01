@@ -238,8 +238,9 @@ A partir do fechamento visual, os PRs abaixo deixam de ser "migracao principal" 
 
 ### PR 9: CSS legado fase 1
 
-- Escopo: rodar inventario de CSS, separar classes vivas por tela e remover blocos comprovadamente mortos em PRs pequenos.
-- Ferramentas: `npm run lint:css:dead` existe, mas depende de validacao manual e pode gerar falsos positivos com classes dinamicas.
+- Status: inventario inicial criado em `docs/migration/css-legacy-inventory.md`; nenhuma classe foi removida nesta etapa.
+- Escopo: separar classes vivas por tela, classes suspeitas e classes dinamicas antes de remover blocos comprovadamente mortos em PRs pequenos.
+- Ferramentas: `npm run lint:css:dead` existe como triagem, mas atualmente falha sem `purgecss` instalado e ainda depende de validacao manual porque gera falsos positivos com classes dinamicas.
 - Testes: build, E2E das rotas afetadas e screenshots antes/depois.
 - Risco: alto se feito em lote.
 - Criterio: cada PR remove uma familia de classes com evidencia de uso zero.
@@ -267,8 +268,9 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 ## 9. Estrategia para reduzir CSS legado
 
 - Nao remover CSS por grep simples: classes dinamicas como `equip-card--${tone}` e `rel-tipo--${tone}` geram falsos positivos.
-- Usar `npm run lint:css:dead` como triagem, nao como prova final.
-- Criar mapa por prefixo: `dash-*`, `equip-*`, `setor-*`, `hist-*`, `timeline*`, `rel-*`, `registro-*`, `r-checklist*`, `cli-*`, `orc-*`, `alert-*`.
+- Usar `npm run lint:css:dead` como triagem, nao como prova final; o inventario de 2026-05-01 registrou que o script precisa de `purgecss` para rodar neste checkout.
+- Mapa inicial por prefixo: `docs/migration/css-legacy-inventory.md`.
+- Prefixos ja inventariados: `dash-*`, `equip-*`, `setor-*`, `eq-*`, `hist-*`, `timeline*`, `rel-*`, `registro-*`, `r-checklist*`, `cli-*`, `orc-*`, `alert-*`, `btn*`, `empty-state*`, `pro-*`, `upgrade-*` e `nudge-*`.
 - Para cada prefixo, confirmar uso em `src/react`, `src/ui/shell/templates`, `src/ui/views`, `src/ui/components` e E2E.
 - Remover uma familia por PR com screenshot/Playwright da rota afetada.
 - Manter `preflight: false` ate o CSS legado estar pequeno o suficiente para comparar reset visual.
@@ -293,8 +295,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e proteger o render/adapter legado de setores e detalhe de Equipamentos.
+O proximo PR recomendado e remover a microfamilia `btn*` ja provada obsoleta em `docs/migration/css-btn-obsolescence-proof.md`.
 
-Motivo: Equipamentos ja tem header/filtros/contexto e lista flat em React, mas setores, detalhe/modal, fotos, CRUD, nameplate, plano/paywall e storage/backend continuam legados. Antes de qualquer nova migracao ou limpeza de CSS em Equipamentos, esses contratos precisam ficar cobertos de forma granular.
+Motivo: a prova confirmou que `btn--full`, `btn--spaced-bottom` e `btn-ghost--report` nao tem uso real fora de CSS/docs e nao aparecem em builders dinamicos, `classList`, `className` ou arrays de classes. E uma fatia menor que `equip-*`, `eq-*`, `setor-*`, `registro-*`, `rel-*` ou `dash-*`, que ainda compartilham contratos entre React e legado deliberado.
 
-Nao iniciar por CSS. O CSS legado ainda e a maior fonte de risco e deve vir depois que os contratos por tela estiverem estabilizados e documentados como React concluido, legado deliberado, hardening ou limpeza futura.
+Escopo recomendado: remover no maximo essas tres definicoes de `src/assets/styles/components.css`, rodar screenshot/E2E de Historico em mobile estreito por causa de `#view-historico .btn-ghost--report`, rodar smoke visual das rotas com modais/botoes principais e manter Tailwind/preflight intactos.
