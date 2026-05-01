@@ -281,16 +281,15 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-Charts legados do Dashboard protegidos e isolados por contrato:
+Header global legado protegido por contrato neste PR:
 
-- Shell atual: `#chart-status-pie`, `#chart-trend-line`, `#chart-tipos-doughnut`.
-- Classes publicas do bloco: `dash__analise`, `dash__accordion`, `dash__accordion-item`, `dash__accordion-summary`, `dash__accordion-title`, `dash__accordion-chev`, `dash__accordion-body`.
-- Fluxo atual: `src/ui/views/dashboard.js` passa dados prontos e estado ativo para `src/ui/views/dashboard/chartsRefresh.js`.
-- O helper `chartsRefresh.js` concentra hash/dedupe, validacao defensiva de canvas, import dinamico de `src/ui/components/charts.js` e chamada legada `Charts.refreshAll()`.
-- Decisao recomendada: manter charts como legado deliberado por enquanto. Eles dependem de canvas/Chart.js, nao usam DOM dinamico com HTML, ficam isolados em helper testado e tem custo de bundle proprio; migrar para React agora teria pouco ganho frente ao risco visual.
+- Contratos centralizados em `src/ui/shell/headerContracts.js`.
+- Shell atual preserva `#app-header`, `#sync-status`, `#header-help-btn`, `#header-help-menu`, `#header-alert-pill`, `#header-avatar`, stats bar e status legado.
+- Acoes/navegacoes preservadas: `go-alertas`, `toggle-help-menu`, `go-orcamentos`, `open-pmoc-modal`, `open-pmoc-info`, `open-upgrade`, `open-profile`, `toggle-theme`, `data-nav="registro"` e `data-nav="clientes"`.
+- Decisao recomendada: manter header global como legado deliberado no curto prazo. Ele e transversal, ainda concentra plano/sync/alertas/acoes globais e deve ser migrado apenas depois de separar melhor os modelos de identidade, plano e sync.
 
-O proximo PR recomendado agora e proteger/isolar o header global restante, sem misturar com charts.
+O proximo PR recomendado agora e isolar o modelo puro do header global, sem migrar para React.
 
-Motivo: os contratos DOM dos charts ja estao protegidos e o refresh foi extraido para helper pequeno/testavel. O header global ainda e legado transversal e deve ser tratado em fatia propria, com contratos antes de qualquer migracao.
+Motivo: os contratos DOM ja estao protegidos, mas `dashboard.js` ainda atualiza identidade, alertas, stats e sync diretamente. A menor proxima fatia util e extrair um model/helper puro para preparar uma futura decisao entre manter legado deliberado ou criar ilha React controlada.
 
 Nao iniciar por CSS. O CSS legado ainda e a maior fonte de risco e deve vir depois que os contratos por tela estiverem estabilizados.

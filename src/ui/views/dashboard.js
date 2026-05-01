@@ -416,7 +416,9 @@ function _nonEmailMetadataName(raw) {
 }
 
 function _initialsFromName(raw) {
-  const src = (raw || '').trim();
+  const src = String(raw || '')
+    .replace(/[<>"`/\\]/g, ' ')
+    .trim();
   if (!src) return '—';
   // email → usa as duas primeiras letras antes do @
   if (src.includes('@')) {
@@ -1170,6 +1172,13 @@ function _setStatusIndicatorState(el, tone, options = {}) {
   if (syncing) el.classList.add('status-indicator--syncing');
 }
 
+function _safeHeaderAttributeText(value) {
+  return String(value || '')
+    .replace(/javascript:/gi, '')
+    .replace(/[<>"'`]/g, '')
+    .trim();
+}
+
 function _updateGlobalHeader({ equipamentos, registros, alerts }) {
   const today = new Date();
   const alertCount = alerts.length;
@@ -1306,8 +1315,9 @@ function _updateGlobalHeader({ equipamentos, registros, alerts }) {
       txt.textContent =
         syncStatus.pendingOps > 0 ? `${baseLabel} (${syncStatus.pendingOps})` : baseLabel;
       // Tooltip com message detalhada do storage
-      if (syncStatus.message) {
-        el.title = syncStatus.message;
+      const safeMessage = _safeHeaderAttributeText(syncStatus.message);
+      if (safeMessage) {
+        el.title = safeMessage;
       }
     } else {
       el.hidden = true;
