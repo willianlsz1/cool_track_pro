@@ -8,6 +8,7 @@ import { PdfQuotaBadge } from '../components/pdfQuotaBadge.js';
 import { getSignatureForRecord, SignatureViewerModal } from '../components/signature.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
 import { RELATORIO_PLAN_CODES, RELATORIO_VIEW_MODES } from '../viewModels/relatorioContracts.js';
+import { buildRelatorioCompanyPmocModel } from '../viewModels/relatorioCompanyPmocModel.js';
 import { buildReportContext, buildRelatorioViewModel } from '../viewModels/relatorioViewModel.js';
 
 export {
@@ -566,24 +567,24 @@ function mountRelatorioCards({ root, cards }) {
   return loadRelatorioCardsBridge().then(mountWithBridge);
 }
 
-function renderCompanyPmocBlock({ isPro, hasPmocAttention }) {
-  if (!isPro) return '';
+function renderCompanyPmocBlock(model) {
+  if (!model?.visible) return '';
   return `
-    <section class="rel-company-pmoc" aria-label="PMOC da empresa">
+    <section class="rel-company-pmoc" aria-label="${Utils.escapeHtml(model.ariaLabel)}">
       <div class="rel-company-pmoc__head">
-        <h3>PMOC</h3>
+        <h3>${Utils.escapeHtml(model.title)}</h3>
         ${
-          hasPmocAttention
-            ? `<span class="rel-company-pmoc__alert">PMOC precisa de atenção</span>`
+          model.showAttention
+            ? `<span class="rel-company-pmoc__alert">${Utils.escapeHtml(model.attentionLabel)}</span>`
             : ''
         }
       </div>
-      <p class="rel-company-pmoc__desc">Documento anual com cronograma, evidências e assinaturas.</p>
+      <p class="rel-company-pmoc__desc">${Utils.escapeHtml(model.description)}</p>
       <div class="rel-company-pmoc__actions">
-        <button type="button" class="btn btn--primary btn--sm" data-action="open-pmoc-modal">Gerar PMOC formal</button>
+        <button type="button" class="btn btn--primary btn--sm" data-action="${Utils.escapeHtml(model.primaryAction)}">${Utils.escapeHtml(model.primaryLabel)}</button>
         ${
-          hasPmocAttention
-            ? '<button type="button" class="btn btn--ghost btn--sm" data-nav="clientes">Ver pendências</button>'
+          model.showAttention
+            ? `<button type="button" class="btn btn--ghost btn--sm" data-nav="${Utils.escapeHtml(model.secondaryNav)}">${Utils.escapeHtml(model.secondaryLabel)}</button>`
             : ''
         }
       </div>
@@ -774,8 +775,10 @@ export function renderRelatorio(options = {}) {
   const rerender = (opts = {}) => renderRelatorio(opts);
 
   const renderContent = () => {
-    if (companyPmocEl)
-      companyPmocEl.innerHTML = renderCompanyPmocBlock({ isPro, hasPmocAttention });
+    if (companyPmocEl) {
+      const companyPmocModel = buildRelatorioCompanyPmocModel({ isPro, hasPmocAttention });
+      companyPmocEl.innerHTML = renderCompanyPmocBlock(companyPmocModel);
+    }
 
     const controlsViewModel = buildRelatorioControlsReactViewModel({
       modeCopy,
