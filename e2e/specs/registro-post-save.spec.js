@@ -104,6 +104,72 @@ test.describe('Registro post-save legacy flow', () => {
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
   });
+
+  test('salva e compartilha com WhatsApp mockado sem PDF, download ou popup real', async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    const pageErrors = [];
+    const downloads = [];
+    const popups = [];
+
+    page.on('console', (message) => {
+      if (message.type() === 'error') consoleErrors.push(message.text());
+    });
+    page.on('pageerror', (error) => pageErrors.push(error.message));
+    page.on('download', (download) => downloads.push(download.suggestedFilename()));
+    page.on('popup', (popup) => popups.push(popup.url()));
+
+    await goToRegistro(page);
+    await expect(page.locator('#view-registro')).toHaveCount(1);
+    await expect(page.locator('#registro-header-root')).toHaveAttribute(
+      'data-react-registro-header-mounted',
+      'true',
+    );
+    await expect(page.locator('#r-checklist-body')).toHaveCount(1);
+    await expect(page.locator('#registro-photos-root')).toHaveCount(1);
+    await expect(page.locator('#registro-signature-hint')).toHaveCount(1);
+
+    await fillRequiredRegistroFields(page);
+    await assertRegistroIslands(page);
+    await markMinimalChecklist(page);
+
+    await page.locator('[data-action="save-and-share-registro"]').click();
+
+    const savedSnapshot = await page.evaluate(() => {
+      return import('/src/core/state.js').then(({ getState }) => {
+        const registros = getState().registros || [];
+        return registros.at(-1) || null;
+      });
+    });
+
+    expect(savedSnapshot).toMatchObject({
+      equipId: EQUIP_ID,
+      tecnico: 'Tecnico E2E',
+    });
+    expect(savedSnapshot?.tipo).toContain('Preventiva');
+    expect(savedSnapshot?.obs).toContain('Registro E2E preenchido no browser');
+    expect(savedSnapshot?.checklist?.items?.some((item) => item.status === 'ok')).toBe(true);
+
+    await expect(page.locator('#toast-container .toast--success')).toContainText(
+      'Abrindo WhatsApp',
+    );
+    await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
+
+    const exportCalls = await page.evaluate(
+      () => window.__registroPostSaveE2e || { pdf: [], whatsapp: [] },
+    );
+    expect(exportCalls.whatsapp).toHaveLength(1);
+    expect(exportCalls.whatsapp[0]).toMatchObject({
+      equipId: EQUIP_ID,
+      registroId: savedSnapshot.id,
+    });
+    expect(exportCalls.pdf).toHaveLength(0);
+    expect(downloads).toEqual([]);
+    expect(popups).toEqual([]);
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+  });
 });
 
 async function mockReportExportHandlers(page) {
@@ -157,6 +223,26 @@ async function fillRequiredRegistroFields(page) {
     .locator('#r-obs')
     .fill('Registro E2E preenchido no browser com checklist e toast pós-save.');
   await page.locator('#r-tecnico').fill('Tecnico E2E');
+}
+
+async function assertRegistroIslands(page) {
+  await expect(page.locator('#view-registro')).toHaveCount(1);
+  await expect(page.locator('#registro-header-root')).toHaveAttribute(
+    'data-react-registro-header-mounted',
+    'true',
+  );
+  await expect(page.locator('#r-checklist-body')).toHaveAttribute(
+    'data-react-registro-checklist-mounted',
+    'true',
+  );
+  await expect(page.locator('#registro-photos-root')).toHaveAttribute(
+    'data-react-registro-photos-mounted',
+    'true',
+  );
+  await expect(page.locator('#registro-signature-hint')).toHaveAttribute(
+    'data-react-registro-signature-mounted',
+    'true',
+  );
 }
 
 async function assertChecklistIsland(page) {
