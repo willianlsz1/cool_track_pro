@@ -165,6 +165,10 @@ function _renderHtml(state) {
 }
 
 export const InstallAppPrompt = {
+  getRenderState() {
+    return _state();
+  },
+
   /**
    * Renderiza o banner no host fornecido. Idempotente.
    * @param {HTMLElement|string} host

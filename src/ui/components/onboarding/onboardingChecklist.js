@@ -212,6 +212,52 @@ function _renderHtml(state) {
     </article>`;
 }
 
+function _buildRenderModel(state, { visible = true } = {}) {
+  const visibleSteps = _visibleSteps();
+  const completed = _countCompleted(state);
+  const total = visibleSteps.length;
+  const percent = total ? Math.round((completed / total) * 100) : 0;
+
+  return {
+    visible,
+    completed,
+    total,
+    percent,
+    steps: visibleSteps.map((step, idx) => ({
+      ...step,
+      order: idx + 1,
+      completed: state[step.id] === true,
+    })),
+  };
+}
+
+function _resolveRenderModel() {
+  let state = _readState(_currentUserId);
+
+  if (state.dismissed || _isAllDone(state)) {
+    return _buildRenderModel(state, { visible: false });
+  }
+
+  const next = _evalFromGlobalState(state);
+  const justCompletedAuto = ['cliente', 'equipamento', 'servico'].filter(
+    (k) => !state[k] && next[k],
+  );
+  if (justCompletedAuto.length) {
+    _writeState(_currentUserId, next);
+    justCompletedAuto.forEach((step) =>
+      trackEvent('onboarding_step_completed', { step, source: 'auto' }),
+    );
+    state = next;
+
+    if (_isAllDone(state)) {
+      trackEvent('onboarding_completed', {});
+      return _buildRenderModel(state, { visible: false });
+    }
+  }
+
+  return _buildRenderModel(state);
+}
+
 export const OnboardingChecklist = {
   /**
    * Inicializa pro usuário atual (chamar 1x no bootstrap).
@@ -267,6 +313,10 @@ export const OnboardingChecklist = {
     if (stale) stale.remove();
     el.insertAdjacentHTML('beforeend', _renderHtml(state));
     return true;
+  },
+
+  getRenderModel() {
+    return _resolveRenderModel();
   },
 
   /**

@@ -231,6 +231,39 @@ test.describe('React islands lifecycle', () => {
     await expect(root.locator('.dash__section-label')).toHaveCount(4);
   }
 
+  async function assertDashboardOnboardingIsland(page) {
+    const root = page.locator('#dash-onboarding');
+    const marker = page.locator('#dash-onboarding[data-react-dashboard-onboarding-mounted="true"]');
+
+    await expect(root).toHaveCount(1);
+    await expect(root).toHaveAttribute('data-react-dashboard-onboarding-mounted', 'true');
+    await expect(marker).toHaveCount(1);
+    await expect(root).toHaveAttribute('data-tier', /.+/);
+
+    await expect(page.locator('#dash-empty')).toHaveCount(1);
+    await expect(page.locator('#dash-overflow-banner')).toHaveCount(1);
+    await expect(page.locator('#dash-pro-draft-root')).toHaveCount(1);
+
+    const onboardingCard = root.locator('.onb-card');
+    if ((await onboardingCard.count()) > 0) {
+      await expect(onboardingCard.first()).toHaveClass(/onb-card/);
+      await expect(onboardingCard.first().locator('.onb-card__close')).toHaveAttribute(
+        'data-action',
+        'onboarding-dismiss',
+      );
+      expect(await onboardingCard.first().locator('.onb-step').count()).toBeGreaterThan(0);
+    }
+
+    const overflowBanner = page.locator('#dash-overflow-banner .dash-overflow-banner');
+    if ((await overflowBanner.count()) > 0) {
+      await expect(overflowBanner.first()).toHaveAttribute('data-limit-type', /.+/);
+      await expect(overflowBanner.first().locator('.dash-overflow-banner__cta')).toHaveAttribute(
+        'data-action',
+        'open-upgrade',
+      );
+    }
+  }
+
   async function assertDashboardProDraftIsland(page) {
     const root = page.locator('#dash-pro-ops-row');
 
@@ -542,6 +575,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardMonthSummaryIsland(page);
       await assertDashboardProDraftIsland(page);
       await assertDashboardReadOnlyBlocksIsland(page);
+      await assertDashboardOnboardingIsland(page);
 
       await page.click('#sidenav-clientes');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'clientes');
@@ -556,6 +590,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardMonthSummaryIsland(page);
       await assertDashboardProDraftIsland(page);
       await assertDashboardReadOnlyBlocksIsland(page);
+      await assertDashboardOnboardingIsland(page);
     });
   });
 

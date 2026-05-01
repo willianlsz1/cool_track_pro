@@ -17,7 +17,6 @@ import { Alerts } from '../../domain/alerts.js';
 // Charts é dynamic-imported em _refreshCharts() pra evitar bundlar Chart.js
 // (~100 KB gz) no chunk principal. Só baixa quando o dashboard efetivamente
 // vai desenhar os gráficos.
-import { emptyStateHtml } from '../components/emptyState.js';
 import { OnboardingBanner, Profile } from '../components/onboarding.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 import { InstallAppPrompt } from '../components/installAppPrompt.js';
@@ -72,6 +71,8 @@ let dashboardReadOnlyBlocksBridgePromise = null;
 let dashboardReadOnlyBlocksBridge = null;
 let dashboardProDraftBridgePromise = null;
 let dashboardProDraftBridge = null;
+let dashboardOnboardingBridgePromise = null;
+let dashboardOnboardingBridge = null;
 
 function loadDashboardHeroBridge() {
   dashboardHeroBridgePromise ??= import('../../react/entrypoints/dashboardHeroIsland.jsx').then(
@@ -173,6 +174,27 @@ function getDashboardProDraftPortalRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.proDraftRoot);
 }
 
+function loadDashboardOnboardingBridge() {
+  dashboardOnboardingBridgePromise ??=
+    import('../../react/entrypoints/dashboardOnboardingIsland.jsx').then((bridge) => {
+      dashboardOnboardingBridge = bridge;
+      return bridge;
+    });
+  return dashboardOnboardingBridgePromise;
+}
+
+function getDashboardOnboardingRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.onboarding);
+}
+
+function getDashboardEmptyRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.empty);
+}
+
+function getDashboardOverflowRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.overflowBanner);
+}
+
 export function unmountDashboardHero(root = getDashboardHeroRoot()) {
   if (!root) return undefined;
   if (dashboardHeroBridge?.unmountDashboardHeroReact) {
@@ -253,6 +275,17 @@ export function unmountDashboardProDraft(root = getDashboardProDraftRoot()) {
 // ═══════════════════════════════════════════════════════
 // Helpers de métricas (preservados)
 // ═══════════════════════════════════════════════════════
+export function unmountDashboardOnboarding(root = getDashboardOnboardingRoot()) {
+  if (!root) return undefined;
+  if (dashboardOnboardingBridge?.unmountDashboardOnboardingReact) {
+    dashboardOnboardingBridge.unmountDashboardOnboardingReact(root);
+    return undefined;
+  }
+  return loadDashboardOnboardingBridge().then(({ unmountDashboardOnboardingReact }) => {
+    unmountDashboardOnboardingReact(root);
+  });
+}
+
 function _getMostSevereAlert(alerts = []) {
   return [...alerts].sort(
     (a, b) =>
@@ -829,6 +862,62 @@ function _buildProDraftModel({
   };
 }
 
+function _buildDashboardOnboardingModel({
+  tier,
+  dashboardReadModel,
+  equipamentos,
+  registros,
+  planContext,
+}) {
+  const emptyVisible = !equipamentos.length;
+  const installState = InstallAppPrompt.getRenderState?.() || 'hidden';
+  const checklist = OnboardingChecklist.getRenderModel?.() || {
+    visible: false,
+    completed: 0,
+    total: 0,
+    percent: 0,
+    steps: [],
+  };
+  const overflowState =
+    planContext.hasPro || planContext.planCode === PLAN_CODE_PLUS
+      ? { overLimit: false }
+      : OverflowBanner.computeState({ equipamentos, registros });
+
+  return {
+    tier,
+    empty: {
+      visible: emptyVisible,
+      state: emptyVisible ? dashboardReadModel.emptyState : null,
+    },
+    installPrompt: { state: installState },
+    checklist,
+    overflow: {
+      visible: Boolean(overflowState.overLimit),
+      state: overflowState,
+    },
+  };
+}
+
+function _renderOnboardingBlocks({ onboarding }) {
+  const root = getDashboardOnboardingRoot();
+  if (!root || !onboarding) return Promise.resolve();
+
+  const props = {
+    onboarding,
+    emptyRoot: getDashboardEmptyRoot(),
+    overflowRoot: getDashboardOverflowRoot(),
+  };
+
+  if (dashboardOnboardingBridge?.mountDashboardOnboardingReact) {
+    dashboardOnboardingBridge.mountDashboardOnboardingReact(root, props);
+    return Promise.resolve();
+  }
+
+  return loadDashboardOnboardingBridge().then(({ mountDashboardOnboardingReact }) => {
+    mountDashboardOnboardingReact(root, props);
+  });
+}
+
 function _renderProDraftBlocks({ proDraft }) {
   const root = getDashboardProDraftRoot();
   const draftRoot = getDashboardProDraftPortalRoot();
@@ -1299,18 +1388,14 @@ export async function renderDashboard() {
     // painel até o usuário completar 5/5 ou dispensar. Auto-detecta cliente,
     // equipamento e serviço via getState(). Relatório e PDF requerem hooks
     // explícitos (já plugados em routes.js + shareReport.js).
-    InstallAppPrompt.render('dash-onboarding');
-    OnboardingChecklist.render('dash-onboarding');
-
-    // Empty state curto quando sem equipamentos — mantém hero + KPIs desligados
-    const emptyHost = document.getElementById('dash-empty');
-    if (!equipamentos.length && emptyHost) {
-      emptyHost.hidden = false;
-      emptyHost.innerHTML = emptyStateHtml(dashboardReadModel.emptyState);
-    } else if (emptyHost) {
-      emptyHost.hidden = true;
-      emptyHost.innerHTML = '';
-    }
+    const onboarding = _buildDashboardOnboardingModel({
+      tier,
+      dashboardReadModel,
+      equipamentos,
+      registros,
+      planContext,
+    });
+    await _renderOnboardingBlocks({ onboarding });
 
     // KPIs
     const { mountPromise: kpisMountPromise } = _renderKPIs({
@@ -1375,19 +1460,8 @@ export async function renderDashboard() {
     // Banner + modal de overflow (só para Free acima dos limites).
     // Substitui o par usage-meter + upgrade-card anteriores — aparece
     // apenas quando há razão, em vez de ocupar espaço permanentemente.
-    const overflowHost = document.getElementById('dash-overflow-banner');
-    if (overflowHost) {
-      if (planContext.hasPro || planContext.planCode === PLAN_CODE_PLUS) {
-        overflowHost.innerHTML = '';
-      } else {
-        const overflow = OverflowBanner.computeState({ equipamentos, registros });
-        overflowHost.innerHTML = overflow.overLimit
-          ? OverflowBanner.render({ state: overflow })
-          : '';
-        if (overflow.overLimit) {
-          OverflowBanner.maybeShowFirstTimeModal({ state: overflow });
-        }
-      }
+    if (onboarding.overflow.state?.overLimit) {
+      OverflowBanner.maybeShowFirstTimeModal({ state: onboarding.overflow.state });
     }
 
     // Header global (status, sync, badges)

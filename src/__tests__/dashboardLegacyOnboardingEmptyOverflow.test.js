@@ -82,6 +82,7 @@ async function setupDashboardModule({
   vi.resetModules();
   const currentState = emptyState(state);
   const installRender = vi.fn(() => false);
+  const installGetRenderState = vi.fn(() => 'hidden');
   const overflowMaybeShowFirstTimeModal = vi.fn();
 
   vi.doMock('../core/state.js', () => ({
@@ -241,7 +242,7 @@ async function setupDashboardModule({
   }));
 
   vi.doMock('../ui/components/installAppPrompt.js', () => ({
-    InstallAppPrompt: { render: installRender },
+    InstallAppPrompt: { getRenderState: installGetRenderState, render: installRender },
   }));
 
   vi.doMock('../ui/components/upgradeNudge.js', () => ({
@@ -290,6 +291,7 @@ async function setupDashboardModule({
   const dashboardModule = await import('../ui/views/dashboard.js');
   return {
     ...dashboardModule,
+    installGetRenderState,
     installRender,
     overflowMaybeShowFirstTimeModal,
   };
@@ -304,7 +306,7 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
   });
 
   it('renders the empty state and onboarding contracts without executing navigation', async () => {
-    const { renderDashboard, installRender } = await setupDashboardModule();
+    const { renderDashboard, installGetRenderState } = await setupDashboardModule();
 
     await renderDashboard();
 
@@ -331,7 +333,7 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
     expect(document.getElementById('onboarding-banner')).not.toBeNull();
     expect(onboardingBannerCta?.getAttribute('data-action')).toBe(DASHBOARD_ACTIONS.openModal);
     expect(onboardingBannerCta?.getAttribute('data-id')).toBe('modal-add-eq');
-    expect(installRender).toHaveBeenCalledWith(DASHBOARD_PUBLIC_IDS.onboarding);
+    expect(installGetRenderState).toHaveBeenCalled();
 
     assertNoUnsafeHtml(empty);
     assertNoUnsafeHtml(onboarding);
@@ -365,7 +367,7 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
     expect(overflowHost?.textContent).not.toContain('onerror');
   });
 
-  it('keeps current adapter contracts documented as legacy DOM and outside React roots', () => {
+  it('keeps current adapter contracts delegated to the React island and away from createRoot', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
@@ -401,12 +403,17 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
         'data-highlight-plan',
       ]),
     );
-    expect(dashboardSource).toContain('emptyStateHtml(dashboardReadModel.emptyState)');
-    expect(dashboardSource).toContain("InstallAppPrompt.render('dash-onboarding')");
-    expect(dashboardSource).toContain("OnboardingChecklist.render('dash-onboarding')");
+    expect(dashboardSource).toContain('dashboardOnboardingIsland.jsx');
+    expect(dashboardSource).toContain('mountDashboardOnboardingReact');
+    expect(dashboardSource).toContain('_buildDashboardOnboardingModel');
+    expect(dashboardSource).toContain('InstallAppPrompt.getRenderState');
+    expect(dashboardSource).toContain('OnboardingChecklist.getRenderModel');
     expect(dashboardSource).toContain('OnboardingBanner.render');
     expect(dashboardSource).toContain('OverflowBanner.computeState');
-    expect(dashboardSource).toContain('OverflowBanner.render');
+    expect(dashboardSource).not.toContain('emptyStateHtml(');
+    expect(dashboardSource).not.toContain("InstallAppPrompt.render('dash-onboarding')");
+    expect(dashboardSource).not.toContain("OnboardingChecklist.render('dash-onboarding')");
+    expect(dashboardSource).not.toContain('OverflowBanner.render');
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot/);
   });
 });
