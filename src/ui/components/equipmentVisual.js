@@ -8,7 +8,17 @@ function isRenderablePhotoUrl(value) {
   const url = normalizeString(value);
   if (!url) return false;
   if (url === 'null' || url === 'undefined') return false;
-  return /^(https?:\/\/|data:image\/|blob:|\/)/i.test(url);
+  if (/[<>"'\s]/.test(url)) return false;
+  if (/^data:image\/(?:jpe?g|png|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) return true;
+  if (/^blob:/i.test(url)) return true;
+  if (url.startsWith('/')) return true;
+
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch (_error) {
+    return false;
+  }
 }
 
 export function getEquipmentPhotoUrl(eq) {
