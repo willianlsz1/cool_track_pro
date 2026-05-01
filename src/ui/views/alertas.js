@@ -20,13 +20,6 @@ function loadAlertasBridge() {
   return alertasBridgePromise;
 }
 
-function ensureAlertasShell(root) {
-  if (!root || root.querySelector('#lista-alertas')) return;
-  root.innerHTML = `<div class="section-title">Alertas e Anormalidades registradas</div>
-    <div id="alertas-contextual"></div>
-    <div id="lista-alertas" role="list"></div>`;
-}
-
 export function renderAlertas() {
   const { equipamentos = [], registros = [], clientes = [] } = getState();
   const maintenanceAlerts = Alerts.getAll();
@@ -43,7 +36,6 @@ export function renderAlertas() {
   if (!root) return null;
 
   const generation = ++renderGeneration;
-  ensureAlertasShell(root);
   const listEl = Utils.getEl('lista-alertas');
   const mountIsland = () =>
     loadAlertasBridge().then(({ mountAlertasReact }) => {

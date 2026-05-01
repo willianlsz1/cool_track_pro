@@ -351,6 +351,8 @@ describe('relatorio legacy filters and controls render adapter', () => {
   it('mantem createRoot fora do adapter legado ao conectar a ilha de controles', () => {
     const source = readFileSync('src/ui/views/relatorio.js', 'utf8');
     expect(source).toContain('../../react/entrypoints/relatorioControlsIsland.jsx');
+    expect(source).not.toMatch(/function renderModeSegment\b/);
+    expect(source).not.toMatch(/function renderFilterChips\b/);
     expect(source).not.toMatch(/\bcreateRoot\b/);
     expect(source).not.toMatch(/dangerouslySetInnerHTML/);
   });

@@ -49,4 +49,22 @@ describe('renderAlertas empty states', () => {
 
     expect(document.getElementById('lista-alertas')?.textContent).toContain('Tudo em dia!');
   });
+
+  it('mounts through React without synchronously creating the legacy DOM fallback', async () => {
+    getState.mockReturnValue({ equipamentos: [] });
+    getAll.mockReturnValue([]);
+
+    const { renderAlertas } = await import('../ui/views/alertas.js');
+    const renderPromise = renderAlertas();
+
+    expect(document.getElementById('lista-alertas')).toBeNull();
+
+    await act(async () => {
+      await renderPromise;
+    });
+
+    expect(document.getElementById('lista-alertas')?.textContent).toContain(
+      'Cadastre um equipamento para receber alertas',
+    );
+  });
 });

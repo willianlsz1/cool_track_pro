@@ -206,10 +206,6 @@ function _trendTag(current, previous) {
   return { text: `-${Math.abs(diff)} vs mês passado`, cls: 'down' };
 }
 
-function _modeLabel({ isEmpresaPro }) {
-  return isEmpresaPro ? 'empresa' : 'tecnico';
-}
-
 function _resolveClienteNome(clientes = [], clienteId = null) {
   if (!clienteId) return '';
   return clientes.find((cliente) => cliente.id === clienteId)?.nome || '';
@@ -733,14 +729,7 @@ export function selectNextBestAction({ alerts, equipamentos, registros }) {
   return selectNextDashboardAction({ alerts, equipamentos, registros });
 }
 
-function _renderNextActionCard({
-  alerts,
-  equipamentos,
-  registros,
-  isEmpresaPro,
-  clientes,
-  viewModel,
-}) {
+function _renderNextActionCard({ viewModel }) {
   const model = viewModel?.nextAction;
   const root = getDashboardNextActionRoot();
   if (root && model) {
@@ -753,75 +742,7 @@ function _renderNextActionCard({
     });
   }
 
-  const card = document.getElementById('dash-next-action-card');
-  const titleEl = document.getElementById('dash-next-title');
-  const subEl = document.getElementById('dash-next-sub');
-  const cta = document.getElementById('dash-next-cta');
-  const ctaLabel = document.getElementById('dash-next-cta-label');
-  if (!titleEl || !subEl || !cta || !ctaLabel || !card) return Promise.resolve();
-
-  if (model) {
-    card.dataset.tone = model.tone;
-    cta.removeAttribute('data-nav');
-    cta.removeAttribute('data-action');
-    cta.removeAttribute('data-id');
-    if (model.cta?.nav) cta.dataset.nav = model.cta.nav;
-    if (model.cta?.action) cta.dataset.action = model.cta.action;
-    if (model.cta?.id) cta.dataset.id = model.cta.id;
-    titleEl.textContent = model.title;
-    subEl.textContent = model.subtitle;
-    ctaLabel.textContent = model.cta?.label || 'Ver histórico';
-    return;
-  }
-
-  const sortedRegs = [...(registros || [])].sort((a, b) =>
-    String(b.data).localeCompare(String(a.data)),
-  );
-  const action = selectNextBestAction({ alerts, equipamentos, registros: sortedRegs });
-  const mode = _modeLabel({ isEmpresaPro });
-
-  card.dataset.tone = action.priority <= 3 ? 'danger' : action.priority === 4 ? 'warn' : 'ok';
-  cta.removeAttribute('data-nav');
-  cta.removeAttribute('data-action');
-  cta.removeAttribute('data-id');
-
-  if (action.alert?.eq) {
-    const context = _composeEquipmentContext({
-      equipamento: action.alert.eq,
-      clientes,
-      includeBusinessContext: mode === 'empresa',
-    });
-    titleEl.textContent = action.alert.title || 'Ação recomendada';
-    subEl.textContent = `${context} • ${action.alert.subtitle || 'Exige acompanhamento'}`;
-    cta.dataset.action = 'go-register-equip';
-    cta.dataset.id = action.alert.eq.id || '';
-    ctaLabel.textContent = action.priority <= 4 ? 'Resolver agora' : 'Ver histórico';
-    return;
-  }
-
-  if (action.kind === 'last-service' && action.registro) {
-    const equipamento = findEquip(action.registro.equipId);
-    const context = _composeEquipmentContext({
-      equipamento,
-      clientes,
-      includeBusinessContext: mode === 'empresa',
-    });
-    titleEl.textContent = 'Sem pendências urgentes';
-    subEl.textContent = `Último serviço: ${context} • ${_recencia(action.registro.data)}`;
-    cta.dataset.nav = 'historico';
-    ctaLabel.textContent = 'Ver histórico';
-    return;
-  }
-
-  titleEl.textContent =
-    action.kind === 'empty-equip' && mode === 'empresa'
-      ? 'Monte sua operação começando por cliente ou equipamento'
-      : action.kind === 'empty-equip'
-        ? 'Cadastre seu primeiro equipamento'
-        : 'Nenhuma ação urgente';
-  subEl.textContent = 'Sem pendências imediatas no momento.';
-  cta.dataset.nav = 'historico';
-  ctaLabel.textContent = 'Ver histórico';
+  return Promise.resolve();
 }
 
 function _renderLastServiceCard({ registros, isEmpresaPro, clientes, viewModel }) {
@@ -1542,14 +1463,7 @@ export async function renderDashboard() {
 
     _populateHeaderIdentity({ tier, userName });
 
-    await _renderNextActionCard({
-      alerts,
-      equipamentos,
-      registros,
-      isEmpresaPro,
-      clientes,
-      viewModel: dashboardReadModel,
-    });
+    await _renderNextActionCard({ viewModel: dashboardReadModel });
     await _renderLastServiceCard({
       registros,
       isEmpresaPro,

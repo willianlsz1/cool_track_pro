@@ -185,40 +185,6 @@ const TIPO_META = {
 
 const DEFAULT_TIPO_META = { tone: 'muted', icon: 'tool' };
 
-// ícones inline (stroke 1.6, currentColor) — usa o mesmo kit visual da UI
-const ICON_SVG = {
-  shieldCheck:
-    '<path d="M12 3l8 3v6c0 4.5-3.5 8-8 9-4.5-1-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>',
-  droplets:
-    '<path d="M8 4c1.2 2.5 4 6 4 9a4 4 0 1 1-8 0c0-3 2.8-6.5 4-9z"/><path d="M16 10c.9 1.9 3 4.6 3 7a3 3 0 1 1-6 0c0-2.4 2.1-5.1 3-7z"/>',
-  zap: '<path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z"/>',
-  wrench:
-    '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.3 2.3-2.4-2.4 2.3-2.3z"/>',
-  flask:
-    '<path d="M10 3h4"/><path d="M11 3v6l-5 9a2 2 0 0 0 2 3h8a2 2 0 0 0 2-3l-5-9V3"/><path d="M7 14h10"/>',
-  tool: '<path d="M20 7a4 4 0 0 1-5 5l-7 7-3-3 7-7a4 4 0 0 1 5-5l-2.5 2.5 1.5 1.5L19 8l1-1z"/>',
-  clipboardCheck:
-    '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 13l2 2 4-4"/>',
-  dollarSign: '<path d="M12 3v18"/><path d="M16 7H10a2.5 2.5 0 0 0 0 5h4a2.5 2.5 0 0 1 0 5H8"/>',
-  calendarClock:
-    '<rect x="3" y="5" width="14" height="14" rx="2"/><path d="M3 9h14M8 3v4M14 3v4"/><circle cx="18" cy="18" r="4"/><path d="M18 16.5V18l1 1"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-  tag: '<path d="M3 12l9-9h8v8l-9 9-8-8z"/><circle cx="15.5" cy="8.5" r="1.2"/>',
-  chevronDown: '<path d="M6 9l6 6 6-6"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  x: '<path d="M6 6l12 12M18 6L6 18"/>',
-  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  edit2: '<path d="M14 4l6 6-12 12H2v-6L14 4z"/>',
-  snowflake:
-    '<path d="M12 2v20M2 12h20"/><path d="M5 5l14 14M19 5L5 19"/><path d="M12 5l-2-2M12 5l2-2M12 19l-2 2M12 19l2 2M5 12l-2-2M5 12l-2 2M19 12l2-2M19 12l2 2"/>',
-  arrowRight: '<path d="M9 6l6 6-6 6"/>',
-};
-
-function icon(name, size = 14) {
-  const inner = ICON_SVG[name] || ICON_SVG.tool;
-  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
-}
-
 // ──────────────────────────────────────────────────────────────────────
 // Status → variante visual (ok/warn/danger do sistema)
 // ──────────────────────────────────────────────────────────────────────
@@ -600,21 +566,6 @@ function mountRelatorioCards({ root, cards }) {
   return loadRelatorioCardsBridge().then(mountWithBridge);
 }
 
-function renderModeSegment({ isPro, context }) {
-  if (!isPro) return '';
-  const active = context.cliente ? 'cliente' : context.setor ? 'setor' : 'servicos';
-  const option = (key, label) =>
-    `<span class="rel-mode-segment__item${active === key ? ' is-active' : ''}">${label}</span>`;
-  return `
-    <div class="rel-mode-segment" role="group" aria-label="Contexto dos relatórios">
-      ${option('servicos', 'Serviços')}
-      ${option('cliente', 'Cliente')}
-      ${option('setor', 'Setor')}
-      ${option('pmoc', 'PMOC')}
-    </div>
-  `;
-}
-
 function renderCompanyPmocBlock({ isPro, hasPmocAttention }) {
   if (!isPro) return '';
   return `
@@ -638,47 +589,6 @@ function renderCompanyPmocBlock({ isPro, hasPmocAttention }) {
       </div>
     </section>
   `;
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// Filter chips
-// ──────────────────────────────────────────────────────────────────────
-function renderFilterChips({
-  periodoTxt,
-  equipTxt,
-  hasPeriodoFilter,
-  hasEquipFilter,
-  advancedOpen,
-  isPro,
-}) {
-  const anyActive = hasPeriodoFilter || hasEquipFilter;
-  const periodoChip = `
-    <button type="button" class="rel-chip${hasPeriodoFilter ? ' is-active' : ''}"
-      data-action="rel-toggle-advanced" aria-expanded="${advancedOpen}" aria-controls="rel-filters-advanced">
-      <span class="rel-chip__icon">${icon('calendar', 12)}</span>
-      <span class="rel-chip__label">${Utils.escapeHtml(hasPeriodoFilter ? periodoTxt : 'Todo período')}</span>
-    </button>
-  `;
-  const equipChip = `
-    <button type="button" class="rel-chip${hasEquipFilter ? ' is-active' : ''}"
-      data-action="rel-toggle-advanced" aria-expanded="${advancedOpen}" aria-controls="rel-filters-advanced">
-      <span class="rel-chip__icon">${icon('tag', 12)}</span>
-      <span class="rel-chip__label">${Utils.escapeHtml(hasEquipFilter ? equipTxt : 'Todos os equipamentos')}</span>
-    </button>
-  `;
-  const newFilterChip = `
-    <button type="button" class="rel-chip rel-chip--dashed"
-      data-action="rel-toggle-advanced" aria-expanded="${advancedOpen}" aria-controls="rel-filters-advanced">
-      <span class="rel-chip__icon">${icon(advancedOpen ? 'x' : 'plus', 12)}</span>
-      <span class="rel-chip__label">${advancedOpen ? 'Fechar filtros' : isPro ? 'Mais filtros' : 'Mais opções'}</span>
-    </button>
-  `;
-  const clearBtn = anyActive
-    ? `<button type="button" class="rel-chip__clear" data-action="rel-clear-filters">
-         ${icon('x', 12)} <span>Limpar filtros</span>
-       </button>`
-    : '';
-  return `${periodoChip}${equipChip}${isPro ? newFilterChip : ''}${clearBtn}`;
 }
 
 function getSafeSignatureUrl(value) {
@@ -807,11 +717,7 @@ export function renderRelatorio(options = {}) {
   const { equipId: filtEq, de, ate } = readRelatorioFilters(options);
 
   const controlsRootEl = Utils.getEl('rel-controls-root');
-  const chipsEl = Utils.getEl('rel-filters-chips');
   const corpoEl = Utils.getEl('relatorio-corpo');
-  const pageTitleEl = Utils.getEl('rel-main-title');
-  const pageSubtitleEl = Utils.getEl('rel-main-subtitle');
-  const modeSegmentEl = Utils.getEl('rel-mode-segment-slot');
   const companyPmocEl = Utils.getEl('rel-company-pmoc-slot');
   if (!corpoEl) return;
 
@@ -845,7 +751,7 @@ export function renderRelatorio(options = {}) {
   });
   const {
     records: list,
-    filters: { hasPeriodoFilter, periodoTxt, equipTxt, singleEquipFilter },
+    filters: { periodoTxt, equipTxt, singleEquipFilter },
     modeCopy,
     context,
     hasPmocAttention,
@@ -884,48 +790,6 @@ export function renderRelatorio(options = {}) {
       root: controlsRootEl,
       controls: controlsViewModel,
     });
-
-    if (!controlsRootEl) {
-      if (pageTitleEl) pageTitleEl.textContent = modeCopy.pageTitle;
-      if (pageSubtitleEl) pageSubtitleEl.textContent = modeCopy.pageSubtitle;
-      if (modeSegmentEl) modeSegmentEl.innerHTML = renderModeSegment({ isPro, context });
-      if (advancedEl) {
-        if (advancedOpen) advancedEl.removeAttribute('hidden');
-        else advancedEl.setAttribute('hidden', '');
-      }
-
-      const pmocMainItem = Utils.getEl('rel-dd-pmoc-main');
-      const pmocInfoItem = Utils.getEl('rel-dd-pmoc-info');
-      if (pmocMainItem && pmocInfoItem) {
-        if (isPro) {
-          pmocMainItem.removeAttribute('hidden');
-          pmocInfoItem.removeAttribute('hidden');
-        } else {
-          pmocMainItem.setAttribute('hidden', '');
-          pmocInfoItem.setAttribute('hidden', '');
-        }
-      }
-
-      const pmocNudgeItem = Utils.getEl('rel-dd-pmoc-nudge');
-      if (pmocNudgeItem) {
-        if (isPro) {
-          pmocNudgeItem.setAttribute('hidden', '');
-        } else {
-          pmocNudgeItem.removeAttribute('hidden');
-        }
-      }
-
-      if (chipsEl) {
-        chipsEl.innerHTML = renderFilterChips({
-          periodoTxt,
-          equipTxt,
-          hasPeriodoFilter,
-          hasEquipFilter,
-          advancedOpen,
-          isPro,
-        });
-      }
-    }
 
     const cardsViewModel = buildRelatorioCardsReactViewModel({
       list,
