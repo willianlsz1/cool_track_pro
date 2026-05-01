@@ -295,8 +295,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e provar uma nova microfamilia CSS pequena antes de qualquer nova remocao.
+O proximo PR recomendado e remover de forma cirurgica a microfamilia CSS `orc-timeline*`, ja provada morta em `docs/migration/css-orc-timeline-proof.md`.
 
-Motivo: a remocao controlada de `orc-status-pill--*` ja foi aplicada em `src/assets/styles/redesign.css`, preservando `.orc-status-pill` e os seletores `[data-status='...'] .orc-status-pill`. A proxima etapa deve repetir o fluxo de prova antes de remover outra familia.
+Motivo: a prova confirmou que Orcamentos nao renderiza `orc-timeline*` em `OrcamentosPage.jsx`, nao retorna dados de timeline em `orcamentosViewModel.js` e nao usa essa familia em modal, assinatura, handlers, testes ou E2E. As ocorrencias reais ficaram restritas a `src/assets/styles/components.css` e docs.
 
-Escopo recomendado: investigar `orc-timeline*` em PR documental pequeno, rodando greps diretos e buscas dinamicas, classificando como viva, morta ou inconclusiva. Nao remover CSS nesse proximo PR; manter Tailwind/preflight intactos.
+Escopo recomendado: remover apenas os seletores `orc-timeline*` de `src/assets/styles/components.css`, preservando `timeline*` generico do Historico, `equip-card__timeline-*` de Equipamentos e `is-done` transversal. Validar Orcamentos com lista vazia e cards/status principais antes de concluir; nao mexer em React, handlers, rotas, Tailwind/preflight, PDF, assinatura, WhatsApp, storage/backend ou modais.
