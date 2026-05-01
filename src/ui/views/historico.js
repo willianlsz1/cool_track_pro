@@ -15,7 +15,6 @@ import { getState, findEquip, setState } from '../../core/state.js';
 import { Storage } from '../../core/storage.js';
 import { Toast } from '../../core/toast.js';
 import { goTo } from '../../core/router.js';
-import { emptyStateHtml } from '../components/emptyState.js';
 import { SavedHighlight } from '../components/onboarding.js';
 import {
   cleanupOrphanSignatures,
@@ -98,6 +97,42 @@ let _urlFiltersHydrated = false;
 // vez que o user limpa via chip, ou navega pra histórico sem clienteId nos
 // query params. Persistente apenas dentro da sessão (não na URL).
 let _clienteFilter = { id: null, nome: null };
+let _historicoTimelineBridgePromise = null;
+let _historicoTimelineBridge = null;
+let _historicoTimelineRenderGeneration = 0;
+
+function loadHistoricoTimelineBridge() {
+  if (_historicoTimelineBridge) return Promise.resolve(_historicoTimelineBridge);
+  if (!_historicoTimelineBridgePromise) {
+    _historicoTimelineBridgePromise = import('../../react/entrypoints/historicoTimelineIsland.jsx')
+      .then((mod) => {
+        _historicoTimelineBridge = mod;
+        return mod;
+      })
+      .catch((error) => {
+        _historicoTimelineBridgePromise = null;
+        throw error;
+      });
+  }
+  return _historicoTimelineBridgePromise;
+}
+
+export function unmountHistoricoTimeline() {
+  _historicoTimelineRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById('timeline');
+  if (!root?.dataset.reactHistoricoTimelineMounted) return null;
+
+  if (_historicoTimelineBridge?.unmountHistoricoTimelineReact) {
+    _historicoTimelineBridge.unmountHistoricoTimelineReact(root);
+    return null;
+  }
+
+  return loadHistoricoTimelineBridge().then((mod) => {
+    mod.unmountHistoricoTimelineReact?.(root);
+  });
+}
 
 function readUrlFilters() {
   if (typeof window === 'undefined') return {};
@@ -172,6 +207,19 @@ function toNumber(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function getSafeMediaUrl(value) {
+  const url = String(value || '').trim();
+  if (!url) return null;
+  if (/^data:image\/(?:png|jpe?g|gif|webp|bmp|avif);base64,/i.test(url)) return url;
+  if (/^(https?:|blob:)/i.test(url)) return url;
+  if (/^(\/(?!\/)|\.\/|\.\.\/)/.test(url)) return url;
+  return null;
+}
+
 function formatBRL(value) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -193,8 +241,8 @@ function formatBRLMoney(value) {
 
 function getPhotoUrl(photo) {
   if (!photo) return null;
-  if (typeof photo === 'string') return photo;
-  return photo.url || photo.src || photo.dataUrl || null;
+  const raw = typeof photo === 'string' ? photo : photo.url || photo.src || photo.dataUrl || null;
+  return getSafeMediaUrl(raw);
 }
 
 /**
@@ -480,49 +528,6 @@ export function getAttentionItems({
   return list.slice(0, 6);
 }
 
-function renderOperationSummary({ totalServicosHoje, totalEquipHoje }) {
-  return `<section class="hist-op-summary" aria-label="Resumo de hoje">
-    <div class="hist-op-summary__head">Resumo de hoje</div>
-    <div class="hist-op-summary__kpis">
-      <div class="hist-op-summary__kpi">
-        <strong>${totalServicosHoje}</strong>
-        <span>serviços realizados</span>
-      </div>
-      <div class="hist-op-summary__kpi">
-        <strong>${totalEquipHoje}</strong>
-        <span>equipamentos atendidos</span>
-      </div>
-    </div>
-    <button type="button" class="hist-op-summary__cta" data-nav="registro">Registrar serviço</button>
-  </section>`;
-}
-
-function renderAttentionSection(items = []) {
-  if (!Array.isArray(items) || !items.length) return '';
-  const rows = items
-    .map((item) => {
-      const toneCls = item.tone === 'danger' ? ' hist-attention__item--danger' : '';
-      const actionAttrs = item.equipId
-        ? `data-hist-action="hist-filter-equip" data-equip-id="${Utils.escapeAttr(item.equipId)}"`
-        : 'data-nav="equipamentos"';
-      return `<article class="hist-attention__item${toneCls}">
-        <div class="hist-attention__content">
-          <strong>${Utils.escapeHtml(item.title || 'Item')}</strong>
-          <span>${Utils.escapeHtml(item.reason || 'Exige atenção')}</span>
-        </div>
-        <button type="button" class="hist-attention__cta" ${actionAttrs}>
-          ${Utils.escapeHtml(item.ctaLabel || 'Resolver')}
-        </button>
-      </article>`;
-    })
-    .join('');
-
-  return `<section class="hist-attention" aria-label="Itens em atenção">
-    <div class="hist-attention__head">Atenção</div>
-    ${rows}
-  </section>`;
-}
-
 // Agrupa lista de registros por categoria de data relativa pra renderizar
 // headers tipo "Hoje", "Ontem", "Esta semana" entre os grupos.
 // Espera lista já ordenada (mais recente primeiro). Retorna lista de grupos
@@ -562,29 +567,6 @@ function groupRegistrosByDate(list) {
   }
 
   return buckets.filter((b) => b.items.length > 0);
-}
-
-function renderDayGroupHeader(group) {
-  const count = group.items.length;
-  const countLabel = count === 1 ? '1 serviço' : count + ' serviços';
-  return (
-    '<div class="hist-day-group" role="presentation">' +
-    '<div class="hist-day-group__label">' +
-    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
-    ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>' +
-    '<line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>' +
-    '<line x1="3" y1="10" x2="21" y2="10"/>' +
-    '</svg>' +
-    '<span>' +
-    Utils.escapeHtml(group.label) +
-    '</span>' +
-    '<span class="hist-day-group__count">' +
-    countLabel +
-    '</span>' +
-    '</div>' +
-    '</div>'
-  );
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -876,75 +858,115 @@ function renderActiveFilterChips(filters) {
   </div>`;
 }
 
-function renderPhotoStrip(fotos) {
-  if (!Array.isArray(fotos) || !fotos.length) return '';
-  const urls = fotos.map(getPhotoUrl).filter(Boolean);
-  if (!urls.length) return '';
+function getTimelineDateLabel(registro, groupId) {
+  const dateInGroupContext = groupId && groupId !== 'antigos';
+  if (!dateInGroupContext) return Utils.formatDatetime(registro?.data);
 
-  const visibleCount = Math.min(3, urls.length);
-  const extra = urls.length - visibleCount;
-
-  const thumbs = urls
-    .slice(0, visibleCount)
-    .map(
-      (url, idx) =>
-        `<button type="button" class="timeline__item__photos-thumb"
-          data-hist-action="hist-open-photo" data-photo-url="${Utils.escapeAttr(url)}"
-          aria-label="Abrir foto ${idx + 1}">
-          <img src="${Utils.escapeAttr(url)}" alt="Foto ${idx + 1} do serviço" loading="lazy"/>
-        </button>`,
-    )
-    .join('');
-
-  const more = extra
-    ? `<span class="timeline__item__photos-more" aria-label="Mais ${extra} fotos">+${extra}</span>`
-    : '';
-
-  return `<div class="timeline__item__photos" aria-label="Fotos do serviço">
-    ${thumbs}${more}
-  </div>`;
+  const date = registro?.data ? new Date(registro.data) : null;
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    : Utils.formatDatetime(registro?.data);
 }
 
-function renderSignatureBlock(registro) {
-  if (!registro?.assinatura) return '';
+function buildTimelineHeadPills(registro, equipamento) {
+  const prioridade = (registro?.prioridade || '').toLowerCase();
+  const typePill = getTypePillInfo(registro?.tipo);
+  const equipStatusPill = getEquipStatusPill(equipamento);
+  const showEquipStatusPill = equipStatusPill && equipStatusPill.tone !== 'ok';
+  const showPrioridadePill = prioridade === 'alta' || prioridade === 'baixa';
 
-  const hasLocal = Boolean(getSignatureForRecord(registro.id));
+  return [
+    String(registro?.data || '').slice(0, 10) === Utils.localDateString()
+      ? { id: 'today', label: 'Hoje', color: 'success' }
+      : null,
+    showEquipStatusPill
+      ? {
+          id: 'equip-status',
+          label: equipStatusPill.label,
+          color: equipStatusPill.tone === 'danger' ? 'red' : 'amber',
+          title: 'Status atual do equipamento',
+        }
+      : null,
+    showPrioridadePill
+      ? {
+          id: 'prioridade',
+          label: prioridade === 'alta' ? 'Alta prioridade' : 'Baixa prioridade',
+          color: prioridade === 'alta' ? 'red' : 'cyan',
+        }
+      : null,
+    {
+      id: 'type',
+      label: typePill.label,
+      color: typePill.color,
+    },
+  ].filter(Boolean);
+}
 
-  // Assinatura existe no registro mas não está local neste dispositivo —
-  // não renderiza nada (o placeholder anterior poluía visualmente sem
-  // adicionar info acionável). Se o usuário precisar, pode abrir o registro
-  // em outro device onde a assinatura foi coletada.
-  if (!hasLocal) return '';
+function buildTimelineMeta(registro) {
+  const chunks = [];
+  const custoPecas = toNumber(registro?.custoPecas);
+  const custoMao = toNumber(registro?.custoMaoObra);
+  const custoTotal = custoPecas + custoMao;
 
-  const dataUrl = getSignatureForRecord(registro.id);
+  if (registro?.tecnico) {
+    chunks.push({ id: 'tecnico', icon: 'user', text: registro.tecnico });
+  }
+  if (registro?.pecas) {
+    chunks.push({ id: 'pecas', icon: 'box', text: registro.pecas });
+  }
+  if (custoTotal > 0) {
+    chunks.push({
+      id: 'custo',
+      className: 'meta-mono',
+      prefix: 'Total: ',
+      highlight: formatBRL(custoTotal),
+      highlightClassName: 'meta-cyan',
+      details:
+        custoPecas > 0 && custoMao > 0
+          ? `(peças ${formatBRLMoney(custoPecas)} · mão ${formatBRLMoney(custoMao)})`
+          : '',
+    });
+  }
+  if (registro?.proxima) {
+    const proxInfo = getProximaStatus(registro.proxima) || {
+      tone: 'neutral',
+      label: `Próxima: ${Utils.formatDate(registro.proxima)}`,
+    };
+    chunks.push({
+      id: 'proxima',
+      icon: 'calendar',
+      text: proxInfo.label,
+      textClassName:
+        proxInfo.tone === 'danger'
+          ? 'meta-danger'
+          : proxInfo.tone === 'warn'
+            ? 'meta-warn'
+            : 'meta-neutral',
+      title: 'Próxima: ' + Utils.formatDate(registro.proxima),
+    });
+  }
+
+  return chunks;
+}
+
+function buildTimelineSignature(registro) {
+  if (!registro?.assinatura) return null;
+
+  const dataUrl = getSafeMediaUrl(getSignatureForRecord(registro.id));
+  if (!dataUrl) return null;
+
   const clienteNome = registro.clienteNome?.trim() || '';
-  const ariaLabel = clienteNome
-    ? `Ver assinatura de ${clienteNome} em tamanho grande`
-    : 'Ver assinatura do cliente em tamanho grande';
-  return `<button type="button" class="hist-signature-preview"
-      data-hist-action="hist-view-signature" data-id="${Utils.escapeAttr(registro.id)}"
-      aria-label="${Utils.escapeAttr(ariaLabel)}">
-      <span class="hist-signature-preview__canvas">
-        <img src="${Utils.escapeAttr(dataUrl)}"
-          alt="Assinatura registrada pelo cliente${clienteNome ? ' ' + Utils.escapeAttr(clienteNome) : ''}" />
-      </span>
-      <span class="hist-signature-preview__label">
-        <span class="hist-signature-preview__label-ic" aria-hidden="true">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m12 19 7-7 3 3-7 7-3-3Z"/>
-            <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18Z"/>
-            <path d="m2 2 7.5 7.5"/><circle cx="11" cy="11" r="2"/>
-          </svg>
-        </span>
-        <span><b>Assinado pelo cliente</b></span>
-        <span class="hist-signature-preview__zoom" aria-hidden="true">toque pra ampliar</span>
-      </span>
-    </button>`;
+  return {
+    url: dataUrl,
+    ariaLabel: clienteNome
+      ? `Ver assinatura de ${clienteNome} em tamanho grande`
+      : 'Ver assinatura do cliente em tamanho grande',
+    alt: `Assinatura registrada pelo cliente${clienteNome ? ' ' + clienteNome : ''}`,
+  };
 }
 
-function renderTimelineItem(
-  r,
+function buildTimelineItemModel(
+  registro,
   {
     isFirst,
     equipamentos,
@@ -955,204 +977,113 @@ function renderTimelineItem(
     groupId = '',
   },
 ) {
-  const eq = equipamentos.find((e) => e.id === r.equipId) || findEquip(r.equipId);
+  const eq =
+    equipamentos.find((item) => item.id === registro?.equipId) || findEquip(registro?.equipId);
   const setorNome = eq?.setorId ? setoresById.get(eq.setorId)?.nome || '' : '';
-  const safeStatus = Utils.safeStatus(r.status);
-  const dotMod = safeStatus !== 'ok' ? ` timeline__dot--${safeStatus}` : '';
-  const itemStatusMod =
-    safeStatus === 'warn' || safeStatus === 'danger' ? ` timeline__item--${safeStatus}` : '';
-  const custoPecas = toNumber(r.custoPecas);
-  const custoMao = toNumber(r.custoMaoObra);
-  const custoTotal = custoPecas + custoMao;
-  const isToday = r.data.slice(0, 10) === Utils.localDateString();
-  const typePill = getTypePillInfo(r.tipo);
-  // Quando o card esta dentro de um grupo de data (Hoje/Ontem/Esta semana/Este mês),
-  // mostra so a hora pq o header do grupo já comunica o dia. Em "Anteriores"
-  // (sem contexto de grupo) mostra data + hora completa pra ficar inequivoco.
-  const dateInGroupCtx = groupId && groupId !== 'antigos';
-  let headerDateLabel;
-  if (dateInGroupCtx) {
-    const d = r.data ? new Date(r.data) : null;
-    headerDateLabel =
-      d && !Number.isNaN(d.getTime())
-        ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-        : Utils.formatDatetime(r.data);
-  } else {
-    headerDateLabel = Utils.formatDatetime(r.data);
-  }
-  const prioridade = (r.prioridade || '').toLowerCase();
-  const showPrioridadePill = prioridade === 'alta' || prioridade === 'baixa';
-  const prioridadeColor = prioridade === 'alta' ? 'red' : 'cyan';
-  const prioridadeLabel = prioridade === 'alta' ? 'Alta prioridade' : 'Baixa prioridade';
-
-  // Título do serviço: usa o próprio tipo (free-form) como heading.
-  const serviceTitle = (r.tipo || 'Serviço').trim();
-
-  // Tag do setor em maiúsculas compactas (ex: "SALA 1"). Evita tag vazia.
-  const setorTag = setorNome ? setorNome.slice(0, 12).toUpperCase().replace(/\s+/g, ' ') : '';
   const clienteNome = eq?.clienteId ? clientesById.get(eq.clienteId)?.nome || '' : '';
-
   const equipTag = (eq?.tag || eq?.local || '').trim();
+  const setorTag = setorNome ? setorNome.slice(0, 12).toUpperCase().replace(/\s+/g, ' ') : '';
+  const photoUrls = asArray(registro?.fotos).map(getPhotoUrl).filter(Boolean);
+  const safeStatus = Utils.safeStatus(registro?.status);
 
-  // Pill do status operacional do equipamento — só aparece em warn/danger pra
-  // manter alto sinal. Quando está ok, o ponto verde da timeline já comunica.
-  const equipStatusPill = getEquipStatusPill(eq);
-  const showEquipStatusPill = equipStatusPill && equipStatusPill.tone !== 'ok';
-  const equipStatusColor = equipStatusPill?.tone === 'danger' ? 'red' : 'amber';
+  return {
+    id: String(registro?.id || ''),
+    equipId: String(registro?.equipId || ''),
+    isLatest: Boolean(isFirst),
+    status: safeStatus,
+    headerDateLabel: getTimelineDateLabel(registro, groupId),
+    headPills: buildTimelineHeadPills(registro, eq),
+    serviceTitle: (registro?.tipo || 'Serviço').trim(),
+    equipmentName: eq?.nome ?? '—',
+    setorName: setorNome,
+    setorTag,
+    equipTag,
+    context:
+      isPro && (clienteNome || setorNome || eq?.nome)
+        ? [clienteNome, setorNome, eq?.nome].filter(Boolean).join(' · ')
+        : '',
+    obs: registro?.obs || '',
+    meta: buildTimelineMeta(registro),
+    photoUrls: photoUrls.slice(0, 3),
+    extraPhotoCount: Math.max(0, photoUrls.length - 3),
+    signature: buildTimelineSignature(registro),
+    showFilterEquip: Boolean(registro?.equipId && currentFilterEquipId !== registro.equipId),
+  };
+}
 
-  const headPills = [
-    isToday ? `<span class="hist-pill hist-pill--success">Hoje</span>` : '',
-    showEquipStatusPill
-      ? `<span class="hist-pill hist-pill--${equipStatusColor}"
-          title="${Utils.escapeAttr('Status atual do equipamento')}">
-          ${Utils.escapeHtml(equipStatusPill.label)}
-        </span>`
-      : '',
-    showPrioridadePill
-      ? `<span class="hist-pill hist-pill--${prioridadeColor}">${prioridadeLabel}</span>`
-      : '',
-    `<span class="hist-pill hist-pill--${typePill.color}">${Utils.escapeHtml(typePill.label)}</span>`,
-  ]
-    .filter(Boolean)
-    .join('');
-
-  // Meta chunks em ordem: técnico · peças · custo · próxima
-  const metaChunks = [];
-  if (r.tecnico) {
-    metaChunks.push(`<span class="meta-chunk">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
-      </svg>${Utils.escapeHtml(r.tecnico)}</span>`);
-  }
-  if (r.pecas) {
-    metaChunks.push(`<span class="meta-chunk">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>
-      </svg>${Utils.escapeHtml(r.pecas)}</span>`);
-  }
-  if (custoTotal > 0) {
-    const hasBreakdown = custoPecas > 0 && custoMao > 0;
-    const breakdown = hasBreakdown
-      ? ` <span class="meta-details">(peças ${formatBRLMoney(custoPecas)} · mão ${formatBRLMoney(custoMao)})</span>`
-      : '';
-    metaChunks.push(
-      `<span class="meta-chunk meta-mono">Total: <span class="meta-cyan">${formatBRL(custoTotal)}</span>${breakdown}</span>`,
-    );
-  }
-  if (r.proxima) {
-    // 3 estados acionáveis: vencida (passado), vence logo (≤7d), em dia.
-    // Mantém a data formatada no title pra quem quiser conferir por tooltip.
-    const proxInfo = getProximaStatus(r.proxima) || {
-      tone: 'neutral',
-      label: `Próxima: ${Utils.formatDate(r.proxima)}`,
+function buildTimelineEmptyState(hasFilters) {
+  if (hasFilters) {
+    return {
+      variant: 'default',
+      icon: '\u{1f50d}',
+      title: 'Nenhum resultado para esse filtro',
+      description: 'Tente outro termo ou remova um filtro acima.',
     };
-    const toneCls =
-      proxInfo.tone === 'danger'
-        ? 'meta-danger'
-        : proxInfo.tone === 'warn'
-          ? 'meta-warn'
-          : 'meta-neutral';
-    metaChunks.push(`<span class="meta-chunk" title="${Utils.escapeAttr('Próxima: ' + Utils.formatDate(r.proxima))}">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="5" width="18" height="16" rx="2"/>
-        <path d="M8 3v4M16 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/>
-      </svg><span class="${toneCls}">${Utils.escapeHtml(proxInfo.label)}</span></span>`);
   }
 
-  const metaHtml = metaChunks.length
-    ? `<div class="timeline__item__meta">${metaChunks.join('<span class="meta-sep" aria-hidden="true">·</span>')}</div>`
-    : '';
+  return {
+    variant: 'engaging',
+    ariaLabel: 'Histórico vazio',
+    icon: '\u{1f4cb}',
+    title: 'Nenhum serviço registrado ainda.',
+    description: 'Depois do registro, seu histórico aparece aqui.',
+    cta: {
+      label: 'Registrar primeiro serviço',
+      nav: 'registro',
+    },
+    microcopy: '',
+  };
+}
 
-  const photoStrip = renderPhotoStrip(r.fotos);
-  const signatureBlock = renderSignatureBlock(r);
+function buildHistoricoTimelineReactViewModel({
+  list,
+  todaySummary,
+  attentionItems,
+  equipamentos,
+  setoresById,
+  clientesById,
+  isProMode,
+  currentFilterEquipId,
+  hasFilters,
+}) {
+  let globalIdx = 0;
+  const groups = groupRegistrosByDate(list).map((group) => {
+    const count = group.items.length;
+    const items = group.items.map((registro) => {
+      const item = buildTimelineItemModel(registro, {
+        isFirst: globalIdx === 0,
+        equipamentos,
+        setoresById,
+        clientesById,
+        isPro: isProMode,
+        currentFilterEquipId,
+        groupId: group.id,
+      });
+      globalIdx += 1;
+      return item;
+    });
 
-  // Atalho "Ver tudo deste equipamento" — só faz sentido se o filtro de
-  // equipamento NÃO estiver ativo (e o registro realmente tiver equipId).
-  // Evita adicionar "modo agrupar" separado: um clique leva o técnico pra
-  // timeline filtrada pelo mesmo equip e ele vê o histórico inteiro.
-  const showVerTudoLink = r.equipId && currentFilterEquipId !== r.equipId;
-  const verTudoLink = showVerTudoLink
-    ? `<button type="button" class="timeline__item__focus-equip"
-        data-hist-action="hist-filter-equip" data-equip-id="${Utils.escapeAttr(r.equipId)}"
-        aria-label="Ver todos os serviços deste equipamento">
-        Ver tudo deste equipamento →
-      </button>`
-    : '';
+    return {
+      id: group.id,
+      label: group.label,
+      countLabel: count === 1 ? '1 serviço' : `${count} serviços`,
+      items,
+    };
+  });
 
-  return `<article class="timeline__item${isFirst ? ' timeline__item--latest' : ''}${itemStatusMod}"
-      role="listitem" data-reg-id="${Utils.escapeAttr(r.id)}">
-    <span class="timeline__dot${dotMod}" aria-hidden="true"></span>
-    <div class="timeline__item__main">
-      <div class="timeline__item__header">
-        <span class="timeline__item__date">${Utils.escapeHtml(headerDateLabel)}</span>
-        <div class="timeline__item__header-spacer"></div>
-        ${headPills}
-      </div>
-      <h3 class="timeline__item__service">${Utils.escapeHtml(serviceTitle)}</h3>
-      <div class="timeline__item__equipment">
-        <span>${Utils.escapeHtml(eq?.nome ?? '—')}</span>
-        ${
-          setorNome || equipTag
-            ? `<span class="timeline__item__equipment-sep" aria-hidden="true">·</span>`
-            : ''
-        }
-        ${setorNome ? `<span class="timeline__item__equipment-tag">${Utils.escapeHtml(setorNome)}</span>` : ''}
-        ${setorTag ? `<span class="hist-pill hist-pill--neutral">${Utils.escapeHtml(setorTag)}</span>` : ''}
-      </div>
-      ${
-        isPro && (clienteNome || setorNome || eq?.nome)
-          ? `<div class="timeline__item__context">${Utils.escapeHtml(
-              [clienteNome, setorNome, eq?.nome].filter(Boolean).join(' · '),
-            )}</div>`
-          : ''
-      }
-      ${r.obs ? `<p class="timeline__item__obs">${Utils.escapeHtml(r.obs)}</p>` : ''}
-      ${metaHtml}
-      ${photoStrip}
-      ${signatureBlock}
-      ${verTudoLink}
-    </div>
-    <div class="hist-item-actions">
-      <div class="hist-item-actions__menu" role="menu" hidden>
-        <button type="button" role="menuitem"
-          class="hist-item-actions__menuitem"
-          data-action="edit-reg" data-id="${Utils.escapeAttr(r.id)}"
-          title="Editar" aria-label="Editar registro">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/>
-          </svg>
-        </button>
-        <button type="button" role="menuitem"
-          class="hist-item-actions__menuitem hist-item-actions__menuitem--danger"
-          data-action="delete-reg" data-id="${Utils.escapeAttr(r.id)}"
-          title="Excluir" aria-label="Excluir registro">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/>
-          </svg>
-        </button>
-      </div>
-      <button type="button" class="hist-item-actions__kebab"
-        data-hist-action="toggle-card-menu" data-id="${Utils.escapeAttr(r.id)}"
-        aria-label="Ações do registro" aria-haspopup="menu" aria-expanded="false">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="5" r="1.5"/>
-          <circle cx="12" cy="12" r="1.5"/>
-          <circle cx="12" cy="19" r="1.5"/>
-        </svg>
-      </button>
-    </div>
-  </article>`;
+  return {
+    operationSummary: todaySummary,
+    attentionItems,
+    groups,
+    emptyState: groups.length ? null : buildTimelineEmptyState(hasFilters),
+  };
 }
 
 /** Popula o select de setor e controla sua visibilidade. */
 function syncSetorSelect(currentSetorId) {
-  const { setores = [], equipamentos = [] } = getState() || {};
+  const state = getState() || {};
+  const setores = asArray(state.setores);
+  const equipamentos = asArray(state.equipamentos);
   const el = Utils.getEl('hist-setor');
   if (!el) return;
 
@@ -1199,8 +1130,12 @@ export function renderHist() {
   // Suporta deep linking: ?periodo=7d&setor=xyz aplica filtros direto.
   hydrateFiltersFromUrl();
 
-  const { registros = [], equipamentos = [], setores = [], clientes = [] } = getState() || {};
-  cleanupOrphanSignatures(registros.map((r) => r.id));
+  const state = getState() || {};
+  const registros = asArray(state.registros);
+  const equipamentos = asArray(state.equipamentos);
+  const setores = asArray(state.setores);
+  const clientes = asArray(state.clientes);
+  cleanupOrphanSignatures(registros.map((r) => r?.id).filter(Boolean));
 
   syncSetorSelect();
 
@@ -1285,81 +1220,54 @@ export function renderHist() {
     isPro: isProMode,
   });
 
-  const recurring = getRecurringEquips(list);
+  const hasFilters = Boolean(busca || filtEq || filtSetor || period !== 'tudo' || tipo);
+  const renderGeneration = (_historicoTimelineRenderGeneration += 1);
 
   const renderTimeline = () => {
-    // Card gigante de resumo removido — usuário reportou que ocupava espaço
-    // demais e duplicava o CTA "Gerar Relatório" do header. Insights numéricos
-    // continuam disponíveis no Painel.
-    const preList = renderOperationSummary(todaySummary) + renderAttentionSection(attentionItems);
-    void recurring; // ainda calculado pra eventual reuso (alerta de recorrência)
+    if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
 
-    if (!list.length) {
-      el.innerHTML =
-        busca || filtEq || filtSetor || period !== 'tudo' || tipo
-          ? `${preList}${emptyStateHtml({
-              icon: '🔍',
-              title: 'Nenhum resultado para esse filtro',
-              description: 'Tente outro termo ou remova um filtro acima.',
-            })}`
-          : `${preList}${emptyStateHtml({
-              variant: 'engaging',
-              ariaLabel: 'Histórico vazio',
-              icon: '📋',
-              title: 'Nenhum serviço registrado ainda.',
-              description: 'Depois do registro, seu histórico aparece aqui.',
-              cta: {
-                label: 'Registrar primeiro serviço',
-                nav: 'registro',
-              },
-              microcopy: '',
-            })}`;
+    const timelineViewModel = buildHistoricoTimelineReactViewModel({
+      list,
+      todaySummary,
+      attentionItems,
+      equipamentos,
+      setoresById,
+      clientesById,
+      isProMode,
+      currentFilterEquipId: filtEq || '',
+      hasFilters,
+    });
+
+    const afterMount = () => {
       attachFilterHandlers(el);
-      return;
+
+      if (prevScrollTop > 0) {
+        requestAnimationFrame(() => {
+          if (scrollRoot) scrollRoot.scrollTop = prevScrollTop;
+          else window.scrollTo(0, prevScrollTop);
+        });
+      }
+
+      if (SavedHighlight.applyIfPending()) {
+        Toast.success('Serviço registrado.');
+      }
+    };
+
+    const mountWithBridge = (bridge) => {
+      if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
+      const mounted = bridge.mountHistoricoTimelineReact(el, { viewModel: timelineViewModel });
+      afterMount();
+      return mounted;
+    };
+
+    if (_historicoTimelineBridge?.mountHistoricoTimelineReact) {
+      return mountWithBridge(_historicoTimelineBridge);
     }
 
-    // Agrupa por data relativa para inserir headers entre grupos.
-    // Dentro de cada grupo, preserva a ordem (mais recente primeiro).
-    const groups = groupRegistrosByDate(list);
-    let globalIdx = 0;
-    const itemsHtml = groups
-      .map((group) => {
-        const groupItems = group.items
-          .map((r) => {
-            const html = renderTimelineItem(r, {
-              isFirst: globalIdx === 0,
-              equipamentos,
-              setoresById,
-              clientesById,
-              isPro: isProMode,
-              currentFilterEquipId: filtEq || '',
-              groupId: group.id,
-            });
-            globalIdx += 1;
-            return html;
-          })
-          .join('');
-        return renderDayGroupHeader(group) + groupItems;
-      })
-      .join('');
-
-    el.innerHTML = `${preList}<div class="timeline">${itemsHtml}</div>`;
-
-    attachFilterHandlers(el);
-
-    if (prevScrollTop > 0) {
-      requestAnimationFrame(() => {
-        if (scrollRoot) scrollRoot.scrollTop = prevScrollTop;
-        else window.scrollTo(0, prevScrollTop);
-      });
-    }
-
-    if (SavedHighlight.applyIfPending()) {
-      Toast.success('Serviço registrado.');
-    }
+    return loadHistoricoTimelineBridge().then(mountWithBridge);
   };
 
-  withSkeleton(
+  return withSkeleton(
     el,
     { enabled: true, variant: 'timeline', count: Math.min(Math.max(list.length, 3), 5) },
     renderTimeline,

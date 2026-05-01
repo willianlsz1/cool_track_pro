@@ -61,18 +61,25 @@ export function registerAppRoutes() {
     updateHeader();
   });
 
-  registerRoute('historico', (params = {}) => {
-    populateEquipSelects();
-    // Filtro por cliente vindo de /clientes -> "Ver servicos". Se nao tiver
-    // clienteId nos params, limpa o filtro existente.
-    if (params.clienteId) {
-      setHistClienteFilter({ id: params.clienteId, nome: params.clienteNome || '' });
-    } else {
-      clearHistClienteFilter();
-    }
-    renderHist();
-    updateHeader();
-  });
+  registerRoute(
+    'historico',
+    (params = {}) => {
+      populateEquipSelects();
+      // Filtro por cliente vindo de /clientes -> "Ver servicos". Se nao tiver
+      // clienteId nos params, limpa o filtro existente.
+      if (params.clienteId) {
+        setHistClienteFilter({ id: params.clienteId, nome: params.clienteNome || '' });
+      } else {
+        clearHistClienteFilter();
+      }
+      renderHist();
+      updateHeader();
+    },
+    () =>
+      import('../views/historico.js').then((mod) => {
+        mod.unmountHistoricoTimeline?.();
+      }),
+  );
 
   registerRoute(
     'alertas',
