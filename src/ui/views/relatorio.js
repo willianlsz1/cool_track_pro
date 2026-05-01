@@ -19,6 +19,17 @@ import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { PdfQuotaBadge } from '../components/pdfQuotaBadge.js';
 import { getSignatureForRecord, SignatureViewerModal } from '../components/signature.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
+import { RELATORIO_PLAN_CODES, RELATORIO_VIEW_MODES } from '../viewModels/relatorioContracts.js';
+import { buildReportContext, buildRelatorioViewModel } from '../viewModels/relatorioViewModel.js';
+
+export {
+  buildPeriodNarrative,
+  computeRelatorioKpis as computeKPIs,
+  countCorretivas,
+  getProximasAcoes,
+  resolveRelatorioModeCopy as resolveModeCopy,
+  shouldShowCorretivasBanner,
+} from '../viewModels/relatorioViewModel.js';
 
 // ──────────────────────────────────────────────────────────────────────
 // Constantes de design — mapeamento granular dos 12 tipos reais
@@ -26,9 +37,9 @@ import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
 // ──────────────────────────────────────────────────────────────────────
 
 const VIEW_MODE_STORAGE_KEY = 'cooltrack_relatorio_view_mode';
-const VIEW_MODE_COMPACT = 'compact';
-const VIEW_MODE_DETAILED = 'detailed';
-const PLAN_CODE_PRO = 'pro';
+const VIEW_MODE_COMPACT = RELATORIO_VIEW_MODES.compact;
+const VIEW_MODE_DETAILED = RELATORIO_VIEW_MODES.detailed;
+const PLAN_CODE_PRO = RELATORIO_PLAN_CODES.pro;
 
 // tone = classe CSS .rel-tipo--<tone> (cores no components.css)
 const TIPO_META = {
@@ -100,14 +111,9 @@ const REL_STATUS_LABEL = {
 // Banner de corretivas: só aparece quando o volume é relevante. 2 registros
 // é o mínimo absoluto pra falar em "recorrência", e 30% evita que 3 corretivas
 // num relatório de 100 registros apareça como alarme — nesse caso é ruído.
-const CORRETIVAS_BANNER_MIN_COUNT = 2;
-const CORRETIVAS_BANNER_MIN_RATIO = 0.3;
-
 // Próximas ações: janela de 14 dias pra frente + qualquer coisa vencida.
 // Empírico — acima disso o leitor já não trata como "próxima" e o bloco vira
 // lista longa sem urgência.
-const PROXIMAS_ACOES_WINDOW_DAYS = 14;
-const PROXIMAS_ACOES_DEFAULT_LIMIT = 5;
 
 // ──────────────────────────────────────────────────────────────────────
 // View mode persistence
@@ -149,168 +155,6 @@ export function populateRelatorioSelects() {
     option.textContent = `${equipamento.nome || '-'} - ${equipamento.local || '-'}`;
     el.appendChild(option);
   });
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// KPIs calculation
-// ──────────────────────────────────────────────────────────────────────
-function computeKPIs(registros) {
-  const count = registros.length;
-  const total = registros.reduce((s, r) => {
-    const pecas = parseFloat(r.custoPecas) || 0;
-    const mao = parseFloat(r.custoMaoObra) || 0;
-    return s + pecas + mao;
-  }, 0);
-
-  // Tipo mais comum (no empate, pega o primeiro encontrado na iteração)
-  const byType = registros.reduce((acc, r) => {
-    const t = r.tipo || 'Outro';
-    acc[t] = (acc[t] || 0) + 1;
-    return acc;
-  }, {});
-  let mostCommonType = null;
-  let mostCommonCount = 0;
-  for (const t in byType) {
-    if (byType[t] > mostCommonCount) {
-      mostCommonCount = byType[t];
-      mostCommonType = t;
-    }
-  }
-
-  // Próxima manutenção: menor `próxima` a partir de hoje; se tudo venceu, pega o mais recente passado
-  const allDues = registros
-    .map((r) => r.proxima)
-    .filter(Boolean)
-    .map((d) => ({ iso: d, n: Utils.daysUntil(d) }))
-    .filter((x) => x.n != null);
-  allDues.sort((a, b) => a.n - b.n);
-  const nextDue = allDues.find((d) => d.n >= 0) || allDues[allDues.length - 1] || null;
-
-  return { count, total, mostCommonType, mostCommonCount, nextDue };
-}
-
-// ──────────────────────────────────────────────────────────────────────
-// Insights determinísticos (sem IA — regras claras, auditáveis)
-// ──────────────────────────────────────────────────────────────────────
-
-/**
- * Resumo narrativo do período: "8 atendimentos em 3 equipamentos · predomínio
- * de Preventiva (62%) · 2 corretivas." Só inclui o predomínio quando o tipo
- * dominante representa ≥30% E existe mais de um tipo (senão vira redundante
- * com o KPI). Retorna null pra lista vazia pra que o chamador decida omitir.
- */
-export function buildPeriodNarrative(list) {
-  if (!Array.isArray(list) || list.length === 0) return null;
-  const total = list.length;
-  const equipsSet = new Set();
-  const byTipo = {};
-  let corretivas = 0;
-  for (const r of list) {
-    if (r?.equipId) equipsSet.add(r.equipId);
-    const tipo = r?.tipo || 'Outro';
-    byTipo[tipo] = (byTipo[tipo] || 0) + 1;
-    if (/corretiva/i.test(r?.tipo || '')) corretivas += 1;
-  }
-  const equipsUnicos = equipsSet.size;
-  let tipoTop = null;
-  let tipoTopCount = 0;
-  for (const k in byTipo) {
-    if (byTipo[k] > tipoTopCount) {
-      tipoTopCount = byTipo[k];
-      tipoTop = k;
-    }
-  }
-  const tipoPct = total > 0 ? Math.round((tipoTopCount / total) * 100) : 0;
-
-  const atendimentosTxt = `${total} ${total === 1 ? 'atendimento' : 'atendimentos'}`;
-  const equipsTxt =
-    equipsUnicos > 0
-      ? ` em ${equipsUnicos} ${equipsUnicos === 1 ? 'equipamento' : 'equipamentos'}`
-      : '';
-  const partes = [`${atendimentosTxt}${equipsTxt}`];
-
-  const multiTipos = Object.keys(byTipo).length > 1;
-  if (tipoTop && tipoPct >= 30 && multiTipos) {
-    const nomeCurto = tipoTop.replace(/^Manutenção\s+/i, '');
-    partes.push(`predomínio de ${nomeCurto} (${tipoPct}%)`);
-  }
-  if (corretivas > 0) {
-    partes.push(`${corretivas} ${corretivas === 1 ? 'corretiva' : 'corretivas'}`);
-  }
-
-  return {
-    text: `${partes.join(' · ')}.`,
-    total,
-    equipsUnicos,
-    tipoTop,
-    tipoTopCount,
-    tipoPct,
-    corretivas,
-  };
-}
-
-/**
- * Conta registros do tipo corretiva (case-insensitive, keyword match).
- * Mantida como helper separado pra que o banner possa reutilizar sem recalcular
- * o narrative todo.
- */
-export function countCorretivas(list) {
-  if (!Array.isArray(list) || list.length === 0) return 0;
-  return list.reduce((acc, r) => (/corretiva/i.test(r?.tipo || '') ? acc + 1 : acc), 0);
-}
-
-/**
- * Decide se mostrar o banner de corretivas: exige mínimo absoluto E razão
- * mínima pra evitar falso alarme em relatórios grandes com poucas corretivas.
- */
-export function shouldShowCorretivasBanner(count, total) {
-  if (count < CORRETIVAS_BANNER_MIN_COUNT) return false;
-  if (total <= 0) return false;
-  return count / total >= CORRETIVAS_BANNER_MIN_RATIO;
-}
-
-/**
- * Próximas ações recomendadas: pega a manutenção futura mais próxima de cada
- * equipamento dentro de `days` dias (+ qualquer vencida), dedupe por equip,
- * ordena pela mais urgente primeiro. Retorna até `limit` itens.
- */
-export function getProximasAcoes(
-  list,
-  equipamentos = [],
-  limit = PROXIMAS_ACOES_DEFAULT_LIMIT,
-  days = PROXIMAS_ACOES_WINDOW_DAYS,
-) {
-  if (!Array.isArray(list) || list.length === 0) return [];
-  const equipIndex = new Map((equipamentos || []).map((e) => [e.id, e]));
-
-  // Dedup por equipId mantendo o mais urgente (menor daysUntil = mais vencido)
-  const byEquip = new Map();
-  for (const r of list) {
-    if (!r?.equipId || !r?.proxima) continue;
-    const n = Utils.daysUntil(r.proxima);
-    if (n == null) continue;
-    if (n > days) continue; // Fora da janela — pula
-    const existing = byEquip.get(r.equipId);
-    if (!existing || n < existing.daysUntil) {
-      const equip = equipIndex.get(r.equipId) || null;
-      byEquip.set(r.equipId, {
-        equipId: r.equipId,
-        equipNome: equip?.nome || r.equipNome || '—',
-        equipTag: equip?.tag || '',
-        proximaIso: r.proxima,
-        daysUntil: n,
-        registro: r,
-      });
-    }
-  }
-
-  const items = Array.from(byEquip.values());
-  items.sort((a, b) => a.daysUntil - b.daysUntil);
-  return items.slice(0, limit).map((item) => ({
-    ...item,
-    tone: item.daysUntil < 0 ? 'danger' : 'warn',
-    label: Utils.fmtDueRelative(item.proximaIso),
-  }));
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -440,35 +284,6 @@ function renderHero({
       }
     </div>
   `;
-}
-
-function resolveModeCopy({ isPro }) {
-  if (isPro) {
-    return {
-      pageTitle: 'Relatórios da empresa',
-      pageSubtitle: 'Acompanhe serviços por cliente, setor, equipamento e PMOC.',
-      heroTitle: 'Contexto do relatório',
-      heroBrand: 'Relatórios da empresa',
-    };
-  }
-  return {
-    pageTitle: 'Relatório rápido',
-    pageSubtitle: 'Gere e envie o PDF do serviço em poucos toques.',
-    heroTitle: 'Resumo dos serviços',
-    heroBrand: 'Relatório rápido',
-  };
-}
-
-function buildReportContext({ isPro, equipFiltrado, clientes, setores }) {
-  const cliente = equipFiltrado?.clienteId
-    ? clientes.find((item) => item.id === equipFiltrado.clienteId) || null
-    : null;
-  const setor = equipFiltrado?.setorId
-    ? setores.find((item) => item.id === equipFiltrado.setorId) || null
-    : null;
-  const equipamento = equipFiltrado?.nome ? equipFiltrado : null;
-  if (!isPro) return { cliente: null, setor: null, equipamento };
-  return { cliente, setor, equipamento };
 }
 
 function renderModeSegment({ isPro, context }) {
@@ -966,12 +781,6 @@ export function renderRelatorio(options = {}) {
   // Badge de quota mensal de PDFs (slot fixo na toolbar).
   PdfQuotaBadge.refresh();
 
-  // Filtros (mantém a lógica antiga: ISO date strings)
-  let list = [...registros].sort((a, b) => (b.data || '').localeCompare(a.data || ''));
-  if (filtEq) list = list.filter((r) => r.equipId === filtEq);
-  if (de) list = list.filter((r) => r.data >= de);
-  if (ate) list = list.filter((r) => r.data <= `${ate}T23:59`);
-
   const heroEl = Utils.getEl('rel-hero');
   const chipsEl = Utils.getEl('rel-filters-chips');
   const corpoEl = Utils.getEl('relatorio-corpo');
@@ -983,43 +792,49 @@ export function renderRelatorio(options = {}) {
 
   const hoje = new Date().toLocaleDateString('pt-BR');
   const viewMode = getStoredViewMode();
-
-  // Se mode=detailed, garante que todos estão expandidos (respeitando toggle individual durante a sessão)
-  if (viewMode === VIEW_MODE_DETAILED) {
-    list.forEach((r) => expandedIds.add(r.id));
-  }
-
-  // Labels pro hero / chips
-  const hasPeriodoFilter = Boolean(de || ate);
-  const periodoTxt = hasPeriodoFilter ? Utils.fmtShortDateRange(de, ate) : 'Todo o período';
-
+  const isPro = getCachedPlan() === PLAN_CODE_PRO;
   const hasEquipFilter = Boolean(filtEq);
   const equipFiltrado = hasEquipFilter ? equipamentos.find((e) => e.id === filtEq) : null;
-  const equipTxt = hasEquipFilter
-    ? equipFiltrado?.nome || 'Equipamento selecionado'
-    : 'Todos os equipamentos';
-
-  const singleEquipFilter = hasEquipFilter;
-  const isPro = getCachedPlan() === PLAN_CODE_PRO;
-  const modeCopy = resolveModeCopy({ isPro });
-  const context = buildReportContext({ isPro, equipFiltrado, clientes, setores });
-  const pmocSummary = context.cliente?.id
+  const initialContext = buildReportContext({ isPro, equipFiltrado, clientes, setores });
+  const pmocSummary = initialContext.cliente?.id
     ? getPmocSummaryForCliente({
-        clienteId: context.cliente.id,
+        clienteId: initialContext.cliente.id,
         year: new Date().getFullYear(),
         equipamentos,
         registros,
       })
     : null;
-  const hasPmocAttention = Boolean(
-    pmocSummary && (pmocSummary.status === 'atencao' || pmocSummary.status === 'atrasado'),
-  );
+  const reportViewModel = buildRelatorioViewModel({
+    registros,
+    equipamentos,
+    clientes,
+    setores,
+    filters: { equipId: filtEq, de, ate },
+    isPro,
+    viewMode,
+    context: initialContext,
+    pmocSummary,
+    daysUntil: (iso) => Utils.daysUntil(iso),
+    formatDueRelative: (iso) => Utils.fmtDueRelative(iso),
+    formatShortDateRange: (from, to) => Utils.fmtShortDateRange(from, to),
+  });
+  const {
+    records: list,
+    filters: { hasPeriodoFilter, periodoTxt, equipTxt, singleEquipFilter },
+    modeCopy,
+    context,
+    hasPmocAttention,
+    kpis,
+    narrative,
+    corretivasCount,
+    showCorretivasBanner,
+    proximasAcoes,
+  } = reportViewModel;
 
-  const kpis = computeKPIs(list);
-  const narrative = buildPeriodNarrative(list);
-  const corretivasCount = countCorretivas(list);
-  const showCorretivasBanner = shouldShowCorretivasBanner(corretivasCount, list.length);
-  const proximasAcoes = getProximasAcoes(list, equipamentos);
+  // Se mode=detailed, garante que todos estão expandidos (respeitando toggle individual durante a sessão)
+  if (viewMode === VIEW_MODE_DETAILED) {
+    list.forEach((r) => expandedIds.add(r.id));
+  }
 
   const advancedEl = Utils.getEl('rel-filters-advanced');
   const advancedOpen =

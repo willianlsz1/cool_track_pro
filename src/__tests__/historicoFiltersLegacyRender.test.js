@@ -308,6 +308,52 @@ describe('historico legacy filters/search render adapter', () => {
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-period"]')).not.toBeNull();
   });
 
+  it('abre o sheet mobile legado com filtros atuais e callbacks do adapter', async () => {
+    const state = baseState();
+    await renderHistoricoFilters(state, {
+      setor: 'setor-1',
+      equip: 'eq-1',
+      tipo: 'preventiva',
+    });
+    await Promise.resolve();
+
+    document.getElementById('hist-filters-trigger').click();
+
+    expect(mocks.openFiltersSheet).toHaveBeenCalledTimes(1);
+    const sheetOptions = mocks.openFiltersSheet.mock.calls[0][0];
+    expect(sheetOptions.setores).toEqual(state.setores);
+    expect(sheetOptions.equipamentos).toEqual([
+      { id: 'eq-1', nome: 'Split Recepcao', setorId: 'setor-1' },
+      { id: 'eq-2', nome: 'Chiller Central', setorId: 'setor-2' },
+    ]);
+    expect(sheetOptions.tipoOptions.map((option) => option.id)).toEqual([
+      'preventiva',
+      'corretiva',
+      'limpeza',
+      'recarga',
+      'inspecao',
+    ]);
+    expect(sheetOptions.initial).toEqual({
+      setor: 'setor-1',
+      equip: 'eq-1',
+      tipo: 'preventiva',
+    });
+    expect(sheetOptions.onApply).toEqual(expect.any(Function));
+    expect(sheetOptions.onReset).toEqual(expect.any(Function));
+
+    sheetOptions.onApply({ setor: 'setor-2', equip: 'eq-2', tipo: 'corretiva' });
+    await Promise.resolve();
+    expect(sessionStorage.getItem('cooltrack-hist-tipo')).toBe('corretiva');
+    expect(document.getElementById('hist-setor')?.value).toBe('setor-2');
+    expect(document.getElementById('hist-equip')?.value).toBe('eq-2');
+
+    sheetOptions.onReset();
+    await Promise.resolve();
+    expect(sessionStorage.getItem('cooltrack-hist-tipo')).toBeNull();
+    expect(document.getElementById('hist-setor')?.value).toBe('');
+    expect(document.getElementById('hist-equip')?.value).toBe('');
+  });
+
   it('preserva contrato de filtro por cliente e acao clear-cliente-filter', async () => {
     await renderHistoricoFilters(baseState(), {
       clienteFilter: { id: 'cliente-1', nome: 'Alpha Mercado' },
