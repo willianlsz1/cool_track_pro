@@ -277,6 +277,36 @@ test.describe('React islands lifecycle', () => {
     expect(await controlsRoot.locator('[data-view-mode]').count()).toBeGreaterThan(0);
   }
 
+  async function assertRelatorioCardsIsland(page) {
+    const cardsRoot = page.locator('#relatorio-corpo');
+
+    await expect(page.locator('#view-relatorio')).toHaveCount(1);
+    await expect(cardsRoot).toHaveCount(1);
+    await expect(cardsRoot).toHaveAttribute('data-react-relatorio-cards-mounted', 'true');
+    await expect(
+      page.locator('#relatorio-corpo[data-react-relatorio-cards-mounted="true"]'),
+    ).toHaveCount(1);
+    await expect(cardsRoot).toHaveAttribute('data-view-mode', /.+/);
+
+    const emptyState = cardsRoot.locator('.rel-empty');
+    const recordCount = await cardsRoot.locator('.rel-record').count();
+
+    if (recordCount > 0) {
+      await expect(cardsRoot).toHaveClass(/rel-records/);
+      const firstRecord = cardsRoot.locator('.rel-record').first();
+      await expect(firstRecord).toHaveAttribute('data-id', /.+/);
+      await expect(firstRecord.locator('[data-rel-action="rel-toggle-card"]')).toHaveCount(1);
+
+      const signatureButton = firstRecord.locator('[data-action="rel-view-signature"]');
+      if ((await signatureButton.count()) > 0) {
+        await expect(signatureButton.first()).toHaveAttribute('data-id', /.+/);
+      }
+    } else {
+      await expect(emptyState).toHaveCount(1);
+      await expect(emptyState.locator('.rel-empty__cta')).toHaveAttribute('data-nav', /.+/);
+    }
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
@@ -387,12 +417,15 @@ test.describe('React islands lifecycle', () => {
     });
   });
 
-  test('relatorio sai e volta sem duplicar roots React do hero e controles', async ({ page }) => {
+  test('relatorio sai e volta sem duplicar roots React do hero, controles e cards', async ({
+    page,
+  }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await page.click('#sidenav-relatorio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'relatorio');
       await assertRelatorioControlsIsland(page);
       await assertRelatorioHeroIsland(page);
+      await assertRelatorioCardsIsland(page);
 
       await page.click('#sidenav-inicio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
@@ -402,11 +435,15 @@ test.describe('React islands lifecycle', () => {
       await expect(
         page.locator('#rel-controls-root[data-react-relatorio-controls-mounted="true"]'),
       ).toHaveCount(0);
+      await expect(
+        page.locator('#relatorio-corpo[data-react-relatorio-cards-mounted="true"]'),
+      ).toHaveCount(0);
 
       await page.click('#sidenav-relatorio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'relatorio');
       await assertRelatorioControlsIsland(page);
       await assertRelatorioHeroIsland(page);
+      await assertRelatorioCardsIsland(page);
     });
   });
 });
