@@ -23,6 +23,7 @@ import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
+import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import {
   getChecklistTemplate,
   buildEmptyChecklist,
@@ -255,6 +256,38 @@ function _refreshRegistroContext() {
     stateNow,
   );
   _applyResolvedContext(context);
+}
+
+function _readRegistroFormModelSnapshot() {
+  return {
+    equipId: Utils.getVal('r-equip'),
+    data: Utils.getVal('r-data'),
+    tipo: Utils.getVal('r-tipo'),
+    tipoCustom: Utils.getVal('r-tipo-custom'),
+    obs: Utils.getVal('r-obs'),
+    tecnico: Utils.getVal('r-tecnico'),
+    status: Utils.getVal('r-status'),
+    prioridade: Utils.getVal('r-prioridade'),
+    pecas: Utils.getVal('r-pecas'),
+    proxima: Utils.getVal('r-proxima'),
+    custoPecas: Utils.getVal('r-custo-pecas'),
+    custoMaoObra: Utils.getVal('r-custo-mao-obra'),
+    clienteNome: Utils.getVal('r-cliente-nome'),
+    clienteDocumento: Utils.getVal('r-cliente-documento'),
+    localAtendimento: Utils.getVal('r-local-atendimento'),
+    clienteContato: Utils.getVal('r-cliente-contato'),
+  };
+}
+
+function _buildRegistroReadOnlyViewModel(params = {}) {
+  return buildRegistroViewModel({
+    state: getState(),
+    params,
+    form: _readRegistroFormModelSnapshot(),
+    editingId: sessionStorage.getItem(EDITING_KEY),
+    checklist: getCurrentChecklist(),
+    isPlusOrHigher: isCachedPlanPlusOrHigher(),
+  });
 }
 
 function resetEditingState() {
@@ -837,6 +870,7 @@ export function initRegistro(params = {}) {
 
     _currentRouteParams = { ...params };
     _refreshRegistroContext();
+    _buildRegistroReadOnlyViewModel(params);
 
     const rPrioridade = Utils.getEl('r-prioridade');
     if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
