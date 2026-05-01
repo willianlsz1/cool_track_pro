@@ -38,6 +38,7 @@ const HERO_SUB_ID = 'registro-hero-sub';
 const HERO_PILL_TEXT_ID = 'registro-hero-pill-text';
 const PROGRESS_COUNT_ID = 'form-progress-count';
 const METER_ID = 'registro-hero-meter';
+const REGISTRO_HEADER_ROOT_ID = 'registro-header-root';
 const QUICK_TEMPLATE_MAP = {
   limpeza: {
     tipo: 'Limpeza de Filtros',
@@ -124,6 +125,9 @@ function _prefillObsFromTipo(tipo) {
 }
 
 const EDITING_KEY = 'cooltrack-editing-id';
+let _registroHeaderBridgePromise = null;
+let _registroHeaderBridge = null;
+let _registroHeaderRenderGeneration = 0;
 // Persiste o último cliente preenchido para auto-prefill no próximo registro —
 // técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
@@ -287,6 +291,104 @@ function _buildRegistroReadOnlyViewModel(params = {}) {
     editingId: sessionStorage.getItem(EDITING_KEY),
     checklist: getCurrentChecklist(),
     isPlusOrHigher: isCachedPlanPlusOrHigher(),
+  });
+}
+
+function _asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function loadRegistroHeaderBridge() {
+  if (_registroHeaderBridge) return Promise.resolve(_registroHeaderBridge);
+  if (!_registroHeaderBridgePromise) {
+    _registroHeaderBridgePromise = import('../../react/entrypoints/registroHeaderIsland.jsx')
+      .then((bridge) => {
+        _registroHeaderBridge = bridge;
+        return bridge;
+      })
+      .catch((error) => {
+        _registroHeaderBridgePromise = null;
+        throw error;
+      });
+  }
+  return _registroHeaderBridgePromise;
+}
+
+function ensureRegistroHeaderRoot() {
+  let root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
+  if (root) return root;
+
+  const hero = document.getElementById(HERO_ID);
+  if (!hero?.parentNode) return null;
+
+  root = document.createElement('div');
+  root.id = REGISTRO_HEADER_ROOT_ID;
+  root.style.display = 'contents';
+  hero.parentNode.insertBefore(root, hero);
+
+  const lastNode = document.getElementById('registro-context-hint') || hero;
+  let node = hero;
+  while (node) {
+    const next = node.nextSibling;
+    root.appendChild(node);
+    if (node === lastNode) break;
+    node = next;
+  }
+
+  return root;
+}
+
+function buildRegistroHeaderReactProps(params = {}) {
+  const state = getState() || {};
+  const viewModel = _buildRegistroReadOnlyViewModel(params);
+  const equipmentOptions = _asArray(state.equipamentos).map((equipamento) => ({
+    id: String(equipamento?.id || ''),
+    label: `${equipamento?.nome || '—'} — ${equipamento?.local || '—'}`,
+  }));
+  const technicianOptions = _asArray(state.técnicos || state.tecnicos);
+
+  return {
+    viewModel,
+    equipmentOptions,
+    technicianOptions,
+  };
+}
+
+function mountRegistroHeader(params = {}) {
+  if (typeof document === 'undefined') return null;
+
+  const root = ensureRegistroHeaderRoot();
+  if (!root) return null;
+
+  const renderGeneration = (_registroHeaderRenderGeneration += 1);
+  const props = buildRegistroHeaderReactProps(params);
+
+  const mountWithBridge = (bridge) => {
+    if (renderGeneration !== _registroHeaderRenderGeneration) return null;
+    return bridge.mountRegistroHeaderReact(root, props);
+  };
+
+  if (_registroHeaderBridge?.mountRegistroHeaderReact) {
+    return mountWithBridge(_registroHeaderBridge);
+  }
+
+  return loadRegistroHeaderBridge().then(mountWithBridge);
+}
+
+export function unmountRegistroHeader() {
+  _registroHeaderRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
+  if (!root?.dataset.reactRegistroHeaderMounted) return null;
+
+  if (_registroHeaderBridge?.unmountRegistroHeaderReact) {
+    _registroHeaderBridge.unmountRegistroHeaderReact(root);
+    return null;
+  }
+
+  return loadRegistroHeaderBridge().then((bridge) => {
+    bridge.unmountRegistroHeaderReact?.(root);
   });
 }
 
@@ -461,6 +563,8 @@ function _renderHeroSub() {
 function _bindEquipChangeWarning() {
   const sel = Utils.getEl('r-equip');
   if (!sel) return;
+  if (sel.dataset.registroEquipWarningBound === '1') return;
+  sel.dataset.registroEquipWarningBound = '1';
   sel.addEventListener('change', () => {
     const id = sel.value;
     const currentEditingId = sessionStorage.getItem(EDITING_KEY);
@@ -724,6 +828,44 @@ export function loadChecklistForEdit(checklist) {
   renderChecklist();
 }
 
+function _bindRegistroHeaderFieldHandlers() {
+  _fields.forEach((f) => {
+    const i = Utils.getEl(f.id);
+    if (!i || i.dataset.registroProgressBound === '1') return;
+    i.dataset.registroProgressBound = '1';
+    i.addEventListener('input', _updateProgressBar);
+    i.addEventListener('change', _updateProgressBar);
+  });
+
+  _bindEquipChangeWarning();
+
+  const equipSelForChecklist = Utils.getEl('r-equip');
+  if (equipSelForChecklist && equipSelForChecklist.dataset.registroChecklistBound !== '1') {
+    equipSelForChecklist.dataset.registroChecklistBound = '1';
+    equipSelForChecklist.addEventListener('change', () => {
+      renderChecklist();
+      _refreshRegistroContext();
+    });
+  }
+
+  const tipoSel = Utils.getEl('r-tipo');
+  if (tipoSel && tipoSel.dataset.registroTipoBound !== '1') {
+    tipoSel.dataset.registroTipoBound = '1';
+    tipoSel.addEventListener('change', () => {
+      _syncTipoCustomVisibility({ focusOnShow: true });
+      _prefillObsFromTipo(tipoSel.value);
+      _updateProgressBar();
+      _refreshChecklistPriBadge();
+    });
+  }
+
+  const tipoCustomInput = Utils.getEl('r-tipo-custom');
+  if (tipoCustomInput && tipoCustomInput.dataset.registroTipoCustomBound !== '1') {
+    tipoCustomInput.dataset.registroTipoCustomBound = '1';
+    tipoCustomInput.addEventListener('input', _updateProgressBar);
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 // API PÚBLICA
 // ═══════════════════════════════════════════════════════
@@ -732,155 +874,122 @@ export function initRegistro(params = {}) {
   const formView = Utils.getEl('view-registro');
   if (!formView) return;
 
-  withSkeleton(formView, { enabled: true, variant: 'generic', count: 3 }, () => {
-    _ensureProgressBar(formView);
-    if (!formView.dataset.bound) {
-      _fields.forEach((f) => {
-        const i = Utils.getEl(f.id);
-        if (i) {
-          i.addEventListener('input', _updateProgressBar);
-          i.addEventListener('change', _updateProgressBar);
-        }
-      });
-      _bindEquipChangeWarning();
-      // PMOC Fase 3: re-renderiza checklist quando equip muda (template
-      // depende do tipo do equip). Hook adicional ao change handler do
-      // r-equip que já existe em _bindEquipChangeWarning.
-      const equipSelForChecklist = Utils.getEl('r-equip');
-      if (equipSelForChecklist) {
-        equipSelForChecklist.addEventListener('change', () => {
-          renderChecklist();
-          _refreshRegistroContext();
-        });
+  if (params.equipId) Utils.setVal('r-equip', params.equipId);
+  _currentRouteParams = { ...params };
+  _refreshRegistroContext();
+
+  withSkeleton(formView, { enabled: true, variant: 'generic', count: 3 }, () =>
+    Promise.resolve(mountRegistroHeader(params)).then(() => {
+      _ensureProgressBar(formView);
+      _bindRegistroHeaderFieldHandlers();
+      if (!formView.dataset.bound) {
+        // Smart mask no campo Telefone/contato do cliente — formata (XX) XXXXX-XXXX
+        // se o usuário digitar dígitos. Se digitar email/texto livre, deixa em paz.
+        bindSmartContactMaskInput(Utils.getEl('r-cliente-contato'));
+
+        formView.dataset.bound = '1';
+      }
+      // Garante o estado correto na entrada da view (inclusive vindo de edit).
+      _syncTipoCustomVisibility();
+      _updateProgressBar();
+      _renderHeroSub();
+
+      // Data padrão "Hoje agora" — UX V2 audit fix
+      if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());
+      _bindDatetimeUX();
+
+      // H1: técnico padrão
+      const rTecnico = Utils.getEl('r-tecnico');
+      if (rTecnico && !rTecnico.value) {
+        const def = Profile.getDefaultTecnico();
+        if (def) rTecnico.value = def;
       }
 
-      // Toggle do campo custom quando tipo muda. Rebind só uma vez (bound flag),
-      // por isso fica dentro do guard. Também aproveita pra pré-preencher
-      // "Detalhes pro cliente" (r-obs) com uma frase padrão por tipo —
-      // mesmo contrato das ações rápidas, pra evitar dois caminhos com
-      // comportamento diferente.
-      const tipoSel = Utils.getEl('r-tipo');
-      if (tipoSel) {
-        tipoSel.addEventListener('change', () => {
-          _syncTipoCustomVisibility({ focusOnShow: true });
-          _prefillObsFromTipo(tipoSel.value);
-          _updateProgressBar();
-          _refreshChecklistPriBadge();
-        });
-      }
-      // Atualiza a barra conforme o usuário digita o custom label — a validação
-      // do r-tipo depende dele quando Outro está selecionado.
-      const tipoCustomInput = Utils.getEl('r-tipo-custom');
-      if (tipoCustomInput) {
-        tipoCustomInput.addEventListener('input', _updateProgressBar);
-      }
+      // ─── Datetime UX V2 (audit fix) ──────────────────────────────────────
+      // Default eh "Hoje agora" (label do botao + value oculto). Click em
+      // "Mudar" abre o datetime-local nativo (showPicker) e tira o estado now.
+      function _bindDatetimeUX() {
+        const wrap = document.getElementById('registro-datetime-wrap');
+        if (!wrap || wrap.dataset.bound === '1') return;
+        wrap.dataset.bound = '1';
 
-      // Smart mask no campo Telefone/contato do cliente — formata (XX) XXXXX-XXXX
-      // se o usuário digitar dígitos. Se digitar email/texto livre, deixa em paz.
-      bindSmartContactMaskInput(Utils.getEl('r-cliente-contato'));
+        const input = document.getElementById('r-data');
+        const nowBtn = document.getElementById('r-data-now-btn');
+        const editBtn = document.getElementById('r-data-edit-btn');
+        const nowLabel = document.getElementById('r-data-now-label');
 
-      formView.dataset.bound = '1';
-    }
-    // Garante o estado correto na entrada da view (inclusive vindo de edit).
-    _syncTipoCustomVisibility();
-    _updateProgressBar();
-    _renderHeroSub();
-
-    // Data padrão "Hoje agora" — UX V2 audit fix
-    if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());
-    _bindDatetimeUX();
-
-    // H1: técnico padrão
-    const rTecnico = Utils.getEl('r-tecnico');
-    if (rTecnico && !rTecnico.value) {
-      const def = Profile.getDefaultTecnico();
-      if (def) rTecnico.value = def;
-    }
-
-    // ─── Datetime UX V2 (audit fix) ──────────────────────────────────────
-    // Default eh "Hoje agora" (label do botao + value oculto). Click em
-    // "Mudar" abre o datetime-local nativo (showPicker) e tira o estado now.
-    function _bindDatetimeUX() {
-      const wrap = document.getElementById('registro-datetime-wrap');
-      if (!wrap || wrap.dataset.bound === '1') return;
-      wrap.dataset.bound = '1';
-
-      const input = document.getElementById('r-data');
-      const nowBtn = document.getElementById('r-data-now-btn');
-      const editBtn = document.getElementById('r-data-edit-btn');
-      const nowLabel = document.getElementById('r-data-now-label');
-
-      function refreshLabel() {
-        if (!input || !nowLabel) return;
-        const val = input.value;
-        if (!val) {
-          nowLabel.textContent = 'Hoje agora';
-          nowBtn?.setAttribute('aria-pressed', 'true');
-          return;
-        }
-        // Se a data eh dentro de 1min do agora, eh "Hoje agora"
-        const ts = new Date(val).getTime();
-        if (Math.abs(Date.now() - ts) < 60_000) {
-          nowLabel.textContent = 'Hoje agora';
-          nowBtn?.setAttribute('aria-pressed', 'true');
-        } else {
-          // Mostra "DD/MM HH:MM"
-          const d = new Date(val);
-          const dd = String(d.getDate()).padStart(2, '0');
-          const mm = String(d.getMonth() + 1).padStart(2, '0');
-          const hh = String(d.getHours()).padStart(2, '0');
-          const min = String(d.getMinutes()).padStart(2, '0');
-          nowLabel.textContent = `${dd}/${mm} ${hh}:${min}`;
-          nowBtn?.setAttribute('aria-pressed', 'false');
-        }
-      }
-
-      nowBtn?.addEventListener('click', () => {
-        // Reseta pra agora
-        Utils.setVal('r-data', Utils.nowDatetime());
-        refreshLabel();
-        _updateProgressBar();
-      });
-
-      editBtn?.addEventListener('click', () => {
-        // Abre o picker nativo. Browsers modernos suportam showPicker(); fallback
-        // pra focus que muitos browsers tambem abrem.
-        try {
-          if (typeof input.showPicker === 'function') {
-            input.showPicker();
+        function refreshLabel() {
+          if (!input || !nowLabel) return;
+          const val = input.value;
+          if (!val) {
+            nowLabel.textContent = 'Hoje agora';
+            nowBtn?.setAttribute('aria-pressed', 'true');
+            return;
+          }
+          // Se a data eh dentro de 1min do agora, eh "Hoje agora"
+          const ts = new Date(val).getTime();
+          if (Math.abs(Date.now() - ts) < 60_000) {
+            nowLabel.textContent = 'Hoje agora';
+            nowBtn?.setAttribute('aria-pressed', 'true');
           } else {
+            // Mostra "DD/MM HH:MM"
+            const d = new Date(val);
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            nowLabel.textContent = `${dd}/${mm} ${hh}:${min}`;
+            nowBtn?.setAttribute('aria-pressed', 'false');
+          }
+        }
+
+        nowBtn?.addEventListener('click', () => {
+          // Reseta pra agora
+          Utils.setVal('r-data', Utils.nowDatetime());
+          refreshLabel();
+          _updateProgressBar();
+        });
+
+        editBtn?.addEventListener('click', () => {
+          // Abre o picker nativo. Browsers modernos suportam showPicker(); fallback
+          // pra focus que muitos browsers tambem abrem.
+          try {
+            if (typeof input.showPicker === 'function') {
+              input.showPicker();
+            } else {
+              input.focus();
+            }
+          } catch (_e) {
             input.focus();
           }
-        } catch (_e) {
-          input.focus();
-        }
-      });
+        });
 
-      input?.addEventListener('change', () => {
+        input?.addEventListener('change', () => {
+          refreshLabel();
+          _updateProgressBar();
+        });
+
         refreshLabel();
-        _updateProgressBar();
-      });
+      }
 
-      refreshLabel();
-    }
+      // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
+      if (!params.editRegistroId) resetEditingState();
+      if (params.equipId) Utils.setVal('r-equip', params.equipId);
 
-    // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
-    if (!params.editRegistroId) resetEditingState();
-    if (params.equipId) Utils.setVal('r-equip', params.equipId);
+      _currentRouteParams = { ...params };
+      _refreshRegistroContext();
+      _buildRegistroReadOnlyViewModel(params);
 
-    _currentRouteParams = { ...params };
-    _refreshRegistroContext();
-    _buildRegistroReadOnlyViewModel(params);
+      const rPrioridade = Utils.getEl('r-prioridade');
+      if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
 
-    const rPrioridade = Utils.getEl('r-prioridade');
-    if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
-
-    // Hint de assinatura: Plus/Pro veem "Incluso" confirmando que a captura
-    // vai rolar no save. Free vê variante upsell clicável que leva pro
-    // /pricing?highlightPlan=plus. O elemento vem `hidden` do template pra
-    // evitar flash de conteúdo indevido enquanto o plano ainda carrega.
-    applySignatureHint();
-  });
+      // Hint de assinatura: Plus/Pro veem "Incluso" confirmando que a captura
+      // vai rolar no save. Free vê variante upsell clicável que leva pro
+      // /pricing?highlightPlan=plus. O elemento vem `hidden` do template pra
+      // evitar flash de conteúdo indevido enquanto o plano ainda carrega.
+      applySignatureHint();
+    }),
+  );
 }
 
 function applySignatureHint() {
