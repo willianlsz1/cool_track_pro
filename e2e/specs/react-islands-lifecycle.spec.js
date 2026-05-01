@@ -6,10 +6,12 @@ const PRO_PROFILE = {
   subscription_status: 'active',
 };
 
+const REGISTRO_EQUIP_ID = 'equip-hist-e2e-1';
+
 const LIFECYCLE_REMOTE_DATA = {
   equipamentos: [
     {
-      id: 'equip-hist-e2e-1',
+      id: REGISTRO_EQUIP_ID,
       nome: 'Split E2E',
       local: 'Sala tecnica',
       status: 'ok',
@@ -77,6 +79,16 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator('body')).toHaveAttribute('data-route', route);
     await expect(page.locator(rootSelector)).toHaveCount(1);
     await expect(page.locator(markerSelector)).toHaveCount(1);
+  }
+
+  async function goToRoute(page, route, params = {}) {
+    await page.evaluate(
+      ({ route, params }) =>
+        import('/src/core/router.js').then(({ goTo }) => {
+          goTo(route, params);
+        }),
+      { route, params },
+    );
   }
 
   async function assertDashboardKpisIsland(page) {
@@ -325,6 +337,43 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator('#r-tecnico')).toHaveCount(1);
   }
 
+  async function assertRegistroChecklistIsland(page) {
+    const checklistRoot = page.locator('#r-checklist-body');
+    const marker = page.locator('#r-checklist-body[data-react-registro-checklist-mounted="true"]');
+    const checklistSet = checklistRoot.locator('[data-action="r-checklist-set"]');
+
+    await expect(page.locator('#view-registro')).toHaveCount(1);
+    await expect(checklistRoot).toHaveCount(1);
+    await expect(checklistRoot).toHaveAttribute('data-react-registro-checklist-mounted', 'true');
+    await expect(marker).toHaveCount(1);
+
+    await expect(page.locator('#r-checklist-details')).toHaveCount(1);
+    await expect(page.locator('#r-checklist-summary')).toHaveCount(1);
+    await expect(checklistRoot.locator('.r-checklist__intro')).toHaveCount(1);
+    expect(
+      await checklistRoot.locator('[class^="r-checklist"], [class*=" r-checklist"]').count(),
+    ).toBeGreaterThan(0);
+
+    expect(await checklistSet.count()).toBeGreaterThan(0);
+    await expect(checklistSet.first()).toHaveAttribute('data-item', /.+/);
+    await expect(checklistSet.first()).toHaveAttribute('data-status', /^(ok|fail|na)$/);
+    await expect(checklistSet.first()).toHaveAttribute('aria-pressed', /^(true|false)$/);
+
+    const obsCount = await checklistRoot.locator('[data-action="r-checklist-obs"]').count();
+    const measureCount = await checklistRoot.locator('[data-action="r-checklist-measure"]').count();
+    expect(obsCount + measureCount).toBeGreaterThan(0);
+  }
+
+  async function openRegistroWithChecklist(page) {
+    await goToRoute(page, 'registro', { equipId: REGISTRO_EQUIP_ID });
+    await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
+    await expect(page.locator('#r-equip')).toHaveValue(REGISTRO_EQUIP_ID);
+    await assertRegistroHeaderIsland(page);
+    await expect(page.locator('#r-equip')).toHaveAttribute('data-registro-checklist-bound', '1');
+    await page.locator('#r-equip').dispatchEvent('change');
+    await assertRegistroChecklistIsland(page);
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
@@ -465,21 +514,20 @@ test.describe('React islands lifecycle', () => {
     });
   });
 
-  test('registro sai e volta sem duplicar root React do header', async ({ page }) => {
+  test('registro sai e volta sem duplicar roots React do header e checklist', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
-      await page.click('#sidenav-registro');
-      await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
-      await assertRegistroHeaderIsland(page);
+      await openRegistroWithChecklist(page);
 
       await page.click('#sidenav-inicio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
       await expect(
         page.locator('#registro-header-root[data-react-registro-header-mounted="true"]'),
       ).toHaveCount(0);
+      await expect(
+        page.locator('#r-checklist-body[data-react-registro-checklist-mounted="true"]'),
+      ).toHaveCount(0);
 
-      await page.click('#sidenav-registro');
-      await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
-      await assertRegistroHeaderIsland(page);
+      await openRegistroWithChecklist(page);
     });
   });
 });

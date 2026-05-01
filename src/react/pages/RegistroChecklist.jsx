@@ -46,6 +46,7 @@ function ChecklistStatusButtons({ item, actions }) {
             )}
             data-action={action}
             data-item={itemId}
+            data-item-id={itemId}
             data-status={option.status}
             aria-pressed={String(isActive)}
             title={option.title}
@@ -76,6 +77,7 @@ function ChecklistMeasure({ item, actions }) {
         className="r-checklist__measure-input"
         data-action={action}
         data-item={text(item?.id)}
+        data-item-id={text(item?.id)}
         data-unit={unit}
         defaultValue={value}
         placeholder="valor"
@@ -112,6 +114,7 @@ function ChecklistRow({ item, actions }) {
         className="r-checklist__obs"
         data-action={obsAction}
         data-item={itemId}
+        data-item-id={itemId}
         rows="1"
         maxLength="200"
         placeholder="Observação (opcional)"

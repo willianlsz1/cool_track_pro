@@ -53,7 +53,7 @@ export function bindRegistroHandlers() {
   // delegam pro state — re-render de DOM acontece dentro do registro.js
   // pra preservar foco em textareas em foco.
   on('r-checklist-set', (el) => {
-    const itemId = el.dataset.item;
+    const itemId = el.dataset.item || el.dataset.itemId;
     const status = el.dataset.status;
     if (!itemId || !status) return;
     setChecklistItemStatus(itemId, status);
@@ -68,13 +68,13 @@ export function bindRegistroHandlers() {
       const target = event.target;
       // Obs textarea
       if (target instanceof HTMLTextAreaElement && target.dataset?.action === 'r-checklist-obs') {
-        const itemId = target.dataset.item;
+        const itemId = target.dataset.item || target.dataset.itemId;
         if (itemId) setChecklistItemObs(itemId, target.value);
         return;
       }
       // PMOC Fase 4: input numérico de medição
       if (target instanceof HTMLInputElement && target.dataset?.action === 'r-checklist-measure') {
-        const itemId = target.dataset.item;
+        const itemId = target.dataset.item || target.dataset.itemId;
         const unit = target.dataset.unit || '';
         if (itemId) setChecklistItemMeasure(itemId, target.value, unit);
       }
