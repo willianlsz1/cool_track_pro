@@ -321,6 +321,36 @@ describe('historico legacy filters/search render adapter', () => {
     expect(chipsSlot?.querySelector('[data-hist-action="clear-cliente-filter"]')).not.toBeNull();
   });
 
+  it('preserva busca e filtros ao desmontar e renderizar a ilha novamente', async () => {
+    const historico = await renderHistoricoFilters(baseState(), {
+      busca: 'troca',
+      setor: 'setor-1',
+      equip: 'eq-1',
+      period: '7d',
+      tipo: 'preventiva',
+    });
+
+    await historico.unmountHistoricoFilters();
+    expect(document.querySelector('#hist-filters-root')?.innerHTML).toBe('');
+
+    await historico.renderHist();
+    await Promise.resolve();
+
+    expect(document.querySelector('#hist-busca')?.value).toBe('troca');
+    expect(document.querySelector('#hist-setor')?.value).toBe('setor-1');
+    expect(document.querySelector('#hist-equip')?.value).toBe('eq-1');
+    expect(
+      document.querySelector(
+        '[data-hist-action="hist-filter-period"][data-period="7d"][aria-pressed="true"]',
+      ),
+    ).not.toBeNull();
+    expect(
+      document.querySelector(
+        '[data-hist-action="hist-filter-tipo"][data-tipo-id="preventiva"][aria-pressed="true"]',
+      ),
+    ).not.toBeNull();
+  });
+
   it('escapa valores dinamicos de busca, setores, equipamentos e chips ativos', async () => {
     const malicious = '<img src=x onerror=alert(1)><script>alert(1)</script>javascript:alert(2)';
     await renderHistoricoFilters(

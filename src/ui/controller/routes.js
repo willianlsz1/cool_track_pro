@@ -77,6 +77,7 @@ export function registerAppRoutes() {
     },
     () =>
       import('../views/historico.js').then((mod) => {
+        mod.unmountHistoricoFilters?.();
         mod.unmountHistoricoTimeline?.();
       }),
   );

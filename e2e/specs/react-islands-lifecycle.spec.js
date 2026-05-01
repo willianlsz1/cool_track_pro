@@ -186,6 +186,41 @@ test.describe('React islands lifecycle', () => {
     await expect(firstItem.locator('[data-hist-action="toggle-card-menu"]')).toHaveCount(1);
   }
 
+  async function assertHistoricoFiltersIsland(page) {
+    const filtersRoot = page.locator('#hist-filters-root');
+    const stickyHeader = page.locator('#hist-sticky-header');
+    const searchInput = page.locator('#hist-busca');
+    const filtersTrigger = page.locator('#hist-filters-trigger');
+
+    await expect(page.locator('#view-historico')).toHaveCount(1);
+    await expect(filtersRoot).toHaveCount(1);
+    await expect(filtersRoot).toHaveAttribute('data-react-historico-filters-mounted', 'true');
+    await expect(
+      page.locator('#hist-filters-root[data-react-historico-filters-mounted="true"]'),
+    ).toHaveCount(1);
+
+    await expect(stickyHeader).toHaveCount(1);
+    await expect(stickyHeader).toHaveClass(/hist-sticky-header/);
+    await expect(page.locator('#hist-count')).toHaveCount(1);
+    await expect(searchInput).toHaveCount(1);
+    await expect(searchInput).toHaveAttribute('type', 'search');
+    await expect(filtersTrigger).toHaveCount(1);
+    await expect(filtersTrigger).toHaveClass(/hist-filters-trigger/);
+    await expect(filtersTrigger).toHaveAttribute('data-hist-action', 'open-filters-sheet');
+    await expect(page.locator('#hist-filters-count')).toHaveCount(1);
+    await expect(page.locator('#hist-setor')).toHaveCount(1);
+    await expect(page.locator('#hist-equip')).toHaveCount(1);
+    await expect(page.locator('#hist-quickfilters-slot')).toHaveCount(1);
+    await expect(page.locator('#hist-active-chips-slot')).toHaveCount(1);
+    await expect(page.locator('#hist-chrono-label')).toHaveCount(1);
+
+    await expect(page.locator('.hist-search-row')).toHaveCount(1);
+    await expect(page.locator('label.hist-input[for="hist-busca"]')).toHaveCount(1);
+    await expect(page.locator('#hist-filters-trigger.hist-filters-trigger')).toHaveCount(1);
+    await expect(page.locator('#hist-quickfilters-slot .hist-quickfilters')).toHaveCount(1);
+    await expect(page.locator('#hist-active-chips-slot .hist-active-chips')).toHaveCount(1);
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
@@ -268,20 +303,30 @@ test.describe('React islands lifecycle', () => {
     }
   });
 
-  test('historico sai e volta sem duplicar root React do timeline', async ({ page }) => {
+  test('historico sai e volta sem duplicar roots React dos filtros e timeline', async ({
+    page,
+  }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
+      await page.evaluate(() => {
+        window.history.replaceState(null, '', '/?q=Preventiva');
+      });
       await page.click('#sidenav-historico');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'historico');
+      await assertHistoricoFiltersIsland(page);
       await assertHistoricoTimelineIsland(page);
 
       await page.click('#sidenav-inicio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
+      await expect(
+        page.locator('#hist-filters-root[data-react-historico-filters-mounted="true"]'),
+      ).toHaveCount(0);
       await expect(
         page.locator('#timeline[data-react-historico-timeline-mounted="true"]'),
       ).toHaveCount(0);
 
       await page.click('#sidenav-historico');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'historico');
+      await assertHistoricoFiltersIsland(page);
       await assertHistoricoTimelineIsland(page);
     });
   });

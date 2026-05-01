@@ -29,6 +29,7 @@ import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
 import { buildClientePmocDetails } from '../../core/clientePmoc.js';
 import {
+  HISTORICO_ACTIONS,
   HISTORICO_PERIOD_OPTIONS,
   HISTORICO_TIPO_OPTIONS,
 } from '../viewModels/historicoContracts.js';
@@ -100,6 +101,11 @@ let _clienteFilter = { id: null, nome: null };
 let _historicoTimelineBridgePromise = null;
 let _historicoTimelineBridge = null;
 let _historicoTimelineRenderGeneration = 0;
+let _historicoFiltersBridgePromise = null;
+let _historicoFiltersBridge = null;
+let _historicoFiltersRenderGeneration = 0;
+let _histSearchRenderTimer = null;
+let _histFilterValues = { busca: '', setor: '', equip: '' };
 
 function loadHistoricoTimelineBridge() {
   if (_historicoTimelineBridge) return Promise.resolve(_historicoTimelineBridge);
@@ -117,6 +123,36 @@ function loadHistoricoTimelineBridge() {
   return _historicoTimelineBridgePromise;
 }
 
+function loadHistoricoFiltersBridge() {
+  if (_historicoFiltersBridge) return Promise.resolve(_historicoFiltersBridge);
+  if (!_historicoFiltersBridgePromise) {
+    _historicoFiltersBridgePromise = import('../../react/entrypoints/historicoFiltersIsland.jsx')
+      .then((mod) => {
+        _historicoFiltersBridge = mod;
+        return mod;
+      })
+      .catch((error) => {
+        _historicoFiltersBridgePromise = null;
+        throw error;
+      });
+  }
+  return _historicoFiltersBridgePromise;
+}
+
+function getFilterValue(id, cachedKey) {
+  const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
+  if (el) return el.value || '';
+  return _histFilterValues[cachedKey] || '';
+}
+
+function captureHistoricoFilterValues() {
+  _histFilterValues = {
+    busca: getFilterValue('hist-busca', 'busca'),
+    setor: getFilterValue('hist-setor', 'setor'),
+    equip: getFilterValue('hist-equip', 'equip'),
+  };
+}
+
 export function unmountHistoricoTimeline() {
   _historicoTimelineRenderGeneration += 1;
   if (typeof document === 'undefined') return null;
@@ -131,6 +167,29 @@ export function unmountHistoricoTimeline() {
 
   return loadHistoricoTimelineBridge().then((mod) => {
     mod.unmountHistoricoTimelineReact?.(root);
+  });
+}
+
+export function unmountHistoricoFilters() {
+  _historicoFiltersRenderGeneration += 1;
+  if (_histSearchRenderTimer) {
+    clearTimeout(_histSearchRenderTimer);
+    _histSearchRenderTimer = null;
+  }
+  if (typeof document === 'undefined') return null;
+
+  captureHistoricoFilterValues();
+
+  const root = document.getElementById('hist-filters-root');
+  if (!root?.dataset.reactHistoricoFiltersMounted) return null;
+
+  if (_historicoFiltersBridge?.unmountHistoricoFiltersReact) {
+    _historicoFiltersBridge.unmountHistoricoFiltersReact(root);
+    return null;
+  }
+
+  return loadHistoricoFiltersBridge().then((mod) => {
+    mod.unmountHistoricoFiltersReact?.(root);
   });
 }
 
@@ -755,117 +814,6 @@ function renderSummaryCard(
   </section>`;
 }
 
-function renderQuickFilters({ period, tipo }) {
-  const periodPills = PERIOD_OPTIONS.map((opt) => {
-    const active = period === opt.id || (!period && opt.id === 'tudo');
-    return `<button type="button"
-        class="hist-quickfilter${active ? ' is-active' : ''}"
-        data-hist-action="hist-filter-period"
-        data-period="${opt.id}"
-        aria-pressed="${active ? 'true' : 'false'}">
-        ${Utils.escapeHtml(opt.label)}
-      </button>`;
-  }).join('');
-
-  const tipoPills = TIPO_OPTIONS.map((opt) => {
-    const active = tipo === opt.id;
-    return `<button type="button"
-        class="hist-quickfilter hist-quickfilter--${opt.color}${active ? ' is-active' : ''}"
-        data-hist-action="hist-filter-tipo"
-        data-tipo-id="${opt.id}"
-        aria-pressed="${active ? 'true' : 'false'}">
-        <span class="hist-quickfilter__dot" aria-hidden="true"></span>
-        ${Utils.escapeHtml(opt.label)}
-      </button>`;
-  }).join('');
-
-  return `<div class="hist-quickfilters" role="toolbar" aria-label="Filtros rápidos">
-    ${periodPills}
-    <div class="hist-quickfilters__sep" aria-hidden="true"></div>
-    ${tipoPills}
-  </div>`;
-}
-
-function renderActiveFilterChips(filters) {
-  const chips = [];
-
-  if (filters.clienteLabel) {
-    chips.push({
-      key: 'Cliente',
-      value: filters.clienteLabel,
-      clearAction: 'clear-cliente-filter',
-    });
-  }
-
-  if (filters.setorLabel) {
-    chips.push({
-      key: 'Setor',
-      value: filters.setorLabel,
-      clearAction: 'hist-clear-setor',
-    });
-  }
-
-  if (filters.equipLabel) {
-    chips.push({
-      key: 'Equipamento',
-      value: filters.equipLabel,
-      clearAction: 'hist-clear-equip',
-    });
-  }
-
-  const tipoOpt = TIPO_OPTIONS.find((t) => t.id === filters.tipo);
-  if (tipoOpt) {
-    chips.push({
-      key: 'Tipo',
-      value: tipoOpt.label,
-      clearAction: 'hist-clear-tipo',
-    });
-  }
-
-  const periodOpt = PERIOD_OPTIONS.find((p) => p.id === filters.period);
-  if (periodOpt && periodOpt.id !== 'tudo') {
-    chips.push({
-      key: 'Período',
-      value: periodOpt.label,
-      clearAction: 'hist-clear-period',
-    });
-  }
-
-  if (filters.busca) {
-    chips.push({
-      key: 'Busca',
-      value: `"${filters.busca}"`,
-      clearAction: 'hist-clear-busca',
-    });
-  }
-
-  if (!chips.length) return '';
-
-  const chipHtml = chips
-    .map(
-      (c) =>
-        `<span class="hist-active-chip">
-          <b>${Utils.escapeHtml(c.key)}:</b> ${Utils.escapeHtml(c.value)}
-          <button type="button" class="hist-active-chip__x"
-            data-hist-action="${c.clearAction}"
-            aria-label="Remover filtro ${Utils.escapeAttr(c.key)}: ${Utils.escapeAttr(c.value)}">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6 6 18"/>
-            </svg>
-          </button>
-        </span>`,
-    )
-    .join('');
-
-  return `<div class="hist-active-chips" role="status" aria-live="polite">
-    <span class="hist-active-chips__label">Filtros ativos</span>
-    ${chipHtml}
-    <button type="button" class="hist-active-chips__clear"
-      data-hist-action="hist-clear-all">Limpar tudo</button>
-  </div>`;
-}
-
 function getTimelineDateLabel(registro, groupId) {
   const dateInGroupContext = groupId && groupId !== 'antigos';
   if (!dateInGroupContext) return Utils.formatDatetime(registro?.data);
@@ -1087,6 +1035,77 @@ function buildHistoricoTimelineReactViewModel({
   };
 }
 
+function ensureHistoricoFiltersRoot() {
+  let root = document.getElementById('hist-filters-root');
+  if (root) return root;
+
+  const stickyHeader = document.getElementById('hist-sticky-header');
+  if (!stickyHeader?.parentNode) return null;
+
+  root = document.createElement('div');
+  root.id = 'hist-filters-root';
+  stickyHeader.parentNode.insertBefore(root, stickyHeader);
+  root.appendChild(stickyHeader);
+
+  const chipsSlot = document.getElementById('hist-active-chips-slot');
+  if (chipsSlot) root.appendChild(chipsSlot);
+
+  const chronoLabel = document.getElementById('hist-chrono-label');
+  if (chronoLabel) root.appendChild(chronoLabel);
+
+  return root;
+}
+
+function buildHistoricoFiltersReactViewModel({
+  historicoVm,
+  equipamentos,
+  setores,
+  busca,
+  filtEq,
+  filtSetor,
+  period,
+  tipo,
+}) {
+  const setoresComDados = new Set(
+    asArray(equipamentos)
+      .map((e) => e?.setorId)
+      .filter(Boolean),
+  );
+  const clienteChip = historicoVm.clienteFilter?.nome
+    ? [
+        {
+          key: 'Cliente',
+          value: historicoVm.clienteFilter.nome,
+          clearAction: HISTORICO_ACTIONS.clearClienteFilter,
+        },
+      ]
+    : [];
+
+  return {
+    countLabel: historicoVm.countLabel,
+    filters: {
+      busca,
+      setorId: filtSetor,
+      equipId: filtEq,
+      period,
+      tipo,
+    },
+    filtersCount: [filtSetor, filtEq, tipo].filter(Boolean).length,
+    setorOptions: asArray(setores).map((setor) => ({
+      id: setor?.id || '',
+      label: `${setor?.nome || ''}${setoresComDados.has(setor?.id) ? '' : ' (sem registros)'}`,
+    })),
+    equipamentoOptions: asArray(equipamentos).map((equipamento) => ({
+      id: equipamento?.id || '',
+      label: `${equipamento?.nome || '\u2014'} \u2014 ${equipamento?.local || '\u2014'}`,
+    })),
+    periodOptions: PERIOD_OPTIONS,
+    tipoOptions: TIPO_OPTIONS,
+    activeChips: [...clienteChip, ...asArray(historicoVm.activeChips)],
+    showSetorSelect: asArray(setores).length > 0,
+  };
+}
+
 /** Popula o select de setor e controla sua visibilidade. */
 function syncSetorSelect(currentSetorId) {
   const state = getState() || {};
@@ -1147,9 +1166,10 @@ export function renderHist() {
 
   syncSetorSelect();
 
-  const busca = Utils.getVal('hist-busca').toLowerCase();
-  const filtEq = Utils.getVal('hist-equip');
-  const filtSetor = Utils.getVal('hist-setor');
+  const busca = getFilterValue('hist-busca', 'busca').toLowerCase();
+  const filtEq = getFilterValue('hist-equip', 'equip');
+  const filtSetor = getFilterValue('hist-setor', 'setor');
+  _histFilterValues = { busca, setor: filtSetor, equip: filtEq };
   const { period, tipo } = getExtraFilters();
 
   const isProMode = isCachedPlanPro();
@@ -1177,50 +1197,45 @@ export function renderHist() {
   const el = Utils.getEl('timeline');
   if (!el) return;
 
-  const countEl = Utils.getEl('hist-count');
-  if (countEl) {
-    countEl.textContent = historicoVm.countLabel;
-  }
-  // Chip de filtro de cliente: aparece quando vier de /clientes -> Ver serviços.
-  // Renderiza no slot de active-chips já existente.
-  const activeChipsSlot = document.getElementById('hist-active-chips-slot');
-  if (activeChipsSlot) {
-    if (_clienteFilter.id && _clienteFilter.nome) {
-      activeChipsSlot.innerHTML = `
-        <div class="hist-active-chips" role="status">
-          <span class="hist-active-chips__chip">
-            Cliente: <strong>${Utils.escapeHtml(_clienteFilter.nome)}</strong>
-            <button type="button" class="hist-active-chips__close"
-              data-hist-action="clear-cliente-filter"
-              aria-label="Limpar filtro de cliente">x</button>
-          </span>
-        </div>`;
-    } else if (activeChipsSlot.querySelector('.hist-active-chips')) {
-      // Não remove se já foi populado por outro filtro.
-      const ourChip = activeChipsSlot.querySelector('[data-hist-action="clear-cliente-filter"]');
-      if (ourChip) activeChipsSlot.innerHTML = '';
-    }
-  }
-
   const scrollRoot = document.scrollingElement || document.documentElement;
   const prevScrollTop = scrollRoot ? scrollRoot.scrollTop : window.scrollY;
-
-  const activeFilters = historicoVm.activeFilters;
 
   // Sincroniza URL apos cada render. URLSearchParams omite chaves vazias,
   // entao ?busca=foo&periodo=7d nunca vira ?busca=&periodo=&setor=&equip=&tipo=.
   writeFiltersToUrl({ busca, setor: filtSetor, equip: filtEq, periodo: period, tipo });
-  // Slots fora do #timeline: mount quickfilters e chips nos seus slots dedicados.
-  const quickSlot = Utils.getEl('hist-quickfilters-slot');
-  if (quickSlot) quickSlot.innerHTML = renderQuickFilters({ period, tipo });
 
-  const chipsSlot = Utils.getEl('hist-active-chips-slot');
-  if (chipsSlot) {
-    chipsSlot.innerHTML = renderActiveFilterChips({
-      ...activeFilters,
-      clienteLabel: historicoVm.clienteFilter?.nome || '',
-    });
-  }
+  const filtersRoot = ensureHistoricoFiltersRoot();
+  const filtersViewModel = buildHistoricoFiltersReactViewModel({
+    historicoVm,
+    equipamentos,
+    setores,
+    busca,
+    filtEq,
+    filtSetor,
+    period,
+    tipo,
+  });
+  const filtersGeneration = (_historicoFiltersRenderGeneration += 1);
+
+  const mountFilters = () => {
+    if (!filtersRoot) return null;
+
+    const mountWithBridge = (bridge) => {
+      if (filtersGeneration !== _historicoFiltersRenderGeneration) return null;
+      return bridge.mountHistoricoFiltersReact(filtersRoot, { viewModel: filtersViewModel });
+    };
+
+    if (_historicoFiltersBridge?.mountHistoricoFiltersReact) {
+      return mountWithBridge(_historicoFiltersBridge);
+    }
+
+    return loadHistoricoFiltersBridge().then(mountWithBridge);
+  };
+  const filtersMountResult = mountFilters();
+  const filtersReady =
+    filtersMountResult && typeof filtersMountResult.then === 'function'
+      ? filtersMountResult
+      : Promise.resolve(filtersMountResult);
 
   const setoresById = new Map(setores.map((s) => [s.id, s]));
   const clientesById = new Map(clientes.map((c) => [c.id, c]));
@@ -1251,26 +1266,26 @@ export function renderHist() {
       hasFilters,
     });
 
-    const afterMount = () => {
-      attachFilterHandlers(el);
+    const afterMount = () =>
+      filtersReady.then(() => {
+        attachFilterHandlers(el);
 
-      if (prevScrollTop > 0) {
-        requestAnimationFrame(() => {
-          if (scrollRoot) scrollRoot.scrollTop = prevScrollTop;
-          else window.scrollTo(0, prevScrollTop);
-        });
-      }
+        if (prevScrollTop > 0) {
+          requestAnimationFrame(() => {
+            if (scrollRoot) scrollRoot.scrollTop = prevScrollTop;
+            else window.scrollTo(0, prevScrollTop);
+          });
+        }
 
-      if (SavedHighlight.applyIfPending()) {
-        Toast.success('Serviço registrado.');
-      }
-    };
+        if (SavedHighlight.applyIfPending()) {
+          Toast.success('Serviço registrado.');
+        }
+      });
 
     const mountWithBridge = (bridge) => {
       if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
       const mounted = bridge.mountHistoricoTimelineReact(el, { viewModel: timelineViewModel });
-      afterMount();
-      return mounted;
+      return afterMount().then(() => mounted);
     };
 
     if (_historicoTimelineBridge?.mountHistoricoTimelineReact) {
@@ -1321,6 +1336,36 @@ function attachFilterHandlers(container) {
       filtersCount.hidden = true;
       filtersTrigger.classList.remove('is-active');
     }
+  }
+
+  const searchInput = document.getElementById('hist-busca');
+  if (searchInput && !searchInput.dataset.histBound) {
+    searchInput.dataset.histBound = '1';
+    searchInput.addEventListener('input', () => {
+      if (_histSearchRenderTimer) clearTimeout(_histSearchRenderTimer);
+      _histSearchRenderTimer = setTimeout(() => {
+        _histSearchRenderTimer = null;
+        renderHist();
+      }, 280);
+    });
+  }
+
+  const setorSelect = document.getElementById('hist-setor');
+  if (setorSelect && !setorSelect.dataset.histBound) {
+    setorSelect.dataset.histBound = '1';
+    setorSelect.addEventListener('change', () => {
+      const equipSel = document.getElementById('hist-equip');
+      if (equipSel) equipSel.value = '';
+      renderHist();
+    });
+  }
+
+  const equipSelect = document.getElementById('hist-equip');
+  if (equipSelect && !equipSelect.dataset.histBound) {
+    equipSelect.dataset.histBound = '1';
+    equipSelect.addEventListener('change', () => {
+      renderHist();
+    });
   }
 
   // Toggle do kebab menu nos cards. Click no kebab abre/fecha esse card.
@@ -1432,7 +1477,11 @@ function attachFilterHandlers(container) {
 
   const each = (selector, fn) => {
     roots.forEach((root) => {
-      root.querySelectorAll(selector).forEach(fn);
+      root.querySelectorAll(selector).forEach((node) => {
+        if (node.dataset.histBound) return;
+        node.dataset.histBound = '1';
+        fn(node);
+      });
     });
   };
 
