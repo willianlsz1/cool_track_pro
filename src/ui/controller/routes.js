@@ -11,6 +11,7 @@ import {
   renderRelatorio,
   populateRelatorioSelects,
   unmountRelatorioHero,
+  unmountRelatorioControls,
 } from '../views/relatorio.js';
 import { initRegistro, loadRegistroForEdit } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
@@ -106,12 +107,13 @@ export function registerAppRoutes() {
         const select = document.getElementById('rel-equip');
         if (select) select.value = String(params.equipId);
       }
-      renderRelatorio();
+      renderRelatorio(params.equipId ? { equipId: String(params.equipId) } : {});
       updateHeader();
       OnboardingChecklist.markStep('relatorio');
     },
     () => {
       unmountRelatorioHero();
+      unmountRelatorioControls();
     },
   );
 

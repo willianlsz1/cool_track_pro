@@ -833,6 +833,7 @@ export function renderShellViews() {
 
         <!-- RELATÓRIO -->
         <div class="view" id="view-relatorio">
+          <div id="rel-controls-root" style="display: contents">
           <div class="servicos-toggle" role="tablist" aria-label="Modo de visualização">
             <button type="button" class="servicos-toggle__btn servicos-toggle__btn--lista"
               data-nav="historico" role="tab" aria-label="Lista de serviços">
@@ -964,6 +965,8 @@ export function renderShellViews() {
                 </div>
               </div>
             </div>
+          </div>
+
           </div>
 
           <div id="rel-company-pmoc-slot"></div>

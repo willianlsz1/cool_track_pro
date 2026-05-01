@@ -1,5 +1,6 @@
 export const RELATORIO_PUBLIC_IDS = Object.freeze({
   view: 'view-relatorio',
+  controlsRoot: 'rel-controls-root',
   mainTitle: 'rel-main-title',
   mainSubtitle: 'rel-main-subtitle',
   modeSegmentSlot: 'rel-mode-segment-slot',

@@ -43,6 +43,38 @@ const PLAN_CODE_PRO = RELATORIO_PLAN_CODES.pro;
 let relatorioHeroBridgePromise = null;
 let relatorioHeroBridge = null;
 let relatorioHeroRenderGeneration = 0;
+let relatorioControlsBridgePromise = null;
+let relatorioControlsBridge = null;
+let relatorioControlsRenderGeneration = 0;
+let lastRelatorioFilters = {
+  equipId: '',
+  de: '',
+  ate: '',
+};
+
+function readRelatorioFilters(options = {}) {
+  const equipEl = Utils.getEl('rel-equip');
+  const deEl = Utils.getEl('rel-de');
+  const ateEl = Utils.getEl('rel-ate');
+  const optionEquipId =
+    options.equipId === null || options.equipId === undefined ? '' : String(options.equipId);
+
+  const filters = {
+    equipId: optionEquipId || (equipEl ? Utils.getVal('rel-equip') : lastRelatorioFilters.equipId),
+    de: deEl ? Utils.getVal('rel-de') : lastRelatorioFilters.de,
+    ate: ateEl ? Utils.getVal('rel-ate') : lastRelatorioFilters.ate,
+  };
+  lastRelatorioFilters = filters;
+  return filters;
+}
+
+function rememberRelatorioFiltersFromDom() {
+  lastRelatorioFilters = {
+    equipId: Utils.getEl('rel-equip') ? Utils.getVal('rel-equip') : lastRelatorioFilters.equipId,
+    de: Utils.getEl('rel-de') ? Utils.getVal('rel-de') : lastRelatorioFilters.de,
+    ate: Utils.getEl('rel-ate') ? Utils.getVal('rel-ate') : lastRelatorioFilters.ate,
+  };
+}
 
 function loadRelatorioHeroBridge() {
   if (relatorioHeroBridge) return Promise.resolve(relatorioHeroBridge);
@@ -60,6 +92,22 @@ function loadRelatorioHeroBridge() {
   return relatorioHeroBridgePromise;
 }
 
+function loadRelatorioControlsBridge() {
+  if (relatorioControlsBridge) return Promise.resolve(relatorioControlsBridge);
+  if (!relatorioControlsBridgePromise) {
+    relatorioControlsBridgePromise = import('../../react/entrypoints/relatorioControlsIsland.jsx')
+      .then((bridge) => {
+        relatorioControlsBridge = bridge;
+        return bridge;
+      })
+      .catch((error) => {
+        relatorioControlsBridgePromise = null;
+        throw error;
+      });
+  }
+  return relatorioControlsBridgePromise;
+}
+
 export function unmountRelatorioHero() {
   relatorioHeroRenderGeneration += 1;
   if (typeof document === 'undefined') return null;
@@ -74,6 +122,24 @@ export function unmountRelatorioHero() {
 
   return loadRelatorioHeroBridge().then((bridge) => {
     bridge.unmountRelatorioHeroReact?.(root);
+  });
+}
+
+export function unmountRelatorioControls() {
+  relatorioControlsRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  rememberRelatorioFiltersFromDom();
+  const root = document.getElementById('rel-controls-root');
+  if (!root?.dataset.reactRelatorioControlsMounted) return null;
+
+  if (relatorioControlsBridge?.unmountRelatorioControlsReact) {
+    relatorioControlsBridge.unmountRelatorioControlsReact(root);
+    return null;
+  }
+
+  return loadRelatorioControlsBridge().then((bridge) => {
+    bridge.unmountRelatorioControlsReact?.(root);
   });
 }
 
@@ -303,6 +369,41 @@ function buildRelatorioHeroReactViewModel({
   };
 }
 
+function buildRelatorioControlsReactViewModel({
+  modeCopy,
+  viewMode,
+  isPro,
+  context,
+  filters,
+  advancedOpen,
+  equipamentos,
+}) {
+  const modeSegmentActive = context?.cliente ? 'cliente' : context?.setor ? 'setor' : 'servicos';
+  const equipOptions = (Array.isArray(equipamentos) ? equipamentos : []).map((equipamento) => ({
+    id: equipamento?.id || '',
+    label: `${equipamento?.nome || '-'} - ${equipamento?.local || '-'}`,
+  }));
+
+  return {
+    pageTitle: modeCopy.pageTitle,
+    pageSubtitle: modeCopy.pageSubtitle,
+    viewMode,
+    isPro,
+    advancedOpen,
+    modeSegmentActive,
+    equipOptions,
+    filters: {
+      equipId: filters.equipId || '',
+      de: filters.de || '',
+      ate: filters.ate || '',
+      hasPeriodoFilter: filters.hasPeriodoFilter,
+      hasEquipFilter: filters.hasEquipFilter,
+      periodoTxt: filters.periodoTxt,
+      equipTxt: filters.equipTxt,
+    },
+  };
+}
+
 function mountRelatorioHero({ root, hero }) {
   if (!root) return null;
   root.classList.add('rel-hero');
@@ -318,6 +419,22 @@ function mountRelatorioHero({ root, hero }) {
   }
 
   return loadRelatorioHeroBridge().then(mountWithBridge);
+}
+
+function mountRelatorioControls({ root, controls }) {
+  if (!root) return null;
+  const renderGeneration = (relatorioControlsRenderGeneration += 1);
+
+  const mountWithBridge = (bridge) => {
+    if (renderGeneration !== relatorioControlsRenderGeneration) return null;
+    return bridge.mountRelatorioControlsReact(root, { controls });
+  };
+
+  if (relatorioControlsBridge?.mountRelatorioControlsReact) {
+    return mountWithBridge(relatorioControlsBridge);
+  }
+
+  return loadRelatorioControlsBridge().then(mountWithBridge);
 }
 
 function renderModeSegment({ isPro, context }) {
@@ -703,11 +820,16 @@ function wireHandlers({ registros, equipamentos, expandedIds, viewMode, rerender
   const view = Utils.getEl('view-relatorio');
   if (!view) return;
 
+  ['rel-equip', 'rel-de', 'rel-ate'].forEach((id) => {
+    const input = Utils.getEl(id);
+    input?.addEventListener('change', async () => rerender(), { once: true });
+  });
+
   // Segmented control (compact/detailed)
   view.querySelectorAll('[data-view-mode]').forEach((btn) => {
     btn.addEventListener(
       'click',
-      () => {
+      async () => {
         const v = btn.dataset.viewMode;
         if (v !== viewMode) {
           setStoredViewMode(v);
@@ -717,7 +839,7 @@ function wireHandlers({ registros, equipamentos, expandedIds, viewMode, rerender
           } else {
             expandedIds.clear();
           }
-          rerender();
+          await rerender();
         }
       },
       { once: true },
@@ -728,7 +850,7 @@ function wireHandlers({ registros, equipamentos, expandedIds, viewMode, rerender
   view.querySelectorAll('[data-action="rel-toggle-advanced"]').forEach((btn) => {
     btn.addEventListener(
       'click',
-      () => {
+      async () => {
         const adv = Utils.getEl('rel-filters-advanced');
         if (!adv) return;
         const willOpen = adv.hasAttribute('hidden');
@@ -743,7 +865,7 @@ function wireHandlers({ registros, equipamentos, expandedIds, viewMode, rerender
         });
         // Re-renderiza chips pra trocar o label "Mais filtros" <-> "Fechar filtros"
         // (não precisa refazer o hero ou records, mas é mais simples re-render completo)
-        rerender({ keepAdvancedOpen: willOpen });
+        await rerender({ keepAdvancedOpen: willOpen });
       },
       { once: true },
     );
@@ -753,11 +875,11 @@ function wireHandlers({ registros, equipamentos, expandedIds, viewMode, rerender
   view.querySelectorAll('[data-action="rel-clear-filters"]').forEach((btn) => {
     btn.addEventListener(
       'click',
-      () => {
+      async () => {
         Utils.setVal('rel-equip', '');
         Utils.setVal('rel-de', '');
         Utils.setVal('rel-ate', '');
-        rerender();
+        await rerender();
       },
       { once: true },
     );
@@ -808,21 +930,16 @@ const expandedIds = new Set();
 
 export function renderRelatorio(options = {}) {
   const { equipamentos, registros, clientes = [], setores = [] } = getState();
-  const filtEq = Utils.getVal('rel-equip');
-  const de = Utils.getVal('rel-de');
-  const ate = Utils.getVal('rel-ate');
+  const { equipId: filtEq, de, ate } = readRelatorioFilters(options);
 
-  // Badge de quota mensal de PDFs (slot fixo na toolbar).
-  PdfQuotaBadge.refresh();
-
-  const heroEl = Utils.getEl('rel-hero');
+  const controlsRootEl = Utils.getEl('rel-controls-root');
   const chipsEl = Utils.getEl('rel-filters-chips');
   const corpoEl = Utils.getEl('relatorio-corpo');
   const pageTitleEl = Utils.getEl('rel-main-title');
   const pageSubtitleEl = Utils.getEl('rel-main-subtitle');
   const modeSegmentEl = Utils.getEl('rel-mode-segment-slot');
   const companyPmocEl = Utils.getEl('rel-company-pmoc-slot');
-  if (!heroEl || !chipsEl || !corpoEl) return;
+  if (!corpoEl) return;
 
   const hoje = new Date().toLocaleDateString('pt-BR');
   const viewMode = getStoredViewMode();
@@ -877,59 +994,64 @@ export function renderRelatorio(options = {}) {
   const rerender = (opts = {}) => renderRelatorio(opts);
 
   const renderContent = () => {
-    if (pageTitleEl) pageTitleEl.textContent = modeCopy.pageTitle;
-    if (pageSubtitleEl) pageSubtitleEl.textContent = modeCopy.pageSubtitle;
-    if (modeSegmentEl) modeSegmentEl.innerHTML = renderModeSegment({ isPro, context });
     if (companyPmocEl)
       companyPmocEl.innerHTML = renderCompanyPmocBlock({ isPro, hasPmocAttention });
-    if (advancedEl) {
-      if (advancedOpen) advancedEl.removeAttribute('hidden');
-      else advancedEl.setAttribute('hidden', '');
-    }
 
-    const pmocMainItem = Utils.getEl('rel-dd-pmoc-main');
-    const pmocInfoItem = Utils.getEl('rel-dd-pmoc-info');
-    if (pmocMainItem && pmocInfoItem) {
-      if (isPro) {
-        pmocMainItem.removeAttribute('hidden');
-        pmocInfoItem.removeAttribute('hidden');
-      } else {
-        pmocMainItem.setAttribute('hidden', '');
-        pmocInfoItem.setAttribute('hidden', '');
-      }
-    }
-
-    const pmocNudgeItem = Utils.getEl('rel-dd-pmoc-nudge');
-    if (pmocNudgeItem) {
-      if (isPro) {
-        pmocNudgeItem.setAttribute('hidden', '');
-      } else {
-        pmocNudgeItem.removeAttribute('hidden');
-      }
-    }
-
-    // Hero
-    const heroViewModel = buildRelatorioHeroReactViewModel({
-      kpis,
-      periodoTxt,
-      equipTxt,
-      viewMode,
-      narrative,
-      emittedAt: hoje,
+    const controlsViewModel = buildRelatorioControlsReactViewModel({
       modeCopy,
-      context,
-    });
-    const heroMountResult = mountRelatorioHero({ root: heroEl, hero: heroViewModel });
-
-    // Chips
-    chipsEl.innerHTML = renderFilterChips({
-      periodoTxt,
-      equipTxt,
-      hasPeriodoFilter,
-      hasEquipFilter,
-      advancedOpen,
+      viewMode,
       isPro,
+      context,
+      filters: reportViewModel.filters,
+      advancedOpen,
+      equipamentos,
     });
+    const controlsMountResult = mountRelatorioControls({
+      root: controlsRootEl,
+      controls: controlsViewModel,
+    });
+
+    if (!controlsRootEl) {
+      if (pageTitleEl) pageTitleEl.textContent = modeCopy.pageTitle;
+      if (pageSubtitleEl) pageSubtitleEl.textContent = modeCopy.pageSubtitle;
+      if (modeSegmentEl) modeSegmentEl.innerHTML = renderModeSegment({ isPro, context });
+      if (advancedEl) {
+        if (advancedOpen) advancedEl.removeAttribute('hidden');
+        else advancedEl.setAttribute('hidden', '');
+      }
+
+      const pmocMainItem = Utils.getEl('rel-dd-pmoc-main');
+      const pmocInfoItem = Utils.getEl('rel-dd-pmoc-info');
+      if (pmocMainItem && pmocInfoItem) {
+        if (isPro) {
+          pmocMainItem.removeAttribute('hidden');
+          pmocInfoItem.removeAttribute('hidden');
+        } else {
+          pmocMainItem.setAttribute('hidden', '');
+          pmocInfoItem.setAttribute('hidden', '');
+        }
+      }
+
+      const pmocNudgeItem = Utils.getEl('rel-dd-pmoc-nudge');
+      if (pmocNudgeItem) {
+        if (isPro) {
+          pmocNudgeItem.setAttribute('hidden', '');
+        } else {
+          pmocNudgeItem.removeAttribute('hidden');
+        }
+      }
+
+      if (chipsEl) {
+        chipsEl.innerHTML = renderFilterChips({
+          periodoTxt,
+          equipTxt,
+          hasPeriodoFilter,
+          hasEquipFilter,
+          advancedOpen,
+          isPro,
+        });
+      }
+    }
 
     // Records
     if (!list.length) {
@@ -956,20 +1078,46 @@ export function renderRelatorio(options = {}) {
       corpoEl.innerHTML = `${bannerHtml}${proximasHtml}${recordsHtml}`;
     }
 
-    const bindHandlers = () =>
-      wireHandlers({
+    const bindHandlers = () => {
+      PdfQuotaBadge.refresh();
+      return wireHandlers({
         registros,
         equipamentos,
         expandedIds,
         viewMode,
         rerender,
       });
+    };
 
-    if (heroMountResult && typeof heroMountResult.then === 'function') {
-      return heroMountResult.then(bindHandlers);
+    const mountHeroAndBind = () => {
+      const heroEl = Utils.getEl('rel-hero');
+      if (!heroEl) {
+        bindHandlers();
+        return null;
+      }
+
+      const heroViewModel = buildRelatorioHeroReactViewModel({
+        kpis,
+        periodoTxt,
+        equipTxt,
+        viewMode,
+        narrative,
+        emittedAt: hoje,
+        modeCopy,
+        context,
+      });
+      const heroMountResult = mountRelatorioHero({ root: heroEl, hero: heroViewModel });
+      if (heroMountResult && typeof heroMountResult.then === 'function') {
+        return heroMountResult.then(bindHandlers);
+      }
+      bindHandlers();
+      return null;
+    };
+
+    if (controlsMountResult && typeof controlsMountResult.then === 'function') {
+      return controlsMountResult.then(mountHeroAndBind);
     }
-    bindHandlers();
-    return null;
+    return mountHeroAndBind();
   };
 
   return withSkeleton(

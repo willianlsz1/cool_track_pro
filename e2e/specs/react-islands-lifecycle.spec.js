@@ -221,6 +221,32 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator('#hist-active-chips-slot .hist-active-chips')).toHaveCount(1);
   }
 
+  async function assertRelatorioHeroIsland(page) {
+    const heroRoot = page.locator('#rel-hero');
+
+    await expect(page.locator('#view-relatorio')).toHaveCount(1);
+    await expect(heroRoot).toHaveCount(1);
+    await expect(heroRoot).toHaveClass(/rel-hero/);
+    await expect(heroRoot).toHaveAttribute('data-react-relatorio-hero-mounted', 'true');
+    await expect(page.locator('#rel-hero[data-react-relatorio-hero-mounted="true"]')).toHaveCount(
+      1,
+    );
+
+    await expect(page.locator('#rel-hero-title')).toHaveCount(1);
+    await expect(heroRoot.locator('.rel-hero__title')).toHaveCount(1);
+    await expect(heroRoot.locator('.rel-hero__kpis')).toHaveCount(1);
+    expect(await heroRoot.locator('.rel-kpi').count()).toBeGreaterThanOrEqual(1);
+    expect(await heroRoot.locator('.rel-kpi__value').count()).toBeGreaterThanOrEqual(1);
+
+    const viewModeControls = await heroRoot.locator('[data-view-mode]').count();
+    if (viewModeControls > 0) {
+      await expect(heroRoot.locator('[data-view-mode]').first()).toHaveAttribute(
+        'data-view-mode',
+        /.+/,
+      );
+    }
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
@@ -328,6 +354,24 @@ test.describe('React islands lifecycle', () => {
       await expect(page.locator('body')).toHaveAttribute('data-route', 'historico');
       await assertHistoricoFiltersIsland(page);
       await assertHistoricoTimelineIsland(page);
+    });
+  });
+
+  test('relatorio sai e volta sem duplicar root React do hero', async ({ page }) => {
+    await assertNoDuplicateCreateRoot(page, async () => {
+      await page.click('#sidenav-relatorio');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'relatorio');
+      await assertRelatorioHeroIsland(page);
+
+      await page.click('#sidenav-inicio');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
+      await expect(page.locator('#rel-hero[data-react-relatorio-hero-mounted="true"]')).toHaveCount(
+        0,
+      );
+
+      await page.click('#sidenav-relatorio');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'relatorio');
+      await assertRelatorioHeroIsland(page);
     });
   });
 });
