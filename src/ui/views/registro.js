@@ -156,6 +156,10 @@ function _saveLastClient(cliente) {
   }
 }
 
+function isSafeSignatureCaptureDataUrl(dataUrl) {
+  return /^data:image\/(?:png|jpe?g|webp);base64,[a-z0-9+/=]+$/i.test(String(dataUrl || '').trim());
+}
+
 function _updateImpactCopy(context) {
   const title = document.getElementById('registro-impact-title');
   const subtitle = document.getElementById('registro-impact-subtitle');
@@ -1192,10 +1196,10 @@ export async function saveRegistro({ andShare = false } = {}) {
     equipId,
     data,
     tipo,
-    técnico,
+    tecnico,
     obs,
     pecas,
-    próxima,
+    proxima,
     status,
     custoPecas,
     custoMaoObra,
@@ -1237,7 +1241,7 @@ export async function saveRegistro({ andShare = false } = {}) {
     }
   }
 
-  Profile.saveLastTecnico(técnico);
+  Profile.saveLastTecnico(tecnico);
 
   // UX V2 audit fix #81: auto-default tecnico no Profile apos primeiro
   // registro. Se o user nao tem nome no perfil ainda (ex.: pulou
@@ -1247,8 +1251,8 @@ export async function saveRegistro({ andShare = false } = {}) {
   // perfil ja preenchido.
   try {
     const currentProfile = Profile.get() || {};
-    if (!currentProfile.nome && técnico) {
-      Profile.save({ ...currentProfile, nome: técnico });
+    if (!currentProfile.nome && tecnico) {
+      Profile.save({ ...currentProfile, nome: tecnico });
     }
   } catch (_err) {
     /* storage off — nao bloqueia o save do registro */
@@ -1267,11 +1271,11 @@ export async function saveRegistro({ andShare = false } = {}) {
               data,
               tipo,
               obs: descricaoFinal,
-              técnico,
+              tecnico,
               prioridade,
               status,
               pecas,
-              próxima,
+              proxima,
               custoPecas,
               custoMaoObra,
               clienteNome,
@@ -1339,7 +1343,7 @@ export async function saveRegistro({ andShare = false } = {}) {
       // invalida mais o save — o técnico pode ter o cliente assinando depois
       // ou o serviço foi concluído sem cliente presente. Apenas não anexa
       // assinatura ao registro. Se aparecer um valor (data URL), usamos.
-      if (result && result !== SignatureModal.CANCELED) {
+      if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
         assinatura = result;
         if (saveSignatureForRecord) {
           try {
@@ -1361,6 +1365,8 @@ export async function saveRegistro({ andShare = false } = {}) {
             });
           }
         }
+      } else if (result && result !== SignatureModal.CANCELED) {
+        Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
       } else if (result === SignatureModal.CANCELED) {
         Toast.info?.('Registro salvo sem assinatura. Você pode adicioná-la depois.');
       }
@@ -1402,10 +1408,10 @@ export async function saveRegistro({ andShare = false } = {}) {
   setState((prev) => {
     const currentTecs = prev.tecnicos || [];
     const updatedTecs =
-      técnico && !currentTecs.includes(técnico) ? [...currentTecs, técnico] : currentTecs;
+      tecnico && !currentTecs.includes(tecnico) ? [...currentTecs, tecnico] : currentTecs;
     return {
       ...prev,
-      técnicos: updatedTecs,
+      tecnicos: updatedTecs,
       registros: [
         ...prev.registros,
         {
@@ -1416,9 +1422,9 @@ export async function saveRegistro({ andShare = false } = {}) {
           obs: descricaoFinal,
           status,
           pecas,
-          próxima,
+          proxima,
           fotos: fotosRegistro,
-          técnico,
+          tecnico,
           prioridade,
           custoPecas,
           custoMaoObra,
@@ -1508,7 +1514,7 @@ export function clearRegistro(preserveEquip = false) {
     'r-tipo-custom',
     'r-pecas',
     'r-obs',
-    'r-próxima',
+    'r-proxima',
     'r-tecnico',
     'r-custo-pecas',
     'r-custo-mao-obra',
