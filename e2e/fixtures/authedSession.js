@@ -49,6 +49,19 @@ const FAKE_PROFILE = {
   is_dev: false,
 };
 
+function remoteRowsForRequest(url, remoteData = {}) {
+  try {
+    const table = new URL(url).pathname.split('/').filter(Boolean).pop() || '';
+    if (Object.prototype.hasOwnProperty.call(remoteData, table)) {
+      return remoteData[table] || [];
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 /**
  * Storage key do Supabase: depende do hostname. Em testes rodamos contra
  * 127.0.0.1, então `sb-127-auth-token`. Se rodar contra outro host, ajusta.
@@ -65,6 +78,7 @@ function storageKeyFor(baseUrl) {
 export async function setupAuthedPage(page, options = {}) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
   const profile = { ...FAKE_PROFILE, ...(options.profile || {}) };
+  const remoteData = options.remoteData || {};
 
   // 1. Pre-popula a sessão no localStorage antes do app rodar.
   await page.addInitScript(
@@ -134,10 +148,11 @@ export async function setupAuthedPage(page, options = {}) {
     const method = req.method();
 
     if (method === 'GET') {
+      const rows = remoteRowsForRequest(req.url(), remoteData);
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: '[]',
+        body: JSON.stringify(rows || []),
       });
     }
 

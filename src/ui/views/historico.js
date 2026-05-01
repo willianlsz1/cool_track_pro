@@ -789,6 +789,14 @@ function renderQuickFilters({ period, tipo }) {
 function renderActiveFilterChips(filters) {
   const chips = [];
 
+  if (filters.clienteLabel) {
+    chips.push({
+      key: 'Cliente',
+      value: filters.clienteLabel,
+      clearAction: 'clear-cliente-filter',
+    });
+  }
+
   if (filters.setorLabel) {
     chips.push({
       key: 'Setor',
@@ -1207,7 +1215,12 @@ export function renderHist() {
   if (quickSlot) quickSlot.innerHTML = renderQuickFilters({ period, tipo });
 
   const chipsSlot = Utils.getEl('hist-active-chips-slot');
-  if (chipsSlot) chipsSlot.innerHTML = renderActiveFilterChips(activeFilters);
+  if (chipsSlot) {
+    chipsSlot.innerHTML = renderActiveFilterChips({
+      ...activeFilters,
+      clienteLabel: historicoVm.clienteFilter?.nome || '',
+    });
+  }
 
   const setoresById = new Map(setores.map((s) => [s.id, s]));
   const clientesById = new Map(clientes.map((c) => [c.id, c]));

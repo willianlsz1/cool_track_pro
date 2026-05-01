@@ -6,11 +6,42 @@ const PRO_PROFILE = {
   subscription_status: 'active',
 };
 
+const LIFECYCLE_REMOTE_DATA = {
+  equipamentos: [
+    {
+      id: 'equip-hist-e2e-1',
+      nome: 'Split E2E',
+      local: 'Sala tecnica',
+      status: 'ok',
+      tag: 'SALA-01',
+      tipo: 'Split',
+    },
+  ],
+  registros: [
+    {
+      id: 'reg-hist-e2e-1',
+      equip_id: 'equip-hist-e2e-1',
+      data: '2026-04-30T10:00:00.000Z',
+      tipo: 'Preventiva',
+      obs: 'Registro E2E do timeline',
+      status: 'ok',
+      pecas: 'Filtro',
+      proxima: '',
+      tecnico: 'Tecnico E2E',
+      custo_pecas: 0,
+      custo_mao_obra: 0,
+      assinatura: false,
+      fotos: [],
+    },
+  ],
+  tecnicos: [{ nome: 'Tecnico E2E' }],
+};
+
 test.use({ bypassCSP: true });
 
 test.describe('React islands lifecycle', () => {
   test.beforeEach(async ({ page }) => {
-    await setupAuthedPage(page, { profile: PRO_PROFILE });
+    await setupAuthedPage(page, { profile: PRO_PROFILE, remoteData: LIFECYCLE_REMOTE_DATA });
     await page.goto('/');
     await expect(page.locator('#main-content')).toBeVisible();
     await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
@@ -136,6 +167,25 @@ test.describe('React islands lifecycle', () => {
     await expect(section.locator('.dash__kpi-value')).toHaveCount(3);
   }
 
+  async function assertHistoricoTimelineIsland(page) {
+    const timelineRoot = page.locator('#timeline');
+    const marker = page.locator('#timeline[data-react-historico-timeline-mounted="true"]');
+    const firstItem = timelineRoot.locator('.timeline__item').first();
+
+    await expect(page.locator('#view-historico')).toHaveCount(1);
+    await expect(timelineRoot).toHaveCount(1);
+    await expect(timelineRoot).toHaveAttribute('data-react-historico-timeline-mounted', 'true');
+    await expect(marker).toHaveCount(1);
+
+    await expect(timelineRoot.locator('.timeline')).toHaveCount(1);
+    await expect(timelineRoot.locator('.hist-day-group')).toHaveCount(1);
+    await expect(timelineRoot.locator('.timeline__item')).toHaveCount(1);
+    await expect(firstItem).toHaveAttribute('data-reg-id', /.+/);
+    await expect(firstItem.locator('[data-action="edit-reg"]')).toHaveCount(1);
+    await expect(firstItem.locator('[data-action="delete-reg"]')).toHaveCount(1);
+    await expect(firstItem.locator('[data-hist-action="toggle-card-menu"]')).toHaveCount(1);
+  }
+
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await assertDashboardKpisIsland(page);
@@ -216,5 +266,23 @@ test.describe('React islands lifecycle', () => {
     } else {
       await expect(page.locator('#lista-equip .empty-state')).toHaveCount(1);
     }
+  });
+
+  test('historico sai e volta sem duplicar root React do timeline', async ({ page }) => {
+    await assertNoDuplicateCreateRoot(page, async () => {
+      await page.click('#sidenav-historico');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'historico');
+      await assertHistoricoTimelineIsland(page);
+
+      await page.click('#sidenav-inicio');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
+      await expect(
+        page.locator('#timeline[data-react-historico-timeline-mounted="true"]'),
+      ).toHaveCount(0);
+
+      await page.click('#sidenav-historico');
+      await expect(page.locator('body')).toHaveAttribute('data-route', 'historico');
+      await assertHistoricoTimelineIsland(page);
+    });
   });
 });
