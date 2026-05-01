@@ -55,7 +55,7 @@ Limitacoes conhecidas:
 | `registro-*`                    |         133 |          28 |    68 |             14 |         20 |    82 |        16 |         19 | Vivo; Registro mistura ilhas e fluxos legados.                              |
 | `r-checklist*`                  |          19 |           3 |    15 |              1 |          0 |     1 |         6 |         12 | Vivo; tres status sao candidatos dinamicos.                                 |
 | `cli-*`                         |         112 |          16 |    88 |             90 |          0 |     0 |         4 |         18 | Vivo; Clientes React + adapter ainda compartilham contratos.                |
-| `orc-*`                         |          55 |          12 |    32 |              0 |         11 |     0 |         0 |          9 | Vivo; status/timeline precisam de prova visual.                             |
+| `orc-*`                         |          55 |          12 |    32 |              0 |         11 |     0 |         0 |          9 | Vivo; `orc-status-pill--*` provado morto, timeline ainda precisa prova.     |
 | `alert-*`                       |          19 |           0 |     8 |             19 |          0 |     0 |         1 |          2 | Claramente vivo.                                                            |
 | `btn*`                          |          18 |           0 |     9 |             10 |          9 |    11 |         3 |          5 | Global; primeira microfamilia morta removida com prova.                     |
 | `empty-state*`                  |           5 |           0 |     5 |              0 |          5 |     0 |         5 |          2 | Claramente vivo.                                                            |
@@ -129,9 +129,13 @@ Risco: medio. Clientes e PMOC usam dados dinamicos e testes de contrato.
 
 ### `orc-*`
 
-Suspeitas: `orc-status-pill--*`, `orc-timeline*`.
+Suspeitas: `orc-timeline*`.
 
-Risco: medio. Status de orcamento e timeline podem depender de dados nao cobertos por grep simples.
+Microfamilia provada em `docs/migration/css-orc-status-pill-proof.md`: `orc-status-pill--*`.
+
+Classificacao: as seis variantes de classe `orc-status-pill--enviado`, `orc-status-pill--aprovado`, `orc-status-pill--visualizado`, `orc-status-pill--rascunho`, `orc-status-pill--recusado` e `orc-status-pill--expirado` estao mortas candidatas a remocao. O React atual usa `.orc-status-pill` base com estilos inline vindos de `ORCAMENTO_STATUS_META`, e nao monta `orc-status-pill--*`.
+
+Risco: baixo/medio se a remocao for cirurgica. As variantes de classe dividem regras com seletores `[data-status='...'] .orc-status-pill`; remover o bloco inteiro alteraria tambem seletores por atributo. A classe base `.orc-status-pill` continua viva.
 
 ### `btn*`
 
@@ -144,7 +148,8 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 - Modificadores por template: `alert-card--${tone}`, `eq-context-picker--${kind}`, `status-indicator--${tone}`, `app-sidebar__sync-dot--${dotVariant}`, `share-success-toast__action--${destination}`.
 - Modificadores por `classList`: `photo-thumb--pending`, `photo-thumb--cover`, `eq-detail-cover--loaded`, `eq-detail-cover--fallback`, `equip-photo-block--locked`, `setor-modal__swatch--selected`, `timeline__item--saved`.
 - Estados globais: `is-open`, `is-active`, `is-visible`, `is-loading`, `is-busy`, `is-focus-target`, `hidden`, `active`.
-- Tons/status por dados: `hist-pill--*`, `rel-status--*`, `orc-status-pill--*`, `r-checklist__status--*`, `equip-card__status--*`, `setor-card__status--*`.
+- Tons/status por dados: `hist-pill--*`, `rel-status--*`, `r-checklist__status--*`, `equip-card__status--*`, `setor-card__status--*`.
+- Excecao ja provada: `orc-status-pill--*` nao e gerado por dados no DOM atual; Orcamentos usa `.orc-status-pill` base com `statusMeta` inline.
 - Classes de plano/paywall: `upgrade-*`, `pro-badge*`, `usage-meter*`, `pricing-*`, `nameplate-cta[data-state]`.
 
 ## Classes usadas por ilhas React como contrato
@@ -185,15 +190,15 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 
 ## Proxima prova recomendada
 
-Antes de qualquer nova remocao, provar outra microfamilia pequena. Candidata recomendada:
+Antes de qualquer nova remocao, ha uma microfamilia pequena ja provada como candidata:
 
 - `orc-status-pill--*`
 
 Escopo recomendado:
 
-1. Rodar greps diretos e buscas dinamicas para `orc-status-pill`.
-2. Confirmar se os status de orcamento ainda geram essas classes por dados.
-3. Documentar como viva, morta ou inconclusiva sem remover CSS.
+1. Remover apenas os seletores de classe `orc-status-pill--*` de `src/assets/styles/redesign.css`.
+2. Preservar `.orc-status-pill` base e os seletores `[data-status='...'] .orc-status-pill`, salvo prova propria posterior.
+3. Rodar teste/E2E ou screenshot de Orcamentos com status `rascunho`, `enviado`, `aprovado`, `recusado` e `expirado`.
 4. Manter `npm run lint:css:dead` fora do caminho critico enquanto `purgecss` nao estiver disponivel no projeto.
 
 Nao avancar a proxima remocao por `equip-*`, `eq-*`, `setor-*`, `registro-*`, `rel-*` ou `dash-*` sem prova propria; essas familias sao maiores, tem classes dinamicas e ainda compartilham contratos entre React e legado deliberado.

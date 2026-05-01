@@ -295,8 +295,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e provar uma nova microfamilia CSS pequena antes de qualquer outra remocao.
+O proximo PR recomendado e remover de forma cirurgica os seletores de classe `orc-status-pill--*`, ja provados mortos em `docs/migration/css-orc-status-pill-proof.md`.
 
-Motivo: a primeira remocao controlada de CSS ja foi aplicada para `btn--full`, `btn--spaced-bottom` e `btn-ghost--report`, com prova registrada em `docs/migration/css-btn-obsolescence-proof.md`. A proxima etapa deve repetir o mesmo fluxo de prova antes de remover outra familia.
+Motivo: a prova confirmou que Orcamentos renderiza somente `.orc-status-pill` base e aplica cor/background por `ORCAMENTO_STATUS_META` inline. Nao ha uso real, `className`, `classList`, template string ou builder dinamico gerando `orc-status-pill--*`.
 
-Escopo recomendado: investigar `orc-status-pill--*` em PR documental pequeno, rodando greps diretos e buscas dinamicas, classificando como viva, morta ou inconclusiva. Nao remover CSS nesse proximo PR; manter Tailwind/preflight intactos.
+Escopo recomendado: remover apenas os seletores `.orc-status-pill--enviado`, `.orc-status-pill--aprovado`, `.orc-status-pill--visualizado`, `.orc-status-pill--rascunho`, `.orc-status-pill--recusado` e `.orc-status-pill--expirado` de `src/assets/styles/redesign.css`, preservando `.orc-status-pill` base e os seletores `[data-status='...'] .orc-status-pill`. Validar Orcamentos com status `rascunho`, `enviado`, `aprovado`, `recusado` e `expirado` antes de concluir.
