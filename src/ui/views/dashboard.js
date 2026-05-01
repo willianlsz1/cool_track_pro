@@ -454,12 +454,15 @@ function _alertCardHtml(alert) {
   const actionMeta = _getAlertActionMeta(alert);
   const toneClass = alert.severity === 'danger' ? ' alert-card--critical' : '';
   const sub = Utils.truncate(alert.subtitle || '', 56);
+  const safeIcon = Utils.escapeHtml(alert.icon || '!');
+  const safeTitle = Utils.escapeHtml(alert.title || 'Alerta');
+  const safeSub = sub ? Utils.escapeHtml(sub) : '';
   return `<div class="alert-card${toneClass}" data-action="${actionMeta.action}" data-id="${actionMeta.id}" role="listitem" tabindex="0">
-    <span class="alert-card__icon">${alert.icon || '!'}</span>
+    <span class="alert-card__icon">${safeIcon}</span>
     <div class="alert-card__body">
       <div class="alert-card__equip">${Utils.escapeHtml(alert.eq?.nome ?? alert.equipmentName ?? '—')}</div>
-      <div class="alert-card__title">${alert.title}</div>
-      ${sub ? `<div class="alert-card__sub">${sub}</div>` : ''}
+      <div class="alert-card__title">${safeTitle}</div>
+      ${safeSub ? `<div class="alert-card__sub">${safeSub}</div>` : ''}
     </div>
     <span class="alert-card__action">&rarr; Agir</span>
   </div>`;
