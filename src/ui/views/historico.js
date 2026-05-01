@@ -29,6 +29,11 @@ import { updateHeader } from './dashboard.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
 import { buildClientePmocDetails } from '../../core/clientePmoc.js';
+import {
+  HISTORICO_PERIOD_OPTIONS,
+  HISTORICO_TIPO_OPTIONS,
+} from '../viewModels/historicoContracts.js';
+import { buildHistoricoViewModel } from '../viewModels/historicoViewModel.js';
 
 // Histórico é parte do core do produto e não tem corte por data em nenhum
 // plano — Free, Plus e Pro veem todos os registros salvos. Outros limites
@@ -155,27 +160,8 @@ function writeFiltersToUrl({ busca, setor, equip, periodo, tipo }) {
   }
 }
 
-// Períodos suportados. `days: null` = "tudo" (sem corte).
-const PERIOD_OPTIONS = [
-  { id: 'hoje', label: 'Hoje', days: 0 },
-  { id: '7d', label: 'Últimos 7 dias', days: 7 },
-  { id: '30d', label: 'Últimos 30 dias', days: 30 },
-  { id: 'tudo', label: 'Tudo', days: null },
-];
-
-// Tipos rápidos — cobrem o grosso dos registros.
-const TIPO_OPTIONS = [
-  { id: 'preventiva', label: 'Preventiva', match: ['preventiva'], color: 'cyan' },
-  { id: 'corretiva', label: 'Corretiva', match: ['corretiva'], color: 'amber' },
-  { id: 'limpeza', label: 'Limpeza', match: ['limpeza'], color: 'teal' },
-  { id: 'recarga', label: 'Recarga', match: ['recarga', 'gás', 'gas'], color: 'violet' },
-  {
-    id: 'inspecao',
-    label: 'Inspeção',
-    match: ['inspeção', 'inspecao', 'verificação', 'verificação'],
-    color: 'teal',
-  },
-];
+const PERIOD_OPTIONS = HISTORICO_PERIOD_OPTIONS;
+const TIPO_OPTIONS = HISTORICO_TIPO_OPTIONS;
 
 // ──────────────────────────────────────────────────────────────────────
 // Helpers
@@ -246,28 +232,6 @@ function setExtraFilter(key, value) {
   } catch (_error) {
     /* sessionStorage indisponível (iOS privacy mode) — ignora silenciosamente */
   }
-}
-
-function applyPeriodFilter(list, periodId) {
-  const opt = PERIOD_OPTIONS.find((p) => p.id === periodId);
-  if (!opt || opt.days === null) return list;
-
-  const now = new Date();
-  const cutoff = new Date(now);
-  cutoff.setHours(0, 0, 0, 0);
-  cutoff.setDate(cutoff.getDate() - opt.days);
-  const cutoffStr = cutoff.toISOString();
-  return list.filter((r) => (r.data || '') >= cutoffStr);
-}
-
-function applyTipoFilter(list, tipoId) {
-  if (!tipoId) return list;
-  const opt = TIPO_OPTIONS.find((t) => t.id === tipoId);
-  if (!opt) return list;
-  return list.filter((r) => {
-    const tipoNorm = (r.tipo || '').toLowerCase();
-    return opt.match.some((keyword) => tipoNorm.includes(keyword));
-  });
 }
 
 function getSummaryMetrics(list) {
@@ -1245,48 +1209,34 @@ export function renderHist() {
   const filtSetor = Utils.getVal('hist-setor');
   const { period, tipo } = getExtraFilters();
 
-  const equipIdsNoSetor = filtSetor
-    ? new Set(equipamentos.filter((e) => e.setorId === filtSetor).map((e) => e.id))
-    : null;
+  const isProMode = isCachedPlanPro();
+  const historicoVm = buildHistoricoViewModel({
+    registros,
+    equipamentos,
+    setores,
+    clientes,
+    filters: {
+      busca,
+      equipId: filtEq,
+      setorId: filtSetor,
+      period,
+      tipo,
+    },
+    clienteFilter: _clienteFilter,
+    isPro: isProMode,
+    buildClientePmocDetails,
+  });
+  const list = historicoVm.list;
 
-  // Todos os planos têm histórico completo — o filtro temporal foi removido
-  // porque histórico é parte essencial do valor do produto pra técnico de campo.
-  let list = [...registros]
-    .filter((r) => r && r.equipId && typeof r.data === 'string' && r.data.length >= 10)
-    .sort((a, b) => String(b.data || '').localeCompare(String(a.data || '')));
-
-  if (filtSetor) list = list.filter((r) => equipIdsNoSetor.has(r.equipId));
-  if (filtEq) list = list.filter((r) => r.equipId === filtEq);
-  // Filtro por cliente vindo de /clientes -> "Ver serviços". Restringe aos
-  // registros de equipamentos vinculados ao cliente. Se o cliente não tem
-  // equipamentos, a lista vai pra zero (visual: empty state contextual).
-  if (_clienteFilter.id) {
-    const equipIdsForClient = new Set(
-      equipamentos.filter((e) => e.clienteId === _clienteFilter.id).map((e) => e.id),
-    );
-    list = list.filter((r) => equipIdsForClient.has(r.equipId));
-  }
-  list = applyPeriodFilter(list, period);
-  list = applyTipoFilter(list, tipo);
-  if (busca)
-    list = list.filter((r) => {
-      const eq = findEquip(r.equipId);
-      return (
-        (r.obs || '').toLowerCase().includes(busca) ||
-        (r.tipo || '').toLowerCase().includes(busca) ||
-        (eq?.nome || '').toLowerCase().includes(busca) ||
-        (r.tecnico || '').toLowerCase().includes(busca)
-      );
-    });
+  // Filtros de período, tipo, cliente, setor, equipamento e busca agora ficam
+  // no view model; o adapter segue responsável por DOM, URL, handlers e render legado.
 
   const el = Utils.getEl('timeline');
   if (!el) return;
 
   const countEl = Utils.getEl('hist-count');
   if (countEl) {
-    countEl.textContent = list.length
-      ? `${list.length} registro${list.length !== 1 ? 's' : ''}`
-      : 'Sem registros';
+    countEl.textContent = historicoVm.countLabel;
   }
   // Chip de filtro de cliente: aparece quando vier de /clientes -> Ver serviços.
   // Renderiza no slot de active-chips já existente.
@@ -1312,13 +1262,7 @@ export function renderHist() {
   const scrollRoot = document.scrollingElement || document.documentElement;
   const prevScrollTop = scrollRoot ? scrollRoot.scrollTop : window.scrollY;
 
-  const activeFilters = {
-    period,
-    tipo,
-    busca,
-    setorLabel: filtSetor ? setores.find((s) => s.id === filtSetor)?.nome || '' : '',
-    equipLabel: filtEq ? equipamentos.find((e) => e.id === filtEq)?.nome || '' : '',
-  };
+  const activeFilters = historicoVm.activeFilters;
 
   // Sincroniza URL apos cada render. URLSearchParams omite chaves vazias,
   // entao ?busca=foo&periodo=7d nunca vira ?busca=&periodo=&setor=&equip=&tipo=.
@@ -1332,7 +1276,6 @@ export function renderHist() {
 
   const setoresById = new Map(setores.map((s) => [s.id, s]));
   const clientesById = new Map(clientes.map((c) => [c.id, c]));
-  const isProMode = isCachedPlanPro();
   const todaySummary = getTodaySummary(registros);
   const attentionItems = getAttentionItems({
     registros,
