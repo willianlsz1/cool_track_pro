@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   unmountRegistroHeader: vi.fn(),
   unmountRegistroChecklist: vi.fn(),
   unmountRegistroPhotos: vi.fn(),
+  unmountRegistroSignature: vi.fn(),
   updateHeader: vi.fn(),
 }));
 
@@ -52,6 +53,7 @@ vi.mock('../ui/views/registro.js', () => ({
   unmountRegistroHeader: mocks.unmountRegistroHeader,
   unmountRegistroChecklist: mocks.unmountRegistroChecklist,
   unmountRegistroPhotos: mocks.unmountRegistroPhotos,
+  unmountRegistroSignature: mocks.unmountRegistroSignature,
 }));
 
 vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
@@ -85,7 +87,7 @@ describe('registro route lifecycle', () => {
     Object.values(mocks).forEach((mock) => mock.mockClear?.());
   });
 
-  it('unmounts the React header island when leaving registro', async () => {
+  it('unmounts the React registro islands when leaving registro', async () => {
     const { registerAppRoutes } = await import('../ui/controller/routes.js');
     registerAppRoutes();
     const route = getRegistroRoute();
@@ -101,6 +103,7 @@ describe('registro route lifecycle', () => {
     expect(mocks.unmountRegistroHeader).toHaveBeenCalledTimes(1);
     expect(mocks.unmountRegistroChecklist).toHaveBeenCalledTimes(1);
     expect(mocks.unmountRegistroPhotos).toHaveBeenCalledTimes(1);
+    expect(mocks.unmountRegistroSignature).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(2);
   });
 });

@@ -24,6 +24,7 @@ import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportE
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
+import { REGISTRO_SIGNATURE_ROOT_ID } from '../viewModels/registroSignatureModel.js';
 import {
   getChecklistTemplate,
   buildEmptyChecklist,
@@ -132,6 +133,9 @@ let _registroHeaderRenderGeneration = 0;
 let _registroChecklistBridgePromise = null;
 let _registroChecklistBridge = null;
 let _registroChecklistRenderGeneration = 0;
+let _registroSignatureBridgePromise = null;
+let _registroSignatureBridge = null;
+let _registroSignatureRenderGeneration = 0;
 // Persiste o último cliente preenchido para auto-prefill no próximo registro —
 // técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
@@ -703,6 +707,70 @@ export function unmountRegistroPhotos() {
   return Photos.unmount?.();
 }
 
+function loadRegistroSignatureBridge() {
+  if (_registroSignatureBridge) return Promise.resolve(_registroSignatureBridge);
+  if (!_registroSignatureBridgePromise) {
+    _registroSignatureBridgePromise = import('../../react/entrypoints/registroSignatureIsland.jsx')
+      .then((bridge) => {
+        _registroSignatureBridge = bridge;
+        return bridge;
+      })
+      .catch((error) => {
+        _registroSignatureBridgePromise = null;
+        throw error;
+      });
+  }
+  return _registroSignatureBridgePromise;
+}
+
+function buildRegistroSignatureReactProps() {
+  return {
+    isPlusOrHigher: isCachedPlanPlusOrHigher(),
+    onUpsellClick: () => {
+      trackEvent('signature_upsell_clicked', { source: 'registro_form' });
+      goTo('pricing', { highlightPlan: 'plus' });
+    },
+  };
+}
+
+function mountRegistroSignature() {
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById(REGISTRO_SIGNATURE_ROOT_ID);
+  if (!root) return null;
+
+  const renderGeneration = (_registroSignatureRenderGeneration += 1);
+  const props = buildRegistroSignatureReactProps();
+
+  const mountWithBridge = (bridge) => {
+    if (renderGeneration !== _registroSignatureRenderGeneration) return null;
+    return bridge.mountRegistroSignatureReact(root, props);
+  };
+
+  if (_registroSignatureBridge?.mountRegistroSignatureReact) {
+    return mountWithBridge(_registroSignatureBridge);
+  }
+
+  return loadRegistroSignatureBridge().then(mountWithBridge);
+}
+
+export function unmountRegistroSignature() {
+  _registroSignatureRenderGeneration += 1;
+  if (typeof document === 'undefined') return null;
+
+  const root = document.getElementById(REGISTRO_SIGNATURE_ROOT_ID);
+  if (!root?.dataset.reactRegistroSignatureMounted) return null;
+
+  if (_registroSignatureBridge?.unmountRegistroSignatureReact) {
+    _registroSignatureBridge.unmountRegistroSignatureReact(root);
+    return null;
+  }
+
+  return loadRegistroSignatureBridge().then((bridge) => {
+    bridge.unmountRegistroSignatureReact?.(root);
+  });
+}
+
 function _updateChecklistSummary() {
   const summaryEl = document.getElementById('r-checklist-summary');
   if (!summaryEl) return;
@@ -1022,74 +1090,8 @@ export function initRegistro(params = {}) {
 }
 
 function applySignatureHint() {
-  const signatureHint = document.getElementById('registro-signature-hint');
-  if (!signatureHint) return;
-
-  const isPlusOrHigher = isCachedPlanPlusOrHigher();
-  signatureHint.hidden = false;
-
-  // Limpa handler anterior antes de remontar conteúdo.
-  signatureHint.onclick = null;
-  signatureHint.classList.remove('registro-sig-hint--upsell');
-  signatureHint.removeAttribute('role');
-  signatureHint.removeAttribute('tabindex');
-
-  if (isPlusOrHigher) {
-    signatureHint.innerHTML = `
-      <span class="registro-sig-hint__ic" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-          <path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
-        </svg>
-      </span>
-      <div class="registro-sig-hint__body">
-        <div class="registro-sig-hint__head">
-          <strong class="registro-sig-hint__title">Assinatura do cliente</strong>
-          <span class="registro-sig-hint__badge">Incluso</span>
-        </div>
-        <p class="registro-sig-hint__desc">
-          Ao salvar, solicitamos a rubrica do cliente —
-          fica anexada ao registro e aparece no PDF oficial do serviço.
-        </p>
-      </div>`;
-    return;
-  }
-
-  // Variante Free: upsell clicável. Botão aninhado pra ter semântica correta
-  // (o container não pode ser <button> porque já está dentro de um form).
-  signatureHint.classList.add('registro-sig-hint--upsell');
-  signatureHint.innerHTML = `
-    <span class="registro-sig-hint__ic registro-sig-hint__ic--upsell" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="11" width="16" height="10" rx="2"/>
-        <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-      </svg>
-    </span>
-    <div class="registro-sig-hint__body">
-      <div class="registro-sig-hint__head">
-        <strong class="registro-sig-hint__title">Assinatura do cliente no PDF</strong>
-        <span class="registro-sig-hint__badge registro-sig-hint__badge--plus">Plus</span>
-      </div>
-      <p class="registro-sig-hint__desc">
-        Feche o serviço com a rubrica do cliente diretamente no app —
-        recurso do plano Plus.
-      </p>
-    </div>
-    <button type="button" class="registro-sig-hint__cta"
-      data-action="signature-upsell-cta">
-      Conhecer Plus →
-    </button>`;
-
-  const cta = signatureHint.querySelector('[data-action="signature-upsell-cta"]');
-  cta?.addEventListener('click', () => {
-    trackEvent('signature_upsell_clicked', { source: 'registro_form' });
-    goTo('pricing', { highlightPlan: 'plus' });
-  });
+  return mountRegistroSignature();
 }
-
 export function applyQuickTemplate(templateId, triggerEl = null) {
   const template = QUICK_TEMPLATE_MAP[templateId];
   if (!template) return;

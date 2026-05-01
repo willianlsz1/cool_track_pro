@@ -7,6 +7,8 @@ const PRO_PROFILE = {
 };
 
 const REGISTRO_EQUIP_ID = 'equip-hist-e2e-1';
+const REGISTRO_PHOTO_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
 
 const LIFECYCLE_REMOTE_DATA = {
   equipamentos: [
@@ -364,6 +366,60 @@ test.describe('React islands lifecycle', () => {
     expect(obsCount + measureCount).toBeGreaterThan(0);
   }
 
+  async function assertRegistroPhotosIsland(page) {
+    const photosRoot = page.locator('#registro-photos-root');
+    const marker = page.locator('#registro-photos-root[data-react-registro-photos-mounted="true"]');
+
+    await expect(page.locator('#view-registro')).toHaveCount(1);
+    await expect(photosRoot).toHaveCount(1);
+    await expect(photosRoot).toHaveAttribute('data-react-registro-photos-mounted', 'true');
+    await expect(marker).toHaveCount(1);
+
+    await expect(page.locator('#photo-drop-zone')).toHaveCount(1);
+    await expect(page.locator('#photo-drop-zone')).toHaveClass(/registro-photo-drop/);
+    await expect(page.locator('#photo-drop-text')).toHaveCount(1);
+    await expect(page.locator('#input-fotos')).toHaveCount(1);
+    await expect(page.locator('#input-fotos-camera')).toHaveCount(1);
+    await expect(page.locator('#photo-preview')).toHaveCount(1);
+    await expect(page.locator('#photo-preview')).toHaveClass(/photo-grid/);
+  }
+
+  async function exerciseRegistroPhotoFlow(page) {
+    const photosDetails = page
+      .locator('#registro-photos-root')
+      .locator('xpath=ancestor::details[1]');
+    await expect(photosDetails).toHaveCount(1);
+    if (!(await photosDetails.evaluate((node) => node.open))) {
+      await photosDetails.locator('summary').click();
+    }
+    await expect(photosDetails).toHaveJSProperty('open', true);
+
+    await page.locator('#input-fotos').setInputFiles({
+      name: 'registro-e2e.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(REGISTRO_PHOTO_PNG_BASE64, 'base64'),
+    });
+
+    const preview = page.locator('#photo-preview');
+    const thumb = preview.locator('.photo-thumb');
+    const openPreview = preview.locator('[data-r-action="registro-photo-open"]');
+    const removePreview = preview.locator('[data-r-action="registro-photo-remove"]');
+
+    await expect(thumb).toHaveCount(1);
+    await expect(openPreview).toHaveCount(1);
+    await expect(openPreview).toHaveAttribute('data-photo-index', '0');
+    await expect(removePreview).toHaveCount(1);
+    await expect(removePreview).toHaveAttribute('data-photo-index', '0');
+
+    await openPreview.click();
+    await expect(page.locator('#lightbox')).toHaveClass(/is-open/);
+    await expect(page.locator('#lightbox-img')).toHaveAttribute('src', /^data:image\/jpeg;base64/);
+
+    await page.locator('#lightbox').evaluate((node) => node.classList.remove('is-open'));
+    await removePreview.click();
+    await expect(preview.locator('.photo-thumb')).toHaveCount(0);
+  }
+
   async function openRegistroWithChecklist(page) {
     await goToRoute(page, 'registro', { equipId: REGISTRO_EQUIP_ID });
     await expect(page.locator('body')).toHaveAttribute('data-route', 'registro');
@@ -372,6 +428,7 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator('#r-equip')).toHaveAttribute('data-registro-checklist-bound', '1');
     await page.locator('#r-equip').dispatchEvent('change');
     await assertRegistroChecklistIsland(page);
+    await assertRegistroPhotosIsland(page);
   }
 
   test('dashboard islands do inicio saem e voltam sem duplicar roots React', async ({ page }) => {
@@ -514,9 +571,12 @@ test.describe('React islands lifecycle', () => {
     });
   });
 
-  test('registro sai e volta sem duplicar roots React do header e checklist', async ({ page }) => {
+  test('registro sai e volta sem duplicar roots React do header, checklist e fotos', async ({
+    page,
+  }) => {
     await assertNoDuplicateCreateRoot(page, async () => {
       await openRegistroWithChecklist(page);
+      await exerciseRegistroPhotoFlow(page);
 
       await page.click('#sidenav-inicio');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
@@ -525,6 +585,9 @@ test.describe('React islands lifecycle', () => {
       ).toHaveCount(0);
       await expect(
         page.locator('#r-checklist-body[data-react-registro-checklist-mounted="true"]'),
+      ).toHaveCount(0);
+      await expect(
+        page.locator('#registro-photos-root[data-react-registro-photos-mounted="true"]'),
       ).toHaveCount(0);
 
       await openRegistroWithChecklist(page);
