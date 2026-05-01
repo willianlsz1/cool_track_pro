@@ -14,9 +14,8 @@ import { getState, findEquip, findSetor, regsForEquip } from '../../core/state.j
 import { Storage } from '../../core/storage.js';
 import { Auth } from '../../core/auth.js';
 import { Alerts } from '../../domain/alerts.js';
-// Charts é dynamic-imported em _refreshCharts() pra evitar bundlar Chart.js
-// (~100 KB gz) no chunk principal. Só baixa quando o dashboard efetivamente
-// vai desenhar os gráficos.
+// Charts segue legado e dynamic-imported pelo adapter para manter Chart.js
+// fora do chunk principal do Dashboard.
 import { OnboardingBanner, Profile } from '../components/onboarding.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 import { InstallAppPrompt } from '../components/installAppPrompt.js';
@@ -56,6 +55,7 @@ import {
   selectNextDashboardAction,
 } from '../viewModels/dashboardViewModel.js';
 import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
+import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
 
 let dashboardHeroBridgePromise = null;
 let dashboardHeroBridge = null;
@@ -73,6 +73,9 @@ let dashboardProDraftBridgePromise = null;
 let dashboardProDraftBridge = null;
 let dashboardOnboardingBridgePromise = null;
 let dashboardOnboardingBridge = null;
+const refreshDashboardCharts = createDashboardChartsRefresher({
+  loadCharts: () => import('../components/charts.js').then((module) => module.Charts),
+});
 
 function loadDashboardHeroBridge() {
   dashboardHeroBridgePromise ??= import('../../react/entrypoints/dashboardHeroIsland.jsx').then(
@@ -1138,28 +1141,14 @@ function _renderReadOnlyBlocks({
 }
 
 // ═══════════════════════════════════════════════════════
-// Charts refresh (debounced)
+// Charts refresh (legacy adapter)
 // ═══════════════════════════════════════════════════════
-let _lastChartHash = null;
-let _chartsModulePromise = null;
-function _loadCharts() {
-  // Cacheia a promise pra que múltiplas chamadas concorrentes reusem o mesmo
-  // import — o chunk do Chart.js só é baixado uma vez.
-  if (!_chartsModulePromise) {
-    _chartsModulePromise = import('../components/charts.js').then((m) => m.Charts);
-  }
-  return _chartsModulePromise;
-}
-function _refreshCharts() {
-  const viewInicio = document.getElementById('view-inicio');
-  if (!viewInicio?.classList.contains('active')) return;
-  if (!document.getElementById('chart-status-pie')) return;
-  const { registros, equipamentos } = getState();
-  const hash = `${equipamentos.length}:${registros.length}:${equipamentos.map((e) => e.status).join('')}`;
-  if (hash === _lastChartHash) return;
-  _lastChartHash = hash;
-  _loadCharts().then((Charts) => {
-    requestAnimationFrame(() => requestAnimationFrame(() => Charts.refreshAll()));
+function _refreshCharts({ equipamentos, registros }) {
+  const viewInicio = document.getElementById(DASHBOARD_PUBLIC_IDS.view);
+  return refreshDashboardCharts({
+    isActive: Boolean(viewInicio?.classList.contains('active')),
+    equipamentos,
+    registros,
   });
 }
 
@@ -1468,6 +1457,6 @@ export async function renderDashboard() {
     _updateGlobalHeader({ equipamentos, registros, alerts });
 
     // Charts
-    _refreshCharts();
+    _refreshCharts({ equipamentos, registros });
   });
 }

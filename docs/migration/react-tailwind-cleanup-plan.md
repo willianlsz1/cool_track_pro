@@ -281,8 +281,16 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado agora e proteger os charts legados do Dashboard como contrato antes de qualquer migracao ou limpeza.
+Charts legados do Dashboard protegidos e isolados por contrato:
 
-Motivo: os blocos visuais principais do Dashboard ja estao em ilhas React controladas, incluindo empty/onboarding/overflow. A menor proxima fatia util e mapear `chart-status-pie`, `chart-trend-line` e `chart-tipos-doughnut`, proteger contratos/handlers de refresh e decidir se charts ficam legados ou viram ilha propria.
+- Shell atual: `#chart-status-pie`, `#chart-trend-line`, `#chart-tipos-doughnut`.
+- Classes publicas do bloco: `dash__analise`, `dash__accordion`, `dash__accordion-item`, `dash__accordion-summary`, `dash__accordion-title`, `dash__accordion-chev`, `dash__accordion-body`.
+- Fluxo atual: `src/ui/views/dashboard.js` passa dados prontos e estado ativo para `src/ui/views/dashboard/chartsRefresh.js`.
+- O helper `chartsRefresh.js` concentra hash/dedupe, validacao defensiva de canvas, import dinamico de `src/ui/components/charts.js` e chamada legada `Charts.refreshAll()`.
+- Decisao recomendada: manter charts como legado deliberado por enquanto. Eles dependem de canvas/Chart.js, nao usam DOM dinamico com HTML, ficam isolados em helper testado e tem custo de bundle proprio; migrar para React agora teria pouco ganho frente ao risco visual.
+
+O proximo PR recomendado agora e proteger/isolar o header global restante, sem misturar com charts.
+
+Motivo: os contratos DOM dos charts ja estao protegidos e o refresh foi extraido para helper pequeno/testavel. O header global ainda e legado transversal e deve ser tratado em fatia propria, com contratos antes de qualquer migracao.
 
 Nao iniciar por CSS. O CSS legado ainda e a maior fonte de risco e deve vir depois que os contratos por tela estiverem estabilizados.

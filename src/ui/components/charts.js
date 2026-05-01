@@ -315,7 +315,7 @@ export const Charts = {
 
     renderPie(document.getElementById('chart-status-pie'), equipamentos, colors, baseOptions);
     renderLine(document.getElementById('chart-trend-line'), registros, colors, baseOptions);
-    renderBar(document.getElementById('chart-types-bar'), registros, colors, baseOptions);
+    renderBar(document.getElementById('chart-tipos-doughnut'), registros, colors, baseOptions);
   },
 
   destroyAll,
