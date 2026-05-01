@@ -57,7 +57,7 @@ Limitacoes conhecidas:
 | `cli-*`                         |         112 |          16 |    88 |             90 |          0 |     0 |         4 |         18 | Vivo; Clientes React + adapter ainda compartilham contratos.                |
 | `orc-*`                         |          55 |          12 |    32 |              0 |         11 |     0 |         0 |          9 | Vivo; status/timeline precisam de prova visual.                             |
 | `alert-*`                       |          19 |           0 |     8 |             19 |          0 |     0 |         1 |          2 | Claramente vivo.                                                            |
-| `btn*`                          |          21 |           3 |     9 |             10 |          9 |    11 |         3 |          5 | Global; microcandidatos existem, mas risco transversal.                     |
+| `btn*`                          |          18 |           0 |     9 |             10 |          9 |    11 |         3 |          5 | Global; primeira microfamilia morta removida com prova.                     |
 | `empty-state*`                  |           5 |           0 |     5 |              0 |          5 |     0 |         5 |          2 | Claramente vivo.                                                            |
 | `pro-*`, `upgrade-*`, `nudge-*` |           8 |           0 |     2 |              6 |          5 |     2 |         0 |          0 | Claramente vivo; ligado a plano/paywall.                                    |
 
@@ -135,9 +135,9 @@ Risco: medio. Status de orcamento e timeline podem depender de dados nao coberto
 
 ### `btn*`
 
-Suspeitas pequenas provadas em `docs/migration/css-btn-obsolescence-proof.md`: `btn--full`, `btn--spaced-bottom`, `btn-ghost--report`.
+Microfamilia removida com prova em `docs/migration/css-btn-obsolescence-proof.md`: `btn--full`, `btn--spaced-bottom`, `btn-ghost--report`.
 
-Classificacao: mortas candidatas a remocao no proximo PR. Risco baixo/medio porque `btn` e global; validar rotas, modais e Historico mobile antes de remover.
+Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As mencoes restantes devem permanecer apenas como historico/prova em docs.
 
 ## Classes dinamicas que nao podem ser removidas por grep simples
 
@@ -183,19 +183,17 @@ Classificacao: mortas candidatas a remocao no proximo PR. Risco baixo/medio porq
 - Classes de fluxos externos: fotos, nameplate, assinatura, PMOC, PDF/WhatsApp, quota, paywall, checkout, storage.
 - Classes de modais globais, header, auth, landing, pricing e conta ate haver inventario proprio dessas telas.
 
-## Proxima remocao recomendada
+## Proxima prova recomendada
 
-Remover em PR separado apenas a microfamilia `btn*` ja provada como obsoleta:
+Antes de qualquer nova remocao, provar outra microfamilia pequena. Candidata recomendada:
 
-- `btn--full`
-- `btn--spaced-bottom`
-- `btn-ghost--report`
+- `orc-status-pill--*`
 
 Escopo recomendado:
 
-1. Remover somente essas tres definicoes de `src/assets/styles/components.css`.
-2. Rodar screenshot/E2E de Historico em mobile estreito por causa do seletor `#view-historico .btn-ghost--report`.
-3. Rodar smoke visual das rotas com mais modais/botoes: Registro, Relatorio, Equipamentos, Orcamentos e Clientes.
+1. Rodar greps diretos e buscas dinamicas para `orc-status-pill`.
+2. Confirmar se os status de orcamento ainda geram essas classes por dados.
+3. Documentar como viva, morta ou inconclusiva sem remover CSS.
 4. Manter `npm run lint:css:dead` fora do caminho critico enquanto `purgecss` nao estiver disponivel no projeto.
 
-Nao iniciar a primeira remocao por `equip-*`, `eq-*`, `setor-*`, `registro-*`, `rel-*` ou `dash-*`; essas familias sao maiores, tem classes dinamicas e ainda compartilham contratos entre React e legado deliberado.
+Nao avancar a proxima remocao por `equip-*`, `eq-*`, `setor-*`, `registro-*`, `rel-*` ou `dash-*` sem prova propria; essas familias sao maiores, tem classes dinamicas e ainda compartilham contratos entre React e legado deliberado.

@@ -2060,10 +2060,6 @@ textarea.form-control {
   width: auto;
 }
 
-.btn--full {
-  width: 100%;
-}
-
 .btn--centered {
   margin: 0 auto;
 }
@@ -2071,10 +2067,6 @@ textarea.form-control {
 .btn--fit-content {
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.btn--spaced-bottom {
-  margin-bottom: var(--space-2);
 }
 
 .btn--editing {
@@ -15932,21 +15924,8 @@ select option {
   box-shadow: 0 6px 18px rgba(255, 85, 119, 0.38);
 }
 
-/* ─── Botão "Relatório" no header da Histórico — fix mobile.
-   No print do usuário o label "Gerar Relatório" quebrava em 2 linhas em
-   viewport ~360px. Encurtamos pra "Relatório" + nowrap; em mobile estreito
-   (<380px) escondemos o label e mantemos só o ícone (aria-label cobre a11y). */
-#view-historico .btn-ghost--report {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+/* Ajustes do Historico em mobile estreito. */
 @media (max-width: 379px) {
-  #view-historico .btn-ghost--report span {
-    display: none;
-  }
-  #view-historico .btn-ghost--report {
-    padding: 7px 9px;
-  }
   /* Em mobile estreito, o badge de contagem também ocupa espaço — encolhe
      pra ficar legível mas compacto. */
   #view-historico .hist-count {

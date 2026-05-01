@@ -295,8 +295,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e remover a microfamilia `btn*` ja provada obsoleta em `docs/migration/css-btn-obsolescence-proof.md`.
+O proximo PR recomendado e provar uma nova microfamilia CSS pequena antes de qualquer outra remocao.
 
-Motivo: a prova confirmou que `btn--full`, `btn--spaced-bottom` e `btn-ghost--report` nao tem uso real fora de CSS/docs e nao aparecem em builders dinamicos, `classList`, `className` ou arrays de classes. E uma fatia menor que `equip-*`, `eq-*`, `setor-*`, `registro-*`, `rel-*` ou `dash-*`, que ainda compartilham contratos entre React e legado deliberado.
+Motivo: a primeira remocao controlada de CSS ja foi aplicada para `btn--full`, `btn--spaced-bottom` e `btn-ghost--report`, com prova registrada em `docs/migration/css-btn-obsolescence-proof.md`. A proxima etapa deve repetir o mesmo fluxo de prova antes de remover outra familia.
 
-Escopo recomendado: remover no maximo essas tres definicoes de `src/assets/styles/components.css`, rodar screenshot/E2E de Historico em mobile estreito por causa de `#view-historico .btn-ghost--report`, rodar smoke visual das rotas com modais/botoes principais e manter Tailwind/preflight intactos.
+Escopo recomendado: investigar `orc-status-pill--*` em PR documental pequeno, rodando greps diretos e buscas dinamicas, classificando como viva, morta ou inconclusiva. Nao remover CSS nesse proximo PR; manter Tailwind/preflight intactos.

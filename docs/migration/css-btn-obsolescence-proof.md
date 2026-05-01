@@ -4,7 +4,7 @@ Data da prova: 2026-05-01.
 
 ## Objetivo
 
-Provar a obsolescencia das tres classes `btn*` suspeitas apontadas em `docs/migration/css-legacy-inventory.md`, sem remover CSS:
+Provar a obsolescencia das tres classes `btn*` suspeitas apontadas em `docs/migration/css-legacy-inventory.md`, antes da remocao controlada de CSS:
 
 - `btn--full`
 - `btn--spaced-bottom`
@@ -26,7 +26,7 @@ Buscas executadas nos escopos pedidos:
 - `e2e`
 - `docs`
 
-## Resultado dos usos diretos
+## Resultado dos usos diretos antes da remocao
 
 Comandos:
 
@@ -46,9 +46,9 @@ Resultado:
 
 Observacao: os matches em `docs/migration/react-tailwind-cleanup-plan.md` e neste inventario sao historicos/prova, nao uso de produto. Os matches em `src/assets/styles/components.css` sao apenas definicoes.
 
-## Definicoes CSS encontradas
+## Definicoes CSS removidas
 
-`src/assets/styles/components.css:2063`
+Remocao aplicada em 2026-05-01. As definicoes abaixo existiam em `src/assets/styles/components.css` no momento da prova e foram removidas em PR separado.
 
 ```css
 .btn--full {
@@ -56,15 +56,11 @@ Observacao: os matches em `docs/migration/react-tailwind-cleanup-plan.md` e nest
 }
 ```
 
-`src/assets/styles/components.css:2076`
-
 ```css
 .btn--spaced-bottom {
   margin-bottom: var(--space-2);
 }
 ```
-
-`src/assets/styles/components.css:15939`
 
 ```css
 #view-historico .btn-ghost--report {
@@ -109,16 +105,14 @@ Conclusao dos padroes dinamicos:
 
 ## Decisao
 
-As tres classes estao classificadas como mortas candidatas a remocao:
+As tres classes foram classificadas como mortas e removidas de `src/assets/styles/components.css`:
 
-- `btn--full`: morta candidata a remocao.
-- `btn--spaced-bottom`: morta candidata a remocao.
-- `btn-ghost--report`: morta candidata a remocao.
+- `btn--full`: removida.
+- `btn--spaced-bottom`: removida.
+- `btn-ghost--report`: removida, incluindo os seletores responsivos especificos de `#view-historico`.
+
+As mencoes restantes a essas classes devem ficar restritas a documentos historicos/prova.
 
 ## Proximo PR recomendado
 
-Remover apenas essas tres definicoes CSS de `src/assets/styles/components.css`, com:
-
-- screenshot/E2E de Historico mobile estreito para confirmar que a ausencia de `btn-ghost--report` nao altera fluxo atual, ja que o seletor CSS era especifico de `#view-historico`;
-- smoke visual de modais/botoes principais em Registro, Relatorio, Equipamentos, Orcamentos e Clientes;
-- validacoes completas (`format`, `check`, `test`, `build`, E2E lifecycle).
+Provar outra microfamilia CSS pequena antes de qualquer nova remocao. Preferir uma fatia de baixo escopo do inventario, mantendo o mesmo fluxo: grep direto, busca dinamica, documentacao, validacoes completas e remocao em PR posterior.
