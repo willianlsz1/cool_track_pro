@@ -22,58 +22,66 @@
 
 import { Utils } from '../../core/utils.js';
 import { attachDialogA11y } from '../../core/modal.js';
+import {
+  buildHistoricoFiltersSheetModel,
+  getHistoricoFiltersSheetEquipOptions,
+  HISTORICO_FILTERS_SHEET_IDS,
+} from './historicoFiltersSheetModel.js';
 
-const OVERLAY_ID = 'hist-filters-sheet-overlay';
+const OVERLAY_ID = HISTORICO_FILTERS_SHEET_IDS.overlay;
 let _a11yCleanup = null;
 
 function buildOverlayHtml({ setores, equipamentos, tipoOptions, initial }) {
-  const safeSetor = Utils.escapeHtml(initial.setor || '');
-  const safeEquip = Utils.escapeHtml(initial.equip || '');
-  const safeTipo = Utils.escapeHtml(initial.tipo || '');
+  const model = buildHistoricoFiltersSheetModel({
+    setores,
+    equipamentos,
+    tipoOptions,
+    initial,
+  });
+  const safeSetor = Utils.escapeHtml(model.initial.setor);
+  const safeEquip = Utils.escapeHtml(model.initial.equip);
+  const safeTipo = Utils.escapeHtml(model.initial.tipo);
 
-  const setorOptions = (setores || [])
+  const setorOptions = model.setorOptions
     .map((s) => {
-      const sel = s.id === initial.setor ? ' selected' : '';
+      const sel = s.selected ? ' selected' : '';
       return (
         '<option value="' +
         Utils.escapeHtml(s.id) +
         '"' +
         sel +
         '>' +
-        Utils.escapeHtml(s.nome || s.id) +
+        Utils.escapeHtml(s.label || s.id) +
         '</option>'
       );
     })
     .join('');
 
-  const equipFiltered = initial.setor
-    ? (equipamentos || []).filter((e) => e.setorId === initial.setor)
-    : equipamentos || [];
-  const equipOptions = equipFiltered
+  const equipOptions = model.equipOptions
     .map((e) => {
-      const sel = e.id === initial.equip ? ' selected' : '';
+      const sel = e.selected ? ' selected' : '';
       return (
         '<option value="' +
         Utils.escapeHtml(e.id) +
         '"' +
         sel +
         '>' +
-        Utils.escapeHtml(e.nome || e.id) +
+        Utils.escapeHtml(e.label || e.id) +
         '</option>'
       );
     })
     .join('');
 
-  const tipoChips = (tipoOptions || [])
+  const tipoChips = model.tipoOptions
     .map((opt) => {
-      const active = opt.id === initial.tipo ? ' is-active' : '';
+      const active = opt.active ? ' is-active' : '';
       return (
         '<button type="button" class="hist-filters-sheet__tipo-chip' +
         active +
         '" data-tipo-id="' +
         Utils.escapeHtml(opt.id) +
         '" aria-pressed="' +
-        (opt.id === initial.tipo ? 'true' : 'false') +
+        (opt.active ? 'true' : 'false') +
         '">' +
         Utils.escapeHtml(opt.label) +
         '</button>'
@@ -81,16 +89,15 @@ function buildOverlayHtml({ setores, equipamentos, tipoOptions, initial }) {
     })
     .join('');
 
-  const setorBlock =
-    (setores || []).length > 0
-      ? `<div class="hist-filters-sheet__field">
+  const setorBlock = model.showSetorSelect
+    ? `<div class="hist-filters-sheet__field">
           <label class="hist-filters-sheet__label" for="hfs-setor">Setor</label>
           <select id="hfs-setor" class="hist-filters-sheet__select" data-current="${safeSetor}">
             <option value="">Todos os setores</option>
             ${setorOptions}
           </select>
         </div>`
-      : '';
+    : '';
 
   return `
     <div class="modal hist-filters-sheet" role="dialog"
@@ -122,8 +129,8 @@ function buildOverlayHtml({ setores, equipamentos, tipoOptions, initial }) {
           <div class="hist-filters-sheet__tipo-grid"
             role="group" aria-label="Filtrar por tipo de serviço"
             data-current="${safeTipo}">
-            <button type="button" class="hist-filters-sheet__tipo-chip${initial.tipo ? '' : ' is-active'}"
-              data-tipo-id="" aria-pressed="${initial.tipo ? 'false' : 'true'}">Todos</button>
+            <button type="button" class="hist-filters-sheet__tipo-chip${model.initial.tipo ? '' : ' is-active'}"
+              data-tipo-id="" aria-pressed="${model.initial.tipo ? 'false' : 'true'}">Todos</button>
             ${tipoChips}
           </div>
         </div>
@@ -205,20 +212,23 @@ export const HistoricoFiltersSheet = {
     if (setorSel && equipSel) {
       setorSel.addEventListener('change', () => {
         const setorId = setorSel.value;
-        const filtered = setorId ? equipamentos.filter((e) => e.setorId === setorId) : equipamentos;
         const currentEquip = equipSel.value;
-        const stillValid = filtered.some((e) => e.id === currentEquip);
+        const equipOptions = getHistoricoFiltersSheetEquipOptions({
+          equipamentos,
+          setorId,
+          currentEquipId: currentEquip,
+        });
         equipSel.innerHTML =
           '<option value="">Todos os equipamentos</option>' +
-          filtered
+          equipOptions
             .map(
               (e) =>
                 '<option value="' +
                 Utils.escapeHtml(e.id) +
                 '"' +
-                (stillValid && e.id === currentEquip ? ' selected' : '') +
+                (e.selected ? ' selected' : '') +
                 '>' +
-                Utils.escapeHtml(e.nome || e.id) +
+                Utils.escapeHtml(e.label || e.id) +
                 '</option>',
             )
             .join('');
