@@ -33,7 +33,13 @@ function renderCanvasLoading() {
   </div>`;
 }
 
+function isSafeSignaturePreviewSrc(dataUrl) {
+  return /^data:image\/(?:png|jpe?g|webp);base64,[a-z0-9+/=]+$/i.test(String(dataUrl || '').trim());
+}
+
 function renderCanvasImage(dataUrl, clienteNome) {
+  if (!isSafeSignaturePreviewSrc(dataUrl)) return renderCanvasMissing();
+
   return `<img class="hist-signature-modal__image"
     src="${Utils.escapeAttr(dataUrl)}"
     alt="Assinatura do cliente ${Utils.escapeAttr(clienteNome)}" />`;

@@ -7,6 +7,29 @@ import { Utils, MAX_PHOTOS_PER_RECORD, MAX_PHOTO_WIDTH, PHOTO_QUALITY } from '..
 import { Toast } from '../../core/toast.js';
 import { Storage } from '../../core/storage.js';
 
+const REGISTRO_PHOTO_ACTIONS = Object.freeze({
+  open: 'registro-photo-open',
+  remove: 'registro-photo-remove',
+});
+
+function isSafePhotoSrc(src) {
+  const value = String(src || '').trim();
+  if (!value || /[<>"'\s]/.test(value)) return false;
+  if (/^data:image\/(?:jpe?g|png|webp|gif);base64,[a-z0-9+/=]+$/i.test(value)) return true;
+  if (/^blob:/i.test(value)) return true;
+
+  try {
+    const base =
+      typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'http://localhost';
+    const url = new URL(value, base);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (_error) {
+    return false;
+  }
+}
+
 function compressImage(file) {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -112,8 +135,12 @@ export const Photos = {
   },
 
   openLightbox(src) {
-    Utils.getEl('lightbox-img').src = src;
-    Utils.getEl('lightbox').classList.add('is-open');
+    if (!isSafePhotoSrc(src)) return;
+    const lightboxImg = Utils.getEl('lightbox-img');
+    const lightbox = Utils.getEl('lightbox');
+    if (!lightboxImg || !lightbox) return;
+    lightboxImg.src = src;
+    lightbox.classList.add('is-open');
   },
 
   closeLightbox() {
@@ -126,21 +153,29 @@ export const Photos = {
     c.innerHTML = '';
 
     const f = document.createDocumentFragment();
-    this.pending.forEach((src, i) => {
+    const safePhotos = this.pending
+      .map((src, index) => ({ index, src: String(src || '').trim() }))
+      .filter(({ src }) => isSafePhotoSrc(src));
+    safePhotos.forEach(({ src, index }, displayIndex) => {
       const card = document.createElement('div');
       card.className = 'photo-thumb';
       card.setAttribute('role', 'listitem');
 
       const img = document.createElement('img');
       img.src = src;
-      img.alt = `Foto ${i + 1}`;
+      img.alt = `Foto ${displayIndex + 1}`;
+      img.dataset.rAction = REGISTRO_PHOTO_ACTIONS.open;
+      img.dataset.photoIndex = String(index);
       img.addEventListener('click', () => this.openLightbox(src));
 
       const btn = document.createElement('button');
+      btn.type = 'button';
       btn.className = 'photo-thumb__remove';
       btn.textContent = '✕';
-      btn.setAttribute('aria-label', `Remover foto ${i + 1}`);
-      btn.addEventListener('click', () => this.remove(i));
+      btn.dataset.rAction = REGISTRO_PHOTO_ACTIONS.remove;
+      btn.dataset.photoIndex = String(index);
+      btn.setAttribute('aria-label', `Remover foto ${displayIndex + 1}`);
+      btn.addEventListener('click', () => this.remove(index));
 
       card.append(img, btn);
       f.appendChild(card);
