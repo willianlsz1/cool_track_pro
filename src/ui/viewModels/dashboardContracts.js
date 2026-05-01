@@ -43,6 +43,7 @@ export const DASHBOARD_PUBLIC_IDS = Object.freeze({
   monthEquipments: 'dash-month-equips',
   monthPending: 'dash-month-pending',
   monthTrend: 'dash-month-trend',
+  readOnlyBlocksRoot: 'dash-readonly-blocks-root',
   criticalSection: 'dash-critical-section',
   criticalNow: 'dash-critical-now',
   criticalNowCount: 'dash-critical-now-count',

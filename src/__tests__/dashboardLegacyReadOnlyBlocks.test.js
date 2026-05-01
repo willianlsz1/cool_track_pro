@@ -35,35 +35,37 @@ function buildDashboardDom() {
           </article>
         </section>
 
-        <section class="dash__section" id="dash-critical-section" hidden>
-          <header class="dash__section-header">
-            <span class="dash__section-label">A FAZER AGORA</span>
-            <span class="dash__section-count" id="dash-critical-now-count">0</span>
-          </header>
-          <div id="dash-critical-now"></div>
-        </section>
+        <div id="dash-readonly-blocks-root" style="display: contents;">
+          <section class="dash__section" id="dash-critical-section" hidden>
+            <header class="dash__section-header">
+              <span class="dash__section-label">A FAZER AGORA</span>
+              <span class="dash__section-count" id="dash-critical-now-count">0</span>
+            </header>
+            <div id="dash-critical-now"></div>
+          </section>
 
-        <section class="dash__section" id="dash-alerts-section" hidden>
-          <header class="dash__section-header">
-            <span class="dash__section-label">Alertas ativos</span>
-          </header>
-          <div id="dash-alertas-mini"></div>
-          <div id="dash-upgrade-inline-hint"></div>
-        </section>
+          <section class="dash__section" id="dash-alerts-section" hidden>
+            <header class="dash__section-header">
+              <span class="dash__section-label">Alertas ativos</span>
+            </header>
+            <div id="dash-alertas-mini"></div>
+            <div id="dash-upgrade-inline-hint"></div>
+          </section>
 
-        <section class="dash__section" id="dash-criticos-section" hidden>
-          <header class="dash__section-header">
-            <span class="dash__section-label">Equipamentos com ocorrência</span>
-          </header>
-          <div id="dash-criticos"></div>
-        </section>
+          <section class="dash__section" id="dash-criticos-section" hidden>
+            <header class="dash__section-header">
+              <span class="dash__section-label">Equipamentos com ocorrência</span>
+            </header>
+            <div id="dash-criticos"></div>
+          </section>
 
-        <section class="dash__section" id="dash-recentes-section" hidden>
-          <header class="dash__section-header">
-            <span class="dash__section-label">Últimos serviços</span>
-          </header>
-          <div id="dash-recentes"></div>
-        </section>
+          <section class="dash__section" id="dash-recentes-section" hidden>
+            <header class="dash__section-header">
+              <span class="dash__section-label">Últimos serviços</span>
+            </header>
+            <div id="dash-recentes"></div>
+          </section>
+        </div>
       </section>
     </div>
   `;
@@ -422,10 +424,11 @@ describe('dashboard legacy read-only blocks render adapter', () => {
     assertNoUnsafeHtml(proRow);
   });
 
-  it('keeps read-only dashboard blocks legacy-only and documents public contracts', () => {
+  it('delegates read-only dashboard blocks to the React island and documents public contracts', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
+      readOnlyBlocksRoot: 'dash-readonly-blocks-root',
       criticalSection: 'dash-critical-section',
       criticalNow: 'dash-critical-now',
       criticalNowCount: 'dash-critical-now-count',
@@ -455,16 +458,12 @@ describe('dashboard legacy read-only blocks render adapter', () => {
     expect(DASHBOARD_DATA_ATTRIBUTES).toEqual(
       expect.arrayContaining(['data-action', 'data-id', 'data-nav']),
     );
-    expect(dashboardSource).toContain('function _renderAlertsMiniSection');
-    expect(dashboardSource).toContain('function _renderCriticalNowSection');
-    expect(dashboardSource).toContain('function _renderCriticosSection');
-    expect(dashboardSource).toContain('function _renderRecentesSection');
-    expect(dashboardSource).not.toMatch(
-      /dashboard(Alert|Alerts|Critical|Criticos|Recentes|Recent).*Island/,
-    );
-    expect(dashboardSource).not.toMatch(
-      /mountDashboard(Alert|Alerts|Critical|Criticos|Recentes|Recent).*React/,
-    );
+    expect(dashboardSource).toContain('../../react/entrypoints/dashboardReadOnlyBlocksIsland.jsx');
+    expect(dashboardSource).toContain('mountDashboardReadOnlyBlocksReact');
+    expect(dashboardSource).not.toContain('function _renderAlertsMiniSection');
+    expect(dashboardSource).not.toContain('function _renderCriticalNowSection');
+    expect(dashboardSource).not.toContain('function _renderCriticosSection');
+    expect(dashboardSource).not.toContain('function _renderRecentesSection');
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot/);
     expect(document.getElementById('chart-status-pie')).toBeNull();
     expect(document.querySelector('.app-header')).toBeNull();

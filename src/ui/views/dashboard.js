@@ -68,6 +68,8 @@ let dashboardLastServiceBridgePromise = null;
 let dashboardLastServiceBridge = null;
 let dashboardMonthSummaryBridgePromise = null;
 let dashboardMonthSummaryBridge = null;
+let dashboardReadOnlyBlocksBridgePromise = null;
+let dashboardReadOnlyBlocksBridge = null;
 
 function loadDashboardHeroBridge() {
   dashboardHeroBridgePromise ??= import('../../react/entrypoints/dashboardHeroIsland.jsx').then(
@@ -139,6 +141,19 @@ function getDashboardMonthSummaryRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.monthSection);
 }
 
+function loadDashboardReadOnlyBlocksBridge() {
+  dashboardReadOnlyBlocksBridgePromise ??=
+    import('../../react/entrypoints/dashboardReadOnlyBlocksIsland.jsx').then((bridge) => {
+      dashboardReadOnlyBlocksBridge = bridge;
+      return bridge;
+    });
+  return dashboardReadOnlyBlocksBridgePromise;
+}
+
+function getDashboardReadOnlyBlocksRoot() {
+  return document.getElementById(DASHBOARD_PUBLIC_IDS.readOnlyBlocksRoot);
+}
+
 export function unmountDashboardHero(root = getDashboardHeroRoot()) {
   if (!root) return undefined;
   if (dashboardHeroBridge?.unmountDashboardHeroReact) {
@@ -191,6 +206,17 @@ export function unmountDashboardMonthSummary(root = getDashboardMonthSummaryRoot
   }
   return loadDashboardMonthSummaryBridge().then(({ unmountDashboardMonthSummaryReact }) => {
     unmountDashboardMonthSummaryReact(root);
+  });
+}
+
+export function unmountDashboardReadOnlyBlocks(root = getDashboardReadOnlyBlocksRoot()) {
+  if (!root) return undefined;
+  if (dashboardReadOnlyBlocksBridge?.unmountDashboardReadOnlyBlocksReact) {
+    dashboardReadOnlyBlocksBridge.unmountDashboardReadOnlyBlocksReact(root);
+    return undefined;
+  }
+  return loadDashboardReadOnlyBlocksBridge().then(({ unmountDashboardReadOnlyBlocksReact }) => {
+    unmountDashboardReadOnlyBlocksReact(root);
   });
 }
 
@@ -450,50 +476,6 @@ function _getAlertActionMeta(alert) {
   }
 }
 
-function _alertCardHtml(alert) {
-  const actionMeta = _getAlertActionMeta(alert);
-  const toneClass = alert.severity === 'danger' ? ' alert-card--critical' : '';
-  const sub = Utils.truncate(alert.subtitle || '', 56);
-  const safeIcon = Utils.escapeHtml(alert.icon || '!');
-  const safeTitle = Utils.escapeHtml(alert.title || 'Alerta');
-  const safeSub = sub ? Utils.escapeHtml(sub) : '';
-  return `<div class="alert-card${toneClass}" data-action="${actionMeta.action}" data-id="${actionMeta.id}" role="listitem" tabindex="0">
-    <span class="alert-card__icon">${safeIcon}</span>
-    <div class="alert-card__body">
-      <div class="alert-card__equip">${Utils.escapeHtml(alert.eq?.nome ?? alert.equipmentName ?? '—')}</div>
-      <div class="alert-card__title">${safeTitle}</div>
-      ${safeSub ? `<div class="alert-card__sub">${safeSub}</div>` : ''}
-    </div>
-    <span class="alert-card__action">&rarr; Agir</span>
-  </div>`;
-}
-
-function _criticalNowItemHtml({
-  icon = '!',
-  tone = 'danger',
-  title = 'Ação imediata',
-  subtitle = '',
-  action = 'view-equip',
-  id = '',
-  ctaLabel = 'Abrir',
-}) {
-  // SECURITY: defense-in-depth. O chamador já escapa, mas escapar aqui dentro
-  // garante que qualquer chamada nova (ou refactor que esqueça o escape lá
-  // em cima) não reabra um XSS. `icon` é literal controlada pelo código
-  // (`!` ou `!!`), logo não precisa escape — mantido como está.
-  const safeTitle = Utils.escapeHtml(title);
-  const safeSubtitle = subtitle ? Utils.escapeHtml(subtitle) : '';
-  const safeCtaLabel = Utils.escapeHtml(ctaLabel);
-  return `<button class="critical-now-item critical-now-item--${tone}" data-action="${Utils.escapeAttr(action)}" data-id="${Utils.escapeAttr(id)}">
-    <span class="critical-now-item__icon" aria-hidden="true">${icon}</span>
-    <span class="critical-now-item__body">
-      <span class="critical-now-item__title">${safeTitle}</span>
-      ${safeSubtitle ? `<span class="critical-now-item__subtitle">${safeSubtitle}</span>` : ''}
-    </span>
-    <span class="critical-now-item__cta">${safeCtaLabel}</span>
-  </button>`;
-}
-
 function _getActionButton(actionCode) {
   if (
     actionCode === ACTION_CODE.REGISTER_CORRECTIVE_IMMEDIATE ||
@@ -508,28 +490,13 @@ function _getActionButton(actionCode) {
   return { action: 'view-equip', ctaLabel: 'Ver' };
 }
 
-// Badge de tendência de risco (últimos 30 dias) — usa HTML entities pois os
-// cards mini vão para innerHTML direto sem passar por sanitização que resolva
-// caracteres Unicode de setas.
-function _renderTrendBadge(trend) {
-  if (!trend || trend.trend === 'stable') {
-    return `<span class="equip-card__risk-trend equip-card__risk-trend--stable" title="Tendência estável nos últimos 30 dias" aria-label="Tendência estável">&rarr; estável</span>`;
-  }
-  if (trend.trend === 'improving') {
-    return `<span class="equip-card__risk-trend equip-card__risk-trend--improving" title="Risco caiu ${Math.abs(trend.delta)} pontos nos últimos 30 dias" aria-label="Tendência melhorando">&darr; ${Math.abs(trend.delta)}</span>`;
-  }
-  return `<span class="equip-card__risk-trend equip-card__risk-trend--worsening" title="Risco subiu ${trend.delta} pontos nos últimos 30 dias" aria-label="Tendência piorando">&uarr; ${trend.delta}</span>`;
-}
-
-// Cards "com ocorrência" (preservados) —————————————————
-function _equipCardMini(eq) {
+function _criticalEquipmentCardModel(eq) {
   const visual = getEquipmentVisualMeta(eq);
   const context = getEquipmentMaintenanceContext(eq, regsForEquip(eq.id));
   const last = context.ultimoRegistro;
   const score = calcHealthScore(eq.id);
   const hcls = getHealthClass(score);
   const scls = Utils.safeStatus(eq.status);
-  const safeId = Utils.escapeAttr(eq.id);
   const eqRegs = regsForEquip(eq.id);
   const risk = evaluateEquipmentRisk(eq, eqRegs);
   const riskTrend = evaluateEquipmentRiskTrend(eq, eqRegs);
@@ -538,13 +505,13 @@ function _equipCardMini(eq) {
 
   function getCtaByAction(actionCode) {
     if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE_IMMEDIATE)
-      return 'Registrar serviço corretivo agora &rarr;';
-    if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE) return 'Registrar serviço corretivo &rarr;';
+      return 'Registrar serviço corretivo agora \u2192';
+    if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE) return 'Registrar serviço corretivo \u2192';
     if (actionCode === ACTION_CODE.REGISTER_PREVENTIVE)
-      return 'Registrar serviço preventivo &rarr;';
+      return 'Registrar serviço preventivo \u2192';
     if (actionCode === ACTION_CODE.SCHEDULE_PREVENTIVE)
-      return 'Programar serviço preventivo &rarr;';
-    return 'Registrar serviço &rarr;';
+      return 'Programar serviço preventivo \u2192';
+    return 'Registrar serviço \u2192';
   }
 
   let proximaLabel = '—';
@@ -571,58 +538,43 @@ function _equipCardMini(eq) {
 
   let ctaLabel = getCtaByAction(suggestedAction.actionCode);
   if (!last && suggestedAction.actionCode === ACTION_CODE.NONE)
-    ctaLabel = 'Primeiro registro &rarr;';
+    ctaLabel = 'Primeiro registro \u2192';
 
-  // V7: emoji glyph removido. Avatar mostra só iniciais — mesma decisão
-  // do equipmentCards.js. Identificação visual fina = foto real do equip.
-  const cardIcon = visual.photoUrl
-    ? `<div class="equip-card__type-icon equip-card__type-icon--lg equip-card__type-icon--photo equip-card__type-icon--fallback-t${visual.tone}" aria-hidden="true">
-        <img src="${Utils.escapeAttr(visual.photoUrl)}" alt="" loading="lazy"
-          onload="this.parentElement.classList.add('equip-card__type-icon--loaded');"
-          onerror="this.parentElement.classList.add('equip-card__type-icon--fallback');this.remove();" />
-        <span class="equip-card__fallback-initials">${Utils.escapeHtml(visual.initials)}</span>
-      </div>`
-    : `<div class="equip-card__type-icon equip-card__type-icon--lg equip-card__type-icon--fallback equip-card__type-icon--fallback-t${visual.tone}" aria-hidden="true">
-        <span class="equip-card__fallback-initials">${Utils.escapeHtml(visual.initials)}</span>
-      </div>`;
-
-  return `<div class="equip-card equip-card--${scls}" data-action="view-equip" data-id="${safeId}" role="listitem" tabindex="0" aria-label="${Utils.escapeHtml(eq?.nome ?? '—')} — ${STATUS_OPERACIONAL[scls]}">
-    <div class="equip-card__status-band equip-card__status-band--${scls}"></div>
-    <div class="equip-card__header">
-      ${cardIcon}
-      <div class="equip-card__meta">
-        <div class="equip-card__name ${scls === 'danger' ? 'equip-card__name--danger' : ''}">${Utils.escapeHtml(eq?.nome ?? '—')}</div>
-        <div class="equip-card__tag">${Utils.escapeHtml(eq.fluido || eq.tipo)} &middot; Prioridade ${PRIORIDADE_LABEL[eq.criticidade] || PRIORIDADE_LABEL.media}</div>
-      </div>
-      <span class="equip-card__status equip-card__status--${scls}"><span class="status-dot status-dot--${scls}"></span>${STATUS_OPERACIONAL[scls]}</span>
-    </div>
-    <div class="equip-card__health">
-      <div class="equip-card__health-bar"><div class="equip-card__health-fill equip-card__health-fill--${hcls}" style="width:${score}%"></div></div>
-      <div class="equip-card__health-meta"><span class="equip-card__health-label">Eficiência</span><span class="equip-card__health-value equip-card__health-value--${hcls}">${score}%</span></div>
-    </div>
-    <div class="equip-card__risk">
-      <span class="equip-card__risk-badge equip-card__risk-badge--${risk.classification}">${RISK_CLASS_LABEL[risk.classification]}</span>
-      <span class="equip-card__risk-score">Score ${risk.score}</span>
-      ${_renderTrendBadge(riskTrend)}
-    </div>
-    <div class="equip-card__priority">
-      <span class="equip-card__priority-badge equip-card__priority-badge--${priority.priorityLevel}">${priority.priorityLabel}</span>
-    </div>
-    <div class="equip-card__metrics">
-      <div class="equip-card__metric">
-        <div class="equip-card__metric-label">Última manutenção</div>
-        <div class="equip-card__metric-value">${last ? Utils.escapeHtml(_recencia(last.data)) : '<span class="equip-card__metric-empty">Nenhum registro</span>'}</div>
-        ${last ? `<div class="equip-card__metric-sub">${Utils.escapeHtml(Utils.truncate(last.tipo, 22))}</div>` : ''}
-      </div>
-      <div class="equip-card__metric">
-        <div class="equip-card__metric-label">Próxima prev.</div>
-        <div class="equip-card__metric-value ${proximaCls}">${proximaIcon ? `<span>${proximaIcon}</span> ` : ''}${proximaLabel}</div>
-      </div>
-    </div>
-    <div class="equip-card__footer">
-      <button class="equip-card__cta" data-action="go-register-equip" data-id="${safeId}">${ctaLabel}</button>
-    </div>
-  </div>`;
+  return {
+    id: eq?.id || '',
+    statusClass: scls,
+    ariaLabel: `${eq?.nome ?? '—'} — ${STATUS_OPERACIONAL[scls]}`,
+    visual: {
+      photoUrl: visual.photoUrl || '',
+      initials: visual.initials || 'EQ',
+      tone: visual.tone || 'ok',
+    },
+    name: eq?.nome ?? '—',
+    meta: `${eq.fluido || eq.tipo || '—'} · Prioridade ${PRIORIDADE_LABEL[eq.criticidade] || PRIORIDADE_LABEL.media}`,
+    statusLabel: STATUS_OPERACIONAL[scls],
+    health: {
+      score,
+      className: hcls,
+    },
+    risk: {
+      classification: risk.classification,
+      label: RISK_CLASS_LABEL[risk.classification],
+      score: risk.score,
+      trend: riskTrend,
+    },
+    priority: {
+      level: priority.priorityLevel,
+      label: priority.priorityLabel,
+    },
+    metrics: {
+      lastLabel: last ? _recencia(last.data) : '',
+      lastType: last ? Utils.truncate(last.tipo, 22) : '',
+      nextLabel: proximaLabel,
+      nextClass: proximaCls,
+      nextIcon: proximaIcon,
+    },
+    ctaLabel,
+  };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -823,15 +775,9 @@ function _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, aler
 // ═══════════════════════════════════════════════════════
 // Seções secundárias (critical-now, alertas-mini, criticos, recentes)
 // ═══════════════════════════════════════════════════════
-function _renderCriticalNowSection(equipamentos) {
-  const section = document.getElementById('dash-critical-section');
-  const container = document.getElementById('dash-critical-now');
-  const countEl = document.getElementById('dash-critical-now-count');
-  if (!section || !container) return;
-
+function _buildCriticalNowBlock(equipamentos) {
   if (!equipamentos.length) {
-    section.hidden = true;
-    return;
+    return { visible: false, count: 0, groups: [] };
   }
 
   const actionQueue = equipamentos
@@ -844,82 +790,70 @@ function _renderCriticalNowSection(equipamentos) {
     atencao: actionQueue.filter((i) => i.score.group === 'atencao').slice(0, 3),
   };
 
-  const render = (items, tone) =>
-    items
-      .map(({ eq, score }) => {
-        const actionMeta = _getActionButton(score.suggestedAction.actionCode);
-        return _criticalNowItemHtml({
-          icon: score.group === 'critico' ? '!!' : '!',
-          tone,
-          // SECURITY: escapa user-controlled `eq.nome` antes de interpolar.
-          // `score.suggestedAction.actionLabel` hoje vem de string hard-coded
-          // (ACTION_META_BY_CODE em domain/suggestedAction.js), mas escapamos
-          // por defesa em profundidade — se alguém tornar o label dinâmico
-          // lá no futuro, o XSS já fica bloqueado aqui.
-          title: `${Utils.escapeHtml(eq.nome || 'Equipamento')} · ${Utils.escapeHtml(score.suggestedAction.actionLabel)}`,
-          subtitle: score.reasons.join(' · ') || 'Ação recomendada',
-          action: actionMeta.action,
-          id: eq.id,
-          ctaLabel: actionMeta.ctaLabel,
-        });
-      })
-      .join('');
+  const toItems = (items, tone) =>
+    items.map(({ eq, score }) => {
+      const actionMeta = _getActionButton(score.suggestedAction.actionCode);
+      return {
+        icon: score.group === 'critico' ? '!!' : '!',
+        tone,
+        title: `${eq.nome || 'Equipamento'} · ${score.suggestedAction.actionLabel}`,
+        subtitle: score.reasons.join(' · ') || 'Ação recomendada',
+        action: actionMeta.action,
+        id: eq.id,
+        ctaLabel: actionMeta.ctaLabel,
+      };
+    });
 
   const total = groups.critico.length + groups.atencao.length;
   if (!total) {
-    section.hidden = true;
-    return;
+    return { visible: false, count: 0, groups: [] };
   }
 
-  section.hidden = false;
-  if (countEl) countEl.textContent = String(total);
-  container.innerHTML = `
-    ${
+  return {
+    visible: true,
+    count: total,
+    groups: [
       groups.critico.length
-        ? `<div class="critical-now-group">
-            <div class="critical-now-group__label">Crítico agora</div>
-            <div class="critical-now-list">${render(groups.critico, 'danger')}</div>
-          </div>`
-        : ''
-    }
-    ${
+        ? {
+            key: 'critico',
+            label: 'Crítico agora',
+            items: toItems(groups.critico, 'danger'),
+          }
+        : null,
       groups.atencao.length
-        ? `<div class="critical-now-group">
-            <div class="critical-now-group__label">Atenção</div>
-            <div class="critical-now-list">${render(groups.atencao, 'warn')}</div>
-          </div>`
-        : ''
-    }
-  `;
+        ? {
+            key: 'atencao',
+            label: 'Atenção',
+            items: toItems(groups.atencao, 'warn'),
+          }
+        : null,
+    ].filter(Boolean),
+  };
 }
 
-function _renderAlertsMiniSection({ alerts, planContext }) {
-  const section = document.getElementById('dash-alerts-section');
-  const list = document.getElementById('dash-alertas-mini');
-  const hint = document.getElementById('dash-upgrade-inline-hint');
-  if (!section || !list) return;
+function _buildAlertsMiniBlock(alerts = []) {
   if (!alerts.length) {
-    section.hidden = true;
-    if (hint) hint.innerHTML = '';
-    return;
+    return { visible: false, alerts: [] };
   }
-  section.hidden = false;
-  list.innerHTML = `<div class="dash-alertas-list">${alerts.slice(0, 4).map(_alertCardHtml).join('')}</div>`;
-  if (hint) {
-    hint.innerHTML = planContext.hasPro
-      ? ''
-      : UpgradeNudge.renderInlineHint('Exportar relatório em lote', {
-          planCode: planContext.planCode,
-          requiredPlan: 'plus',
-        });
-  }
+
+  return {
+    visible: true,
+    alerts: alerts.slice(0, 4).map((alert) => {
+      const actionMeta = _getAlertActionMeta(alert);
+      return {
+        critical: alert.severity === 'danger',
+        action: actionMeta.action,
+        id: actionMeta.id,
+        icon: alert.icon || '!',
+        equipmentName: alert.eq?.nome ?? alert.equipmentName ?? '—',
+        title: alert.title || 'Alerta',
+        subtitle: Utils.truncate(alert.subtitle || '', 56),
+      };
+    }),
+  };
 }
 
-function _renderCriticosSection({ equipamentos, alerts }) {
-  const section = document.getElementById('dash-criticos-section');
-  const container = document.getElementById('dash-criticos');
-  if (!section || !container) return;
-
+function _buildCriticalEquipmentsBlock({ equipamentos, alerts }) {
   const critical = equipamentos
     .map((eq) => {
       const eqRegs = regsForEquip(eq.id);
@@ -949,44 +883,100 @@ function _renderCriticosSection({ equipamentos, alerts }) {
     .slice(0, 4);
 
   if (!critical.length) {
-    section.hidden = true;
-    return;
+    return { visible: false, equipments: [] };
   }
-  section.hidden = false;
-  container.innerHTML = `<div class="dash-criticos-list">${critical.map((eq) => _equipCardMini(eq)).join('')}</div>`;
+
+  return {
+    visible: true,
+    equipments: critical.map(_criticalEquipmentCardModel),
+  };
 }
 
-function _renderRecentesSection({ registros, isEmpresaPro, clientes }) {
-  const section = document.getElementById('dash-recentes-section');
-  const container = document.getElementById('dash-recentes');
-  if (!section || !container) return;
+function _buildRecentServicesBlock({ registros, isEmpresaPro, clientes }) {
   if (registros.length < 2) {
-    // Com < 2 registros, o "Último serviço" já cobre. Evita duplicar.
-    section.hidden = true;
-    return;
+    return { visible: false, records: [] };
   }
   const recent = [...registros].sort((a, b) => b.data.localeCompare(a.data)).slice(1, 4);
   if (!recent.length) {
-    section.hidden = true;
-    return;
+    return { visible: false, records: [] };
   }
-  section.hidden = false;
-  container.innerHTML = `<div class="dash-recentes-grid">${recent
-    .map((r) => {
+
+  return {
+    visible: true,
+    records: recent.map((r) => {
       const eq = findEquip(r.equipId);
       const clienteNome = isEmpresaPro ? _resolveClienteNome(clientes, eq?.clienteId) : '';
       const setorNome = isEmpresaPro ? _resolveSetorNome(eq) : '';
       const contexto = isEmpresaPro
         ? [clienteNome, setorNome, eq?.nome || '—'].filter(Boolean).join(' • ')
         : eq?.nome || '—';
-      return `<article class="card recent-card" data-nav="historico">
-        <div class="recent-card__date">${Utils.formatDatetime(r.data)}</div>
-        <div class="recent-card__title">${Utils.escapeHtml(r.tipo)}</div>
-        <div class="recent-card__equip">${Utils.escapeHtml(contexto)}${!isEmpresaPro && eq?.tag ? ` · ${Utils.escapeHtml(eq.tag)}` : ''}</div>
-        <div class="recent-card__obs">${Utils.escapeHtml(Utils.truncate(r.obs, 70))}</div>
-      </article>`;
-    })
-    .join('')}</div>`;
+      return {
+        id: r.id || `${r.equipId || 'registro'}-${r.data || ''}`,
+        dateLabel: Utils.formatDatetime(r.data),
+        title: r.tipo || 'Serviço',
+        context: `${contexto}${!isEmpresaPro && eq?.tag ? ` · ${eq.tag}` : ''}`,
+        obs: Utils.truncate(r.obs, 70),
+      };
+    }),
+  };
+}
+
+function _buildReadOnlyBlocksModel({ equipamentos, registros, alerts, isEmpresaPro, clientes }) {
+  return {
+    criticalNow: _buildCriticalNowBlock(equipamentos),
+    alertsMini: _buildAlertsMiniBlock(alerts),
+    criticalEquipments: _buildCriticalEquipmentsBlock({ equipamentos, alerts }),
+    recentServices: _buildRecentServicesBlock({ registros, isEmpresaPro, clientes }),
+  };
+}
+
+function _renderReadOnlyBlocksUpgradeHint({ alerts, planContext }) {
+  const hint = document.getElementById(DASHBOARD_PUBLIC_IDS.upgradeInlineHint);
+  if (!hint) return;
+  if (!alerts.length || planContext.hasPro) {
+    hint.innerHTML = '';
+    return;
+  }
+
+  hint.innerHTML = UpgradeNudge.renderInlineHint('Exportar relatório em lote', {
+    planCode: planContext.planCode,
+    requiredPlan: 'plus',
+  });
+}
+
+function _renderReadOnlyBlocks({
+  equipamentos,
+  registros,
+  alerts,
+  planContext,
+  isEmpresaPro,
+  clientes,
+}) {
+  const model = _buildReadOnlyBlocksModel({
+    equipamentos,
+    registros,
+    alerts,
+    isEmpresaPro,
+    clientes,
+  });
+  const root = getDashboardReadOnlyBlocksRoot();
+
+  if (root && dashboardReadOnlyBlocksBridge?.mountDashboardReadOnlyBlocksReact) {
+    dashboardReadOnlyBlocksBridge.mountDashboardReadOnlyBlocksReact(root, {
+      readOnlyBlocks: model,
+    });
+    _renderReadOnlyBlocksUpgradeHint({ alerts, planContext });
+    return Promise.resolve();
+  }
+
+  if (root) {
+    return loadDashboardReadOnlyBlocksBridge().then(({ mountDashboardReadOnlyBlocksReact }) => {
+      mountDashboardReadOnlyBlocksReact(root, { readOnlyBlocks: model });
+      _renderReadOnlyBlocksUpgradeHint({ alerts, planContext });
+    });
+  }
+
+  return Promise.resolve();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1359,11 +1349,15 @@ export async function renderDashboard() {
     await _renderMonthView({ viewModel: dashboardReadModel });
     _renderProCards({ isEmpresaPro, clientes, equipamentos, registros, alerts, setores });
 
-    // Seções secundárias
-    _renderCriticalNowSection(equipamentos);
-    _renderAlertsMiniSection({ alerts, planContext });
-    _renderCriticosSection({ equipamentos, alerts });
-    _renderRecentesSection({ registros, isEmpresaPro, clientes });
+    // Seções secundárias read-only
+    await _renderReadOnlyBlocks({
+      equipamentos,
+      registros,
+      alerts,
+      planContext,
+      isEmpresaPro,
+      clientes,
+    });
 
     // Plan extras: onboarding + overflow banner (Free only)
     OnboardingBanner.render({ userId: planContext.userId });

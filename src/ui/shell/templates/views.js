@@ -110,35 +110,37 @@ export function renderShellViews() {
               </div>
             </section>
 
-            <section class="dash__section" id="dash-critical-section" hidden>
-              <header class="dash__section-header">
-                <span class="dash__section-label">A FAZER AGORA</span>
-                <span class="dash__section-count" id="dash-critical-now-count">0</span>
-              </header>
-              <div id="dash-critical-now"></div>
-            </section>
+            <div id="dash-readonly-blocks-root" style="display: contents;">
+              <section class="dash__section" id="dash-critical-section" hidden>
+                <header class="dash__section-header">
+                  <span class="dash__section-label">A FAZER AGORA</span>
+                  <span class="dash__section-count" id="dash-critical-now-count">0</span>
+                </header>
+                <div id="dash-critical-now"></div>
+              </section>
 
-            <section class="dash__section" id="dash-alerts-section" hidden>
-              <header class="dash__section-header">
-                <span class="dash__section-label">Alertas ativos</span>
-              </header>
-              <div id="dash-alertas-mini"></div>
-              <div id="dash-upgrade-inline-hint"></div>
-            </section>
+              <section class="dash__section" id="dash-alerts-section" hidden>
+                <header class="dash__section-header">
+                  <span class="dash__section-label">Alertas ativos</span>
+                </header>
+                <div id="dash-alertas-mini"></div>
+                <div id="dash-upgrade-inline-hint"></div>
+              </section>
 
-            <section class="dash__section" id="dash-criticos-section" hidden>
-              <header class="dash__section-header">
-                <span class="dash__section-label">Equipamentos com ocorrência</span>
-              </header>
-              <div id="dash-criticos"></div>
-            </section>
+              <section class="dash__section" id="dash-criticos-section" hidden>
+                <header class="dash__section-header">
+                  <span class="dash__section-label">Equipamentos com ocorrência</span>
+                </header>
+                <div id="dash-criticos"></div>
+              </section>
 
-            <section class="dash__section" id="dash-recentes-section" hidden>
-              <header class="dash__section-header">
-                <span class="dash__section-label">Últimos serviços</span>
-              </header>
-              <div id="dash-recentes"></div>
-            </section>
+              <section class="dash__section" id="dash-recentes-section" hidden>
+                <header class="dash__section-header">
+                  <span class="dash__section-label">Últimos serviços</span>
+                </header>
+                <div id="dash-recentes"></div>
+              </section>
+            </div>
 
             <section class="dash__analise" aria-label="Análise do parque">
               <header class="dash__section-header">

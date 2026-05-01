@@ -206,6 +206,31 @@ test.describe('React islands lifecycle', () => {
     await expect(section.locator('.dash__kpi-value')).toHaveCount(3);
   }
 
+  async function assertDashboardReadOnlyBlocksIsland(page) {
+    const root = page.locator('#dash-readonly-blocks-root');
+
+    await expect(root).toHaveCount(1);
+    await expect(root).toHaveAttribute('data-react-dashboard-read-only-blocks-mounted', 'true');
+    await expect(
+      page.locator(
+        '#dash-readonly-blocks-root[data-react-dashboard-read-only-blocks-mounted="true"]',
+      ),
+    ).toHaveCount(1);
+
+    await expect(page.locator('#dash-critical-section')).toHaveCount(1);
+    await expect(page.locator('#dash-alerts-section')).toHaveCount(1);
+    await expect(page.locator('#dash-criticos-section')).toHaveCount(1);
+    await expect(page.locator('#dash-recentes-section')).toHaveCount(1);
+    await expect(page.locator('#dash-critical-now')).toHaveCount(1);
+    await expect(page.locator('#dash-critical-now-count')).toHaveCount(1);
+    await expect(page.locator('#dash-alertas-mini')).toHaveCount(1);
+    await expect(page.locator('#dash-criticos')).toHaveCount(1);
+    await expect(page.locator('#dash-recentes')).toHaveCount(1);
+    await expect(root.locator('.dash__section')).toHaveCount(4);
+    await expect(root.locator('.dash__section-header')).toHaveCount(4);
+    await expect(root.locator('.dash__section-label')).toHaveCount(4);
+  }
+
   async function assertHistoricoTimelineIsland(page) {
     const timelineRoot = page.locator('#timeline');
     const marker = page.locator('#timeline[data-react-historico-timeline-mounted="true"]');
@@ -492,6 +517,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
       await assertDashboardMonthSummaryIsland(page);
+      await assertDashboardReadOnlyBlocksIsland(page);
 
       await page.click('#sidenav-clientes');
       await expect(page.locator('body')).toHaveAttribute('data-route', 'clientes');
@@ -504,6 +530,7 @@ test.describe('React islands lifecycle', () => {
       await assertDashboardNextActionIsland(page);
       await assertDashboardLastServiceIsland(page);
       await assertDashboardMonthSummaryIsland(page);
+      await assertDashboardReadOnlyBlocksIsland(page);
     });
   });
 
