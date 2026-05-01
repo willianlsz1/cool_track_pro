@@ -23,7 +23,7 @@ import {
   unmountRegistroSignature,
 } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
-import { renderClientes, setClientesSearch, unmountClientes } from '../views/clientes.js';
+import { renderClientes, unmountClientes } from '../views/clientes.js';
 import { ClientesPaywallModal } from '../components/clientesPaywallModal.js';
 import {
   getClientesAccessSnapshot,
@@ -164,13 +164,6 @@ export function registerAppRoutes() {
       }
       renderClientes();
       updateHeader();
-      const search = document.getElementById('clientes-busca');
-      if (search && !search.dataset.bound) {
-        search.dataset.bound = '1';
-        search.addEventListener('input', (e) => {
-          setClientesSearch(e.target.value || '');
-        });
-      }
     },
     () => {
       unmountClientes();

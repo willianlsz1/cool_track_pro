@@ -8,6 +8,18 @@
 - HEAD: `1431de0 (HEAD -> main, origin/main, origin/HEAD) Resolve clientes merge conflicts`.
 - `git status --short`: vazio no inicio da analise.
 
+Nota de atualizacao em 2026-05-01:
+
+- Este documento e um snapshot historico de 2026-04-30. O estado mais recente da
+  migracao esta consolidado em `docs/migration/react-tailwind-cleanup-plan.md`.
+- O probe temporario React foi removido: `src/react/components/IntegrationProbe.jsx`,
+  `src/react/entrypoints/integrationProbe.jsx`,
+  `src/__tests__/reactIntegrationProbe.test.js`, `#react-integration-root` e
+  `mountReactIntegrationProbe` nao fazem parte da infraestrutura atual.
+- O seletor legado `#clientes-busca` foi removido de `routes.js`.
+- O contrato atual de busca de Clientes e `#cli-search-input`, montado dentro de
+  `#clientes-root`.
+
 Ultimos commits relevantes vistos em `git log --oneline --decorate -10`:
 
 - `1431de0 Resolve clientes merge conflicts`
@@ -47,21 +59,17 @@ Estrutura React atual:
 
 - `src/react/entrypoints/alertasIsland.jsx`
 - `src/react/entrypoints/orcamentosIsland.jsx`
-- `src/react/entrypoints/integrationProbe.jsx`
 - `src/react/pages/AlertasPage.jsx`
 - `src/react/pages/OrcamentosPage.jsx`
-- `src/react/components/IntegrationProbe.jsx`
 - `src/react/shared/.gitkeep`
 
 Uso real de `createRoot`:
 
 - `mountAlertasReact()` monta em `#view-alertas`.
 - `mountOrcamentosReact()` monta em `#view-orcamentos`.
-- `mountReactIntegrationProbe()` monta em `#react-integration-root` se esse root existir.
 
 Uso real de Tailwind:
 
-- `src/react/components/IntegrationProbe.jsx`: `tw-sr-only`.
 - `src/react/pages/AlertasPage.jsx`: `tw-w-full`.
 - `src/react/pages/OrcamentosPage.jsx`: `tw-w-full`.
 - Nao ha classes Tailwind sem prefixo nos arquivos React analisados.
@@ -77,7 +85,8 @@ CSS legado:
 - `alertas`: ilha React controlada montada por `src/ui/views/alertas.js` em `#view-alertas`.
 - `orcamentos`: ilha React controlada montada por `src/ui/views/orcamentos.js` em `#view-orcamentos`.
 
-Observacao: `integrationProbe` existe como infraestrutura de smoke/probe, mas nao e tela de produto.
+Historico removido: o antigo `integrationProbe` era apenas infraestrutura de smoke/probe,
+nao era tela de produto e foi removido no PR de limpeza de 2026-05-01.
 
 ## 5. Telas preparadas mas ainda legadas
 
@@ -140,7 +149,9 @@ Categorias:
 - Contratos: `CLIENTES_PUBLIC_IDS`, `CLIENTES_ACTIONS`, `CLIENTES_DEFAULT_FILTERS`, `CLIENTES_STATUS_OPTIONS`, `CLIENTES_SORT_OPTIONS`, `CLIENTES_PAGE_SIZE_OPTIONS`.
 - Handlers/side effects: `loadClientes()`, `ClienteModal`, `ClienteAlertModal`, `ClientePmocPanel`, `CustomConfirm`, `Toast`, `goTo()`, handlers delegados de input/change/click/keydown.
 - Estado seguro: renderers foram extraidos em `src/ui/views/clientes/*`; ha testes de view model, renderers, rota/paywall, PMOC e XSS.
-- Riscos: ainda usa `innerHTML`; menu kebab manipula DOM; foco da busca e restaurado manualmente; `renderSummary()` depende de `window.matchMedia`; `routes.js` ainda contem seletores antigos `#view-clientes .view-content` e `#clientes-busca`, enquanto a tela atual usa `#clientes-root` e `#cli-search-input`.
+- Contrato atual de busca: `#cli-search-input`, dentro de `#clientes-root`.
+- Historico removido: o binding antigo de rota para `#clientes-busca` foi removido por estar obsoleto.
+- Riscos: ainda usa `innerHTML`; menu kebab manipula DOM; foco da busca e restaurado manualmente; `renderSummary()` depende de `window.matchMedia`; `routes.js` ainda contem seletor antigo `#view-clientes .view-content`.
 
 ### Equipamentos
 
@@ -209,7 +220,8 @@ Testes React island existentes:
 
 - `src/__tests__/alertasReactIsland.test.jsx`
 - `src/__tests__/orcamentosReactIsland.test.jsx`
-- `src/__tests__/reactIntegrationProbe.test.js`
+- Historico removido: `src/__tests__/reactIntegrationProbe.test.js` foi substituido por
+  cobertura de limpeza em `src/__tests__/reactCleanupContracts.test.js`.
 
 Testes de view model existentes:
 
