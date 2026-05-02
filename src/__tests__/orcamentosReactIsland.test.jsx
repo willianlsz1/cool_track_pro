@@ -266,4 +266,39 @@ describe('orcamentos React island', () => {
     expect(statusBadge?.textContent).toContain('Enviado');
     expect(statusBadge?.className).toContain('tw-');
   });
+
+  it('uses primitives for simple card actions while preserving legacy handlers', async () => {
+    document.body.innerHTML = '<div id="view-orcamentos"></div>';
+    const root = document.getElementById('view-orcamentos');
+
+    await act(async () => {
+      mountOrcamentosReact(root, { viewModel: createViewModel() });
+    });
+
+    const card = root?.querySelector('.orc-card[data-id="orc-1"]');
+    const numberBadge = card?.querySelector('.orc-card__numero');
+    const editAction = card?.querySelector(
+      '[data-action="open-orcamento-modal"][data-mode="edit"][data-id="orc-1"]',
+    );
+    const shareAction = card?.querySelector('[data-action="orc-share"][data-id="orc-1"]');
+    const downloadAction = card?.querySelector('[data-action="orc-download"][data-id="orc-1"]');
+    const approveAction = card?.querySelector('[data-action="orc-mark-approved"][data-id="orc-1"]');
+    const signatureAction = card?.querySelector(
+      '[data-action="orc-send-signature"][data-id="orc-1"]',
+    );
+    const deleteAction = card?.querySelector('[data-action="orc-delete"][data-id="orc-1"]');
+
+    expect(numberBadge?.classList.contains('orc-card__numero')).toBe(true);
+    expect(numberBadge?.className).toContain('tw-');
+    expect(editAction?.classList.contains('btn--ghost')).toBe(true);
+    expect(editAction?.className).toContain('tw-');
+    expect(shareAction?.classList.contains('btn--outline')).toBe(true);
+    expect(shareAction?.className).toContain('tw-');
+    expect(downloadAction?.classList.contains('orc-card__download')).toBe(true);
+    expect(downloadAction?.className).toContain('tw-');
+    expect(approveAction?.classList.contains('btn--outline')).toBe(true);
+    expect(approveAction?.className).toContain('tw-');
+    expect(signatureAction?.classList.contains('btn--primary')).toBe(true);
+    expect(deleteAction?.classList.contains('orc-card__kebab')).toBe(true);
+  });
 });

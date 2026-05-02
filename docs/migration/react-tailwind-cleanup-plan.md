@@ -296,8 +296,8 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e criar as primeiras primitives de design system em `src/react/components/ui`: `Button` e `Badge`, sem aplicar em telas ainda.
+O proximo PR recomendado e remover cirurgicamente a microfamilia CSS `hist-plan-limit-banner*`, ja provada como morta candidata em `docs/migration/css-hist-plan-limit-banner-proof.md`.
 
-Motivo: o congelamento de `components.css` impede crescimento do CSS legado, mas a reducao acelerada depende de componentes reutilizaveis antes de remover familias grandes. `Button` e `Badge` sao os menores blocos transversais e permitem preparar Orcamentos sem tocar em PDF, assinatura, WhatsApp, storage/backend, modais ou handlers.
+Motivo: a prova encontrou apenas definicoes em `src/assets/styles/components.css` e docs. Historico atual nao monta essa familia em `HistoricoTimeline.jsx`, `HistoricoFilters.jsx`, `historicoViewModel.js`, `historicoFiltersSheet.js`, adapter, testes ou E2E. O plano Free tambem nao define mais `historicoDias`, entao o banner antigo "Free, 30d cutoff" nao representa contrato atual.
 
-Escopo recomendado: criar `Button.jsx`, `Badge.jsx`, `index.js` e testes focados em variantes, `data-*`, `aria-*`, `disabled` e `className`. Nao aplicar os componentes em telas e nao remover CSS nesse PR.
+Escopo recomendado: remover apenas os seletores `hist-plan-limit-banner*` e o comentario obsoleto adjacente de `src/assets/styles/components.css`. Preservar `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.

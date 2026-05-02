@@ -263,15 +263,16 @@ function CardAction({ action }) {
   const id = action.id || '';
   if (action.kind === 'edit') {
     return (
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         className="btn btn--ghost btn--sm"
         data-action={action.action}
         data-mode={action.mode}
         data-id={id}
       >
         {action.label}
-      </button>
+      </Button>
     );
   }
   if (action.kind === 'sendSignature') {
@@ -289,20 +290,22 @@ function CardAction({ action }) {
   }
   if (action.kind === 'share') {
     return (
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         className="btn btn--outline btn--sm"
         data-action={action.action}
         data-id={id}
       >
         {action.label}
-      </button>
+      </Button>
     );
   }
   if (action.kind === 'download') {
     return (
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         className="btn btn--outline btn--sm orc-card__download"
         data-action={action.action}
         data-id={id}
@@ -310,19 +313,20 @@ function CardAction({ action }) {
       >
         <DownloadIcon />
         {action.label}
-      </button>
+      </Button>
     );
   }
   if (action.kind === 'markApproved') {
     return (
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         className="btn btn--outline btn--sm"
         data-action={action.action}
         data-id={id}
       >
         {action.label}
-      </button>
+      </Button>
     );
   }
   if (action.kind === 'delete') {
@@ -348,7 +352,9 @@ function OrcamentoCard({ card }) {
     <article className="orc-card" data-id={card.id || ''}>
       <header className="orc-card__head">
         <div>
-          <span className="orc-card__numero">{card.numero}</span>
+          <Badge tone="neutral" size="sm" className="orc-card__numero">
+            {card.numero}
+          </Badge>
           <StatusPill status={card.status} statusMeta={card.statusMeta} />
         </div>
         <div className="orc-card__total">{card.totalLabel}</div>

@@ -109,6 +109,12 @@ Suspeitas: `hist-pill--*`, `hist-quickfilter--*`, `hist-plan-limit-banner*`, `ti
 
 Risco: medio. Timeline e filtros sao React, mas sheet mobile, delete, fotos e assinatura ainda sao legados; varios tons sao dinamicos.
 
+Microfamilia provada em `docs/migration/css-hist-plan-limit-banner-proof.md`: `hist-plan-limit-banner*`.
+
+Classificacao: `hist-plan-limit-banner`, `hist-plan-limit-banner__ic`, `hist-plan-limit-banner__icon`, `hist-plan-limit-banner__text`, `hist-plan-limit-banner__link` e `hist-plan-limit-banner__link:hover` estao mortos candidatos a remocao. As buscas encontraram apenas definicoes em `src/assets/styles/components.css` e docs; `HistoricoTimeline.jsx`, `HistoricoFilters.jsx`, `historicoViewModel.js`, `historicoFiltersSheet.js`, testes e E2E nao montam essa familia.
+
+Risco: baixo se a remocao futura for limitada aos seletores `hist-plan-limit-banner*`. Nao remover `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer ou handlers de fotos/delete/PDF/navegacao.
+
 ### `rel-*`
 
 Suspeitas: `rel-status--*`, `rel-tipo-icon--*`, `rel-record__prox-badge--*`, `rel-toolbar__btn-*`.
@@ -153,6 +159,7 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 - Modificadores por `classList`: `photo-thumb--pending`, `photo-thumb--cover`, `eq-detail-cover--loaded`, `eq-detail-cover--fallback`, `equip-photo-block--locked`, `setor-modal__swatch--selected`, `timeline__item--saved`.
 - Estados globais: `is-open`, `is-active`, `is-visible`, `is-loading`, `is-busy`, `is-focus-target`, `hidden`, `active`.
 - Tons/status por dados: `hist-pill--*`, `rel-status--*`, `r-checklist__status--*`, `equip-card__status--*`, `setor-card__status--*`.
+- Excecao provada como morta candidata: `hist-plan-limit-banner*` nao e gerado por React, viewModel, sheet mobile, adapter, testes ou E2E atuais de Historico.
 - Excecao ja removida com prova: `orc-status-pill--*` nao e gerado por dados no DOM atual; Orcamentos usa `.orc-status-pill` base com `statusMeta` inline.
 - Excecao provada como morta candidata: `orc-timeline*` nao e gerado por React, viewModel, modal, assinatura, handlers ou testes atuais de Orcamentos.
 - Classes de plano/paywall: `upgrade-*`, `pro-badge*`, `usage-meter*`, `pricing-*`, `nameplate-cta[data-state]`.
@@ -197,13 +204,13 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 
 Antes de qualquer nova prova, ha uma microfamilia pequena ja provada como candidata:
 
-- `orc-timeline*`
+- `hist-plan-limit-banner*`
 
 Escopo recomendado:
 
-1. Remover apenas os seletores `orc-timeline*` de `src/assets/styles/components.css`.
-2. Preservar `timeline*` generico do Historico, `equip-card__timeline-*` de Equipamentos e `is-done` transversal.
-3. Rodar smoke visual/E2E de Orcamentos com lista vazia e cards/status principais.
+1. Remover apenas os seletores `hist-plan-limit-banner*` de `src/assets/styles/components.css`.
+2. Preservar `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.
+3. Rodar smoke visual/E2E de Historico com estado vazio, registros e CTA atual de upsell/pricing do summary card, se aparecer.
 4. Manter `npm run lint:css:dead` fora do caminho critico enquanto `purgecss` nao estiver disponivel no projeto.
 
 Nao avancar a proxima remocao por `equip-*`, `eq-*`, `setor-*`, `registro-*`, `rel-*` ou `dash-*` sem prova propria; essas familias sao maiores, tem classes dinamicas e ainda compartilham contratos entre React e legado deliberado.
