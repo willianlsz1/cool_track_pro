@@ -1,12 +1,13 @@
 # Prova CSS: `timeline__saved-badge`
 
 Data da analise: 2026-05-01.
+Remocao aplicada: 2026-05-01.
 
 ## Objetivo
 
 Provar se a microfamilia CSS pequena `timeline__saved-badge` esta viva, morta ou inconclusiva antes de qualquer remocao de CSS.
 
-Resultado: comprovadamente morta. A classe aparece apenas em CSS de producao e docs; nao ha render em React, adapter legado, shell, testes ou E2E.
+Resultado: comprovadamente morta. A classe aparecia apenas em CSS de producao e docs; nao ha render em React, adapter legado, shell, testes ou E2E. O seletor foi removido cirurgicamente de `src/assets/styles/desktop-fonts.css`.
 
 ## Motivo da escolha
 
@@ -84,16 +85,30 @@ Contexto: ajuste tipografico dentro de `desktop-fonts.css`. Nao ha seletor base 
 | ----------------------- | --------------------- | ------------------------------------------------------------------------- |
 | `timeline__saved-badge` | Comprovadamente morta | Apenas CSS/docs; sem render, `className`, `classList`, teste ou contrato. |
 
+## Remocao aplicada
+
+Seletor removido:
+
+```css
+.timeline__saved-badge {
+  font-size: 11px;
+}
+```
+
+Arquivo alterado: `src/assets/styles/desktop-fonts.css`.
+
+Prova depois da remocao: `git grep -n "timeline__saved-badge"` e `git grep -n "saved-badge"` devem retornar apenas docs/provas historicas.
+
 ## Preservacoes
 
 - `timeline__item--saved` continua vivo e fora do escopo desta prova.
 - `timeline__dot--*` e `timeline__item--*` continuam fora do escopo desta prova.
 - `hist-*`, sheet mobile do Historico e contratos `data-hist-action`, `data-reg-id`, `data-equip-id`, `data-photo-url` e `data-tipo-id` nao foram alterados.
-- Nenhum CSS foi removido neste PR.
+- Apenas `.timeline__saved-badge` foi removido; nenhum outro seletor `timeline*` foi alterado.
 
 ## Recomendacao
 
-Criar um PR futuro de remocao cirurgica removendo apenas o seletor `.timeline__saved-badge` de `src/assets/styles/desktop-fonts.css`.
+Remocao aplicada. Proxima etapa recomendada: escolher outra microfamilia pequena do inventario e criar prova dedicada antes de qualquer remocao.
 
 Validacoes recomendadas para o PR de remocao:
 

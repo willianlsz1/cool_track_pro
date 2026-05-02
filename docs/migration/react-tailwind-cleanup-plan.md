@@ -302,4 +302,6 @@ Motivo: a prova encontrou apenas definicoes em `src/assets/styles/components.css
 
 Escopo aplicado: removidos apenas os seletores `hist-plan-limit-banner*` e o comentario obsoleto adjacente de `src/assets/styles/components.css`. Foram preservados `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.
 
-Proximo PR recomendado: remover cirurgicamente `.timeline__saved-badge` de `src/assets/styles/desktop-fonts.css`, conforme prova dedicada em `docs/migration/css-timeline-saved-badge-proof.md`. Se a remocao for adiada, escolher outra microfamilia CSS pequena do inventario e criar prova dedicada antes de qualquer remocao. Evitar familias grandes ou dinamicas sem screenshot/E2E especifico.
+Remocao aplicada: `.timeline__saved-badge` foi removido cirurgicamente de `src/assets/styles/desktop-fonts.css`, conforme prova dedicada em `docs/migration/css-timeline-saved-badge-proof.md`.
+
+Proximo PR recomendado: escolher outra microfamilia CSS pequena do inventario e criar prova dedicada antes de qualquer remocao. Evitar familias grandes ou dinamicas sem screenshot/E2E especifico.
