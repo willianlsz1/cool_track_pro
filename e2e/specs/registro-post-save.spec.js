@@ -57,6 +57,7 @@ test.describe('Registro post-save legacy flow', () => {
       page.locator('#registro-header-root[data-react-registro-header-mounted="true"]'),
     ).toHaveCount(1);
 
+    await assertSignatureContracts(page);
     await fillRequiredRegistroFields(page);
     await assertChecklistIsland(page);
     await markMinimalChecklist(page);
@@ -65,6 +66,7 @@ test.describe('Registro post-save legacy flow', () => {
 
     const toast = page.locator('[data-testid="post-save-registro-toast"]');
     await expect(toast).toBeVisible();
+    await assertPostSaveToastShape(toast);
     await expect(toast).toContainText('Split Registro E2E');
     await expect(toast.locator('.share-success-toast__action--pdf')).toHaveCount(1);
     await expect(toast.locator('.share-success-toast__action--pdf')).toHaveAttribute(
@@ -130,6 +132,7 @@ test.describe('Registro post-save legacy flow', () => {
     await expect(page.locator('#registro-photos-root')).toHaveCount(1);
     await expect(page.locator('#registro-signature-hint')).toHaveCount(1);
 
+    await assertSignatureContracts(page);
     await fillRequiredRegistroFields(page);
     await assertRegistroIslands(page);
     await markMinimalChecklist(page);
@@ -253,6 +256,36 @@ async function assertChecklistIsland(page) {
   await expect(
     page.locator('#r-checklist-body[data-react-registro-checklist-mounted="true"]'),
   ).toHaveCount(1);
+}
+
+async function assertSignatureContracts(page) {
+  const signatureRoot = page.locator('#registro-signature-hint');
+  await expect(signatureRoot).toHaveCount(1);
+  await expect(signatureRoot).toHaveClass(/registro-sig-hint/);
+  await expect(signatureRoot).toHaveAttribute('data-react-registro-signature-mounted', 'true');
+
+  const signatureActions = signatureRoot.locator('[data-r-action]');
+  if ((await signatureActions.count()) > 0) {
+    await expect(signatureActions.first()).toHaveAttribute('data-r-action', /^registro-signature-/);
+  }
+
+  const upsellCta = signatureRoot.locator('[data-action="signature-upsell-cta"]');
+  if ((await upsellCta.count()) > 0) {
+    await expect(upsellCta.first()).toHaveAttribute('data-action', 'signature-upsell-cta');
+  }
+}
+
+async function assertPostSaveToastShape(toast) {
+  await expect(toast).toHaveAttribute('role', 'status');
+  await expect(toast).toHaveAttribute('aria-live', 'polite');
+  await expect(toast).toHaveAttribute('aria-atomic', 'true');
+  await expect(toast).toHaveClass(/share-success-toast/);
+  await expect(toast).toHaveClass(/share-success-toast--with-actions/);
+
+  await expect(toast.locator('.share-success-toast__icon')).toHaveCount(1);
+  await expect(toast.locator('.share-success-toast__title')).toHaveCount(1);
+  await expect(toast.locator('.share-success-toast__subtitle')).toHaveCount(1);
+  await expect(toast.locator('.share-success-toast__actions')).toHaveCount(1);
 }
 
 async function markMinimalChecklist(page) {
