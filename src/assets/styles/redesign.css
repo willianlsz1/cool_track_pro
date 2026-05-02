@@ -1026,3 +1026,359 @@ body:not(.landing-active) {
   border-color: var(--ct-border) !important;
   color: var(--ct-text) !important;
 }
+
+/* ============================================================
+   PR 3 — Shared controls token foundation
+   ============================================================ */
+
+#app:not(.landing-active) .btn,
+#app:not(.landing-active) .header-help-menu__cta,
+#app:not(.landing-active) .empty-state__cta,
+#app:not(.landing-active) .engaging-empty-state__cta {
+  border-radius: 12px !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: none !important;
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease !important;
+}
+
+#app:not(.landing-active) .btn--primary,
+#app:not(.landing-active) .header-help-menu__cta--primary,
+#app:not(.landing-active) .empty-state__cta:not(.empty-state__cta--ghost),
+#app:not(.landing-active) .engaging-empty-state__cta:not(.engaging-empty-state__cta--secondary) {
+  background: var(--ct-brand) !important;
+  border-color: color-mix(in srgb, var(--ct-brand-hover) 42%, transparent) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(95, 133, 219, 0.22) !important;
+}
+
+#app:not(.landing-active) .btn--primary:hover:not(:disabled),
+#app:not(.landing-active) .header-help-menu__cta--primary:hover,
+#app:not(.landing-active) .empty-state__cta:not(.empty-state__cta--ghost):hover,
+#app:not(.landing-active)
+  .engaging-empty-state__cta:not(.engaging-empty-state__cta--secondary):hover {
+  background: var(--ct-brand-hover) !important;
+  border-color: var(--ct-brand-hover) !important;
+  color: #0f172a !important;
+}
+
+#app:not(.landing-active) .btn--outline,
+#app:not(.landing-active) .btn--secondary,
+#app:not(.landing-active) .header-help-menu__cta--secondary,
+#app:not(.landing-active) .empty-state__cta--ghost,
+#app:not(.landing-active) .engaging-empty-state__cta--secondary {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) .btn--outline:hover:not(:disabled),
+#app:not(.landing-active) .btn--secondary:hover:not(:disabled),
+#app:not(.landing-active) .header-help-menu__cta--secondary:hover,
+#app:not(.landing-active) .empty-state__cta--ghost:hover,
+#app:not(.landing-active) .engaging-empty-state__cta--secondary:hover {
+  background: var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) .btn--ghost {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) .btn--ghost:hover:not(:disabled) {
+  background: rgba(144, 184, 248, 0.08) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) .btn--danger {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) .btn--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ct-error-soft) 72%, var(--ct-error) 28%) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 52%, transparent) !important;
+}
+
+#app:not(.landing-active) .btn:focus-visible,
+#app:not(.landing-active) .header-help-menu__cta:focus-visible,
+#app:not(.landing-active) .empty-state__cta:focus-visible,
+#app:not(.landing-active) .engaging-empty-state__cta:focus-visible {
+  outline: 2px solid var(--ct-brand-hover) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(144, 184, 248, 0.18) !important;
+}
+
+#app:not(.landing-active) .btn:disabled,
+#app:not(.landing-active) .btn[aria-disabled='true'] {
+  cursor: not-allowed !important;
+  opacity: 0.56 !important;
+  transform: none !important;
+}
+
+#app:not(.landing-active) .form-control,
+#app:not(.landing-active) .hist-input,
+#app:not(.landing-active) .search-bar,
+#app:not(.landing-active) .search-bar__input,
+#app:not(.landing-active) .info-row__setor-select,
+#app:not(.landing-active) .view input:not([type='checkbox']):not([type='radio']):not([type='file']),
+#app:not(.landing-active) .view select,
+#app:not(.landing-active) .view textarea {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .form-control::placeholder,
+#app:not(.landing-active) .hist-input::placeholder,
+#app:not(.landing-active) .search-bar__input::placeholder,
+#app:not(.landing-active) .view input::placeholder,
+#app:not(.landing-active) .view textarea::placeholder {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) .form-control:focus,
+#app:not(.landing-active) .hist-input:focus,
+#app:not(.landing-active) .search-bar__input:focus,
+#app:not(.landing-active) .info-row__setor-select:focus,
+#app:not(.landing-active)
+  .view
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
+#app:not(.landing-active) .view select:focus,
+#app:not(.landing-active) .view textarea:focus {
+  border-color: var(--ct-brand-hover) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
+}
+
+#app:not(.landing-active) .form-control option,
+#app:not(.landing-active) .info-row__setor-select option,
+#app:not(.landing-active) .view select option {
+  background: var(--ct-surface) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) .search-bar__icon {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) .search-bar__clear {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) .search-bar__clear:hover {
+  background: var(--ct-error-soft) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) .rel-filters,
+#app:not(.landing-active) .rel-filters__advanced,
+#app:not(.landing-active) .equip-filters,
+#app:not(.landing-active) .equip-search-row,
+#app:not(.landing-active) .hist-sticky-header,
+#app:not(.landing-active) .page-toolbar,
+#app:not(.landing-active) .servicos-toggle {
+  background: var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) .card,
+#app:not(.landing-active) .chart-card,
+#app:not(.landing-active) .info-list,
+#app:not(.landing-active) .report-record,
+#app:not(.landing-active) .orc-card,
+#app:not(.landing-active) .orc-kpi,
+#app:not(.landing-active) .rel-hero,
+#app:not(.landing-active) .rel-empty__preview,
+#app:not(.landing-active) .modal {
+  background: var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) .card:hover,
+#app:not(.landing-active) .chart-card:hover,
+#app:not(.landing-active) .report-record:hover,
+#app:not(.landing-active) .orc-card:hover {
+  background: var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) table {
+  background: var(--ct-surface) !important;
+  color: var(--ct-text) !important;
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) thead,
+#app:not(.landing-active) .table-header,
+#app:not(.landing-active) .rel-empty__preview-table th {
+  background: var(--ct-surface-subtle) !important;
+  color: var(--ct-text-faint) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#app:not(.landing-active) th,
+#app:not(.landing-active) td,
+#app:not(.landing-active) .info-row,
+#app:not(.landing-active) .rel-empty__preview-table td {
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) tbody tr:hover,
+#app:not(.landing-active) .info-row:hover {
+  background: rgba(144, 184, 248, 0.08) !important;
+}
+
+#app:not(.landing-active) .badge,
+#app:not(.landing-active) .hist-pill,
+#app:not(.landing-active) .orc-status-pill,
+#app:not(.landing-active) .status-pill,
+#app:not(.landing-active) .equip-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--ct-border);
+  border-radius: 999px;
+  background: rgba(199, 208, 224, 0.1);
+  color: var(--ct-text-muted);
+}
+
+#app:not(.landing-active) .badge::before,
+#app:not(.landing-active) .orc-status-pill::before,
+#app:not(.landing-active) .status-pill::before,
+#app:not(.landing-active) .equip-card__status::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+#app:not(.landing-active) .badge--ok,
+#app:not(.landing-active) .badge--success,
+#app:not(.landing-active) .hist-pill--success,
+#app:not(.landing-active) .status-pill--success,
+#app:not(.landing-active) .status-pill--ok {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) .badge--info,
+#app:not(.landing-active) .hist-pill--info,
+#app:not(.landing-active) .hist-pill--blue,
+#app:not(.landing-active) .hist-pill--primary,
+#app:not(.landing-active) .status-pill--info {
+  background: var(--ct-info-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-info) 34%, transparent) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) .badge--warn,
+#app:not(.landing-active) .badge--warning,
+#app:not(.landing-active) .hist-pill--warn,
+#app:not(.landing-active) .hist-pill--warning,
+#app:not(.landing-active) .hist-pill--amber,
+#app:not(.landing-active) .status-pill--warn,
+#app:not(.landing-active) .status-pill--warning {
+  background: var(--ct-warn-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+  color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) .badge--danger,
+#app:not(.landing-active) .badge--error,
+#app:not(.landing-active) .hist-pill--danger,
+#app:not(.landing-active) .hist-pill--error,
+#app:not(.landing-active) .hist-pill--red,
+#app:not(.landing-active) .status-pill--danger,
+#app:not(.landing-active) .status-pill--error {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) .empty-state,
+#app:not(.landing-active) .engaging-empty-state,
+#app:not(.landing-active) .cli-empty {
+  background: var(--ct-surface) !important;
+  border: 1px dashed var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) .empty-state *,
+#app:not(.landing-active) .engaging-empty-state *,
+#app:not(.landing-active) .cli-empty * {
+  color: inherit !important;
+}
+
+#app:not(.landing-active) .empty-state__title,
+#app:not(.landing-active) .engaging-empty-state__title,
+#app:not(.landing-active) .cli-empty__title {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) .empty-state__sub,
+#app:not(.landing-active) .engaging-empty-state__description,
+#app:not(.landing-active) .cli-empty__sub {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) .empty-state__icon,
+#app:not(.landing-active) .engaging-empty-state__icon,
+#app:not(.landing-active) .cli-empty__art {
+  background: var(--ct-info-soft) !important;
+  color: var(--ct-info) !important;
+}
+
+body:not(.landing-active) .modal-overlay {
+  background: rgba(10, 12, 16, 0.68) !important;
+  backdrop-filter: blur(6px);
+}
+
+#app:not(.landing-active) .modal__title {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) .modal__footer,
+#app:not(.landing-active) .modal__header,
+#app:not(.landing-active) .report-header {
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) .header-help-menu {
+  background: var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) .header-help-menu__section-title {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) .header-help-menu__item {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) .header-help-menu__item:hover {
+  background: rgba(144, 184, 248, 0.08) !important;
+  color: var(--ct-text) !important;
+}

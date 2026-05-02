@@ -37,6 +37,15 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('var(--ct-brand-hover), var(--ct-brand)');
     expect(redesign).toContain('var(--ct-gold-soft)');
     expect(redesign).toContain('.app-shell--with-sidebar .app-sidebar__brand');
+    expect(redesign).toContain('PR 3 — Shared controls token foundation');
+    expect(redesign).toContain('#app:not(.landing-active) .btn--primary');
+    expect(redesign).toContain('background: var(--ct-brand) !important;');
+    expect(redesign).toContain('#app:not(.landing-active) .form-control');
+    expect(redesign).toContain('box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;');
+    expect(redesign).toContain('#app:not(.landing-active) .badge--ok');
+    expect(redesign).toContain('background: var(--ct-success-soft) !important;');
+    expect(redesign).toContain('#app:not(.landing-active) .empty-state');
+    expect(redesign).toContain('body:not(.landing-active) .modal-overlay');
     expect(redesign).not.toContain('linear-gradient(135deg, #f6c85f 0%, #d79b36 100%)');
     expect(redesign).not.toMatch(/Ver demonstra[çc][ãa]o/i);
   });
