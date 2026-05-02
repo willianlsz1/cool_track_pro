@@ -18,6 +18,7 @@
     "test:related": "vitest related --run",
     "test:fast": "vitest run --bail=1 --silent --reporter=dot",
     "lint:css:dead": "node scripts/dead-css-report.mjs",
+    "css:proof": "node scripts/css-proof.mjs",
     "prepare": "node .husky/install.mjs",
     "test:e2e": "playwright test -c e2e/playwright.config.js",
     "test:e2e:ci": "playwright test -c e2e/playwright.config.js --reporter=github"

@@ -105,7 +105,7 @@ Risco: alto. Detalhe, fotos, nameplate, CRUD e modais continuam legados.
 
 ### `hist-*` e `timeline*`
 
-Suspeitas restantes: `hist-pill--*`, `hist-quickfilter--*`, `timeline__dot--*`, `timeline__item--*`, `timeline__saved-badge`.
+Suspeitas restantes: `hist-pill--*`, `hist-quickfilter--*`, `timeline__dot--*`, `timeline__item--*`.
 
 Risco: medio. Timeline e filtros sao React, mas sheet mobile, delete, fotos e assinatura ainda sao legados; varios tons sao dinamicos.
 
@@ -114,6 +114,12 @@ Microfamilia removida com prova em `docs/migration/css-hist-plan-limit-banner-pr
 Classificacao: `hist-plan-limit-banner`, `hist-plan-limit-banner__ic`, `hist-plan-limit-banner__icon`, `hist-plan-limit-banner__text`, `hist-plan-limit-banner__link` e `hist-plan-limit-banner__link:hover` foram removidos de `src/assets/styles/components.css`. As buscas encontraram apenas definicoes CSS e docs; `HistoricoTimeline.jsx`, `HistoricoFilters.jsx`, `historicoViewModel.js`, `historicoFiltersSheet.js`, testes e E2E nao montam essa familia.
 
 Risco residual: baixo. A remocao foi limitada aos seletores `hist-plan-limit-banner*` e ao comentario obsoleto adjacente; `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao foram preservados.
+
+Microfamilia provada como morta em `docs/migration/css-timeline-saved-badge-proof.md`: `timeline__saved-badge`.
+
+Classificacao: `timeline__saved-badge` aparece apenas em `src/assets/styles/desktop-fonts.css` e docs. Nao ha uso em `src/react`, `src/ui`, testes ou E2E; os greps de `className`, `classList` e geracao dinamica tambem nao encontraram uso. Nao confundir com `timeline__item--saved`, que continua vivo via `savedHighlight.js`.
+
+Proximo passo seguro: PR futuro de remocao cirurgica apenas do seletor `.timeline__saved-badge` em `src/assets/styles/desktop-fonts.css`.
 
 ### `rel-*`
 
@@ -160,6 +166,7 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 - Estados globais: `is-open`, `is-active`, `is-visible`, `is-loading`, `is-busy`, `is-focus-target`, `hidden`, `active`.
 - Tons/status por dados: `hist-pill--*`, `rel-status--*`, `r-checklist__status--*`, `equip-card__status--*`, `setor-card__status--*`.
 - Excecao ja removida com prova: `hist-plan-limit-banner*` nao e gerado por React, viewModel, sheet mobile, adapter, testes ou E2E atuais de Historico.
+- Excecao provada como morta, ainda nao removida: `timeline__saved-badge` nao e gerado por React, adapter, shell, testes ou E2E atuais de Historico; `timeline__item--saved` segue vivo e separado.
 - Excecao ja removida com prova: `orc-status-pill--*` nao e gerado por dados no DOM atual; Orcamentos usa `.orc-status-pill` base com `statusMeta` inline.
 - Excecao ja removida com prova: `orc-timeline*` nao e gerado por React, viewModel, modal, assinatura, handlers ou testes atuais de Orcamentos.
 - Classes de plano/paywall: `upgrade-*`, `pro-badge*`, `usage-meter*`, `pricing-*`, `nameplate-cta[data-state]`.
@@ -205,10 +212,11 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 Microfamilia removida nesta fase:
 
 - `hist-plan-limit-banner*` removido com prova em `docs/migration/css-hist-plan-limit-banner-proof.md`
+- `timeline__saved-badge` provado como morto em `docs/migration/css-timeline-saved-badge-proof.md`, ainda sem remocao de CSS
 
 Escopo recomendado para a proxima prova:
 
-1. Escolher outra microfamilia pequena e criar prova dedicada antes de remover CSS.
+1. Remover cirurgicamente `.timeline__saved-badge` de `src/assets/styles/desktop-fonts.css`, ou escolher outra microfamilia pequena e criar prova dedicada antes de remover CSS.
 2. Preservar `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.
 3. Rodar smoke visual/E2E de Historico com estado vazio, registros e CTA atual de upsell/pricing do summary card, se aparecer.
 4. Manter `npm run lint:css:dead` fora do caminho critico enquanto `purgecss` nao estiver disponivel no projeto.
