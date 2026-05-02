@@ -87,11 +87,21 @@ describe('LandingPage (React)', () => {
     // Aba inicial e Dashboard — tem alerts e chart bars do layout overview.
     const dashboardArea = document.getElementById('dashboard-preview');
     expect(dashboardArea?.textContent).toContain('Alertas de manutenção');
+    expect(dashboardArea?.querySelector('img[src="/brand/favicon.svg"]')).not.toBeNull();
+
+    const previewTabs = Array.from(dashboardArea?.querySelectorAll('button[role="tab"]') ?? []);
+    expect(previewTabs.map((b) => (b.textContent || '').trim())).toEqual([
+      'Dashboard',
+      'Clientes',
+      'Equipamentos',
+      'Ordens de serviço',
+      'Preventivas',
+      'Relatórios',
+      'Alertas',
+    ]);
 
     // Clica na aba "Clientes" — devem aparecer KPIs e lista de clientes.
-    const clientesTab = Array.from(
-      dashboardArea?.querySelectorAll('button[role="tab"]') ?? [],
-    ).find((b) => (b.textContent || '').trim() === 'Clientes');
+    const clientesTab = previewTabs.find((b) => (b.textContent || '').trim() === 'Clientes');
     expect(clientesTab).toBeDefined();
 
     await act(async () => {
@@ -102,10 +112,16 @@ describe('LandingPage (React)', () => {
     expect(dashboardArea?.textContent).toContain('Total de clientes');
     expect(dashboardArea?.textContent).toContain('Climatize SA');
 
+    const alertasTab = previewTabs.find((b) => (b.textContent || '').trim() === 'Alertas');
+    await act(async () => {
+      alertasTab?.click();
+    });
+    expect(alertasTab?.getAttribute('aria-selected')).toBe('true');
+    expect(dashboardArea?.textContent).toContain('Alertas ativos');
+    expect(dashboardArea?.textContent).toContain('Equipamentos críticos');
+
     // Volta para Dashboard — deve voltar a mostrar Alertas de manutenção.
-    const dashboardTab = Array.from(
-      dashboardArea?.querySelectorAll('button[role="tab"]') ?? [],
-    ).find((b) => (b.textContent || '').trim() === 'Dashboard');
+    const dashboardTab = previewTabs.find((b) => (b.textContent || '').trim() === 'Dashboard');
     await act(async () => {
       dashboardTab?.click();
     });
