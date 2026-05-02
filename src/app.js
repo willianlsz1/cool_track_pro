@@ -275,11 +275,8 @@ async function bootstrap() {
       setCurrentUser('anon');
       // Sem usuário autenticado → landing pública.
       //
-      // Landing oficial agora é a versão React+Tailwind (`landingIsland`).
-      // A landing legacy vanilla foi removida nesta etapa do landing-page
-      // plan; a feature flag `useReactLandingPage` /
-      // `VITE_REACT_LANDING` saiu junto. Code-split via dynamic import
-      // mantém o chunk fora do bundle inicial pra quem já tá logado.
+      // Landing oficial em React+Tailwind. Code-split via dynamic import
+      // mantém o chunk fora do bundle inicial pra quem já está logado.
       const { mountLandingPageReact } = await import('./react/entrypoints/landingIsland.jsx');
       const appEl = document.getElementById('app');
       if (appEl) {

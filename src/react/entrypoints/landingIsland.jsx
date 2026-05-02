@@ -3,13 +3,7 @@ import '../styles/tailwind.css';
 import { LandingPage } from '../pages/landing/LandingPage.jsx';
 
 /**
- * Entrypoint da landing pública React+Tailwind.
- *
- * Esta é a landing oficial — a versão legacy vanilla
- * (`src/ui/components/landingPage.js`) e a feature flag
- * `useReactLandingPage` / `VITE_REACT_LANDING` foram removidas. O
- * `src/app.js` chama `mountLandingPageReact` diretamente quando o
- * usuário não está autenticado.
+ * Entrypoint da landing pública oficial em React+Tailwind.
  *
  * Mounting: substitui o conteudo do `#app` por uma React root. A page
  * ocupa toda a viewport via `min-h-screen`. Sem efeito sobre rotas

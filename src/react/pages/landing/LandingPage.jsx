@@ -13,10 +13,8 @@ import { LandingFooter } from './components/LandingFooter.jsx';
 /**
  * LandingPage — page raiz da landing pública oficial (React+Tailwind).
  *
- * Promovida a default (a versão legacy vanilla foi removida do projeto;
- * a feature flag `useReactLandingPage` saiu junto). CTA único "Começar
- * agora" delega ao fluxo de auth existente via callback `onStart`
- * injetado pelo entrypoint.
+ * CTA único "Começar agora" delega ao fluxo de auth existente via
+ * callback `onStart` injetado pelo entrypoint.
  *
  * Layout: hero com fundo escuro + waves SVG decorativas + dashboard
  * preview a direita (desktop) ou abaixo (mobile/tablet). Secoes
