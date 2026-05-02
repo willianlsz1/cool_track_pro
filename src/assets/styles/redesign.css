@@ -700,31 +700,35 @@ body {
    Dark shell + light workspace, como o preview da landing. */
 #app:not(.landing-active),
 body:not(.landing-active) {
-  background: #f5f7fb !important;
+  background:
+    radial-gradient(circle at 16% -12%, rgba(95, 133, 219, 0.2), transparent 34%),
+    linear-gradient(180deg, var(--ct-app-bg) 0%, #202225 100%) !important;
+  color: var(--ct-text) !important;
 }
 
 .app-content {
   background:
-    radial-gradient(900px 420px at 88% -18%, rgba(47, 123, 255, 0.08), transparent 62%),
-    linear-gradient(180deg, #f5f7fb 0%, #eef2f9 100%) !important;
-  color: #0a1530 !important;
+    radial-gradient(900px 420px at 88% -18%, rgba(144, 184, 248, 0.14), transparent 62%),
+    radial-gradient(720px 360px at 8% 105%, rgba(95, 133, 219, 0.1), transparent 58%),
+    linear-gradient(180deg, var(--ct-app-bg) 0%, #222428 100%) !important;
+  color: var(--ct-text) !important;
 }
 
 .app-header {
-  background: rgba(5, 11, 28, 0.94) !important;
-  border-bottom: 1px solid rgba(103, 232, 249, 0.12) !important;
-  box-shadow: 0 16px 34px rgba(5, 11, 28, 0.2) !important;
+  background: rgba(53, 57, 65, 0.9) !important;
+  border-bottom: 1px solid var(--ct-border) !important;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2) !important;
   backdrop-filter: blur(18px);
 }
 
 .app-logo__icon,
 .app-sidebar__brand-icon {
   background:
-    linear-gradient(135deg, rgba(47, 123, 255, 0.42), rgba(34, 211, 238, 0.24)),
-    rgba(8, 18, 48, 0.92) !important;
-  border: 1px solid rgba(103, 232, 249, 0.24) !important;
+    linear-gradient(135deg, rgba(95, 133, 219, 0.36), rgba(144, 184, 248, 0.16)),
+    var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border-strong) !important;
   box-shadow:
-    0 10px 22px rgba(47, 123, 255, 0.16),
+    0 10px 22px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -741,7 +745,7 @@ body:not(.landing-active) {
 .app-header .section-title,
 .app-header .hist-title,
 .app-header .rel-title {
-  color: #f8fafc !important;
+  color: var(--ct-text) !important;
 }
 
 .section-title,
@@ -753,27 +757,40 @@ body:not(.landing-active) {
 @media (min-width: 1025px) {
   .app-shell--with-sidebar .app-sidebar {
     background:
-      radial-gradient(circle at 85% 8%, rgba(47, 123, 255, 0.14), transparent 32%),
-      linear-gradient(180deg, #0f1d3e 0%, #081530 100%) !important;
-    border-right: 1px solid rgba(103, 232, 249, 0.12) !important;
-    box-shadow: 18px 0 42px rgba(5, 11, 28, 0.18) !important;
+      radial-gradient(circle at 85% 8%, rgba(144, 184, 248, 0.1), transparent 32%),
+      linear-gradient(180deg, var(--ct-surface) 0%, var(--ct-surface-subtle) 100%) !important;
+    border-right: 1px solid var(--ct-border) !important;
+    box-shadow: 18px 0 42px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  .app-shell--with-sidebar .app-sidebar__brand {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 6px 14px !important;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--ct-border);
   }
 }
 
 .app-sidebar .app-sidebar__nav-item {
-  color: rgba(203, 213, 225, 0.76) !important;
+  color: var(--ct-text-muted) !important;
 }
 
 .app-sidebar .app-sidebar__nav-item.is-active {
-  background: linear-gradient(180deg, rgba(47, 123, 255, 0.3), rgba(20, 80, 200, 0.2)) !important;
-  border: 1px solid rgba(103, 232, 249, 0.18) !important;
-  color: #ffffff !important;
+  background: linear-gradient(
+    180deg,
+    rgba(95, 133, 219, 0.34),
+    rgba(95, 133, 219, 0.18)
+  ) !important;
+  border: 1px solid var(--ct-border-strong) !important;
+  color: var(--ct-text) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
 }
 
 .app-sidebar .app-sidebar__nav-item.is-active::before {
-  background: linear-gradient(180deg, #4f9bff, #22d3ee) !important;
-  box-shadow: 0 0 12px rgba(34, 211, 238, 0.44) !important;
+  background: linear-gradient(180deg, var(--ct-brand-hover), var(--ct-brand)) !important;
+  box-shadow: 0 0 10px rgba(144, 184, 248, 0.28) !important;
 }
 
 .app-sidebar .app-sidebar__nav-item--register,
@@ -797,16 +814,16 @@ body:not(.landing-active) {
 
 .app-sidebar .app-sidebar__nav-item--register,
 .app-sidebar #nav-registro {
-  background: rgba(47, 123, 255, 0.12) !important;
-  border: 1px solid rgba(103, 232, 249, 0.18) !important;
-  color: #dff7ff !important;
+  background: var(--ct-brand-soft) !important;
+  border: 1px solid var(--ct-brand-border) !important;
+  color: var(--ct-brand-hover) !important;
   box-shadow: none !important;
 }
 
 .app-sidebar .app-sidebar__nav-item--register:hover,
 .app-sidebar #nav-registro:hover {
-  background: rgba(47, 123, 255, 0.18) !important;
-  border-color: rgba(103, 232, 249, 0.26) !important;
+  background: var(--ct-brand-soft-hover) !important;
+  border-color: var(--ct-brand-border-hover) !important;
 }
 
 .dash__hero,
@@ -956,16 +973,16 @@ body:not(.landing-active) {
 .app-sidebar .app-sidebar__plan-card[data-plan='plus'] {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
-    rgba(8, 18, 48, 0.72) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: #eef3ff !important;
+    var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
 .app-sidebar .app-sidebar__plan-card[data-plan='pro'] {
   background:
-    linear-gradient(180deg, rgba(217, 164, 65, 0.12), rgba(255, 255, 255, 0.02)),
-    rgba(8, 18, 48, 0.72) !important;
+    linear-gradient(180deg, var(--ct-gold-soft), rgba(255, 255, 255, 0.02)),
+    var(--ct-surface-subtle) !important;
   border: 1px solid var(--ct-gold-border) !important;
 }
 
@@ -973,23 +990,23 @@ body:not(.landing-active) {
 .app-sidebar .app-sidebar__plan-card-meta,
 .app-sidebar .app-sidebar__user-role,
 .app-sidebar .app-sidebar__settings {
-  color: rgba(200, 212, 238, 0.72) !important;
+  color: var(--ct-text-faint) !important;
 }
 
 .app-sidebar .app-sidebar__plan-card-cta {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #dbeafe !important;
+  background: rgba(144, 184, 248, 0.08) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
 }
 
 .app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta {
   background: var(--ct-gold-soft) !important;
   border-color: var(--ct-gold-border) !important;
-  color: #f5c451 !important;
+  color: var(--ct-gold) !important;
 }
 
 .app-sidebar__user-avatar {
-  background: linear-gradient(135deg, #2f7bff, #22d3ee) !important;
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
   color: #ffffff !important;
 }
 
@@ -1001,4 +1018,11 @@ body:not(.landing-active) {
 .app-sidebar__settings {
   background: transparent !important;
   border-color: transparent !important;
+}
+
+.app-sidebar__user-chip:hover,
+.app-sidebar__settings:hover {
+  background: rgba(144, 184, 248, 0.08) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
 }

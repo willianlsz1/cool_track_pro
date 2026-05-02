@@ -72,7 +72,7 @@ body {
   width: 28px;
   height: 28px;
   background: var(--primary-soft);
-  border: 1px solid rgba(0, 200, 232, 0.2);
+  border: 1px solid var(--ct-border);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -86,7 +86,7 @@ body {
   letter-spacing: 0.1em;
   color: var(--primary);
   background: var(--primary-dim);
-  border: 1px solid rgba(0, 200, 232, 0.2);
+  border: 1px solid var(--ct-border);
   padding: 2px 6px;
   border-radius: var(--radius-xs);
 }
@@ -176,26 +176,26 @@ body {
    ════════════════════════════════════════════════════════ */
 
 /* Paleta por tier — alinhada com pricing + account modal:
-   - Free: cyan (brand) — é o default; o PILL "FREE" recebe override neutro
+   - Free: brand blue — é o default; o PILL "FREE" recebe override neutro
      logo abaixo pra não parecer premium
-   - Plus: azul (#3a8ee6)
-   - Pro:  dourado (#e8b94a) */
+   - Plus: azul da marca
+   - Pro:  dourado premium via --ct-gold */
 .app-header {
-  --hdr-accent: #00c8e8;
-  --hdr-accent-dim: rgba(0, 200, 232, 0.14);
-  --hdr-accent-soft: rgba(0, 200, 232, 0.22);
-  --hdr-accent-text: #02131f;
+  --hdr-accent: var(--ct-brand);
+  --hdr-accent-dim: var(--ct-brand-soft);
+  --hdr-accent-soft: var(--ct-brand-border);
+  --hdr-accent-text: #ffffff;
 }
 .app-header[data-tier='plus'] {
-  --hdr-accent: #3a8ee6;
-  --hdr-accent-dim: rgba(58, 142, 230, 0.14);
-  --hdr-accent-soft: rgba(58, 142, 230, 0.22);
-  --hdr-accent-text: #041530;
+  --hdr-accent: var(--ct-brand);
+  --hdr-accent-dim: var(--ct-brand-soft);
+  --hdr-accent-soft: var(--ct-brand-border);
+  --hdr-accent-text: #ffffff;
 }
 .app-header[data-tier='pro'] {
-  --hdr-accent: #e8b94a;
-  --hdr-accent-dim: rgba(232, 185, 74, 0.16);
-  --hdr-accent-soft: rgba(232, 185, 74, 0.26);
+  --hdr-accent: var(--ct-gold);
+  --hdr-accent-dim: var(--ct-gold-soft);
+  --hdr-accent-soft: var(--ct-gold-border);
   --hdr-accent-text: #2a1f04;
 }
 
@@ -260,7 +260,7 @@ body {
   color: #3a8ee6;
 }
 
-/* PRO: dourado com gradiente — alinhado com #e8b94a da paleta canônica. */
+/* PRO: dourado com gradiente, restrito ao acento premium. */
 .app-logo__pill[data-tier='pro'] {
   background: linear-gradient(135deg, rgba(232, 185, 74, 0.18), rgba(232, 185, 74, 0.08));
   color: var(--hdr-accent);
@@ -285,18 +285,18 @@ body {
   flex-shrink: 0;
 }
 .header-sync.status-indicator--warn {
-  color: var(--warning);
-  background: rgba(245, 196, 81, 0.1);
+  color: var(--ct-warn);
+  background: var(--ct-warn-soft);
 }
 .header-sync.status-indicator--warn .header-sync__icon {
-  color: var(--warning);
+  color: var(--ct-warn);
 }
 .header-sync.status-indicator--ok {
-  color: var(--success);
-  background: rgba(46, 202, 122, 0.1);
+  color: var(--ct-success);
+  background: var(--ct-success-soft);
 }
 .header-sync.status-indicator--ok .header-sync__icon {
-  color: var(--success);
+  color: var(--ct-success);
 }
 .header-sync.status-indicator--syncing .header-sync__icon {
   animation: header-sync-spin 1.4s linear infinite;
@@ -399,8 +399,8 @@ body {
   z-index: 50;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  background: var(--surface);
-  border-top: 1px solid var(--border-2);
+  background: color-mix(in srgb, var(--ct-surface) 94%, transparent);
+  border-top: 1px solid var(--ct-border);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   padding-bottom: env(safe-area-inset-bottom);
   padding-top: 4px;
@@ -478,12 +478,12 @@ body {
 
 /* Active state: neutro (sem cor de tier), pill de fundo + label 600 */
 .nav-btn.is-active {
-  color: var(--text);
+  color: var(--ct-text);
   opacity: 1;
   font-weight: 600;
 }
 .nav-btn.is-active .nav-btn__icon {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(144, 184, 248, 0.12);
 }
 [data-theme='light'] .nav-btn.is-active .nav-btn__icon {
   background: rgba(0, 0, 0, 0.06);
@@ -496,10 +496,10 @@ body {
   align-self: start;
   margin-top: -18px;
   border-radius: 999px;
-  color: #02131f;
-  background: linear-gradient(135deg, #00d9ff, #00b5d4);
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover));
   box-shadow:
-    0 10px 22px rgba(0, 200, 232, 0.35),
+    0 10px 22px rgba(95, 133, 219, 0.28),
     inset 0 0 0 1px rgba(255, 255, 255, 0.18);
   font-size: 0;
   gap: 0;

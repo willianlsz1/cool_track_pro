@@ -32,10 +32,11 @@ describe('internal visual identity tokens', () => {
     expect(tokens).toContain('--muted-light: var(--ct-text-faint);');
     expect(tokens).toContain('--neon-cyan: var(--ct-brand);');
     expect(tokens).toContain('--neon-red: var(--ct-error);');
-    expect(redesign).toContain('CoolTrack dashboard mockup alignment');
-    expect(redesign).toContain('background: #f5f7fb !important;');
-    expect(redesign).toContain('linear-gradient(180deg, #0f1d3e 0%, #081530 100%)');
-    expect(redesign).toContain('linear-gradient(135deg, #2f7bff 0%, #22d3ee 100%)');
+    expect(redesign).toContain('var(--ct-app-bg)');
+    expect(redesign).toContain('var(--ct-surface) 0%, var(--ct-surface-subtle) 100%');
+    expect(redesign).toContain('var(--ct-brand-hover), var(--ct-brand)');
+    expect(redesign).toContain('var(--ct-gold-soft)');
+    expect(redesign).toContain('.app-shell--with-sidebar .app-sidebar__brand');
     expect(redesign).not.toContain('linear-gradient(135deg, #f6c85f 0%, #d79b36 100%)');
     expect(redesign).not.toMatch(/Ver demonstra[çc][ãa]o/i);
   });
