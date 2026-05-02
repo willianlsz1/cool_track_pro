@@ -1,4 +1,5 @@
 import { navItems } from '../data/landingMockData.js';
+import { BrandMark } from './BrandMark.jsx';
 
 /**
  * Header da landing — logo + menu (desktop) + CTA "Comecar agora".
@@ -33,12 +34,7 @@ export function LandingHeader({ onStart }) {
         onClick={handleNavClick('#topo')}
         className="tw-flex tw-items-center tw-gap-2.5 tw-text-white visited:tw-text-white tw-font-bold tw-text-lg tw-tracking-tight tw-no-underline"
       >
-        <span
-          className="tw-grid tw-place-items-center tw-w-9 tw-h-9 tw-rounded-[10px] tw-shadow-[0_6px_18px_rgba(21,155,255,0.35)]"
-          style={{ background: 'linear-gradient(135deg, #006DFF 0%, #40C4FF 100%)' }}
-        >
-          <SnowflakeIcon size={18} />
-        </span>
+        <BrandMark size={36} />
         CoolTrack<span className="tw-text-landing-cyan tw-font-semibold">Pro</span>
       </a>
 
@@ -71,25 +67,6 @@ export function LandingHeader({ onStart }) {
         <ArrowRightIcon size={14} />
       </button>
     </header>
-  );
-}
-
-function SnowflakeIcon({ size = 20 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#fff"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M12 2v20M2 12h20M4.5 4.5l15 15M19.5 4.5l-15 15" />
-      <path d="M12 6l-2 2M12 6l2 2M12 18l-2-2M12 18l2-2M6 12l2-2M6 12l2 2M18 12l-2-2M18 12l-2 2" />
-    </svg>
   );
 }
 

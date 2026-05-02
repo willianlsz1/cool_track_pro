@@ -11,6 +11,7 @@ import {
   dashboardEquipStrip,
 } from '../data/landingMockData.js';
 import { AnimatedCounter } from './AnimatedCounter.jsx';
+import { BrandMark } from './BrandMark.jsx';
 
 /**
  * Dashboard preview interativo (PR 2). Sidebar tem 7 abas clicaveis +
@@ -49,10 +50,9 @@ function DashboardSidebar({ activeTabId, onSelectTab }) {
       style={{ background: 'linear-gradient(180deg, #031B4E 0%, #020B2D 100%)' }}
     >
       <div className="tw-flex tw-items-center tw-gap-2 tw-text-white tw-font-bold tw-text-sm tw-mb-6 tw-px-1.5">
-        <span
-          className="tw-w-6 tw-h-6 tw-rounded-md tw-grid tw-place-items-center"
-          style={{ background: 'linear-gradient(135deg, #006DFF 0%, #40C4FF 100%)' }}
-        />
+        {/* BrandMark size=24 — antes era um quadradinho gradient vazio
+            (apenas placeholder); agora carrega o simbolo oficial. */}
+        <BrandMark size={24} />
         CoolTrack<span className="tw-text-landing-cyan tw-font-semibold tw-text-[11px]">Pro</span>
       </div>
 
