@@ -43,23 +43,23 @@ Limitacoes conhecidas:
 
 `Somente CSS` significa "nao encontrado por busca textual fora dos CSS". Nao significa seguro para remover.
 
-| Prefixo                         | Classes CSS | Somente CSS | React | Views/adapters | Components | Shell | Contracts | Testes/E2E | Classificacao                                                                 |
-| ------------------------------- | ----------: | ----------: | ----: | -------------: | ---------: | ----: | --------: | ---------: | ----------------------------------------------------------------------------- |
-| `dash-*`                        |          80 |          33 |    37 |              3 |          1 |    37 |        41 |         42 | Vivo; suspeitas em subfamilias antigas do Dashboard.                          |
-| `equip-*`                       |         201 |          84 |    94 |             77 |          2 |    31 |        20 |         32 | Vivo; alto risco por lista React, header React e legado de detalhe/setores.   |
-| `setor-*`                       |         172 |          41 |     0 |             69 |          1 |    68 |         4 |         35 | Vivo como legado deliberado de setores/modal.                                 |
-| `eq-*`                          |         216 |          82 |     0 |             79 |         22 |    44 |         0 |          9 | Vivo como legado de detalhe, fotos, nameplate, modais.                        |
-| `hist-*`                        |         143 |          27 |    49 |             42 |         36 |    18 |        18 |         26 | Vivo; inclui filtros React e sheet mobile legado.                             |
-| `timeline*`                     |          39 |          19 |    19 |              2 |          3 |     1 |         7 |          7 | Vivo; varios modificadores parecem dinamicos.                                 |
-| `rel-*`                         |         147 |          25 |   115 |             11 |          0 |    30 |        51 |         52 | Vivo; Relatorio React preserva muitos contratos.                              |
-| `registro-*`                    |         133 |          28 |    68 |             14 |         20 |    82 |        16 |         19 | Vivo; Registro mistura ilhas e fluxos legados.                                |
-| `r-checklist*`                  |          19 |           3 |    15 |              1 |          0 |     1 |         6 |         12 | Vivo; tres status sao candidatos dinamicos.                                   |
-| `cli-*`                         |         112 |          16 |    88 |             90 |          0 |     0 |         4 |         18 | Vivo; Clientes React + adapter ainda compartilham contratos.                  |
-| `orc-*`                         |          49 |           6 |    32 |              0 |         11 |     0 |         0 |          9 | Vivo; `orc-status-pill--*` removido, `orc-timeline*` provado morto candidato. |
-| `alert-*`                       |          19 |           0 |     8 |             19 |          0 |     0 |         1 |          2 | Claramente vivo.                                                              |
-| `btn*`                          |          18 |           0 |     9 |             10 |          9 |    11 |         3 |          5 | Global; primeira microfamilia morta removida com prova.                       |
-| `empty-state*`                  |           5 |           0 |     5 |              0 |          5 |     0 |         5 |          2 | Claramente vivo.                                                              |
-| `pro-*`, `upgrade-*`, `nudge-*` |           8 |           0 |     2 |              6 |          5 |     2 |         0 |          0 | Claramente vivo; ligado a plano/paywall.                                      |
+| Prefixo                         | Classes CSS | Somente CSS | React | Views/adapters | Components | Shell | Contracts | Testes/E2E | Classificacao                                                               |
+| ------------------------------- | ----------: | ----------: | ----: | -------------: | ---------: | ----: | --------: | ---------: | --------------------------------------------------------------------------- |
+| `dash-*`                        |          80 |          33 |    37 |              3 |          1 |    37 |        41 |         42 | Vivo; suspeitas em subfamilias antigas do Dashboard.                        |
+| `equip-*`                       |         201 |          84 |    94 |             77 |          2 |    31 |        20 |         32 | Vivo; alto risco por lista React, header React e legado de detalhe/setores. |
+| `setor-*`                       |         172 |          41 |     0 |             69 |          1 |    68 |         4 |         35 | Vivo como legado deliberado de setores/modal.                               |
+| `eq-*`                          |         216 |          82 |     0 |             79 |         22 |    44 |         0 |          9 | Vivo como legado de detalhe, fotos, nameplate, modais.                      |
+| `hist-*`                        |         143 |          27 |    49 |             42 |         36 |    18 |        18 |         26 | Vivo; inclui filtros React e sheet mobile legado.                           |
+| `timeline*`                     |          39 |          19 |    19 |              2 |          3 |     1 |         7 |          7 | Vivo; varios modificadores parecem dinamicos.                               |
+| `rel-*`                         |         147 |          25 |   115 |             11 |          0 |    30 |        51 |         52 | Vivo; Relatorio React preserva muitos contratos.                            |
+| `registro-*`                    |         133 |          28 |    68 |             14 |         20 |    82 |        16 |         19 | Vivo; Registro mistura ilhas e fluxos legados.                              |
+| `r-checklist*`                  |          19 |           3 |    15 |              1 |          0 |     1 |         6 |         12 | Vivo; tres status sao candidatos dinamicos.                                 |
+| `cli-*`                         |         112 |          16 |    88 |             90 |          0 |     0 |         4 |         18 | Vivo; Clientes React + adapter ainda compartilham contratos.                |
+| `orc-*`                         |          49 |           6 |    32 |              0 |         11 |     0 |         0 |          9 | Vivo; `orc-status-pill--*` e `orc-timeline*` removidos com prova.           |
+| `alert-*`                       |          19 |           0 |     8 |             19 |          0 |     0 |         1 |          2 | Claramente vivo.                                                            |
+| `btn*`                          |          18 |           0 |     9 |             10 |          9 |    11 |         3 |          5 | Global; primeira microfamilia morta removida com prova.                     |
+| `empty-state*`                  |           5 |           0 |     5 |              0 |          5 |     0 |         5 |          2 | Claramente vivo.                                                            |
+| `pro-*`, `upgrade-*`, `nudge-*` |           8 |           0 |     2 |              6 |          5 |     2 |         0 |          0 | Claramente vivo; ligado a plano/paywall.                                    |
 
 ## Classes claramente vivas
 
@@ -135,11 +135,11 @@ Risco: medio. Clientes e PMOC usam dados dinamicos e testes de contrato.
 
 ### `orc-*`
 
-Microfamilia provada em `docs/migration/css-orc-timeline-proof.md`: `orc-timeline*`.
+Microfamilia removida com prova em `docs/migration/css-orc-timeline-proof.md`: `orc-timeline*`.
 
-Classificacao: `orc-timeline`, `orc-timeline__item`, `orc-timeline__dot`, `orc-timeline__label`, `orc-timeline__date` e o seletor composto `.orc-timeline__item.is-done .orc-timeline__dot` estao mortos candidatos a remocao. As buscas encontraram apenas definicoes em `src/assets/styles/components.css` e docs; `OrcamentosPage.jsx`, `orcamentosViewModel.js`, modal, assinatura, handlers, testes e E2E nao montam essa familia.
+Classificacao: `orc-timeline`, `orc-timeline__item`, `orc-timeline__dot`, `orc-timeline__label`, `orc-timeline__date` e o seletor composto `.orc-timeline__item.is-done .orc-timeline__dot` foram removidos de `src/assets/styles/components.css`. As buscas encontraram apenas definicoes CSS e docs; `OrcamentosPage.jsx`, `orcamentosViewModel.js`, modal, assinatura, handlers, testes e E2E nao montam essa familia.
 
-Risco: baixo se a remocao futura for limitada aos seletores `orc-timeline*`. Nao remover `timeline*` generico do Historico, `equip-card__timeline-*` de Equipamentos ou `is-done` transversal.
+Risco residual: baixo. A remocao foi limitada aos seletores `orc-timeline*`; `timeline*` generico do Historico, `equip-card__timeline-*` de Equipamentos e `is-done` transversal foram preservados.
 
 Microfamilia removida com prova em `docs/migration/css-orc-status-pill-proof.md`: `orc-status-pill--*`.
 
@@ -161,7 +161,7 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 - Tons/status por dados: `hist-pill--*`, `rel-status--*`, `r-checklist__status--*`, `equip-card__status--*`, `setor-card__status--*`.
 - Excecao provada como morta candidata: `hist-plan-limit-banner*` nao e gerado por React, viewModel, sheet mobile, adapter, testes ou E2E atuais de Historico.
 - Excecao ja removida com prova: `orc-status-pill--*` nao e gerado por dados no DOM atual; Orcamentos usa `.orc-status-pill` base com `statusMeta` inline.
-- Excecao provada como morta candidata: `orc-timeline*` nao e gerado por React, viewModel, modal, assinatura, handlers ou testes atuais de Orcamentos.
+- Excecao ja removida com prova: `orc-timeline*` nao e gerado por React, viewModel, modal, assinatura, handlers ou testes atuais de Orcamentos.
 - Classes de plano/paywall: `upgrade-*`, `pro-badge*`, `usage-meter*`, `pricing-*`, `nameplate-cta[data-state]`.
 
 ## Classes usadas por ilhas React como contrato

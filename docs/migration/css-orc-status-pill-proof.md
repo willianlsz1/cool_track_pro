@@ -195,4 +195,4 @@ Classificacao da familia: morta, removida de forma cirurgica.
 
 Remocao aplicada: apenas os seletores de classe `orc-status-pill--*` foram removidos de `src/assets/styles/redesign.css`, preservando os seletores `[data-status='...'] .orc-status-pill` e as regras base `.orc-status-pill`.
 
-Proxima decisao recomendada: provar uma nova microfamilia pequena, como `orc-timeline*`, antes de qualquer nova remocao.
+Proxima decisao recomendada: `orc-timeline*` ja foi provada e removida em PR posterior; continuar apenas com microfamilias pequenas e prova documental antes de qualquer nova remocao.

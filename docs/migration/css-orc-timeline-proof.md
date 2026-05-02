@@ -1,12 +1,13 @@
 # CSS orc-timeline Obsolescence Proof
 
 Data da prova: 2026-05-01.
+Remocao aplicada: 2026-05-01.
 
 ## Objetivo
 
-Provar se a microfamilia CSS `orc-timeline*` esta viva, morta ou inconclusiva antes de qualquer remocao de CSS.
+Provar se a microfamilia CSS `orc-timeline*` esta viva, morta ou inconclusiva antes de qualquer remocao de CSS, e registrar a remocao cirurgica aplicada apos a prova.
 
-Escopo desta prova: documentacao apenas. Nenhum CSS foi removido.
+Escopo da prova original: documentacao apenas. No PR seguinte, apenas os seletores `orc-timeline*` foram removidos de `src/assets/styles/components.css`.
 
 ## Buscas executadas
 
@@ -36,7 +37,7 @@ Arquivo: `src/assets/styles/components.css`.
 | `.orc-timeline__label`                           |            22500 | `orc-timeline__label`       |
 | `.orc-timeline__date`                            |            22507 | `orc-timeline__date`        |
 
-O seletor composto usa a classe transversal `is-done`, mas a busca por `is-done` mostrou usos vivos em onboarding/nameplate, nao em Orcamentos. Portanto `is-done` nao faz parte da remocao candidata; apenas o seletor composto da familia `orc-timeline*` seria candidato em PR futuro.
+O seletor composto usava a classe transversal `is-done`, mas a busca por `is-done` mostrou usos vivos em onboarding/nameplate, nao em Orcamentos. Portanto `is-done` nao fez parte da remocao; apenas o seletor composto da familia `orc-timeline*` foi removido.
 
 ## Resultado dos greps
 
@@ -96,16 +97,29 @@ Buscas dinamicas:
 
 ## Classificacao
 
-| Classe                                          | Classificacao                                 | Evidencia                                                                                              |
-| ----------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `orc-timeline`                                  | Morta candidata a remocao                     | Apenas definicao CSS/docs; nenhum DOM atual monta a timeline de Orcamentos.                            |
-| `orc-timeline__item`                            | Morta candidata a remocao                     | Apenas definicao CSS/docs; nenhum React/viewModel/modal gera itens de timeline.                        |
-| `orc-timeline__dot`                             | Morta candidata a remocao                     | Apenas definicao CSS/docs; nenhum uso em className/classList/template.                                 |
-| `orc-timeline__label`                           | Morta candidata a remocao                     | Apenas definicao CSS/docs; nenhum uso em produto/testes/E2E.                                           |
-| `orc-timeline__date`                            | Morta candidata a remocao                     | Apenas definicao CSS/docs; nenhum uso em produto/testes/E2E.                                           |
-| `orc-timeline__item.is-done .orc-timeline__dot` | Morta candidata a remocao do seletor composto | A parte `orc-timeline*` esta morta; `is-done` e transversal e deve ser preservada em outros seletores. |
+| Classe                                          | Classificacao                      | Evidencia                                                                                           |
+| ----------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `orc-timeline`                                  | Morta removida                     | Apenas definicao CSS/docs; nenhum DOM atual monta a timeline de Orcamentos.                         |
+| `orc-timeline__item`                            | Morta removida                     | Apenas definicao CSS/docs; nenhum React/viewModel/modal gera itens de timeline.                     |
+| `orc-timeline__dot`                             | Morta removida                     | Apenas definicao CSS/docs; nenhum uso em className/classList/template.                              |
+| `orc-timeline__label`                           | Morta removida                     | Apenas definicao CSS/docs; nenhum uso em produto/testes/E2E.                                        |
+| `orc-timeline__date`                            | Morta removida                     | Apenas definicao CSS/docs; nenhum uso em produto/testes/E2E.                                        |
+| `orc-timeline__item.is-done .orc-timeline__dot` | Morta removida do seletor composto | A parte `orc-timeline*` estava morta; `is-done` e transversal e foi preservada em outros seletores. |
 
-Classificacao da familia: morta candidata a remocao, com risco baixo se a remocao futura for limitada aos seletores `orc-timeline*` em `src/assets/styles/components.css`.
+Classificacao da familia: morta removida, com risco baixo porque a remocao foi limitada aos seletores `orc-timeline*` em `src/assets/styles/components.css`.
+
+## Remocao aplicada
+
+Seletores removidos de `src/assets/styles/components.css`:
+
+- `.orc-timeline`
+- `.orc-timeline__item`
+- `.orc-timeline__dot`
+- `.orc-timeline__item.is-done .orc-timeline__dot`
+- `.orc-timeline__label`
+- `.orc-timeline__date`
+
+Preservado: `timeline*` generico do Historico, classes de timeline de Equipamentos quando existirem, e a classe transversal `is-done`.
 
 ## Ressalvas
 
@@ -116,9 +130,9 @@ Classificacao da familia: morta candidata a remocao, com risco baixo se a remoca
 
 ## Decisao recomendada
 
-Proximo PR pode remover, de forma cirurgica, apenas os seletores `orc-timeline*` de `src/assets/styles/components.css`.
+Remocao concluida. O proximo PR recomendado deve escolher outra microfamilia pequena ja provada ou criar nova prova antes de qualquer remocao, mantendo a regra de nao apagar familias grandes por grep simples.
 
-Validacao recomendada para esse proximo PR:
+Validacao aplicada/recomendada para remocoes semelhantes:
 
 1. Greps antes/depois confirmando que `orc-timeline*` ficou apenas em docs historicos/prova.
 2. `npm run format`, `npm run check`, `npm run test`, `npm run build`.
