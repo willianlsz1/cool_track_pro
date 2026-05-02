@@ -76,6 +76,7 @@ test.describe('Relatorio visual smoke', () => {
     });
     await page.goto('/');
     await expect(page.locator('#main-content')).toBeVisible();
+    await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
 
     await openRelatorio(page);
 

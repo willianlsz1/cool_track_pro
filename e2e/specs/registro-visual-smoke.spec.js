@@ -39,6 +39,7 @@ test.describe('Registro visual smoke', () => {
     });
     await page.goto('/');
     await expect(page.locator('#main-content')).toBeVisible();
+    await expect(page.locator('body')).toHaveAttribute('data-route', 'inicio');
 
     await openRegistro(page);
 
