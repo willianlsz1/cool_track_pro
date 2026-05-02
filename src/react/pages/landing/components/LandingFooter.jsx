@@ -1,4 +1,8 @@
-import { footerProductLinks, footerCompanyLinks } from '../data/landingMockData.js';
+import {
+  footerProductLinks,
+  footerCompanyLinks,
+  footerLegalLinks,
+} from '../data/landingMockData.js';
 
 /**
  * Footer da landing — fundo navy escuro com 4 colunas (desktop) e 1
@@ -55,20 +59,24 @@ export function LandingFooter() {
 
         <div className="tw-mt-12 tw-pt-5 tw-border-t tw-border-[rgba(255,255,255,0.08)] tw-flex tw-flex-col sm:tw-flex-row tw-justify-between tw-gap-3 tw-text-[13px] tw-text-[#7d8fae]">
           <span>© 2026 CoolTrackPro. Todos os direitos reservados.</span>
-          <div className="tw-flex tw-gap-5">
-            <a
-              href="#"
-              className="tw-text-inherit hover:tw-text-white tw-no-underline tw-transition-colors"
-            >
-              Privacidade
-            </a>
-            <a
-              href="#"
-              className="tw-text-inherit hover:tw-text-white tw-no-underline tw-transition-colors"
-            >
-              Termos de uso
-            </a>
-          </div>
+          <nav
+            aria-label="Documentos legais"
+            className="tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-1.5"
+          >
+            {footerLegalLinks.map((link) => (
+              // Links internos do produto (paginas em `public/legal/`).
+              // Abrem na mesma aba — sem `target="_blank"` (e portanto
+              // sem `rel="noopener noreferrer"`, que so faz sentido em
+              // links externos novos-aba).
+              <a
+                key={link.href}
+                href={link.href}
+                className="tw-text-inherit hover:tw-text-white focus-visible:tw-text-white tw-no-underline tw-transition-colors tw-rounded-sm"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

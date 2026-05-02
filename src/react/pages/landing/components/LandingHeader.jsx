@@ -4,12 +4,33 @@ import { navItems } from '../data/landingMockData.js';
  * Header da landing — logo + menu (desktop) + CTA "Comecar agora".
  * Mobile esconde o menu (PR 1 — sem hamburger). Layout simples para
  * permitir ajustes finos na PR de responsividade.
+ *
+ * Scroll suave (PR 2): clicar num link de ancora `#secao` rola
+ * suavemente ate a secao via `scrollIntoView({ behavior: 'smooth' })`.
+ * Usuarios com `prefers-reduced-motion` recebem fallback `auto` (jump).
  */
+function handleNavClick(href) {
+  return (event) => {
+    if (typeof href !== 'string' || !href.startsWith('#')) return;
+    const targetId = href.slice(1);
+    if (!targetId) return;
+    const target = typeof document !== 'undefined' ? document.getElementById(targetId) : null;
+    if (!target) return;
+    event.preventDefault();
+    const reduce =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  };
+}
+
 export function LandingHeader({ onStart }) {
   return (
     <header className="tw-relative tw-z-10 tw-flex tw-items-center tw-justify-between tw-px-6 sm:tw-px-10 lg:tw-px-20 tw-py-5">
       <a
         href="#topo"
+        onClick={handleNavClick('#topo')}
         className="tw-flex tw-items-center tw-gap-2.5 tw-text-white visited:tw-text-white tw-font-bold tw-text-lg tw-tracking-tight tw-no-underline"
       >
         <span
@@ -29,6 +50,7 @@ export function LandingHeader({ onStart }) {
           <a
             key={item.href}
             href={item.href}
+            onClick={handleNavClick(item.href)}
             className="tw-text-inherit hover:tw-text-white tw-transition-colors tw-no-underline"
           >
             {item.label}

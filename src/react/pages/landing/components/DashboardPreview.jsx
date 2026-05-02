@@ -1,38 +1,48 @@
+import { useState } from 'react';
 import {
-  dashboardSidebar,
+  dashboardTabs,
+  dashboardSidebarStaticItems,
+  dashboardDefaultTabId,
+  dashboardTabContent,
   dashboardKpis,
   dashboardAlerts,
   dashboardChartBars,
   dashboardOsRows,
   dashboardEquipStrip,
 } from '../data/landingMockData.js';
+import { AnimatedCounter } from './AnimatedCounter.jsx';
 
 /**
- * Dashboard preview estatico (sem abas neste PR — interatividade fica
- * para PR 2 do landing-page-plan.md).
+ * Dashboard preview interativo (PR 2). Sidebar tem 7 abas clicaveis +
+ * 3 itens visuais-only ao final. State local controla qual aba esta
+ * ativa; ao trocar, o body central renderiza:
+ *  - layout `overview` para Dashboard (KPIs animados + alerts + chart
+ *    + tabela OS + strip de equipamentos);
+ *  - layout `kpis-list` para as demais abas (4 KPIs animados + lista
+ *    tabular).
  *
- * Layout: sidebar fixo + main em coluna. Em telas pequenas o sidebar
- * vira topbar horizontal compacto pra preservar a sensacao de SaaS sem
- * forcar layout de 1440px.
+ * Acessibilidade: cada aba e um `<button>` com `aria-pressed` e
+ * `aria-current="page"` quando ativa. Foco visivel via `focus-visible`
+ * outline default do projeto.
  */
 export function DashboardPreview() {
+  const [activeTabId, setActiveTabId] = useState(dashboardDefaultTabId);
+  const activeTab = dashboardTabContent[activeTabId] || dashboardTabContent.dashboard;
+
   return (
     <div
       id="dashboard-preview"
       className="tw-relative tw-rounded-[22px] tw-bg-white tw-shadow-[0_30px_60px_-20px_rgba(0,0,0,0.45),0_8px_24px_rgba(0,0,0,0.2)] tw-overflow-hidden tw-text-landing-ink"
     >
-      {/* Altura definida pelo conteudo: o card e completo e nao corta
-          partes inferiores. Sidebar fixo a 200px em desktop; em mobile
-          fica oculto pra economizar largura. */}
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-[200px_1fr]">
-        <DashboardSidebar />
-        <DashboardMain />
+        <DashboardSidebar activeTabId={activeTabId} onSelectTab={setActiveTabId} />
+        <DashboardMain activeTabId={activeTabId} activeTab={activeTab} />
       </div>
     </div>
   );
 }
 
-function DashboardSidebar() {
+function DashboardSidebar({ activeTabId, onSelectTab }) {
   return (
     <aside
       className="tw-hidden lg:tw-flex tw-flex-col tw-text-[#cdd9ee] tw-px-3.5 tw-py-4"
@@ -45,29 +55,58 @@ function DashboardSidebar() {
         />
         CoolTrack<span className="tw-text-landing-cyan tw-font-semibold tw-text-[11px]">Pro</span>
       </div>
-      <ul className="tw-list-none tw-flex tw-flex-col tw-gap-0.5 tw-p-0 tw-m-0">
-        {dashboardSidebar.map((item) => (
+
+      <ul
+        role="tablist"
+        aria-label="Navegação do dashboard"
+        className="tw-list-none tw-flex tw-flex-col tw-gap-0.5 tw-p-0 tw-m-0"
+      >
+        {dashboardTabs.map((item) => {
+          const isActive = item.id === activeTabId;
+          return (
+            <li key={item.id} className="tw-p-0 tw-m-0">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={() => onSelectTab(item.id)}
+                className={`tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2 tw-rounded-lg tw-text-[12.5px] tw-text-left tw-cursor-pointer tw-border-0 tw-transition-colors ${
+                  isActive
+                    ? 'tw-text-white tw-font-semibold'
+                    : 'tw-text-[#9fb3d4] hover:tw-text-white'
+                }`}
+                style={
+                  isActive
+                    ? {
+                        background: 'linear-gradient(90deg, #006DFF 0%, rgba(0,109,255,0) 110%)',
+                        boxShadow: 'inset 3px 0 0 #40C4FF',
+                      }
+                    : { background: 'transparent' }
+                }
+              >
+                <span className="tw-w-3.5 tw-h-3.5 tw-flex-none" aria-hidden="true">
+                  <DotIcon active={isActive} />
+                </span>
+                {item.label}
+              </button>
+            </li>
+          );
+        })}
+        {dashboardSidebarStaticItems.map((item) => (
           <li
             key={item.id}
-            className={`tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2 tw-rounded-lg tw-text-[12.5px] ${
-              item.active ? 'tw-text-white tw-font-semibold' : 'tw-text-[#9fb3d4]'
-            }`}
-            style={
-              item.active
-                ? {
-                    background: 'linear-gradient(90deg, #006DFF 0%, rgba(0,109,255,0) 110%)',
-                    boxShadow: 'inset 3px 0 0 #40C4FF',
-                  }
-                : undefined
-            }
+            aria-disabled="true"
+            className="tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2 tw-rounded-lg tw-text-[12.5px] tw-text-[#9fb3d4] tw-opacity-70 tw-cursor-default"
           >
             <span className="tw-w-3.5 tw-h-3.5 tw-flex-none" aria-hidden="true">
-              <DotIcon active={item.active} />
+              <DotIcon active={false} />
             </span>
             {item.label}
           </li>
         ))}
       </ul>
+
       <div
         className="tw-mt-auto tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2.5 tw-rounded-xl tw-text-white tw-font-medium tw-text-[12px]"
         style={{ background: 'rgba(255,255,255,0.05)' }}
@@ -87,30 +126,47 @@ function DashboardSidebar() {
   );
 }
 
-function DashboardMain() {
+function DashboardMain({ activeTabId, activeTab }) {
   return (
-    <div className="tw-flex tw-flex-col tw-gap-3.5 tw-px-4 tw-py-4 tw-bg-white">
+    <div
+      role="tabpanel"
+      aria-labelledby={`dashboard-tab-${activeTabId}`}
+      className="tw-flex tw-flex-col tw-gap-3.5 tw-px-4 tw-py-4 tw-bg-white"
+    >
       <div className="tw-flex tw-items-center tw-justify-between">
-        <h3 className="tw-text-base tw-font-bold">Dashboard</h3>
+        <div>
+          <h3 className="tw-text-base tw-font-bold">{activeTab.title}</h3>
+          {activeTab.subtitle ? (
+            <p className="tw-text-[11px] tw-text-landing-ink-2 tw-mt-0.5 tw-font-medium">
+              {activeTab.subtitle}
+            </p>
+          ) : null}
+        </div>
         <span className="tw-inline-flex tw-items-center tw-gap-2 tw-px-2.5 tw-py-1.5 tw-rounded-lg tw-border tw-border-landing-line tw-text-landing-ink-2 tw-text-xs tw-font-medium">
           01/05/2024 - 31/05/2024
         </span>
       </div>
 
+      {activeTab.layout === 'overview' ? (
+        <OverviewLayout />
+      ) : (
+        <KpisListLayout activeTab={activeTab} />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Layout do tab `dashboard` — herda o visual do PR 1 (KPIs animaveis,
+ * alerts, chart, OS table, equip strip). Reutiliza dados ja existentes
+ * em `dashboardKpis`, `dashboardAlerts`, etc.
+ */
+function OverviewLayout() {
+  return (
+    <>
       <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-2.5">
         {dashboardKpis.map((kpi) => (
-          <div
-            key={kpi.id}
-            className="tw-bg-white tw-border tw-border-landing-line tw-rounded-xl tw-p-3 tw-flex tw-flex-col tw-gap-1"
-          >
-            <span className="tw-text-[11px] tw-text-landing-ink-2 tw-font-medium">{kpi.label}</span>
-            <span className="tw-text-[22px] tw-font-bold tw-tracking-[-0.01em] tw-text-landing-ink">
-              {kpi.value}
-            </span>
-            <span className="tw-text-[10.5px] tw-text-landing-blue tw-font-semibold">
-              Ver detalhes →
-            </span>
-          </div>
+          <KpiCard key={kpi.id} label={kpi.label} value={Number.parseInt(kpi.value, 10) || 0} />
         ))}
       </div>
 
@@ -121,6 +177,80 @@ function DashboardMain() {
 
       <DashboardOsPanel />
       <DashboardEquipStrip />
+    </>
+  );
+}
+
+/**
+ * Layout `kpis-list` — usado por todas as outras abas. 4 KPIs animados
+ * + 1 lista tabular curta.
+ */
+function KpisListLayout({ activeTab }) {
+  return (
+    <>
+      <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-2.5">
+        {(activeTab.kpis || []).map((kpi) => (
+          <KpiCard key={kpi.id} label={kpi.label} value={kpi.value} />
+        ))}
+      </div>
+      {activeTab.list ? <SimpleListPanel list={activeTab.list} /> : null}
+    </>
+  );
+}
+
+function KpiCard({ label, value }) {
+  return (
+    <div className="tw-bg-white tw-border tw-border-landing-line tw-rounded-xl tw-p-3 tw-flex tw-flex-col tw-gap-1">
+      <span className="tw-text-[11px] tw-text-landing-ink-2 tw-font-medium">{label}</span>
+      <AnimatedCounter
+        end={Number(value) || 0}
+        className="tw-text-[22px] tw-font-bold tw-tracking-[-0.01em] tw-text-landing-ink"
+      />
+      <span className="tw-text-[10.5px] tw-text-landing-blue tw-font-semibold">Ver detalhes →</span>
+    </div>
+  );
+}
+
+const PILL_TONE = {
+  green: 'tw-bg-[rgba(24,184,132,0.12)] tw-text-[#0e7d59]',
+  orange: 'tw-bg-[rgba(245,158,11,0.14)] tw-text-[#a16207]',
+  blue: 'tw-bg-[rgba(0,109,255,0.12)] tw-text-landing-blue',
+  red: 'tw-bg-[rgba(239,68,68,0.12)] tw-text-[#b91c1c]',
+};
+
+function SimpleListPanel({ list }) {
+  return (
+    <div className="tw-border tw-border-landing-line tw-rounded-xl tw-p-2.5 tw-bg-white">
+      <div className="tw-flex tw-items-center tw-justify-between tw-text-[12.5px] tw-font-bold tw-mb-1">
+        <span>{list.title}</span>
+        <span className="tw-text-[10.5px] tw-text-landing-blue tw-font-semibold">Ver tudo</span>
+      </div>
+      <div className="tw-flex tw-flex-col">
+        <div className="tw-grid tw-grid-cols-[1.5fr_1.5fr_1fr_90px] tw-gap-1.5 tw-py-1.5 tw-px-1 tw-border-b tw-border-landing-line tw-text-[9.5px] tw-text-landing-ink-2 tw-uppercase tw-font-semibold tw-tracking-[0.04em]">
+          {list.headers.map((h, i) => (
+            <span key={i}>{h}</span>
+          ))}
+        </div>
+        {list.rows.map((row, i, arr) => (
+          <div
+            key={i}
+            className={`tw-grid tw-grid-cols-[1.5fr_1.5fr_1fr_90px] tw-gap-1.5 tw-py-1.5 tw-px-1 tw-text-[11px] tw-items-center ${
+              i < arr.length - 1 ? 'tw-border-b tw-border-landing-line' : ''
+            }`}
+          >
+            <span className="tw-font-semibold tw-text-landing-ink">{row.col1}</span>
+            <span className="tw-text-landing-ink-2">{row.col2}</span>
+            <span className="tw-text-landing-ink-2">{row.col3}</span>
+            <span>
+              <span
+                className={`tw-inline-block tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[10px] tw-font-semibold tw-text-center ${PILL_TONE[row.tone] || ''}`}
+              >
+                {row.status}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -132,7 +262,6 @@ function DashboardAlertsPanel() {
     blue: 'tw-bg-landing-blue',
     green: 'tw-bg-landing-green',
   };
-
   return (
     <div className="tw-border tw-border-landing-line tw-rounded-xl tw-p-3 tw-bg-white">
       <div className="tw-flex tw-items-center tw-justify-between tw-text-[12.5px] tw-font-bold tw-mb-2.5">
@@ -198,13 +327,6 @@ function DashboardChartPanel() {
 }
 
 function DashboardOsPanel() {
-  const pillTone = {
-    green: 'tw-bg-[rgba(24,184,132,0.12)] tw-text-[#0e7d59]',
-    orange: 'tw-bg-[rgba(245,158,11,0.14)] tw-text-[#a16207]',
-    blue: 'tw-bg-[rgba(0,109,255,0.12)] tw-text-landing-blue',
-    red: 'tw-bg-[rgba(239,68,68,0.12)] tw-text-[#b91c1c]',
-  };
-
   return (
     <div className="tw-border tw-border-landing-line tw-rounded-xl tw-p-2.5 tw-bg-white">
       <div className="tw-flex tw-items-center tw-justify-between tw-text-[12.5px] tw-font-bold tw-mb-1">
@@ -234,7 +356,7 @@ function DashboardOsPanel() {
             <span>{row.type}</span>
             <span>
               <span
-                className={`tw-inline-block tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[10px] tw-font-semibold tw-text-center ${pillTone[row.status.tone] || ''}`}
+                className={`tw-inline-block tw-px-2 tw-py-0.5 tw-rounded-full tw-text-[10px] tw-font-semibold tw-text-center ${PILL_TONE[row.status.tone] || ''}`}
               >
                 {row.status.label}
               </span>

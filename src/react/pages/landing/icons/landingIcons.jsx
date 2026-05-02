@@ -506,3 +506,285 @@ export function PmocIcon(props) {
     </Icon>
   );
 }
+
+// ============================================================================
+// PROBLEMAS (6 icones)
+// ============================================================================
+//
+// Diferente dos icones acima (que ficam em cards brancos), os icones de
+// problemas ficam em cards navy escuros translucidos. Por isso usam
+// paleta com stroke claro (cyan + light blue) — desenho do sprite
+// `a_set_of_six_minimalistic_vector_icons_highlights.png` aprovado.
+
+const DARK_STROKE = '#7dc8ff'; // azul claro para visibilidade no fundo navy
+const DARK_FILL = 'rgba(64,196,255,0.18)'; // cyan translucido
+const DARK_ACCENT = '#40C4FF'; // landing-cyan
+
+function DarkIcon({ size = 28, viewBox = '0 0 64 64', children, ...props }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={viewBox}
+      fill="none"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+}
+
+export function OsSemPadraoIcon(props) {
+  return (
+    <DarkIcon {...props}>
+      {/* Clipboard com itens irregulares (X markers indicando inconsistencia) */}
+      <rect
+        x="14"
+        y="10"
+        width="36"
+        height="46"
+        rx="3"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <rect
+        x="24"
+        y="6"
+        width="16"
+        height="8"
+        rx="2"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      {/* Linha 1: campo preenchido */}
+      <line x1="20" y1="24" x2="32" y2="24" stroke={DARK_ACCENT} strokeWidth="2.5" />
+      <line x1="34" y1="24" x2="44" y2="24" stroke={DARK_STROKE} strokeWidth="2" opacity="0.5" />
+      {/* Linha 2: campo faltando (apenas tracejado) */}
+      <line
+        x1="20"
+        y1="32"
+        x2="44"
+        y2="32"
+        stroke={DARK_STROKE}
+        strokeWidth="2"
+        strokeDasharray="3 3"
+        opacity="0.6"
+      />
+      {/* Linha 3: campo com X (erro) */}
+      <line x1="20" y1="40" x2="28" y2="40" stroke={DARK_STROKE} strokeWidth="2" />
+      <path d="M32 38l4 4M36 38l-4 4" stroke={DARK_ACCENT} strokeWidth="2.2" />
+      {/* Linha 4: vazia */}
+      <line x1="20" y1="48" x2="40" y2="48" stroke={DARK_STROKE} strokeWidth="2" opacity="0.4" />
+    </DarkIcon>
+  );
+}
+
+export function HistoricoPerdidoIcon(props) {
+  return (
+    <DarkIcon {...props}>
+      {/* Sino de notificacao com clock no canto (historico perdido) */}
+      <path
+        d="M14 44 c0-2 2-4 4-5 v-6 a14 14 0 0 1 28 0 v6 c2 1 4 3 4 5 z"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      {/* Badrenz do sino */}
+      <path d="M27 50 a5 5 0 0 0 10 0" fill="none" stroke={DARK_STROKE} strokeWidth="2.2" />
+      {/* Topo do sino */}
+      <line x1="32" y1="11" x2="32" y2="15" stroke={DARK_STROKE} strokeWidth="2.5" />
+      {/* Pequeno relogio no canto inferior direito (historico) */}
+      <circle cx="46" cy="46" r="9" fill="#0b1b33" stroke={DARK_ACCENT} strokeWidth="2" />
+      <line x1="46" y1="40" x2="46" y2="46" stroke={DARK_ACCENT} strokeWidth="1.8" />
+      <line x1="46" y1="46" x2="50" y2="48" stroke={DARK_ACCENT} strokeWidth="1.8" />
+    </DarkIcon>
+  );
+}
+
+export function RelatoriosImprovisadosIcon(props) {
+  return (
+    <DarkIcon {...props}>
+      {/* Pie chart com fatias soltas (improvisado) */}
+      <circle cx="32" cy="32" r="20" fill={DARK_FILL} stroke={DARK_STROKE} strokeWidth="2.2" />
+      {/* Fatia preenchida (top) */}
+      <path
+        d="M32 32 L32 12 A20 20 0 0 1 49.32 42 Z"
+        fill={DARK_ACCENT}
+        fillOpacity="0.55"
+        stroke={DARK_STROKE}
+        strokeWidth="2"
+      />
+      {/* Fatia secundaria (bottom-left) */}
+      <path
+        d="M32 32 L14.68 22 A20 20 0 0 0 14.68 42 Z"
+        fill={DARK_ACCENT}
+        fillOpacity="0.25"
+        stroke={DARK_STROKE}
+        strokeWidth="2"
+      />
+      <circle cx="32" cy="32" r="3" fill={DARK_STROKE} />
+    </DarkIcon>
+  );
+}
+
+export function PreventivasEsquecidasIcon(props) {
+  return (
+    <DarkIcon {...props}>
+      {/* Calendario com relogio sobreposto (atrasado) */}
+      <rect
+        x="8"
+        y="14"
+        width="40"
+        height="38"
+        rx="3"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      {/* Topo do calendario */}
+      <path
+        d="M8 22 v-5 a3 3 0 0 1 3 -3 h34 a3 3 0 0 1 3 3 v5 z"
+        fill={DARK_ACCENT}
+        fillOpacity="0.6"
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <line x1="18" y1="9" x2="18" y2="17" stroke={DARK_STROKE} strokeWidth="2.5" />
+      <line x1="38" y1="9" x2="38" y2="17" stroke={DARK_STROKE} strokeWidth="2.5" />
+      {/* Grid de dias */}
+      <rect x="14" y="28" width="5" height="4" fill={DARK_STROKE} opacity="0.4" />
+      <rect x="22" y="28" width="5" height="4" fill={DARK_STROKE} opacity="0.4" />
+      <rect x="30" y="28" width="5" height="4" fill={DARK_STROKE} opacity="0.4" />
+      <rect x="14" y="36" width="5" height="4" fill={DARK_STROKE} opacity="0.4" />
+      {/* Relogio no canto direito (alarm/atraso) */}
+      <circle cx="46" cy="46" r="11" fill="#0b1b33" stroke={DARK_ACCENT} strokeWidth="2.2" />
+      <line x1="46" y1="40" x2="46" y2="46" stroke={DARK_ACCENT} strokeWidth="2" />
+      <line x1="46" y1="46" x2="51" y2="48" stroke={DARK_ACCENT} strokeWidth="2" />
+    </DarkIcon>
+  );
+}
+
+export function FotosEspalhadasIcon(props) {
+  return (
+    <DarkIcon {...props}>
+      {/* Tres fotos sobrepostas/desalinhadas */}
+      {/* Foto traseira (esquerda) */}
+      <rect
+        x="8"
+        y="14"
+        width="28"
+        height="22"
+        rx="2"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2"
+        transform="rotate(-8, 22, 25)"
+      />
+      {/* Foto traseira (direita) */}
+      <rect
+        x="28"
+        y="12"
+        width="28"
+        height="22"
+        rx="2"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2"
+        transform="rotate(6, 42, 23)"
+      />
+      {/* Foto frontal centro com paisagem */}
+      <rect
+        x="16"
+        y="28"
+        width="32"
+        height="26"
+        rx="3"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <circle cx="24" cy="36" r="2.5" fill={DARK_ACCENT} />
+      <path
+        d="M18 50 l8 -8 l5 5 l6 -7 l9 9"
+        fill="none"
+        stroke={DARK_ACCENT}
+        strokeWidth="2"
+        opacity="0.85"
+      />
+    </DarkIcon>
+  );
+}
+
+export function DadosTecnicosSoltosIcon(props) {
+  return (
+    <DarkIcon {...props}>
+      {/* Cilindros de banco de dados (database stack) */}
+      <ellipse
+        cx="32"
+        cy="14"
+        rx="18"
+        ry="5"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <path
+        d="M14 14 v12 a18 5 0 0 0 36 0 v-12"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <ellipse
+        cx="32"
+        cy="26"
+        rx="18"
+        ry="5"
+        fill="none"
+        stroke={DARK_STROKE}
+        strokeWidth="1.6"
+        opacity="0.7"
+      />
+      <path
+        d="M14 26 v12 a18 5 0 0 0 36 0 v-12"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <ellipse
+        cx="32"
+        cy="38"
+        rx="18"
+        ry="5"
+        fill="none"
+        stroke={DARK_STROKE}
+        strokeWidth="1.6"
+        opacity="0.7"
+      />
+      <path
+        d="M14 38 v12 a18 5 0 0 0 36 0 v-12"
+        fill={DARK_FILL}
+        stroke={DARK_STROKE}
+        strokeWidth="2.2"
+      />
+      <ellipse
+        cx="32"
+        cy="50"
+        rx="18"
+        ry="5"
+        fill="none"
+        stroke={DARK_STROKE}
+        strokeWidth="1.6"
+        opacity="0.7"
+      />
+      {/* LED indicadores soltos */}
+      <circle cx="20" cy="20" r="1.5" fill={DARK_ACCENT} />
+      <circle cx="20" cy="32" r="1.5" fill={DARK_ACCENT} />
+      <circle cx="20" cy="44" r="1.5" fill={DARK_ACCENT} />
+    </DarkIcon>
+  );
+}
