@@ -2,15 +2,36 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('internal visual identity tokens', () => {
-  it('keeps the internal app aligned with the landing dashboard mockup palette', () => {
+  it('defines the dark operational token foundation for the authenticated app', () => {
     const tokens = readFileSync('src/assets/styles/tokens.css', 'utf8');
     const redesign = readFileSync('src/assets/styles/redesign.css', 'utf8');
 
-    expect(tokens).toContain('--ct-bg: #f5f7fb;');
-    expect(tokens).toContain('--ct-surface: #ffffff;');
-    expect(tokens).toContain('--ct-text: #0a1530;');
-    expect(tokens).toContain('--ct-brand: #2f7bff;');
-    expect(tokens).toContain('--ct-brand-hover: #4f9bff;');
+    expect(tokens).toContain('--ct-app-bg: #26282b;');
+    expect(tokens).toContain('--ct-surface: #353941;');
+    expect(tokens).toContain('--ct-surface-raised: #3e434d;');
+    expect(tokens).toContain('--ct-surface-subtle: #2d3036;');
+    expect(tokens).toContain('--ct-border: rgba(144, 184, 248, 0.16);');
+    expect(tokens).toContain('--ct-border-strong: rgba(144, 184, 248, 0.28);');
+    expect(tokens).toContain('--ct-brand: #5f85db;');
+    expect(tokens).toContain('--ct-brand-hover: #90b8f8;');
+    expect(tokens).toContain('--ct-text: #f4f7fb;');
+    expect(tokens).toContain('--ct-text-muted: #c7d0e0;');
+    expect(tokens).toContain('--ct-text-faint: #98a4b8;');
+    expect(tokens).toContain('--ct-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.28);');
+    expect(tokens).toContain('--ct-success: #4ade80;');
+    expect(tokens).toContain('--ct-info: #90b8f8;');
+    expect(tokens).toContain('--ct-warn: #fbbf24;');
+    expect(tokens).toContain('--ct-error: #fb7185;');
+    expect(tokens).toContain('--bg: var(--ct-app-bg);');
+    expect(tokens).toContain('--surface: var(--ct-surface);');
+    expect(tokens).toContain('--card-hover: var(--ct-surface-raised);');
+    expect(tokens).toContain('--primary: var(--ct-brand);');
+    expect(tokens).toContain('--primary-strong: var(--ct-brand-hover);');
+    expect(tokens).toContain('--text: var(--ct-text);');
+    expect(tokens).toContain('--muted: var(--ct-text-muted);');
+    expect(tokens).toContain('--muted-light: var(--ct-text-faint);');
+    expect(tokens).toContain('--neon-cyan: var(--ct-brand);');
+    expect(tokens).toContain('--neon-red: var(--ct-error);');
     expect(redesign).toContain('CoolTrack dashboard mockup alignment');
     expect(redesign).toContain('background: #f5f7fb !important;');
     expect(redesign).toContain('linear-gradient(180deg, #0f1d3e 0%, #081530 100%)');
