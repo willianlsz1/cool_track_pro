@@ -1,12 +1,13 @@
 # Prova CSS: `hist-plan-limit-banner*`
 
 Data da analise: 2026-05-01.
+Remocao aplicada: 2026-05-02.
 
 ## Objetivo
 
-Provar se a microfamilia CSS `hist-plan-limit-banner*` esta viva, morta ou inconclusiva antes de qualquer remocao de CSS.
+Provar se a microfamilia CSS `hist-plan-limit-banner*` esta viva, morta ou inconclusiva antes de qualquer remocao de CSS, e registrar a remocao cirurgica aplicada apos a prova.
 
-Resultado: morta candidata a remocao futura, com baixo risco se a remocao for cirurgica e limitada aos seletores listados abaixo.
+Resultado: morta removida, com baixo risco porque a remocao foi cirurgica e limitada aos seletores listados abaixo.
 
 ## Escopo verificado
 
@@ -82,7 +83,7 @@ Esse resultado enfraquece a hipotese de uso atual do banner antigo de limite Fre
 
 ## Definicoes CSS encontradas
 
-Arquivo: `src/assets/styles/components.css`.
+Arquivo original: `src/assets/styles/components.css`.
 
 Seletores:
 
@@ -97,6 +98,21 @@ Comentario adjacente:
 
 - `Plan limit banner (Free, 30d cutoff)`
 
+## Remocao aplicada
+
+Foram removidos de `src/assets/styles/components.css`:
+
+- `#view-historico .hist-plan-limit-banner`
+- `#view-historico .hist-plan-limit-banner__ic`
+- `#view-historico .hist-plan-limit-banner__icon`
+- `#view-historico .hist-plan-limit-banner__text`
+- `#view-historico .hist-plan-limit-banner__link`
+- `#view-historico .hist-plan-limit-banner__link:hover`
+- comentario obsoleto `Plan limit banner (Free, 30d cutoff)`
+- mencao obsoleta `.hist-plan-limit-banner (Free)` no mapa estrutural comentado do Historico
+
+Preservado: `hist-*` generico, `timeline*`, sheet mobile de filtros, assinatura viewer, `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"` e demais contratos `data-*` do Historico.
+
 ## Cruzamento com Historico atual
 
 Arquivos centrais verificados:
@@ -110,18 +126,18 @@ Arquivos centrais verificados:
 
 ## Classificacao
 
-| Classe                               | Classificacao | Evidencia                                                                   |
-| ------------------------------------ | ------------- | --------------------------------------------------------------------------- |
-| `hist-plan-limit-banner`             | Morta         | Apenas CSS/docs; sem render React, adapter, shell, teste ou E2E.            |
-| `hist-plan-limit-banner__ic`         | Morta         | Apenas CSS/docs; sem template, `className`, `classList` ou builder.         |
-| `hist-plan-limit-banner__icon`       | Morta         | Apenas CSS/docs; sem template, `className`, `classList` ou builder.         |
-| `hist-plan-limit-banner__text`       | Morta         | Apenas CSS/docs; sem template, `className`, `classList` ou builder.         |
-| `hist-plan-limit-banner__link`       | Morta         | Apenas CSS/docs; CTA atual de pricing usa `hist-summary-card__upsell-link`. |
-| `hist-plan-limit-banner__link:hover` | Morta         | Pseudo-classe ligada ao seletor morto.                                      |
+| Classe                               | Classificacao  | Evidencia                                                                   |
+| ------------------------------------ | -------------- | --------------------------------------------------------------------------- |
+| `hist-plan-limit-banner`             | Morta removida | Apenas CSS/docs; sem render React, adapter, shell, teste ou E2E.            |
+| `hist-plan-limit-banner__ic`         | Morta removida | Apenas CSS/docs; sem template, `className`, `classList` ou builder.         |
+| `hist-plan-limit-banner__icon`       | Morta removida | Apenas CSS/docs; sem template, `className`, `classList` ou builder.         |
+| `hist-plan-limit-banner__text`       | Morta removida | Apenas CSS/docs; sem template, `className`, `classList` ou builder.         |
+| `hist-plan-limit-banner__link`       | Morta removida | Apenas CSS/docs; CTA atual de pricing usa `hist-summary-card__upsell-link`. |
+| `hist-plan-limit-banner__link:hover` | Morta removida | Pseudo-classe ligada ao seletor morto.                                      |
 
 ## Risco
 
-Baixo para remocao futura cirurgica dos seletores acima.
+Baixo. A remocao ja foi aplicada apenas aos seletores acima.
 
 Nao remover junto:
 
@@ -135,9 +151,9 @@ Nao remover junto:
 
 ## Decisao recomendada
 
-Proximo PR: remover apenas os seletores `hist-plan-limit-banner*` de `src/assets/styles/components.css`, incluindo o comentario obsoleto `Plan limit banner (Free, 30d cutoff)`.
+Remocao concluida. O proximo PR deve escolher outra microfamilia pequena ja provada ou criar uma nova prova antes de remover CSS, sem apagar familias grandes por grep simples.
 
-Antes/depois da remocao, rodar:
+Antes/depois de remocoes semelhantes, rodar:
 
 - `git grep -n "hist-plan-limit-banner"`
 - `git grep -n "plan-limit"`

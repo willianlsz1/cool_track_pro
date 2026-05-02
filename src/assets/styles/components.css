@@ -13280,7 +13280,6 @@ mark,
        .hist-chrono-label
        #timeline
          .hist-summary-card (hero com orbs + KPIs + divider + CTA)
-         .hist-plan-limit-banner (Free)
          .timeline (lista)
            .timeline__item (grid 1fr auto)
      + .hist-signature-modal (body-appended, lightbox da assinatura)
@@ -14097,44 +14096,6 @@ select option {
 }
 #view-historico .hist-summary-card__cta:hover {
   filter: brightness(1.06);
-}
-
-/* ─── Plan limit banner (Free, 30d cutoff) ─── */
-#view-historico .hist-plan-limit-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 14px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(232, 160, 32, 0.06);
-  border: 1px solid var(--warning-dim);
-  font-size: 12px;
-  color: var(--text-2);
-}
-#view-historico .hist-plan-limit-banner__ic,
-#view-historico .hist-plan-limit-banner__icon {
-  color: var(--warning);
-  flex-shrink: 0;
-}
-#view-historico .hist-plan-limit-banner__text {
-  flex: 1;
-  line-height: 1.4;
-}
-#view-historico .hist-plan-limit-banner__link {
-  color: var(--warning);
-  font-weight: 600;
-  margin-left: auto;
-  white-space: nowrap;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-  font-family: inherit;
-  font-size: inherit;
-}
-#view-historico .hist-plan-limit-banner__link:hover {
-  text-decoration: underline;
 }
 
 /* ─── Chrono label ("mais recente primeiro") ─── */

@@ -105,15 +105,15 @@ Risco: alto. Detalhe, fotos, nameplate, CRUD e modais continuam legados.
 
 ### `hist-*` e `timeline*`
 
-Suspeitas: `hist-pill--*`, `hist-quickfilter--*`, `hist-plan-limit-banner*`, `timeline__dot--*`, `timeline__item--*`, `timeline__saved-badge`.
+Suspeitas restantes: `hist-pill--*`, `hist-quickfilter--*`, `timeline__dot--*`, `timeline__item--*`, `timeline__saved-badge`.
 
 Risco: medio. Timeline e filtros sao React, mas sheet mobile, delete, fotos e assinatura ainda sao legados; varios tons sao dinamicos.
 
-Microfamilia provada em `docs/migration/css-hist-plan-limit-banner-proof.md`: `hist-plan-limit-banner*`.
+Microfamilia removida com prova em `docs/migration/css-hist-plan-limit-banner-proof.md`: `hist-plan-limit-banner*`.
 
-Classificacao: `hist-plan-limit-banner`, `hist-plan-limit-banner__ic`, `hist-plan-limit-banner__icon`, `hist-plan-limit-banner__text`, `hist-plan-limit-banner__link` e `hist-plan-limit-banner__link:hover` estao mortos candidatos a remocao. As buscas encontraram apenas definicoes em `src/assets/styles/components.css` e docs; `HistoricoTimeline.jsx`, `HistoricoFilters.jsx`, `historicoViewModel.js`, `historicoFiltersSheet.js`, testes e E2E nao montam essa familia.
+Classificacao: `hist-plan-limit-banner`, `hist-plan-limit-banner__ic`, `hist-plan-limit-banner__icon`, `hist-plan-limit-banner__text`, `hist-plan-limit-banner__link` e `hist-plan-limit-banner__link:hover` foram removidos de `src/assets/styles/components.css`. As buscas encontraram apenas definicoes CSS e docs; `HistoricoTimeline.jsx`, `HistoricoFilters.jsx`, `historicoViewModel.js`, `historicoFiltersSheet.js`, testes e E2E nao montam essa familia.
 
-Risco: baixo se a remocao futura for limitada aos seletores `hist-plan-limit-banner*`. Nao remover `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer ou handlers de fotos/delete/PDF/navegacao.
+Risco residual: baixo. A remocao foi limitada aos seletores `hist-plan-limit-banner*` e ao comentario obsoleto adjacente; `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao foram preservados.
 
 ### `rel-*`
 
@@ -159,7 +159,7 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 - Modificadores por `classList`: `photo-thumb--pending`, `photo-thumb--cover`, `eq-detail-cover--loaded`, `eq-detail-cover--fallback`, `equip-photo-block--locked`, `setor-modal__swatch--selected`, `timeline__item--saved`.
 - Estados globais: `is-open`, `is-active`, `is-visible`, `is-loading`, `is-busy`, `is-focus-target`, `hidden`, `active`.
 - Tons/status por dados: `hist-pill--*`, `rel-status--*`, `r-checklist__status--*`, `equip-card__status--*`, `setor-card__status--*`.
-- Excecao provada como morta candidata: `hist-plan-limit-banner*` nao e gerado por React, viewModel, sheet mobile, adapter, testes ou E2E atuais de Historico.
+- Excecao ja removida com prova: `hist-plan-limit-banner*` nao e gerado por React, viewModel, sheet mobile, adapter, testes ou E2E atuais de Historico.
 - Excecao ja removida com prova: `orc-status-pill--*` nao e gerado por dados no DOM atual; Orcamentos usa `.orc-status-pill` base com `statusMeta` inline.
 - Excecao ja removida com prova: `orc-timeline*` nao e gerado por React, viewModel, modal, assinatura, handlers ou testes atuais de Orcamentos.
 - Classes de plano/paywall: `upgrade-*`, `pro-badge*`, `usage-meter*`, `pricing-*`, `nameplate-cta[data-state]`.
@@ -202,13 +202,13 @@ Classificacao: removidas de `src/assets/styles/components.css` em PR pequeno. As
 
 ## Proxima prova recomendada
 
-Antes de qualquer nova prova, ha uma microfamilia pequena ja provada como candidata:
+Microfamilia removida nesta fase:
 
-- `hist-plan-limit-banner*`
+- `hist-plan-limit-banner*` removido com prova em `docs/migration/css-hist-plan-limit-banner-proof.md`
 
-Escopo recomendado:
+Escopo recomendado para a proxima prova:
 
-1. Remover apenas os seletores `hist-plan-limit-banner*` de `src/assets/styles/components.css`.
+1. Escolher outra microfamilia pequena e criar prova dedicada antes de remover CSS.
 2. Preservar `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.
 3. Rodar smoke visual/E2E de Historico com estado vazio, registros e CTA atual de upsell/pricing do summary card, se aparecer.
 4. Manter `npm run lint:css:dead` fora do caminho critico enquanto `purgecss` nao estiver disponivel no projeto.

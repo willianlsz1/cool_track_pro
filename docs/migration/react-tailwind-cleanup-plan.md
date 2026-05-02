@@ -296,8 +296,10 @@ Uma tela deve ser considerada 100% migrada apenas quando todos estes pontos fore
 
 ## 12. Recomendacao objetiva do proximo PR
 
-O proximo PR recomendado e remover cirurgicamente a microfamilia CSS `hist-plan-limit-banner*`, ja provada como morta candidata em `docs/migration/css-hist-plan-limit-banner-proof.md`.
+O PR de limpeza da microfamilia CSS `hist-plan-limit-banner*` foi concluido com prova dedicada em `docs/migration/css-hist-plan-limit-banner-proof.md`.
 
 Motivo: a prova encontrou apenas definicoes em `src/assets/styles/components.css` e docs. Historico atual nao monta essa familia em `HistoricoTimeline.jsx`, `HistoricoFilters.jsx`, `historicoViewModel.js`, `historicoFiltersSheet.js`, adapter, testes ou E2E. O plano Free tambem nao define mais `historicoDias`, entao o banner antigo "Free, 30d cutoff" nao representa contrato atual.
 
-Escopo recomendado: remover apenas os seletores `hist-plan-limit-banner*` e o comentario obsoleto adjacente de `src/assets/styles/components.css`. Preservar `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.
+Escopo aplicado: removidos apenas os seletores `hist-plan-limit-banner*` e o comentario obsoleto adjacente de `src/assets/styles/components.css`. Foram preservados `hist-summary-card__upsell-link`, `data-hist-action="hist-pricing-link"`, `hist-*` generico, `timeline*`, sheet mobile, assinatura viewer e handlers de fotos/delete/PDF/navegacao.
+
+Proximo PR recomendado: escolher outra microfamilia CSS pequena do inventario e criar prova dedicada antes de qualquer remocao. Evitar familias grandes ou dinamicas sem screenshot/E2E especifico.
