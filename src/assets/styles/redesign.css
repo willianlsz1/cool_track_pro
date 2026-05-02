@@ -1382,3 +1382,329 @@ body:not(.landing-active) .modal-overlay {
   background: rgba(144, 184, 248, 0.08) !important;
   color: var(--ct-text) !important;
 }
+
+/* ============================================================
+   PR 4 - Dashboard operational dark refresh
+   ============================================================ */
+
+#app:not(.landing-active) #dash {
+  --dsh-gold: var(--ct-gold);
+  --dsh-blue: var(--ct-brand);
+  --dsh-red: var(--ct-error);
+  --dsh-neutral: var(--ct-text-faint);
+  --dsh-accent: var(--ct-brand);
+  --dsh-accent-dim: var(--ct-border-strong);
+  --dsh-accent-soft: var(--ct-info-soft);
+  --dsh-accent-strong: var(--ct-border-strong);
+  --dsh-accent-glow: rgba(95, 133, 219, 0.2);
+  --dsh-card-bg: var(--ct-surface);
+  --dsh-card-border: var(--ct-border);
+  --dsh-card-border-strong: var(--ct-border-strong);
+  --dsh-surface: var(--ct-surface);
+  --dsh-divider: var(--ct-border);
+  gap: 16px;
+  padding: 10px 4px 36px;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #dash[data-tier='pro'] {
+  --dsh-accent: var(--ct-brand);
+  --dsh-accent-dim: var(--ct-border-strong);
+  --dsh-accent-soft: var(--ct-info-soft);
+  --dsh-accent-strong: var(--ct-border-strong);
+  --dsh-accent-glow: rgba(95, 133, 219, 0.2);
+}
+
+#app:not(.landing-active) #dash[data-tone='alert'] {
+  --dsh-tone-accent: var(--ct-error);
+  --dsh-tone-strong: color-mix(in srgb, var(--ct-error) 42%, transparent);
+  --dsh-tone-soft: var(--ct-error-soft);
+  --dsh-tone-glow: rgba(251, 113, 133, 0.22);
+}
+
+#app:not(.landing-active) #dash .dash__hero,
+#app:not(.landing-active) #dash .dash__kpi,
+#app:not(.landing-active) #dash .dash__card,
+#app:not(.landing-active) #dash .dash__section,
+#app:not(.landing-active) #dash .dash__analise,
+#app:not(.landing-active) #dash .dash__continue-card,
+#app:not(.landing-active) #dash .onb-card,
+#app:not(.landing-active) #dash .install-card,
+#app:not(.landing-active) #dash .recent-card,
+#app:not(.landing-active) #dash .equip-card,
+#app:not(.landing-active) #dash .alert-card,
+#app:not(.landing-active) #dash .critical-now-item,
+#app:not(.landing-active) #dash .empty-state {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero {
+  padding: 20px !important;
+  border-radius: 18px !important;
+  background:
+    radial-gradient(circle at 9% 0%, rgba(144, 184, 248, 0.16), transparent 32%),
+    radial-gradient(circle at 95% 12%, rgba(95, 133, 219, 0.16), transparent 34%),
+    linear-gradient(145deg, var(--ct-surface-raised), var(--ct-surface)) !important;
+  border: 1px solid var(--ct-border-strong) !important;
+  overflow: hidden;
+}
+
+#app:not(.landing-active) #dash .dash__hero::before {
+  background: radial-gradient(circle, rgba(144, 184, 248, 0.12), transparent 68%) !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero:hover,
+#app:not(.landing-active) #dash .dash__kpi:hover,
+#app:not(.landing-active) #dash .dash__card:hover,
+#app:not(.landing-active) #dash .dash__section:hover,
+#app:not(.landing-active) #dash .dash__continue-card:hover,
+#app:not(.landing-active) #dash .equip-card:hover,
+#app:not(.landing-active) #dash .alert-card:hover,
+#app:not(.landing-active) #dash .recent-card:hover,
+#app:not(.landing-active) #dash .critical-now-item:hover {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.075), rgba(255, 255, 255, 0.018)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+  transform: translateY(-1px);
+}
+
+#app:not(.landing-active) #dash .dash__hero-greeting,
+#app:not(.landing-active) #dash .dash__hero-body,
+#app:not(.landing-active) #dash .dash__hero-body *,
+#app:not(.landing-active) #dash .dash__kpi-value,
+#app:not(.landing-active) #dash .dash__card-title,
+#app:not(.landing-active) #dash .dash__section-label,
+#app:not(.landing-active) #dash .onb-card__title,
+#app:not(.landing-active) #dash .onb-step__label,
+#app:not(.landing-active) #dash .install-card__title,
+#app:not(.landing-active) #dash .dash__continue-card__title,
+#app:not(.landing-active) #dash .recent-card__title,
+#app:not(.landing-active) #dash .equip-card__name,
+#app:not(.landing-active) #dash .critical-now-item__title,
+#app:not(.landing-active) #dash .alert-card__equip,
+#app:not(.landing-active) #dash .empty-state__title {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero-summary,
+#app:not(.landing-active) #dash .dash__card-sub,
+#app:not(.landing-active) #dash .dash__card-desc,
+#app:not(.landing-active) #dash .dash__kpi-sub,
+#app:not(.landing-active) #dash .onb-card__sub,
+#app:not(.landing-active) #dash .onb-step__sub,
+#app:not(.landing-active) #dash .install-card__sub,
+#app:not(.landing-active) #dash .dash__continue-card__sub,
+#app:not(.landing-active) #dash .recent-card__equip,
+#app:not(.landing-active) #dash .recent-card__obs,
+#app:not(.landing-active) #dash .equip-card__tag,
+#app:not(.landing-active) #dash .equip-card__metric-label,
+#app:not(.landing-active) #dash .equip-card__metric-sub,
+#app:not(.landing-active) #dash .critical-now-item__subtitle,
+#app:not(.landing-active) #dash .alert-card__title,
+#app:not(.landing-active) #dash .alert-card__sub,
+#app:not(.landing-active) #dash .empty-state__sub {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi-label,
+#app:not(.landing-active) #dash .dash__card-label,
+#app:not(.landing-active) #dash .critical-now-group__label,
+#app:not(.landing-active) #dash .recent-card__date {
+  color: var(--ct-text-faint) !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero-cta:not(.dash__hero-cta--secondary),
+#app:not(.landing-active) #dash .dash__card-cta,
+#app:not(.landing-active) #dash .dash__continue-card__cta,
+#app:not(.landing-active) #dash .install-card__cta,
+#app:not(.landing-active) #dash .equip-card__cta {
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  border: 1px solid color-mix(in srgb, var(--ct-brand-hover) 36%, transparent) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 28px rgba(95, 133, 219, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero-cta:not(.dash__hero-cta--secondary):hover,
+#app:not(.landing-active) #dash .dash__card-cta:hover,
+#app:not(.landing-active) #dash .dash__continue-card__cta:hover,
+#app:not(.landing-active) #dash .install-card__cta:hover,
+#app:not(.landing-active) #dash .equip-card__cta:hover {
+  background: linear-gradient(135deg, var(--ct-brand-hover), var(--ct-brand)) !important;
+  box-shadow:
+    0 16px 34px rgba(144, 184, 248, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero-cta--secondary,
+#app:not(.landing-active) #dash .install-card__close,
+#app:not(.landing-active) #dash .onb-card__close,
+#app:not(.landing-active) #dash .dash__continue-card__close {
+  background: var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero-cta--secondary:hover,
+#app:not(.landing-active) #dash .install-card__close:hover,
+#app:not(.landing-active) #dash .onb-card__close:hover,
+#app:not(.landing-active) #dash .dash__continue-card__close:hover {
+  background: rgba(144, 184, 248, 0.08) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi {
+  min-height: 112px;
+  border-radius: 16px !important;
+  padding: 18px !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi::before {
+  background: linear-gradient(90deg, transparent, var(--ct-brand-hover), transparent) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi-value[data-tone='ok'],
+#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='ok'],
+#app:not(.landing-active) #dash .equip-card__health-value--ok,
+#app:not(.landing-active) #dash .equip-card__status--ok {
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi-value[data-tone='warn'],
+#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='warn'],
+#app:not(.landing-active) #dash .dash__card--next-action[data-tone='warn'] .dash__card-cta {
+  color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi-value[data-tone='danger'],
+#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='danger'],
+#app:not(.landing-active) #dash .dash__card--next-action[data-tone='danger'] .dash__card-cta,
+#app:not(.landing-active) #dash .dash__card--next-action[data-tone='alert'] .dash__card-cta {
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi-value[data-tone='muted'],
+#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='muted'] {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) #dash .dash__kpi-spark {
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) #dash .dash__card--next-action[data-tone='warn'],
+#app:not(.landing-active) #dash .critical-now-item--warn {
+  background:
+    linear-gradient(180deg, var(--ct-warn-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+}
+
+#app:not(.landing-active) #dash .dash__card--next-action[data-tone='danger'],
+#app:not(.landing-active) #dash .dash__card--next-action[data-tone='alert'],
+#app:not(.landing-active) #dash .critical-now-item--danger,
+#app:not(.landing-active) #dash .alert-card--critical {
+  background:
+    linear-gradient(180deg, var(--ct-error-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+}
+
+#app:not(.landing-active) #dash .dash__section-header,
+#app:not(.landing-active) #dash .onb-card__head,
+#app:not(.landing-active) #dash .equip-card__metrics {
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #dash .dash__section-count,
+#app:not(.landing-active) #dash .dash__hero-pill,
+#app:not(.landing-active) #dash .equip-card__status,
+#app:not(.landing-active) #dash .equip-card__risk-badge,
+#app:not(.landing-active) #dash .equip-card__priority-badge,
+#app:not(.landing-active) #dash .onb-step__check,
+#app:not(.landing-active) #dash .install-card__icon,
+#app:not(.landing-active) #dash .empty-state__icon,
+#app:not(.landing-active) #dash .dash__card-icon,
+#app:not(.landing-active) #dash .dash__continue-card__icon {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #dash .dash__hero[data-tone='ok'] .dash__hero-pill,
+#app:not(.landing-active) #dash .onb-step.is-done .onb-step__check,
+#app:not(.landing-active) #dash .equip-card__status--ok {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 36%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) #dash .onb-card__progress,
+#app:not(.landing-active) #dash .equip-card__health-bar {
+  background: var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #dash .onb-card__progress-fill,
+#app:not(.landing-active) #dash .equip-card__health-fill {
+  background: linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+}
+
+#app:not(.landing-active) #dash .onb-step:not(.is-done),
+#app:not(.landing-active) #dash .critical-now-list,
+#app:not(.landing-active) #dash .dash-alertas-list,
+#app:not(.landing-active) #dash .dash-criticos-list,
+#app:not(.landing-active) #dash .dash-recentes-grid {
+  background: transparent !important;
+}
+
+#app:not(.landing-active) #dash .onb-step:not(.is-done) {
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #dash .dash-overflow-banner {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  border-left-color: var(--ct-error) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #dash .dash-overflow-banner__icon,
+#app:not(.landing-active) #dash .dash-overflow-banner__cta {
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #dash .dash-overflow-banner__cta {
+  border-color: color-mix(in srgb, var(--ct-error) 42%, transparent) !important;
+}
+
+@media (min-width: 960px) {
+  #app:not(.landing-active) #dash .dash__hero {
+    padding: 26px 30px !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 720px) {
+  #app:not(.landing-active) #dash {
+    gap: 12px;
+    padding: 4px 0 28px;
+  }
+
+  #app:not(.landing-active) #dash .dash__hero,
+  #app:not(.landing-active) #dash .dash__kpi,
+  #app:not(.landing-active) #dash .dash__card,
+  #app:not(.landing-active) #dash .dash__section,
+  #app:not(.landing-active) #dash .onb-card {
+    border-radius: 14px !important;
+  }
+}

@@ -46,6 +46,14 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('background: var(--ct-success-soft) !important;');
     expect(redesign).toContain('#app:not(.landing-active) .empty-state');
     expect(redesign).toContain('body:not(.landing-active) .modal-overlay');
+    expect(redesign).toContain('PR 4 - Dashboard operational dark refresh');
+    expect(redesign).toContain('#app:not(.landing-active) #dash');
+    expect(redesign).toContain('--dsh-accent: var(--ct-brand);');
+    expect(redesign).toContain('--dsh-card-bg: var(--ct-surface);');
+    expect(redesign).toContain('#app:not(.landing-active) #dash .dash__hero');
+    expect(redesign).toContain('#app:not(.landing-active) #dash .dash__kpi');
+    expect(redesign).toContain('#app:not(.landing-active) #dash .onb-card');
+    expect(redesign).toContain('#app:not(.landing-active) #dash .dash-overflow-banner');
     expect(redesign).not.toContain('linear-gradient(135deg, #f6c85f 0%, #d79b36 100%)');
     expect(redesign).not.toMatch(/Ver demonstra[çc][ãa]o/i);
   });
