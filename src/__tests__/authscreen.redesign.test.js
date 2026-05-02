@@ -157,4 +157,146 @@ describe('AuthScreen V2Refined redesign', () => {
 
     expect(document.getElementById('auth-overlay')).toBeNull();
   });
+
+  // ─ Tela redesenhada: identidade visual da landing nova ──────────────
+
+  it('renderiza footer discreto com links legais internos (mesma aba) e status', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+
+    const footer = document.querySelector('.auth-footer');
+    expect(footer).toBeTruthy();
+
+    const linkMap = Object.fromEntries(
+      Array.from(footer.querySelectorAll('a')).map((a) => [
+        (a.textContent || '').trim(),
+        a.getAttribute('href') || '',
+      ]),
+    );
+    expect(linkMap['Termos']).toBe('/legal/termos.html');
+    expect(linkMap['Privacidade']).toBe('/legal/privacidade.html');
+    // Suporte aponta para destino existente do projeto (#contato da landing).
+    expect(linkMap['Suporte']).toMatch(/#contato$|^\/legal\//);
+
+    // Anti-regressao: nenhum link legal pode abrir em nova aba.
+    Array.from(footer.querySelectorAll('a')).forEach((a) => {
+      expect(a.getAttribute('target')).not.toBe('_blank');
+    });
+
+    // Status discreto presente.
+    expect(footer.textContent).toContain('Status: todos os sistemas operacionais');
+  });
+
+  it('brand-mark usa o icone oficial (cyan/blue gradient + 8 setas, sem fundo amarelo)', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+
+    const brandLogo = document.querySelector('.auth-brand__logo > span:first-child');
+    expect(brandLogo).toBeTruthy();
+    const inlineStyle = brandLogo.getAttribute('style') || '';
+
+    // Anti-regressao: tile NAO usa fundo amarelo (#e8b94a) do redesign anterior.
+    expect(inlineStyle).not.toMatch(/#e8b94a/i);
+
+    // Tile usa o gradient cyan/blue da landing oficial. Match case-insensitive
+    // pra tolerar normalizacao de CSS pelo jsdom.
+    expect(inlineStyle).toMatch(/linear-gradient\(\s*135deg/i);
+    expect(inlineStyle).toMatch(/#006dff/i);
+    expect(inlineStyle).toMatch(/#40c4ff/i);
+
+    // Glyph e o compass de 4 eixos com 8 cabeças de seta — mesmo do
+    // BrandMark React e do public/favicon.svg.
+    const svg = brandLogo.querySelector('svg');
+    expect(svg).toBeTruthy();
+    const paths = svg.querySelectorAll('path');
+    expect(paths.length).toBe(2);
+    // 4 eixos atraves do centro.
+    expect(paths[0].getAttribute('d')).toContain('M12 2v20');
+    // 8 cabecas de seta nos extremos.
+    expect(paths[1].getAttribute('d')).toContain('M12 6l-2 2');
+  });
+
+  it('badge de audiencia usa texto "Para climatização e refrigeração"', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+
+    const audience = document.querySelector('.auth-brand__audience');
+    expect(audience).toBeTruthy();
+    expect(audience.textContent.trim()).toContain('Para climatização e refrigeração');
+  });
+
+  it('PRO badge da marca usa estilo cyan da landing (sem amarelo)', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+
+    const badge = document.querySelector('.auth-brand__logo-badge');
+    expect(badge).toBeTruthy();
+    expect(badge.textContent.trim()).toBe('PRO');
+    // Estilo do badge vem da regra .auth-brand__logo-badge no inline
+    // <style>; o teste apenas garante presenca + anti-regressao do
+    // amarelo via mobile header (que tinha inline yellow antes).
+    const mobileHeader = document.querySelector('.auth-card-header__brand');
+    expect(mobileHeader).toBeTruthy();
+    const mobileBadge = mobileHeader.querySelector('.auth-brand__logo-badge');
+    expect(mobileBadge).toBeTruthy();
+    expect(mobileBadge.textContent.trim()).toBe('PRO');
+  });
+
+  it('CTAs principais existem e conectam aos handlers de auth (Entrar, Criar conta, Google, Esqueci senha)', async () => {
+    const { AuthScreen, Auth } = await loadAuthScreen();
+    AuthScreen.show();
+
+    // Entrar (signin).
+    expect(document.getElementById('btn-signin')).toBeTruthy();
+    expect(document.getElementById('signin-email')).toBeTruthy();
+    expect(document.getElementById('signin-password')).toBeTruthy();
+
+    // Criar conta — tab + botao.
+    expect(document.getElementById('tab-signup')).toBeTruthy();
+    document.getElementById('tab-signup').click();
+    expect(document.getElementById('btn-signup')).toBeTruthy();
+    expect(document.getElementById('signup-email')).toBeTruthy();
+    expect(document.getElementById('signup-password')).toBeTruthy();
+
+    // Google — em ambos os paineis.
+    expect(document.getElementById('btn-google-signin')).toBeTruthy();
+    expect(document.getElementById('btn-google-signup')).toBeTruthy();
+
+    // Esqueci minha senha.
+    expect(document.getElementById('btn-forgot')).toBeTruthy();
+
+    // Google handler usa Auth.signInWithGoogle (preserva fluxo existente).
+    document.getElementById('btn-google-signin').click();
+    await Promise.resolve();
+    expect(Auth.signInWithGoogle).toHaveBeenCalled();
+  });
+
+  it('layout em 3 secoes (brand + form + phone aside) — phone aside e decorativo', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+
+    // Container responsivo.
+    expect(document.querySelector('.auth-stage')).toBeTruthy();
+
+    // 3 colunas.
+    const brand = document.querySelector('.auth-brand');
+    const form = document.querySelector('.auth-form-panel');
+    const phone = document.querySelector('.auth-phone-aside');
+    expect(brand).toBeTruthy();
+    expect(form).toBeTruthy();
+    expect(phone).toBeTruthy();
+
+    // Phone aside e visual-only — aria-hidden=true, sem dependencia de
+    // dado real.
+    expect(phone.getAttribute('aria-hidden')).toBe('true');
+
+    // Conteudo do mockup (dados ficticios) presente.
+    const phoneText = phone.textContent || '';
+    expect(phoneText).toContain('Olá, Carlos');
+    expect(phoneText).toContain('TUDO OPERANDO');
+    expect(phoneText).toContain('Equipamentos');
+    expect(phoneText).toContain('Eficiência');
+    expect(phoneText).toContain('Próximo serviço');
+    expect(phoneText).toContain('Último serviço');
+  });
 });

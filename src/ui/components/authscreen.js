@@ -101,26 +101,33 @@ function passwordInputHTML(id, placeholder, autocomplete) {
     </div>`;
 }
 
-// Brand mark V2 — usa o snowflake real do app (mesmo SVG do header).
-// Fundo amarelo da marca + stroke navy preserva identidade visual em vez do
-// arco generico anterior. Importante: mesma forma que o icone do PWA/favicon.
-function brandIconHTML(size = 32) {
-  const inner = Math.round(size * 0.62);
-  const radius = Math.round(size / 4);
+// Brand mark — simbolo oficial do CoolTrackPro alinhado a nova landing.
+//
+// Mesmo glyph "compass de floco" (4 eixos atravessados pelo centro + 8
+// cabeças de seta apontando pra fora + ponto central) que vive em:
+//  - `public/favicon.svg` (favicon do browser)
+//  - `public/brand/favicon.svg` (asset path referenciado pelo briefing)
+//  - `src/react/pages/landing/components/BrandMark.jsx` (versao React,
+//    usada pela landing oficial)
+//  - `public/legal/{privacidade,termos,lgpd}.html` (paginas legais)
+//
+// Tile externo gradient cyan→blue (mesma combinacao do header da landing
+// nova: `linear-gradient(135deg, #006DFF 0%, #40C4FF 100%)`). Stroke
+// branco. Substitui o tile amarelo + 3-axis snowflake anterior, que
+// destoava da identidade do produto.
+function brandIconHTML(size = 36) {
+  const inner = Math.round(size * 0.55);
+  const radius = Math.round(size * 0.28);
   return `
-    <span style="display:inline-grid;place-items:center;width:${size}px;height:${size}px;border-radius:${radius}px;background:#e8b94a;flex-shrink:0" aria-hidden="true">
-      <svg width="${inner}" height="${inner}" viewBox="0 0 24 24" fill="none">
-        <g stroke="#02131f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <g><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9.5,5 12,3 14.5,5"/><polyline points="9.5,19 12,21 14.5,19"/></g>
-          <g transform="rotate(60 12 12)"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9.5,5 12,3 14.5,5"/><polyline points="9.5,19 12,21 14.5,19"/></g>
-          <g transform="rotate(120 12 12)"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="9.5,5 12,3 14.5,5"/><polyline points="9.5,19 12,21 14.5,19"/></g>
-        </g>
-        <circle cx="12" cy="12" r="1.4" fill="#02131f"/>
+    <span style="display:inline-grid;place-items:center;width:${size}px;height:${size}px;border-radius:${radius}px;background:linear-gradient(135deg,#006DFF 0%,#40C4FF 100%);box-shadow:0 6px 18px rgba(21,155,255,0.35);flex-shrink:0" aria-hidden="true">
+      <svg width="${inner}" height="${inner}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M2 12h20M4.5 4.5l15 15M19.5 4.5l-15 15"/>
+        <path d="M12 6l-2 2M12 6l2 2M12 18l-2-2M12 18l2-2M6 12l2-2M6 12l2 2M18 12l-2-2M18 12l-2 2"/>
       </svg>
     </span>`;
 }
-const ICON_LOGO = brandIconHTML(32);
-const ICON_LOGO_SM = brandIconHTML(22);
+const ICON_LOGO = brandIconHTML(36);
+const ICON_LOGO_SM = brandIconHTML(24);
 
 const ICON_SNOWFLAKE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
   <line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/>
@@ -172,516 +179,658 @@ export const AuthScreen = {
 
     overlay.innerHTML = `
       <style>
-        /* ── Auth screen layout (V2Refined — login sóbrio/transacional) ── */
+        /* ─ Auth screen — alinhada a identidade da landing nova
+           (React + Tailwind). Tokens visuais espelham
+           tailwind.config.cjs > landing.* sempre que possivel.
+           CSS scoped em .auth-screen — nao toca CSS legado.
+
+           Paleta:
+             navy 1:        #02143b
+             navy 2:        #031B4E
+             navy deep:     #03080f / #061226
+             card:          rgba(15,33,60,0.95) → rgba(8,22,42,0.92)
+             border line:   rgba(120,170,230,0.10/0.18)
+             cyan:          #40C4FF (landing.cyan)
+             cyan soft:     #67E8F9
+             blue:          #006DFF / #2c7cff (landing.blue)
+             blue light:    #4d93ff
+             text head:     #ffffff
+             text body:     #cdd9ee
+             text mute:     #94a8c8
+             text dim:      #6b80a3
+             ok:            #2ecc8b */
         .auth-screen {
           position: fixed; inset: 0; z-index: 9000;
-          display: flex; align-items: stretch;
-          background: #070c14;
+          overflow-y: auto;
           font-family: var(--font, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
-          color: #e8f2fa;
+          color: #cdd9ee;
+          background:
+            radial-gradient(1200px 600px at 18% -10%, rgba(44,124,255,0.18), transparent 60%),
+            radial-gradient(900px 600px at 95% 10%, rgba(64,196,255,0.10), transparent 65%),
+            radial-gradient(700px 500px at 50% 110%, rgba(44,124,255,0.10), transparent 60%),
+            linear-gradient(180deg, #05101f 0%, #040b18 60%, #03080f 100%);
+        }
+        .auth-screen::before {
+          content: '';
+          position: fixed; inset: 0;
+          background-image:
+            linear-gradient(rgba(120,170,230,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(120,170,230,0.05) 1px, transparent 1px);
+          background-size: 64px 64px;
+          mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 80%);
+          -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 80%);
+          pointer-events: none;
+          z-index: 0;
         }
         .auth-screen button:focus-visible,
         .auth-screen input:focus-visible,
-        .auth-screen [role="tab"]:focus-visible {
-          outline: 2px solid #00c8e8; outline-offset: 2px;
+        .auth-screen [role="tab"]:focus-visible,
+        .auth-screen a:focus-visible {
+          outline: 2px solid #40C4FF; outline-offset: 2px;
         }
 
-        /* ── Left branding panel ── */
-        .auth-brand {
-          flex: 0 0 46%;
-          display: flex; flex-direction: column;
-          padding: 56px 52px;
-          background: linear-gradient(145deg, #080f1c 0%, #0b1525 60%, #091828 100%);
-          border-right: 1px solid rgba(0,200,232,0.08);
-          position: relative; overflow: hidden;
+        .auth-stage {
+          position: relative; z-index: 1;
+          max-width: 1280px; min-height: 100vh;
+          margin: 0 auto;
+          padding: 48px 56px 72px;
+          display: grid;
+          grid-template-columns: 1fr 460px 360px;
+          column-gap: 56px;
+          row-gap: 32px;
           box-sizing: border-box;
         }
-        /* Atmospheric orbs — 5–7% (NÃO é signature dual orb do accountModal) */
-        .auth-brand::before {
-          content: '';
-          position: absolute; top: -120px; right: -100px;
-          width: 360px; height: 360px; border-radius: 50%;
-          background: radial-gradient(circle, rgba(0,200,232,0.07) 0%, transparent 65%);
-          pointer-events: none;
+
+        /* ─ Left brand panel ─ */
+        .auth-brand {
+          display: flex; flex-direction: column;
+          padding: 0;
+          background: transparent;
+          border: 0;
+          position: relative;
+          box-sizing: border-box;
         }
-        .auth-brand::after {
-          content: '';
-          position: absolute; bottom: -140px; left: -120px;
-          width: 400px; height: 400px; border-radius: 50%;
-          background: radial-gradient(circle, rgba(0,200,232,0.05) 0%, transparent 65%);
-          pointer-events: none;
-        }
+        .auth-brand::before, .auth-brand::after { content: none; }
 
         .auth-brand__logo {
-          display: flex; align-items: center; gap: 10px;
+          display: flex; align-items: center; gap: 12px;
           position: relative; z-index: 1;
         }
         .auth-brand__logo-text {
-          font-size: 19px; font-weight: 700; color: #e8f2fa; letter-spacing: -0.2px;
+          font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;
         }
         .auth-brand__logo-badge {
-          font-size: 10px; font-weight: 700; color: #e8b94a; letter-spacing: 0.6px;
-          background: rgba(232,185,74,0.12);
-          padding: 3px 7px; border-radius: 4px;
+          font-size: 11px; font-weight: 700; color: #40C4FF;
+          letter-spacing: 0.12em; text-transform: uppercase;
+          background: rgba(64,196,255,0.10);
+          border: 1px solid rgba(64,196,255,0.28);
+          padding: 3px 7px; border-radius: 5px;
+          vertical-align: 2px;
         }
 
-        /* Headline sólido — SEM grad word (login é sóbrio) */
         .auth-brand__headline {
-          font-size: 28px; font-weight: 700; color: #e8f2fa;
-          line-height: 1.15; letter-spacing: -0.5px;
-          margin: 40px 0 16px;
-          text-wrap: balance;
+          font-size: 44px; font-weight: 700; color: #ffffff;
+          line-height: 1.04; letter-spacing: -0.02em;
+          margin: 28px 0 16px;
+          max-width: 520px;
+          text-wrap: pretty;
           position: relative; z-index: 1;
         }
         .auth-brand__sub {
-          font-size: 15px; color: #8aaac8; line-height: 1.5;
-          margin: 0; max-width: 440px;
+          font-size: 16px; color: #b9c8dd; line-height: 1.55;
+          margin: 0; max-width: 480px;
           position: relative; z-index: 1;
         }
 
         .auth-brand__features {
-          display: flex; flex-direction: column; gap: 20px;
-          margin-top: 40px;
+          display: flex; flex-direction: column; gap: 18px;
+          margin-top: 36px;
+          max-width: 480px;
           position: relative; z-index: 1;
         }
         .auth-brand__feat {
           display: flex; align-items: flex-start; gap: 14px;
         }
         .auth-brand__feat-icon {
-          width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
-          background: rgba(0,200,232,0.08);
-          border: 1px solid rgba(0,200,232,0.15);
-          color: #00c8e8;
+          width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+          background: linear-gradient(180deg, rgba(44,124,255,0.18), rgba(44,124,255,0.06));
+          border: 1px solid rgba(77,147,255,0.30);
+          color: #67E8F9;
           display: flex; align-items: center; justify-content: center;
         }
         .auth-brand__feat-title {
-          font-size: 14px; font-weight: 600; color: #e8f2fa; margin-bottom: 3px;
+          font-size: 14.5px; font-weight: 600; color: #ffffff; margin: 2px 0 4px;
         }
         .auth-brand__feat-desc {
-          font-size: 13px; font-weight: 400; color: #8aaac8; line-height: 1.45;
+          font-size: 13px; font-weight: 400; color: #94a8c8; line-height: 1.5;
         }
+        .auth-brand__feat-desc strong { color: #cdd9ee; font-weight: 500; }
 
         .auth-brand__stats {
-          margin-top: auto;
-          padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.05);
-          display: flex; gap: 28px;
+          margin-top: 56px;
+          padding-top: 28px;
+          border-top: 1px solid rgba(120,170,230,0.10);
+          display: flex; gap: 56px;
+          max-width: 520px;
           position: relative; z-index: 1;
         }
         .auth-brand__stat-num {
-          font-size: 22px; font-weight: 700; color: #00c8e8;
-          letter-spacing: -0.5px; line-height: 1;
+          font-size: 28px; font-weight: 700; color: #40C4FF;
+          letter-spacing: -0.02em; line-height: 1;
         }
+        .auth-brand__stat-num.is-alt { color: #ffffff; }
         .auth-brand__stat-label {
-          font-size: 11px; font-weight: 500; color: #6a8ba8;
-          letter-spacing: 0.5px; text-transform: uppercase;
           margin-top: 6px;
+          font-size: 11px; font-weight: 600; color: #6b80a3;
+          letter-spacing: 0.12em; text-transform: uppercase;
         }
 
-        /* ── Right form panel ── */
+        /* ─ Center form panel ─ */
         .auth-form-panel {
-          flex: 1;
-          display: flex; align-items: center; justify-content: center;
-          padding: 40px 24px;
-          overflow-y: auto;
-          background: #07111f;
+          display: flex; align-items: flex-start; justify-content: center;
+          padding: 0;
+          background: transparent;
           box-sizing: border-box;
+          padding-top: 28px;
         }
         .auth-card {
-          width: 100%; max-width: 400px;
+          position: relative;
+          width: 100%; max-width: 460px;
+          padding: 26px 28px 24px;
+          background: linear-gradient(180deg, rgba(15,33,60,0.95) 0%, rgba(8,22,42,0.92) 100%);
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 22px;
+          box-shadow:
+            0 30px 80px rgba(0,0,0,0.55),
+            0 0 0 1px rgba(120,170,230,0.04) inset,
+            0 1px 0 rgba(255,255,255,0.04) inset;
+        }
+        .auth-card::before {
+          content: '';
+          position: absolute; inset: -1px;
+          border-radius: 22px;
+          padding: 1px;
+          background: linear-gradient(180deg, rgba(77,147,255,0.35), rgba(77,147,255,0) 40%);
+          -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor; mask-composite: exclude;
+          pointer-events: none;
         }
         .auth-card-header {
-          text-align: center; margin-bottom: 24px;
+          text-align: center; margin-bottom: 18px;
           display: none;
         }
         .auth-card-header__brand {
-          display: inline-flex; align-items: center; gap: 10px; margin-bottom: 10px;
+          display: inline-flex; align-items: center; gap: 10px;
+          margin-bottom: 8px;
         }
         .auth-card-header__sub {
-          font-size: 13px; color: #8aaac8; line-height: 1.5;
+          font-size: 13px; color: #94a8c8; line-height: 1.5;
         }
 
-        /* ── Tabs (sem border no active — fix #9) ── */
+        /* ─ Tabs ─ */
         .auth-tabs {
-          display: flex; gap: 4; padding: 4px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 10px;
-          margin-bottom: 20px;
+          display: flex; gap: 4px; padding: 4px;
+          background: rgba(8,18,34,0.7);
+          border: 1px solid rgba(120,170,230,0.10);
+          border-radius: 12px;
+          margin-bottom: 22px;
         }
         .auth-tab {
-          flex: 1; padding: 9px 0; border: none; cursor: pointer;
-          background: transparent; color: #6a8ba8;
-          font-size: 14px; font-weight: 500; font-family: inherit;
-          border-radius: 7px;
-          transition: background .18s, color .18s, font-weight .18s;
+          flex: 1; padding: 10px 12px; border: none; cursor: pointer;
+          background: transparent; color: #6b80a3;
+          font-size: 14px; font-weight: 600; font-family: inherit;
+          border-radius: 9px;
+          transition: background .15s, color .15s, border-color .15s;
         }
         .auth-tab.active {
-          background: rgba(0,200,232,0.12);
-          color: #00c8e8;
-          font-weight: 600;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+          background: linear-gradient(180deg, rgba(44,124,255,0.22), rgba(44,124,255,0.10));
+          color: #ffffff;
+          border: 1px solid rgba(77,147,255,0.30);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.06) inset,
+            0 6px 16px rgba(44,124,255,0.18);
         }
 
-        /* ── Google button = PRIMARY (gradient 52px) ── */
+        /* ─ Google button (white surface, dark text — Google brand
+             guidelines compatible) ─ */
         .auth-btn-google {
-          width: 100%; height: 52px; border-radius: 12px;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
-          color: #06101e;
-          font-size: 15px; font-weight: 700; font-family: inherit;
+          width: 100%; height: 48px; border-radius: 12px;
+          background: linear-gradient(180deg, #ffffff 0%, #e9eef7 100%);
+          color: #11243f;
+          font-size: 14.5px; font-weight: 600; font-family: inherit;
           display: flex; align-items: center; justify-content: center;
-          gap: 12px; border: none; cursor: pointer;
-          box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset;
-          transition: opacity .18s, transform .12s;
+          gap: 12px;
+          border: 1px solid rgba(255,255,255,0.6);
+          cursor: pointer;
+          box-shadow:
+            0 8px 22px rgba(0,0,0,0.35),
+            0 1px 0 rgba(255,255,255,0.6) inset;
+          transition: opacity .15s, transform .12s;
         }
-        .auth-btn-google:hover { opacity: .95; transform: translateY(-1px); }
+        .auth-btn-google:hover { opacity: .96; transform: translateY(-1px); }
         .auth-btn-google:active { transform: translateY(0); }
 
-        /* ── Divider "ou com email e senha" ── */
+        /* ─ Divider ─ */
         .auth-divider {
-          display: flex; align-items: center; gap: 10px;
-          margin: 18px 0 14px;
-          font-size: 12px; font-weight: 400; color: #6a8ba8;
+          display: grid; grid-template-columns: 1fr auto 1fr;
+          align-items: center; gap: 12px;
+          margin: 18px 0 16px;
+          font-size: 11.5px; color: #6b80a3;
+          letter-spacing: 0.06em;
         }
         .auth-divider::before, .auth-divider::after {
-          content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.06);
+          content: ''; height: 1px; background: rgba(120,170,230,0.10);
         }
 
-        /* ── Labels (sentence-case 12/500 — fix #2) ── */
+        /* ─ Labels ─ */
         .auth-label {
-          display: block; font-size: 12px; font-weight: 500;
-          color: #8aaac8; margin-bottom: 6px; margin-top: 14px;
-          letter-spacing: 0;
+          display: block;
+          font-size: 12.5px; font-weight: 600;
+          color: #cdd9ee;
+          margin-top: 14px; margin-bottom: 7px;
+          letter-spacing: 0.01em;
         }
         .auth-label--first { margin-top: 0; }
 
-        /* ── Inputs ── */
+        /* ─ Inputs ─ */
         .auth-input {
           width: 100%; box-sizing: border-box;
-          padding: 12px 14px; border-radius: 8px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
-          color: #e8f2fa; font-size: 14px; font-weight: 400; font-family: inherit;
-          min-height: 44px; outline: none;
-          transition: border-color .18s, background .18s;
+          height: 48px; padding: 0 14px; border-radius: 12px;
+          background: rgba(6,14,28,0.7);
+          border: 1px solid rgba(120,170,230,0.10);
+          color: #f1f6fb; font-size: 14.5px; font-weight: 400; font-family: inherit;
+          outline: none;
+          transition: border-color .15s, box-shadow .15s, background .15s;
         }
         .auth-input:focus {
-          border-color: rgba(0,200,232,0.35);
-          background: rgba(0,200,232,0.04);
+          border-color: rgba(77,147,255,0.55);
+          box-shadow: 0 0 0 4px rgba(44,124,255,0.12);
+          background: rgba(8,22,42,0.85);
         }
-        .auth-input::placeholder { color: #6a8ba8; }
+        .auth-input::placeholder { color: #4f6d92; }
 
-        /* ── Password wrap (input + olho) ── */
         .auth-input-wrap {
           position: relative; display: flex; align-items: center;
         }
-        .auth-input-wrap .auth-input { padding-right: 42px; }
+        .auth-input-wrap .auth-input { padding-right: 44px; }
         .auth-pwd-toggle {
           position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
           background: none; border: none; cursor: pointer; padding: 4px;
-          color: #6a8ba8; display: flex; align-items: center;
-          transition: color .18s;
+          color: #6b80a3; display: flex; align-items: center;
+          transition: color .15s;
         }
-        .auth-pwd-toggle:hover { color: #8aaac8; }
+        .auth-pwd-toggle:hover { color: #cdd9ee; }
 
-        /* ── Strength meter ── */
+        /* ─ Strength meter ─ */
         .auth-strength {
           display: flex; align-items: center; gap: 10px;
           margin-top: 8px;
         }
-        .auth-strength__bars {
-          display: flex; gap: 4px; flex: 1;
-        }
+        .auth-strength__bars { display: flex; gap: 4px; flex: 1; }
         .auth-strength__seg {
           flex: 1; height: 4px; border-radius: 2px;
-          background: rgba(255,255,255,0.06);
-          transition: background .16s;
+          background: rgba(120,170,230,0.10);
+          transition: background .15s;
         }
         .auth-strength__label {
           font-size: 11px; font-weight: 500;
           min-width: 68px; text-align: right;
-          color: #6a8ba8;
+          color: #6b80a3;
         }
 
-        /* ── Secondary CTA (email submit, 48px outline cyan) ── */
+        /* ─ Primary CTA (filled blue gradient — Sign-in/Sign-up submit) ─ */
         .auth-btn {
-          width: 100%; height: 48px; margin-top: 20px;
-          border-radius: 10px;
-          background: transparent;
-          border: 1px solid #00c8e8;
-          color: #00c8e8;
-          font-size: 15px; font-weight: 600; font-family: inherit;
+          width: 100%; height: 50px; margin-top: 20px;
+          border-radius: 12px;
+          background: linear-gradient(180deg, #4d93ff 0%, #2c7cff 60%, #1f63d6 100%);
+          color: #ffffff;
+          font-size: 15px; font-weight: 700; font-family: inherit;
+          letter-spacing: -0.005em;
+          border: 1px solid rgba(77,147,255,0.6);
           cursor: pointer;
-          display: flex; align-items: center; justify-content: center; gap: 6px;
-          transition: background .18s;
+          display: flex; align-items: center; justify-content: center; gap: 10px;
+          box-shadow:
+            0 14px 32px rgba(44,124,255,0.45),
+            0 1px 0 rgba(255,255,255,0.30) inset,
+            0 -1px 0 rgba(0,0,0,0.20) inset;
+          transition: transform .12s, opacity .15s;
         }
-        .auth-btn:hover { background: rgba(0,200,232,0.08); }
+        .auth-btn:hover { transform: translateY(-1px); }
+        .auth-btn:active { transform: translateY(0); }
 
-        /* ── Forgot / hints ── */
-        .auth-actions-center { text-align: center; margin-top: 14px; }
+        /* ─ Forgot link / hints ─ */
+        .auth-actions-center { text-align: center; margin: 4px 0 14px; }
         .auth-btn-forgot {
           background: none; border: none; cursor: pointer; font-family: inherit;
-          font-size: 12px; font-weight: 400; color: #6a8ba8;
+          font-size: 13px; font-weight: 400;
+          color: #cdd9ee;
           padding: 4px 8px;
-          transition: color .18s;
+          border-bottom: 1px solid rgba(185,200,221,0.22);
+          border-radius: 0;
+          transition: color .15s, border-color .15s;
         }
-        .auth-btn-forgot:hover { color: #8aaac8; }
+        .auth-btn-forgot:hover { color: #ffffff; border-color: rgba(64,196,255,0.6); }
 
         .auth-hint {
-          font-size: 12px; font-weight: 400; color: #6a8ba8;
+          font-size: 12px; font-weight: 400; color: #6b80a3;
           text-align: center;
           margin-top: 14px; line-height: 1.5;
         }
 
-        /* ── V3: Audience pill no topo do brand ── */
+        /* ─ Audience pill ─ */
         .auth-brand__audience {
-          display: inline-flex; align-items: center; gap: 6px;
-          padding: 6px 12px;
-          background: rgba(0,200,232,0.08);
-          border: 1px solid rgba(0,200,232,0.22);
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 7px 12px 7px 10px;
+          background: rgba(64,196,255,0.08);
+          border: 1px solid rgba(64,196,255,0.25);
           border-radius: 999px;
-          font-size: 11px; font-weight: 700; color: #00c8e8;
-          letter-spacing: 0.06em; text-transform: uppercase;
+          font-size: 12px; font-weight: 600;
+          color: #67E8F9;
+          letter-spacing: 0.10em; text-transform: uppercase;
           margin-top: 32px;
           align-self: flex-start;
           position: relative; z-index: 1;
         }
+        .auth-brand__audience .auth-brand__audience-dot {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: #40C4FF;
+          box-shadow: 0 0 10px #40C4FF;
+        }
 
-        /* ── V3: Trust line abaixo do botao Entrar (3 micro-promessas) ── */
+        /* ─ Trust line (3 micro-promises) ─ */
         .auth-trust-line {
           display: flex; align-items: center; justify-content: center;
-          gap: 14px; flex-wrap: wrap;
-          margin-top: 16px;
-          font-size: 11.5px; color: #8aaac8;
+          gap: 22px; flex-wrap: wrap;
+          margin: 14px 0 16px;
+          font-size: 12.5px; color: #94a8c8;
         }
         .auth-trust-line__item {
-          display: inline-flex; align-items: center; gap: 5px;
+          display: inline-flex; align-items: center; gap: 6px;
         }
-        .auth-trust-line__item svg {
-          color: #00c8e8;
-        }
+        .auth-trust-line__item svg { color: #40C4FF; }
 
-        /* ── V3: Trust card — "Acesso seguro e criptografado" ── */
+        /* ─ Trust card — "Acesso seguro e criptografado" ─ */
         .auth-trust-card {
           display: flex; align-items: center; gap: 12px;
-          margin-top: 18px;
+          margin-bottom: 14px;
           padding: 12px 14px;
-          background: rgba(0,200,232,0.04);
-          border: 1px solid rgba(0,200,232,0.15);
-          border-radius: 10px;
-        }
-        .auth-trust-card__icon {
-          width: 32px; height: 32px; border-radius: 8px;
-          background: rgba(0,200,232,0.12);
-          display: flex; align-items: center; justify-content: center;
-          color: #00c8e8; flex-shrink: 0;
-        }
-        .auth-trust-card__title {
-          font-size: 13px; font-weight: 700; color: #e8f2fa; line-height: 1.3;
-        }
-        .auth-trust-card__sub {
-          font-size: 11.5px; color: #8aaac8; margin-top: 2px;
-        }
-
-        /* ── V3: Social proof flutuante no rodape do form ── */
-        .auth-social-proof {
-          display: flex; align-items: center; gap: 12px;
-          margin-top: 24px; padding: 12px 14px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(46,204,139,0.08);
+          border: 1px solid rgba(46,204,139,0.22);
           border-radius: 12px;
         }
-        .auth-social-proof__avatars {
-          display: flex; flex-shrink: 0;
+        .auth-trust-card__icon {
+          width: 32px; height: 32px; border-radius: 9px;
+          background: rgba(46,204,139,0.14);
+          border: 1px solid rgba(46,204,139,0.30);
+          display: grid; place-items: center;
+          color: #5fe5ad; flex-shrink: 0;
         }
+        .auth-trust-card__title {
+          font-size: 13.5px; font-weight: 600; color: #cdf3e0; line-height: 1.3;
+        }
+        .auth-trust-card__sub {
+          font-size: 12px; color: #8fc8a9; margin-top: 1px;
+        }
+
+        /* ─ Social proof ─ */
+        .auth-social-proof {
+          display: flex; align-items: center; gap: 12px;
+          margin-top: 6px; padding: 12px 14px;
+          background: rgba(8,18,34,0.6);
+          border: 1px solid rgba(120,170,230,0.10);
+          border-radius: 12px;
+        }
+        .auth-social-proof__avatars { display: flex; flex-shrink: 0; }
         .auth-social-proof__avatar {
-          width: 28px; height: 28px; border-radius: 50%;
-          border: 2px solid #07111f;
+          width: 26px; height: 26px; border-radius: 50%;
+          border: 2px solid #0a1a31;
           display: flex; align-items: center; justify-content: center;
           color: #fff; font-size: 11px; font-weight: 700;
           margin-left: -8px;
         }
         .auth-social-proof__avatar:first-child { margin-left: 0; }
-        .auth-social-proof__text {
-          flex: 1; min-width: 0;
-        }
+        .auth-social-proof__text { flex: 1; min-width: 0; }
         .auth-social-proof__num {
-          font-size: 13px; font-weight: 700; color: #e8f2fa; line-height: 1.2;
+          font-size: 13.5px; font-weight: 600; color: #ffffff; line-height: 1.2;
         }
         .auth-social-proof__label {
-          font-size: 11px; color: #8aaac8; line-height: 1.3;
+          font-size: 12px; color: #94a8c8; margin-top: 2px;
         }
 
-        /* ── V3: Phone mockup (3a coluna em FullHD) ── */
+        /* ─ Right phone aside ─ */
         .auth-phone-aside {
-          flex: 0 0 320px;
-          display: none;
-          flex-direction: column; align-items: center; justify-content: center;
-          padding: 40px 20px;
-          background: linear-gradient(160deg, #07111f 0%, #060d18 100%);
-          border-left: 1px solid rgba(255,255,255,0.04);
+          display: flex; flex-direction: column; align-items: center;
+          padding: 28px 0 0;
+          background: transparent;
+          border: 0;
+          position: relative;
+          box-sizing: border-box;
+        }
+        .auth-phone-aside::before { content: none; }
+        .auth-phone {
+          width: 320px; height: 640px; padding: 12px;
+          background: linear-gradient(180deg, #1a2942, #0a1729);
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 44px;
+          box-shadow:
+            0 50px 120px rgba(0,0,0,0.6),
+            0 0 0 1px rgba(120,170,230,0.06) inset,
+            0 30px 60px rgba(44,124,255,0.10);
+          position: relative;
+        }
+        .auth-phone::before {
+          content: '';
+          position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+          width: 110px; height: 26px; border-radius: 14px;
+          background: #03080f; z-index: 5;
+        }
+        .auth-phone__screen {
+          width: 100%; height: 100%; border-radius: 34px;
+          background:
+            radial-gradient(600px 300px at 50% -10%, rgba(44,124,255,0.25), transparent 60%),
+            linear-gradient(180deg, #07182f 0%, #050d1c 100%);
+          padding: 44px 16px 14px;
           position: relative; overflow: hidden;
           box-sizing: border-box;
         }
-        .auth-phone-aside::before {
-          content: '';
-          position: absolute; top: 20%; right: -100px;
-          width: 280px; height: 280px; border-radius: 50%;
-          background: radial-gradient(circle, rgba(0,200,232,0.08) 0%, transparent 70%);
-          pointer-events: none;
-        }
-        .auth-phone {
-          width: 280px;
-          background: #06101e;
-          border: 8px solid #1a2333;
-          border-radius: 36px;
-          padding: 14px 12px;
-          box-shadow: 0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,200,232,0.08);
-          position: relative; z-index: 1;
-        }
-        /* Notch superior do "celular" */
-        .auth-phone::before {
-          content: '';
-          position: absolute; top: -4px; left: 50%;
-          transform: translateX(-50%);
-          width: 80px; height: 18px;
-          background: #1a2333;
-          border-radius: 0 0 14px 14px;
-        }
         .auth-phone__topbar {
-          display: flex; align-items: center; gap: 8px;
-          padding: 6px 4px 12px;
+          display: flex; align-items: center; gap: 7px;
+          margin-bottom: 14px;
         }
         .auth-phone__topbar-brand {
-          display: inline-flex; align-items: center; gap: 6px;
-          font-size: 11px; font-weight: 700; color: #e8f2fa;
+          display: inline-flex; align-items: center; gap: 7px;
+          font-size: 13px; font-weight: 700; color: #ffffff;
         }
         .auth-phone__topbar-pro {
-          font-size: 8px; font-weight: 700; color: #e8b94a;
-          background: rgba(232,185,74,0.15);
-          padding: 2px 5px; border-radius: 3px;
+          font-size: 9px; font-weight: 700; color: #40C4FF;
+          letter-spacing: 0.12em;
+          background: rgba(64,196,255,0.12);
+          border: 1px solid rgba(64,196,255,0.28);
+          padding: 2px 5px; border-radius: 4px;
         }
         .auth-phone__topbar-spacer { flex: 1; }
         .auth-phone__sync-pill {
-          display: inline-flex; align-items: center; gap: 4px;
-          font-size: 8.5px; color: #5fe6b3;
-          background: rgba(95,230,179,0.1);
-          padding: 3px 6px; border-radius: 999px;
+          display: inline-flex; align-items: center; gap: 5px;
+          font-size: 9.5px; font-weight: 600; color: #5fe5ad;
+          background: rgba(46,204,139,0.10);
+          border: 1px solid rgba(46,204,139,0.30);
+          padding: 4px 8px; border-radius: 999px;
         }
         .auth-phone__sync-dot {
           width: 5px; height: 5px; border-radius: 50%;
-          background: #5fe6b3;
-          box-shadow: 0 0 6px rgba(95,230,179,0.6);
+          background: #2ecc8b;
+          box-shadow: 0 0 6px #2ecc8b;
         }
         .auth-phone__hero {
-          padding: 10px 8px;
-          background: linear-gradient(135deg, rgba(232,185,74,0.08), rgba(0,200,232,0.04));
-          border: 1px solid rgba(232,185,74,0.18);
-          border-radius: 12px;
+          padding: 12px 13px;
+          background: linear-gradient(180deg, rgba(15,33,60,0.9), rgba(8,22,42,0.7));
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 14px;
           margin-bottom: 10px;
         }
         .auth-phone__greeting {
-          font-size: 12px; font-weight: 700; color: #e8f2fa;
-          margin-bottom: 2px;
+          font-size: 14px; font-weight: 700; color: #ffffff;
         }
         .auth-phone__sub {
-          font-size: 9px; color: #8aaac8;
-          margin-bottom: 8px;
+          font-size: 11px; color: #94a8c8; margin-top: 2px;
         }
         .auth-phone__status-pill {
-          display: inline-flex; align-items: center; gap: 4px;
-          padding: 3px 7px;
-          background: rgba(95,230,179,0.12);
-          border: 1px solid rgba(95,230,179,0.3);
+          display: inline-flex; align-items: center; gap: 5px;
+          margin-top: 8px;
+          padding: 4px 8px;
+          background: rgba(46,204,139,0.12);
+          border: 1px solid rgba(46,204,139,0.30);
           border-radius: 999px;
-          font-size: 8.5px; font-weight: 700; color: #34d399;
+          font-size: 10px; font-weight: 700; color: #5fe5ad;
           letter-spacing: 0.06em;
         }
+        .auth-phone__status-pill svg { width: 10px; height: 10px; }
         .auth-phone__kpis {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
           margin-bottom: 10px;
         }
         .auth-phone__kpi {
-          padding: 8px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 8px;
+          padding: 10px 11px;
+          background: rgba(8,22,42,0.6);
+          border: 1px solid rgba(120,170,230,0.10);
+          border-radius: 12px;
         }
         .auth-phone__kpi-label {
-          font-size: 7.5px; font-weight: 700; color: #6a8ba8;
-          letter-spacing: 0.06em; text-transform: uppercase;
+          font-size: 9.5px; font-weight: 700; color: #6b80a3;
+          letter-spacing: 0.10em; text-transform: uppercase;
         }
         .auth-phone__kpi-value {
-          font-size: 16px; font-weight: 700; color: #e8f2fa;
-          margin-top: 2px; line-height: 1;
+          font-size: 18px; font-weight: 700; color: #ffffff;
+          margin-top: 2px; letter-spacing: -0.02em; line-height: 1;
+        }
+        .auth-phone__kpi-value em {
+          font-style: normal; color: #40C4FF;
         }
         .auth-phone__kpi-sub {
-          font-size: 8px; color: #5fe6b3; margin-top: 3px;
+          font-size: 10px; color: #6b80a3; margin-top: 1px;
         }
         .auth-phone__card {
-          padding: 8px;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 8px;
+          padding: 10px 11px;
+          background: linear-gradient(180deg, rgba(44,124,255,0.10), rgba(8,22,42,0.6));
+          border: 1px solid rgba(77,147,255,0.25);
+          border-radius: 12px;
           margin-bottom: 8px;
         }
+        .auth-phone__card.is-alt {
+          background: rgba(8,22,42,0.6);
+          border: 1px solid rgba(120,170,230,0.10);
+        }
         .auth-phone__card-label {
-          font-size: 7.5px; font-weight: 700; color: #6a8ba8;
-          letter-spacing: 0.06em; text-transform: uppercase;
+          font-size: 9.5px; font-weight: 700; color: #6b80a3;
+          letter-spacing: 0.10em; text-transform: uppercase;
           margin-bottom: 3px;
         }
         .auth-phone__card-title {
-          font-size: 11px; font-weight: 700; color: #e8f2fa;
+          font-size: 13px; font-weight: 600; color: #ffffff;
           margin-bottom: 1px;
         }
         .auth-phone__card-meta {
-          font-size: 9px; color: #8aaac8;
+          font-size: 10.5px; color: #94a8c8;
         }
         .auth-phone__bottom-nav {
-          display: flex; justify-content: space-around;
-          padding: 8px 4px 4px;
-          border-top: 1px solid rgba(255,255,255,0.05);
-          margin: 6px -4px 0;
+          position: absolute; bottom: 12px; left: 12px; right: 12px;
+          height: 48px;
+          display: grid; grid-template-columns: repeat(4, 1fr);
+          align-items: center; justify-items: center;
+          background: rgba(6,14,28,0.85);
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 14px;
+          backdrop-filter: blur(8px);
         }
         .auth-phone__nav-item {
           display: flex; flex-direction: column; align-items: center; gap: 2px;
-          font-size: 7.5px; color: #6a8ba8;
+          font-size: 9px; font-weight: 600; color: #6b80a3;
+          text-align: center;
         }
-        .auth-phone__nav-item.is-active {
-          color: #00c8e8;
+        .auth-phone__nav-item.is-active { color: #40C4FF; }
+        .auth-phone__nav-item svg {
+          width: 16px; height: 16px;
+          display: block; margin: 0 auto 2px;
         }
         .auth-phone__caption {
-          margin-top: 18px;
+          margin: 22px auto 0;
           text-align: center;
-          font-size: 11px; color: #8aaac8;
-          line-height: 1.4;
-          max-width: 240px;
+          font-size: 12.5px; color: #94a8c8; line-height: 1.55;
+          max-width: 280px;
+        }
+        .auth-phone__caption strong { color: #ffffff; font-weight: 600; }
+
+        /* ─ Footer ─ */
+        .auth-footer {
+          grid-column: 1 / -1;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 16px; flex-wrap: wrap;
+          margin-top: 24px; padding-top: 20px;
+          border-top: 1px solid rgba(120,170,230,0.10);
+          font-size: 12px; color: #6b80a3;
           position: relative; z-index: 1;
         }
-        .auth-phone__caption strong {
-          color: #00c8e8;
+        .auth-footer__brand-line {
+          display: inline-flex; align-items: center; gap: 14px;
+          flex-wrap: wrap;
+        }
+        .auth-footer__brand { color: #94a8c8; }
+        .auth-footer__sep {
+          display: inline-block; width: 1px; height: 12px;
+          background: rgba(120,170,230,0.18);
+        }
+        .auth-footer__link {
+          color: #6b80a3; text-decoration: none;
+          border-bottom: 1px solid rgba(120,170,230,0.0);
+          padding-bottom: 1px;
+          transition: color .15s, border-color .15s;
+        }
+        .auth-footer__link:hover { color: #cdd9ee; }
+        .auth-footer__status {
+          display: inline-flex; align-items: center; gap: 6px;
+          color: #94a8c8;
+        }
+        .auth-footer__status-dot {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: #2ecc8b;
+          box-shadow: 0 0 8px #2ecc8b;
         }
 
-        /* ── Responsive ── */
+        /* ─ Responsive ─ */
         @media (max-width: 1280px) {
-          .auth-phone-aside { display: none !important; }
-        }
-        @media (min-width: 1281px) {
-          .auth-phone-aside { display: flex; }
-          .auth-brand { flex: 0 0 38%; padding: 48px 44px; }
-          .auth-form-panel { flex: 1 1 auto; }
-        }
-        @media (max-width: 768px) {
-          .auth-brand { display: none; }
-          .auth-form-panel {
-            padding: 24px 16px 40px;
-            align-items: flex-start;
+          .auth-stage {
+            grid-template-columns: 1fr 460px;
+            padding: 40px 32px 60px;
           }
+          .auth-phone-aside { display: none; }
+        }
+        @media (max-width: 900px) {
+          .auth-stage {
+            grid-template-columns: 1fr;
+            row-gap: 24px;
+            padding: 28px 20px 56px;
+          }
+          .auth-form-panel { order: 1; padding-top: 0; }
+          .auth-brand { order: 2; padding: 0; }
+          .auth-brand__headline { font-size: 32px; margin-top: 18px; }
+          .auth-brand__sub { font-size: 14.5px; }
+          .auth-brand__features { margin-top: 24px; gap: 14px; }
+          .auth-brand__stats { margin-top: 28px; gap: 28px; }
+          .auth-brand__stat-num { font-size: 22px; }
+        }
+        @media (max-width: 640px) {
+          .auth-brand { display: none; }
           .auth-card-header { display: block; }
-          .auth-social-proof { padding: 10px 12px; }
-          .auth-social-proof__num { font-size: 12px; }
+          .auth-card { padding: 22px 22px 20px; }
+          .auth-footer {
+            flex-direction: column; align-items: flex-start; gap: 8px;
+          }
         }
       </style>
 
+      <div class="auth-stage">
       <!-- LEFT: Branding panel (role=complementary, NUNCA aria-hidden) -->
       <aside class="auth-brand" role="complementary">
         <div class="auth-brand__logo">
@@ -690,13 +839,11 @@ export const AuthScreen = {
           <span class="auth-brand__logo-badge">PRO</span>
         </div>
 
-        <!-- V3: pill audiencia — qualifica em 1s "isso é pra mim" -->
+        <!-- Pill de audiencia — qualifica em 1s "isso é pra mim". Dot
+             cyan reforca o highlight visual sem icone semantico. -->
         <span class="auth-brand__audience">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M9 12l2 2 4-4"/>
-          </svg>
-          Para técnicos de ar-condicionado
+          <span class="auth-brand__audience-dot" aria-hidden="true"></span>
+          Para climatização e refrigeração
         </span>
 
         <h1 class="auth-brand__headline">
@@ -733,7 +880,7 @@ export const AuthScreen = {
 
         <div class="auth-brand__stats">
           <div>
-            <div class="auth-brand__stat-num">&lt;1min</div>
+            <div class="auth-brand__stat-num">&lt;1 min</div>
             <div class="auth-brand__stat-label">Relatório pronto</div>
           </div>
           <div>
@@ -741,7 +888,7 @@ export const AuthScreen = {
             <div class="auth-brand__stat-label">Equipamentos no Pro</div>
           </div>
           <div>
-            <div class="auth-brand__stat-num">100%</div>
+            <div class="auth-brand__stat-num is-alt">100%</div>
             <div class="auth-brand__stat-label">Funciona offline</div>
           </div>
         </div>
@@ -751,12 +898,12 @@ export const AuthScreen = {
       <main class="auth-form-panel" aria-labelledby="auth-title">
         <div class="auth-card">
 
-          <!-- Mobile-only logo -->
+          <!-- Mobile-only logo (mesma marca cyan/blue do header desktop) -->
           <div class="auth-card-header">
             <div class="auth-card-header__brand">
               ${ICON_LOGO_SM}
-              <span id="auth-title" style="font-size:18px;font-weight:700;color:#e8f2fa">CoolTrack</span>
-              <span style="font-size:10px;font-weight:700;color:#e8b94a;background:rgba(232,185,74,0.12);padding:3px 7px;border-radius:4px;letter-spacing:0.6px">PRO</span>
+              <span id="auth-title" style="font-size:18px;font-weight:700;color:#ffffff">CoolTrack</span>
+              <span class="auth-brand__logo-badge">PRO</span>
             </div>
             <div class="auth-card-header__sub">Do serviço ao PDF, direto do celular.</div>
           </div>
@@ -867,80 +1014,88 @@ export const AuthScreen = {
         </div>
       </main>
 
-      <!-- V3: Phone mockup aside (>= 1281px). Mostra dashboard real do app. -->
+      <!-- Phone mockup aside (decorativo, aria-hidden=true) — versao
+           rica do app com dados ficticios. Visual only. -->
       <aside class="auth-phone-aside" aria-hidden="true">
         <div class="auth-phone">
-          <div class="auth-phone__topbar">
-            <span class="auth-phone__topbar-brand">
-              ${brandIconHTML(16)} CoolTrack
-            </span>
-            <span class="auth-phone__topbar-pro">PRO</span>
-            <span class="auth-phone__topbar-spacer"></span>
-            <span class="auth-phone__sync-pill">
-              <span class="auth-phone__sync-dot"></span> Sincronizado
-            </span>
-          </div>
-
-          <div class="auth-phone__hero">
-            <div class="auth-phone__greeting">Olá, Carlos 👋</div>
-            <div class="auth-phone__sub">Seu parque está saudável.</div>
-            <span class="auth-phone__status-pill">● TUDO OPERANDO</span>
-          </div>
-
-          <div class="auth-phone__kpis">
-            <div class="auth-phone__kpi">
-              <div class="auth-phone__kpi-label">Equipamentos</div>
-              <div class="auth-phone__kpi-value">12/12</div>
-              <div class="auth-phone__kpi-sub">estável</div>
+          <div class="auth-phone__screen">
+            <div class="auth-phone__topbar">
+              <span class="auth-phone__topbar-brand">
+                ${brandIconHTML(22)} CoolTrack
+              </span>
+              <span class="auth-phone__topbar-pro">PRO</span>
+              <span class="auth-phone__topbar-spacer"></span>
+              <span class="auth-phone__sync-pill">
+                <span class="auth-phone__sync-dot"></span> 5 técnicos
+              </span>
             </div>
-            <div class="auth-phone__kpi">
-              <div class="auth-phone__kpi-label">Eficiência</div>
-              <div class="auth-phone__kpi-value">96%</div>
-              <div class="auth-phone__kpi-sub">excelente</div>
+
+            <div class="auth-phone__hero">
+              <div class="auth-phone__greeting">Olá, Carlos 👋</div>
+              <div class="auth-phone__sub">Seu parque está saudável.</div>
+              <span class="auth-phone__status-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                TUDO OPERANDO
+              </span>
             </div>
-          </div>
 
-          <div class="auth-phone__card">
-            <div class="auth-phone__card-label">Próximo serviço</div>
-            <div class="auth-phone__card-title">Limpeza preventiva</div>
-            <div class="auth-phone__card-meta">Clínica Norte · Sala 02 · 28/04</div>
-          </div>
+            <div class="auth-phone__kpis">
+              <div class="auth-phone__kpi">
+                <div class="auth-phone__kpi-label">Equipamentos</div>
+                <div class="auth-phone__kpi-value">12<em>/12</em></div>
+                <div class="auth-phone__kpi-sub">ativos</div>
+              </div>
+              <div class="auth-phone__kpi">
+                <div class="auth-phone__kpi-label">Eficiência</div>
+                <div class="auth-phone__kpi-value">96<em>%</em></div>
+                <div class="auth-phone__kpi-sub">excelente</div>
+              </div>
+            </div>
 
-          <div class="auth-phone__card">
-            <div class="auth-phone__card-label">Último serviço</div>
-            <div class="auth-phone__card-title">Limpeza de filtros</div>
-            <div class="auth-phone__card-meta">há 2 dias · 12:49</div>
-          </div>
+            <div class="auth-phone__card">
+              <div class="auth-phone__card-label">Próximo serviço</div>
+              <div class="auth-phone__card-title">Limpeza preventiva</div>
+              <div class="auth-phone__card-meta">Climatec Norte · Sala 07 · 19/05</div>
+            </div>
 
-          <div class="auth-phone__bottom-nav">
-            <span class="auth-phone__nav-item is-active">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              </svg>
-              Painel
-            </span>
-            <span class="auth-phone__nav-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/>
-              </svg>
-              Equip.
-            </span>
-            <span class="auth-phone__nav-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-              Serviços
-            </span>
-            <span class="auth-phone__nav-item">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              </svg>
-              Clientes
-            </span>
+            <div class="auth-phone__card is-alt">
+              <div class="auth-phone__card-label">Último serviço</div>
+              <div class="auth-phone__card-title">Limpeza de filtros</div>
+              <div class="auth-phone__card-meta">há 2 dias · 12:55</div>
+            </div>
+
+            <div class="auth-phone__bottom-nav">
+              <span class="auth-phone__nav-item is-active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                </svg>
+                Painel
+              </span>
+              <span class="auth-phone__nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+                </svg>
+                Parque
+              </span>
+              <span class="auth-phone__nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Serviços
+              </span>
+              <span class="auth-phone__nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                </svg>
+                Clientes
+              </span>
+            </div>
           </div>
         </div>
 
@@ -948,6 +1103,27 @@ export const AuthScreen = {
           Veja seu parque inteiro <strong>em tempo real</strong>, registre e envie em segundos.
         </p>
       </aside>
+
+      <!-- Footer discreto: copy + links legais internos (mesma aba) +
+           status. Links apontam pra /legal/*.html (paginas estaticas
+           ja existentes) e pro hash #contato da landing como destino
+           de "Suporte". -->
+      <footer class="auth-footer" aria-label="Rodapé">
+        <span class="auth-footer__brand-line">
+          <span class="auth-footer__brand">CoolTrackPro © 2026</span>
+          <span class="auth-footer__sep" aria-hidden="true"></span>
+          <a class="auth-footer__link" href="/legal/termos.html">Termos</a>
+          <span class="auth-footer__sep" aria-hidden="true"></span>
+          <a class="auth-footer__link" href="/legal/privacidade.html">Privacidade</a>
+          <span class="auth-footer__sep" aria-hidden="true"></span>
+          <a class="auth-footer__link" href="/#contato">Suporte</a>
+        </span>
+        <span class="auth-footer__status">
+          <span class="auth-footer__status-dot" aria-hidden="true"></span>
+          Status: todos os sistemas operacionais
+        </span>
+      </footer>
+      </div>
     `;
 
     document.body.appendChild(overlay);
