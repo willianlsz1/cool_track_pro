@@ -5,6 +5,16 @@
 > e 10 (PR proprio, escopo curto, lista de testes, criterio de aceite,
 > aprovacao explicita antes de iniciar codigo).
 
+> **Status (atualização):** a landing React+Tailwind descrita aqui foi
+> implementada, validada e **promovida a default** — `src/app.js` chama
+> `mountLandingPageReact` diretamente para usuários não autenticados.
+> A landing legacy (`src/ui/components/landingPage.js`,
+> `landingPage/template.js`, `landingPage/styles.css`) e a folha
+> `src/assets/styles/landing.css` foram **removidas** junto com a feature
+> flag `useReactLandingPage` / `VITE_REACT_LANDING`. As referências a
+> coexistência atrás de flag presentes nas seções abaixo descrevem a
+> estratégia adotada durante a migração e ficam como registro histórico.
+
 ## 1. Objetivo
 
 - Implementar uma nova landing page para o CoolTrackPro dentro da SPA.

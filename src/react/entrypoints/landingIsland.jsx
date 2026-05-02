@@ -3,12 +3,13 @@ import '../styles/tailwind.css';
 import { LandingPage } from '../pages/landing/LandingPage.jsx';
 
 /**
- * Entrypoint da nova landing React+Tailwind.
+ * Entrypoint da landing pública React+Tailwind.
  *
- * Acionado pela feature-flag `useReactLandingPage` (localStorage ou
- * env `VITE_REACT_LANDING=1`) em src/app.js. Quando a flag esta
- * desligada (default), o app continua carregando a landing legacy
- * vanilla em src/ui/components/landingPage.js.
+ * Esta é a landing oficial — a versão legacy vanilla
+ * (`src/ui/components/landingPage.js`) e a feature flag
+ * `useReactLandingPage` / `VITE_REACT_LANDING` foram removidas. O
+ * `src/app.js` chama `mountLandingPageReact` diretamente quando o
+ * usuário não está autenticado.
  *
  * Mounting: substitui o conteudo do `#app` por uma React root. A page
  * ocupa toda a viewport via `min-h-screen`. Sem efeito sobre rotas
@@ -32,7 +33,10 @@ export function mountLandingPageReact(targetEl, options = {}) {
     }
   }
 
-  // Marca o shell pra estilos legados (parity com legacy LandingPage.render).
+  // Marca o shell com `landing-active` — usado como hook de teste
+  // (`landingPageReact.test.jsx` afirma a presença) e como marker pro
+  // `_enterAuthenticatedApp` em `src/app.js` saber que precisa removê-la
+  // no transition para o app autenticado. Não tem CSS associado.
   targetEl.classList.add('landing-active');
   targetEl.innerHTML = '';
 

@@ -11,13 +11,12 @@ import { FinalCTA } from './components/FinalCTA.jsx';
 import { LandingFooter } from './components/LandingFooter.jsx';
 
 /**
- * LandingPage — page raiz da nova landing React+Tailwind.
+ * LandingPage — page raiz da landing pública oficial (React+Tailwind).
  *
- * PR 1 (atras de feature-flag `useReactLandingPage`):
- *  - estatica (sem abas no dashboard preview, sem etapa interativa
- *    no workflow);
- *  - CTA unico "Comecar agora" delega ao fluxo legado de auth via
- *    callback `onStart` injetado pelo entrypoint.
+ * Promovida a default (a versão legacy vanilla foi removida do projeto;
+ * a feature flag `useReactLandingPage` saiu junto). CTA único "Começar
+ * agora" delega ao fluxo de auth existente via callback `onStart`
+ * injetado pelo entrypoint.
  *
  * Layout: hero com fundo escuro + waves SVG decorativas + dashboard
  * preview a direita (desktop) ou abaixo (mobile/tablet). Secoes

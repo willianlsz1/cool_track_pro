@@ -59,23 +59,24 @@ export function WorkflowSection() {
           ))}
         </div>
 
-        {/* Mobile/tablet vertical */}
-        <ol
+        {/* Mobile/tablet vertical — div + buttons diretos (sem <ol>/<li>):
+            screen readers/axe esperam o contrato tablist→tab sem
+            elemento intermediario. */}
+        <div
           role="tablist"
           aria-label="Etapas do fluxo CoolTrackPro"
-          className="tw-flex tw-flex-col tw-gap-3 lg:tw-hidden tw-pl-1 tw-list-none tw-m-0 tw-p-0"
+          className="tw-flex tw-flex-col tw-gap-3 lg:tw-hidden tw-pl-1"
         >
           {workflowSteps.map((step) => (
-            <li key={step.id} className="tw-p-0 tw-m-0">
-              <WorkflowStepButton
-                step={step}
-                isActive={step.id === activeStepId}
-                onSelect={setActiveStepId}
-                orientation="vertical"
-              />
-            </li>
+            <WorkflowStepButton
+              key={step.id}
+              step={step}
+              isActive={step.id === activeStepId}
+              onSelect={setActiveStepId}
+              orientation="vertical"
+            />
           ))}
-        </ol>
+        </div>
 
         {/* Card de detalhe da etapa ativa */}
         <div
@@ -119,7 +120,6 @@ function WorkflowStepButton({ step, isActive, onSelect, orientation }) {
       type="button"
       role="tab"
       aria-selected={isActive}
-      aria-current={isActive ? 'step' : undefined}
       onClick={() => onSelect(step.id)}
       className={
         isHorizontal

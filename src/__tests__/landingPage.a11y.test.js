@@ -1,17 +1,24 @@
 /**
- * A11y regression test for the landing page.
+ * A11y regression test for the public landing page.
  *
- * Renders the full landing in jsdom and runs axe-core with WCAG 2.1 A + AA
+ * Renders the landing in jsdom and runs axe-core with WCAG 2.1 A + AA
  * rules. Gate: zero violations — breaks CI se alguém quebrar acessibilidade.
  *
- * Regras desabilitadas:
+ * Aponta para a landing React+Tailwind oficial (`landingIsland`) — a
+ * landing legacy vanilla foi removida. O teste continua aqui (e não em
+ * `landingPageReact.test.jsx`) pra manter o axe-core isolado num arquivo
+ * dedicado, com regras desabilitadas documentadas claramente:
+ *
  *   - color-contrast: jsdom não calcula estilos computados corretamente
  *     (não aplica gradients, backdrop-filter, etc). Validação de contraste
  *     é feita manualmente via Lighthouse ou DevTools contrast picker.
  */
+import { act } from 'react';
 import axe from 'axe-core';
 
-const { LandingPage } = await import('../ui/components/landingPage.js');
+const { mountLandingPageReact } = await import('../react/entrypoints/landingIsland.jsx');
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 describe('LandingPage a11y (axe-core)', () => {
   beforeEach(() => {
@@ -19,7 +26,10 @@ describe('LandingPage a11y (axe-core)', () => {
   });
 
   it('has zero WCAG 2.1 A/AA violations', async () => {
-    LandingPage.render({ onStartTrial: vi.fn(), onLogin: vi.fn() });
+    const root = document.getElementById('app');
+    await act(async () => {
+      mountLandingPageReact(root, { onLogin: () => {} });
+    });
 
     const results = await axe.run(document.body, {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },

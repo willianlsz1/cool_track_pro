@@ -59,10 +59,7 @@ export function ProblemsSection() {
           description="Sinais comuns no dia a dia de quem atende climatização e refrigeração — clique em um problema para ver como o CoolTrackPro resolve."
         />
 
-        <div
-          role="list"
-          className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 sm:tw-gap-5"
-        >
+        <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 sm:tw-gap-5">
           {problems.map((p) => {
             const isActive = p.id === activeId;
             const IconComp = PROBLEM_ICONS[p.id];
@@ -70,7 +67,6 @@ export function ProblemsSection() {
               <button
                 key={p.id}
                 type="button"
-                role="listitem"
                 aria-pressed={isActive}
                 onClick={() => setActiveId(isActive ? null : p.id)}
                 className="tw-text-left tw-p-5 tw-rounded-2xl tw-cursor-pointer tw-transition-all tw-duration-200 tw-w-full hover:-tw-translate-y-0.5"

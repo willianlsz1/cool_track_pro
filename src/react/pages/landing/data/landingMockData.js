@@ -549,13 +549,10 @@ export const footerCompanyLinks = [
 /**
  * Links legais do footer.
  *
- * Apontam para os HTMLs estaticos em `public/legal/` que JA EXISTEM no
- * projeto e ja sao usados pela landing legacy (`landingPage/template.js`
- * linhas 431-433). Manter consistencia com a legacy garante que:
- *  - links resolvem corretamente em qualquer ambiente (dev/prod);
- *  - conteudo juridico fica centralizado num unico lugar (sem
- *    duplicacao entre legacy e React);
- *  - nao precisa criar rotas/views novas neste PR.
+ * Apontam para os HTMLs estaticos em `public/legal/`. O conteudo
+ * juridico fica centralizado nestes 3 arquivos — sem rotas/views React
+ * dedicadas, e o redesign visual deles ja segue a mesma identidade da
+ * landing nova.
  *
  * Sao links INTERNOS do produto — abrem na mesma aba (sem
  * `target="_blank"`). Mantem o user no mesmo contexto e respeita a

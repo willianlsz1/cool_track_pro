@@ -80,12 +80,10 @@ export function PricingSection({ onStart }) {
         <BillingToggle billing={billing} onChange={setBilling} />
 
         {/* Grid: mobile 1col, tablet 1col, desktop 3col.
-            Mobile re-ordena via tw-order pra Pro aparecer primeiro. */}
-        <div
-          role="list"
-          aria-label="Planos disponíveis"
-          className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-5 lg:tw-gap-6 tw-max-w-[1140px] tw-mx-auto"
-        >
+            Mobile re-ordena via tw-order pra Pro aparecer primeiro. Sem
+            `role="list"` — cada card e um <article> com heading proprio,
+            que ja garante landmark/document semantica. */}
+        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-5 lg:tw-gap-6 tw-max-w-[1140px] tw-mx-auto">
           {pricingPlans.map((plan) => (
             <PricingCard key={plan.id} plan={plan} billing={billing} onCtaClick={onStart} />
           ))}
@@ -232,7 +230,6 @@ function PricingCard({ plan, billing, onCtaClick }) {
 
   return (
     <article
-      role="listitem"
       data-plan={plan.id}
       className={`${orderClass} ${liftClass} tw-relative tw-rounded-[18px] tw-px-7 tw-pt-9 tw-pb-7 sm:tw-px-8 sm:tw-pt-10 sm:tw-pb-8 tw-flex tw-flex-col tw-transition-transform`}
       style={{

@@ -81,8 +81,9 @@ async function _enterAuthenticatedApp(user) {
   // Migração incremental (idempotente).
   migrateLegacyKey('cooltrack-last-tecnico');
 
-  // Inline do LandingPage.clear() pra evitar baixar o chunk da landing quando
-  // o usuário já tá logado.
+  // Limpa o marker `landing-active` que a landing pública adiciona ao
+  // `#app` ao montar — feito inline pra não baixar o chunk da landing
+  // só pra remover uma classe quando o usuário já está autenticado.
   document.getElementById('app')?.classList.remove('landing-active');
   initAppShell();
 
@@ -214,7 +215,7 @@ async function bootstrap() {
       // no-op: observability nunca pode quebrar boot
     }
 
-    // Inicializa sink de telemetria cedo — antes de LandingPage.render() pra
+    // Inicializa sink de telemetria cedo — antes da landing montar pra
     // garantir que lp_view e lp_cta_click cheguem na fila.
     // getUserId usa getSession() (lê do localStorage, sem round-trip) pra não
     // adicionar latência a cada flush — getUser() iria ao server toda vez.
@@ -272,45 +273,23 @@ async function bootstrap() {
       }
       // Escopo anônimo só quando realmente não há sessão autenticada ativa.
       setCurrentUser('anon');
-      // Sem usuário autenticado → landing page.
-      // Code-split: carrega landingPage (JS + CSS ~48KB) só pra quem não tá logado.
+      // Sem usuário autenticado → landing pública.
       //
-      // Feature flag `useReactLandingPage` (PR 1 de landing-page-plan.md):
-      //  - localStorage `useReactLandingPage` === '1', OU
-      //  - env build-time `VITE_REACT_LANDING=1`.
-      //
-      // Quando ligada, monta a nova landing React+Tailwind. Caso contrario
-      // mantem a landing legacy vanilla. Cleanup da legacy fica para PR
-      // final do plano.
-      const useReactLanding = (() => {
-        try {
-          if (typeof localStorage !== 'undefined') {
-            const flag = localStorage.getItem('useReactLandingPage');
-            if (flag === '1' || flag === 'true') return true;
-          }
-        } catch {
-          /* localStorage indisponivel — segue pra env */
-        }
-        try {
-          if (import.meta?.env?.VITE_REACT_LANDING === '1') return true;
-        } catch {
-          /* sem import.meta.env — segue pro default */
-        }
-        return false;
-      })();
-
-      if (useReactLanding) {
-        const { mountLandingPageReact } = await import('./react/entrypoints/landingIsland.jsx');
-        const appEl = document.getElementById('app');
-        if (appEl) {
-          mountLandingPageReact(appEl, { onLogin: () => AuthScreen.show() });
-          // Telemetria — preserva o evento `lp_view` da landing legacy
-          // pra nao quebrar o funil de analytics. Variant marca a versao.
-          trackEvent('lp_view', { variant: 'react' });
-        }
-      } else {
-        const { LandingPage } = await import('./ui/components/landingPage.js');
-        LandingPage.render({ onLogin: () => AuthScreen.show() });
+      // Landing oficial agora é a versão React+Tailwind (`landingIsland`).
+      // A landing legacy vanilla foi removida nesta etapa do landing-page
+      // plan; a feature flag `useReactLandingPage` /
+      // `VITE_REACT_LANDING` saiu junto. Code-split via dynamic import
+      // mantém o chunk fora do bundle inicial pra quem já tá logado.
+      const { mountLandingPageReact } = await import('./react/entrypoints/landingIsland.jsx');
+      const appEl = document.getElementById('app');
+      if (appEl) {
+        mountLandingPageReact(appEl, { onLogin: () => AuthScreen.show() });
+        // Telemetria — `lp_view` é o evento canônico do funil
+        // (visualizações → CTA → trial started → conversão).
+        // Sem `variant`: agora há uma única landing, então o payload
+        // continua simples e a query SQL do dashboard segue inalterada
+        // (ela só conta `name = 'lp_view'`).
+        trackEvent('lp_view', {});
       }
       _setAuthLoading(false);
       return;

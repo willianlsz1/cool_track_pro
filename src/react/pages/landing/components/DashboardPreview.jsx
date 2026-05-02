@@ -22,9 +22,11 @@ import { BrandMark } from './BrandMark.jsx';
  *  - layout `kpis-list` para as demais abas (4 KPIs animados + lista
  *    tabular).
  *
- * Acessibilidade: cada aba e um `<button>` com `aria-pressed` e
- * `aria-current="page"` quando ativa. Foco visivel via `focus-visible`
- * outline default do projeto.
+ * Acessibilidade: cada aba e um `<button role="tab">` com
+ * `aria-selected` quando ativa. Container e `role="tablist"` em `<div>`
+ * (nao `<ul>`) — children imediatos `<li>` quebram o contrato
+ * tablist→tab esperado por screen readers e flagged pelo axe-core.
+ * Foco visivel via `focus-visible` outline default do projeto.
  */
 export function DashboardPreview() {
   const [activeTabId, setActiveTabId] = useState(dashboardDefaultTabId);
@@ -56,56 +58,60 @@ function DashboardSidebar({ activeTabId, onSelectTab }) {
         CoolTrack<span className="tw-text-landing-cyan tw-font-semibold tw-text-[11px]">Pro</span>
       </div>
 
-      <ul
+      <div
         role="tablist"
         aria-label="Navegação do dashboard"
-        className="tw-list-none tw-flex tw-flex-col tw-gap-0.5 tw-p-0 tw-m-0"
+        className="tw-flex tw-flex-col tw-gap-0.5"
       >
         {dashboardTabs.map((item) => {
           const isActive = item.id === activeTabId;
           return (
-            <li key={item.id} className="tw-p-0 tw-m-0">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                aria-current={isActive ? 'page' : undefined}
-                onClick={() => onSelectTab(item.id)}
-                className={`tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2 tw-rounded-lg tw-text-[12.5px] tw-text-left tw-cursor-pointer tw-border-0 tw-transition-colors ${
-                  isActive
-                    ? 'tw-text-white tw-font-semibold'
-                    : 'tw-text-[#9fb3d4] hover:tw-text-white'
-                }`}
-                style={
-                  isActive
-                    ? {
-                        background: 'linear-gradient(90deg, #006DFF 0%, rgba(0,109,255,0) 110%)',
-                        boxShadow: 'inset 3px 0 0 #40C4FF',
-                      }
-                    : { background: 'transparent' }
-                }
-              >
-                <span className="tw-w-3.5 tw-h-3.5 tw-flex-none" aria-hidden="true">
-                  <DotIcon active={isActive} />
-                </span>
-                {item.label}
-              </button>
-            </li>
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => onSelectTab(item.id)}
+              className={`tw-w-full tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2 tw-rounded-lg tw-text-[12.5px] tw-text-left tw-cursor-pointer tw-border-0 tw-transition-colors ${
+                isActive
+                  ? 'tw-text-white tw-font-semibold'
+                  : 'tw-text-[#9fb3d4] hover:tw-text-white'
+              }`}
+              style={
+                isActive
+                  ? {
+                      background: 'linear-gradient(90deg, #006DFF 0%, rgba(0,109,255,0) 110%)',
+                      boxShadow: 'inset 3px 0 0 #40C4FF',
+                    }
+                  : { background: 'transparent' }
+              }
+            >
+              <span className="tw-w-3.5 tw-h-3.5 tw-flex-none" aria-hidden="true">
+                <DotIcon active={isActive} />
+              </span>
+              {item.label}
+            </button>
           );
         })}
+      </div>
+      {/* Itens "estáticos" (Checklists/Fotos/Configurações) ficam FORA do
+          tablist — eles existem só pra dar o look-and-feel SaaS na
+          sidebar, sem ser realmente navegáveis. Mantê-los dentro do
+          `role="tablist"` quebra o contrato (axe `aria-required-children`:
+          tablist só pode ter filhos com role=tab). */}
+      <div className="tw-flex tw-flex-col tw-gap-0.5 tw-mt-0.5" aria-hidden="true">
         {dashboardSidebarStaticItems.map((item) => (
-          <li
+          <div
             key={item.id}
-            aria-disabled="true"
             className="tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2 tw-rounded-lg tw-text-[12.5px] tw-text-[#9fb3d4] tw-opacity-70 tw-cursor-default"
           >
-            <span className="tw-w-3.5 tw-h-3.5 tw-flex-none" aria-hidden="true">
+            <span className="tw-w-3.5 tw-h-3.5 tw-flex-none">
               <DotIcon active={false} />
             </span>
             {item.label}
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
 
       <div
         className="tw-mt-auto tw-flex tw-items-center tw-gap-2.5 tw-px-2.5 tw-py-2.5 tw-rounded-xl tw-text-white tw-font-medium tw-text-[12px]"

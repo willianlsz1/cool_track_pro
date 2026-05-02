@@ -1,7 +1,0 @@
-/* Landing page — estilos movidos para inline no landingPage.js para facilitar manutenção.
-   Este arquivo mantido para compatibilidade de imports. */
-
-.landing-active {
-  /* garante que o #app ocupe a tela inteira quando a landing estiver ativa */
-  min-height: 100dvh;
-}
