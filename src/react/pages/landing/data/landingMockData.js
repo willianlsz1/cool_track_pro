@@ -15,6 +15,7 @@ export const navItems = [
   { href: '#recursos', label: 'Recursos' },
   { href: '#segmentos', label: 'Segmentos' },
   { href: '#fluxo', label: 'Fluxo' },
+  { href: '#planos', label: 'Planos' },
   { href: '#relatorios', label: 'Relatórios' },
   { href: '#contato', label: 'Contato' },
 ];
@@ -535,6 +536,7 @@ export const footerProductLinks = [
   { href: '#recursos', label: 'Recursos' },
   { href: '#segmentos', label: 'Segmentos' },
   { href: '#fluxo', label: 'Fluxo' },
+  { href: '#planos', label: 'Planos' },
   { href: '#relatorios', label: 'Relatórios' },
 ];
 

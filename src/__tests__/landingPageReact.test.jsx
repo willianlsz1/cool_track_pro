@@ -34,6 +34,7 @@ describe('LandingPage (React)', () => {
     expect(document.getElementById('segmentos')).not.toBeNull();
     expect(document.getElementById('recursos')).not.toBeNull();
     expect(document.getElementById('fluxo')).not.toBeNull();
+    expect(document.getElementById('planos')).not.toBeNull();
     expect(document.getElementById('relatorios')).not.toBeNull();
     expect(document.getElementById('contato')).not.toBeNull();
     expect(document.getElementById('dashboard-preview')).not.toBeNull();
@@ -164,6 +165,152 @@ describe('LandingPage (React)', () => {
     for (const a of links) {
       expect(a.getAttribute('target')).not.toBe('_blank');
     }
+  });
+
+  it('PricingSection renderiza Free, Plus e Pro com badge "Mais popular" no Pro', async () => {
+    const root = createRoot();
+    await act(async () => {
+      mountLandingPageReact(root, { onLogin: vi.fn() });
+    });
+
+    const planos = document.getElementById('planos');
+    expect(planos).not.toBeNull();
+
+    // 3 cards (data-plan=free|plus|pro) renderizados.
+    const freeCard = planos?.querySelector('[data-plan="free"]');
+    const plusCard = planos?.querySelector('[data-plan="plus"]');
+    const proCard = planos?.querySelector('[data-plan="pro"]');
+    expect(freeCard).not.toBeNull();
+    expect(plusCard).not.toBeNull();
+    expect(proCard).not.toBeNull();
+
+    // Nomes dos planos visiveis.
+    const text = planos?.textContent || '';
+    expect(text).toContain('Free');
+    expect(text).toContain('Plus');
+    expect(text).toContain('Pro');
+    expect(text).toContain('Planos para cada fase');
+
+    // Badge "Mais popular" so no card Pro.
+    const proBadge = proCard?.querySelector('[data-plan-badge]');
+    expect(proBadge).not.toBeNull();
+    expect((proBadge?.textContent || '').toLowerCase()).toContain('mais popular');
+    expect(freeCard?.querySelector('[data-plan-badge]')).toBeNull();
+    expect(plusCard?.querySelector('[data-plan-badge]')).toBeNull();
+
+    // Linha de confianca renderiza.
+    expect(text).toContain('Sem fidelidade');
+    expect(text).toContain('Cancele quando quiser');
+    expect(text).toContain('Suporte em português');
+  });
+
+  it('PricingSection toggle Mensal/Anual altera Plus de R$ 29 para R$ 24, Pro de R$ 99 para R$ 82, Free permanece R$ 0', async () => {
+    const root = createRoot();
+    await act(async () => {
+      mountLandingPageReact(root, { onLogin: vi.fn() });
+    });
+
+    const planos = document.getElementById('planos');
+    expect(planos).not.toBeNull();
+
+    const getPrice = (planId) =>
+      (planos?.querySelector(`[data-plan="${planId}"] [data-price]`)?.textContent || '').trim();
+
+    // Default: Mensal.
+    expect(getPrice('free')).toBe('R$ 0');
+    expect(getPrice('plus')).toBe('R$ 29');
+    expect(getPrice('pro')).toBe('R$ 99');
+
+    // Toggle Anual e Mensal sao buttons reais com aria-pressed.
+    const annualBtn = planos?.querySelector('button[data-billing="annual"]');
+    const monthlyBtn = planos?.querySelector('button[data-billing="monthly"]');
+    expect(annualBtn).not.toBeNull();
+    expect(monthlyBtn).not.toBeNull();
+    expect(monthlyBtn?.getAttribute('aria-pressed')).toBe('true');
+    expect(annualBtn?.getAttribute('aria-pressed')).toBe('false');
+
+    await act(async () => {
+      annualBtn?.click();
+    });
+
+    expect(annualBtn?.getAttribute('aria-pressed')).toBe('true');
+    expect(monthlyBtn?.getAttribute('aria-pressed')).toBe('false');
+
+    // Anual aplicado: Plus 24, Pro 82, Free segue 0.
+    expect(getPrice('free')).toBe('R$ 0');
+    expect(getPrice('plus')).toBe('R$ 24');
+    expect(getPrice('pro')).toBe('R$ 82');
+
+    // Notas anuais aparecem em Plus e Pro.
+    const plusNote =
+      planos?.querySelector('[data-plan="plus"] [data-billing-note]')?.textContent || '';
+    const proNote =
+      planos?.querySelector('[data-plan="pro"] [data-billing-note]')?.textContent || '';
+    expect(plusNote).toContain('Cobrado R$ 290/ano');
+    expect(plusNote).toContain('economize R$ 58');
+    expect(proNote).toContain('Cobrado R$ 990/ano');
+    expect(proNote).toContain('economize R$ 198');
+
+    // Voltando ao Mensal: precos voltam ao valor original.
+    await act(async () => {
+      monthlyBtn?.click();
+    });
+    expect(getPrice('plus')).toBe('R$ 29');
+    expect(getPrice('pro')).toBe('R$ 99');
+  });
+
+  it('PricingSection — header tem link "Planos" apontando para #planos', async () => {
+    const root = createRoot();
+    await act(async () => {
+      mountLandingPageReact(root, { onLogin: vi.fn() });
+    });
+
+    const headerNav = root.querySelector('nav[aria-label="Navegação principal da landing"]');
+    expect(headerNav).not.toBeNull();
+
+    const planosLink = Array.from(headerNav?.querySelectorAll('a') ?? []).find(
+      (a) => (a.textContent || '').trim() === 'Planos',
+    );
+    expect(planosLink).toBeDefined();
+    expect(planosLink?.getAttribute('href')).toBe('#planos');
+  });
+
+  it('PricingSection CTAs dos planos acionam o mesmo callback do "Comecar agora"', async () => {
+    const root = createRoot();
+    const onLogin = vi.fn();
+    await act(async () => {
+      mountLandingPageReact(root, { onLogin });
+    });
+
+    const planos = document.getElementById('planos');
+    expect(planos).not.toBeNull();
+
+    const freeCta = planos?.querySelector('[data-plan-cta="free"]');
+    const plusCta = planos?.querySelector('[data-plan-cta="plus"]');
+    const proCta = planos?.querySelector('[data-plan-cta="pro"]');
+    expect(freeCta).not.toBeNull();
+    expect(plusCta).not.toBeNull();
+    expect(proCta).not.toBeNull();
+
+    await act(async () => {
+      freeCta?.click();
+    });
+    await act(async () => {
+      plusCta?.click();
+    });
+    await act(async () => {
+      proCta?.click();
+    });
+
+    // 3 CTAs disparam o mesmo callback usado pelo "Comecar agora".
+    expect(onLogin).toHaveBeenCalledTimes(3);
+
+    // CTAs sao botoes reais (nao <a target="_blank">) — i.e., nao abrem
+    // nova aba. Anti-regressao para garantir que ninguem reintroduza
+    // checkout/Stripe externos neste PR.
+    expect(freeCta?.tagName).toBe('BUTTON');
+    expect(plusCta?.tagName).toBe('BUTTON');
+    expect(proCta?.tagName).toBe('BUTTON');
   });
 
   it('ProblemsSection destaca problema ativo e mostra solucao ao clicar', async () => {

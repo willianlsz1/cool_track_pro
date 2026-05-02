@@ -6,6 +6,7 @@ import { SegmentSection } from './components/SegmentSection.jsx';
 import { ProblemsSection } from './components/ProblemsSection.jsx';
 import { FeaturesSection } from './components/FeaturesSection.jsx';
 import { WorkflowSection } from './components/WorkflowSection.jsx';
+import { PricingSection } from './components/PricingSection.jsx';
 import { FinalCTA } from './components/FinalCTA.jsx';
 import { LandingFooter } from './components/LandingFooter.jsx';
 
@@ -47,6 +48,7 @@ export function LandingPage({ onStart }) {
       <ProblemsSection />
       <FeaturesSection />
       <WorkflowSection />
+      <PricingSection onStart={handleStart} />
       <FinalCTA onStart={handleStart} />
       <LandingFooter />
     </div>
