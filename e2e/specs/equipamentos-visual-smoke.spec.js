@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { setupAuthedPage } from '../fixtures/authedSession.js';
 
 const CLIENTE_ID = 'cliente-equip-visual-smoke-e2e';
+const CLIENTE_NOME = 'Cliente Equipamentos E2E';
 const SETOR_ID = 'setor-equip-visual-smoke-e2e';
 const EQUIP_ID = 'equip-visual-smoke-e2e-1';
 const EQUIP_DANGER_ID = 'equip-visual-smoke-e2e-2';
@@ -17,7 +18,7 @@ const EQUIPAMENTOS_REMOTE_DATA = {
   clientes: [
     {
       id: CLIENTE_ID,
-      nome: 'Cliente Equipamentos E2E',
+      nome: CLIENTE_NOME,
       telefone: '11999990000',
     },
   ],
@@ -115,6 +116,7 @@ test.describe('Equipamentos visual smoke', () => {
     await assertHeaderContracts(page);
     await assertListContracts(page);
     await assertFilterContracts(page);
+    await assertContextDrillContracts(page);
     await assertDetailContracts(page);
 
     expect(pageErrors).toEqual([]);
@@ -211,6 +213,44 @@ async function assertFilterContracts(page) {
     .locator('#equip-toolbar-actions [data-action="equip-quickfilter"][data-id="todos"]')
     .click();
   await expect(page.locator('#lista-equip .equip-card')).toHaveCount(2);
+}
+
+async function assertContextDrillContracts(page) {
+  await page.evaluate(
+    ({ sectorId, clienteId, clienteNome }) =>
+      import('/src/core/router.js').then(({ goTo }) => {
+        goTo('equipamentos', {
+          equipCtx: { sectorId, clienteId, clienteNome },
+        });
+      }),
+    { sectorId: SETOR_ID, clienteId: CLIENTE_ID, clienteNome: CLIENTE_NOME },
+  );
+
+  await expect(page.locator('body')).toHaveAttribute('data-route', 'equipamentos');
+  await expect(page.locator(`#lista-equip .equip-card[data-id="${EQUIP_ID}"]`)).toHaveCount(1);
+  await expect(page.locator('#lista-equip .equip-card')).toHaveCount(1);
+
+  const drillNovoEquipBtn = page.locator(
+    '#equip-toolbar-actions [data-action="open-modal"][data-id="modal-add-eq"][data-source="setor_drill"]',
+  );
+  await expect(drillNovoEquipBtn).toHaveCount(1);
+  await expect(drillNovoEquipBtn).toHaveAttribute('data-setor-id', SETOR_ID);
+  await expect(drillNovoEquipBtn).toHaveAttribute('data-cliente-id', CLIENTE_ID);
+
+  const contextChip = page.locator('#equip-context-chip');
+  await expect(contextChip.locator('.equip-breadcrumb')).toHaveCount(1);
+  await expect(contextChip.locator('.equip-breadcrumb__item--current')).not.toBeEmpty();
+  await expect(contextChip.locator('[data-action="equip-clear-cliente-filter"]')).toHaveCount(1);
+
+  await page.evaluate(() =>
+    import('/src/core/router.js').then(({ goTo }) => {
+      goTo('equipamentos', { equipCtx: { sectorId: null, clienteId: null, clienteNome: null } });
+    }),
+  );
+  await expect(page.locator('#lista-equip .equip-card')).toHaveCount(2);
+  await expect(
+    page.locator('#equip-toolbar-actions [data-action="open-modal"][data-id="modal-add-eq"]'),
+  ).toHaveCount(1);
 }
 
 async function assertDetailContracts(page) {
