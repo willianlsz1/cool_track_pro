@@ -31,6 +31,7 @@ import { setCachedPlan } from './core/plans/planCache.js';
 import { getEffectivePlan } from './core/plans/subscriptionPlans.js';
 import { supabase } from './core/supabase.js';
 import { initTelemetrySink } from './core/telemetrySink.js';
+import { trackEvent } from './core/telemetry.js';
 import { initObservability, setUser as setObservabilityUser } from './core/observability.js';
 import { initSwUpdate } from './core/swUpdate.js';
 import { initStaleBundleRecovery } from './core/recoverFromStaleBundle.js';
@@ -273,8 +274,44 @@ async function bootstrap() {
       setCurrentUser('anon');
       // Sem usuário autenticado → landing page.
       // Code-split: carrega landingPage (JS + CSS ~48KB) só pra quem não tá logado.
-      const { LandingPage } = await import('./ui/components/landingPage.js');
-      LandingPage.render({ onLogin: () => AuthScreen.show() });
+      //
+      // Feature flag `useReactLandingPage` (PR 1 de landing-page-plan.md):
+      //  - localStorage `useReactLandingPage` === '1', OU
+      //  - env build-time `VITE_REACT_LANDING=1`.
+      //
+      // Quando ligada, monta a nova landing React+Tailwind. Caso contrario
+      // mantem a landing legacy vanilla. Cleanup da legacy fica para PR
+      // final do plano.
+      const useReactLanding = (() => {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const flag = localStorage.getItem('useReactLandingPage');
+            if (flag === '1' || flag === 'true') return true;
+          }
+        } catch {
+          /* localStorage indisponivel — segue pra env */
+        }
+        try {
+          if (import.meta?.env?.VITE_REACT_LANDING === '1') return true;
+        } catch {
+          /* sem import.meta.env — segue pro default */
+        }
+        return false;
+      })();
+
+      if (useReactLanding) {
+        const { mountLandingPageReact } = await import('./react/entrypoints/landingIsland.jsx');
+        const appEl = document.getElementById('app');
+        if (appEl) {
+          mountLandingPageReact(appEl, { onLogin: () => AuthScreen.show() });
+          // Telemetria — preserva o evento `lp_view` da landing legacy
+          // pra nao quebrar o funil de analytics. Variant marca a versao.
+          trackEvent('lp_view', { variant: 'react' });
+        }
+      } else {
+        const { LandingPage } = await import('./ui/components/landingPage.js');
+        LandingPage.render({ onLogin: () => AuthScreen.show() });
+      }
       _setAuthLoading(false);
       return;
     }
