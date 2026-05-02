@@ -16,7 +16,11 @@ function mountHeader() {
 
 function assertNoUnsafeHtml(root) {
   expect(root.querySelector('script')).toBeNull();
-  expect(root.querySelector('img')).toBeNull();
+  const images = Array.from(root.querySelectorAll('img'));
+  images.forEach((img) => {
+    expect(img.getAttribute('src')).toBe('/brand/favicon.svg');
+    expect(img.classList.contains('app-logo__mark')).toBe(true);
+  });
   expect(root.querySelector('[onerror]')).toBeNull();
   expect(root.querySelector('[onclick]')).toBeNull();
   expect(root.innerHTML).not.toMatch(/javascript:/i);

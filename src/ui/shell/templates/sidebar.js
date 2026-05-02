@@ -90,27 +90,7 @@ export function renderShellSidebar() {
 <aside class="app-sidebar" aria-label="Navegacao principal (desktop)">
   <div class="app-sidebar__brand">
     <div class="app-sidebar__brand-icon" aria-hidden="true">
-      <!-- Snowflake oficial CoolTrack (mesmo SVG do header app-logo). -->
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <g stroke="#02131f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <g>
-            <line x1="12" y1="3" x2="12" y2="21"/>
-            <polyline points="9.5,5 12,3 14.5,5"/>
-            <polyline points="9.5,19 12,21 14.5,19"/>
-          </g>
-          <g transform="rotate(60 12 12)">
-            <line x1="12" y1="3" x2="12" y2="21"/>
-            <polyline points="9.5,5 12,3 14.5,5"/>
-            <polyline points="9.5,19 12,21 14.5,19"/>
-          </g>
-          <g transform="rotate(120 12 12)">
-            <line x1="12" y1="3" x2="12" y2="21"/>
-            <polyline points="9.5,5 12,3 14.5,5"/>
-            <polyline points="9.5,19 12,21 14.5,19"/>
-          </g>
-        </g>
-        <circle cx="12" cy="12" r="1.4" fill="#02131f"/>
-      </svg>
+      <img class="app-sidebar__brand-mark" src="/brand/favicon.svg" alt="" loading="eager" decoding="async" />
     </div>
     <div class="app-sidebar__brand-text">
       <span class="app-sidebar__brand-name">CoolTrack</span>

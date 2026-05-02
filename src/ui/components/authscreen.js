@@ -116,14 +116,10 @@ function passwordInputHTML(id, placeholder, autocomplete) {
 // branco. Substitui o tile amarelo + 3-axis snowflake anterior, que
 // destoava da identidade do produto.
 function brandIconHTML(size = 36) {
-  const inner = Math.round(size * 0.55);
   const radius = Math.round(size * 0.28);
   return `
     <span style="display:inline-grid;place-items:center;width:${size}px;height:${size}px;border-radius:${radius}px;background:linear-gradient(135deg,#006DFF 0%,#40C4FF 100%);box-shadow:0 6px 18px rgba(21,155,255,0.35);flex-shrink:0" aria-hidden="true">
-      <svg width="${inner}" height="${inner}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2v20M2 12h20M4.5 4.5l15 15M19.5 4.5l-15 15"/>
-        <path d="M12 6l-2 2M12 6l2 2M12 18l-2-2M12 18l2-2M6 12l2-2M6 12l2 2M18 12l-2-2M18 12l-2 2"/>
-      </svg>
+      <img src="/brand/favicon.svg" alt="" loading="eager" decoding="async" style="display:block;width:${Math.round(size * 0.64)}px;height:${Math.round(size * 0.64)}px" />
     </span>`;
 }
 const ICON_LOGO = brandIconHTML(36);

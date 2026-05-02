@@ -247,7 +247,7 @@ describe('AuthScreen V2Refined redesign', () => {
     expect(footer.textContent).toContain('Status: todos os sistemas operacionais');
   });
 
-  it('brand-mark usa o icone oficial (cyan/blue gradient + 8 setas, sem fundo amarelo)', async () => {
+  it('brand-mark usa o asset oficial brand/favicon.svg sem fundo amarelo', async () => {
     const { AuthScreen } = await loadAuthScreen();
     AuthScreen.show();
 
@@ -258,22 +258,10 @@ describe('AuthScreen V2Refined redesign', () => {
     // Anti-regressao: tile NAO usa fundo amarelo (#e8b94a) do redesign anterior.
     expect(inlineStyle).not.toMatch(/#e8b94a/i);
 
-    // Tile usa o gradient cyan/blue da landing oficial. Match case-insensitive
-    // pra tolerar normalizacao de CSS pelo jsdom.
-    expect(inlineStyle).toMatch(/linear-gradient\(\s*135deg/i);
-    expect(inlineStyle).toMatch(/#006dff/i);
-    expect(inlineStyle).toMatch(/#40c4ff/i);
-
-    // Glyph e o compass de 4 eixos com 8 cabeças de seta — mesmo do
-    // BrandMark React e do public/favicon.svg.
-    const svg = brandLogo.querySelector('svg');
-    expect(svg).toBeTruthy();
-    const paths = svg.querySelectorAll('path');
-    expect(paths.length).toBe(2);
-    // 4 eixos atraves do centro.
-    expect(paths[0].getAttribute('d')).toContain('M12 2v20');
-    // 8 cabecas de seta nos extremos.
-    expect(paths[1].getAttribute('d')).toContain('M12 6l-2 2');
+    const img = brandLogo.querySelector('img');
+    expect(img).toBeTruthy();
+    expect(img.getAttribute('src')).toBe('/brand/favicon.svg');
+    expect(brandLogo.querySelector('svg')).toBeNull();
   });
 
   it('badge de audiencia usa texto "Para climatização e refrigeração"', async () => {

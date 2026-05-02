@@ -34,6 +34,13 @@ describe('shell bootstrap', () => {
     expect(document.getElementById('dash-onboarding')).not.toBeNull();
     expect(document.getElementById('dash-kpi-ativos')).not.toBeNull();
     expect(document.getElementById('dash-recentes')).not.toBeNull();
+    expect(document.body.querySelector('.app-logo__icon img')?.getAttribute('src')).toBe(
+      '/brand/favicon.svg',
+    );
+    expect(document.body.querySelector('.app-sidebar__brand-icon img')?.getAttribute('src')).toBe(
+      '/brand/favicon.svg',
+    );
+    expect(document.getElementById('sidenav-os')).toBeNull();
     expect(
       document.getElementById('nav-registro')?.querySelector('.nav-btn__icon svg'),
     ).not.toBeNull();

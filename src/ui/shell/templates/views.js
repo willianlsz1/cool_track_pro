@@ -27,23 +27,23 @@ export function renderShellViews() {
 
             <section class="dash__kpi-grid" id="dash-kpis-root" aria-label="Indicadores principais">
               <article class="dash__kpi">
-                <div class="dash__kpi-label">Ativos</div>
+                <div class="dash__kpi-label">Equipamentos ativos</div>
                 <div class="dash__kpi-value" id="dash-kpi-ativos">—</div>
                 <div class="dash__kpi-sub" id="dash-kpi-ativos-sub">—</div>
               </article>
               <article class="dash__kpi">
-                <div class="dash__kpi-label">Eficiência</div>
+                <div class="dash__kpi-label">Eficiência do parque</div>
                 <div class="dash__kpi-value" id="dash-kpi-ef">—</div>
                 <div class="dash__kpi-spark" id="dash-kpi-ef-spark" aria-hidden="true"></div>
                 <div class="dash__kpi-sub" id="dash-kpi-ef-sub">—</div>
               </article>
               <article class="dash__kpi">
-                <div class="dash__kpi-label">Anomalias</div>
+                <div class="dash__kpi-label">Alertas críticos</div>
                 <div class="dash__kpi-value" id="dash-kpi-anom">0</div>
                 <div class="dash__kpi-sub" id="dash-kpi-anom-sub">sem alerta</div>
               </article>
               <article class="dash__kpi">
-                <div class="dash__kpi-label">Serviços / mês</div>
+                <div class="dash__kpi-label">Serviços no mês</div>
                 <div class="dash__kpi-value" id="dash-kpi-mes">—</div>
                 <div class="dash__kpi-spark" id="dash-kpi-mes-spark" aria-hidden="true"></div>
                 <div class="dash__kpi-sub" id="dash-kpi-mes-sub">—</div>

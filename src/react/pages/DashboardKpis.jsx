@@ -1,10 +1,10 @@
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
 
 const KPI_LABELS = Object.freeze({
-  ativos: 'Ativos',
-  eficiencia: 'Eficiência',
-  anomalias: 'Anomalias',
-  mes: 'Serviços / mês',
+  ativos: 'Equipamentos ativos',
+  eficiencia: 'Eficiência do parque',
+  anomalias: 'Alertas críticos',
+  mes: 'Serviços no mês',
 });
 
 const EMPTY_KPIS = Object.freeze({

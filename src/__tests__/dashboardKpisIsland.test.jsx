@@ -75,6 +75,14 @@ describe('dashboard KPIs React island', () => {
     expect(root?.querySelectorAll('.dash__kpi-label')).toHaveLength(4);
     expect(root?.querySelectorAll('.dash__kpi-value')).toHaveLength(4);
     expect(root?.querySelectorAll('.dash__kpi-sub')).toHaveLength(4);
+    expect(
+      Array.from(root?.querySelectorAll('.dash__kpi-label') || []).map((el) => el.textContent),
+    ).toEqual([
+      'Equipamentos ativos',
+      'Eficiência do parque',
+      'Alertas críticos',
+      'Serviços no mês',
+    ]);
 
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.kpiAtivos}`)?.textContent).toBe('\u2014');
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.kpiAtivosSub}`)?.textContent).toBe(
