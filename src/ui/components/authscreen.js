@@ -17,7 +17,7 @@ function focusFirstField(container, selector) {
 
 function getDefaultIntentOptions() {
   return {
-    highlightCopy: 'Continuar com Google',
+    highlightCopy: 'Entrar com Google',
     source: 'auth-screen',
   };
 }
@@ -396,20 +396,28 @@ export const AuthScreen = {
         /* ─ Google button (white surface, dark text — Google brand
              guidelines compatible) ─ */
         .auth-btn-google {
-          width: 100%; height: 48px; border-radius: 12px;
+          width: 100%; height: 52px; border-radius: 14px;
           background: linear-gradient(180deg, #ffffff 0%, #e9eef7 100%);
           color: #11243f;
-          font-size: 14.5px; font-weight: 600; font-family: inherit;
+          font-size: 15px; font-weight: 800; font-family: inherit;
           display: flex; align-items: center; justify-content: center;
           gap: 12px;
-          border: 1px solid rgba(255,255,255,0.6);
+          border: 1px solid rgba(255,255,255,0.82);
           cursor: pointer;
           box-shadow:
-            0 8px 22px rgba(0,0,0,0.35),
-            0 1px 0 rgba(255,255,255,0.6) inset;
-          transition: opacity .15s, transform .12s;
+            0 16px 34px rgba(44,124,255,0.34),
+            0 0 0 1px rgba(64,196,255,0.22),
+            0 1px 0 rgba(255,255,255,0.75) inset;
+          transition: opacity .15s, transform .12s, box-shadow .15s;
         }
-        .auth-btn-google:hover { opacity: .96; transform: translateY(-1px); }
+        .auth-btn-google:hover {
+          opacity: .98;
+          transform: translateY(-1px);
+          box-shadow:
+            0 18px 38px rgba(44,124,255,0.42),
+            0 0 0 1px rgba(64,196,255,0.30),
+            0 1px 0 rgba(255,255,255,0.78) inset;
+        }
         .auth-btn-google:active { transform: translateY(0); }
 
         /* ─ Divider ─ */
@@ -480,22 +488,28 @@ export const AuthScreen = {
           color: #6b80a3;
         }
 
-        /* ─ Primary CTA (filled blue gradient — Sign-in/Sign-up submit) ─ */
+        /* ─ Email CTA (secondary path after Google) ─ */
         .auth-btn {
           width: 100%; height: 50px; margin-top: 20px;
           border-radius: 12px;
-          background: linear-gradient(180deg, #4d93ff 0%, #2c7cff 60%, #1f63d6 100%);
-          color: #ffffff;
-          font-size: 15px; font-weight: 700; font-family: inherit;
+          background: rgba(7, 21, 40, 0.54);
+          color: #eaf3ff;
+          font-size: 14.5px; font-weight: 700; font-family: inherit;
           letter-spacing: -0.005em;
-          border: 1px solid rgba(77,147,255,0.6);
+          border: 1px solid rgba(64,196,255,0.34);
           cursor: pointer;
           display: flex; align-items: center; justify-content: center; gap: 10px;
           box-shadow:
-            0 14px 32px rgba(44,124,255,0.45),
-            0 1px 0 rgba(255,255,255,0.30) inset,
-            0 -1px 0 rgba(0,0,0,0.20) inset;
-          transition: transform .12s, opacity .15s;
+            0 10px 24px rgba(0,0,0,0.26),
+            0 1px 0 rgba(255,255,255,0.10) inset;
+          transition: transform .12s, opacity .15s, border-color .15s, background .15s;
+        }
+        .auth-btn--secondary {
+          background: rgba(7, 21, 40, 0.48);
+        }
+        .auth-btn--secondary:hover {
+          border-color: rgba(64,196,255,0.58);
+          background: rgba(12, 34, 62, 0.72);
         }
         .auth-btn:hover { transform: translateY(-1px); }
         .auth-btn:active { transform: translateY(0); }
@@ -920,12 +934,12 @@ export const AuthScreen = {
               ${ICON_GOOGLE}
               ${intentOptions.highlightCopy}
             </button>
-            <div class="auth-divider">ou com email e senha</div>
+            <div class="auth-divider">ou entre com email e senha</div>
             <label class="auth-label auth-label--first" for="signin-email">Email</label>
             <input class="auth-input" id="signin-email" type="email" placeholder="seu@email.com" autocomplete="email" />
             <label class="auth-label" for="signin-password">Senha</label>
             ${passwordInputHTML('signin-password', 'senha', 'current-password')}
-            <button class="auth-btn" id="btn-signin" type="button">Entrar no app ${ICON_ARROW_RIGHT}</button>
+            <button class="auth-btn auth-btn--secondary" id="btn-signin" type="button">Entrar no app ${ICON_ARROW_RIGHT}</button>
 
             <div class="auth-trust-line">
               <span class="auth-trust-line__item">
@@ -973,7 +987,7 @@ export const AuthScreen = {
             <div class="auth-social-proof">
               <div class="auth-social-proof__avatars" aria-hidden="true">
                 <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#00c8e8,#0096b4)">CR</span>
-                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#e8b94a,#c89a30)">FR</span>
+                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#2c7cff,#40c4ff)">FR</span>
                 <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#5fe6b3,#1fa370)">LO</span>
               </div>
               <div class="auth-social-proof__text">
@@ -987,9 +1001,9 @@ export const AuthScreen = {
           <div id="auth-form-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
             <button class="auth-btn-google" id="btn-google-signup" type="button">
               ${ICON_GOOGLE}
-              Continuar com Google
+              Criar conta com Google
             </button>
-            <div class="auth-divider">ou com email e senha</div>
+            <div class="auth-divider">ou crie sua conta com email e senha</div>
             <label class="auth-label auth-label--first" for="signup-nome">Seu nome</label>
             <input class="auth-input" id="signup-nome" type="text" placeholder="Carlos Figueiredo" autocomplete="name" />
             <label class="auth-label" for="signup-email">Email</label>
@@ -1007,7 +1021,7 @@ export const AuthScreen = {
             </div>
             <label class="auth-label" for="signup-confirm">Confirmar senha</label>
             ${passwordInputHTML('signup-confirm', 'repita a senha', 'new-password')}
-            <button class="auth-btn" id="btn-signup" type="button">Começar gratuitamente ${ICON_ARROW_RIGHT}</button>
+            <button class="auth-btn auth-btn--secondary" id="btn-signup" type="button">Começar gratuitamente ${ICON_ARROW_RIGHT}</button>
             <div class="auth-hint">Grátis pra sempre · Sem cartão · PDF com marca d’água no free</div>
           </div>
 

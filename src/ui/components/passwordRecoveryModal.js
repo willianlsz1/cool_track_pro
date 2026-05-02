@@ -203,6 +203,7 @@ export function openPasswordRecoveryModal() {
 }
 
 export const PasswordRecoveryModal = {
+  open: openPasswordResetEmailModal,
   openPasswordResetEmailModal,
   openPasswordRecoveryModal,
   closeAllRecoveryModals,

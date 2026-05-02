@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 
 async function loadAuthScreen(overrides = {}) {
   vi.resetModules();
@@ -11,7 +12,10 @@ async function loadAuthScreen(overrides = {}) {
   };
   const Toast = { warning: vi.fn(), error: vi.fn() };
   const runAsyncAction = vi.fn(async (_b, _o, fn) => fn());
-  const PasswordRecoveryModal = { openPasswordResetEmailModal: vi.fn() };
+  const PasswordRecoveryModal = {
+    open: vi.fn(),
+    openPasswordResetEmailModal: vi.fn(),
+  };
   const trackEvent = vi.fn();
 
   vi.doMock('../core/auth.js', () => ({ Auth }));
@@ -23,7 +27,7 @@ async function loadAuthScreen(overrides = {}) {
   const { AuthScreen } = await import('../ui/components/authscreen.js');
   if (overrides.auth) Object.assign(Auth, overrides.auth);
   if (overrides.toast) Object.assign(Toast, overrides.toast);
-  return { AuthScreen, Auth, Toast };
+  return { AuthScreen, Auth, Toast, PasswordRecoveryModal };
 }
 
 describe('AuthScreen V2Refined redesign', () => {
@@ -40,14 +44,69 @@ describe('AuthScreen V2Refined redesign', () => {
     expect(document.querySelector('#btn-guest')).toBeNull();
   });
 
-  it('Google button is primary (signin) with unified copy', async () => {
+  it('does not ship legacy global auth CSS that competes with the inline redesign', () => {
+    const css = readFileSync('src/assets/styles/components.css', 'utf8');
+
+    expect(css).not.toMatch(/\.auth-screen\s*\{/);
+    expect(css).not.toMatch(/\.auth-btn-google\s*\{/);
+    expect(css).not.toMatch(/\.auth-logo(?:__|-)/);
+  });
+
+  it('does not render legacy gold/demo visual residues in the auth overlay', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+
+    const overlay = document.getElementById('auth-overlay');
+    expect(overlay).toBeTruthy();
+    expect(overlay.innerHTML).not.toMatch(
+      /#e8b94a|yellow|gold|auth-demo|btn-guest|Ver demonstra[çc][ãa]o/i,
+    );
+  });
+
+  it('PasswordRecoveryModal keeps the open alias used by AuthScreen', async () => {
+    vi.resetModules();
+    vi.doUnmock('../ui/components/passwordRecoveryModal.js');
+    vi.unmock('../ui/components/passwordRecoveryModal.js');
+
+    const { PasswordRecoveryModal } = await import('../ui/components/passwordRecoveryModal.js');
+
+    expect(PasswordRecoveryModal.open).toBe(PasswordRecoveryModal.openPasswordResetEmailModal);
+  });
+
+  it('Google button is the primary signin CTA by default', async () => {
     const { AuthScreen } = await loadAuthScreen();
     AuthScreen.show();
 
     const btn = document.querySelector('#btn-google-signin');
     expect(btn).toBeTruthy();
     expect(btn.classList.contains('auth-btn-google')).toBe(true);
-    expect(btn.textContent).toContain('Continuar com Google');
+    expect(btn.textContent).toContain('Entrar com Google');
+    expect(btn.textContent).not.toContain('Continuar com Google');
+
+    const divider = document.querySelector('#auth-form-signin .auth-divider');
+    expect(divider.textContent).toContain('ou entre com email e senha');
+
+    const emailButton = document.querySelector('#btn-signin');
+    expect(emailButton.textContent).toContain('Entrar no app');
+    expect(emailButton.classList.contains('auth-btn--secondary')).toBe(true);
+  });
+
+  it('signup uses Google as primary CTA and keeps email signup as secondary path', async () => {
+    const { AuthScreen } = await loadAuthScreen();
+    AuthScreen.show();
+    document.getElementById('tab-signup').click();
+
+    const googleButton = document.querySelector('#btn-google-signup');
+    expect(googleButton).toBeTruthy();
+    expect(googleButton.textContent).toContain('Criar conta com Google');
+    expect(googleButton.textContent).not.toContain('Continuar com Google');
+
+    const divider = document.querySelector('#auth-form-signup .auth-divider');
+    expect(divider.textContent).toContain('ou crie sua conta com email e senha');
+
+    const emailSignupButton = document.querySelector('#btn-signup');
+    expect(emailSignupButton.textContent).toContain('Começar gratuitamente');
+    expect(emailSignupButton.classList.contains('auth-btn--secondary')).toBe(true);
   });
 
   it('headline is solid — no <em> highlight (login sóbrio)', async () => {
@@ -181,6 +240,7 @@ describe('AuthScreen V2Refined redesign', () => {
     // Anti-regressao: nenhum link legal pode abrir em nova aba.
     Array.from(footer.querySelectorAll('a')).forEach((a) => {
       expect(a.getAttribute('target')).not.toBe('_blank');
+      expect(a.getAttribute('rel') || '').not.toMatch(/noopener|noreferrer/i);
     });
 
     // Status discreto presente.
@@ -243,7 +303,7 @@ describe('AuthScreen V2Refined redesign', () => {
   });
 
   it('CTAs principais existem e conectam aos handlers de auth (Entrar, Criar conta, Google, Esqueci senha)', async () => {
-    const { AuthScreen, Auth } = await loadAuthScreen();
+    const { AuthScreen, Auth, PasswordRecoveryModal } = await loadAuthScreen();
     AuthScreen.show();
 
     // Entrar (signin).
@@ -269,6 +329,22 @@ describe('AuthScreen V2Refined redesign', () => {
     document.getElementById('btn-google-signin').click();
     await Promise.resolve();
     expect(Auth.signInWithGoogle).toHaveBeenCalled();
+
+    // Criar conta usa Auth.signUp (preserva fluxo existente).
+    document.getElementById('signup-nome').value = 'Carlos';
+    document.getElementById('signup-email').value = 'carlos@cooltrack.test';
+    document.getElementById('signup-password').value = 'tecnico2026';
+    document.getElementById('signup-confirm').value = 'tecnico2026';
+    document.getElementById('btn-signup').click();
+    await Promise.resolve();
+    expect(Auth.signUp).toHaveBeenCalledWith('carlos@cooltrack.test', 'tecnico2026', {
+      nome: 'Carlos',
+    });
+
+    // Esqueci senha usa o modal de recuperacao (preserva fluxo existente).
+    AuthScreen.show();
+    document.getElementById('btn-forgot').click();
+    expect(PasswordRecoveryModal.open).toHaveBeenCalled();
   });
 
   it('layout em 3 secoes (brand + form + phone aside) — phone aside e decorativo', async () => {
