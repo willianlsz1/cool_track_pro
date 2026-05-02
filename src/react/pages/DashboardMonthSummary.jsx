@@ -1,7 +1,7 @@
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
 
 const EMPTY_MONTH = Object.freeze({
-  label: 'Seu m\u00eas em campo',
+  label: 'Seu mês em campo',
   servicesCount: 0,
   equipmentsCount: 0,
   pendingCount: 0,
@@ -42,7 +42,7 @@ export function DashboardMonthSummary({ month = EMPTY_MONTH }) {
       </header>
       <div className="dash__kpi-grid">
         <MonthKpi
-          label="Servi\u00e7os no m\u00eas"
+          label="Serviços no mês"
           valueId={DASHBOARD_PUBLIC_IDS.monthServices}
           value={text(model.servicesCount, '0')}
         />
@@ -52,12 +52,12 @@ export function DashboardMonthSummary({ month = EMPTY_MONTH }) {
           value={text(model.equipmentsCount, '0')}
         />
         <MonthKpi
-          label="Pend\u00eancias"
+          label="Pendências"
           valueId={DASHBOARD_PUBLIC_IDS.monthPending}
           value={text(model.pendingCount, '0')}
         />
         <MonthKpi
-          label="Varia\u00e7\u00e3o"
+          label="Variação"
           subId={DASHBOARD_PUBLIC_IDS.monthTrend}
           value={text(model.trendLabel, EMPTY_MONTH.trendLabel)}
         />

@@ -2,20 +2,20 @@ import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js'
 
 const KPI_LABELS = Object.freeze({
   ativos: 'Ativos',
-  eficiencia: 'Efici\u00eancia',
+  eficiencia: 'Eficiência',
   anomalias: 'Anomalias',
-  mes: 'Servi\u00e7os / m\u00eas',
+  mes: 'Serviços / mês',
 });
 
 const EMPTY_KPIS = Object.freeze({
   ativos: {
-    valueLabel: '\u2014',
+    valueLabel: '—',
     subLabel: 'sem cadastro',
     tone: 'ok',
   },
   eficiencia: {
     value: null,
-    valueLabel: '\u2014',
+    valueLabel: '—',
     subLabel: 'sem dados',
     tone: 'muted',
     sparkData: [],
@@ -140,7 +140,7 @@ export function DashboardKpis({ kpis = EMPTY_KPIS }) {
       <KpiCard
         label={KPI_LABELS.ativos}
         valueId={DASHBOARD_PUBLIC_IDS.kpiAtivos}
-        valueLabel={text(ativos.valueLabel, '\u2014')}
+        valueLabel={text(ativos.valueLabel, '—')}
         subId={DASHBOARD_PUBLIC_IDS.kpiAtivosSub}
         subLabel={text(ativos.subLabel, 'sem cadastro')}
         subTone={ativos.tone || 'ok'}
@@ -148,7 +148,7 @@ export function DashboardKpis({ kpis = EMPTY_KPIS }) {
       <KpiCard
         label={KPI_LABELS.eficiencia}
         valueId={DASHBOARD_PUBLIC_IDS.kpiEficiencia}
-        valueLabel={text(eficiencia.valueLabel, '\u2014')}
+        valueLabel={text(eficiencia.valueLabel, '—')}
         valueTone={eficiencia.tone || 'muted'}
         subId={DASHBOARD_PUBLIC_IDS.kpiEficienciaSub}
         subLabel={text(eficiencia.subLabel, 'sem dados')}

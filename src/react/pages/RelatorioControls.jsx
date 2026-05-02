@@ -11,13 +11,13 @@ const DEFAULT_FILTERS = Object.freeze({
   ate: '',
   hasPeriodoFilter: false,
   hasEquipFilter: false,
-  periodoTxt: 'Todo o per\u00edodo',
+  periodoTxt: 'Todo o período',
   equipTxt: 'Todos os equipamentos',
 });
 
 const DEFAULT_CONTROLS = Object.freeze({
-  pageTitle: 'Relat\u00f3rio r\u00e1pido',
-  pageSubtitle: 'Gere e envie o PDF do servi\u00e7o em poucos toques.',
+  pageTitle: 'Relatório rápido',
+  pageSubtitle: 'Gere e envie o PDF do serviço em poucos toques.',
   viewMode: RELATORIO_VIEW_MODES.compact,
   isPro: false,
   advancedOpen: false,
@@ -154,13 +154,13 @@ function Icon({ name, size = 14, fill = 'none' }) {
 
 function ServicosToggle() {
   return (
-    <div className="servicos-toggle" role="tablist" aria-label="Modo de visualiza\u00e7\u00e3o">
+    <div className="servicos-toggle" role="tablist" aria-label="Modo de visualização">
       <button
         type="button"
         className="servicos-toggle__btn servicos-toggle__btn--lista"
         data-nav={RELATORIO_NAV_TARGETS.historico}
         role="tab"
-        aria-label="Lista de servi\u00e7os"
+        aria-label="Lista de serviços"
       >
         <Icon name="list" size={13} />
         <span>Lista</span>
@@ -170,10 +170,10 @@ function ServicosToggle() {
         className="servicos-toggle__btn servicos-toggle__btn--relatorio"
         data-nav={RELATORIO_NAV_TARGETS.relatorio}
         role="tab"
-        aria-label="Relat\u00f3rio com KPIs e PDF"
+        aria-label="Relatório com KPIs e PDF"
       >
         <Icon name="chart" size={13} />
-        <span>Relat\u00f3rio</span>
+        <span>Relatório</span>
       </button>
     </div>
   );
@@ -198,7 +198,7 @@ function ExportToolbar({ isPro }) {
           id="btn-export-pdf"
           data-action={RELATORIO_ACTIONS.exportPdf}
           type="button"
-          title="Gera e baixa o PDF do relat\u00f3rio"
+          title="Gera e baixa o PDF do relatório"
         >
           <Icon name="download" />
           <span>Baixar PDF</span>
@@ -212,8 +212,8 @@ function ExportToolbar({ isPro }) {
             aria-haspopup="menu"
             aria-expanded="false"
             aria-controls={RELATORIO_PUBLIC_IDS.exportDropdownMenu}
-            aria-label="Mais op\u00e7\u00f5es"
-            title="Mais op\u00e7\u00f5es"
+            aria-label="Mais opções"
+            title="Mais opções"
           >
             <Icon name="more" fill="currentColor" />
           </button>
@@ -270,11 +270,11 @@ function ExportToolbar({ isPro }) {
               id={RELATORIO_PUBLIC_IDS.pmocNudge}
               role="menuitem"
               data-nav={RELATORIO_NAV_TARGETS.pricing}
-              title="Conhe\u00e7a o plano Pro para PMOC formal."
+              title="Conheça o plano Pro para PMOC formal."
               hidden={isPro}
             >
               <Icon name="star" />
-              <span>Conhe\u00e7a o Pro (PMOC)</span>
+              <span>Conheça o Pro (PMOC)</span>
             </button>
           </div>
         </div>
@@ -287,14 +287,14 @@ function ExportToolbar({ isPro }) {
 function ModeSegment({ isPro, active }) {
   if (!isPro) return null;
   const options = [
-    ['servicos', 'Servi\u00e7os'],
+    ['servicos', 'Serviços'],
     ['cliente', 'Cliente'],
     ['setor', 'Setor'],
     ['pmoc', 'PMOC'],
   ];
 
   return (
-    <div className="rel-mode-segment" role="group" aria-label="Contexto dos relat\u00f3rios">
+    <div className="rel-mode-segment" role="group" aria-label="Contexto dos relatórios">
       {options.map(([key, label]) => (
         <span
           className={classNames('rel-mode-segment__item', active === key && 'is-active')}
@@ -310,7 +310,7 @@ function ModeSegment({ isPro, active }) {
 function ViewModeSegment({ viewMode }) {
   const current = text(viewMode, RELATORIO_VIEW_MODES.compact);
   return (
-    <div className="rel-segmented" role="radiogroup" aria-label="Densidade do relat\u00f3rio">
+    <div className="rel-segmented" role="radiogroup" aria-label="Densidade do relatório">
       <button
         type="button"
         className={classNames(
@@ -357,7 +357,7 @@ function FilterChips({ filters, advancedOpen, isPro }) {
           <Icon name="calendar" size={12} />
         </span>
         <span className="rel-chip__label">
-          {hasPeriodoFilter ? text(filters.periodoTxt) : 'Todo per\u00edodo'}
+          {hasPeriodoFilter ? text(filters.periodoTxt) : 'Todo período'}
         </span>
       </button>
       <button
@@ -444,7 +444,7 @@ function AdvancedFilters({ filters, equipOptions, advancedOpen }) {
         </div>
         <div className="form-group">
           <label className="form-label" htmlFor={RELATORIO_PUBLIC_IDS.dateTo}>
-            At\u00e9
+            Até
           </label>
           <input
             id={RELATORIO_PUBLIC_IDS.dateTo}
@@ -484,7 +484,7 @@ export function RelatorioControls({ controls = DEFAULT_CONTROLS }) {
         id={RELATORIO_PUBLIC_IDS.filters}
         className="rel-filters"
         role="group"
-        aria-label="Filtros do relat\u00f3rio"
+        aria-label="Filtros do relatório"
       >
         <div id={RELATORIO_PUBLIC_IDS.filtersChips} className="rel-filters__chips">
           <FilterChips filters={filters} advancedOpen={advancedOpen} isPro={isPro} />

@@ -15,38 +15,37 @@ const DEFAULT_CARDS = Object.freeze({
 });
 
 const COPY = Object.freeze({
-  emptyAria: 'Sem dados para relat\u00f3rio',
-  emptyTitle: 'Sem registros no per\u00edodo selecionado',
-  emptyDesc:
-    'Registre um servi\u00e7o e veja seu relat\u00f3rio profissional pronto para envio em segundos.',
-  emptyBrand: 'CoolTrack Pro \u00b7 Relat\u00f3rio de Servi\u00e7o',
-  technician: 'T\u00e9cnico',
-  maintenancePreview: 'Manuten\u00e7\u00e3o Prev.',
-  service: 'Servi\u00e7o',
-  done: 'Conclu\u00eddo',
-  inspection: 'Inspe\u00e7\u00e3o el\u00e9trica',
-  noNote: 'Sem observa\u00e7\u00e3o',
-  drainCheck: 'Verifica\u00e7\u00e3o dreno',
-  emptyCta: 'Registrar servi\u00e7o para gerar relat\u00f3rio',
-  previewAria: 'Preview de relat\u00f3rio',
-  periodSuffix: 'no per\u00edodo',
+  emptyAria: 'Sem dados para relatório',
+  emptyTitle: 'Sem registros no período selecionado',
+  emptyDesc: 'Registre um serviço e veja seu relatório profissional pronto para envio em segundos.',
+  emptyBrand: 'CoolTrack Pro · Relatório de Serviço',
+  technician: 'Técnico',
+  maintenancePreview: 'Manutenção Prev.',
+  service: 'Serviço',
+  done: 'Concluído',
+  inspection: 'Inspeção elétrica',
+  noNote: 'Sem observação',
+  drainCheck: 'Verificação dreno',
+  emptyCta: 'Registrar serviço para gerar relatório',
+  previewAria: 'Preview de relatório',
+  periodSuffix: 'no período',
   preventiveHint:
-    'Volume alto de corretivas pode indicar oportunidade de refor\u00e7ar o plano preventivo.',
-  nextActionsTitle: 'Pr\u00f3ximas a\u00e7\u00f5es recomendadas',
+    'Volume alto de corretivas pode indicar oportunidade de reforçar o plano preventivo.',
+  nextActionsTitle: 'Próximas ações recomendadas',
   signatureOtherDevice:
-    'Assinatura coletada em outro dispositivo \u2014 armazenada localmente por padr\u00e3o',
-  noSignatureTitle: 'Cliente n\u00e3o assinou este registro',
+    'Assinatura coletada em outro dispositivo — armazenada localmente por padrão',
+  noSignatureTitle: 'Cliente não assinou este registro',
   signatureOtherDeviceLabel: 'Assinatura em outro dispositivo',
   noSignatureLabel: 'Sem assinatura',
   signatureAlt: 'Assinatura registrada',
-  serviceTotal: 'Total do servi\u00e7o',
-  equipmentSpecs: 'Especifica\u00e7\u00f5es do equipamento',
-  partsMaterials: 'Pe\u00e7as / Materiais',
+  serviceTotal: 'Total do serviço',
+  equipmentSpecs: 'Especificações do equipamento',
+  partsMaterials: 'Peças / Materiais',
   costs: 'Custos',
-  parts: 'Pe\u00e7as',
-  labor: 'M\u00e3o de obra',
-  nextMaintenance: 'Pr\u00f3xima manuten\u00e7\u00e3o',
-  notes: 'Observa\u00e7\u00f5es',
+  parts: 'Peças',
+  labor: 'Mão de obra',
+  nextMaintenance: 'Próxima manutenção',
+  notes: 'Observações',
 });
 
 function asArray(value) {
@@ -386,7 +385,7 @@ function RecordCard({ record }) {
       </div>
       <div className="rel-record__meta">
         <span>{text(item.dateText)}</span>
-        <span className="rel-record__sep">{'\u00b7'}</span>
+        <span className="rel-record__sep">{'·'}</span>
         <span>{text(item.relativeText)}</span>
       </div>
 
@@ -398,9 +397,9 @@ function RecordCard({ record }) {
             {!item.singleEquipFilter ? (
               <>
                 <span className="rel-record__equip-name">{text(item.equipName, '-')}</span>
-                <span className="rel-record__sep">{'\u00b7'}</span>
+                <span className="rel-record__sep">{'·'}</span>
                 <span className="rel-record__equip-tag">{text(item.equipTag, '-')}</span>
-                <span className="rel-record__sep">{'\u00b7'}</span>
+                <span className="rel-record__sep">{'·'}</span>
               </>
             ) : null}
             <span className="rel-record__tech">

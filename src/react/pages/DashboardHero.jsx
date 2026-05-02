@@ -3,11 +3,11 @@ import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js'
 const DEFAULT_HERO = Object.freeze({
   tier: 'free',
   tone: 'ok',
-  greeting: 'Ol\u00e1, T\u00e9cnico',
-  summary: '0 equipamentos \u2022 0 servi\u00e7os no m\u00eas',
+  greeting: 'Olá, Técnico',
+  summary: '0 equipamentos • 0 serviços no mês',
   primaryCta: {
     nav: 'registro',
-    label: 'Registrar servi\u00e7o',
+    label: 'Registrar serviço',
   },
   secondaryCta: {
     action: 'open-modal',

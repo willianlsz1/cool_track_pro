@@ -48,7 +48,7 @@ function defaultDaysUntil(iso, now = new Date()) {
 
 function defaultFormatDueRelative(iso, now = new Date()) {
   const days = defaultDaysUntil(iso, now);
-  if (days == null) return '\u2014';
+  if (days == null) return '—';
   if (days === 0) return 'vence hoje';
   if (days > 0) return `daqui ${days}d`;
   return `atrasada ${-days}d`;
@@ -78,8 +78,8 @@ function shortDate(value) {
 function defaultFormatShortDateRange(de, ate) {
   if (de && ate) return `${shortDate(de)} a ${shortDate(ate)}`;
   if (de) return `desde ${shortDate(de)}`;
-  if (ate) return `at\u00e9 ${shortDate(ate)}`;
-  return 'Todo per\u00edodo';
+  if (ate) return `até ${shortDate(ate)}`;
+  return 'Todo período';
 }
 
 function buildLookup(items) {
@@ -178,15 +178,15 @@ export function buildPeriodNarrative(list) {
 
   const multiTipos = Object.keys(byTipo).length > 1;
   if (tipoTop && tipoPct >= 30 && multiTipos) {
-    const nomeCurto = tipoTop.replace(/^Manuten\u00e7\u00e3o\s+/i, '');
-    partes.push(`predom\u00ednio de ${nomeCurto} (${tipoPct}%)`);
+    const nomeCurto = tipoTop.replace(/^Manutenção\s+/i, '');
+    partes.push(`predomínio de ${nomeCurto} (${tipoPct}%)`);
   }
   if (corretivas > 0) {
     partes.push(`${corretivas} ${corretivas === 1 ? 'corretiva' : 'corretivas'}`);
   }
 
   return {
-    text: `${partes.join(' \u00b7 ')}.`,
+    text: `${partes.join(' · ')}.`,
     total,
     equipsUnicos,
     tipoTop,
@@ -233,7 +233,7 @@ export function getProximasAcoes(
       const equipamento = equipIndex.get(equipId) || null;
       byEquip.set(equipId, {
         equipId,
-        equipNome: equipamento?.nome || registro?.equipNome || '\u2014',
+        equipNome: equipamento?.nome || registro?.equipNome || '—',
         equipTag: equipamento?.tag || '',
         proximaIso: registro.proxima,
         daysUntil: n,
@@ -254,17 +254,17 @@ export function getProximasAcoes(
 export function resolveRelatorioModeCopy({ isPro }) {
   if (isPro) {
     return {
-      pageTitle: 'Relat\u00f3rios da empresa',
-      pageSubtitle: 'Acompanhe servi\u00e7os por cliente, setor, equipamento e PMOC.',
-      heroTitle: 'Contexto do relat\u00f3rio',
-      heroBrand: 'Relat\u00f3rios da empresa',
+      pageTitle: 'Relatórios da empresa',
+      pageSubtitle: 'Acompanhe serviços por cliente, setor, equipamento e PMOC.',
+      heroTitle: 'Contexto do relatório',
+      heroBrand: 'Relatórios da empresa',
     };
   }
   return {
-    pageTitle: 'Relat\u00f3rio r\u00e1pido',
-    pageSubtitle: 'Gere e envie o PDF do servi\u00e7o em poucos toques.',
-    heroTitle: 'Resumo dos servi\u00e7os',
-    heroBrand: 'Relat\u00f3rio r\u00e1pido',
+    pageTitle: 'Relatório rápido',
+    pageSubtitle: 'Gere e envie o PDF do serviço em poucos toques.',
+    heroTitle: 'Resumo dos serviços',
+    heroBrand: 'Relatório rápido',
   };
 }
 
@@ -307,9 +307,7 @@ function buildFiltersViewModel({
     hasPeriodoFilter,
     hasEquipFilter,
     equipFiltrado,
-    periodoTxt: hasPeriodoFilter
-      ? formatShortDateRange(filters.de, filters.ate)
-      : 'Todo o per\u00edodo',
+    periodoTxt: hasPeriodoFilter ? formatShortDateRange(filters.de, filters.ate) : 'Todo o período',
     equipTxt: hasEquipFilter
       ? equipFiltrado?.nome || 'Equipamento selecionado'
       : 'Todos os equipamentos',

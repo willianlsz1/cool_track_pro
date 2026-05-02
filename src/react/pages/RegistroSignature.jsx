@@ -154,7 +154,7 @@ export function RegistroSignature({
           data-action={REGISTRO_SIGNATURE_ACTIONS.upsell}
           onClick={() => onUpsellClick?.()}
         >
-          Conhecer Plus {'\u2192'}
+          Conhecer Plus {'→'}
         </button>
       ) : null}
     </>

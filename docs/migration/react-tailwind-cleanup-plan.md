@@ -28,7 +28,7 @@ Ultimos commits vistos em `git log --oneline --decorate -10`:
 
 A migracao visual principal React + Tailwind esta concluida. O React renderiza as superficies visuais principais de `alertas`, `orcamentos`, `clientes`, `equipamentos`, `dashboard`, `historico`, `relatorio` e `registro`.
 
-O documento de status final fica em `docs/migration/react-tailwind-final-status.md`. Este plano continua existindo como guia de hardening e limpeza, nao como lista de migracoes visuais amplas pendentes.
+O documento de status final da migracao visual fica em `docs/migration/react-tailwind-final-status.md`. O fechamento da fase de hardening pos-migracao (E2E, contratos DOM, regra de congelamento de features) fica em `docs/migration/stability-final-status.md`. Este plano continua existindo como guia de hardening e limpeza, nao como lista de migracoes visuais amplas pendentes.
 
 O legado restante se divide em tres grupos:
 

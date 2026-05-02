@@ -4,9 +4,9 @@ import {
 } from '../../ui/viewModels/relatorioContracts.js';
 
 const DEFAULT_HERO = Object.freeze({
-  brand: 'Relat\u00f3rio r\u00e1pido',
-  title: 'Resumo dos servi\u00e7os',
-  metaText: 'Todo o per\u00edodo \u00b7 Todos os equipamentos',
+  brand: 'Relatório rápido',
+  title: 'Resumo dos serviços',
+  metaText: 'Todo o período · Todos os equipamentos',
   emittedAt: '',
   narrativeText: '',
   viewMode: RELATORIO_VIEW_MODES.compact,
@@ -136,7 +136,7 @@ function Kpi({ item }) {
         <span className={classNames('rel-kpi__icon', `rel-kpi__icon--${iconTone}`)}>
           <Icon name={item?.icon || 'clipboardCheck'} />
         </span>
-        <span className={valueClass}>{text(item?.value, '\u2014')}</span>
+        <span className={valueClass}>{text(item?.value, '—')}</span>
       </div>
       <div className="rel-kpi__label">{text(item?.label)}</div>
     </div>
@@ -163,11 +163,7 @@ export function RelatorioHero({ hero = DEFAULT_HERO }) {
         <h2 id={RELATORIO_PUBLIC_IDS.heroTitle} className="rel-hero__title">
           {text(data.title, DEFAULT_HERO.title)}
         </h2>
-        <div
-          className="rel-segmented"
-          role="radiogroup"
-          aria-label="Modo de visualiza\u00e7\u00e3o"
-        >
+        <div className="rel-segmented" role="radiogroup" aria-label="Modo de visualização">
           <ViewModeButton
             mode={RELATORIO_VIEW_MODES.compact}
             active={viewMode === RELATORIO_VIEW_MODES.compact}

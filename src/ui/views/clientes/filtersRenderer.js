@@ -14,7 +14,7 @@ export function renderFilters({ cities, searchTerm, statusFilter, cityFilter, so
       <label class="cli-search">
         <span class="cli-search__icon" aria-hidden="true">${ICON_SEARCH}</span>
         <input type="search" class="cli-search__input" id="${CLIENTES_PUBLIC_IDS.searchInput}"
-          placeholder="Buscar por nome, CNPJ, endere\u00e7o..."
+          placeholder="Buscar por nome, CNPJ, endereço..."
           aria-label="Buscar cliente"
           value="${Utils.escapeAttr(searchTerm)}" />
       </label>

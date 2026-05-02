@@ -32,10 +32,10 @@ function buildContextBanner(preventivas7dCount) {
 
   return {
     count,
-    icon: '\u26a0',
-    text: `Voc\u00ea tem ${count} preventiva(s) nos pr\u00f3ximos 7 dias. Agende agora para evitar parada.`,
+    icon: '⚠',
+    text: `Você tem ${count} preventiva(s) nos próximos 7 dias. Agende agora para evitar parada.`,
     action: 'go-equipamentos-preventiva-7d',
-    ctaLabel: 'Ver equipamentos \u2192',
+    ctaLabel: 'Ver equipamentos →',
   };
 }
 
@@ -67,7 +67,7 @@ function buildClienteCard(item, index) {
     action: 'go-cliente-equipamentos',
     dataId: clienteId,
     clienteNome,
-    icon: '\uD83D\uDD14',
+    icon: '🔔',
     title: buildClienteTitle(item),
     subtitle: item.note ? safeString(item.note) : 'Alerta de retorno ao cliente.',
     equipmentLabel: 'Cliente',
@@ -97,21 +97,21 @@ function buildEmptyState(equipamentos) {
     return {
       variant: 'engaging',
       ariaLabel: 'Sem equipamentos',
-      icon: '\uD83D\uDD27',
+      icon: '🔧',
       title: 'Cadastre um equipamento para receber alertas',
       description:
-        'Alertas autom\u00e1ticos identificam quando um equipamento precisa de aten\u00e7\u00e3o - sem voc\u00ea precisar lembrar.',
-      cta: { label: 'Cadastrar equipamento \u2192', nav: 'equipamentos' },
+        'Alertas automáticos identificam quando um equipamento precisa de atenção - sem você precisar lembrar.',
+      cta: { label: 'Cadastrar equipamento →', nav: 'equipamentos' },
     };
   }
 
   return {
     variant: 'engaging',
     ariaLabel: 'Sem alertas',
-    icon: '\u2705',
+    icon: '✅',
     title: 'Tudo em dia!',
     description:
-      'Nenhum equipamento precisa de aten\u00e7\u00e3o agora. Continue registrando servi\u00e7os para manter o hist\u00f3rico atualizado.',
+      'Nenhum equipamento precisa de atenção agora. Continue registrando serviços para manter o histórico atualizado.',
     cta: { label: 'Ver todos os equipamentos', nav: 'equipamentos', tone: 'outline' },
   };
 }

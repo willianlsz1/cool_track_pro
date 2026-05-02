@@ -206,7 +206,7 @@ function InstallPrompt({ installPrompt }) {
         <div className="install-card__body">
           <p className="install-card__title">Instale o CoolTrack como app</p>
           <p className="install-card__sub">
-            {'Notifica\u00e7\u00f5es nativas no celular, \u00edcone na tela inicial, abre offline.'}
+            {'Notificações nativas no celular, ícone na tela inicial, abre offline.'}
           </p>
         </div>
         <button
@@ -239,11 +239,11 @@ function InstallPrompt({ installPrompt }) {
           <InstallShareIcon />
         </span>
         <div className="install-card__body">
-          <p className="install-card__title">{'Adicione o app \u00e0 Tela de In\u00edcio'}</p>
+          <p className="install-card__title">{'Adicione o app à Tela de Início'}</p>
           <p className="install-card__sub">
             No Safari, toque em <strong>Compartilhar</strong> e depois em{' '}
-            <strong>{'Adicionar \u00e0 Tela de In\u00edcio'}</strong>
-            {' \u2014 assim as notifica\u00e7\u00f5es funcionam como app nativo.'}
+            <strong>{'Adicionar à Tela de Início'}</strong>
+            {' — assim as notificações funcionam como app nativo.'}
           </p>
         </div>
         <button
@@ -313,7 +313,7 @@ function Checklist({ checklist }) {
             {completed}
             {' de '}
             {total}
-            {' conclu\u00eddos \u00b7 '}
+            {' concluídos · '}
             {percent}%
           </p>
         </div>
@@ -361,12 +361,12 @@ function Checklist({ checklist }) {
 
 function overflowCopy(state) {
   if (state?.limitType === 'equipamentos') {
-    return `Voc\u00ea cadastrou ${text(state.equipCount, 0)} equipamentos \u2014 o plano gr\u00e1tis permite ${text(state.equipLimit, 0)}.`;
+    return `Você cadastrou ${text(state.equipCount, 0)} equipamentos — o plano grátis permite ${text(state.equipLimit, 0)}.`;
   }
   if (state?.limitType === 'registros') {
-    return `Voc\u00ea registrou ${text(state.reportCount, 0)} servi\u00e7os este m\u00eas \u2014 o plano gr\u00e1tis permite ${text(state.reportLimit, 0)}.`;
+    return `Você registrou ${text(state.reportCount, 0)} serviços este mês — o plano grátis permite ${text(state.reportLimit, 0)}.`;
   }
-  return 'Voc\u00ea ultrapassou os limites do plano gr\u00e1tis (equipamentos e registros).';
+  return 'Você ultrapassou os limites do plano grátis (equipamentos e registros).';
 }
 
 function Overflow({ overflow }) {
@@ -402,7 +402,7 @@ function Overflow({ overflow }) {
         data-upgrade-source="overflow_banner"
         type="button"
       >
-        {'Ver planos \u2192'}
+        {'Ver planos →'}
       </button>
     </aside>
   );

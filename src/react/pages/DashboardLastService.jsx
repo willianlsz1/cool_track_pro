@@ -2,8 +2,8 @@ import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js'
 
 const EMPTY_LAST_SERVICE = Object.freeze({
   hidden: true,
-  title: '\u2014',
-  subtitle: '\u2014',
+  title: '—',
+  subtitle: '—',
   description: '',
 });
 
@@ -32,7 +32,7 @@ export function DashboardLastService({ lastService = EMPTY_LAST_SERVICE }) {
         </svg>
       </div>
       <div className="dash__card-body">
-        <div className="dash__card-label">{'\u00daltimo servi\u00e7o'}</div>
+        <div className="dash__card-label">{'Último serviço'}</div>
         <div className="dash__card-title" id={DASHBOARD_PUBLIC_IDS.lastServiceTitle}>
           {text(model.title, EMPTY_LAST_SERVICE.title)}
         </div>

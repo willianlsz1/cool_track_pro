@@ -23,18 +23,18 @@ export function renderPagination(filteredCount, { currentPage, pageSize }) {
   const nextDisabled = currentPage >= totalPages ? 'disabled' : '';
 
   return `
-    <div class="cli-pag" role="navigation" aria-label="Pagina\u00e7\u00e3o">
+    <div class="cli-pag" role="navigation" aria-label="Paginação">
       <div class="cli-pag__info">Mostrando ${from}-${to} de ${filteredCount}</div>
       <div class="cli-pag__controls">
         <button type="button" class="cli-pag__btn" data-cli-action="${CLIENTES_ACTIONS.prevPage}"
           aria-label="Pagina anterior" ${prevDisabled}>${ICON_CHEV_L}</button>
         <div class="cli-pag__pages">${pageBtns.join('')}</div>
         <button type="button" class="cli-pag__btn" data-cli-action="${CLIENTES_ACTIONS.nextPage}"
-          aria-label="Pr\u00f3xima pagina" ${nextDisabled}>${ICON_CHEV_R}</button>
+          aria-label="Próxima pagina" ${nextDisabled}>${ICON_CHEV_R}</button>
       </div>
       <label class="cli-select cli-pag__size">
-        <span class="cli-select__label">Por p\u00e1gina</span>
-        <select id="${CLIENTES_PUBLIC_IDS.pageSize}" class="cli-select__input" aria-label="Itens por p\u00e1gina">
+        <span class="cli-select__label">Por página</span>
+        <select id="${CLIENTES_PUBLIC_IDS.pageSize}" class="cli-select__input" aria-label="Itens por página">
           ${CLIENTES_PAGE_SIZE_OPTIONS.map(
             (option) =>
               `<option value="${option}" ${pageSize === option ? 'selected' : ''}>${option}</option>`,

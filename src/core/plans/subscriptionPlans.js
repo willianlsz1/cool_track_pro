@@ -66,17 +66,13 @@ export const PLAN_CATALOG = {
       'Até 3 equipamentos cadastrados',
       'Registros de serviço ilimitados',
       'Histórico completo do equipamento',
-      'Relatórios em PDF com marca d\u2019água',
+      'Relatórios em PDF com marca d’água',
       '5 envios de relatório via WhatsApp/mês',
       'Cadastro por foto (IA) com teste mensal',
     ],
     accountTagline: 'Use o fluxo completo no gratuito. Faça upgrade quando precisar de escala.',
     // Chips aspiracionais no Free: mostram o que vem ao fazer upgrade (estilo ghost/muted).
-    accountChips: [
-      'Até 15 equipamentos',
-      'PDF profissional sem marca d\u2019água',
-      'Mais automações',
-    ],
+    accountChips: ['Até 15 equipamentos', 'PDF profissional sem marca d’água', 'Mais automações'],
   },
   [PLAN_CODE_PLUS]: {
     key: PLAN_CODE_PLUS,
@@ -89,7 +85,7 @@ export const PLAN_CATALOG = {
       'Até 15 equipamentos cadastrados',
       'Registros de serviço ilimitados',
       'Todo o histórico de manutenções',
-      'Relatórios PDF profissionais sem marca d\u2019água',
+      'Relatórios PDF profissionais sem marca d’água',
       '60 envios via WhatsApp/mês',
       'Assinatura digital do cliente no PDF',
       'Fotos dos equipamentos (até 3 por equipamento)',

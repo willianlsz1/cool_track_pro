@@ -2,11 +2,11 @@ import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js'
 
 const EMPTY_NEXT_ACTION = Object.freeze({
   tone: 'ok',
-  title: 'Nenhuma a\u00e7\u00e3o urgente',
-  subtitle: 'Sem pend\u00eancias imediatas no momento.',
+  title: 'Nenhuma ação urgente',
+  subtitle: 'Sem pendências imediatas no momento.',
   cta: {
     nav: 'historico',
-    label: 'Ver hist\u00f3rico',
+    label: 'Ver histórico',
   },
 });
 
@@ -26,7 +26,7 @@ export function DashboardNextAction({ nextAction = EMPTY_NEXT_ACTION }) {
 
   return (
     <>
-      <div className="dash__card-label">Pr\u00f3xima a\u00e7\u00e3o</div>
+      <div className="dash__card-label">Próxima ação</div>
       <div className="dash__card-title" id={DASHBOARD_PUBLIC_IDS.nextActionTitle}>
         {text(model.title, EMPTY_NEXT_ACTION.title)}
       </div>

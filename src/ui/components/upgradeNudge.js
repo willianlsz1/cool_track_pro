@@ -23,7 +23,7 @@ const NUDGE_CONFIGS = {
     bullets: [
       'Até 15 equipamentos cadastrados',
       'Registros e histórico ilimitados',
-      'PDFs sem marca d\u2019água + assinatura do cliente',
+      'PDFs sem marca d’água + assinatura do cliente',
       '60 envios de WhatsApp/mês',
     ],
     footer:

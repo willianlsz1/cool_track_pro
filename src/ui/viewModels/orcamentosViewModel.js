@@ -82,9 +82,9 @@ export function formatOrcamentoCurrency(value) {
 }
 
 export function formatOrcamentoDate(iso) {
-  if (!iso) return '\u2014';
+  if (!iso) return '—';
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '\u2014';
+  if (Number.isNaN(date.getTime())) return '—';
   return date.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -99,7 +99,7 @@ function buildValidityLabel(orcamento) {
   const validityDays = Number(orcamento.validadeDias);
   if (!Number.isFinite(sentAt) || !Number.isFinite(validityDays)) return '';
 
-  return `Vale at\u00e9 ${formatOrcamentoDate(new Date(sentAt + validityDays * DAY_MS).toISOString())}`;
+  return `Vale até ${formatOrcamentoDate(new Date(sentAt + validityDays * DAY_MS).toISOString())}`;
 }
 
 export function buildOrcamentosKpis(orcamentos = []) {
@@ -155,10 +155,8 @@ function buildOrcamentoActions(orcamento) {
       kind: 'sendSignature',
       action: ORCAMENTO_ACTIONS.sendSignature,
       id,
-      label: orcamento.shareToken
-        ? '\u21bb Reenviar assinatura'
-        : '\u270d\ufe0f Enviar p/ assinatura',
-      title: 'Gera link \u00fanico de assinatura e envia pelo WhatsApp',
+      label: orcamento.shareToken ? '↻ Reenviar assinatura' : '✍️ Enviar p/ assinatura',
+      title: 'Gera link único de assinatura e envia pelo WhatsApp',
     });
   }
 
@@ -176,7 +174,7 @@ function buildOrcamentoActions(orcamento) {
     action: ORCAMENTO_ACTIONS.download,
     id,
     label: 'Baixar PDF',
-    title: 'Baixar PDF do or\u00e7amento',
+    title: 'Baixar PDF do orçamento',
   });
 
   if (status === 'enviado' && !isSigned) {
@@ -192,7 +190,7 @@ function buildOrcamentoActions(orcamento) {
     kind: 'delete',
     action: ORCAMENTO_ACTIONS.delete,
     id,
-    ariaLabel: 'Apagar or\u00e7amento',
+    ariaLabel: 'Apagar orçamento',
     title: 'Apagar',
   });
 
@@ -217,10 +215,10 @@ export function buildOrcamentoCardModel(orcamento) {
     statusMeta,
     totalLabel: formatOrcamentoCurrency(orcamento.total),
     title,
-    titleLabel: title || 'Sem t\u00edtulo',
+    titleLabel: title || 'Sem título',
     clienteNome,
     clienteTelefone,
-    clienteLine: clienteTelefone ? `${clienteNome} \u00b7 ${clienteTelefone}` : clienteNome,
+    clienteLine: clienteTelefone ? `${clienteNome} · ${clienteTelefone}` : clienteNome,
     createdLabel: `Criado ${formatOrcamentoDate(orcamento.createdAt)}`,
     validityLabel: buildValidityLabel(orcamento),
     signed: assinadoEm
@@ -255,7 +253,7 @@ export function buildOrcamentosViewModel({
     kpis: buildOrcamentosKpis(all),
     isEmpty,
     isFilterEmpty: !isEmpty && filtered.length === 0,
-    filterEmptyMessage: 'Nenhum or\u00e7amento corresponde ao filtro.',
+    filterEmptyMessage: 'Nenhum orçamento corresponde ao filtro.',
     emptyState: isEmpty
       ? {
           action: ORCAMENTO_ACTIONS.openModal,

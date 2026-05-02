@@ -84,8 +84,8 @@ export const HISTORICO_PUBLIC_CLASSES = Object.freeze([
 
 export const HISTORICO_PERIOD_OPTIONS = Object.freeze([
   Object.freeze({ id: 'hoje', label: 'Hoje', days: 0 }),
-  Object.freeze({ id: '7d', label: '\u00daltimos 7 dias', days: 7 }),
-  Object.freeze({ id: '30d', label: '\u00daltimos 30 dias', days: 30 }),
+  Object.freeze({ id: '7d', label: 'Últimos 7 dias', days: 7 }),
+  Object.freeze({ id: '30d', label: 'Últimos 30 dias', days: 30 }),
   Object.freeze({ id: 'tudo', label: 'Tudo', days: null }),
 ]);
 
@@ -96,13 +96,13 @@ export const HISTORICO_TIPO_OPTIONS = Object.freeze([
   Object.freeze({
     id: 'recarga',
     label: 'Recarga',
-    match: ['recarga', 'g\u00e1s', 'gas'],
+    match: ['recarga', 'gás', 'gas'],
     color: 'violet',
   }),
   Object.freeze({
     id: 'inspecao',
-    label: 'Inspe\u00e7\u00e3o',
-    match: ['inspe\u00e7\u00e3o', 'inspecao', 'verifica\u00e7\u00e3o', 'verificacao'],
+    label: 'Inspeção',
+    match: ['inspeção', 'inspecao', 'verificação', 'verificacao'],
     color: 'teal',
   }),
 ]);

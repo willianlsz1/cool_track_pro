@@ -202,7 +202,7 @@ export function HistoricoFilters({ viewModel = {} }) {
     <>
       <div className="hist-sticky-header" id="hist-sticky-header">
         <div className="hist-sticky-header__row">
-          <div className="hist-title">{'Hist\u00f3rico de Servi\u00e7os'}</div>
+          <div className="hist-title">{'Histórico de Serviços'}</div>
           <span className="hist-count" id="hist-count" aria-live="polite">
             {text(viewModel.countLabel)}
           </span>
@@ -217,8 +217,8 @@ export function HistoricoFilters({ viewModel = {} }) {
               <input
                 id="hist-busca"
                 type="search"
-                placeholder={'Buscar equipamento, tipo, t\u00e9cnico\u2026'}
-                aria-label={'Buscar no hist\u00f3rico'}
+                placeholder={'Buscar equipamento, tipo, técnico…'}
+                aria-label={'Buscar no histórico'}
                 defaultValue={text(filters.busca)}
               />
             </label>
@@ -227,7 +227,7 @@ export function HistoricoFilters({ viewModel = {} }) {
               className={classNames('hist-filters-trigger', filtersCount > 0 && 'is-active')}
               id="hist-filters-trigger"
               data-hist-action={HISTORICO_ACTIONS.openFiltersSheet}
-              aria-label={'Abrir filtros avan\u00e7ados'}
+              aria-label={'Abrir filtros avançados'}
             >
               <FiltersIcon />
               Filtros

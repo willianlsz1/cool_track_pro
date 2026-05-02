@@ -92,8 +92,8 @@ export async function deleteOrcamentoFlow(id) {
   const o = (getState().orcamentos || []).find((x) => x.id === id);
   if (!o) return;
   const ok = await CustomConfirm.show(
-    `Apagar or\u00e7amento ${o.numero}?`,
-    `Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita. O or\u00e7amento de "${o.clienteNome}" ser\u00e1 removido permanentemente.`,
+    `Apagar orçamento ${o.numero}?`,
+    `Esta ação não pode ser desfeita. O orçamento de "${o.clienteNome}" será removido permanentemente.`,
     {
       confirmLabel: 'Apagar',
       cancelLabel: 'Cancelar',
@@ -104,10 +104,10 @@ export async function deleteOrcamentoFlow(id) {
   if (!ok) return;
   try {
     await deleteOrcamento(id);
-    Toast.success('Or\u00e7amento apagado.');
+    Toast.success('Orçamento apagado.');
     renderOrcamentos();
   } catch (error) {
-    Toast.error(error?.message || 'Falha ao apagar or\u00e7amento.');
+    Toast.error(error?.message || 'Falha ao apagar orçamento.');
   }
 }
 
@@ -120,7 +120,7 @@ export async function markOrcamentoApproved(id) {
       status: 'aprovado',
       aprovadoEm: new Date().toISOString(),
     });
-    Toast.success(`Or\u00e7amento ${o.numero} marcado como aprovado.`);
+    Toast.success(`Orçamento ${o.numero} marcado como aprovado.`);
     renderOrcamentos();
   } catch (error) {
     Toast.error(error?.message || 'Falha ao atualizar status.');

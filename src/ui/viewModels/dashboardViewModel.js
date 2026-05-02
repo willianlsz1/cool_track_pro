@@ -49,12 +49,12 @@ function trendTag(current, previous) {
     return { text: 'Sem dados anteriores', cls: 'neutral', tone: 'muted' };
   }
   if (previous === 0 && current > 0) {
-    return { text: `+${current} este m\u00eas`, cls: 'up', tone: 'ok' };
+    return { text: `+${current} este mês`, cls: 'up', tone: 'ok' };
   }
   const diff = current - previous;
-  if (diff === 0) return { text: 'Igual ao m\u00eas passado', cls: 'neutral', tone: 'muted' };
-  if (diff > 0) return { text: `+${diff} vs m\u00eas passado`, cls: 'up', tone: 'ok' };
-  return { text: `-${Math.abs(diff)} vs m\u00eas passado`, cls: 'down', tone: 'warn' };
+  if (diff === 0) return { text: 'Igual ao mês passado', cls: 'neutral', tone: 'muted' };
+  if (diff > 0) return { text: `+${diff} vs mês passado`, cls: 'up', tone: 'ok' };
+  return { text: `-${Math.abs(diff)} vs mês passado`, cls: 'down', tone: 'warn' };
 }
 
 function planTier(planCode) {
@@ -97,9 +97,9 @@ function toneFromHealthClass(healthClass) {
 
 function efficiencyLabel(efficiency) {
   if (efficiency >= 90) return 'excelente';
-  if (efficiency >= 75) return 'saud\u00e1vel';
-  if (efficiency >= 50) return 'aten\u00e7\u00e3o';
-  return 'interven\u00e7\u00e3o';
+  if (efficiency >= 75) return 'saudável';
+  if (efficiency >= 50) return 'atenção';
+  return 'intervenção';
 }
 
 function sortByDateDesc(items) {
@@ -134,19 +134,19 @@ function composeEquipmentContext({
   if (!includeBusinessContext) return equipNome;
   const clienteNome = resolveClienteNome(clientesById, equipamento?.clienteId);
   const setorNome = resolveSetorNome(setoresById, equipamento?.setorId);
-  return [clienteNome, setorNome, equipNome].filter(Boolean).join(' \u2022 ');
+  return [clienteNome, setorNome, equipNome].filter(Boolean).join(' • ');
 }
 
 function recencia(value, now = new Date()) {
   const date = safeDate(value);
   const reference = safeDate(now) || new Date();
-  if (!date) return '\u2014';
+  if (!date) return '—';
   const diff = Math.round((reference - date) / DAY_MS);
   if (diff === 0) return 'Hoje';
   if (diff === 1) return 'Ontem';
-  if (diff < 30) return `h\u00e1 ${diff} dias`;
-  if (diff < 60) return 'h\u00e1 1 m\u00eas';
-  return `h\u00e1 ${Math.floor(diff / 30)} meses`;
+  if (diff < 30) return `há ${diff} dias`;
+  if (diff < 60) return 'há 1 mês';
+  return `há ${Math.floor(diff / 30)} meses`;
 }
 
 function buildKpis({ equipamentos, registros, alerts, getHealthScore, getHealthClass, now }) {
@@ -172,13 +172,13 @@ function buildKpis({ equipamentos, registros, alerts, getHealthScore, getHealthC
       active,
       total,
       faults,
-      valueLabel: total ? `${active}/${total}` : '\u2014',
-      subLabel: !total ? 'sem cadastro' : faults > 0 ? `${faults} fora` : 'est\u00e1vel',
+      valueLabel: total ? `${active}/${total}` : '—',
+      subLabel: !total ? 'sem cadastro' : faults > 0 ? `${faults} fora` : 'estável',
       tone: faults > 0 ? 'danger' : 'ok',
     },
     eficiencia: {
       value: efficiency,
-      valueLabel: efficiency === null ? '\u2014' : `${efficiency}%`,
+      valueLabel: efficiency === null ? '—' : `${efficiency}%`,
       subLabel: efficiency === null ? 'sem dados' : efficiencyLabel(efficiency),
       tone: efficiency === null ? 'muted' : efficiencyTone,
       sparkData: scores.slice(-6),
@@ -213,20 +213,20 @@ function buildHero({
   clienteCount,
   isEmpresaPro,
 }) {
-  const name = safeString(userName).trim() || 'T\u00e9cnico';
+  const name = safeString(userName).trim() || 'Técnico';
   const equipLabel = `${equipCount} equipamento${equipCount === 1 ? '' : 's'}`;
-  const mesLabel = `${mesCount} servi\u00e7o${mesCount === 1 ? '' : 's'} no m\u00eas`;
+  const mesLabel = `${mesCount} serviço${mesCount === 1 ? '' : 's'} no mês`;
 
   return {
     tier,
     tone: hasCritical ? 'alert' : 'ok',
-    greeting: isEmpresaPro ? 'Opera\u00e7\u00e3o em andamento' : `Ol\u00e1, ${name}`,
+    greeting: isEmpresaPro ? 'Operação em andamento' : `Olá, ${name}`,
     summary: isEmpresaPro
-      ? `${clienteCount} clientes \u2022 ${equipCount} equipamentos \u2022 ${mesCount} servi\u00e7os no m\u00eas`
-      : `${equipLabel} \u2022 ${mesLabel}`,
+      ? `${clienteCount} clientes • ${equipCount} equipamentos • ${mesCount} serviços no mês`
+      : `${equipLabel} • ${mesLabel}`,
     primaryCta: {
       nav: 'registro',
-      label: 'Registrar servi\u00e7o',
+      label: 'Registrar serviço',
     },
     secondaryCta: isEmpresaPro
       ? {
@@ -243,12 +243,12 @@ function buildHero({
 
 function buildEmptyState({ isEmpresaPro }) {
   return {
-    icon: '\ud83d\udd27',
+    icon: '🔧',
     title: isEmpresaPro
-      ? 'Monte sua opera\u00e7\u00e3o come\u00e7ando por cliente ou equipamento'
+      ? 'Monte sua operação começando por cliente ou equipamento'
       : 'Cadastre seu primeiro equipamento',
     description: isEmpresaPro
-      ? 'Comece vinculando cliente, setor e equipamento para ter vis\u00e3o completa da opera\u00e7\u00e3o.'
+      ? 'Comece vinculando cliente, setor e equipamento para ter visão completa da operação.'
       : 'Cadastre seu primeiro equipamento em menos de 1 minuto. A foto da etiqueta preenche os principais dados.',
     cta: isEmpresaPro
       ? {
@@ -310,12 +310,12 @@ function buildNextAction({
     });
     return {
       tone,
-      title: safeString(action.alert.title, 'A\u00e7\u00e3o recomendada'),
-      subtitle: `${context} \u2022 ${safeString(action.alert.subtitle, 'Exige acompanhamento')}`,
+      title: safeString(action.alert.title, 'Ação recomendada'),
+      subtitle: `${context} • ${safeString(action.alert.subtitle, 'Exige acompanhamento')}`,
       cta: {
         action: DASHBOARD_ACTIONS.goRegisterEquip,
         id: safeString(action.alert.eq.id),
-        label: action.priority <= 4 ? 'Resolver agora' : 'Ver hist\u00f3rico',
+        label: action.priority <= 4 ? 'Resolver agora' : 'Ver histórico',
       },
       source: action,
     };
@@ -331,11 +331,11 @@ function buildNextAction({
     });
     return {
       tone,
-      title: 'Sem pend\u00eancias urgentes',
-      subtitle: `\u00daltimo servi\u00e7o: ${context} \u2022 ${recencia(action.registro.data, now)}`,
+      title: 'Sem pendências urgentes',
+      subtitle: `Último serviço: ${context} • ${recencia(action.registro.data, now)}`,
       cta: {
         nav: 'historico',
-        label: 'Ver hist\u00f3rico',
+        label: 'Ver histórico',
       },
       source: action,
     };
@@ -345,14 +345,14 @@ function buildNextAction({
     tone,
     title:
       action.kind === 'empty-equip' && isEmpresaPro
-        ? 'Monte sua opera\u00e7\u00e3o come\u00e7ando por cliente ou equipamento'
+        ? 'Monte sua operação começando por cliente ou equipamento'
         : action.kind === 'empty-equip'
           ? 'Cadastre seu primeiro equipamento'
-          : 'Nenhuma a\u00e7\u00e3o urgente',
-    subtitle: 'Sem pend\u00eancias imediatas no momento.',
+          : 'Nenhuma ação urgente',
+    subtitle: 'Sem pendências imediatas no momento.',
     cta: {
       nav: 'historico',
-      label: 'Ver hist\u00f3rico',
+      label: 'Ver histórico',
     },
     source: action,
   };
@@ -372,14 +372,14 @@ function buildLastService({
   const clienteNome = isEmpresaPro ? resolveClienteNome(clientesById, equipamento?.clienteId) : '';
   const setorNome = isEmpresaPro ? resolveSetorNome(setoresById, equipamento?.setorId) : '';
   const context = isEmpresaPro
-    ? [clienteNome, setorNome, recencia(last?.data, now)].filter(Boolean).join(' \u2022 ')
+    ? [clienteNome, setorNome, recencia(last?.data, now)].filter(Boolean).join(' • ')
     : recencia(last?.data, now);
 
   return {
     hidden: false,
-    title: [safeString(last?.tipo, 'Servi\u00e7o'), safeString(equipamento?.nome, '\u2014')]
+    title: [safeString(last?.tipo, 'Serviço'), safeString(equipamento?.nome, '—')]
       .filter(Boolean)
-      .join(' \u2022 '),
+      .join(' • '),
     subtitle: context,
     registro: last,
   };
@@ -394,7 +394,7 @@ function buildMonth({ registros, alerts, isEmpresaPro, now }) {
   const trend = trendTag(monthRegs.length, previous);
 
   return {
-    label: isEmpresaPro ? 'Vis\u00e3o da opera\u00e7\u00e3o' : 'Seu m\u00eas em campo',
+    label: isEmpresaPro ? 'Visão da operação' : 'Seu mês em campo',
     servicesCount: monthRegs.length,
     equipmentsCount: uniqueEquips.size,
     pendingCount: asArray(alerts).filter((alerta) => alerta?.severity !== 'info').length,

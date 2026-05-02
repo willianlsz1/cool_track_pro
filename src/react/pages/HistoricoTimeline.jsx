@@ -283,7 +283,7 @@ function TimelineMeta({ chunks }) {
         <span key={chunk.id || `${chunk.text}-${index}`}>
           {index > 0 ? (
             <span className="meta-sep" aria-hidden="true">
-              {'\u00b7'}
+              {'·'}
             </span>
           ) : null}
           <MetaChunk chunk={chunk} />
@@ -378,10 +378,10 @@ function TimelineItem({ item }) {
         </div>
         <h3 className="timeline__item__service">{text(item.serviceTitle, 'Servico')}</h3>
         <div className="timeline__item__equipment">
-          <span>{text(item.equipmentName, '\u2014')}</span>
+          <span>{text(item.equipmentName, '—')}</span>
           {item.setorName || item.equipTag ? (
             <span className="timeline__item__equipment-sep" aria-hidden="true">
-              {'\u00b7'}
+              {'·'}
             </span>
           ) : null}
           {item.setorName ? (
@@ -404,7 +404,7 @@ function TimelineItem({ item }) {
             data-equip-id={item.equipId}
             aria-label="Ver todos os servicos deste equipamento"
           >
-            Ver tudo deste equipamento {'\u2192'}
+            Ver tudo deste equipamento {'→'}
           </button>
         ) : null}
       </div>

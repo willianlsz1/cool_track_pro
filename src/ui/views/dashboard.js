@@ -573,13 +573,11 @@ function _criticalEquipmentCardModel(eq) {
 
   function getCtaByAction(actionCode) {
     if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE_IMMEDIATE)
-      return 'Registrar serviço corretivo agora \u2192';
-    if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE) return 'Registrar serviço corretivo \u2192';
-    if (actionCode === ACTION_CODE.REGISTER_PREVENTIVE)
-      return 'Registrar serviço preventivo \u2192';
-    if (actionCode === ACTION_CODE.SCHEDULE_PREVENTIVE)
-      return 'Programar serviço preventivo \u2192';
-    return 'Registrar serviço \u2192';
+      return 'Registrar serviço corretivo agora →';
+    if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE) return 'Registrar serviço corretivo →';
+    if (actionCode === ACTION_CODE.REGISTER_PREVENTIVE) return 'Registrar serviço preventivo →';
+    if (actionCode === ACTION_CODE.SCHEDULE_PREVENTIVE) return 'Programar serviço preventivo →';
+    return 'Registrar serviço →';
   }
 
   let proximaLabel = '—';
@@ -605,8 +603,7 @@ function _criticalEquipmentCardModel(eq) {
   }
 
   let ctaLabel = getCtaByAction(suggestedAction.actionCode);
-  if (!last && suggestedAction.actionCode === ACTION_CODE.NONE)
-    ctaLabel = 'Primeiro registro \u2192';
+  if (!last && suggestedAction.actionCode === ACTION_CODE.NONE) ctaLabel = 'Primeiro registro →';
 
   return {
     id: eq?.id || '',

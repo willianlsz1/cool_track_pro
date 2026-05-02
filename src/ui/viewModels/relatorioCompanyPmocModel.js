@@ -13,12 +13,12 @@ export function buildRelatorioCompanyPmocModel({ isPro = false, hasPmocAttention
     planCode: visible ? RELATORIO_PLAN_CODES.pro : '',
     ariaLabel: 'PMOC da empresa',
     title: 'PMOC',
-    description: 'Documento anual com cronograma, evid\u00eancias e assinaturas.',
+    description: 'Documento anual com cronograma, evidências e assinaturas.',
     primaryAction: RELATORIO_ACTIONS.openPmocModal,
     primaryLabel: 'Gerar PMOC formal',
     showAttention,
-    attentionLabel: showAttention ? 'PMOC precisa de aten\u00e7\u00e3o' : '',
+    attentionLabel: showAttention ? 'PMOC precisa de atenção' : '',
     secondaryNav: showAttention ? RELATORIO_NAV_TARGETS.clientes : '',
-    secondaryLabel: showAttention ? 'Ver pend\u00eancias' : '',
+    secondaryLabel: showAttention ? 'Ver pendências' : '',
   };
 }

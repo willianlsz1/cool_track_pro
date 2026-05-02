@@ -1097,7 +1097,7 @@ function buildHistoricoFiltersReactViewModel({
     })),
     equipamentoOptions: asArray(equipamentos).map((equipamento) => ({
       id: equipamento?.id || '',
-      label: `${equipamento?.nome || '\u2014'} \u2014 ${equipamento?.local || '\u2014'}`,
+      label: `${equipamento?.nome || '—'} — ${equipamento?.local || '—'}`,
     })),
     periodOptions: PERIOD_OPTIONS,
     tipoOptions: TIPO_OPTIONS,

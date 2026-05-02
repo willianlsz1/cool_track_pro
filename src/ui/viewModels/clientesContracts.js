@@ -24,7 +24,7 @@ export const CLIENTES_ACTIONS = Object.freeze({
   delete: 'delete',
   cardMenu: 'card-menu',
   verEquipamentos: 'ver-equipamentos',
-  verServicos: 'ver-servi\u00e7os',
+  verServicos: 'ver-serviços',
   pmocFocus: 'pmoc-focus',
   openPmocPanel: 'open-pmoc-panel',
 });
@@ -41,14 +41,14 @@ export const CLIENTES_DEFAULT_FILTERS = Object.freeze({
 export const CLIENTES_STATUS_OPTIONS = Object.freeze([
   Object.freeze({ id: 'todos', label: 'Todos' }),
   Object.freeze({ id: 'ativo', label: 'Ativos' }),
-  Object.freeze({ id: 'sem_manutencao', label: 'Sem manuten\u00e7\u00e3o' }),
-  Object.freeze({ id: 'precisa_atencao', label: 'Precisa aten\u00e7\u00e3o' }),
+  Object.freeze({ id: 'sem_manutencao', label: 'Sem manutenção' }),
+  Object.freeze({ id: 'precisa_atencao', label: 'Precisa atenção' }),
 ]);
 
 export const CLIENTES_SORT_OPTIONS = Object.freeze([
   Object.freeze({ id: 'mais_ativos', label: 'Mais ativos' }),
-  Object.freeze({ id: 'recente', label: 'Manuten\u00e7\u00e3o recente' }),
-  Object.freeze({ id: 'antigo', label: 'Manuten\u00e7\u00e3o antiga' }),
+  Object.freeze({ id: 'recente', label: 'Manutenção recente' }),
+  Object.freeze({ id: 'antigo', label: 'Manutenção antiga' }),
   Object.freeze({ id: 'nome', label: 'Nome (A-Z)' }),
   Object.freeze({ id: 'equips', label: 'Mais equipamentos' }),
 ]);
