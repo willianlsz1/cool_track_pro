@@ -51,6 +51,13 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('#app:not(.landing-active) .app-sidebar__nav');
     expect(redesign).toContain('min-height: 46px;');
     expect(redesign).toContain('gap: 24px !important;');
+    expect(redesign).toContain('System visual polish - dark operational consistency');
+    expect(redesign).toContain(
+      ".modal\n  input:not([type='checkbox']):not([type='radio']):not([type='file']),",
+    );
+    expect(redesign).toContain('#app:not(.landing-active) .hist-quickfilter');
+    expect(redesign).toContain('#app:not(.landing-active) .cli-card__actions');
+    expect(redesign).toContain('overflow-wrap: anywhere;');
     expect(redesign).toContain('PR 4 - Dashboard operational dark refresh');
     expect(redesign).toContain('#app:not(.landing-active) #dash');
     expect(redesign).toContain('--dsh-accent: var(--ct-brand);');
@@ -90,6 +97,9 @@ describe('internal visual identity tokens', () => {
     expect(clientesPremium).toContain(
       'background: color-mix(in srgb, var(--ct-success-soft) 64%, transparent) !important;',
     );
+    expect(clientesPremium).toContain('Clientes card polish');
+    expect(clientesPremium).toContain('.cli-card__actions');
+    expect(clientesPremium).toContain('text-overflow: ellipsis;');
     expect(clientesPremium).toContain('background: var(--ct-success-soft) !important;');
     expect(clientesPremium).toContain('background: var(--ct-warn-soft) !important;');
     expect(clientesPremium).toContain('background: var(--ct-error-soft) !important;');

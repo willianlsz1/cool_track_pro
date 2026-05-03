@@ -2015,6 +2015,338 @@ body:not(.landing-active) .modal-overlay {
 }
 
 /* ============================================================
+   System visual polish - dark operational consistency
+   ============================================================ */
+
+body:not(.landing-active) .modal-overlay {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(144, 184, 248, 0.12), transparent 34%),
+    rgba(12, 13, 16, 0.78) !important;
+  backdrop-filter: blur(8px) saturate(1.05);
+}
+
+body:not(.landing-active) .modal,
+body:not(.landing-active) .modal-content,
+body:not(.landing-active) .modal__dialog {
+  max-width: min(94vw, 760px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.014)),
+    var(--ct-surface) !important;
+  border: 1px solid var(--ct-border) !important;
+  border-radius: 18px !important;
+  color: var(--ct-text) !important;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  overflow: hidden;
+}
+
+body:not(.landing-active) .modal__header,
+body:not(.landing-active) .modal-header,
+body:not(.landing-active) .modal__footer,
+body:not(.landing-active) .modal-footer {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.055), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+}
+
+body:not(.landing-active) .modal__body,
+body:not(.landing-active) .modal-body {
+  background: transparent !important;
+  color: var(--ct-text-muted) !important;
+  min-width: 0;
+}
+
+body:not(.landing-active) .modal__title,
+body:not(.landing-active) .modal-title {
+  color: var(--ct-text) !important;
+  overflow-wrap: anywhere;
+}
+
+body:not(.landing-active) .modal__text,
+body:not(.landing-active) .modal__subtitle,
+body:not(.landing-active) .modal small,
+body:not(.landing-active) .form-hint {
+  color: var(--ct-text-muted) !important;
+}
+
+body:not(.landing-active) .modal .form-group,
+body:not(.landing-active) .modal .form-section,
+body:not(.landing-active) .modal .summary-card,
+body:not(.landing-active) .modal .info-row,
+body:not(.landing-active) .modal .orc-summary,
+body:not(.landing-active) .modal .cliente-summary {
+  background: color-mix(in srgb, var(--ct-surface-subtle) 82%, transparent) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+body:not(.landing-active)
+  .modal
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+body:not(.landing-active) .modal select,
+body:not(.landing-active) .modal textarea {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+body:not(.landing-active)
+  .modal
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
+body:not(.landing-active) .modal select:focus,
+body:not(.landing-active) .modal textarea:focus {
+  border-color: var(--ct-brand-hover) !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.18) !important;
+}
+
+#app:not(.landing-active) .hist-quickfilter,
+#app:not(.landing-active) .orc-chip,
+#app:not(.landing-active) .equip-filter,
+#app:not(.landing-active) .rel-chip,
+#app:not(.landing-active) .servicos-toggle button,
+#app:not(.landing-active) .sfm-tabs button,
+#app:not(.landing-active) [role='tab'] {
+  background: color-mix(in srgb, var(--ct-surface-subtle) 86%, transparent) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .hist-quickfilter:hover,
+#app:not(.landing-active) .orc-chip:hover,
+#app:not(.landing-active) .equip-filter:hover,
+#app:not(.landing-active) .rel-chip:hover,
+#app:not(.landing-active) .servicos-toggle button:hover,
+#app:not(.landing-active) .sfm-tabs button:hover,
+#app:not(.landing-active) [role='tab']:hover {
+  background: rgba(144, 184, 248, 0.09) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) .hist-quickfilter.is-active,
+#app:not(.landing-active) .orc-chip.is-active,
+#app:not(.landing-active) .equip-filter--active,
+#app:not(.landing-active) .rel-chip.is-active,
+#app:not(.landing-active) .servicos-toggle button.is-active,
+#app:not(.landing-active) .sfm-tabs button[aria-selected='true'],
+#app:not(.landing-active) [role='tab'][aria-selected='true'] {
+  background: rgba(95, 133, 219, 0.18) !important;
+  border-color: color-mix(in srgb, var(--ct-brand-hover) 38%, transparent) !important;
+  color: var(--ct-brand-hover) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+#app:not(.landing-active) .rel-filters,
+#app:not(.landing-active) .rel-filters__advanced,
+#app:not(.landing-active) .equip-filters,
+#app:not(.landing-active) .equip-search-row,
+#app:not(.landing-active) .hist-sticky-header,
+#app:not(.landing-active) .page-toolbar,
+#app:not(.landing-active) .servicos-toggle {
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+}
+
+#app:not(.landing-active) .view,
+#app:not(.landing-active) .card,
+#app:not(.landing-active) .cli-card,
+#app:not(.landing-active) .equip-card,
+#app:not(.landing-active) .orc-card,
+#app:not(.landing-active) .rel-record,
+#app:not(.landing-active) .alert-card,
+#app:not(.landing-active) .hist-card,
+#app:not(.landing-active) .info-row,
+#app:not(.landing-active) .modal,
+#app:not(.landing-active) .modal * {
+  min-width: 0;
+}
+
+#app:not(.landing-active) .cli-card,
+#app:not(.landing-active) .equip-card,
+#app:not(.landing-active) .orc-card,
+#app:not(.landing-active) .rel-record,
+#app:not(.landing-active) .alert-card,
+#app:not(.landing-active) .hist-card {
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+}
+
+#app:not(.landing-active) .cli-card__actions,
+#app:not(.landing-active) .equip-card__footer,
+#app:not(.landing-active) .equip-card__primary,
+#app:not(.landing-active) .orc-card__actions,
+#app:not(.landing-active) .rel-record__actions,
+#app:not(.landing-active) .alert-card__footer {
+  background: rgba(45, 48, 54, 0.72) !important;
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) .cli-card__action--secondary,
+#app:not(.landing-active) .cli-card__action--pmoc,
+#app:not(.landing-active) .cli-card__action--ghost,
+#app:not(.landing-active) .equip-card__action,
+#app:not(.landing-active) .equip-card__secondary,
+#app:not(.landing-active) .orc-card__action,
+#app:not(.landing-active) .rel-record__action {
+  background: rgba(144, 184, 248, 0.055) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .cli-card__action--secondary:hover,
+#app:not(.landing-active) .cli-card__action--pmoc:hover,
+#app:not(.landing-active) .cli-card__action--ghost:hover,
+#app:not(.landing-active) .equip-card__action:hover,
+#app:not(.landing-active) .equip-card__secondary:hover,
+#app:not(.landing-active) .orc-card__action:hover,
+#app:not(.landing-active) .rel-record__action:hover {
+  background: rgba(144, 184, 248, 0.11) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+  transform: translateY(-1px);
+}
+
+#app:not(.landing-active) .badge,
+#app:not(.landing-active) .hist-pill,
+#app:not(.landing-active) .orc-status-pill,
+#app:not(.landing-active) .status-pill,
+#app:not(.landing-active) .equip-card__status,
+#app:not(.landing-active) .equip-card__tone-pill,
+#app:not(.landing-active) .equip-card__risk-chip,
+#app:not(.landing-active) .cli-card__pill,
+#app:not(.landing-active) .cli-pmoc__chip {
+  max-width: 100%;
+  min-height: 24px;
+  padding: 4px 9px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .cli-card__name,
+#app:not(.landing-active) .cli-card__sub,
+#app:not(.landing-active) .cli-card__address,
+#app:not(.landing-active) .equip-card__name,
+#app:not(.landing-active) .equip-card__tag,
+#app:not(.landing-active) .equip-card__subtitle,
+#app:not(.landing-active) .equip-card__primary-title,
+#app:not(.landing-active) .orc-card__title,
+#app:not(.landing-active) .orc-card__meta,
+#app:not(.landing-active) .rel-record__title,
+#app:not(.landing-active) .rel-record__meta,
+#app:not(.landing-active) .alert-card__title,
+#app:not(.landing-active) .alert-card__meta {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#app:not(.landing-active) .cli-card__address,
+#app:not(.landing-active) .equip-card__subtitle,
+#app:not(.landing-active) .equip-card__primary-meta,
+#app:not(.landing-active) .rel-record__summary-line,
+#app:not(.landing-active) .alert-card__desc {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+#app:not(.landing-active) #view-orcamentos,
+#app:not(.landing-active) #view-orcamentos .orc-page,
+#app:not(.landing-active) #view-orcamentos .orc-header,
+#app:not(.landing-active) #view-orcamentos .orc-header__title-row,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar,
+#app:not(.landing-active) #view-orcamentos .orc-kpis,
+#app:not(.landing-active) #view-orcamentos .orc-kpi,
+#app:not(.landing-active) #view-orcamentos .orc-cards,
+#app:not(.landing-active) #view-orcamentos .orc-list,
+#app:not(.landing-active) #view-orcamentos .orc-card,
+#app:not(.landing-active) #view-orcamentos .orc-card__head,
+#app:not(.landing-active) #view-orcamentos .orc-card__body,
+#app:not(.landing-active) #view-orcamentos .orc-card__actions {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-header__title-row,
+#app:not(.landing-active) #view-orcamentos .orc-card__head {
+  flex-wrap: wrap;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-filter-chips {
+  max-width: 100%;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi__value,
+#app:not(.landing-active) #view-orcamentos .orc-kpi__label,
+#app:not(.landing-active) #view-orcamentos .orc-card__total,
+#app:not(.landing-active) #view-orcamentos .orc-card__cliente span,
+#app:not(.landing-active) #view-orcamentos .orc-card__actions .btn {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 720px) {
+  body:not(.landing-active) .modal,
+  body:not(.landing-active) .modal-content,
+  body:not(.landing-active) .modal__dialog {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    border-radius: 16px !important;
+  }
+
+  #app:not(.landing-active) .rel-filters,
+  #app:not(.landing-active) .rel-filters__advanced,
+  #app:not(.landing-active) .equip-filters,
+  #app:not(.landing-active) .hist-sticky-header,
+  #app:not(.landing-active) .page-toolbar {
+    overflow-x: hidden;
+  }
+
+  #app:not(.landing-active) #view-orcamentos .orc-page {
+    width: 100%;
+    overflow-x: clip;
+  }
+
+  #app:not(.landing-active) #view-orcamentos .orc-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  #app:not(.landing-active) #view-orcamentos .orc-filter-chips {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  #app:not(.landing-active) .badge,
+  #app:not(.landing-active) .hist-pill,
+  #app:not(.landing-active) .orc-status-pill,
+  #app:not(.landing-active) .status-pill,
+  #app:not(.landing-active) .equip-card__status,
+  #app:not(.landing-active) .equip-card__tone-pill,
+  #app:not(.landing-active) .equip-card__risk-chip,
+  #app:not(.landing-active) .cli-card__pill,
+  #app:not(.landing-active) .cli-pmoc__chip {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ============================================================
    PR 6 - Relatorios operational dark refresh
    ============================================================ */
 

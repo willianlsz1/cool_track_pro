@@ -794,3 +794,87 @@
   background: color-mix(in srgb, var(--ct-error-soft) 64%, transparent) !important;
   border-color: color-mix(in srgb, var(--ct-error) 20%, transparent) !important;
 }
+
+/* Clientes card polish: denser hierarchy, softer actions and robust text containment. */
+.cli-card__head,
+.cli-card__title-wrap,
+.cli-card__stats,
+.cli-card__actions,
+.cli-pmoc,
+.cli-pmoc__head,
+.cli-pmoc__body {
+  min-width: 0;
+}
+
+.cli-card__name,
+.cli-card__sub,
+.cli-card__address,
+.cli-stat__label,
+.cli-stat__value,
+.cli-pmoc__status,
+.cli-pmoc__hint {
+  max-width: 100%;
+}
+
+.cli-card__name,
+.cli-card__sub,
+.cli-stat__value,
+.cli-pmoc__status {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cli-card__address,
+.cli-pmoc__hint {
+  overflow-wrap: anywhere;
+}
+
+.cli-card__stats,
+.cli-pmoc {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+}
+
+.cli-card__actions {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ct-border);
+}
+
+.cli-card__action {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.cli-card__action span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cli-card__action--secondary,
+.cli-card__action--pmoc,
+.cli-card__action--ghost {
+  background: rgba(144, 184, 248, 0.055) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+.cli-card__pill,
+.cli-pmoc__chip {
+  max-width: 100%;
+  box-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+  .cli-card__action {
+    min-height: 40px;
+  }
+
+  .cli-card__pill,
+  .cli-pmoc__chip {
+    white-space: normal;
+  }
+}
