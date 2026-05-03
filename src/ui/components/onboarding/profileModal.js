@@ -158,86 +158,86 @@ export const ProfileModal = {
     overlay.setAttribute('aria-labelledby', 'profile-title');
 
     overlay.innerHTML = `
-      <div class="modal profile-modal">
+      <div class="modal profile-modal tw-p-0 tw-overflow-hidden tw-w-[min(480px,calc(100vw-32px))] tw-rounded-xl">
 
         <!-- V10: hero removido inteiramente — usuário reportou que o hero
              (avatar + close) era redundante porque o footer já tem botoes
              "Cancelar" e "Salvar perfil" + ESC também fecha. Mantemos apenas
              o h2 sr-only pra screen readers e preservar aria-labelledby. -->
-        <h2 class="profile-modal__title--sr-only" id="profile-title">Meu Perfil</h2>
+        <h2 class="profile-modal__title--sr-only tw-sr-only" id="profile-title">Meu Perfil</h2>
 
         <!-- Body V6: cards de seção com icone + header + hints sob labels.
              Hierarquia visual: hero -> 3 cards (Identificacao / Empresa /
              Dados legais) -> footer com seguranca e Salvar. -->
-        <div class="profile-modal__body">
+        <div class="profile-modal__body tw-px-4 tw-pt-[18px] tw-pb-4 tw-flex tw-flex-col tw-gap-[14px] max-[480px]:tw-px-3 max-[480px]:tw-py-[14px] max-[480px]:tw-gap-3">
 
           <!-- ── Card 1: Identificação ── -->
-          <div class="profile-modal__section profile-modal__section--card">
-            <header class="profile-modal__section-head">
-              <span class="profile-modal__section-icon" aria-hidden="true">${ICON_USER}</span>
-              <div class="profile-modal__section-text">
-                <h3 class="profile-modal__section-title">Identificação</h3>
-                <p class="profile-modal__section-sub">Como você será identificado nos relatórios</p>
+          <div class="profile-modal__section profile-modal__section--card profile-modal-card-base">
+            <header class="profile-modal__section-head profile-modal-section-head-base">
+              <span class="profile-modal__section-icon profile-modal-section-icon-base" aria-hidden="true">${ICON_USER}</span>
+              <div class="profile-modal__section-text tw-flex-1 tw-min-w-0">
+                <h3 class="profile-modal__section-title tw-m-0 tw-text-[15px] tw-font-semibold tw-text-ct-text tw-tracking-[-0.005em] tw-leading-[1.2]">Identificação</h3>
+                <p class="profile-modal__section-sub tw-mt-1 tw-text-xs tw-text-ct-text-muted tw-leading-[1.4]">Como você será identificado nos relatórios</p>
               </div>
             </header>
 
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-nome">
-                Nome completo <span class="profile-modal__required" aria-hidden="true">*</span>
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-nome">
+                Nome completo <span class="profile-modal__required tw-text-ct-error tw-ml-0.5" aria-hidden="true">*</span>
               </label>
-              <span class="profile-modal__field-hint">Aparece no cabeçalho dos PDFs</span>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Aparece no cabeçalho dos PDFs</span>
               <input id="prof-nome" class="form-control profile-modal__input" type="text"
                 value="${Utils.escapeAttr(profile.nome || '')}"
                 placeholder="Ex: Carlos Figueiredo"
                 autocomplete="name" required />
             </div>
 
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-crea">CREA / Registro profissional</label>
-              <span class="profile-modal__field-hint">Seu registro no conselho profissional</span>
-              <div class="profile-modal__input-wrap">
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-crea">CREA / Registro profissional</label>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Seu registro no conselho profissional</span>
+              <div class="profile-modal__input-wrap profile-modal-input-wrap-base">
                 <input id="prof-crea"
-                  class="form-control profile-modal__input profile-modal__input--has-trailing-icon"
+                  class="form-control profile-modal__input profile-modal__input--has-trailing-icon tw-pr-[38px]"
                   type="text"
                   value="${Utils.escapeAttr(profile.crea || '')}"
                   placeholder="Ex: CREA-MG 123456/D"
                   autocomplete="off" />
-                <span class="profile-modal__input-trailing-icon" aria-hidden="true">${ICON_ID}</span>
+                <span class="profile-modal__input-trailing-icon profile-modal-trailing-icon-base" aria-hidden="true">${ICON_ID}</span>
               </div>
             </div>
           </div>
 
           <!-- ── Card 2: Empresa ── -->
-          <div class="profile-modal__section profile-modal__section--card">
-            <header class="profile-modal__section-head">
-              <span class="profile-modal__section-icon" aria-hidden="true">${ICON_BUILDING}</span>
-              <div class="profile-modal__section-text">
-                <h3 class="profile-modal__section-title">Empresa</h3>
-                <p class="profile-modal__section-sub">Dados da sua empresa</p>
+          <div class="profile-modal__section profile-modal__section--card profile-modal-card-base">
+            <header class="profile-modal__section-head profile-modal-section-head-base">
+              <span class="profile-modal__section-icon profile-modal-section-icon-base" aria-hidden="true">${ICON_BUILDING}</span>
+              <div class="profile-modal__section-text tw-flex-1 tw-min-w-0">
+                <h3 class="profile-modal__section-title tw-m-0 tw-text-[15px] tw-font-semibold tw-text-ct-text tw-tracking-[-0.005em] tw-leading-[1.2]">Empresa</h3>
+                <p class="profile-modal__section-sub tw-mt-1 tw-text-xs tw-text-ct-text-muted tw-leading-[1.4]">Dados da sua empresa</p>
               </div>
             </header>
 
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-empresa">Nome / Razão fantasia</label>
-              <span class="profile-modal__field-hint">Aparece nos relatórios</span>
-              <div class="profile-modal__input-wrap">
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-empresa">Nome / Razão fantasia</label>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Aparece nos relatórios</span>
+              <div class="profile-modal__input-wrap profile-modal-input-wrap-base">
                 <input id="prof-empresa"
-                  class="form-control profile-modal__input profile-modal__input--has-trailing-icon"
+                  class="form-control profile-modal__input profile-modal__input--has-trailing-icon tw-pr-[38px]"
                   type="text"
                   value="${Utils.escapeAttr(profile.empresa || '')}"
                   placeholder="Ex: Frio Total Refrigeração"
                   autocomplete="organization" />
-                <span class="profile-modal__input-trailing-icon" aria-hidden="true">${ICON_BUILDING}</span>
+                <span class="profile-modal__input-trailing-icon profile-modal-trailing-icon-base" aria-hidden="true">${ICON_BUILDING}</span>
               </div>
             </div>
 
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-telefone">Telefone / WhatsApp</label>
-              <span class="profile-modal__field-hint">Para contato rápido</span>
-              <div class="profile-modal__input-wrap">
-                <span class="profile-modal__input-icon" aria-hidden="true">${ICON_PHONE}</span>
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-telefone">Telefone / WhatsApp</label>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Para contato rápido</span>
+              <div class="profile-modal__input-wrap profile-modal-input-wrap-base">
+                <span class="profile-modal__input-icon tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-ct-text-faint tw-pointer-events-none tw-z-[1] tw-inline-flex tw-leading-none" aria-hidden="true">${ICON_PHONE}</span>
                 <input id="prof-telefone"
-                  class="form-control profile-modal__input profile-modal__input--has-icon"
+                  class="form-control profile-modal__input profile-modal__input--has-icon tw-pl-[42px]"
                   type="tel"
                   value="${Utils.escapeAttr(profile.telefone || '')}"
                   placeholder="(31) 99999-0000"
@@ -247,67 +247,67 @@ export const ProfileModal = {
           </div>
 
           <!-- ── Card 3: Dados legais (opcional) ── -->
-          <div class="profile-modal__section profile-modal__section--card">
-            <header class="profile-modal__section-head">
-              <span class="profile-modal__section-icon" aria-hidden="true">${ICON_SHIELD}</span>
-              <div class="profile-modal__section-text">
-                <h3 class="profile-modal__section-title">
-                  Dados legais <span class="profile-modal__section-tag">(opcional)</span>
+          <div class="profile-modal__section profile-modal__section--card profile-modal-card-base">
+            <header class="profile-modal__section-head profile-modal-section-head-base">
+              <span class="profile-modal__section-icon profile-modal-section-icon-base" aria-hidden="true">${ICON_SHIELD}</span>
+              <div class="profile-modal__section-text tw-flex-1 tw-min-w-0">
+                <h3 class="profile-modal__section-title tw-m-0 tw-text-[15px] tw-font-semibold tw-text-ct-text tw-tracking-[-0.005em] tw-leading-[1.2]">
+                  Dados legais <span class="profile-modal__section-tag tw-text-xs tw-font-normal tw-text-ct-text-faint tw-ml-1 tw-tracking-normal">(opcional)</span>
                 </h3>
-                <p class="profile-modal__section-sub">Necessário para emitir relatórios PMOC formais</p>
+                <p class="profile-modal__section-sub tw-mt-1 tw-text-xs tw-text-ct-text-muted tw-leading-[1.4]">Necessário para emitir relatórios PMOC formais</p>
               </div>
             </header>
 
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-razao-social">Razão social completa</label>
-              <span class="profile-modal__field-hint">Conforme contrato social</span>
-              <div class="profile-modal__input-wrap">
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-razao-social">Razão social completa</label>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Conforme contrato social</span>
+              <div class="profile-modal__input-wrap profile-modal-input-wrap-base">
                 <input id="prof-razao-social"
-                  class="form-control profile-modal__input profile-modal__input--has-trailing-icon"
+                  class="form-control profile-modal__input profile-modal__input--has-trailing-icon tw-pr-[38px]"
                   type="text"
                   value="${Utils.escapeAttr(profile.razao_social || '')}"
                   placeholder="Ex: Frio Total Refrigeração Ltda"
                   autocomplete="organization" />
-                <span class="profile-modal__input-trailing-icon" aria-hidden="true">${ICON_DOC}</span>
+                <span class="profile-modal__input-trailing-icon profile-modal-trailing-icon-base" aria-hidden="true">${ICON_DOC}</span>
               </div>
             </div>
 
             <!-- Linha CNPJ + Inscricao estadual em 2 colunas (mobile cai pra 1) -->
-            <div class="profile-modal__row-2col">
-              <div class="profile-modal__field">
-                <label class="profile-modal__label" for="prof-cnpj">CNPJ / CPF</label>
-                <span class="profile-modal__field-hint">Somente números</span>
-                <div class="profile-modal__input-wrap">
+            <div class="profile-modal__row-2col tw-grid tw-grid-cols-2 tw-gap-3 max-[480px]:tw-grid-cols-1">
+              <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+                <label class="profile-modal__label profile-modal-label-base" for="prof-cnpj">CNPJ / CPF</label>
+                <span class="profile-modal__field-hint profile-modal-field-hint-base">Somente números</span>
+                <div class="profile-modal__input-wrap profile-modal-input-wrap-base">
                   <input id="prof-cnpj"
-                    class="form-control profile-modal__input profile-modal__input--has-trailing-icon"
+                    class="form-control profile-modal__input profile-modal__input--has-trailing-icon tw-pr-[38px]"
                     type="text"
                     value="${Utils.escapeAttr(profile.cnpj || '')}"
                     placeholder="00.000.000/0001-00"
                     inputmode="numeric"
                     autocomplete="off" />
-                  <span class="profile-modal__input-trailing-icon" aria-hidden="true">${ICON_ID}</span>
+                  <span class="profile-modal__input-trailing-icon profile-modal-trailing-icon-base" aria-hidden="true">${ICON_ID}</span>
                 </div>
               </div>
 
-              <div class="profile-modal__field">
-                <label class="profile-modal__label" for="prof-ie">Inscrição estadual</label>
-                <span class="profile-modal__field-hint">Isento ou número</span>
-                <div class="profile-modal__input-wrap">
+              <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+                <label class="profile-modal__label profile-modal-label-base" for="prof-ie">Inscrição estadual</label>
+                <span class="profile-modal__field-hint profile-modal-field-hint-base">Isento ou número</span>
+                <div class="profile-modal__input-wrap profile-modal-input-wrap-base">
                   <input id="prof-ie"
-                    class="form-control profile-modal__input profile-modal__input--has-trailing-icon"
+                    class="form-control profile-modal__input profile-modal__input--has-trailing-icon tw-pr-[38px]"
                     type="text"
                     value="${Utils.escapeAttr(profile.inscricao_estadual || '')}"
                     placeholder="Isento ou número"
                     autocomplete="off" />
-                  <span class="profile-modal__input-trailing-icon" aria-hidden="true">${ICON_ID}</span>
+                  <span class="profile-modal__input-trailing-icon profile-modal-trailing-icon-base" aria-hidden="true">${ICON_ID}</span>
                 </div>
               </div>
             </div>
 
             <!-- Inscricao municipal pode ficar abaixo (linha única) -->
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-im">Inscrição municipal</label>
-              <span class="profile-modal__field-hint">Número conforme prefeitura</span>
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-im">Inscrição municipal</label>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Número conforme prefeitura</span>
               <input id="prof-im" class="form-control profile-modal__input" type="text"
                 value="${Utils.escapeAttr(profile.inscricao_municipal || '')}"
                 placeholder="Número conforme prefeitura"
@@ -316,19 +316,19 @@ export const ProfileModal = {
 
             <!-- V2 (#115): campos especificos PMOC. Aparecem agrupados com hint
                  explicando o uso (ART/RRT eh obrigatoria pra PMOC formal). -->
-            <div class="profile-modal__row profile-modal__row--two">
-              <div class="profile-modal__field">
-                <label class="profile-modal__label" for="prof-rt">Responsável Técnico</label>
-                <span class="profile-modal__field-hint">Se diferente de você (ex.: empresa terceirizou)</span>
+            <div class="profile-modal__row profile-modal__row--two tw-grid tw-grid-cols-2 tw-gap-3 max-[480px]:tw-grid-cols-1">
+              <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+                <label class="profile-modal__label profile-modal-label-base" for="prof-rt">Responsável Técnico</label>
+                <span class="profile-modal__field-hint profile-modal-field-hint-base">Se diferente de você (ex.: empresa terceirizou)</span>
                 <input id="prof-rt" class="form-control profile-modal__input" type="text"
                   value="${Utils.escapeAttr(profile.responsavel_tecnico || '')}"
                   placeholder="Nome completo do RT"
                   autocomplete="off" />
               </div>
 
-              <div class="profile-modal__field">
-                <label class="profile-modal__label" for="prof-art-rrt">ART / RRT nº</label>
-                <span class="profile-modal__field-hint">Anotação de Responsabilidade Técnica</span>
+              <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+                <label class="profile-modal__label profile-modal-label-base" for="prof-art-rrt">ART / RRT nº</label>
+                <span class="profile-modal__field-hint profile-modal-field-hint-base">Anotação de Responsabilidade Técnica</span>
                 <input id="prof-art-rrt" class="form-control profile-modal__input" type="text"
                   value="${Utils.escapeAttr(profile.art_rrt || '')}"
                   placeholder="Ex: MG2026000000000"
@@ -336,9 +336,9 @@ export const ProfileModal = {
               </div>
             </div>
 
-            <div class="profile-modal__field">
-              <label class="profile-modal__label" for="prof-cidade">Cidade</label>
-              <span class="profile-modal__field-hint">Aparece no termo do PMOC: "Cidade, data."</span>
+            <div class="profile-modal__field tw-mb-3.5 last:tw-mb-0">
+              <label class="profile-modal__label profile-modal-label-base" for="prof-cidade">Cidade</label>
+              <span class="profile-modal__field-hint profile-modal-field-hint-base">Aparece no termo do PMOC: "Cidade, data."</span>
               <input id="prof-cidade" class="form-control profile-modal__input" type="text"
                 value="${Utils.escapeAttr(profile.cidade || '')}"
                 placeholder="Ex: Belo Horizonte/MG"
@@ -346,28 +346,28 @@ export const ProfileModal = {
             </div>
 
             <!-- Info banner explicando o opcional -->
-            <div class="profile-modal__info-banner" role="note">
-              <span class="profile-modal__info-banner-icon" aria-hidden="true">${ICON_INFO}</span>
+            <div class="profile-modal__info-banner tw-mt-3.5 tw-py-3 tw-px-3.5 tw-rounded-lg tw-flex tw-gap-2.5 tw-items-start tw-text-xs tw-leading-[1.45] tw-text-ct-text-muted tw-bg-ct-brand/[0.08] tw-border tw-border-ct-brand/[0.22]" role="note">
+              <span class="profile-modal__info-banner-icon tw-shrink-0 tw-text-ct-brand tw-inline-flex tw-mt-px" aria-hidden="true">${ICON_INFO}</span>
               <span>Essas informações são opcionais, mas obrigatórias para gerar PMOC formal completo.</span>
             </div>
           </div>
 
           <!-- ── Footer: seguranca + autosave + salvar ── -->
-          <div class="profile-modal__footer">
-            <div class="profile-modal__footer-meta">
-              <span class="profile-modal__footer-secure" title="Dados criptografados">
+          <div class="profile-modal__footer tw-mt-1 tw-flex tw-flex-col tw-gap-3">
+            <div class="profile-modal__footer-meta tw-flex tw-justify-between tw-items-center tw-text-[11.5px] tw-text-ct-text-faint tw-flex-wrap tw-gap-2">
+              <span class="profile-modal__footer-secure tw-inline-flex tw-items-center tw-gap-1.5" title="Dados criptografados">
                 ${ICON_LOCK} Seus dados são salvos com segurança
               </span>
-              <span class="profile-modal__footer-autosave" id="prof-autosave-pill">
+              <span class="profile-modal__footer-autosave tw-inline-flex tw-items-center tw-gap-1.5 tw-text-ct-success [&_svg]:tw-text-ct-success" id="prof-autosave-pill">
                 <span class="profile-modal__footer-autosave-text">Salvo automaticamente</span>
                 ${ICON_CHECK}
               </span>
             </div>
-            <div class="profile-modal__actions">
-              <button class="btn btn--outline profile-modal__btn" id="prof-cancel" type="button">
+            <div class="profile-modal__actions tw-flex tw-gap-2">
+              <button class="btn btn--outline profile-modal__btn tw-flex-1 tw-flex tw-items-center tw-justify-center tw-gap-1.5" id="prof-cancel" type="button">
                 Cancelar
               </button>
-              <button class="btn btn--primary profile-modal__btn profile-modal__btn--save"
+              <button class="btn btn--primary profile-modal__btn profile-modal__btn--save tw-flex-1 tw-flex tw-items-center tw-justify-center tw-gap-1.5 tw-h-[46px] tw-text-sm tw-font-semibold"
                 id="prof-save" type="button">
                 ${ICON_SAVE}
                 Salvar perfil

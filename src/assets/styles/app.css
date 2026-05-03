@@ -1,0 +1,367 @@
+/*
+ * Cool Track Pro — entry Tailwind para a app vanilla (src/app.js).
+ * ────────────────────────────────────────────────────────────────
+ * Migracao CSS legado -> Tailwind iniciada em `style-reset`.
+ *
+ * Estrategia (decidida em conjunto com o time, ver
+ * `docs/STYLE_MIGRATION.md` ao final da Etapa 3):
+ *   - Tailwind v3 estendido (NAO migrar para v4 nesta fase).
+ *   - Reaproveitar o mesmo entry usado pelas ilhas React
+ *     (`src/react/styles/tailwind.css`), para garantir que ha um
+ *     unico bundle Tailwind (sem duplicacao de utilities).
+ *   - Tokens ficam em `tailwind.config.cjs > theme.extend.colors`
+ *     (nao usamos `@theme {}` v4-style).
+ *   - `preflight: false` continua ativo: nao ha reset Tailwind
+ *     nesta fase. Ver `docs/migration/css-freeze-policy.md`.
+ *
+ * Importar em `src/app.js` ANTES dos modulos visuais.
+ */
+
+@import '../../react/styles/tailwind.css';
+
+@layer components {
+  /*
+   * Padroes do fluxo de auth (Login + recovery) extraidos do
+   * <style> inline historico de `authscreen.js` na Etapa 2 do
+   * style-reset. Sao classes BEM novas (`auth-*-base`) — nao
+   * sobrescrevem os seletores `.auth-*` legados em components.css
+   * pra evitar conflito de cascata. Usadas no markup junto com a
+   * classe BEM contratual: `class="auth-input auth-input-base"`.
+   */
+
+  /* ─ Inputs (9 ocorrencias) ───────────────────────────────── */
+  .auth-input-base {
+    @apply tw-w-full tw-h-12 tw-px-3.5 tw-rounded-xl
+           tw-text-[14.5px] tw-font-normal tw-outline-none
+           tw-transition-[border-color,box-shadow,background] tw-duration-150;
+    background: rgba(6, 14, 28, 0.7);
+    border: 1px solid rgba(120, 170, 230, 0.1);
+    color: #f1f6fb;
+    box-sizing: border-box;
+  }
+  .auth-input-base::placeholder {
+    color: #4f6d92;
+  }
+  .auth-input-base:focus {
+    border-color: rgba(77, 147, 255, 0.55);
+    box-shadow: 0 0 0 4px rgba(44, 124, 255, 0.12);
+    background: rgba(8, 22, 42, 0.85);
+  }
+
+  /* ─ Labels (8 ocorrencias) ───────────────────────────────── */
+  .auth-label-base {
+    @apply tw-block tw-text-[12.5px] tw-font-semibold
+           tw-text-landing-text-body tw-mt-3.5 tw-mb-[7px] tw-tracking-[0.01em];
+  }
+  .auth-label-base--first {
+    @apply tw-mt-0;
+  }
+
+  /* ─ CTA secundario (Entrar/Criar conta/Reset/Save) — 4 ocorrencias ─ */
+  .auth-btn-base {
+    @apply tw-w-full tw-mt-5 tw-rounded-xl
+           tw-text-[14.5px] tw-font-bold tw-tracking-[-0.005em]
+           tw-flex tw-items-center tw-justify-center tw-gap-2.5
+           tw-cursor-pointer
+           tw-transition-[transform,opacity,border-color,background] tw-duration-150
+           hover:tw--translate-y-px active:tw-translate-y-0;
+    height: 50px;
+    background: rgba(7, 21, 40, 0.54);
+    color: #eaf3ff;
+    border: 1px solid rgba(64, 196, 255, 0.34);
+    font-family: inherit;
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.26),
+      0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  }
+  .auth-btn-base--secondary {
+    background: rgba(7, 21, 40, 0.48);
+  }
+  .auth-btn-base--secondary:hover {
+    border-color: rgba(64, 196, 255, 0.58);
+    background: rgba(12, 34, 62, 0.72);
+  }
+
+  /* ─ Backgrounds complexos (gradientes/grids) ─────────────────
+   * Extraidos pra @layer pra evitar arbitrary values monstruosos
+   * no markup. Sao unicos no Login mas longos demais (200+ chars).
+   */
+
+  .auth-screen-bg {
+    background:
+      radial-gradient(1200px 600px at 18% -10%, rgba(44, 124, 255, 0.18), transparent 60%),
+      radial-gradient(900px 600px at 95% 10%, rgba(64, 196, 255, 0.1), transparent 65%),
+      radial-gradient(700px 500px at 50% 110%, rgba(44, 124, 255, 0.1), transparent 60%),
+      linear-gradient(180deg, #05101f 0%, #040b18 60%, #03080f 100%);
+  }
+  .auth-screen-grid::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(120, 170, 230, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120, 170, 230, 0.05) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 80%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .auth-card-bg {
+    background: linear-gradient(180deg, rgba(15, 33, 60, 0.95) 0%, rgba(8, 22, 42, 0.92) 100%);
+    border: 1px solid rgba(120, 170, 230, 0.18);
+    box-shadow:
+      0 30px 80px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(120, 170, 230, 0.04) inset,
+      0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  }
+  .auth-card-glow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(180deg, rgba(77, 147, 255, 0.35), rgba(77, 147, 255, 0) 40%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ─ Tabs container/pill ──────────────────────────────────── */
+  .auth-tab-pill {
+    background: rgba(8, 18, 34, 0.7);
+    border: 1px solid rgba(120, 170, 230, 0.1);
+  }
+  .auth-tab-pill--active {
+    background: linear-gradient(180deg, rgba(44, 124, 255, 0.22), rgba(44, 124, 255, 0.1));
+    color: #ffffff;
+    border: 1px solid rgba(77, 147, 255, 0.3);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 6px 16px rgba(44, 124, 255, 0.18);
+  }
+
+  /* ─ Google CTA branco (2 ocorrencias) ────────────────────── */
+  .auth-google-base {
+    @apply tw-w-full tw-rounded-2xl
+           tw-text-[15px] tw-font-extrabold
+           tw-flex tw-items-center tw-justify-center tw-gap-3
+           tw-cursor-pointer
+           tw-transition-[opacity,transform,box-shadow] tw-duration-150
+           hover:tw-opacity-[0.98] hover:tw--translate-y-px active:tw-translate-y-0;
+    height: 52px;
+    background: linear-gradient(180deg, #ffffff 0%, #e9eef7 100%);
+    color: #11243f;
+    font-family: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    box-shadow:
+      0 16px 34px rgba(44, 124, 255, 0.34),
+      0 0 0 1px rgba(64, 196, 255, 0.22),
+      0 1px 0 rgba(255, 255, 255, 0.75) inset;
+  }
+  .auth-google-base:hover {
+    box-shadow:
+      0 18px 38px rgba(44, 124, 255, 0.42),
+      0 0 0 1px rgba(64, 196, 255, 0.3),
+      0 1px 0 rgba(255, 255, 255, 0.78) inset;
+  }
+
+  /* ─ Phone mockup (decorativo, aria-hidden) ───────────────── */
+  .auth-phone-bg {
+    background: linear-gradient(180deg, #1a2942, #0a1729);
+    border: 1px solid rgba(120, 170, 230, 0.18);
+    box-shadow:
+      0 50px 120px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(120, 170, 230, 0.06) inset,
+      0 30px 60px rgba(44, 124, 255, 0.1);
+  }
+  .auth-phone-notch::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 26px;
+    border-radius: 14px;
+    background: #03080f;
+    z-index: 5;
+  }
+  .auth-phone-screen-bg {
+    background:
+      radial-gradient(600px 300px at 50% -10%, rgba(44, 124, 255, 0.25), transparent 60%),
+      linear-gradient(180deg, #07182f 0%, #050d1c 100%);
+  }
+  .auth-phone-hero-bg {
+    background: linear-gradient(180deg, rgba(15, 33, 60, 0.9), rgba(8, 22, 42, 0.7));
+    border: 1px solid rgba(120, 170, 230, 0.18);
+  }
+  .auth-phone-card-bg {
+    background: linear-gradient(180deg, rgba(44, 124, 255, 0.1), rgba(8, 22, 42, 0.6));
+    border: 1px solid rgba(77, 147, 255, 0.25);
+  }
+  .auth-phone-card-bg--alt {
+    background: rgba(8, 22, 42, 0.6);
+    border: 1px solid rgba(120, 170, 230, 0.1);
+  }
+  .auth-phone-kpi-bg {
+    background: rgba(8, 22, 42, 0.6);
+    border: 1px solid rgba(120, 170, 230, 0.1);
+  }
+  .auth-phone-nav-bg {
+    background: rgba(6, 14, 28, 0.85);
+    border: 1px solid rgba(120, 170, 230, 0.18);
+    backdrop-filter: blur(8px);
+  }
+
+  /* ─ Trust card (security pill verde) ─────────────────────── */
+  .auth-trust-card-bg {
+    background: rgba(46, 204, 139, 0.08);
+    border: 1px solid rgba(46, 204, 139, 0.22);
+  }
+  .auth-trust-card-icon-bg {
+    background: rgba(46, 204, 139, 0.14);
+    border: 1px solid rgba(46, 204, 139, 0.3);
+  }
+
+  /* ─ Strength meter segments ──────────────────────────────── */
+  .auth-strength-seg-empty {
+    background: rgba(120, 170, 230, 0.1);
+  }
+
+  /* ─ Loading state (`.is-busy`) ──────────────────────────────
+   * Portado de `components.css` (linhas 8959-8976) durante a
+   * Etapa 2 da migracao do Login. Preserva spinner visual
+   * durante submit/runAsyncAction. `.auth-btn-forgot` ainda
+   * existe como classe BEM contratual no markup (para handler
+   * de "esqueci senha"), entao a regra cobre os dois caminhos.
+   */
+  .auth-btn-base.is-busy,
+  .auth-btn-forgot.is-busy {
+    cursor: progress;
+  }
+  .auth-btn-base.is-busy::after,
+  .auth-btn-forgot.is-busy::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: button-spin 0.65s linear infinite;
+    flex-shrink: 0;
+  }
+
+  /* ─ Focus-visible global do overlay de auth ──────────────────
+   * Substitui a regra global do <style> inline historico.
+   * Aplicada nos children (button/input/[role=tab]/a) sem
+   * precisar repetir focus-visible:tw-outline-... em cada um.
+   */
+  .auth-screen :is(button, input, [role='tab'], a):focus-visible {
+    outline: 2px solid #40c4ff;
+    outline-offset: 2px;
+  }
+
+  /* ─ Estados togglados via classList (`active`, `is-active`) ──
+   * Estilizamos via seletor BEM porque o JS atual usa
+   * `classList.toggle('active', isSignin)` em authscreen.js;
+   * editar o JS pra usar Tailwind variants (`aria-selected:`)
+   * estaria fora do escopo da Etapa 2.
+   */
+  .auth-tab.active {
+    background: linear-gradient(180deg, rgba(44, 124, 255, 0.22), rgba(44, 124, 255, 0.1));
+    color: #ffffff;
+    border: 1px solid rgba(77, 147, 255, 0.3);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 6px 16px rgba(44, 124, 255, 0.18);
+  }
+
+  .auth-phone__nav-item.is-active {
+    color: #40c4ff;
+  }
+
+  /*
+   * ProfileModal — padroes recorrentes (Etapa 4 / Fase 2).
+   * Portados de `components.css` (linhas 9786-10135 + 15623-15821)
+   * durante a migracao do ProfileModal. Cores via `var(--primary)`,
+   * `var(--surface)`, etc., para preservar comportamento token-aware
+   * que outras partes do app legado ainda dependem (cascata da
+   * tokens.css define `--primary: var(--ct-brand)`, etc.). Onde havia
+   * `!important` no legado (`--has-trailing-icon`), portado SEM
+   * `!important` — cascata vence.
+   */
+
+  /* ─ Card de secao (3x) ───────────────────────────────────── */
+  .profile-modal-card-base {
+    @apply tw-rounded-xl tw-p-[18px]
+           tw-transition-[border-color] tw-duration-200 tw-ease-in-out
+           max-[480px]:tw-p-[14px];
+    background: color-mix(in srgb, var(--surface, #353941) 60%, var(--bg, #26282b));
+    border: 1px solid var(--border, rgba(144, 184, 248, 0.16));
+  }
+  .profile-modal-card-base:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--primary, #5f85db) 18%,
+      var(--border, rgba(144, 184, 248, 0.16))
+    );
+  }
+
+  /* ─ Header da secao (3x) ─────────────────────────────────── */
+  .profile-modal-section-head-base {
+    @apply tw-flex tw-items-center tw-gap-3
+           tw-pb-3.5 tw-mb-3.5 tw-border-b
+           max-[480px]:tw-pb-3 max-[480px]:tw-mb-3;
+    border-bottom-color: color-mix(in srgb, var(--primary, #5f85db) 12%, transparent);
+  }
+
+  /* ─ Icone da secao (3x) — tile cyan tinted 32x32 ─────────── */
+  .profile-modal-section-icon-base {
+    @apply tw-shrink-0 tw-w-8 tw-h-8 tw-rounded-lg tw-grid tw-place-items-center;
+    color: var(--primary, #5f85db);
+    background: color-mix(in srgb, var(--primary, #5f85db) 12%, transparent);
+  }
+
+  /* ─ Label do field (11x) ─────────────────────────────────── */
+  .profile-modal-label-base {
+    @apply tw-block tw-text-xs tw-font-semibold
+           tw-text-ct-text-muted tw-mb-1.5 tw-tracking-[0.02em];
+  }
+
+  /* ─ Hint do field (11x) — texto explicativo abaixo do label ─ */
+  .profile-modal-field-hint-base {
+    @apply tw-block tw-mt-0.5 tw-mb-1.5
+           tw-text-[11.5px] tw-text-ct-text-faint tw-leading-[1.35];
+  }
+
+  /* ─ Wrapper do input com icone leading/trailing (6x) ─────── */
+  .profile-modal-input-wrap-base {
+    @apply tw-relative tw-block;
+  }
+
+  /* ─ Trailing icon do input (5x) — com focus-within do parent ─ */
+  .profile-modal-trailing-icon-base {
+    @apply tw-absolute tw-right-3 tw-top-1/2 -tw-translate-y-1/2
+           tw-inline-flex tw-pointer-events-none
+           tw-text-ct-text-faint;
+  }
+  .profile-modal-input-wrap-base:focus-within .profile-modal-trailing-icon-base {
+    color: var(--primary, #5f85db);
+  }
+}
+
+/* Keyframe do spinner do `.is-busy::after` acima. Mesmo nome
+ * que a definicao em `components.css` (linha 8978) — duplicado
+ * aqui para que `app.css` seja autossuficiente caso o trecho
+ * legado seja removido em uma proxima rodada. CSS aceita
+ * keyframes redefinidos com mesma identidade. */
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
