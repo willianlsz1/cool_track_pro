@@ -123,6 +123,25 @@ describe('internal visual identity tokens', () => {
     expect(charts).toContain("danger: cssVar('--ct-error')");
     expect(charts).toContain('backgroundColor: c.surface3');
     expect(charts).toContain('cornerRadius: 10');
+    expect(redesign).toContain('PR 8 - Overflow, spacing and visual cleanup');
+    expect(redesign).toContain('--ct-focus-soft: rgba(144, 184, 248, 0.16);');
+    expect(redesign).toContain('#app:not(.landing-active) .view');
+    expect(redesign).toContain('#app:not(.landing-active) .chart-card');
+    expect(redesign).toContain('overflow-wrap: anywhere !important;');
+    expect(redesign).toContain('text-overflow: ellipsis !important;');
+    expect(redesign).toContain('box-shadow: 0 0 0 3px var(--ct-focus-soft) !important;');
+    expect(redesign).toContain('#app:not(.landing-active) .rel-table-wrap');
+    expect(redesign).toContain('#app:not(.landing-active) .cli-card__actions');
+    expect(redesign).toContain('#app:not(.landing-active) .app-sidebar__nav-item');
+    expect(redesign).toContain('box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16) !important;');
+    expect(redesign).toContain('PR 9 - Shell, sidebar and page headers refinement');
+    expect(redesign).toContain('--ct-sidebar-item-h: 46px;');
+    expect(redesign).toContain(
+      'height: calc(100dvh - var(--app-header-total-height, 0px) - 24px) !important;',
+    );
+    expect(redesign).toContain('grid-template-columns: minmax(0, 1fr) auto;');
+    expect(redesign).toContain('box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;');
+    expect(redesign).toContain('#app:not(.landing-active) #view-orcamentos .orc-header');
     expect(clientesPremium).toContain('PR 5 - Clientes operational dark refresh');
     expect(clientesPremium).toContain('--cli-card: var(--ct-surface);');
     expect(clientesPremium).toContain('--cli-panel: var(--ct-app-bg);');

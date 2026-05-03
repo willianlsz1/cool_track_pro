@@ -3449,3 +3449,554 @@ body:not(.landing-active) .modal textarea:focus {
     padding: 10px !important;
   }
 }
+
+/* ============================================================
+   PR 8 - Overflow, spacing and visual cleanup
+   ============================================================ */
+
+#app:not(.landing-active) {
+  --ct-focus-soft: rgba(144, 184, 248, 0.16);
+  --ct-focus-border: rgba(144, 184, 248, 0.42);
+  --ct-shadow-tight: 0 10px 24px rgba(0, 0, 0, 0.16);
+  --ct-section-gap: clamp(14px, 2vw, 22px);
+}
+
+#app:not(.landing-active),
+#app:not(.landing-active) .app-shell,
+#app:not(.landing-active) .app-main,
+#app:not(.landing-active) .view,
+#app:not(.landing-active) .view-content,
+#app:not(.landing-active) .page,
+#app:not(.landing-active) .section,
+#app:not(.landing-active) .card,
+#app:not(.landing-active) .cli-card,
+#app:not(.landing-active) .equip-card,
+#app:not(.landing-active) .rel-record,
+#app:not(.landing-active) #view-orcamentos .orc-card,
+#app:not(.landing-active) #view-alertas .alert-card,
+#app:not(.landing-active) .chart-card {
+  min-width: 0;
+}
+
+#app:not(.landing-active) .view,
+#app:not(.landing-active) .view-content,
+#app:not(.landing-active) #dash,
+#app:not(.landing-active) #view-equipamentos,
+#app:not(.landing-active) #view-relatorio,
+#app:not(.landing-active) #view-alertas,
+#app:not(.landing-active) #view-orcamentos {
+  overflow-x: clip;
+}
+
+#app:not(.landing-active) h1,
+#app:not(.landing-active) h2,
+#app:not(.landing-active) h3,
+#app:not(.landing-active) h4,
+#app:not(.landing-active) p,
+#app:not(.landing-active) span,
+#app:not(.landing-active) small,
+#app:not(.landing-active) strong,
+#app:not(.landing-active) label,
+#app:not(.landing-active) .cli-card__name,
+#app:not(.landing-active) .cli-card__meta,
+#app:not(.landing-active) .equip-card__title,
+#app:not(.landing-active) .equip-card__meta,
+#app:not(.landing-active) .rel-record__title,
+#app:not(.landing-active) .rel-record__meta,
+#app:not(.landing-active) #view-orcamentos .orc-card__title,
+#app:not(.landing-active) #view-orcamentos .orc-card__cliente,
+#app:not(.landing-active) #view-alertas .alert-card__title {
+  max-width: 100%;
+  overflow-wrap: anywhere !important;
+}
+
+#app:not(.landing-active) .app-sidebar__nav-item,
+#app:not(.landing-active) .app-sidebar__section-title,
+#app:not(.landing-active) .app-sidebar__user-name,
+#app:not(.landing-active) .app-sidebar__user-email,
+#app:not(.landing-active) .cli-card__name,
+#app:not(.landing-active) .equip-card__title,
+#app:not(.landing-active) .rel-record__title,
+#app:not(.landing-active) #view-orcamentos .orc-card__title,
+#app:not(.landing-active) .chart-card__title,
+#app:not(.landing-active) .badge,
+#app:not(.landing-active) .hist-pill,
+#app:not(.landing-active) .orc-status-pill,
+#app:not(.landing-active) .cli-card__pill,
+#app:not(.landing-active) .cli-pmoc__chip,
+#app:not(.landing-active) .equip-card__tone-pill,
+#app:not(.landing-active) .equip-card__risk-badge,
+#app:not(.landing-active) .rel-record__prox-badge {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#app:not(.landing-active) .app-sidebar__nav-item,
+#app:not(.landing-active) .app-sidebar__user-name,
+#app:not(.landing-active) .app-sidebar__user-email,
+#app:not(.landing-active) .cli-card__name,
+#app:not(.landing-active) .equip-card__title,
+#app:not(.landing-active) .rel-record__title,
+#app:not(.landing-active) #view-orcamentos .orc-card__title,
+#app:not(.landing-active) .chart-card__title {
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) .app-sidebar__nav-item {
+  gap: 12px !important;
+  min-height: 46px !important;
+  padding-inline: 15px !important;
+}
+
+#app:not(.landing-active) .app-sidebar__nav-item span,
+#app:not(.landing-active) .app-sidebar__nav-item .app-sidebar__nav-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#app:not(.landing-active) .app-sidebar__nav-badge,
+#app:not(.landing-active) .badge::before,
+#app:not(.landing-active) .hist-pill::before,
+#app:not(.landing-active) .orc-status-pill::before,
+#app:not(.landing-active) .cli-card__pill::before,
+#app:not(.landing-active) .cli-pmoc__chip::before {
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .cli-page,
+#app:not(.landing-active) #view-equipamentos .equip-page,
+#app:not(.landing-active) #view-relatorio .rel-page,
+#app:not(.landing-active) #view-alertas,
+#app:not(.landing-active) #view-orcamentos {
+  gap: var(--ct-section-gap) !important;
+}
+
+#app:not(.landing-active) .cli-page__header,
+#app:not(.landing-active) #view-equipamentos .equip-hero,
+#app:not(.landing-active) .hist-sticky-header,
+#app:not(.landing-active) #view-relatorio .rel-hero,
+#app:not(.landing-active) #view-alertas .section-title,
+#app:not(.landing-active) #view-orcamentos .orc-header {
+  margin-bottom: var(--ct-section-gap) !important;
+}
+
+#app:not(.landing-active) .cli-filters,
+#app:not(.landing-active) #view-equipamentos .equip-filters,
+#app:not(.landing-active) #view-equipamentos .equip-search-row,
+#app:not(.landing-active) .hist-sticky-header__row,
+#app:not(.landing-active) .hist-quickfilters,
+#app:not(.landing-active) #view-relatorio .rel-toolbar,
+#app:not(.landing-active) #view-relatorio .rel-filters,
+#app:not(.landing-active) #view-relatorio .rel-filters__advanced,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar,
+#app:not(.landing-active) .chart-card,
+#app:not(.landing-active) .cli-card,
+#app:not(.landing-active) .equip-card,
+#app:not(.landing-active) .rel-record,
+#app:not(.landing-active) #view-orcamentos .orc-card,
+#app:not(.landing-active) #view-alertas .alert-card {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16) !important;
+}
+
+#app:not(.landing-active) .chart-card:hover,
+#app:not(.landing-active) .chart-card:focus-within,
+#app:not(.landing-active) .cli-card:hover,
+#app:not(.landing-active) .equip-card:hover,
+#app:not(.landing-active) .rel-record:hover,
+#app:not(.landing-active) #view-orcamentos .orc-card:hover,
+#app:not(.landing-active) #view-alertas .alert-card:hover {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) .search-bar__input:focus,
+#app:not(.landing-active) .cli-search__input:focus,
+#app:not(.landing-active) .cli-select__input:focus,
+#app:not(.landing-active) #view-orcamentos .orc-search__input:focus,
+#app:not(.landing-active) .hist-search input:focus,
+#app:not(.landing-active) .hist-sticky-header select:focus,
+#app:not(.landing-active) #view-relatorio .rel-filters input:focus,
+#app:not(.landing-active) #view-relatorio .rel-filters select:focus,
+#app:not(.landing-active) .form-control:focus,
+#app:not(.landing-active) input:focus,
+#app:not(.landing-active) select:focus,
+#app:not(.landing-active) textarea:focus {
+  border-color: var(--ct-focus-border) !important;
+  box-shadow: 0 0 0 3px var(--ct-focus-soft) !important;
+}
+
+#app:not(.landing-active) .rel-segmented__opt.is-active,
+#app:not(.landing-active) .rel-mode-segment__item.is-active,
+#app:not(.landing-active) .hist-quickfilter.is-active,
+#app:not(.landing-active) #view-orcamentos .orc-chip.is-active,
+#app:not(.landing-active) .equip-filter--active {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+}
+
+#app:not(.landing-active) .rel-table-wrap,
+#app:not(.landing-active) .table-wrap,
+#app:not(.landing-active) .responsive-table,
+#app:not(.landing-active) .table-container {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+#app:not(.landing-active) table {
+  max-width: 100%;
+}
+
+#app:not(.landing-active) th,
+#app:not(.landing-active) td {
+  min-width: 0;
+  overflow-wrap: anywhere !important;
+}
+
+#app:not(.landing-active) .cli-card__actions,
+#app:not(.landing-active) .equip-card__actions,
+#app:not(.landing-active) .hist-item-actions,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
+#app:not(.landing-active) #view-orcamentos .orc-card__actions {
+  align-items: center;
+  gap: 8px !important;
+  max-width: 100%;
+  min-width: 0;
+}
+
+#app:not(.landing-active) .cli-card__action,
+#app:not(.landing-active) .equip-card__action,
+#app:not(.landing-active) .hist-item-actions__kebab,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
+#app:not(.landing-active) #view-orcamentos .btn {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#app:not(.landing-active) .badge,
+#app:not(.landing-active) .hist-pill,
+#app:not(.landing-active) .orc-status-pill,
+#app:not(.landing-active) .cli-card__pill,
+#app:not(.landing-active) .cli-pmoc__chip,
+#app:not(.landing-active) .equip-card__tone-pill,
+#app:not(.landing-active) .equip-card__risk-badge,
+#app:not(.landing-active) .equip-card__priority-badge,
+#app:not(.landing-active) .rel-record__prox-badge,
+#app:not(.landing-active) .pdf-quota-badge {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+#app:not(.landing-active) .empty-state,
+#app:not(.landing-active) .cli-empty,
+#app:not(.landing-active) .equip-empty,
+#app:not(.landing-active) #view-orcamentos .orc-empty {
+  padding: clamp(18px, 4vw, 30px) !important;
+  border-color: var(--ct-border) !important;
+}
+
+@media (max-width: 720px) {
+  #app:not(.landing-active) .app-main,
+  #app:not(.landing-active) .view,
+  #app:not(.landing-active) .view-content {
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  #app:not(.landing-active) .cli-page__header,
+  #app:not(.landing-active) #view-equipamentos .equip-hero,
+  #app:not(.landing-active) .hist-sticky-header,
+  #app:not(.landing-active) #view-relatorio .rel-hero,
+  #app:not(.landing-active) #view-orcamentos .orc-header {
+    gap: 12px !important;
+  }
+
+  #app:not(.landing-active) .cli-card__name,
+  #app:not(.landing-active) .equip-card__title,
+  #app:not(.landing-active) .rel-record__title,
+  #app:not(.landing-active) #view-orcamentos .orc-card__title,
+  #app:not(.landing-active) .chart-card__title {
+    white-space: normal;
+  }
+
+  #app:not(.landing-active) .badge,
+  #app:not(.landing-active) .hist-pill,
+  #app:not(.landing-active) .orc-status-pill,
+  #app:not(.landing-active) .cli-card__pill,
+  #app:not(.landing-active) .cli-pmoc__chip,
+  #app:not(.landing-active) .equip-card__tone-pill,
+  #app:not(.landing-active) .equip-card__risk-badge,
+  #app:not(.landing-active) .rel-record__prox-badge {
+    white-space: normal;
+  }
+}
+
+/* ============================================================
+   PR 9 - Shell, sidebar and page headers refinement
+   ============================================================ */
+
+#app:not(.landing-active) .app-content.app-shell--with-sidebar {
+  background:
+    radial-gradient(circle at 2% 0%, rgba(144, 184, 248, 0.1), transparent 34%),
+    linear-gradient(135deg, rgba(38, 40, 43, 0.98), rgba(31, 33, 37, 0.98));
+}
+
+#app:not(.landing-active) .app-shell--with-sidebar #main-content {
+  min-width: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 180px), var(--ct-app-bg);
+}
+
+#app:not(.landing-active) .app-shell--with-sidebar .app-sidebar {
+  --ct-sidebar-pad-x: 20px;
+  --ct-sidebar-item-h: 46px;
+  position: sticky;
+  top: calc(var(--app-header-total-height, 0px) + 12px);
+  align-self: start;
+  height: calc(100dvh - var(--app-header-total-height, 0px) - 24px) !important;
+  max-height: calc(100dvh - var(--app-header-total-height, 0px) - 24px);
+  display: flex !important;
+  flex-direction: column;
+  padding: 22px var(--ct-sidebar-pad-x) 18px !important;
+  overflow: hidden;
+  border-right: 1px solid rgba(144, 184, 248, 0.12) !important;
+  background:
+    linear-gradient(180deg, rgba(53, 57, 65, 0.98), rgba(45, 48, 54, 0.98)), var(--ct-surface) !important;
+  box-shadow: 18px 0 44px rgba(0, 0, 0, 0.18) !important;
+}
+
+#app:not(.landing-active) .app-sidebar__brand {
+  flex: 0 0 auto;
+  min-height: 46px;
+  margin: 0 0 24px !important;
+  padding: 0 2px 20px !important;
+  border-bottom: 1px solid rgba(144, 184, 248, 0.12);
+}
+
+#app:not(.landing-active) .app-sidebar__brand-icon {
+  box-shadow: 0 10px 24px rgba(95, 133, 219, 0.18) !important;
+}
+
+#app:not(.landing-active) .app-sidebar__nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+  gap: 22px !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 2px 6px !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(144, 184, 248, 0.26) transparent;
+}
+
+#app:not(.landing-active) .app-sidebar__section {
+  display: flex !important;
+  flex-direction: column;
+  gap: 7px !important;
+  margin: 0 !important;
+}
+
+#app:not(.landing-active) .app-sidebar__section + .app-sidebar__section {
+  padding-top: 3px;
+}
+
+#app:not(.landing-active) .app-sidebar__section-kicker {
+  margin: 0 0 5px !important;
+  padding: 0 14px !important;
+  color: var(--ct-text-faint) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.14em !important;
+  line-height: 1.2;
+  opacity: 0.82;
+}
+
+#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item {
+  min-height: var(--ct-sidebar-item-h) !important;
+  padding: 0 15px !important;
+  border-radius: 14px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item:hover {
+  background: rgba(144, 184, 248, 0.075) !important;
+  border-color: rgba(144, 184, 248, 0.13) !important;
+  color: var(--ct-text) !important;
+  transform: none !important;
+}
+
+#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active {
+  background:
+    linear-gradient(135deg, rgba(95, 133, 219, 0.94), rgba(144, 184, 248, 0.78)), var(--ct-brand) !important;
+  border-color: rgba(144, 184, 248, 0.38) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 12px 26px rgba(95, 133, 219, 0.18) !important;
+}
+
+#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active::before {
+  opacity: 0.82 !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .app-sidebar__shortcut,
+#app:not(.landing-active) .app-sidebar__nav-lock,
+#app:not(.landing-active) .app-sidebar__nav-badge {
+  margin-left: auto;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .app-sidebar__footer {
+  flex: 0 0 auto;
+  display: flex !important;
+  flex-direction: column;
+  gap: 10px !important;
+  margin-top: 18px !important;
+  padding: 16px 2px 0 !important;
+  border-top: 1px solid rgba(144, 184, 248, 0.12) !important;
+}
+
+#app:not(.landing-active) .app-sidebar__user-chip,
+#app:not(.landing-active) .app-sidebar__settings {
+  min-height: 46px !important;
+  padding: 9px 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(144, 184, 248, 0.13) !important;
+  background: rgba(45, 48, 54, 0.74) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .app-sidebar__user-chip:hover,
+#app:not(.landing-active) .app-sidebar__settings:hover {
+  background: rgba(144, 184, 248, 0.08) !important;
+  border-color: rgba(144, 184, 248, 0.22) !important;
+}
+
+#app:not(.landing-active) .app-sidebar__user-avatar {
+  flex: 0 0 32px;
+  width: 32px !important;
+  height: 32px !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .app-sidebar__sync {
+  min-height: 34px;
+  padding: 7px 10px !important;
+  border-radius: 12px !important;
+  background: rgba(144, 184, 248, 0.08) !important;
+  border: 1px solid rgba(144, 184, 248, 0.14) !important;
+}
+
+#app:not(.landing-active) .cli-page__header,
+#app:not(.landing-active) #view-equipamentos .equip-hero,
+#app:not(.landing-active) .hist-sticky-header,
+#app:not(.landing-active) #view-relatorio .rel-hero,
+#app:not(.landing-active) #view-alertas .section-title,
+#app:not(.landing-active) #view-orcamentos .orc-header {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start !important;
+  gap: 14px 18px !important;
+  padding: clamp(16px, 2vw, 22px) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(144, 184, 248, 0.16) !important;
+  background:
+    linear-gradient(135deg, rgba(62, 67, 77, 0.86), rgba(45, 48, 54, 0.94)), var(--ct-surface) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;
+  overflow: hidden;
+}
+
+#app:not(.landing-active) .cli-page__header::before,
+#app:not(.landing-active) #view-equipamentos .equip-hero::before,
+#app:not(.landing-active) .hist-sticky-header::before,
+#app:not(.landing-active) #view-relatorio .rel-hero::before,
+#app:not(.landing-active) #view-alertas .section-title::before,
+#app:not(.landing-active) #view-orcamentos .orc-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(144, 184, 248, 0.34), transparent);
+  pointer-events: none;
+}
+
+#app:not(.landing-active) .cli-page__title,
+#app:not(.landing-active) #view-equipamentos .equip-hero__title,
+#app:not(.landing-active) .hist-title,
+#app:not(.landing-active) #view-relatorio .rel-hero__title,
+#app:not(.landing-active) #view-alertas .section-title h2,
+#app:not(.landing-active) #view-orcamentos .orc-header__title {
+  margin: 0 !important;
+  color: var(--ct-text) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.08 !important;
+}
+
+#app:not(.landing-active) .cli-page__subtitle,
+#app:not(.landing-active) #view-equipamentos .equip-hero__subtitle,
+#app:not(.landing-active) .hist-subtitle,
+#app:not(.landing-active) #view-relatorio .rel-hero__subtitle,
+#app:not(.landing-active) #view-alertas .section-title p,
+#app:not(.landing-active) #view-orcamentos .orc-header__subtitle {
+  margin: 6px 0 0 !important;
+  color: var(--ct-text-muted) !important;
+  max-width: 72ch;
+}
+
+#app:not(.landing-active) .cli-page__actions,
+#app:not(.landing-active) #view-equipamentos .equip-hero__actions,
+#app:not(.landing-active) .hist-sticky-header__actions,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
+#app:not(.landing-active) #view-orcamentos .orc-header__actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 9px !important;
+  min-width: 0;
+}
+
+#app:not(.landing-active) .cli-filters,
+#app:not(.landing-active) #view-equipamentos .equip-filters,
+#app:not(.landing-active) #view-equipamentos .equip-search-row,
+#app:not(.landing-active) .hist-sticky-header__row,
+#app:not(.landing-active) #view-relatorio .rel-toolbar,
+#app:not(.landing-active) #view-relatorio .rel-filters,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar {
+  border-color: rgba(144, 184, 248, 0.14) !important;
+  background: rgba(45, 48, 54, 0.78) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14) !important;
+}
+
+@media (min-width: 1024px) {
+  #app:not(.landing-active) .app-content.app-shell--with-sidebar {
+    gap: 0 !important;
+  }
+}
+
+@media (max-width: 960px) {
+  #app:not(.landing-active) .cli-page__header,
+  #app:not(.landing-active) #view-equipamentos .equip-hero,
+  #app:not(.landing-active) .hist-sticky-header,
+  #app:not(.landing-active) #view-relatorio .rel-hero,
+  #app:not(.landing-active) #view-alertas .section-title,
+  #app:not(.landing-active) #view-orcamentos .orc-header {
+    grid-template-columns: 1fr;
+  }
+
+  #app:not(.landing-active) .cli-page__actions,
+  #app:not(.landing-active) #view-equipamentos .equip-hero__actions,
+  #app:not(.landing-active) .hist-sticky-header__actions,
+  #app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
+  #app:not(.landing-active) #view-orcamentos .orc-header__actions {
+    justify-content: flex-start;
+  }
+}
