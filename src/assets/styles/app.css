@@ -1,0 +1,26 @@
+/*
+ * Cool Track Pro — entry Tailwind para a app vanilla (src/app.js).
+ * ────────────────────────────────────────────────────────────────
+ * Migracao CSS legado -> Tailwind iniciada em `style-reset`.
+ *
+ * Estrategia (decidida em conjunto com o time, ver
+ * `docs/STYLE_MIGRATION.md`):
+ *   - Tailwind v3 estendido (NAO migrar para v4 nesta fase).
+ *   - Reaproveitar o mesmo entry usado pelas ilhas React
+ *     (`src/react/styles/tailwind.css`), para garantir que ha um
+ *     unico bundle Tailwind (sem duplicacao de utilities) e para
+ *     manter o set de directives identico entre vanilla e React.
+ *   - Tokens ficam em `tailwind.config.cjs > theme.extend.colors`
+ *     (nao usamos `@theme {}` v4-style).
+ *   - `preflight: false` continua ativo: nao ha reset Tailwind
+ *     nesta fase. Removivel apenas quando o CSS legado for pequeno
+ *     o suficiente para comparar reset visual
+ *     (ver `docs/migration/css-freeze-policy.md`).
+ *
+ * Importar em `src/app.js` ANTES dos modulos visuais para que o
+ * Vite injete o CSS Tailwind no head; ordem entre `<link>`s do
+ * index.html e este import nao importa porque `prefix: 'tw-'`
+ * isola as utilities das classes legadas.
+ */
+
+@import '../../react/styles/tailwind.css';
