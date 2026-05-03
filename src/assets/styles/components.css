@@ -9790,13 +9790,6 @@ mark,
    BEM consistente .profile-modal__*.
    ═══════════════════════════════════════════════════════ */
 
-.profile-modal {
-  padding: 0;
-  overflow: hidden;
-  width: min(480px, calc(100vw - 32px));
-  border-radius: var(--premier-radius, 12px);
-}
-
 /* ─── HERO ─── */
 /* Espelha o pattern do .account-modal__hero: orbs radiais em lados opostos
    criando profundidade + 2-layer gradient (accent glow no canto + leve wash
@@ -9938,20 +9931,6 @@ mark,
   overflow-wrap: anywhere;
 }
 
-/* V8: variante visualmente oculta — usado quando o titulo foi removido do
-   layout mas ainda precisa existir no DOM pra screen readers + aria-labelledby. */
-.profile-modal__title--sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .profile-modal__sub {
   /* V7: descricao 12px com opacidade reduzida (text-3 = mais discreto) */
   font-size: 12px;
@@ -10008,15 +9987,6 @@ mark,
   outline-offset: 2px;
 }
 
-/* ─── BODY ─── */
-.profile-modal__body {
-  padding: 20px 22px 22px;
-}
-
-.profile-modal__section + .profile-modal__section {
-  margin-top: 18px;
-}
-
 .profile-modal__section-label {
   font-size: 10px;
   font-weight: 700;
@@ -10064,72 +10034,6 @@ mark,
   .profile-modal__title {
     font-size: 17px;
   }
-}
-
-.profile-modal__field {
-  margin-bottom: 14px;
-}
-
-.profile-modal__field:last-child {
-  margin-bottom: 0;
-}
-
-.profile-modal__label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-2);
-  margin-bottom: 6px;
-  letter-spacing: 0.02em;
-}
-
-.profile-modal__required {
-  color: var(--danger);
-  margin-left: 2px;
-}
-
-/* ─── INPUT COM ÍCONE ─── */
-.profile-modal__input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.profile-modal__input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3);
-  pointer-events: none;
-  z-index: 1;
-  display: inline-flex;
-  line-height: 0;
-}
-
-.profile-modal__input--has-icon {
-  /* V6: padding-left aumentado de 36 -> 42px. Em desktop com font-size
-     padrao do form-control os digitos do telefone colidiam com o icone
-     de telefone (14px largura + 12px left = 26px, mas precisa de respiro
-     extra pra o caractere "(" do prefixo nao tocar o icone). */
-  padding-left: 42px;
-}
-
-/* ─── ACTIONS ─── */
-.profile-modal__actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 22px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.profile-modal__btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -15630,194 +15534,6 @@ select option {
     0 0 0 2px var(--bg, #0c1929),
     0 0 0 4px color-mix(in srgb, var(--primary, #00c8e8) 50%, transparent),
     0 0 18px color-mix(in srgb, var(--primary, #00c8e8) 35%, transparent);
-}
-
-/* Body — V10: hero removido entao body comeca direto. Sem border-top
-   (nao tem hero acima pra separar), padding-top normal. */
-.profile-modal__body {
-  padding: 18px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.profile-modal__section + .profile-modal__section {
-  margin-top: 0; /* o gap do flex parent ja cuida */
-}
-
-/* Section card — cada secao vira um card elevado */
-.profile-modal__section--card {
-  background: color-mix(in srgb, var(--surface, #0c1929) 60%, var(--bg, #07111f));
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.06));
-  border-radius: 12px;
-  padding: 18px;
-  transition: border-color 0.18s ease;
-}
-.profile-modal__section--card:hover {
-  border-color: color-mix(in srgb, var(--primary, #00c8e8) 18%, var(--border));
-}
-
-/* Header da secao — icone + titulo + subtitulo */
-.profile-modal__section-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 14px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--primary, #00c8e8) 12%, transparent);
-}
-.profile-modal__section-icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  color: var(--primary, #00c8e8);
-  background: color-mix(in srgb, var(--primary, #00c8e8) 12%, transparent);
-}
-.profile-modal__section-text {
-  flex: 1;
-  min-width: 0;
-}
-.profile-modal__section-title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text, #e8f2fa);
-  letter-spacing: -0.005em;
-  line-height: 1.2;
-}
-.profile-modal__section-tag {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--text-3, #6a8ba8);
-  margin-left: 4px;
-  letter-spacing: 0;
-}
-.profile-modal__section-sub {
-  margin: 4px 0 0;
-  font-size: 12px;
-  color: var(--text-2, #8aaac8);
-  line-height: 1.4;
-}
-
-/* Field hint — texto pequeno DEBAIXO do label, antes do input */
-.profile-modal__field-hint {
-  display: block;
-  margin: 2px 0 6px;
-  font-size: 11.5px;
-  color: var(--text-3, #6a8ba8);
-  line-height: 1.35;
-}
-
-/* Trailing icon — icone alinhado a direita dentro do input */
-.profile-modal__input-wrap {
-  position: relative;
-  display: block;
-}
-.profile-modal__input-trailing-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-3, #6a8ba8);
-  pointer-events: none;
-  display: inline-flex;
-}
-.profile-modal__input--has-trailing-icon {
-  padding-right: 38px !important;
-}
-.profile-modal__input-wrap:focus-within .profile-modal__input-trailing-icon {
-  color: var(--primary, #00c8e8);
-}
-
-/* Linha 2 colunas (CNPJ + IE) — desktop side-by-side, mobile empilha */
-.profile-modal__row-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-@media (max-width: 480px) {
-  .profile-modal__row-2col {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Info banner cyan tinted */
-.profile-modal__info-banner {
-  margin-top: 14px;
-  padding: 12px 14px;
-  background: color-mix(in srgb, var(--primary, #00c8e8) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #00c8e8) 22%, transparent);
-  border-radius: 8px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--text-2, #8aaac8);
-}
-.profile-modal__info-banner-icon {
-  flex-shrink: 0;
-  color: var(--primary, #00c8e8);
-  display: inline-flex;
-  margin-top: 1px;
-}
-
-/* Footer — meta (segurança + autosave) + actions empilhados */
-.profile-modal__footer {
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.profile-modal__footer-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11.5px;
-  color: var(--text-3, #6a8ba8);
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.profile-modal__footer-secure {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.profile-modal__footer-autosave {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--success, #00c870);
-}
-.profile-modal__footer-autosave svg {
-  color: var(--success, #00c870);
-}
-.profile-modal__btn--save {
-  flex: 1;
-  height: 46px;
-  font-size: 14px;
-  font-weight: 600;
-}
-.profile-modal__actions {
-  display: flex;
-  gap: 8px;
-}
-
-/* Mobile compact */
-@media (max-width: 480px) {
-  .profile-modal__body {
-    padding: 14px 12px 14px;
-    gap: 12px;
-  }
-  .profile-modal__section--card {
-    padding: 14px;
-  }
-  .profile-modal__section-head {
-    padding-bottom: 12px;
-    margin-bottom: 12px;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

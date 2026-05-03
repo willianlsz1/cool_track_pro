@@ -284,6 +284,75 @@
   .auth-phone__nav-item.is-active {
     color: #40c4ff;
   }
+
+  /*
+   * ProfileModal — padroes recorrentes (Etapa 4 / Fase 2).
+   * Portados de `components.css` (linhas 9786-10135 + 15623-15821)
+   * durante a migracao do ProfileModal. Cores via `var(--primary)`,
+   * `var(--surface)`, etc., para preservar comportamento token-aware
+   * que outras partes do app legado ainda dependem (cascata da
+   * tokens.css define `--primary: var(--ct-brand)`, etc.). Onde havia
+   * `!important` no legado (`--has-trailing-icon`), portado SEM
+   * `!important` — cascata vence.
+   */
+
+  /* ─ Card de secao (3x) ───────────────────────────────────── */
+  .profile-modal-card-base {
+    @apply tw-rounded-xl tw-p-[18px]
+           tw-transition-[border-color] tw-duration-200 tw-ease-in-out
+           max-[480px]:tw-p-[14px];
+    background: color-mix(in srgb, var(--surface, #353941) 60%, var(--bg, #26282b));
+    border: 1px solid var(--border, rgba(144, 184, 248, 0.16));
+  }
+  .profile-modal-card-base:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--primary, #5f85db) 18%,
+      var(--border, rgba(144, 184, 248, 0.16))
+    );
+  }
+
+  /* ─ Header da secao (3x) ─────────────────────────────────── */
+  .profile-modal-section-head-base {
+    @apply tw-flex tw-items-center tw-gap-3
+           tw-pb-3.5 tw-mb-3.5 tw-border-b
+           max-[480px]:tw-pb-3 max-[480px]:tw-mb-3;
+    border-bottom-color: color-mix(in srgb, var(--primary, #5f85db) 12%, transparent);
+  }
+
+  /* ─ Icone da secao (3x) — tile cyan tinted 32x32 ─────────── */
+  .profile-modal-section-icon-base {
+    @apply tw-shrink-0 tw-w-8 tw-h-8 tw-rounded-lg tw-grid tw-place-items-center;
+    color: var(--primary, #5f85db);
+    background: color-mix(in srgb, var(--primary, #5f85db) 12%, transparent);
+  }
+
+  /* ─ Label do field (11x) ─────────────────────────────────── */
+  .profile-modal-label-base {
+    @apply tw-block tw-text-xs tw-font-semibold
+           tw-text-ct-text-muted tw-mb-1.5 tw-tracking-[0.02em];
+  }
+
+  /* ─ Hint do field (11x) — texto explicativo abaixo do label ─ */
+  .profile-modal-field-hint-base {
+    @apply tw-block tw-mt-0.5 tw-mb-1.5
+           tw-text-[11.5px] tw-text-ct-text-faint tw-leading-[1.35];
+  }
+
+  /* ─ Wrapper do input com icone leading/trailing (6x) ─────── */
+  .profile-modal-input-wrap-base {
+    @apply tw-relative tw-block;
+  }
+
+  /* ─ Trailing icon do input (5x) — com focus-within do parent ─ */
+  .profile-modal-trailing-icon-base {
+    @apply tw-absolute tw-right-3 tw-top-1/2 -tw-translate-y-1/2
+           tw-inline-flex tw-pointer-events-none
+           tw-text-ct-text-faint;
+  }
+  .profile-modal-input-wrap-base:focus-within .profile-modal-trailing-icon-base {
+    color: var(--primary, #5f85db);
+  }
 }
 
 /* Keyframe do spinner do `.is-busy::after` acima. Mesmo nome
