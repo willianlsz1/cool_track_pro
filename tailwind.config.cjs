@@ -10,6 +10,15 @@ module.exports = {
   },
   theme: {
     extend: {
+      // ─ Breakpoints extras ───────────────────────────────────────────
+      // Media query `(max-width: 900px)` aparece no CSS legado do Login
+      // e nao tem match exato nos defaults do Tailwind. Adicionado em
+      // `extend` para preservar todos os defaults do Tailwind. Uso como
+      // `max-auth-md:` para `(max-width: 899px)`.
+      screens: {
+        'auth-md': '900px',
+      },
+
       // ─ Paletas extendendo o tema padrao do Tailwind ──────────────────
       // Aditivos: nenhum override de chaves built-in (slate, blue, etc).
       // Namespaces:
@@ -25,16 +34,42 @@ module.exports = {
           navy: '#020B2D',
           'navy-2': '#031B4E',
           'navy-3': '#06245F',
+          // Adicionado durante migracao do Login (Etapa 2 do
+          // style-reset). Stops mais escuros do gradient navy.
+          'navy-deep': '#03080f',
           blue: '#006DFF',
           'blue-vivid': '#159BFF',
+          // Adicionado durante migracao do Login. Variante mais
+          // brilhante do blue, usada em accents/glows do Login e
+          // candidata a reuso em outras views auth-adjacent.
+          'blue-bright': '#2c7cff',
           cyan: '#40C4FF',
+          // Adicionado durante migracao do Login. Cyan mais suave,
+          // usado em texto/icones sobre fundo escuro.
+          'cyan-soft': '#67E8F9',
           off: '#F5F8FC',
           line: '#E3EAF4',
           ink: '#0B1B33',
           'ink-2': '#5B6B82',
           green: '#18B884',
+          // Adicionado durante migracao do Login. Tom proximo de
+          // landing.green mas distinto (status online dot/pill).
+          'green-online': '#2ecc8b',
           orange: '#F59E0B',
           red: '#EF4444',
+          // ─ Texto sobre fundo navy escuro ─────────────────────
+          // Cores nucleares de texto da identidade Landing/Auth.
+          // Fortes candidatas a reuso em qualquer view com fundo
+          // dark; padronizar aqui evita fragmentar paleta.
+          'text-body': '#cdd9ee', // body
+          'text-mute': '#94a8c8', // muted
+          'text-dim': '#6b80a3', // dim/labels uppercase
+          // ─ Border base ───────────────────────────────────────
+          // Cor base usada com opacity modifier (`/05`, `/10`,
+          // `/18`, `/28`) para borders blue-faint dos cards/inputs.
+          // Hex de rgb(120,170,230) que aparece em rgba(120,170,
+          // 230,X) repetidamente no CSS legado.
+          'border-base': '#78aae6',
         },
         // Espelha `src/assets/styles/tokens.css` (`--ct-*`). Manter em
         // sincronia: qualquer mudanca no tokens.css deve refletir aqui
