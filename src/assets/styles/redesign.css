@@ -1027,6 +1027,75 @@ body:not(.landing-active) {
   color: var(--ct-text) !important;
 }
 
+/* Sidebar rhythm polish: spacing-only refinement, contracts stay in markup. */
+@media (min-width: 1025px) {
+  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar {
+    padding: 20px !important;
+  }
+
+  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar__brand {
+    min-height: 54px;
+    padding: 2px 4px 18px !important;
+    margin-bottom: 20px !important;
+    gap: 12px;
+  }
+
+  #app:not(.landing-active) .app-sidebar__nav {
+    gap: 24px !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__section {
+    display: flex;
+    flex-direction: column;
+    gap: 7px !important;
+    margin: 0 !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__section-kicker {
+    margin: 0 0 4px !important;
+    padding: 0 15px !important;
+    color: var(--ct-text-faint) !important;
+    font-size: 10.5px !important;
+    letter-spacing: 0.095em !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item {
+    min-height: 46px;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    border-radius: 13px !important;
+    gap: 12px;
+  }
+
+  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active {
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__footer {
+    margin-top: 24px !important;
+    padding-top: 22px !important;
+    gap: 12px !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__plan-card {
+    padding: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__divider {
+    margin: 8px 0 2px !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__user-chip,
+  #app:not(.landing-active) .app-sidebar__settings {
+    min-height: 46px;
+    padding: 0 12px !important;
+    border-radius: 13px !important;
+  }
+}
+
 /* ============================================================
    PR 3 — Shared controls token foundation
    ============================================================ */

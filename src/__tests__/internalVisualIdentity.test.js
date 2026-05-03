@@ -47,6 +47,10 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('background: var(--ct-success-soft) !important;');
     expect(redesign).toContain('#app:not(.landing-active) .empty-state');
     expect(redesign).toContain('body:not(.landing-active) .modal-overlay');
+    expect(redesign).toContain('Sidebar rhythm polish');
+    expect(redesign).toContain('#app:not(.landing-active) .app-sidebar__nav');
+    expect(redesign).toContain('min-height: 46px;');
+    expect(redesign).toContain('gap: 24px !important;');
     expect(redesign).toContain('PR 4 - Dashboard operational dark refresh');
     expect(redesign).toContain('#app:not(.landing-active) #dash');
     expect(redesign).toContain('--dsh-accent: var(--ct-brand);');
@@ -80,6 +84,12 @@ describe('internal visual identity tokens', () => {
     expect(clientesPremium).toContain('--cli-panel: var(--ct-app-bg);');
     expect(clientesPremium).toContain('.cli-card');
     expect(clientesPremium).toContain('.cli-pmoc');
+    expect(clientesPremium).toContain('Clientes KPI polish');
+    expect(clientesPremium).toContain('.cli-kpi .cli-kpi__sub');
+    expect(clientesPremium).toContain('border-radius: 999px !important;');
+    expect(clientesPremium).toContain(
+      'background: color-mix(in srgb, var(--ct-success-soft) 64%, transparent) !important;',
+    );
     expect(clientesPremium).toContain('background: var(--ct-success-soft) !important;');
     expect(clientesPremium).toContain('background: var(--ct-warn-soft) !important;');
     expect(clientesPremium).toContain('background: var(--ct-error-soft) !important;');
