@@ -1708,3 +1708,239 @@ body:not(.landing-active) .modal-overlay {
     border-radius: 14px !important;
   }
 }
+
+/* ============================================================
+   PR 5 - Equipamentos operational dark refresh
+   ============================================================ */
+
+#app:not(.landing-active) #view-equipamentos {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .section-title,
+#app:not(.landing-active) #view-equipamentos .equip-hero__title,
+#app:not(.landing-active) #view-equipamentos .equip-card__name,
+#app:not(.landing-active) #view-equipamentos .equip-card__health-value,
+#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__title,
+#app:not(.landing-active) #view-equipamentos .setor-card__name,
+#app:not(.landing-active) #view-equipamentos .setor-card__metric-value {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .section-subtitle,
+#app:not(.landing-active) #view-equipamentos .equip-hero__sub,
+#app:not(.landing-active) #view-equipamentos .equip-card__tag,
+#app:not(.landing-active) #view-equipamentos .equip-card__subtitle,
+#app:not(.landing-active) #view-equipamentos .equip-card__metric-label,
+#app:not(.landing-active) #view-equipamentos .equip-card__meta,
+#app:not(.landing-active) #view-equipamentos .equip-card__hint,
+#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__hint,
+#app:not(.landing-active) #view-equipamentos .setor-card__meta,
+#app:not(.landing-active) #view-equipamentos .setor-card__metric-label {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-hero,
+#app:not(.landing-active) #view-equipamentos .quick-move-banner,
+#app:not(.landing-active) #view-equipamentos .equip-card,
+#app:not(.landing-active) #view-equipamentos .equip-idle-cluster,
+#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__summary,
+#app:not(.landing-active) #view-equipamentos .setor-card,
+#app:not(.landing-active) #view-equipamentos .card,
+#app:not(.landing-active) #view-equipamentos .empty-state {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-hero {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(144, 184, 248, 0.16), transparent 34%),
+    linear-gradient(135deg, var(--ct-surface) 0%, var(--ct-surface-subtle) 100%) !important;
+  border-left: 1px solid var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card:hover,
+#app:not(.landing-active) #view-equipamentos .equip-card:focus-within,
+#app:not(.landing-active) #view-equipamentos .setor-card:hover,
+#app:not(.landing-active) #view-equipamentos .setor-card:focus-within {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filters,
+#app:not(.landing-active) #view-equipamentos .equip-breadcrumb,
+#app:not(.landing-active) #view-equipamentos .equip-card__metrics,
+#app:not(.landing-active) #view-equipamentos .equip-card__primary,
+#app:not(.landing-active) #view-equipamentos .equip-card__timeline-inline,
+#app:not(.landing-active) #view-equipamentos .equip-card__onboard,
+#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__grid,
+#app:not(.landing-active) #view-equipamentos .setor-card__footer {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filter,
+#app:not(.landing-active) #view-equipamentos .equip-card__action,
+#app:not(.landing-active) #view-equipamentos .equip-card__secondary,
+#app:not(.landing-active) #view-equipamentos .equip-card__more,
+#app:not(.landing-active) #view-equipamentos .setor-card__action,
+#app:not(.landing-active) #view-equipamentos .quick-move-banner__select {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filter:hover,
+#app:not(.landing-active) #view-equipamentos .equip-card__action:hover,
+#app:not(.landing-active) #view-equipamentos .equip-card__secondary:hover,
+#app:not(.landing-active) #view-equipamentos .equip-card__more:hover,
+#app:not(.landing-active) #view-equipamentos .setor-card__action:hover,
+#app:not(.landing-active) #view-equipamentos .quick-move-banner__select:focus {
+  background: rgba(144, 184, 248, 0.1) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filter--active,
+#app:not(.landing-active) #view-equipamentos .equip-hero__cta-btn--action,
+#app:not(.landing-active) #view-equipamentos .equip-card__primary-cta,
+#app:not(.landing-active) #view-equipamentos .equip-card__onboard-cta,
+#app:not(.landing-active) #view-equipamentos .quick-move-banner__btn {
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  border-color: rgba(144, 184, 248, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-hero__cta-btn--upsell {
+  background: rgba(217, 164, 65, 0.12) !important;
+  border-color: rgba(217, 164, 65, 0.34) !important;
+  color: var(--ct-gold) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__type-icon,
+#app:not(.landing-active) #view-equipamentos .equip-card__photo,
+#app:not(.landing-active) #view-equipamentos .equip-card__fallback,
+#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend,
+#app:not(.landing-active) #view-equipamentos .equip-card__context-chip,
+#app:not(.landing-active) #view-equipamentos .setor-card__icon {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card--ok,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--ok,
+#app:not(.landing-active) #view-equipamentos .equip-card__score-value--ok,
+#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx--positive,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--baixo,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--improving {
+  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--ok,
+#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx--positive,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--baixo,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--improving {
+  background: var(--ct-success-soft) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card--warn,
+#app:not(.landing-active) #view-equipamentos .equip-filter--warn,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--warn,
+#app:not(.landing-active) #view-equipamentos .equip-card__score-value--warn,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--medio,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--stable {
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+  color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filter--warn,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--warn,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--medio,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--stable {
+  background: var(--ct-warn-soft) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card--danger,
+#app:not(.landing-active) #view-equipamentos .equip-filter--danger,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--danger,
+#app:not(.landing-active) #view-equipamentos .equip-card__score-value--danger,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--alto,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--worsening {
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filter--danger,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--danger,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--alto,
+#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--worsening {
+  background: var(--ct-error-soft) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-filter--cyan,
+#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--neutral,
+#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx--neutral {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__health-bar,
+#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-full {
+  background: var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__health-fill,
+#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill {
+  background: linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__health-fill--ok,
+#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill--ok {
+  background: linear-gradient(90deg, var(--ct-success), #86efac) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__health-fill--warn,
+#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill--warn {
+  background: linear-gradient(90deg, var(--ct-warn), #fde68a) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__health-fill--danger,
+#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill--danger {
+  background: linear-gradient(90deg, var(--ct-error), #fda4af) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .quick-move-banner__select {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-equipamentos .equip-card__menu,
+#app:not(.landing-active) #view-equipamentos .setor-card__menu {
+  background: var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+@media (max-width: 720px) {
+  #app:not(.landing-active) #view-equipamentos .equip-hero,
+  #app:not(.landing-active) #view-equipamentos .equip-card,
+  #app:not(.landing-active) #view-equipamentos .quick-move-banner,
+  #app:not(.landing-active) #view-equipamentos .equip-idle-cluster {
+    border-radius: 14px !important;
+  }
+}

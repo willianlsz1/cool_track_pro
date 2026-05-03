@@ -5,6 +5,7 @@ describe('internal visual identity tokens', () => {
   it('defines the dark operational token foundation for the authenticated app', () => {
     const tokens = readFileSync('src/assets/styles/tokens.css', 'utf8');
     const redesign = readFileSync('src/assets/styles/redesign.css', 'utf8');
+    const clientesPremium = readFileSync('src/assets/styles/clientes-premium.css', 'utf8');
 
     expect(tokens).toContain('--ct-app-bg: #26282b;');
     expect(tokens).toContain('--ct-surface: #353941;');
@@ -54,6 +55,21 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('#app:not(.landing-active) #dash .dash__kpi');
     expect(redesign).toContain('#app:not(.landing-active) #dash .onb-card');
     expect(redesign).toContain('#app:not(.landing-active) #dash .dash-overflow-banner');
+    expect(redesign).toContain('PR 5 - Equipamentos operational dark refresh');
+    expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos');
+    expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .equip-hero');
+    expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .equip-card');
+    expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .quick-move-banner');
+    expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .equip-idle-cluster');
+    expect(clientesPremium).toContain('PR 5 - Clientes operational dark refresh');
+    expect(clientesPremium).toContain('--cli-card: var(--ct-surface);');
+    expect(clientesPremium).toContain('--cli-panel: var(--ct-app-bg);');
+    expect(clientesPremium).toContain('.cli-card');
+    expect(clientesPremium).toContain('.cli-pmoc');
+    expect(clientesPremium).toContain('background: var(--ct-success-soft) !important;');
+    expect(clientesPremium).toContain('background: var(--ct-warn-soft) !important;');
+    expect(clientesPremium).toContain('background: var(--ct-error-soft) !important;');
+    expect(clientesPremium).not.toMatch(/Ver demonstra[Ã§c][Ã£a]o/i);
     expect(redesign).not.toContain('linear-gradient(135deg, #f6c85f 0%, #d79b36 100%)');
     expect(redesign).not.toMatch(/Ver demonstra[çc][ãa]o/i);
   });

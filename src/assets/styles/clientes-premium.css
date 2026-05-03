@@ -517,3 +517,236 @@
     text-align: left !important;
   }
 }
+
+/* ============================================================
+   PR 5 - Clientes operational dark refresh
+   ============================================================ */
+
+.cli-page {
+  --cli-ink: var(--ct-text);
+  --cli-muted: var(--ct-text-muted);
+  --cli-soft: var(--ct-text-faint);
+  --cli-border: var(--ct-border);
+  --cli-border-soft: var(--ct-border);
+  --cli-card: var(--ct-surface);
+  --cli-card-solid: var(--ct-surface);
+  --cli-panel: var(--ct-app-bg);
+  --cli-sky: var(--ct-brand);
+  --cli-cyan: var(--ct-brand-hover);
+  --cli-shadow: var(--ct-shadow-soft);
+  --cli-shadow-sm: 0 14px 34px rgba(0, 0, 0, 0.22);
+
+  color: var(--ct-text) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(144, 184, 248, 0.14), transparent 34%),
+    radial-gradient(circle at 96% 18%, rgba(95, 133, 219, 0.12), transparent 30%),
+    linear-gradient(180deg, var(--ct-surface-subtle) 0%, var(--ct-app-bg) 100%) !important;
+  border-color: var(--ct-border) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+.cli-page::before {
+  background-image:
+    linear-gradient(rgba(144, 184, 248, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(144, 184, 248, 0.045) 1px, transparent 1px) !important;
+}
+
+.cli-page__title,
+.cli-summary__title,
+.cli-kpi__value,
+.cli-card__name,
+.cli-stat__value,
+.cli-empty__title,
+.cli-context__chip b,
+.cli-pmoc__head strong,
+.cli-pmoc__status,
+.cli-card__menu-item {
+  color: var(--ct-text) !important;
+}
+
+.cli-page__sub,
+.cli-summary__hint,
+.cli-summary__chev,
+.cli-kpi__label,
+.cli-kpi__sub,
+.cli-card__sub,
+.cli-card__address,
+.cli-card__address-icon,
+.cli-stat__label,
+.cli-empty__sub,
+.cli-pag__info,
+.cli-pmoc__label,
+.cli-pmoc__meta,
+.cli-pmoc__meta span,
+.cli-search__icon,
+.cli-select__label {
+  color: var(--ct-text-muted) !important;
+}
+
+.cli-filters,
+.cli-summary,
+.cli-alert,
+.cli-empty,
+.cli-pag,
+.cli-kpi,
+.cli-card,
+.cli-card__stats,
+.cli-pmoc,
+.cli-card__menu {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+.cli-summary:hover,
+.cli-kpi:hover,
+.cli-card:hover,
+.cli-card:focus-within {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+.cli-search__input,
+.cli-select__input,
+.cli-filters__reset,
+.cli-context__chip,
+.cli-context__clear,
+.cli-empty__cta--ghost,
+.cli-alert__cta,
+.cli-card__action--secondary,
+.cli-card__action--pmoc,
+.cli-card__action--ghost,
+.cli-card__menu,
+.cli-card__menu-item,
+.cli-card__menu-close,
+.cli-card__menu-trigger,
+.cli-pag__btn,
+.cli-pag__page {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+.cli-search__input,
+.cli-select__input {
+  color: var(--ct-text) !important;
+}
+
+.cli-search__input::placeholder {
+  color: var(--ct-text-faint) !important;
+}
+
+.cli-search__input:focus,
+.cli-select__input:focus,
+.cli-card__action:focus-visible,
+.cli-card__menu-trigger:focus-visible,
+.cli-filters__reset:focus-visible,
+.cli-empty__cta:focus-visible,
+.cli-alert__cta:focus-visible,
+.cli-pag__btn:focus-visible,
+.cli-pag__page:focus-visible {
+  border-color: var(--ct-brand-hover) !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
+  outline: none !important;
+}
+
+.cli-filters__reset:hover,
+.cli-context__clear:hover,
+.cli-empty__cta--ghost:hover,
+.cli-alert__cta:hover,
+.cli-card__action--secondary:hover,
+.cli-card__action--pmoc:hover,
+.cli-card__action--ghost:hover,
+.cli-card__menu-trigger:hover,
+.cli-card__menu-item:hover,
+.cli-card__menu-close:hover,
+.cli-pag__btn:not(:disabled):hover,
+.cli-pag__page:hover {
+  background: rgba(144, 184, 248, 0.1) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+.cli-page__cta,
+.cli-empty__cta:not(.cli-empty__cta--ghost),
+.cli-card__action--primary {
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  border-color: rgba(144, 184, 248, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
+}
+
+.cli-page__cta:hover,
+.cli-empty__cta:not(.cli-empty__cta--ghost):hover,
+.cli-card__action--primary:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.cli-kpi__icon,
+.cli-card__icon,
+.cli-empty__art,
+.cli-summary__icon {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+.cli-kpi__sub--ok,
+.cli-kpi__sub--up,
+.cli-card__pill--ok,
+.cli-pmoc__chip--ok {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+.cli-kpi__sub--warn,
+.cli-card__pill--warn,
+.cli-card__alert--warn,
+.cli-pmoc__chip--warn {
+  background: var(--ct-warn-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+  color: var(--ct-warn) !important;
+}
+
+.cli-kpi__sub--down,
+.cli-card__pill--danger,
+.cli-card__alert--danger,
+.cli-pmoc__chip--danger,
+.cli-card__menu-item--danger {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+.cli-kpi__sub--neutral,
+.cli-card__alert--info,
+.cli-pmoc__chip--muted {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+.cli-alert {
+  background:
+    linear-gradient(90deg, var(--ct-warn-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
+  border-left-color: var(--ct-warn) !important;
+}
+
+.cli-alert__title,
+.cli-alert__desc,
+.cli-alert__cta {
+  color: var(--ct-warn) !important;
+}
+
+.cli-pag__page.is-active {
+  background: rgba(144, 184, 248, 0.14) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+}
