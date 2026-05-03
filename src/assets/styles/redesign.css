@@ -3072,3 +3072,380 @@ body:not(.landing-active) .modal textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   PR 7 - Charts, filters, chips and pills refinement
+   ============================================================ */
+
+#app:not(.landing-active) {
+  --ct-chip-height: 34px;
+  --ct-filter-height: 44px;
+  --ct-pill-dot-size: 6px;
+}
+
+#app:not(.landing-active) .chart-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border: 1px solid var(--ct-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+  overflow: hidden;
+}
+
+#app:not(.landing-active) .chart-card:hover,
+#app:not(.landing-active) .chart-card:focus-within {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.055), rgba(255, 255, 255, 0.016)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) .chart-card__title {
+  color: var(--ct-text) !important;
+  letter-spacing: 0 !important;
+}
+
+#app:not(.landing-active) .chart-card__body {
+  min-width: 0;
+  padding: 14px !important;
+  background: var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border);
+  border-radius: 14px;
+}
+
+#app:not(.landing-active) .chart-card__body canvas,
+#app:not(.landing-active) .bento-chart canvas {
+  display: block;
+  max-width: 100% !important;
+  min-width: 0;
+}
+
+#app:not(.landing-active) .cli-filters,
+#app:not(.landing-active) #view-equipamentos .equip-filters,
+#app:not(.landing-active) #view-equipamentos .equip-search-row,
+#app:not(.landing-active) .hist-sticky-header__row,
+#app:not(.landing-active) .hist-quickfilters,
+#app:not(.landing-active) #view-relatorio .rel-filters,
+#app:not(.landing-active) #view-relatorio .rel-filters__advanced,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar {
+  align-items: center;
+  min-width: 0;
+  padding: 12px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.01)),
+    var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+#app:not(.landing-active) .search-bar,
+#app:not(.landing-active) .cli-search,
+#app:not(.landing-active) .orc-search,
+#app:not(.landing-active) .hist-search {
+  min-width: 0;
+}
+
+#app:not(.landing-active) .search-bar__input,
+#app:not(.landing-active) .cli-search__input,
+#app:not(.landing-active) .cli-select__input,
+#app:not(.landing-active) #view-orcamentos .orc-search__input,
+#app:not(.landing-active) .hist-search input,
+#app:not(.landing-active) .hist-sticky-header select,
+#app:not(.landing-active) #view-relatorio .rel-filters input,
+#app:not(.landing-active) #view-relatorio .rel-filters select {
+  min-height: var(--ct-filter-height) !important;
+  background: var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border) !important;
+  border-radius: 13px !important;
+  color: var(--ct-text) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .search-bar__input::placeholder,
+#app:not(.landing-active) .cli-search__input::placeholder,
+#app:not(.landing-active) #view-orcamentos .orc-search__input::placeholder,
+#app:not(.landing-active) .hist-search input::placeholder,
+#app:not(.landing-active) #view-relatorio .rel-filters input::placeholder {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) .search-bar__input:focus,
+#app:not(.landing-active) .cli-search__input:focus,
+#app:not(.landing-active) .cli-select__input:focus,
+#app:not(.landing-active) #view-orcamentos .orc-search__input:focus,
+#app:not(.landing-active) .hist-search input:focus,
+#app:not(.landing-active) .hist-sticky-header select:focus,
+#app:not(.landing-active) #view-relatorio .rel-filters input:focus,
+#app:not(.landing-active) #view-relatorio .rel-filters select:focus {
+  border-color: var(--ct-brand-hover) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.2) !important;
+}
+
+#app:not(.landing-active) .rel-segmented,
+#app:not(.landing-active) .rel-mode-segment,
+#app:not(.landing-active) .hist-quickfilters,
+#app:not(.landing-active) #view-orcamentos .orc-filter-chips {
+  min-width: 0;
+  padding: 4px !important;
+  background: var(--ct-surface-subtle) !important;
+  border: 1px solid var(--ct-border) !important;
+  border-radius: 15px !important;
+  overflow: hidden;
+}
+
+#app:not(.landing-active) .rel-segmented__opt,
+#app:not(.landing-active) .rel-mode-segment__item,
+#app:not(.landing-active) .hist-quickfilter,
+#app:not(.landing-active) #view-orcamentos .orc-chip,
+#app:not(.landing-active) .equip-filter {
+  min-height: var(--ct-chip-height) !important;
+  max-width: 100%;
+  padding: 0 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) .rel-segmented__opt:hover,
+#app:not(.landing-active) .rel-mode-segment__item:hover,
+#app:not(.landing-active) .hist-quickfilter:hover,
+#app:not(.landing-active) #view-orcamentos .orc-chip:hover,
+#app:not(.landing-active) .equip-filter:hover {
+  background: rgba(144, 184, 248, 0.1) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) .rel-segmented__opt.is-active,
+#app:not(.landing-active) .rel-mode-segment__item.is-active,
+#app:not(.landing-active) .hist-quickfilter.is-active,
+#app:not(.landing-active) #view-orcamentos .orc-chip.is-active,
+#app:not(.landing-active) .equip-filter--active {
+  background: rgba(144, 184, 248, 0.14) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055) !important;
+}
+
+#app:not(.landing-active) .rel-chip,
+#app:not(.landing-active) .hist-active-chip,
+#app:not(.landing-active) .cli-context__chip,
+#app:not(.landing-active) .eq-tech-sheet-wrap__summary-chip,
+#app:not(.landing-active) .equip-card__chip-ctx,
+#app:not(.landing-active) .equip-card__risk-chip,
+#app:not(.landing-active) .registro-quick-chip {
+  min-height: var(--ct-chip-height) !important;
+  max-width: 100%;
+  min-width: 0;
+  padding: 6px 10px !important;
+  border: 1px solid var(--ct-border) !important;
+  border-radius: 999px !important;
+  background: rgba(144, 184, 248, 0.075) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+}
+
+#app:not(.landing-active) .rel-chip.is-active,
+#app:not(.landing-active) .hist-active-chip,
+#app:not(.landing-active) .cli-context__chip b,
+#app:not(.landing-active) .equip-card__chip-ctx--positive {
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) .rel-chip__label,
+#app:not(.landing-active) .hist-active-chip span,
+#app:not(.landing-active) .cli-context__chip,
+#app:not(.landing-active) .equip-card__chip-ctx span,
+#app:not(.landing-active) .registro-quick-chip__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#app:not(.landing-active) .rel-chip__clear,
+#app:not(.landing-active) .hist-active-chip__x,
+#app:not(.landing-active) .search-bar__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) .rel-chip__clear:hover,
+#app:not(.landing-active) .hist-active-chip__x:hover,
+#app:not(.landing-active) .search-bar__clear:hover {
+  background: rgba(144, 184, 248, 0.12) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) .badge,
+#app:not(.landing-active) .cli-card__pill,
+#app:not(.landing-active) .cli-pmoc__chip,
+#app:not(.landing-active) .hist-pill,
+#app:not(.landing-active) .equip-tone-pill,
+#app:not(.landing-active) .equip-card__tone-pill,
+#app:not(.landing-active) .equip-card__risk-badge,
+#app:not(.landing-active) .equip-card__priority-badge,
+#app:not(.landing-active) .orc-status-pill,
+#app:not(.landing-active) .rel-record__prox-badge,
+#app:not(.landing-active) .pdf-quota-badge,
+#app:not(.landing-active) .header-alert-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 26px;
+  padding: 4px 9px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ct-border) !important;
+  background: rgba(144, 184, 248, 0.08) !important;
+  color: var(--ct-text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#app:not(.landing-active) .badge::before,
+#app:not(.landing-active) .cli-card__pill::before,
+#app:not(.landing-active) .cli-pmoc__chip::before,
+#app:not(.landing-active) .hist-pill::before,
+#app:not(.landing-active) .orc-status-pill::before,
+#app:not(.landing-active) .rel-record__prox-badge::before {
+  content: '';
+  flex: 0 0 auto;
+  width: var(--ct-pill-dot-size);
+  height: var(--ct-pill-dot-size);
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent);
+}
+
+#app:not(.landing-active) .badge--ok,
+#app:not(.landing-active) .cli-card__pill--ok,
+#app:not(.landing-active) .cli-pmoc__chip--ok,
+#app:not(.landing-active) .hist-pill--green,
+#app:not(.landing-active) .hist-pill--ok,
+#app:not(.landing-active) .equip-tone-pill--ok,
+#app:not(.landing-active) .equip-card__tone-pill--ok,
+#app:not(.landing-active) .equip-card__risk-badge--baixo,
+#app:not(.landing-active) .equip-card__priority-badge--1 {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 32%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) .badge--warn,
+#app:not(.landing-active) .cli-card__pill--warn,
+#app:not(.landing-active) .cli-pmoc__chip--warn,
+#app:not(.landing-active) .hist-pill--amber,
+#app:not(.landing-active) .hist-pill--warn,
+#app:not(.landing-active) .equip-tone-pill--warn,
+#app:not(.landing-active) .equip-card__tone-pill--warn,
+#app:not(.landing-active) .equip-card__risk-badge--medio,
+#app:not(.landing-active) .equip-card__priority-badge--2 {
+  background: var(--ct-warn-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 32%, transparent) !important;
+  color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) .badge--danger,
+#app:not(.landing-active) .cli-card__pill--danger,
+#app:not(.landing-active) .cli-pmoc__chip--danger,
+#app:not(.landing-active) .hist-pill--red,
+#app:not(.landing-active) .hist-pill--danger,
+#app:not(.landing-active) .equip-tone-pill--danger,
+#app:not(.landing-active) .equip-card__tone-pill--danger,
+#app:not(.landing-active) .equip-card__risk-badge--alto,
+#app:not(.landing-active) .equip-card__priority-badge--3,
+#app:not(.landing-active) .equip-card__priority-badge--4 {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 32%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) .hist-pill--cyan,
+#app:not(.landing-active) .hist-pill--blue,
+#app:not(.landing-active) .hist-pill--neutral,
+#app:not(.landing-active) .equip-tone-pill--neutral,
+#app:not(.landing-active) .equip-card__tone-pill--neutral,
+#app:not(.landing-active) .rel-record__prox-badge--default {
+  background: var(--ct-info-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-info) 32%, transparent) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) .form-progress__bar,
+#app:not(.landing-active) .onb-card__progress,
+#app:not(.landing-active) .equip-health-mini__bar,
+#app:not(.landing-active) .equip-card__health-bar,
+#app:not(.landing-active) .equip-card__health-bar-full {
+  height: 8px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.075) !important;
+  border: 1px solid var(--ct-border) !important;
+  overflow: hidden;
+}
+
+#app:not(.landing-active) .form-progress__fill,
+#app:not(.landing-active) .onb-card__progress-fill,
+#app:not(.landing-active) .equip-health-mini__val,
+#app:not(.landing-active) .equip-card__health-fill {
+  min-width: 0;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .equip-card__health-fill--ok,
+#app:not(.landing-active) .form-progress[data-state='complete'] .form-progress__fill {
+  background: linear-gradient(90deg, var(--ct-success), var(--ct-brand-hover)) !important;
+}
+
+#app:not(.landing-active) .equip-card__health-fill--warn,
+#app:not(.landing-active) .form-progress[data-state='partial'] .form-progress__fill {
+  background: linear-gradient(90deg, var(--ct-warn), var(--ct-brand-hover)) !important;
+}
+
+#app:not(.landing-active) .equip-card__health-fill--danger {
+  background: linear-gradient(90deg, var(--ct-error), var(--ct-warn)) !important;
+}
+
+@media (max-width: 720px) {
+  #app:not(.landing-active) .rel-segmented,
+  #app:not(.landing-active) .rel-mode-segment,
+  #app:not(.landing-active) .hist-quickfilters,
+  #app:not(.landing-active) .hist-active-chips,
+  #app:not(.landing-active) .rel-filters__chips,
+  #app:not(.landing-active) #view-orcamentos .orc-filter-chips,
+  #app:not(.landing-active) #view-equipamentos .equip-filters {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  #app:not(.landing-active) .chart-card__body {
+    padding: 10px !important;
+  }
+}

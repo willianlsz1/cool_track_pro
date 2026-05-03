@@ -14,17 +14,19 @@ function cssVar(name) {
 
 function getThemeColors() {
   return {
-    primary: cssVar('--primary') || '#00C8E8',
-    success: cssVar('--success') || '#00C870',
-    warning: cssVar('--warning') || '#E8A020',
-    danger: cssVar('--danger') || '#E03040',
-    text: cssVar('--text') || '#E8F2FA',
-    text2: cssVar('--text-2') || '#8AAAC8',
-    text3: cssVar('--text-3') || '#4A6880',
-    border: cssVar('--border') || 'rgba(255,255,255,0.07)',
-    border2: cssVar('--border-2') || 'rgba(255,255,255,0.12)',
-    surface2: cssVar('--surface-2') || '#112236',
-    surface3: cssVar('--surface-3') || '#172D45',
+    primary: cssVar('--ct-brand') || cssVar('--primary') || '#5F85DB',
+    primaryHover: cssVar('--ct-brand-hover') || cssVar('--primary-strong') || '#90B8F8',
+    success: cssVar('--ct-success') || cssVar('--success') || '#4ADE80',
+    warning: cssVar('--ct-warn') || cssVar('--warning') || '#FBBF24',
+    danger: cssVar('--ct-error') || cssVar('--danger') || '#FB7185',
+    info: cssVar('--ct-info') || '#90B8F8',
+    text: cssVar('--ct-text') || cssVar('--text') || '#F4F7FB',
+    text2: cssVar('--ct-text-muted') || cssVar('--text-2') || '#C7D0E0',
+    text3: cssVar('--ct-text-faint') || cssVar('--text-3') || '#98A4B8',
+    border: cssVar('--ct-border') || cssVar('--border') || 'rgba(144, 184, 248, 0.16)',
+    border2: cssVar('--ct-border-strong') || cssVar('--border-2') || 'rgba(144, 184, 248, 0.28)',
+    surface2: cssVar('--ct-surface') || cssVar('--surface-2') || '#353941',
+    surface3: cssVar('--ct-surface-raised') || cssVar('--surface-3') || '#3E434D',
   };
 }
 
@@ -41,13 +43,13 @@ function buildBaseOptions(c) {
     borderColor: c.border,
     plugins: {
       tooltip: {
-        backgroundColor: c.surface2,
+        backgroundColor: c.surface3,
         titleColor: c.text,
         bodyColor: c.text2,
         borderColor: c.border2,
         borderWidth: 1,
-        padding: 10,
-        cornerRadius: 4,
+        padding: 12,
+        cornerRadius: 10,
         displayColors: true,
         boxWidth: 10,
         boxHeight: 10,
@@ -62,7 +64,7 @@ function buildBaseOptions(c) {
           padding: 16,
           usePointStyle: true,
           pointStyle: 'rectRounded',
-          font: { size: 11 },
+          font: { size: 11, weight: 500 },
         },
       },
     },
@@ -120,9 +122,9 @@ function buildStatusData(equipamentos, c) {
     datasets: [
       {
         data: [counts.ok, counts.warn, counts.danger],
-        backgroundColor: [`${c.success}BB`, `${c.warning}BB`, `${c.danger}BB`],
+        backgroundColor: [`${c.success}30`, `${c.warning}30`, `${c.danger}30`],
         borderColor: [c.success, c.warning, c.danger],
-        borderWidth: 1.5,
+        borderWidth: 2,
         hoverOffset: 6,
         hoverBorderWidth: 2,
       },
@@ -155,9 +157,9 @@ function buildTrendData(registros, c) {
         label: 'Serviços',
         data: counts,
         borderColor: c.primary,
-        backgroundColor: `${c.primary}18`,
+        backgroundColor: `${c.primaryHover}24`,
         borderWidth: 2,
-        pointBackgroundColor: c.primary,
+        pointBackgroundColor: c.primaryHover,
         pointBorderColor: c.surface2,
         pointBorderWidth: 2,
         pointRadius: 4,
@@ -183,8 +185,8 @@ function buildTypesData(registros, c) {
   // Paleta técnica fixa para os tipos. Cores 5-6 adaptam ao tema pra não
   // sumirem contra o fundo branco no light.
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  const extras = isLight ? ['#3a6f9c', '#7a5a2a'] : ['#7CB8D0', '#8AAAC8'];
-  const palette = [c.primary, c.success, c.warning, c.danger, ...extras];
+  const extras = isLight ? ['#3a6f9c', '#7a5a2a'] : [c.info, c.text3];
+  const palette = [c.primary, c.info, c.success, c.warning, c.danger, ...extras];
 
   return {
     labels: sorted.map(([tipo]) => (tipo.length > 26 ? tipo.slice(0, 26) + '…' : tipo)),
@@ -192,10 +194,10 @@ function buildTypesData(registros, c) {
       {
         label: 'Ocorrências',
         data: sorted.map(([, n]) => n),
-        backgroundColor: sorted.map((_, i) => `${palette[i % palette.length]}AA`),
+        backgroundColor: sorted.map((_, i) => `${palette[i % palette.length]}42`),
         borderColor: sorted.map((_, i) => palette[i % palette.length]),
         borderWidth: 1,
-        borderRadius: 3,
+        borderRadius: 8,
         borderSkipped: false,
       },
     ],

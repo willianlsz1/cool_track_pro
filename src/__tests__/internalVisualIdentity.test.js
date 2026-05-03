@@ -6,6 +6,7 @@ describe('internal visual identity tokens', () => {
     const tokens = readFileSync('src/assets/styles/tokens.css', 'utf8');
     const redesign = readFileSync('src/assets/styles/redesign.css', 'utf8');
     const clientesPremium = readFileSync('src/assets/styles/clientes-premium.css', 'utf8');
+    const charts = readFileSync('src/ui/components/charts.js', 'utf8');
 
     expect(tokens).toContain('--ct-app-bg: #26282b;');
     expect(tokens).toContain('--ct-surface: #353941;');
@@ -100,6 +101,28 @@ describe('internal visual identity tokens', () => {
       '#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp',
     );
     expect(redesign).toContain('background: rgba(144, 184, 248, 0.09) !important;');
+    expect(redesign).toContain('PR 7 - Charts, filters, chips and pills refinement');
+    expect(redesign).toContain('--ct-chip-height: 34px;');
+    expect(redesign).toContain('#app:not(.landing-active) .chart-card');
+    expect(redesign).toContain('#app:not(.landing-active) .chart-card__body canvas');
+    expect(redesign).toContain('#app:not(.landing-active) .rel-segmented__opt.is-active');
+    expect(redesign).toContain('#app:not(.landing-active) .hist-quickfilter.is-active');
+    expect(redesign).toContain('#app:not(.landing-active) .hist-active-chip');
+    expect(redesign).toContain('#app:not(.landing-active) .equip-filter--active');
+    expect(redesign).toContain('#app:not(.landing-active) .equip-card__health-bar-full');
+    expect(redesign).toContain('overflow-wrap: anywhere;');
+    expect(redesign).toContain('background: var(--ct-success-soft) !important;');
+    expect(redesign).toContain('background: var(--ct-warn-soft) !important;');
+    expect(redesign).toContain('background: var(--ct-error-soft) !important;');
+    expect(redesign).toContain('background: rgba(144, 184, 248, 0.1) !important;');
+    expect(redesign).toContain('linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover))');
+    expect(charts).toContain("primary: cssVar('--ct-brand')");
+    expect(charts).toContain("primaryHover: cssVar('--ct-brand-hover')");
+    expect(charts).toContain("success: cssVar('--ct-success')");
+    expect(charts).toContain("warning: cssVar('--ct-warn')");
+    expect(charts).toContain("danger: cssVar('--ct-error')");
+    expect(charts).toContain('backgroundColor: c.surface3');
+    expect(charts).toContain('cornerRadius: 10');
     expect(clientesPremium).toContain('PR 5 - Clientes operational dark refresh');
     expect(clientesPremium).toContain('--cli-card: var(--ct-surface);');
     expect(clientesPremium).toContain('--cli-panel: var(--ct-app-bg);');
