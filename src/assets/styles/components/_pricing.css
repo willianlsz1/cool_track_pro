@@ -1043,9 +1043,6 @@
   width: 100%;
 }
 
-/* Profile Modal: canonical styles moved to components.css as .profile-modal__*
-   (BEM, alinhado com o hero pattern do .account-modal). */
-
 /* ═══════════════════════════════════════════════════════
    TABELA COMPARATIVA DE PLANOS
    ─────────────────────────────────────────
