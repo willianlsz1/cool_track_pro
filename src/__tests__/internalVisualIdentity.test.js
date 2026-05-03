@@ -6,7 +6,10 @@ describe('internal visual identity tokens', () => {
     const tokens = readFileSync('src/assets/styles/tokens.css', 'utf8');
     const redesign = readFileSync('src/assets/styles/redesign.css', 'utf8');
     const clientesPremium = readFileSync('src/assets/styles/clientes-premium.css', 'utf8');
+    const internalTopPolish = readFileSync('src/assets/styles/internal-top-polish.css', 'utf8');
+    const index = readFileSync('index.html', 'utf8');
     const charts = readFileSync('src/ui/components/charts.js', 'utf8');
+    const redesignNormalized = redesign.replace(/\r\n/g, '\n');
 
     expect(tokens).toContain('--ct-app-bg: #26282b;');
     expect(tokens).toContain('--ct-surface: #353941;');
@@ -35,9 +38,12 @@ describe('internal visual identity tokens', () => {
     expect(tokens).toContain('--neon-cyan: var(--ct-brand);');
     expect(tokens).toContain('--neon-red: var(--ct-error);');
     expect(redesign).toContain('var(--ct-app-bg)');
+    expect(redesign).toContain('Consolidated visual compatibility layer');
+    expect(redesign).toContain('--ct-legacy-light-surface: #ffffff;');
+    expect(redesign).toContain('--ct-legacy-brand-blue: #2f7bff;');
+    expect(redesign).not.toContain('app-sidebar__plan-card');
     expect(redesign).toContain('var(--ct-surface) 0%, var(--ct-surface-subtle) 100%');
     expect(redesign).toContain('var(--ct-brand-hover), var(--ct-brand)');
-    expect(redesign).toContain('var(--ct-gold-soft)');
     expect(redesign).toContain('.app-shell--with-sidebar .app-sidebar__brand');
     expect(redesign).toContain('PR 3 — Shared controls token foundation');
     expect(redesign).toContain('#app:not(.landing-active) .btn--primary');
@@ -53,7 +59,7 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('min-height: 46px;');
     expect(redesign).toContain('gap: 24px !important;');
     expect(redesign).toContain('System visual polish - dark operational consistency');
-    expect(redesign).toContain(
+    expect(redesignNormalized).toContain(
       ".modal\n  input:not([type='checkbox']):not([type='radio']):not([type='file']),",
     );
     expect(redesign).toContain('#app:not(.landing-active) .hist-quickfilter');
@@ -167,6 +173,16 @@ describe('internal visual identity tokens', () => {
     expect(clientesPremium).toContain('background: var(--ct-warn-soft) !important;');
     expect(clientesPremium).toContain('background: var(--ct-error-soft) !important;');
     expect(clientesPremium).not.toMatch(/Ver demonstra[Ã§c][Ã£a]o/i);
+    expect(index).toContain('/src/assets/styles/internal-top-polish.css');
+    expect(internalTopPolish).toContain(
+      'PR 11 - Relatorios, Historico, top filters and action bars',
+    );
+    expect(internalTopPolish).toContain('#app:not(.landing-active) #view-relatorio');
+    expect(internalTopPolish).toContain('#app:not(.landing-active) #view-historico');
+    expect(internalTopPolish).toContain('.rel-toolbar__btn--whatsapp');
+    expect(internalTopPolish).toContain('.hist-sticky-header');
+    expect(internalTopPolish).toContain('grid-template-columns: minmax(260px, 1fr) auto');
+    expect(internalTopPolish).not.toMatch(/Ver demonstra[ÃƒÂ§c][ÃƒÂ£a]o/i);
     expect(redesign).not.toContain('linear-gradient(135deg, #f6c85f 0%, #d79b36 100%)');
     expect(redesign).not.toMatch(/Ver demonstra[çc][ãa]o/i);
   });

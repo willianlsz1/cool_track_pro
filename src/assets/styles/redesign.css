@@ -1,84 +1,20 @@
 /*
- * Cool Track Pro — Redesign Components (2026)
- * ─────────────────────────────────────────────────────────────────
- * Ajustes finos pros componentes que tinham cores HARDCODED no CSS
- * antigo (cyan, amarelo do Plano Pro, etc.) e que precisam migrar
- * pro novo sistema azul-sóbrio.
- *
- * Importado por último em index.html — vence cascata.
- *
- * Usa tokens.css como fonte de cores (var(--ct-*)).
+ * CoolTrackPro - Redesign Components (2026)
+ * Consolidated visual compatibility layer imported late by index.html.
+ * Prefer scoped CSS files for new work; keep this file for cross-screen
+ * compatibility rules and documented legacy exceptions only.
  */
 
-/* ═══════════════════════════════════════════════════════════════
- * SIDEBAR
- * ═══════════════════════════════════════════════════════════════ */
-
-/* Item ativo: barra lateral azul fina + texto azul, sem fundo cyan */
-.app-sidebar__nav-item.is-active {
-  background: transparent !important;
-  color: var(--ct-brand-text) !important;
-}
-.app-sidebar__nav-item.is-active::before {
-  background: var(--ct-brand) !important;
-  width: 2px !important;
-  border-radius: 0 2px 2px 0 !important;
-}
-.app-sidebar__nav-item.is-active svg {
-  color: var(--ct-brand) !important;
-}
-
-/* Hover sutil em itens não-ativos */
-.app-sidebar__nav-item:not(.is-active):hover {
-  background: var(--ct-hover-soft);
-}
-
-/* Badge de contador (alertas): bolinha pequena azul em vez de pill vermelha */
-.app-sidebar__nav-badge {
-  min-width: 6px !important;
-  width: 6px !important;
-  height: 6px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  background: var(--ct-brand) !important;
-  font-size: 0 !important;
-  color: transparent !important;
-  text-indent: -9999px;
-}
-/* Esconde badge quando valor é 0 (apenas via atributo data-count="0") */
-.app-sidebar__nav-badge[data-count='0'] {
-  display: none !important;
-}
-
-/* Plan card: discreto. Sobrescreve o amarelo/laranja do PRO atual e
-   o azul gritante do Plus. Mantém um leve tint dependendo do plano. */
-.app-sidebar__plan-card,
-.app-sidebar__plan-card[data-plan='pro'],
-.app-sidebar__plan-card[data-plan='plus'],
-.app-sidebar__plan-card[data-plan='free'] {
-  background: var(--ct-surface) !important;
-  border: 1px solid var(--ct-border) !important;
-}
-.app-sidebar__plan-card-head {
-  color: var(--ct-text-muted) !important;
-}
-.app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-head,
-.app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-head {
-  color: var(--ct-brand-text) !important;
-}
-.app-sidebar__plan-card-cta {
-  background: var(--ct-brand-soft) !important;
-  color: var(--ct-brand-text) !important;
-  border: 1px solid var(--ct-brand-border) !important;
-}
-.app-sidebar__plan-card-cta:hover {
-  background: var(--ct-brand-soft-hover) !important;
-  border-color: var(--ct-brand-border-hover) !important;
-}
-
-/* Brand (logo) no topo: cor azul sóbria */
-.app-sidebar__brand-icon {
-  color: var(--ct-brand) !important;
+#app:not(.landing-active) {
+  --ct-legacy-light-surface: #ffffff;
+  --ct-legacy-light-surface-subtle: #f8fbff;
+  --ct-legacy-light-border: #e6ebf3;
+  --ct-legacy-light-border-strong: #e3e8f1;
+  --ct-legacy-light-text: #0a1530;
+  --ct-legacy-light-text-muted: #5a6b8c;
+  --ct-legacy-brand-blue: #2f7bff;
+  --ct-legacy-brand-blue-hover: #4f9bff;
+  --ct-legacy-cyan: #22d3ee;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -166,8 +102,8 @@
   color: var(--ct-success) !important;
 }
 [data-status='visualizado'] .orc-status-pill {
-  background: rgba(34, 211, 238, 0.12) !important;
-  color: #22d3ee !important;
+  background: color-mix(in srgb, var(--ct-legacy-cyan) 12%, transparent) !important;
+  color: var(--ct-legacy-cyan) !important;
 }
 [data-status='rascunho'] .orc-status-pill {
   background: rgba(155, 161, 176, 0.1) !important;
@@ -424,66 +360,6 @@ body {
  * então escondemos o lock APENAS quando NÃO é um item locked. */
 .app-sidebar .app-sidebar__nav-item:not(.app-sidebar__nav-item--locked) .app-sidebar__nav-lock {
   display: none !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════
- * PLANOS — Opção B (Free cinza, Plus azul-marca, Pro gold dessaturado)
- * ═══════════════════════════════════════════════════════════════ */
-
-/* SIDEBAR PLAN CARD — sobrescreve o tratamento uniforme anterior. */
-
-/* Free: cinza neutro, sem destaque */
-.app-sidebar .app-sidebar__plan-card[data-plan='free'] {
-  background: var(--ct-surface) !important;
-  border: 1px solid var(--ct-border) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='free'] .app-sidebar__plan-card-head {
-  color: var(--ct-text-muted) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='free'] .app-sidebar__plan-card-cta {
-  background: transparent !important;
-  color: var(--ct-text-muted) !important;
-  border: 1px solid var(--ct-border-strong) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='free'] .app-sidebar__plan-card-cta:hover {
-  background: var(--ct-hover-soft) !important;
-  color: var(--ct-text) !important;
-}
-
-/* Plus: azul-marca, mas em translúcido pra não chapar */
-.app-sidebar .app-sidebar__plan-card[data-plan='plus'] {
-  background: var(--ct-surface) !important;
-  border: 1px solid var(--ct-brand-border) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-head {
-  color: var(--ct-brand-text) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-cta {
-  background: var(--ct-brand-soft) !important;
-  color: var(--ct-brand-text) !important;
-  border: 1px solid var(--ct-brand-border) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-cta:hover {
-  background: var(--ct-brand-soft-hover) !important;
-  border-color: var(--ct-brand-border-hover) !important;
-}
-
-/* Pro: gold dessaturado — único toque warm do app */
-.app-sidebar .app-sidebar__plan-card[data-plan='pro'] {
-  background: var(--ct-surface) !important;
-  border: 1px solid var(--ct-gold-border) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-head {
-  color: var(--ct-gold) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta {
-  background: var(--ct-gold-soft) !important;
-  color: var(--ct-gold) !important;
-  border: 1px solid var(--ct-gold-border) !important;
-}
-.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta:hover {
-  background: var(--ct-gold-soft-hover) !important;
-  border-color: var(--ct-gold-border-hover) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -751,7 +627,7 @@ body:not(.landing-active) {
 .section-title,
 .hist-title,
 .rel-title {
-  color: #0a1530 !important;
+  color: var(--ct-legacy-light-text) !important;
 }
 
 @media (min-width: 1025px) {
@@ -797,9 +673,13 @@ body:not(.landing-active) {
 #nav-registro,
 .btn.btn--primary,
 .dash__hero-cta:not(.dash__hero-cta--secondary) {
-  background: linear-gradient(135deg, #2f7bff 0%, #22d3ee 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--ct-legacy-brand-blue) 0%,
+    var(--ct-legacy-cyan) 100%
+  ) !important;
   border-color: rgba(47, 123, 255, 0.18) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow:
     0 14px 28px rgba(47, 123, 255, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
@@ -808,7 +688,11 @@ body:not(.landing-active) {
 .btn.btn--primary:hover:not(:disabled),
 .dash__hero-cta:not(.dash__hero-cta--secondary):hover,
 .app-sidebar .app-sidebar__nav-item--register:hover {
-  background: linear-gradient(135deg, #4f9bff 0%, #22d3ee 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--ct-legacy-brand-blue-hover) 0%,
+    var(--ct-legacy-cyan) 100%
+  ) !important;
   filter: none;
 }
 
@@ -844,9 +728,9 @@ body:not(.landing-active) {
 .empty-state,
 .engaging-empty-state,
 .modal {
-  background: #ffffff !important;
-  border-color: #e6ebf3 !important;
-  color: #0a1530 !important;
+  background: var(--ct-legacy-light-surface) !important;
+  border-color: var(--ct-legacy-light-border) !important;
+  color: var(--ct-legacy-light-text) !important;
   box-shadow:
     0 18px 44px rgba(42, 54, 86, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
@@ -854,7 +738,7 @@ body:not(.landing-active) {
 
 .dash__hero {
   overflow: hidden;
-  border-color: #e3e8f1 !important;
+  border-color: var(--ct-legacy-light-border-strong) !important;
 }
 
 .dash__hero::before {
@@ -875,7 +759,7 @@ body:not(.landing-active) {
 .dash__kpi-sub,
 .empty-state__sub,
 .engaging-empty-state__description {
-  color: #5a6b8c !important;
+  color: var(--ct-legacy-light-text-muted) !important;
 }
 
 .dash__kpi {
@@ -885,19 +769,19 @@ body:not(.landing-active) {
 .dash__kpi-label,
 .dash__card-label,
 .dash__section-label {
-  color: #5a6b8c !important;
+  color: var(--ct-legacy-light-text-muted) !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
 }
 
 .dash__kpi-value,
 .dash__card-title {
-  color: #0a1530 !important;
+  color: var(--ct-legacy-light-text) !important;
 }
 
 .dash__hero-cta--secondary,
 .btn.btn--outline {
-  background: #ffffff !important;
+  background: var(--ct-legacy-light-surface) !important;
   border: 1px solid rgba(47, 123, 255, 0.18) !important;
   color: #2a3656 !important;
   box-shadow: none !important;
@@ -911,9 +795,9 @@ body:not(.landing-active) {
 #app .view input,
 #app .view select,
 #app .view textarea {
-  background: #ffffff !important;
-  border-color: #e3e8f1 !important;
-  color: #0a1530 !important;
+  background: var(--ct-legacy-light-surface) !important;
+  border-color: var(--ct-legacy-light-border-strong) !important;
+  color: var(--ct-legacy-light-text) !important;
 }
 
 .form-control:focus,
@@ -934,20 +818,20 @@ body:not(.landing-active) {
 }
 
 .onb-card {
-  background: #ffffff !important;
-  border: 1px solid #e6ebf3 !important;
+  background: var(--ct-legacy-light-surface) !important;
+  border: 1px solid var(--ct-legacy-light-border) !important;
   box-shadow: 0 14px 34px rgba(42, 54, 86, 0.08) !important;
 }
 
 .onb-step:not(.is-done) {
-  background: #f8fbff !important;
+  background: var(--ct-legacy-light-surface-subtle) !important;
   border-color: #eef1f7 !important;
 }
 
 .dash__hero-greeting,
 .dash__hero-body,
 .dash__hero-body * {
-  color: #0a1530 !important;
+  color: var(--ct-legacy-light-text) !important;
 }
 
 .empty-state,
@@ -956,7 +840,7 @@ body:not(.landing-active) {
 .engaging-empty-state *,
 .onb-card,
 .onb-card * {
-  color: #5a6b8c !important;
+  color: var(--ct-legacy-light-text-muted) !important;
 }
 
 .empty-state__title,
@@ -965,49 +849,17 @@ body:not(.landing-active) {
 .onb-card h2,
 .onb-card h3,
 .onb-step__title {
-  color: #0a1530 !important;
+  color: var(--ct-legacy-light-text) !important;
 }
 
-.app-sidebar .app-sidebar__plan-card,
-.app-sidebar .app-sidebar__plan-card[data-plan='free'],
-.app-sidebar .app-sidebar__plan-card[data-plan='plus'] {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
-    var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-}
-
-.app-sidebar .app-sidebar__plan-card[data-plan='pro'] {
-  background:
-    linear-gradient(180deg, var(--ct-gold-soft), rgba(255, 255, 255, 0.02)),
-    var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-gold-border) !important;
-}
-
-.app-sidebar .app-sidebar__plan-card-sub,
-.app-sidebar .app-sidebar__plan-card-meta,
 .app-sidebar .app-sidebar__user-role,
 .app-sidebar .app-sidebar__settings {
   color: var(--ct-text-faint) !important;
 }
 
-.app-sidebar .app-sidebar__plan-card-cta {
-  background: rgba(144, 184, 248, 0.08) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-}
-
-.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta {
-  background: var(--ct-gold-soft) !important;
-  border-color: var(--ct-gold-border) !important;
-  color: var(--ct-gold) !important;
-}
-
 .app-sidebar__user-avatar {
   background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
 }
 
 .app-sidebar__shortcut {
@@ -1079,11 +931,6 @@ body:not(.landing-active) {
     gap: 12px !important;
   }
 
-  #app:not(.landing-active) .app-sidebar__plan-card {
-    padding: 13px !important;
-    border-radius: 14px !important;
-  }
-
   #app:not(.landing-active) .app-sidebar__divider {
     margin: 8px 0 2px !important;
   }
@@ -1122,7 +969,7 @@ body:not(.landing-active) {
 #app:not(.landing-active) .engaging-empty-state__cta:not(.engaging-empty-state__cta--secondary) {
   background: var(--ct-brand) !important;
   border-color: color-mix(in srgb, var(--ct-brand-hover) 42%, transparent) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow: 0 14px 30px rgba(95, 133, 219, 0.22) !important;
 }
 
@@ -1597,7 +1444,7 @@ body:not(.landing-active) .modal-overlay {
 #app:not(.landing-active) #dash .equip-card__cta {
   background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
   border: 1px solid color-mix(in srgb, var(--ct-brand-hover) 36%, transparent) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow:
     0 14px 28px rgba(95, 133, 219, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
@@ -1884,7 +1731,7 @@ body:not(.landing-active) .modal-overlay {
 #app:not(.landing-active) #view-equipamentos .quick-move-banner__btn {
   background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
   border-color: rgba(144, 184, 248, 0.4) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
 }
 
@@ -2471,7 +2318,7 @@ body:not(.landing-active) .modal textarea:focus {
 #app:not(.landing-active) #view-relatorio .rel-empty__cta {
   background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
   border-color: rgba(144, 184, 248, 0.4) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
 }
 
@@ -2872,12 +2719,6 @@ body:not(.landing-active) .modal textarea:focus {
     border-top: 1px solid var(--ct-border);
   }
 
-  #app:not(.landing-active) .app-sidebar__plan-card {
-    margin: 0 !important;
-    padding: 14px !important;
-    border-radius: 16px !important;
-  }
-
   #app:not(.landing-active) .app-sidebar__user-chip,
   #app:not(.landing-active) .app-sidebar__settings-link {
     min-height: 44px;
@@ -2960,7 +2801,7 @@ body:not(.landing-active) .modal textarea:focus {
   border-radius: 13px !important;
   background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
   border: 1px solid rgba(144, 184, 248, 0.38) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow:
     0 14px 30px rgba(95, 133, 219, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
@@ -3835,7 +3676,7 @@ body:not(.landing-active) .modal textarea:focus {
   background:
     linear-gradient(135deg, rgba(95, 133, 219, 0.94), rgba(144, 184, 248, 0.78)), var(--ct-brand) !important;
   border-color: rgba(144, 184, 248, 0.38) !important;
-  color: #ffffff !important;
+  color: var(--ct-legacy-light-surface) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 12px 26px rgba(95, 133, 219, 0.18) !important;

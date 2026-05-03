@@ -1,0 +1,396 @@
+/* ============================================================
+   PR 11 - Relatorios, Historico, top filters and action bars
+   Escopo restrito para nao ampliar redesign.css.
+   ============================================================ */
+
+#app:not(.landing-active) #view-relatorio,
+#app:not(.landing-active) #view-historico {
+  --ct-top-panel: linear-gradient(180deg, rgba(62, 67, 77, 0.82), rgba(45, 48, 54, 0.94));
+  --ct-top-panel-subtle: rgba(45, 48, 54, 0.72);
+  --ct-top-border: rgba(144, 184, 248, 0.14);
+  --ct-top-border-strong: rgba(144, 184, 248, 0.24);
+  --ct-top-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+  --ct-top-radius: 18px;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-title,
+#app:not(.landing-active) #view-historico .hist-title {
+  max-width: min(760px, 100%);
+  margin: 0;
+  color: var(--ct-text) !important;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-subtitle {
+  max-width: 76ch;
+  margin: 8px 0 0;
+  color: var(--ct-text-muted) !important;
+  line-height: 1.55;
+}
+
+#app:not(.landing-active) #view-relatorio .servicos-toggle,
+#app:not(.landing-active) #view-relatorio .rel-toolbar,
+#app:not(.landing-active) #view-relatorio #rel-mode-segment-slot,
+#app:not(.landing-active) #view-relatorio .rel-filters,
+#app:not(.landing-active) #view-historico .hist-sticky-header,
+#app:not(.landing-active) #view-historico #hist-active-chips-slot:not(:empty) {
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid var(--ct-top-border) !important;
+  background: var(--ct-top-panel), var(--ct-surface) !important;
+  box-shadow: var(--ct-top-shadow) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .servicos-toggle,
+#app:not(.landing-active) #view-relatorio #rel-mode-segment-slot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px;
+  border-radius: 999px !important;
+}
+
+#app:not(.landing-active) #view-relatorio .servicos-toggle__btn,
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt,
+#app:not(.landing-active) #view-relatorio .rel-mode-segment__item,
+#app:not(.landing-active) #view-historico .hist-quickfilter {
+  min-height: 36px;
+  min-width: 0;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) #view-relatorio .servicos-toggle__btn:hover,
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt:hover,
+#app:not(.landing-active) #view-relatorio .rel-mode-segment__item:hover,
+#app:not(.landing-active) #view-historico .hist-quickfilter:hover {
+  border-color: var(--ct-top-border) !important;
+  background: rgba(144, 184, 248, 0.08) !important;
+  color: var(--ct-text) !important;
+  transform: none !important;
+}
+
+#app:not(.landing-active) #view-relatorio .servicos-toggle__btn.is-active,
+#app:not(.landing-active) #view-relatorio .servicos-toggle__btn[aria-selected='true'],
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt.is-active,
+#app:not(.landing-active) #view-relatorio .rel-mode-segment__item.is-active,
+#app:not(.landing-active) #view-historico .hist-quickfilter.is-active {
+  border-color: rgba(144, 184, 248, 0.32) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(95, 133, 219, 0.9),
+    rgba(144, 184, 248, 0.72)
+  ) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(95, 133, 219, 0.18) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar {
+  padding: 12px !important;
+  border-radius: var(--ct-top-radius) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__actions--v2 {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px !important;
+  min-width: 0;
+  width: 100%;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__primary-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn {
+  min-height: 42px !important;
+  min-width: 0;
+  padding: 0 15px !important;
+  border: 1px solid var(--ct-top-border) !important;
+  border-radius: 13px !important;
+  box-shadow: none !important;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp {
+  border-color: rgba(144, 184, 248, 0.34) !important;
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 24px rgba(95, 133, 219, 0.22) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--pdf {
+  background: rgba(45, 48, 54, 0.86) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--icon {
+  width: 42px;
+  padding: 0 !important;
+  background: rgba(45, 48, 54, 0.74) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:hover:not(:disabled) {
+  border-color: var(--ct-top-border-strong) !important;
+  filter: none !important;
+  transform: translateY(-1px);
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--pdf:hover:not(:disabled),
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--icon:hover:not(:disabled) {
+  background: rgba(144, 184, 248, 0.1) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__quota-slot {
+  min-width: 0;
+  flex: 1 1 160px;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-hero {
+  border-color: var(--ct-top-border) !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(144, 184, 248, 0.12), transparent 34%),
+    var(--ct-top-panel), var(--ct-surface) !important;
+  box-shadow: var(--ct-top-shadow) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-hero__meta,
+#app:not(.landing-active) #view-relatorio .rel-hero__narrative,
+#app:not(.landing-active) #view-historico .hist-count,
+#app:not(.landing-active) #view-historico .hist-chrono-label {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-segmented,
+#app:not(.landing-active) #view-relatorio .rel-mode-segment {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-filters {
+  padding: 12px !important;
+  border-radius: var(--ct-top-radius) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-filters__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-chip,
+#app:not(.landing-active) #view-relatorio .rel-chip__clear,
+#app:not(.landing-active) #view-historico .hist-active-chip,
+#app:not(.landing-active) #view-historico .hist-active-chips__clear {
+  min-height: 34px;
+  min-width: 0;
+  border: 1px solid var(--ct-top-border) !important;
+  border-radius: 999px !important;
+  background: rgba(45, 48, 54, 0.74) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-chip.is-active,
+#app:not(.landing-active) #view-historico .hist-active-chip {
+  border-color: rgba(144, 184, 248, 0.26) !important;
+  background: rgba(144, 184, 248, 0.12) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-chip__label,
+#app:not(.landing-active) #view-historico .hist-active-chip {
+  max-width: min(280px, 100%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-filters__advanced {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ct-top-border);
+}
+
+#app:not(.landing-active) #view-historico .hist-sticky-header {
+  display: grid !important;
+  gap: 14px !important;
+  padding: clamp(16px, 2vw, 22px) !important;
+  border-radius: 22px !important;
+  overflow: hidden;
+}
+
+#app:not(.landing-active) #view-historico .hist-sticky-header__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-historico .hist-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid var(--ct-top-border);
+  border-radius: 999px;
+  background: rgba(144, 184, 248, 0.08);
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) #view-historico .hist-search-row {
+  display: grid !important;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(190px, 0.45fr) minmax(220px, 0.6fr);
+  gap: 10px !important;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-historico .hist-input,
+#app:not(.landing-active) #view-historico .hist-select select,
+#app:not(.landing-active) #view-historico .hist-filters-trigger {
+  min-height: 42px !important;
+  min-width: 0;
+  border: 1px solid var(--ct-top-border) !important;
+  border-radius: 14px !important;
+  background: rgba(45, 48, 54, 0.76) !important;
+  color: var(--ct-text) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-input input {
+  min-width: 0;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-input input::placeholder {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-input:focus-within,
+#app:not(.landing-active) #view-historico .hist-select select:focus,
+#app:not(.landing-active) #view-historico .hist-filters-trigger:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-chip:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt:focus-visible {
+  border-color: rgba(144, 184, 248, 0.42) !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.16) !important;
+  outline: none !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-filters-trigger.is-active {
+  border-color: rgba(144, 184, 248, 0.3) !important;
+  background: rgba(144, 184, 248, 0.12) !important;
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-quickfilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px !important;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid rgba(144, 184, 248, 0.1);
+  border-radius: 18px;
+  background: rgba(38, 40, 43, 0.34);
+}
+
+#app:not(.landing-active) #view-historico .hist-quickfilters__sep {
+  align-self: stretch;
+  width: 1px;
+  min-height: 24px;
+  margin: 0 3px;
+  background: rgba(144, 184, 248, 0.16);
+}
+
+#app:not(.landing-active) #view-historico .hist-quickfilter__dot {
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-active-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px !important;
+}
+
+#app:not(.landing-active) #view-historico .hist-active-chips__label {
+  color: var(--ct-text-faint) !important;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1120px) {
+  #app:not(.landing-active) #view-historico .hist-search-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  #app:not(.landing-active) #view-historico .hist-select {
+    min-width: min(100%, 260px);
+  }
+}
+
+@media (max-width: 760px) {
+  #app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
+  #app:not(.landing-active) #view-relatorio .rel-toolbar__actions--v2,
+  #app:not(.landing-active) #view-relatorio .rel-toolbar__primary-group,
+  #app:not(.landing-active) #view-relatorio .rel-filters__chips,
+  #app:not(.landing-active) #view-historico .hist-sticky-header__row,
+  #app:not(.landing-active) #view-historico .hist-quickfilters,
+  #app:not(.landing-active) #view-historico .hist-active-chips {
+    align-items: stretch;
+  }
+
+  #app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
+  #app:not(.landing-active) #view-relatorio .rel-chip,
+  #app:not(.landing-active) #view-historico .hist-search-row,
+  #app:not(.landing-active) #view-historico .hist-input,
+  #app:not(.landing-active) #view-historico .hist-select,
+  #app:not(.landing-active) #view-historico .hist-select select,
+  #app:not(.landing-active) #view-historico .hist-filters-trigger {
+    width: 100%;
+  }
+
+  #app:not(.landing-active) #view-historico .hist-search-row {
+    grid-template-columns: 1fr;
+  }
+
+  #app:not(.landing-active) #view-historico .hist-quickfilters__sep {
+    display: none;
+  }
+}
