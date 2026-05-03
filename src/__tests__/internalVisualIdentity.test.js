@@ -61,6 +61,20 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .equip-card');
     expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .quick-move-banner');
     expect(redesign).toContain('#app:not(.landing-active) #view-equipamentos .equip-idle-cluster');
+    expect(redesign).toContain('PR 6 - Relatorios operational dark refresh');
+    expect(redesign).toContain('#app:not(.landing-active) #view-relatorio');
+    expect(redesign).toContain('#app:not(.landing-active) #view-relatorio .rel-record');
+    expect(redesign).toContain(
+      '#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp',
+    );
+    expect(redesign).toContain('PR 6 - Alertas operational dark refresh');
+    expect(redesign).toContain('#app:not(.landing-active) #view-alertas');
+    expect(redesign).toContain('#app:not(.landing-active) #view-alertas .alert-card--critical');
+    expect(redesign).toContain('PR 6 - Orcamentos operational dark refresh');
+    expect(redesign).toContain('#app:not(.landing-active) #view-orcamentos');
+    expect(redesign).toContain(
+      "#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='aprovado']",
+    );
     expect(clientesPremium).toContain('PR 5 - Clientes operational dark refresh');
     expect(clientesPremium).toContain('--cli-card: var(--ct-surface);');
     expect(clientesPremium).toContain('--cli-panel: var(--ct-app-bg);');

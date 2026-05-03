@@ -1944,3 +1944,443 @@ body:not(.landing-active) .modal-overlay {
     border-radius: 14px !important;
   }
 }
+
+/* ============================================================
+   PR 6 - Relatorios operational dark refresh
+   ============================================================ */
+
+#app:not(.landing-active) #view-relatorio {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-title,
+#app:not(.landing-active) #view-relatorio .rel-hero__title,
+#app:not(.landing-active) #view-relatorio .rel-kpi__value,
+#app:not(.landing-active) #view-relatorio .rel-record__title,
+#app:not(.landing-active) #view-relatorio .rel-record__equip-name,
+#app:not(.landing-active) #view-relatorio .rel-record__tech,
+#app:not(.landing-active) #view-relatorio .rel-record__cost-value,
+#app:not(.landing-active) #view-relatorio .rel-spec__value,
+#app:not(.landing-active) #view-relatorio .rel-empty__title,
+#app:not(.landing-active) #view-relatorio .rel-proximas__title {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-subtitle,
+#app:not(.landing-active) #view-relatorio .rel-hero__meta,
+#app:not(.landing-active) #view-relatorio .rel-hero__narrative,
+#app:not(.landing-active) #view-relatorio .rel-kpi__label,
+#app:not(.landing-active) #view-relatorio .rel-record__meta,
+#app:not(.landing-active) #view-relatorio .rel-record__summary-line,
+#app:not(.landing-active) #view-relatorio .rel-record__equip-tag,
+#app:not(.landing-active) #view-relatorio .rel-record__cost-label,
+#app:not(.landing-active) #view-relatorio .rel-spec__label,
+#app:not(.landing-active) #view-relatorio .rel-record__section-title,
+#app:not(.landing-active) #view-relatorio .rel-empty__desc,
+#app:not(.landing-active) #view-relatorio .rel-proximas__date,
+#app:not(.landing-active) #view-relatorio .rel-company-pmoc__desc {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar,
+#app:not(.landing-active) #view-relatorio .rel-hero,
+#app:not(.landing-active) #view-relatorio .rel-company-pmoc,
+#app:not(.landing-active) #view-relatorio .rel-filters,
+#app:not(.landing-active) #view-relatorio .rel-record,
+#app:not(.landing-active) #view-relatorio .rel-proximas,
+#app:not(.landing-active) #view-relatorio .rel-empty,
+#app:not(.landing-active) #view-relatorio .rel-export-dd__menu {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-hero {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(144, 184, 248, 0.16), transparent 34%),
+    linear-gradient(135deg, var(--ct-surface) 0%, var(--ct-surface-subtle) 100%) !important;
+  border-left-color: var(--ct-brand) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-record:hover,
+#app:not(.landing-active) #view-relatorio .rel-record:focus-within {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-segmented,
+#app:not(.landing-active) #view-relatorio .rel-filters__advanced,
+#app:not(.landing-active) #view-relatorio .rel-record__details,
+#app:not(.landing-active) #view-relatorio .rel-record__specs,
+#app:not(.landing-active) #view-relatorio .rel-record__pecas,
+#app:not(.landing-active) #view-relatorio .rel-record__cost-breakdown,
+#app:not(.landing-active) #view-relatorio .rel-record__obs,
+#app:not(.landing-active) #view-relatorio .rel-empty__preview,
+#app:not(.landing-active) #view-relatorio .rel-empty__preview-meta > div,
+#app:not(.landing-active) #view-relatorio .rel-empty__preview-table,
+#app:not(.landing-active) #view-relatorio .rel-proximas__item {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__back,
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt,
+#app:not(.landing-active) #view-relatorio .rel-chip,
+#app:not(.landing-active) #view-relatorio .rel-chip__clear,
+#app:not(.landing-active) #view-relatorio .rel-record__toggle,
+#app:not(.landing-active) #view-relatorio .rel-export-dd__item {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:hover:not(:disabled),
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__back:hover,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__back:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt:hover,
+#app:not(.landing-active) #view-relatorio .rel-chip:hover,
+#app:not(.landing-active) #view-relatorio .rel-chip__clear:hover,
+#app:not(.landing-active) #view-relatorio .rel-record__toggle:hover,
+#app:not(.landing-active) #view-relatorio .rel-export-dd__item:hover {
+  background: rgba(144, 184, 248, 0.1) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-chip:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-chip__clear:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-record__toggle:focus-visible,
+#app:not(.landing-active) #view-relatorio .rel-sigthumb--btn:focus-visible {
+  border-color: var(--ct-brand-hover) !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
+  outline: none !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--primary,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--pdf,
+#app:not(.landing-active) #view-relatorio .rel-empty__cta {
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  border-color: rgba(144, 184, 248, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-segmented__opt.is-active,
+#app:not(.landing-active) #view-relatorio .rel-chip.is-active,
+#app:not(.landing-active) #view-relatorio .rel-mode-segment__item.is-active,
+#app:not(.landing-active) #view-relatorio .rel-hero__brand,
+#app:not(.landing-active) #view-relatorio .rel-kpi__icon,
+#app:not(.landing-active) #view-relatorio .rel-tipo-icon,
+#app:not(.landing-active) #view-relatorio .rel-proximas__icon,
+#app:not(.landing-active) #view-relatorio .rel-empty__icon,
+#app:not(.landing-active) #view-relatorio .rel-empty__preview-flake {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-kpi__icon--gold,
+#app:not(.landing-active) #view-relatorio .rel-kpi__value--gold,
+#app:not(.landing-active) #view-relatorio .rel-tipo-icon--gold,
+#app:not(.landing-active) #view-relatorio .rel-tipo-icon--gold-soft,
+#app:not(.landing-active) #view-relatorio .rel-record__prox-badge--gold,
+#app:not(.landing-active) #view-relatorio .pro-badge {
+  background: rgba(217, 164, 65, 0.12) !important;
+  border-color: rgba(217, 164, 65, 0.34) !important;
+  color: var(--ct-gold) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-status--ok,
+#app:not(.landing-active) #view-relatorio .rel-record__prox-badge--default {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-status--warn,
+#app:not(.landing-active) #view-relatorio .rel-proximas__label--warn,
+#app:not(.landing-active) #view-relatorio .rel-corretivas-banner,
+#app:not(.landing-active) #view-relatorio .rel-company-pmoc__alert {
+  background: var(--ct-warn-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+  color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-status--danger,
+#app:not(.landing-active) #view-relatorio .rel-proximas__label--danger,
+#app:not(.landing-active) #view-relatorio .rel-record__prox-badge--red,
+#app:not(.landing-active) #view-relatorio .rel-kpi__value--red,
+#app:not(.landing-active) #view-relatorio .rel-kpi__icon--red {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-record__divider,
+#app:not(.landing-active) #view-relatorio .rel-hero__divider,
+#app:not(.landing-active) #view-relatorio .rel-empty__preview-table th,
+#app:not(.landing-active) #view-relatorio .rel-empty__preview-table td {
+  border-color: var(--ct-border) !important;
+  background-color: transparent !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-sigthumb {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-relatorio .rel-sigthumb--btn {
+  background: #f4f7fb !important;
+}
+
+/* ============================================================
+   PR 6 - Alertas operational dark refresh
+   ============================================================ */
+
+#app:not(.landing-active) #view-alertas {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-alertas .section-title,
+#app:not(.landing-active) #view-alertas .alert-card__title,
+#app:not(.landing-active) #view-alertas .alert-card__equip,
+#app:not(.landing-active) #view-alertas .engaging-empty-state__title {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alert-card__sub,
+#app:not(.landing-active) #view-alertas .alertas-context-banner__text,
+#app:not(.landing-active) #view-alertas .engaging-empty-state__description {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alertas-context-banner,
+#app:not(.landing-active) #view-alertas .alert-card,
+#app:not(.landing-active) #view-alertas .engaging-empty-state {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alert-card:hover,
+#app:not(.landing-active) #view-alertas .alert-card:focus {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alert-card {
+  border-left-color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alert-card--critical {
+  background:
+    linear-gradient(90deg, var(--ct-error-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  border-left-color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alertas-context-banner {
+  background:
+    linear-gradient(90deg, var(--ct-warn-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+  border-left: 3px solid var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alert-card__icon,
+#app:not(.landing-active) #view-alertas .engaging-empty-state__icon {
+  background: var(--ct-info-soft) !important;
+  border: 1px solid var(--ct-border-strong) !important;
+  border-radius: 12px !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alert-card--critical .alert-card__icon {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alertas-context-banner__cta,
+#app:not(.landing-active) #view-alertas .alert-card__action {
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) #view-alertas .alertas-context-banner__cta:focus-visible,
+#app:not(.landing-active) #view-alertas .alert-card:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
+}
+
+/* ============================================================
+   PR 6 - Orcamentos operational dark refresh
+   ============================================================ */
+
+#app:not(.landing-active) #view-orcamentos,
+#app:not(.landing-active) #view-orcamentos .orc-page {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-header__title,
+#app:not(.landing-active) #view-orcamentos .orc-kpi__value,
+#app:not(.landing-active) #view-orcamentos .orc-card__title,
+#app:not(.landing-active) #view-orcamentos .orc-card__total,
+#app:not(.landing-active) #view-orcamentos .orc-empty__title {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi__label,
+#app:not(.landing-active) #view-orcamentos .orc-card__cliente,
+#app:not(.landing-active) #view-orcamentos .orc-card__meta,
+#app:not(.landing-active) #view-orcamentos .orc-empty__sub,
+#app:not(.landing-active) #view-orcamentos .orc-empty-filter,
+#app:not(.landing-active) #view-orcamentos .orc-card__numero {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-header,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar,
+#app:not(.landing-active) #view-orcamentos .orc-kpi,
+#app:not(.landing-active) #view-orcamentos .orc-card,
+#app:not(.landing-active) #view-orcamentos .orc-empty,
+#app:not(.landing-active) #view-orcamentos .orc-empty-filter {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text) !important;
+  box-shadow: var(--ct-shadow-soft) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-header,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar {
+  border-radius: 16px !important;
+  padding: 16px !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-card:hover,
+#app:not(.landing-active) #view-orcamentos .orc-card:focus-within,
+#app:not(.landing-active) #view-orcamentos .orc-kpi:hover {
+  background:
+    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
+    var(--ct-surface-raised) !important;
+  border-color: var(--ct-border-strong) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-search,
+#app:not(.landing-active) #view-orcamentos .orc-card__actions,
+#app:not(.landing-active) #view-orcamentos .orc-card__signed {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-search__input,
+#app:not(.landing-active) #view-orcamentos .orc-chip,
+#app:not(.landing-active) #view-orcamentos .orc-card__kebab {
+  background: var(--ct-surface-subtle) !important;
+  border-color: var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-search__input {
+  color: var(--ct-text) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-search__input::placeholder {
+  color: var(--ct-text-faint) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-search__input:focus,
+#app:not(.landing-active) #view-orcamentos .orc-chip:focus-visible,
+#app:not(.landing-active) #view-orcamentos .orc-card__kebab:focus-visible {
+  border-color: var(--ct-brand-hover) !important;
+  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
+  outline: none !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-chip:hover,
+#app:not(.landing-active) #view-orcamentos .orc-card__kebab:hover {
+  background: rgba(144, 184, 248, 0.1) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-chip.is-active,
+#app:not(.landing-active) #view-orcamentos .orc-empty__art {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-status-pill {
+  background: var(--ct-info-soft) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-info) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi:nth-child(2) .orc-kpi__value,
+#app:not(.landing-active) #view-orcamentos .orc-card__signed,
+#app:not(.landing-active) #view-orcamentos .orc-card__signed svg,
+#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='aprovado'] {
+  background: var(--ct-success-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
+  color: var(--ct-success) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi:nth-child(3) .orc-kpi__value {
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-card__validity,
+#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='pendente'],
+#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='enviado'] {
+  background: var(--ct-warn-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
+  color: var(--ct-warn) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='recusado'],
+#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='expirado'],
+#app:not(.landing-active) #view-orcamentos .orc-card__kebab:hover {
+  background: var(--ct-error-soft) !important;
+  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
+  color: var(--ct-error) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-card__actions {
+  border-top-color: var(--ct-border) !important;
+}
+
+@media (max-width: 720px) {
+  #app:not(.landing-active) #view-relatorio .rel-toolbar,
+  #app:not(.landing-active) #view-relatorio .rel-hero,
+  #app:not(.landing-active) #view-relatorio .rel-record,
+  #app:not(.landing-active) #view-alertas .alert-card,
+  #app:not(.landing-active) #view-alertas .engaging-empty-state,
+  #app:not(.landing-active) #view-orcamentos .orc-header,
+  #app:not(.landing-active) #view-orcamentos .orc-toolbar,
+  #app:not(.landing-active) #view-orcamentos .orc-card,
+  #app:not(.landing-active) #view-orcamentos .orc-empty {
+    border-radius: 14px !important;
+  }
+}
