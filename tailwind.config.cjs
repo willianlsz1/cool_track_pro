@@ -127,6 +127,62 @@ module.exports = {
           'hover-softer': 'rgba(144, 184, 248, 0.05)',
           'card-tint': 'rgba(144, 184, 248, 0.06)',
         },
+        // Espelha `src/assets/styles/tokens.css` (`--ct-*`). Manter em
+        // sincronia: qualquer mudanca no tokens.css deve refletir aqui
+        // (e vice-versa). `tokens.css` continua sendo fonte de verdade
+        // para as views legadas que ainda referenciam `var(--ct-*)`.
+        ct: {
+          // Brand
+          brand: '#5f85db',
+          'brand-hover': '#90b8f8',
+          'brand-text': '#90b8f8',
+          'brand-soft': 'rgba(95, 133, 219, 0.14)',
+          'brand-soft-hover': 'rgba(144, 184, 248, 0.18)',
+          'brand-soft-strong': 'rgba(144, 184, 248, 0.24)',
+          'brand-border': 'rgba(144, 184, 248, 0.18)',
+          'brand-border-hover': 'rgba(144, 184, 248, 0.32)',
+
+          // Surfaces
+          'app-bg': '#26282b',
+          bg: '#26282b',
+          surface: '#353941',
+          'surface-raised': '#3e434d',
+          'surface-subtle': '#2d3036',
+          'surface-elev': '#3e434d',
+          'surface-hover': '#3e434d',
+          border: 'rgba(144, 184, 248, 0.16)',
+          'border-strong': 'rgba(144, 184, 248, 0.28)',
+
+          // Text
+          text: '#f4f7fb',
+          'text-muted': '#c7d0e0',
+          'text-faint': '#98a4b8',
+          'text-ghost': '#7f8b9f',
+
+          // Status
+          success: '#4ade80',
+          'success-soft': 'rgba(74, 222, 128, 0.12)',
+          info: '#90b8f8',
+          'info-soft': 'rgba(144, 184, 248, 0.14)',
+          warn: '#fbbf24',
+          'warn-soft': 'rgba(251, 191, 36, 0.13)',
+          error: '#fb7185',
+          'error-soft': 'rgba(251, 113, 133, 0.13)',
+          whatsapp: '#4ade80',
+          'whatsapp-soft': 'rgba(74, 222, 128, 0.12)',
+
+          // Premium tier (Pro) — gold dessaturado
+          gold: '#d9a441',
+          'gold-soft': 'rgba(217, 164, 65, 0.10)',
+          'gold-soft-hover': 'rgba(217, 164, 65, 0.15)',
+          'gold-border': 'rgba(217, 164, 65, 0.24)',
+          'gold-border-hover': 'rgba(217, 164, 65, 0.36)',
+
+          // Subtle hovers / tints
+          'hover-soft': 'rgba(144, 184, 248, 0.08)',
+          'hover-softer': 'rgba(144, 184, 248, 0.05)',
+          'card-tint': 'rgba(144, 184, 248, 0.06)',
+        },
       },
     },
   },
