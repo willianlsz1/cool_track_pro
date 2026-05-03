@@ -2785,3 +2785,290 @@ body:not(.landing-active) .modal textarea:focus {
     border-radius: 14px !important;
   }
 }
+
+/* ============================================================
+   PR 6 - Shell, page headers and action bars refinement
+   ============================================================ */
+
+#app:not(.landing-active) {
+  --ct-action-height: 44px;
+  --ct-page-header-radius: 18px;
+  --ct-page-header-pad: clamp(16px, 1.8vw, 22px);
+  --ct-action-gap: 10px;
+}
+
+@media (min-width: 1025px) {
+  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar {
+    position: sticky;
+    top: 0;
+    align-self: stretch;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    padding: 20px !important;
+    gap: 0 !important;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ct-border-strong) transparent;
+    box-shadow:
+      inset -1px 0 0 var(--ct-border),
+      18px 0 44px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar__brand {
+    min-height: 58px;
+    margin: 0 0 24px !important;
+    padding: 2px 4px 20px !important;
+    border-bottom: 1px solid var(--ct-border);
+  }
+
+  #app:not(.landing-active) .app-sidebar__nav {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 24px !important;
+    min-height: 0;
+  }
+
+  #app:not(.landing-active) .app-sidebar__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__section-kicker {
+    margin: 0 0 10px !important;
+    padding: 0 4px !important;
+    color: var(--ct-text-faint) !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.095em !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item {
+    min-height: 46px;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    gap: 12px;
+    border-radius: 14px !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active {
+    background:
+      linear-gradient(135deg, rgba(95, 133, 219, 0.32), rgba(144, 184, 248, 0.13)),
+      var(--ct-surface-raised) !important;
+    border-color: var(--ct-border-strong) !important;
+    box-shadow:
+      0 14px 28px rgba(0, 0, 0, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 14px !important;
+    margin-top: auto !important;
+    padding-top: 22px !important;
+    border-top: 1px solid var(--ct-border);
+  }
+
+  #app:not(.landing-active) .app-sidebar__plan-card {
+    margin: 0 !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  #app:not(.landing-active) .app-sidebar__user-chip,
+  #app:not(.landing-active) .app-sidebar__settings-link {
+    min-height: 44px;
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+  }
+}
+
+#app:not(.landing-active) .cli-page__header,
+#app:not(.landing-active) #view-equipamentos .equip-hero,
+#app:not(.landing-active) .hist-sticky-header,
+#app:not(.landing-active) #view-relatorio .rel-hero,
+#app:not(.landing-active) #view-alertas .section-title,
+#app:not(.landing-active) #view-orcamentos .orc-header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  padding: var(--ct-page-header-pad) !important;
+  border: 1px solid var(--ct-border) !important;
+  border-radius: var(--ct-page-header-radius) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)),
+    var(--ct-surface) !important;
+  color: var(--ct-text) !important;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055) !important;
+}
+
+#app:not(.landing-active) .cli-page__header > *,
+#app:not(.landing-active) #view-equipamentos .equip-hero > *,
+#app:not(.landing-active) .hist-sticky-header > *,
+#app:not(.landing-active) #view-relatorio .rel-hero > *,
+#app:not(.landing-active) #view-alertas .section-title > *,
+#app:not(.landing-active) #view-orcamentos .orc-header > * {
+  min-width: 0;
+}
+
+#app:not(.landing-active) .cli-page__title,
+#app:not(.landing-active) #view-equipamentos .equip-hero__title,
+#app:not(.landing-active) .hist-title,
+#app:not(.landing-active) #view-relatorio .rel-hero__title,
+#app:not(.landing-active) #view-alertas .section-title,
+#app:not(.landing-active) #view-orcamentos .orc-header__title {
+  color: var(--ct-text) !important;
+  letter-spacing: 0 !important;
+}
+
+#app:not(.landing-active) .cli-page__sub,
+#app:not(.landing-active) #view-equipamentos .equip-hero__sub,
+#app:not(.landing-active) .hist-subtitle,
+#app:not(.landing-active) #view-relatorio .rel-hero__narrative,
+#app:not(.landing-active) #view-orcamentos .orc-kpi__label {
+  color: var(--ct-text-muted) !important;
+}
+
+#app:not(.landing-active) .cli-filters,
+#app:not(.landing-active) #view-equipamentos .equip-filters,
+#app:not(.landing-active) #view-equipamentos .equip-search-row,
+#app:not(.landing-active) .hist-sticky-header__row,
+#app:not(.landing-active) .hist-quickfilters,
+#app:not(.landing-active) #view-relatorio .rel-toolbar,
+#app:not(.landing-active) #view-relatorio .rel-filters,
+#app:not(.landing-active) #view-orcamentos .orc-toolbar {
+  gap: var(--ct-action-gap) !important;
+  border-color: var(--ct-border) !important;
+}
+
+#app:not(.landing-active) .cli-page__cta,
+#app:not(.landing-active) .cli-empty__cta:not(.cli-empty__cta--ghost),
+#app:not(.landing-active) .equip-hero__cta-btn--action,
+#app:not(.landing-active) .dash__hero-cta:not(.dash__hero-cta--secondary),
+#app:not(.landing-active) #view-orcamentos .btn--primary,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--primary,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--pdf {
+  min-height: var(--ct-action-height) !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
+  border: 1px solid rgba(144, 184, 248, 0.38) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 30px rgba(95, 133, 219, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+#app:not(.landing-active) .cli-card__action--secondary,
+#app:not(.landing-active) .cli-card__action--pmoc,
+#app:not(.landing-active) .cli-card__action--ghost,
+#app:not(.landing-active) .equip-card__action,
+#app:not(.landing-active) .hist-item-actions__kebab,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__back,
+#app:not(.landing-active) #view-orcamentos .btn--outline,
+#app:not(.landing-active) #view-orcamentos .btn--ghost,
+#app:not(.landing-active) #view-orcamentos .orc-chip,
+#app:not(.landing-active) #view-orcamentos .orc-card__kebab,
+#app:not(.landing-active) #view-alertas .alertas-context-banner__cta {
+  min-height: 40px;
+  border-radius: 12px !important;
+  background: rgba(144, 184, 248, 0.065) !important;
+  border: 1px solid var(--ct-border) !important;
+  color: var(--ct-text-muted) !important;
+  box-shadow: none !important;
+}
+
+#app:not(.landing-active) .cli-card__action--secondary:hover,
+#app:not(.landing-active) .cli-card__action--pmoc:hover,
+#app:not(.landing-active) .cli-card__action--ghost:hover,
+#app:not(.landing-active) .equip-card__action:hover,
+#app:not(.landing-active) .hist-item-actions__kebab:hover,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:hover:not(:disabled),
+#app:not(.landing-active) #view-relatorio .rel-toolbar__back:hover,
+#app:not(.landing-active) #view-orcamentos .btn--outline:hover,
+#app:not(.landing-active) #view-orcamentos .btn--ghost:hover,
+#app:not(.landing-active) #view-orcamentos .orc-chip:hover,
+#app:not(.landing-active) #view-alertas .alertas-context-banner__cta:hover {
+  background: rgba(144, 184, 248, 0.11) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+  transform: translateY(-1px);
+}
+
+#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp {
+  background: rgba(144, 184, 248, 0.09) !important;
+  border-color: var(--ct-border-strong) !important;
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) .cli-card__actions,
+#app:not(.landing-active) #view-orcamentos .orc-card__actions,
+#app:not(.landing-active) .hist-item-actions,
+#app:not(.landing-active) #view-relatorio .rel-toolbar__actions {
+  min-width: 0;
+  gap: 8px !important;
+}
+
+#app:not(.landing-active) .cli-card__action,
+#app:not(.landing-active) .equip-card__action,
+#app:not(.landing-active) .rel-toolbar__btn,
+#app:not(.landing-active) #view-orcamentos .btn,
+#app:not(.landing-active) .hist-item-actions__kebab {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) .cli-card__action span,
+#app:not(.landing-active) .equip-card__action span,
+#app:not(.landing-active) .rel-toolbar__btn span,
+#app:not(.landing-active) #view-orcamentos .btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 920px) {
+  #app:not(.landing-active) .cli-page__header,
+  #app:not(.landing-active) #view-equipamentos .equip-hero,
+  #app:not(.landing-active) .hist-sticky-header,
+  #app:not(.landing-active) #view-relatorio .rel-hero,
+  #app:not(.landing-active) #view-orcamentos .orc-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #app:not(.landing-active) .cli-page__cta,
+  #app:not(.landing-active) .equip-hero__cta-btn--action,
+  #app:not(.landing-active) #view-orcamentos .btn--primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  #app:not(.landing-active) .cli-filters,
+  #app:not(.landing-active) #view-equipamentos .equip-filters,
+  #app:not(.landing-active) .hist-sticky-header__row,
+  #app:not(.landing-active) .hist-quickfilters,
+  #app:not(.landing-active) #view-relatorio .rel-toolbar,
+  #app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
+  #app:not(.landing-active) #view-orcamentos .orc-toolbar,
+  #app:not(.landing-active) #view-orcamentos .orc-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-x: clip;
+  }
+
+  #app:not(.landing-active) .cli-card__actions,
+  #app:not(.landing-active) #view-orcamentos .orc-card__actions {
+    grid-template-columns: 1fr;
+  }
+}
