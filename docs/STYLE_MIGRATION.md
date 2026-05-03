@@ -245,16 +245,23 @@ selector legado, gera ambiguidade de cascata)
 Organizada por (a) menor risco → maior risco, (b) progressão natural
 de fluxo de UI:
 
-| #   | View             | Arquivo principal                                                                                                         | Complexidade | Notas                                                                                                                |
-| --- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- | :----------: | -------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Onboarding**   | [src/ui/components/onboarding.js](../src/ui/components/onboarding.js) + [`onboarding/`](../src/ui/components/onboarding/) |    Média     | First-time experience, alguns CSS files dedicados (`_onboarding-checklist.css`)                                      |
-| 2   | **ProfileModal** | [src/ui/components/onboarding/profileModal.js](../src/ui/components/onboarding/profileModal.js)                           |    Baixa     | Modal isolado, pequeno                                                                                               |
-| 3   | **Dashboard**    | [src/ui/views/dashboard.js](../src/ui/views/dashboard.js)                                                                 |     Alta     | 1294 linhas; KPIs, charts, header global. Várias ilhas React já existem (`#dash-*-root`) — mexer só no shell vanilla |
-| 4   | **Equipamentos** | [src/ui/views/equipamentos.js](../src/ui/views/equipamentos.js)                                                           |  Muito alta  | 2493 linhas, 12 CSS files dedicados (`_equip-*`, `_setor-*`)                                                         |
-| 5   | **Registro**     | [src/ui/views/registro.js](../src/ui/views/registro.js)                                                                   |  Muito alta  | 1371 linhas, fluxo crítico (PDF/WhatsApp/assinatura)                                                                 |
-| 6   | **Relatórios**   | [src/ui/views/relatorio.js](../src/ui/views/relatorio.js)                                                                 |     Alta     | 1030 linhas                                                                                                          |
-| 7   | **Histórico**    | [src/ui/views/historico.js](../src/ui/views/historico.js)                                                                 |     Alta     | 1582 linhas                                                                                                          |
-| 8   | **Alertas**      | [src/ui/views/alertas.js](../src/ui/views/alertas.js)                                                                     |    Baixa     | Já é ilha React; shell vanilla é mínimo                                                                              |
+| #   | View             | Arquivo principal                                                                                                         | Complexidade | Notas                                                                                                                     |
+| --- | ---------------- | ------------------------------------------------------------------------------------------------------------------------- | :----------: | ------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **ProfileModal** | [src/ui/components/onboarding/profileModal.js](../src/ui/components/onboarding/profileModal.js)                           |    Baixa     | Modal isolado, pequeno. Valida o padrão em escopo pequeno antes de mergulhar em first-time experience com sub-componentes |
+| 2   | **Onboarding**   | [src/ui/components/onboarding.js](../src/ui/components/onboarding.js) + [`onboarding/`](../src/ui/components/onboarding/) |    Média     | First-time experience, alguns CSS files dedicados (`_onboarding-checklist.css`)                                           |
+| 3   | **Dashboard**    | [src/ui/views/dashboard.js](../src/ui/views/dashboard.js)                                                                 |     Alta     | 1294 linhas; KPIs, charts, header global. Várias ilhas React já existem (`#dash-*-root`) — mexer só no shell vanilla      |
+| 4   | **Equipamentos** | [src/ui/views/equipamentos.js](../src/ui/views/equipamentos.js)                                                           |  Muito alta  | 2493 linhas, 12 CSS files dedicados (`_equip-*`, `_setor-*`)                                                              |
+| 5   | **Registro**     | [src/ui/views/registro.js](../src/ui/views/registro.js)                                                                   |  Muito alta  | 1371 linhas, fluxo crítico (PDF/WhatsApp/assinatura)                                                                      |
+| 6   | **Relatórios**   | [src/ui/views/relatorio.js](../src/ui/views/relatorio.js)                                                                 |     Alta     | 1030 linhas                                                                                                               |
+| 7   | **Histórico**    | [src/ui/views/historico.js](../src/ui/views/historico.js)                                                                 |     Alta     | 1582 linhas                                                                                                               |
+| 8   | **Alertas**      | [src/ui/views/alertas.js](../src/ui/views/alertas.js)                                                                     |    Baixa     | Já é ilha React; shell vanilla é mínimo                                                                                   |
+
+> **Por que ProfileModal antes de Onboarding?** Complexidade crescente.
+> ProfileModal é um modal isolado pequeno — bom para validar o padrão
+> de migração em escopo controlado, antes de enfrentar a Onboarding,
+> que é first-time experience com vários sub-componentes (checklist,
+> push opt-in, install prompt). Erros no doc/padrão aparecem com
+> menos impacto na ProfileModal.
 
 > Cada view = 1 sessão dedicada = 1 PR pequeno. **Não migrar mais de
 > 1 view por sessão**, conforme regra mecânica do prompt original.
@@ -319,6 +326,25 @@ Detalhes:
 | ------------------------------------------------ | ---------: | -------: |
 | Antes da branch `style-reset` (commit `3a27d54`) | **20.732** |        — |
 | Após Etapa 2                                     | **20.621** | **−111** |
+
+> **Como medir**: a contagem é feita após `npm run format` (prettier
+> `--write`), porque o pre-commit hook normaliza arquivos antes de
+> commitar. A diferença entre o `--stat` bruto do `git diff`
+> (`-127` net deletions na E2) e os `−111` finais vem dessas
+> normalizações idempotentes do prettier (quebras de linha,
+> alinhamento de tabelas, etc.) em outras partes do mesmo arquivo.
+
+#### Detalhamento da Etapa 2 — remoções por componente
+
+Refere-se a linhas em `src/assets/styles/components.css` no commit
+base `3a27d54`. Todos os seletores listados foram removidos no
+commit E2 (`17a3b0a`).
+
+| Componente migrado            | Seletores `.auth-*` removidos                                                                                                                                                                                                                                           | Linhas no `3a27d54` |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| **Login (`authscreen.js`)**   | `.auth-label`, `.auth-input`, `.auth-input:focus`, `.auth-input::placeholder`, `.auth-btn`, `.auth-btn:hover`, `.auth-btn:disabled, .auth-btn-forgot:disabled`, `.auth-hint`, `.auth-hint--tight`, `.auth-actions-center`, `.auth-btn-forgot`, `.auth-btn-forgot:hover` | 9036–9132           |
+| **passwordRecoveryModal**     | `.auth-recovery-modal-overlay`, `.auth-recovery-modal`, `.auth-recovery-modal__title`, `.auth-recovery-modal__actions`                                                                                                                                                  | 9134–9157           |
+| **Compartilhada (cirúrgica)** | `.auth-btn.is-busy` e `.auth-btn-forgot.is-busy` removidos da lista de seletores em `.btn.is-busy { … }` e `.btn.is-busy::after { … }`. `.btn.is-busy` e `.btn.is-busy::after` permanecem **intactos** (contrato vivo do `.btn` legado).                                | 8959–8976           |
 
 > Não removemos os outros 22 arquivos CSS legados (incluindo
 > `_clientes.css`, `_pmoc.css`, `_setor-card.css`, etc.) porque eles
@@ -499,8 +525,30 @@ Roteiro passo a passo. Marque cada item ao concluir.
 - [ ] Confirme que está na branch `style-reset` (não em `main`).
 - [ ] Working tree limpo (`git status` vazio).
 - [ ] `npm run check` passa antes de qualquer mudança (baseline).
-- [ ] Sobe `npm run dev` e tira screenshot da view target ATUAL — é a
-      sua referência visual de baseline para comparação posterior.
+- [ ] Capture **baseline visual** antes de tocar em qualquer linha
+      da view, pelo padrão abaixo.
+
+#### Convenção de baseline visual
+
+- **Pasta**: `_baseline/<view>/` na raiz do repo (ex.:
+  `_baseline/profileModal/`, `_baseline/dashboard/`).
+- **Não comitar**: o diretório `_baseline/` é local-only e fica em
+  `.gitignore`. Adicione a entrada se ainda não estiver lá.
+- **Viewports obrigatórios**: 3 PNGs por view, capturados com
+  `npm run dev` rodando:
+  - `375.png` — mobile (iPhone SE / Android compacto)
+  - `1280.png` — desktop padrão (laptop comum)
+  - `1920.png` — desktop largo (monitor full HD)
+- **Estados a capturar**: pelo menos a tela default + os estados-chave
+  da view (modal aberto, formulário com erro, loading, hover de CTA
+  principal). Nomeie `<viewport>-<estado>.png`, e.g. `1280-error.png`.
+- **Uso**: durante a migração e no momento da revalidação visual,
+  compare side-by-side com a versão pós-migração. Tem que estar
+  visualmente equivalente — não necessariamente idêntico ao pixel
+  (Tailwind pode mudar arredondamento de 0.5px, anti-alias, etc.).
+- **Quando descartar**: depois da remoção do legado validada,
+  apague a pasta `_baseline/<view>/`. Sem PNGs órfãos no working
+  tree.
 
 ### Reconhecimento (read-only)
 
@@ -561,7 +609,7 @@ Roteiro passo a passo. Marque cada item ao concluir.
 ### Encerramento
 
 - [ ] Atualize a tabela de status em §7 deste doc (`view → ✅
-  migrada (Eᴺ)`).
+migrada (Eᴺ)`).
 - [ ] Atualize a tabela de tamanho de `components.css` em §7.
 - [ ] Adicione novos padrões/tokens criados às tabelas em §2 e §3.
 - [ ] Se aprendeu algo não óbvio, adicione em §8 (Notas técnicas

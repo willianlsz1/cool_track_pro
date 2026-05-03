@@ -28,6 +28,11 @@ test-results/
 *-preview.html
 pdf_validacao.pdf
 
+# Baseline visual usado durante migracao CSS -> Tailwind por view.
+# Convencao: `_baseline/<view>/{375,1280,1920}.png`. Local-only, ver
+# `docs/STYLE_MIGRATION.md` §9.
+_baseline/
+
 # Artefatos temporários do Vite (gerados em dev, nunca commitados)
 vite.config.js.timestamp-*
 
