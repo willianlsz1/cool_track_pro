@@ -4000,3 +4000,200 @@ body:not(.landing-active) .modal textarea:focus {
     justify-content: flex-start;
   }
 }
+
+/* ============================================================
+   PR 10 - Modals, scroll, summary cards and terminology polish
+   ============================================================ */
+
+body:not(.landing-active) #modal-add-eq,
+body:not(.landing-active) #modal-eq-det,
+body:not(.landing-active) #modal-eq-photos {
+  align-items: center;
+  padding: clamp(12px, 3vw, 28px);
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+body:not(.landing-active) #modal-add-eq .modal,
+body:not(.landing-active) #modal-eq-det .modal,
+body:not(.landing-active) #modal-eq-photos .modal {
+  display: flex;
+  flex-direction: column;
+  width: min(940px, calc(100vw - 24px));
+  max-height: min(88dvh, 860px);
+  min-height: 0;
+  overflow: hidden !important;
+  border-color: rgba(144, 184, 248, 0.18) !important;
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+}
+
+body:not(.landing-active) #modal-add-eq .modal__body--scroll,
+body:not(.landing-active) #modal-eq-photos .modal__body--scroll,
+body:not(.landing-active) #modal-eq-det #eq-det-corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none !important;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(144, 184, 248, 0.32) transparent;
+}
+
+body:not(.landing-active) #modal-eq-det #eq-det-corpo {
+  padding: clamp(18px, 3vw, 26px);
+}
+
+body:not(.landing-active) #modal-add-eq .modal__footer,
+body:not(.landing-active) #modal-eq-photos .modal__footer {
+  flex: 0 0 auto;
+  border-top: 1px solid rgba(144, 184, 248, 0.14) !important;
+  background:
+    linear-gradient(180deg, rgba(62, 67, 77, 0.94), rgba(53, 57, 65, 0.98)), var(--ct-surface) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-header {
+  grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.35fr);
+  align-items: stretch !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-header__title-row {
+  align-content: center;
+  align-items: flex-start;
+  gap: 14px !important;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpis {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px !important;
+  width: 100%;
+  min-width: 0;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi {
+  min-width: 0;
+  padding: 15px 16px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgba(62, 67, 77, 0.82), rgba(45, 48, 54, 0.92)), var(--ct-surface) !important;
+  border: 1px solid rgba(144, 184, 248, 0.14) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi::before {
+  top: 13px;
+  left: 16px;
+  width: 30px;
+  height: 3px;
+  border-radius: 999px;
+  opacity: 0.8;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi__value {
+  color: var(--ct-text) !important;
+  font-size: clamp(1.34rem, 2.2vw, 1.75rem) !important;
+  line-height: 1.06 !important;
+  overflow-wrap: anywhere;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi__label {
+  color: var(--ct-text-muted) !important;
+  margin-top: 7px !important;
+  overflow-wrap: anywhere;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='aprovado'] .orc-kpi__value {
+  color: color-mix(in srgb, var(--ct-success) 86%, var(--ct-text)) !important;
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='negociacao']::before {
+  background: var(--ct-brand-hover);
+}
+
+#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='negociacao'] .orc-kpi__value {
+  color: var(--ct-brand-hover) !important;
+}
+
+#app:not(.landing-active) .cli-kpi .cli-kpi__sub--ok,
+#app:not(.landing-active) .equip-card__health-value--ok,
+#app:not(.landing-active) .equip-card__status--ok,
+#app:not(.landing-active) .setor-card__status--ok {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--ct-success-soft) 58%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--ct-success) 28%, transparent) !important;
+  color: color-mix(in srgb, var(--ct-success) 86%, var(--ct-text)) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app:not(.landing-active) .cli-kpi .cli-kpi__sub--ok::before,
+#app:not(.landing-active) .equip-card__health-value--ok::before,
+#app:not(.landing-active) .equip-card__status--ok::before,
+#app:not(.landing-active) .setor-card__status--ok::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.9;
+}
+
+#app:not(.landing-active) .equip-card__health-bar-full {
+  height: 7px !important;
+  border-radius: 999px !important;
+  background: rgba(244, 247, 251, 0.08) !important;
+  border: 1px solid rgba(144, 184, 248, 0.1) !important;
+}
+
+#app:not(.landing-active) .equip-card__health-fill--ok {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ct-success) 72%, var(--ct-brand)),
+    var(--ct-brand-hover)
+  ) !important;
+}
+
+@media (max-width: 960px) {
+  #app:not(.landing-active) #view-orcamentos .orc-header {
+    grid-template-columns: 1fr;
+  }
+
+  #app:not(.landing-active) #view-orcamentos .orc-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  body:not(.landing-active) #modal-add-eq,
+  body:not(.landing-active) #modal-eq-det,
+  body:not(.landing-active) #modal-eq-photos {
+    align-items: stretch;
+    padding: 8px;
+  }
+
+  body:not(.landing-active) #modal-add-eq .modal,
+  body:not(.landing-active) #modal-eq-det .modal,
+  body:not(.landing-active) #modal-eq-photos .modal {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+  }
+
+  #app:not(.landing-active) #view-orcamentos .orc-kpis {
+    grid-template-columns: 1fr;
+  }
+}

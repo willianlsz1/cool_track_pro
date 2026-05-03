@@ -138,21 +138,17 @@ function Header({ kpis }) {
         </Button>
       </div>
       <div className="orc-kpis">
-        <div className="orc-kpi">
+        <div className="orc-kpi" data-kind="aberto">
           <div className="orc-kpi__value">{safeKpis.totalAtivos || 0}</div>
           <div className="orc-kpi__label">Em aberto</div>
         </div>
-        <div className="orc-kpi">
-          <div className="orc-kpi__value" style={{ color: '#10b981' }}>
-            {safeKpis.totalAprovados || 0}
-          </div>
+        <div className="orc-kpi" data-kind="aprovado">
+          <div className="orc-kpi__value">{safeKpis.totalAprovados || 0}</div>
           <div className="orc-kpi__label">Aprovados</div>
         </div>
-        <div className="orc-kpi">
-          <div className="orc-kpi__value" style={{ color: '#00c8e8' }}>
-            {safeKpis.valorPipelineLabel || 'R$ 0,00'}
-          </div>
-          <div className="orc-kpi__label">Pipeline</div>
+        <div className="orc-kpi" data-kind="negociacao">
+          <div className="orc-kpi__value">{safeKpis.valorPipelineLabel || 'R$ 0,00'}</div>
+          <div className="orc-kpi__label">Valor em negociação</div>
         </div>
       </div>
     </div>

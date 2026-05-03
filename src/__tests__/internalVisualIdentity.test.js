@@ -142,6 +142,13 @@ describe('internal visual identity tokens', () => {
     expect(redesign).toContain('grid-template-columns: minmax(0, 1fr) auto;');
     expect(redesign).toContain('box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;');
     expect(redesign).toContain('#app:not(.landing-active) #view-orcamentos .orc-header');
+    expect(redesign).toContain('PR 10 - Modals, scroll, summary cards and terminology polish');
+    expect(redesign).toContain('body:not(.landing-active) #modal-eq-det #eq-det-corpo');
+    expect(redesign).toContain('max-height: min(88dvh, 860px);');
+    expect(redesign).toContain(
+      "#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='negociacao']",
+    );
+    expect(redesign).toContain('#app:not(.landing-active) .cli-kpi .cli-kpi__sub--ok');
     expect(clientesPremium).toContain('PR 5 - Clientes operational dark refresh');
     expect(clientesPremium).toContain('--cli-card: var(--ct-surface);');
     expect(clientesPremium).toContain('--cli-panel: var(--ct-app-bg);');
