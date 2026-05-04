@@ -376,7 +376,7 @@ function bindEvents(overlay, orcamento, isEdit) {
 }
 
 export const OrcamentoModal = {
-  openCreate() {
+  openCreate(initialValues = null) {
     document.getElementById(OVERLAY_ID)?.remove();
     const overlay = document.createElement('div');
     overlay.id = OVERLAY_ID;
@@ -384,9 +384,9 @@ export const OrcamentoModal = {
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-labelledby', 'orcamento-modal-title');
-    overlay.innerHTML = buildHtml(null, false);
+    overlay.innerHTML = buildHtml(initialValues, false);
     document.body.appendChild(overlay);
-    bindEvents(overlay, null, false);
+    bindEvents(overlay, initialValues, false);
     requestAnimationFrame(() => {
       overlay.querySelector('#orc-cliente-nome')?.focus();
     });

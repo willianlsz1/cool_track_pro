@@ -15,6 +15,7 @@ import {
 } from '../../core/orcamentos.js';
 import { CustomConfirm } from '../../core/modal.js';
 import { buildOrcamentosViewModel } from '../viewModels/orcamentosViewModel.js';
+import { OrcamentoModal } from '../components/orcamentoModal.js';
 
 let _statusFilter = 'todos';
 let _busca = '';
@@ -127,9 +128,22 @@ export async function markOrcamentoApproved(id) {
   }
 }
 
-export async function loadAndRenderOrcamentos() {
+export async function loadAndRenderOrcamentos(params = {}) {
   const generation = ++renderGeneration;
   await loadOrcamentos();
   if (generation !== renderGeneration) return null;
-  return renderOrcamentos();
+  const rendered = await renderOrcamentos();
+  const clienteId = String(params?.clienteId || '').trim();
+  if (!clienteId) return rendered;
+
+  const cliente = (getState().clientes || []).find((item) => String(item?.id || '') === clienteId);
+  if (!cliente) return rendered;
+
+  OrcamentoModal.openCreate({
+    clienteId: cliente.id,
+    clienteNome: cliente.nome || '',
+    clienteTelefone: cliente.contato || '',
+    clienteEndereco: cliente.endereco || '',
+  });
+  return rendered;
 }
