@@ -978,6 +978,9 @@ export function renderShellViews() {
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>
 
+        <!-- CONFIGURAÇÕES -->
+        <div class="view" id="view-configuracoes"></div>
+
         <!-- PLANOS -->
         <div class="view" id="view-pricing"></div>
 

@@ -32,6 +32,7 @@ import {
 } from '../../core/plans/clientesAccess.js';
 import { renderConta } from '../views/conta.js';
 import { renderPrivacidade } from '../views/privacidade.js';
+import { renderConfiguracoes } from '../views/configuracoes.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 
 export function registerAppRoutes() {
@@ -179,6 +180,11 @@ export function registerAppRoutes() {
 
   registerRoute('privacidade', () => {
     renderPrivacidade();
+    updateHeader();
+  });
+
+  registerRoute('configuracoes', () => {
+    renderConfiguracoes();
     updateHeader();
   });
 
