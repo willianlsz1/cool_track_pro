@@ -23,6 +23,7 @@ import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
+import { asArray, isPreventivaTipo } from '../helpers/registroPure.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
 import {
@@ -311,10 +312,6 @@ function _buildRegistroReadOnlyViewModel(params = {}) {
   });
 }
 
-function _asArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
 function loadRegistroHeaderBridge() {
   if (_registroHeaderBridge) return Promise.resolve(_registroHeaderBridge);
   if (!_registroHeaderBridgePromise) {
@@ -358,11 +355,11 @@ function ensureRegistroHeaderRoot() {
 function buildRegistroHeaderReactProps(params = {}) {
   const state = getState() || {};
   const viewModel = _buildRegistroReadOnlyViewModel(params);
-  const equipmentOptions = _asArray(state.equipamentos).map((equipamento) => ({
+  const equipmentOptions = asArray(state.equipamentos).map((equipamento) => ({
     id: String(equipamento?.id || ''),
     label: `${equipamento?.nome || '—'} — ${equipamento?.local || '—'}`,
   }));
-  const technicianOptions = _asArray(state.técnicos || state.tecnicos);
+  const technicianOptions = asArray(state.técnicos || state.tecnicos);
 
   return {
     viewModel,
@@ -608,12 +605,6 @@ function _bindEquipChangeWarning() {
 // (template é por tipo) ou quando o registro é salvo/limpo.
 let _currentChecklist = null;
 
-function _isPreventivaTipo(tipoValue) {
-  return String(tipoValue || '')
-    .toLowerCase()
-    .includes('preventiva');
-}
-
 function loadRegistroChecklistBridge() {
   if (_registroChecklistBridge) return Promise.resolve(_registroChecklistBridge);
   if (!_registroChecklistBridgePromise) {
@@ -632,11 +623,11 @@ function loadRegistroChecklistBridge() {
 
 function buildRegistroChecklistReactProps(template) {
   const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
-  const snapshotMap = new Map(_asArray(_currentChecklist?.items).map((item) => [item.id, item]));
+  const snapshotMap = new Map(asArray(_currentChecklist?.items).map((item) => [item.id, item]));
   const groupsOrder = [];
   const groupBuckets = new Map();
 
-  _asArray(template?.items).forEach((item) => {
+  asArray(template?.items).forEach((item) => {
     const group = String(item?.group || '');
     if (!groupBuckets.has(group)) {
       groupsOrder.push(group);
@@ -878,7 +869,7 @@ function _updateChecklistSummary() {
 function _refreshChecklistPriBadge() {
   const pri = document.getElementById('r-checklist-pri');
   if (!pri) return;
-  const isPreventiva = _isPreventivaTipo(Utils.getVal('r-tipo'));
+  const isPreventiva = isPreventivaTipo(Utils.getVal('r-tipo'));
   pri.hidden = !isPreventiva;
 }
 
@@ -1310,7 +1301,7 @@ export async function saveRegistro({ andShare = false } = {}) {
   // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
   // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
   // pra ele saber que esse registro NÃO entra no PMOC formal completo.
-  if (_isPreventivaTipo(tipo)) {
+  if (isPreventivaTipo(tipo)) {
     const cl = getCurrentChecklist();
     if (!cl) {
       Toast.warning(

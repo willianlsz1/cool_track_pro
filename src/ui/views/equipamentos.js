@@ -79,6 +79,7 @@ import {
   RISK_CLASS_LABEL,
   STATUS_OPERACIONAL,
 } from './equipamentos/constants.js';
+import { classifyRiskFactor, recencia, ctaLabelForAction } from '../helpers/equipamentosPure.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -792,52 +793,8 @@ const COMPONENT_PILL_META = {
   unidade_unica: { label: 'Unidade unica', tint: 'neutral' },
 };
 
-const POSITIVE_FACTOR_PATTERNS = [
-  'em dia',
-  'preventivas consecutivas',
-  'sem corretivas',
-  'dentro da rotina',
-  'rotina estavel',
-  'estavel',
-  'sem alertas',
-  'historico limpo',
-];
-
-function normalizeText(value = '') {
-  return String(value || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
-
-function classifyRiskFactor(factor) {
-  const normalized = normalizeText(factor);
-  return POSITIVE_FACTOR_PATTERNS.some((pattern) => normalized.includes(pattern))
-    ? 'positive'
-    : 'neutral';
-}
-
 function componentPillModel(componente) {
   return COMPONENT_PILL_META[componente] || null;
-}
-
-function recencia(data) {
-  const diff = Math.round((new Date() - new Date(data)) / 86400000);
-  if (diff === 0) return 'hoje';
-  if (diff === 1) return 'ontem';
-  if (diff < 30) return `há ${diff} dias`;
-  if (diff < 60) return 'há 1 mês';
-  return `há ${Math.floor(diff / 30)} meses`;
-}
-
-function ctaLabelForAction(actionCode) {
-  if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE_IMMEDIATE)
-    return 'Registrar serviço corretivo agora';
-  if (actionCode === ACTION_CODE.REGISTER_CORRECTIVE) return 'Registrar serviço corretivo';
-  if (actionCode === ACTION_CODE.REGISTER_PREVENTIVE) return 'Registrar serviço preventivo';
-  if (actionCode === ACTION_CODE.SCHEDULE_PREVENTIVE) return 'Programar serviço preventivo';
-  if (actionCode === ACTION_CODE.COLLECT_DATA) return 'Registrar última manutenção';
-  return 'Registrar serviço';
 }
 
 function preventiveTimelineModel(context = {}) {
@@ -865,7 +822,8 @@ function buildEquipamentoListCardModel(eq, evalCtx) {
   const hasMetrics = Boolean(last) || Boolean(context.proximaPreventiva);
   const isFullyIdle = evalCtx.isFullyIdle(eq);
   const isActivationPending = !last && suggestedAction.actionCode === ACTION_CODE.COLLECT_DATA;
-  const ctaLabel = !last && !hasAction ? 'Começar' : ctaLabelForAction(suggestedAction.actionCode);
+  const ctaLabel =
+    !last && !hasAction ? 'Começar' : ctaLabelForAction(suggestedAction.actionCode, ACTION_CODE);
   const isUrgent =
     statusClass === 'danger' ||
     (risk.factors || []).some((factor) => /parado desde|preventiva vencida/i.test(String(factor)));
