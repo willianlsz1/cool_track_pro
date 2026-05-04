@@ -1002,3 +1002,54 @@ body:not(.landing-active) {
   background: transparent !important;
   border-color: transparent !important;
 }
+
+/* Internal dark tokens + hardening (mobile consistency) */
+#app:not(.landing-active) {
+  --ct-internal-bg: #090c10;
+  --ct-internal-surface: #161b22;
+  --ct-internal-elev: #1c2330;
+  --ct-internal-border: rgba(34, 211, 238, 0.16);
+  --ct-internal-text: #e6edf3;
+  --ct-internal-text-2: #9aa4b2;
+}
+
+.app-nav,
+.nav-bar,
+.app-nav__inner {
+  background: #0f1724 !important;
+  border-top-color: rgba(34, 211, 238, 0.18) !important;
+}
+
+.nav-btn,
+.nav-btn__label {
+  color: var(--ct-internal-text-2) !important;
+}
+
+.nav-btn.is-active,
+.nav-btn.is-active .nav-btn__label {
+  color: var(--ct-internal-text) !important;
+}
+
+.cli-card,
+.cli-kpi,
+.cli-page .card,
+#view-servicos .card,
+#view-servicos .servicos-toggle,
+#view-relatorio,
+#view-relatorio .card,
+#view-relatorio .rel-filters,
+#view-relatorio .rel-hero,
+.dash__continue-card {
+  background: var(--ct-internal-surface) !important;
+  color: var(--ct-internal-text) !important;
+  border-color: var(--ct-internal-border) !important;
+}
+
+.cli-card__sub,
+.cli-stat__label,
+#view-servicos .card p,
+#view-relatorio .rel-subtitle,
+#view-relatorio .section-subtitle,
+.dash__continue-card__sub {
+  color: var(--ct-internal-text-2) !important;
+}
