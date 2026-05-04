@@ -1656,6 +1656,42 @@ body:not(.landing-active) .modal-overlay {
   color: var(--ct-text-muted) !important;
 }
 
+@media (max-width: 640px) {
+  #app:not(.landing-active) #dash .dash__hero {
+    padding: 14px !important;
+    min-height: auto !important;
+  }
+
+  #app:not(.landing-active) #dash .dash__hero-summary,
+  #app:not(.landing-active) #dash .dash__kpi-sub,
+  #app:not(.landing-active) #dash .dash__card-sub,
+  #app:not(.landing-active) #dash .dash__section-count,
+  #app:not(.landing-active) #view-equipamentos .section-subtitle,
+  #app:not(.landing-active) #view-equipamentos .equip-hero__sub,
+  #app:not(.landing-active) #view-equipamentos .equip-card__meta,
+  #app:not(.landing-active) #view-equipamentos .equip-card__hint {
+    color: color-mix(in srgb, var(--ct-text-muted) 80%, #ffffff 20%) !important;
+  }
+
+  #app:not(.landing-active) #view-equipamentos .equip-search-row {
+    width: 100%;
+    display: block;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  #app:not(.landing-active) #view-equipamentos .equip-search-row > .search-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #app:not(.landing-active) #view-equipamentos .page-toolbar {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+}
+
 #app:not(.landing-active) #view-equipamentos .equip-hero,
 #app:not(.landing-active) #view-equipamentos .quick-move-banner,
 #app:not(.landing-active) #view-equipamentos .equip-card,
