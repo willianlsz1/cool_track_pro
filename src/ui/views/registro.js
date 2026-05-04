@@ -1050,8 +1050,9 @@ function _bindRegistroHeaderFieldHandlers() {
 export function initRegistro(params = {}) {
   const formView = Utils.getEl('view-registro');
   if (!formView) return;
+  const effectiveEquipId = params.equipId || params.equipamentoId || '';
 
-  if (params.equipId) Utils.setVal('r-equip', params.equipId);
+  if (effectiveEquipId) Utils.setVal('r-equip', effectiveEquipId);
   _currentRouteParams = { ...params };
   _refreshRegistroContext();
 
@@ -1152,7 +1153,7 @@ export function initRegistro(params = {}) {
 
       // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
       if (!params.editRegistroId) resetEditingState();
-      if (params.equipId) Utils.setVal('r-equip', params.equipId);
+      if (effectiveEquipId) Utils.setVal('r-equip', effectiveEquipId);
 
       _currentRouteParams = { ...params };
       _refreshRegistroContext();

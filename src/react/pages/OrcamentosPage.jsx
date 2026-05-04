@@ -329,6 +329,22 @@ function CardAction({ action }) {
       </Button>
     );
   }
+  if (action.kind === 'createService') {
+    return (
+      <Button
+        variant="primary"
+        size="sm"
+        className="btn btn--primary btn--sm"
+        data-action={action.action}
+        data-id={id}
+        data-cliente-id={action.clienteId || ''}
+        data-equipamento-id={action.equipamentoId || ''}
+        title={action.title}
+      >
+        {action.label}
+      </Button>
+    );
+  }
   if (action.kind === 'delete') {
     return (
       <button
@@ -364,6 +380,11 @@ function OrcamentoCard({ card }) {
         <div className="orc-card__cliente">
           <UserIcon />
           {card.clienteLine}
+        </div>
+        <div className="orc-card__meta">
+          <span>{card.clienteVinculoLabel}</span>
+          <span>{card.equipamentoVinculoLabel}</span>
+          <span>Status: {card.statusLabel}</span>
         </div>
         <div className="orc-card__meta">
           <span>{card.createdLabel}</span>
