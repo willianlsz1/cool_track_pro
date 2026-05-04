@@ -404,6 +404,21 @@ body {
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   padding-bottom: env(safe-area-inset-bottom);
   padding-top: 4px;
+  transform: translateY(0);
+  transition: transform 220ms ease;
+  will-change: transform;
+}
+
+@media (max-width: 1023px) {
+  .app-nav.app-nav--hidden {
+    transform: translateY(calc(100% + env(safe-area-inset-bottom)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-nav {
+    transition: none;
+  }
 }
 
 .app-nav__title {
