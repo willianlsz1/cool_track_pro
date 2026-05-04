@@ -40,8 +40,6 @@ describe('shell bootstrap', () => {
     expect(document.body.querySelector('.app-sidebar__brand-icon img')?.getAttribute('src')).toBe(
       '/brand/favicon.svg',
     );
-    expect(document.getElementById('sidenav-plan-card')).toBeNull();
-    expect(document.getElementById('sidenav-plan-cta')).toBeNull();
     expect(document.getElementById('sidenav-os')).toBeNull();
     expect(
       document.getElementById('nav-registro')?.querySelector('.nav-btn__icon svg'),

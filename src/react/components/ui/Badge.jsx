@@ -1,18 +1,13 @@
-import { forwardRef } from 'react';
-
 const BASE_CLASSES =
-  'tw-inline-flex tw-min-w-0 tw-max-w-full tw-items-center tw-rounded-full tw-border tw-font-medium tw-leading-none tw-whitespace-nowrap';
+  'tw-inline-flex tw-items-center tw-rounded-full tw-font-medium tw-leading-none tw-whitespace-nowrap';
 
 const TONE_CLASSES = {
-  neutral:
-    'tw-border-[var(--ct-border)] tw-bg-[rgba(244,247,251,0.06)] tw-text-[var(--ct-text-muted)]',
-  success:
-    'tw-border-[rgba(74,222,128,0.24)] tw-bg-[var(--ct-success-soft)] tw-text-[var(--ct-success)]',
-  warning: 'tw-border-[rgba(251,191,36,0.24)] tw-bg-[var(--ct-warn-soft)] tw-text-[var(--ct-warn)]',
-  danger:
-    'tw-border-[rgba(251,113,133,0.24)] tw-bg-[var(--ct-error-soft)] tw-text-[var(--ct-error)]',
-  info: 'tw-border-[rgba(144,184,248,0.24)] tw-bg-[var(--ct-info-soft)] tw-text-[var(--ct-info)]',
-  premium: 'tw-border-[rgba(217,164,65,0.26)] tw-bg-[rgba(217,164,65,0.14)] tw-text-[#F5C451]',
+  neutral: 'tw-bg-slate-100 tw-text-slate-700',
+  success: 'tw-bg-emerald-100 tw-text-emerald-700',
+  warning: 'tw-bg-amber-100 tw-text-amber-800',
+  danger: 'tw-bg-red-100 tw-text-red-700',
+  info: 'tw-bg-sky-100 tw-text-sky-700',
+  premium: 'tw-bg-violet-100 tw-text-violet-700',
 };
 
 const SIZE_CLASSES = {
@@ -24,13 +19,9 @@ function cx(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export const Badge = forwardRef(function Badge(
-  { tone = 'neutral', size = 'md', className = '', children, ...props },
-  ref,
-) {
+export function Badge({ tone = 'neutral', size = 'md', className = '', children, ...props }) {
   return (
     <span
-      ref={ref}
       className={cx(
         BASE_CLASSES,
         TONE_CLASSES[tone] || TONE_CLASSES.neutral,
@@ -42,4 +33,4 @@ export const Badge = forwardRef(function Badge(
       {children}
     </span>
   );
-});
+}

@@ -17,15 +17,30 @@ function closeAllRecoveryModals() {
 function createOverlay(id, title, bodyHtml) {
   const overlay = document.createElement('div');
   overlay.id = id;
-  overlay.className = 'modal-overlay is-open auth-recovery-modal-overlay tw-z-[320]';
+  overlay.className = 'modal-overlay is-open auth-recovery-modal-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', `${id}-title`);
 
   overlay.innerHTML = `
-    <div class="modal auth-recovery-modal tw-w-[min(420px,calc(100vw-32px))] tw-bg-[#0c1929] tw-border tw-border-[#00c8e8]/15 tw-rounded-xl tw-p-6">
+    <style>
+      .auth-input-wrap {
+        position: relative; display: flex; align-items: center;
+      }
+      .auth-input-wrap .auth-input {
+        padding-right: 42px;
+      }
+      .auth-pwd-toggle {
+        position: absolute; right: 10px;
+        background: none; border: none; cursor: pointer; padding: 4px;
+        color: var(--muted); display: flex; align-items: center;
+        transition: color .18s;
+      }
+      .auth-pwd-toggle:hover { color: var(--text-2); }
+    </style>
+    <div class="modal auth-recovery-modal">
       <div class="auth-recovery-modal__header">
-        <h3 id="${id}-title" class="auth-recovery-modal__title tw-mt-0 tw-mb-4 tw-text-[#e8f2fa] tw-text-lg">${title}</h3>
+        <h3 id="${id}-title" class="auth-recovery-modal__title">${title}</h3>
       </div>
       <div class="auth-recovery-modal__body">${bodyHtml}</div>
     </div>
@@ -68,10 +83,10 @@ function eyeOffSVG() {
 
 function passwordWrapHTML(id, placeholder, autocomplete) {
   return `
-    <div class="auth-input-wrap tw-relative tw-flex tw-items-center">
-      <input class="auth-input auth-input-base tw-pr-11" id="${id}" type="password"
+    <div class="auth-input-wrap">
+      <input class="auth-input" id="${id}" type="password"
         placeholder="${placeholder}" autocomplete="${autocomplete}" />
-      <button type="button" class="auth-pwd-toggle tw-absolute tw-right-2.5 tw-top-1/2 -tw-translate-y-1/2 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-p-1 tw-text-landing-text-dim tw-flex tw-items-center tw-transition-colors tw-duration-150 hover:tw-text-landing-text-body" aria-label="Mostrar senha" tabindex="-1">
+      <button type="button" class="auth-pwd-toggle" aria-label="Mostrar senha" tabindex="-1">
         ${eyeSVG()}
       </button>
     </div>`;
@@ -84,13 +99,13 @@ export function openPasswordResetEmailModal(initialEmail = '') {
     RESET_EMAIL_MODAL_ID,
     'Recuperar senha',
     `
-      <label class="auth-label auth-label-base auth-label-base--first" for="reset-email-input">Email</label>
-      <input class="auth-input auth-input-base" id="reset-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />
-      <div class="auth-recovery-modal__actions tw-grid tw-grid-cols-2 tw-gap-2.5 tw-mt-2">
+      <label class="auth-label" for="reset-email-input">Email</label>
+      <input class="auth-input" id="reset-email-input" type="email" placeholder="seu@email.com" autocomplete="email" />
+      <div class="auth-recovery-modal__actions">
         <button type="button" class="btn btn--outline" id="btn-reset-cancel">Cancelar</button>
-        <button type="button" class="auth-btn auth-btn-base" id="btn-reset-submit">Enviar link</button>
+        <button type="button" class="auth-btn" id="btn-reset-submit">Enviar link</button>
       </div>
-      <p class="auth-hint auth-hint--tight tw-text-xs tw-text-[#4a6880] tw-text-center tw-mt-2 tw-leading-[1.5]">Enviaremos um link para você definir uma nova senha.</p>
+      <p class="auth-hint auth-hint--tight">Enviaremos um link para você definir uma nova senha.</p>
     `,
   );
 
@@ -140,13 +155,13 @@ export function openPasswordRecoveryModal() {
       NEW_PASSWORD_MODAL_ID,
       'Definir nova senha',
       `
-        <label class="auth-label auth-label-base auth-label-base--first" for="recovery-password-input">Nova senha</label>
+        <label class="auth-label" for="recovery-password-input">Nova senha</label>
         ${passwordWrapHTML('recovery-password-input', 'mínimo 8 caracteres', 'new-password')}
-        <label class="auth-label auth-label-base" for="recovery-confirm-input">Confirmar nova senha</label>
+        <label class="auth-label" for="recovery-confirm-input">Confirmar nova senha</label>
         ${passwordWrapHTML('recovery-confirm-input', 'repita a nova senha', 'new-password')}
-        <div class="auth-recovery-modal__actions tw-grid tw-grid-cols-2 tw-gap-2.5 tw-mt-2">
+        <div class="auth-recovery-modal__actions">
           <button type="button" class="btn btn--outline" id="btn-recovery-cancel">Cancelar</button>
-          <button type="button" class="auth-btn auth-btn-base" id="btn-recovery-save">Atualizar senha</button>
+          <button type="button" class="auth-btn" id="btn-recovery-save">Atualizar senha</button>
         </div>
       `,
     );

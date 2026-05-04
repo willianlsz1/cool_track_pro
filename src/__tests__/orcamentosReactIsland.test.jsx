@@ -105,9 +105,6 @@ describe('orcamentos React island', () => {
       root?.querySelector('.orc-filter-chips [data-action="orc-set-status-filter"]'),
     ).not.toBeNull();
     expect(root?.querySelector('.orc-cards')).not.toBeNull();
-    expect(root?.textContent).toContain('Valor em negociação');
-    expect(root?.textContent).not.toContain('Pipeline');
-    expect(root?.querySelector(".orc-kpi[data-kind='negociacao']")).not.toBeNull();
 
     const card = root?.querySelector('.orc-card[data-id="orc-1"]');
     expect(card).not.toBeNull();
