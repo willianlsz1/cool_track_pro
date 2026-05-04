@@ -6,9 +6,9 @@ describe('internal visual identity tokens', () => {
     const tokens = readFileSync('src/assets/styles/tokens.css', 'utf8');
     const redesign = readFileSync('src/assets/styles/redesign.css', 'utf8');
 
-    expect(tokens).toContain('--ct-bg: #f5f7fb;');
-    expect(tokens).toContain('--ct-surface: #ffffff;');
-    expect(tokens).toContain('--ct-text: #0a1530;');
+    expect(tokens).toContain('--ct-bg: #090c10;');
+    expect(tokens).toContain('--ct-surface: #161b22;');
+    expect(tokens).toContain('--ct-text: #e6edf3;');
     expect(tokens).toContain('--ct-brand: #2f7bff;');
     expect(tokens).toContain('--ct-brand-hover: #4f9bff;');
     expect(redesign).toContain('CoolTrack dashboard mockup alignment');

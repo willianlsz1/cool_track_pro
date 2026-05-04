@@ -26,19 +26,28 @@
   --ct-brand-border: rgba(47, 123, 255, 0.18);
   --ct-brand-border-hover: rgba(47, 123, 255, 0.3);
 
-  /* Surfaces — workspace claro do mockup da landing */
-  --ct-bg: #f5f7fb;
-  --ct-surface: #ffffff;
-  --ct-surface-elev: #eef2f9;
-  --ct-surface-hover: #e6ebf3;
-  --ct-border: #e6ebf3;
-  --ct-border-strong: #e3e8f1;
+  /* Surfaces — tema interno dark padronizado */
+  --ct-bg: #090c10;
+  --ct-surface: #161b22;
+  --ct-surface-elev: #1c2330;
+  --ct-surface-hover: #222b3a;
+  --ct-border: rgba(34, 211, 238, 0.16);
+  --ct-border-strong: rgba(34, 211, 238, 0.24);
 
   /* Text */
-  --ct-text: #0a1530;
-  --ct-text-muted: #2a3656;
-  --ct-text-faint: #5a6b8c;
-  --ct-text-ghost: #7e8ca8;
+  --ct-text: #e6edf3;
+  --ct-text-muted: #b5c2d1;
+  --ct-text-faint: #9aa4b2;
+  --ct-text-ghost: #7d8898;
+
+  /* Internal aliases (design system unificado) */
+  --ct-primary: var(--ct-brand);
+  --ct-success: #16a34a;
+  --ct-danger: #dc2626;
+  --ct-warning: #d97706;
+  --ct-surface-2: var(--ct-surface-elev);
+  --ct-text-2: var(--ct-text-muted);
+  --ct-text-3: var(--ct-text-faint);
 
   /* Status (dessaturados) */
   --ct-success: #16a34a;
@@ -141,7 +150,7 @@
  */
 [data-theme='light'] {
   --ct-bg: #f7f8fb;
-  --ct-surface: #ffffff;
+  --ct-surface: #161b22;
   --ct-surface-elev: #f1f3f8;
   --ct-surface-hover: #e9edf3;
   --ct-border: #e4e7ee;
