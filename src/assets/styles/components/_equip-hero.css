@@ -36,6 +36,7 @@
   margin-bottom: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
   isolation: isolate;
+  z-index: 0;
 }
 
 .equip-hero[hidden] {
@@ -175,6 +176,8 @@
   margin-bottom: 10px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
 }
 
 .equip-filters[hidden] {
@@ -281,8 +284,9 @@
 /* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .equip-hero {
-    padding: 16px 16px 18px;
+    padding: 14px 14px 16px;
     border-radius: 14px;
+    margin-bottom: 10px;
   }
 
   .equip-hero__title {
@@ -293,6 +297,10 @@
     font-size: 12.5px;
   }
 
+  .equip-hero__head {
+    margin-bottom: 10px;
+  }
+
   .equip-hero__orb {
     width: 130px;
     height: 130px;
@@ -301,6 +309,10 @@
   .equip-hero__cta-btn {
     font-size: 12px;
     padding: 6px 10px;
+  }
+
+  .equip-filters {
+    margin-bottom: 8px;
   }
 }
 
