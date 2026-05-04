@@ -3,10 +3,12 @@ export function renderShellViews() {
 <!-- PAINEL (Execução rápida) -->
         <div class="view active" id="view-inicio">
           <section class="dash dash--quick" id="dash" data-tier="free" data-tone="ok">
-            <article class="dash__hero dash__hero--quick" id="dash-hero" aria-label="Ações rápidas">
+            <article class="dash__hero dash__hero--quick" id="dash-hero" aria-label="Painel operacional">
               <div class="dash__hero-body">
-                <h1 class="dash__hero-greeting" id="dash-hero-greeting">Olá</h1>
-                <p class="dash__hero-summary" id="dash-hero-summary">0 equipamentos • 0 serviços no mês</p>
+                <p class="dash__hero-pill" id="dash-hero-kicker">Operação em tempo real</p>
+                <h1 class="dash__hero-greeting" id="dash-hero-greeting">Dashboard</h1>
+                <p class="dash__hero-summary" id="dash-hero-summary">Visão geral da sua carteira de clientes e equipamentos</p>
+                <p class="dash__hero-datetime" id="dash-hero-period">01/01/2026 - 31/01/2026</p>
               </div>
               <div class="dash__hero-cta-wrap">
                 <button class="dash__hero-cta" id="dash-hero-cta" type="button" data-nav="registro">
@@ -27,7 +29,7 @@ export function renderShellViews() {
 
             <section class="dash__kpi-grid" id="dash-kpis-root" aria-label="Indicadores principais">
               <article class="dash__kpi">
-                <div class="dash__kpi-label">Equipamentos ativos</div>
+                <div class="dash__kpi-label">Equipamentos cadastrados</div>
                 <div class="dash__kpi-value" id="dash-kpi-ativos">—</div>
                 <div class="dash__kpi-sub" id="dash-kpi-ativos-sub">—</div>
               </article>
@@ -123,7 +125,8 @@ export function renderShellViews() {
 
               <section class="dash__section" id="dash-alerts-section" hidden>
                 <header class="dash__section-header">
-                  <span class="dash__section-label">Alertas ativos</span>
+                  <span class="dash__section-label">Alertas de manutenção</span>
+                  <button class="btn btn--ghost btn--sm" type="button" data-action="go-alertas">Ver todos</button>
                 </header>
                 <div id="dash-alertas-mini"></div>
                 <div id="dash-upgrade-inline-hint"></div>
@@ -977,6 +980,9 @@ export function renderShellViews() {
 
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>
+
+        <!-- CONFIGURAÇÕES -->
+        <div class="view" id="view-configuracoes"></div>
 
         <!-- PLANOS -->
         <div class="view" id="view-pricing"></div>
