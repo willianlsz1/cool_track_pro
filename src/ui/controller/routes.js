@@ -186,10 +186,10 @@ export function registerAppRoutes() {
   // (Free com limite de 1/mês como porta de entrada).
   registerRoute(
     'orcamentos',
-    async () => {
+    async (params = {}) => {
       updateHeader();
       const { loadAndRenderOrcamentos } = await import('../views/orcamentos.js');
-      await loadAndRenderOrcamentos();
+      await loadAndRenderOrcamentos(params);
     },
     async () => {
       const { unmountOrcamentos } = await import('../views/orcamentos.js');
