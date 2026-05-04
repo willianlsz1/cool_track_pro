@@ -15,6 +15,9 @@ async function loadOrcamentosView({ orcamentos = [] } = {}) {
     deleteOrcamento: vi.fn(),
     upsertOrcamento: vi.fn(),
     markExpiredLocally,
+    TEMPLATE_INSTALACAO_SPLIT: [
+      { descricao: 'Instalação unidade evaporadora', qty: 1, valorUnitario: 420 },
+    ],
   }));
   vi.doMock('../core/toast.js', () => ({
     Toast: { success: vi.fn(), error: vi.fn() },
