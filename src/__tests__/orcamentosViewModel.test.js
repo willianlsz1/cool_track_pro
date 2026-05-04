@@ -89,6 +89,9 @@ describe('buildOrcamentosViewModel', () => {
       ORCAMENTO_ACTIONS.markApproved,
       ORCAMENTO_ACTIONS.delete,
     ]);
+    expect(viewModel.cards[0].actions.map((action) => action.action)).not.toContain(
+      ORCAMENTO_ACTIONS.createService,
+    );
 
     expect(viewModel.cards[1]).toMatchObject({
       id: 'orc-2',
@@ -102,6 +105,7 @@ describe('buildOrcamentosViewModel', () => {
     expect(viewModel.cards[1].actions.map((action) => action.action)).toEqual([
       ORCAMENTO_ACTIONS.openModal,
       ORCAMENTO_ACTIONS.download,
+      ORCAMENTO_ACTIONS.createService,
       ORCAMENTO_ACTIONS.delete,
     ]);
   });
