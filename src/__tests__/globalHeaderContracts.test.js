@@ -222,7 +222,6 @@ describe('global header legacy contracts', () => {
 
     [
       HEADER_ACTIONS.goAlertas,
-      HEADER_ACTIONS.toggleHelpMenu,
       HEADER_ACTIONS.goOrcamentos,
       HEADER_ACTIONS.openPmocModal,
       HEADER_ACTIONS.openPmocInfo,
@@ -237,7 +236,13 @@ describe('global header legacy contracts', () => {
 
     expect(document.querySelector(`[data-nav="${HEADER_NAV_TARGETS.registro}"]`)).not.toBeNull();
     expect(document.querySelector(`[data-nav="${HEADER_NAV_TARGETS.clientes}"]`)).not.toBeNull();
-    expect(document.getElementById(HEADER_PUBLIC_IDS.helpMenu)?.dataset.plan).toBe('free');
+    expect(document.querySelector('#header-help-btn[data-nav="configuracoes"]')).not.toBeNull();
+
+    const helpMenu = document.getElementById(HEADER_PUBLIC_IDS.helpMenu);
+    expect(helpMenu?.hasAttribute('hidden')).toBe(true);
+    expect(helpMenu?.getAttribute('aria-hidden')).toBe('true');
+    expect(helpMenu?.hasAttribute('inert')).toBe(true);
+    expect(helpMenu?.dataset.plan).toBe('free');
     assertNoUnsafeHtml(header);
   });
 
@@ -314,7 +319,13 @@ describe('global header legacy contracts', () => {
     );
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.root}"`);
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpMenu}"`);
-    expect(headerSource).toContain(`data-action="${HEADER_ACTIONS.toggleHelpMenu}"`);
+    expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpButton}"`);
+    expect(headerSource).toContain(`data-nav="configuracoes"`);
+    expect(headerSource).toContain(`aria-label="Configurações e ajuda"`);
+    expect(headerSource).toContain(`title="Configurações e ajuda"`);
+    expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpMenu}"`);
+    expect(headerSource).toContain(`aria-hidden="true"`);
+    expect(headerSource).toContain(`inert`);
     expect(headerSource).toContain(`data-nav="${HEADER_NAV_TARGETS.registro}"`);
   });
 });
