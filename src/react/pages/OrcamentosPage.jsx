@@ -366,6 +366,11 @@ function OrcamentoCard({ card }) {
           {card.clienteLine}
         </div>
         <div className="orc-card__meta">
+          <span>{card.clienteVinculoLabel}</span>
+          <span>{card.equipamentoVinculoLabel}</span>
+          <span>Status: {card.statusLabel}</span>
+        </div>
+        <div className="orc-card__meta">
           <span>{card.createdLabel}</span>
           {card.validityLabel ? (
             <span className="orc-card__validity">{card.validityLabel}</span>
