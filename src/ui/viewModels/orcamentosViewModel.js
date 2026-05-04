@@ -8,6 +8,7 @@ export const ORCAMENTO_ACTIONS = Object.freeze({
   share: 'orc-share',
   download: 'orc-download',
   sendSignature: 'orc-send-signature',
+  createService: 'orc-create-service',
 });
 
 export const ORCAMENTO_STATUS_META = Object.freeze({
@@ -186,6 +187,18 @@ function buildOrcamentoActions(orcamento) {
     });
   }
 
+  if (status === 'aprovado') {
+    actions.push({
+      kind: 'createService',
+      action: ORCAMENTO_ACTIONS.createService,
+      id,
+      clienteId: safeString(orcamento.clienteId),
+      equipamentoId: safeString(orcamento.equipamentoId),
+      label: 'Criar serviço',
+      title: 'Abrir registro com contexto deste orçamento',
+    });
+  }
+
   actions.push({
     kind: 'delete',
     action: ORCAMENTO_ACTIONS.delete,
@@ -206,6 +219,10 @@ export function buildOrcamentoCardModel(orcamento) {
   const clienteTelefone = safeString(orcamento.clienteTelefone);
   const title = safeString(orcamento.titulo);
   const assinadoEm = safeString(orcamento.assinadoEm);
+  const equipamentoId = safeString(orcamento.equipamentoId);
+  const clienteId = safeString(orcamento.clienteId);
+  const hasClienteLink = Boolean(clienteId);
+  const hasEquipLink = Boolean(equipamentoId);
 
   return {
     id: safeString(orcamento.id),
@@ -219,6 +236,12 @@ export function buildOrcamentoCardModel(orcamento) {
     clienteNome,
     clienteTelefone,
     clienteLine: clienteTelefone ? `${clienteNome} · ${clienteTelefone}` : clienteNome,
+    clienteVinculoLabel: hasClienteLink
+      ? 'Cliente vinculado'
+      : 'Sem cliente vinculado (orçamento avulso)',
+    equipamentoVinculoLabel: hasEquipLink
+      ? `Equipamento vinculado (#${equipamentoId})`
+      : 'Sem equipamento vinculado',
     createdLabel: `Criado ${formatOrcamentoDate(orcamento.createdAt)}`,
     validityLabel: buildValidityLabel(orcamento),
     signed: assinadoEm

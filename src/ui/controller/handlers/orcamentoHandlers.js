@@ -7,6 +7,7 @@ import { Toast } from '../../../core/toast.js';
 import { Profile } from '../../../features/profile.js';
 import { findOrcamento, generateShareToken } from '../../../core/orcamentos.js';
 import { ErrorCodes, handleError } from '../../../core/errors.js';
+import { goTo } from '../../../core/router.js';
 import {
   setOrcStatusFilter,
   deleteOrcamentoFlow,
@@ -223,6 +224,19 @@ export function bindOrcamentoHandlers() {
       return;
     }
     await sendOrcamentoForSignature(orcamento);
+  });
+
+  on(ORCAMENTO_ACTIONS.createService, (el) => {
+    const orcamento = findOrcamento(el.dataset.id);
+    if (!orcamento) {
+      Toast.error('Orçamento não encontrado.');
+      return;
+    }
+    goTo('registro', {
+      clienteId: orcamento.clienteId || el.dataset.clienteId || null,
+      equipamentoId: orcamento.equipamentoId || el.dataset.equipamentoId || null,
+      orcamentoId: orcamento.id,
+    });
   });
 
   // Follow-up comercial: reenvio rápido para orçamento parado.

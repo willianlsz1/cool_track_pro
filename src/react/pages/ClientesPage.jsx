@@ -893,6 +893,22 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
+          className="cli-card__action cli-card__action--secondary"
+          data-cli-action={CLIENTES_ACTIONS.novoOrcamento}
+          data-id={clienteId}
+        >
+          <span>Novo orçamento</span>
+        </button>
+        <button
+          type="button"
+          className="cli-card__action cli-card__action--secondary"
+          data-cli-action={CLIENTES_ACTIONS.novoServico}
+          data-id={clienteId}
+        >
+          <span>Novo serviço</span>
+        </button>
+        <button
+          type="button"
           className="cli-card__action cli-card__action--ghost cli-card__action--options"
           data-cli-action={CLIENTES_ACTIONS.cardMenu}
           data-id={clienteId}
