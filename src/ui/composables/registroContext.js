@@ -42,7 +42,7 @@ export function resolveRegistroContext(params = {}, state = {}) {
   const setores = state?.setores || [];
   const clientes = state?.clientes || [];
 
-  const explicitEquipId = normalizeId(params?.equipId);
+  const explicitEquipId = normalizeId(params?.equipId ?? params?.equipamentoId);
   const explicitSetorId = normalizeId(params?.setorId);
   const explicitClienteId = normalizeId(params?.clienteId);
 
