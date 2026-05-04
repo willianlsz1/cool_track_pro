@@ -206,6 +206,10 @@ export function buildOrcamentoCardModel(orcamento) {
   const clienteTelefone = safeString(orcamento.clienteTelefone);
   const title = safeString(orcamento.titulo);
   const assinadoEm = safeString(orcamento.assinadoEm);
+  const equipamentoId = safeString(orcamento.equipamentoId);
+  const clienteId = safeString(orcamento.clienteId);
+  const hasClienteLink = Boolean(clienteId);
+  const hasEquipLink = Boolean(equipamentoId);
 
   return {
     id: safeString(orcamento.id),
@@ -219,6 +223,12 @@ export function buildOrcamentoCardModel(orcamento) {
     clienteNome,
     clienteTelefone,
     clienteLine: clienteTelefone ? `${clienteNome} · ${clienteTelefone}` : clienteNome,
+    clienteVinculoLabel: hasClienteLink
+      ? 'Cliente vinculado'
+      : 'Sem cliente vinculado (orçamento avulso)',
+    equipamentoVinculoLabel: hasEquipLink
+      ? `Equipamento vinculado (#${equipamentoId})`
+      : 'Sem equipamento vinculado',
     createdLabel: `Criado ${formatOrcamentoDate(orcamento.createdAt)}`,
     validityLabel: buildValidityLabel(orcamento),
     signed: assinadoEm
