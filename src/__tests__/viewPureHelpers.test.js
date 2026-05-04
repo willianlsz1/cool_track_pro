@@ -4,9 +4,13 @@ import {
   classifyRiskFactor,
   recencia,
   ctaLabelForAction,
+<<<<<<< codex/mapear-codigo-do-cooltrackpro-ykd5rj
   componentPillModel,
   preventiveTimelineModel,
 } from '../ui/views/equipamentos/helpers.js';
+=======
+} from '../ui/helpers/equipamentosPure.js';
+>>>>>>> main
 import { asArray, isPreventivaTipo } from '../ui/helpers/registroPure.js';
 
 describe('equipamentos pure helpers', () => {
@@ -30,6 +34,7 @@ describe('equipamentos pure helpers', () => {
     expect(ctaLabelForAction('rp', ACTION)).toBe('Registrar serviço preventivo');
     expect(ctaLabelForAction('x', ACTION)).toBe('Registrar serviço');
   });
+<<<<<<< codex/mapear-codigo-do-cooltrackpro-ykd5rj
 
   test('componentPillModel retorna pill configurado ou null', () => {
     expect(componentPillModel('evaporadora')).toEqual({ label: 'Evap.', tint: 'cyan' });
@@ -52,6 +57,8 @@ describe('equipamentos pure helpers', () => {
       nextTone: 'warn',
     });
   });
+=======
+>>>>>>> main
 });
 
 describe('registro pure helpers', () => {
