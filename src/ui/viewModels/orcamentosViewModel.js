@@ -8,6 +8,7 @@ export const ORCAMENTO_ACTIONS = Object.freeze({
   share: 'orc-share',
   download: 'orc-download',
   sendSignature: 'orc-send-signature',
+  createService: 'orc-create-service',
 });
 
 export const ORCAMENTO_STATUS_META = Object.freeze({
@@ -183,6 +184,18 @@ function buildOrcamentoActions(orcamento) {
       action: ORCAMENTO_ACTIONS.markApproved,
       id,
       label: 'Marcar aprovado',
+    });
+  }
+
+  if (status === 'aprovado') {
+    actions.push({
+      kind: 'createService',
+      action: ORCAMENTO_ACTIONS.createService,
+      id,
+      clienteId: safeString(orcamento.clienteId),
+      equipamentoId: safeString(orcamento.equipamentoId),
+      label: 'Criar serviço',
+      title: 'Abrir registro com contexto deste orçamento',
     });
   }
 

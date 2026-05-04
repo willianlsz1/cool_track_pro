@@ -329,6 +329,22 @@ function CardAction({ action }) {
       </Button>
     );
   }
+  if (action.kind === 'createService') {
+    return (
+      <Button
+        variant="primary"
+        size="sm"
+        className="btn btn--primary btn--sm"
+        data-action={action.action}
+        data-id={id}
+        data-cliente-id={action.clienteId || ''}
+        data-equipamento-id={action.equipamentoId || ''}
+        title={action.title}
+      >
+        {action.label}
+      </Button>
+    );
+  }
   if (action.kind === 'delete') {
     return (
       <button
