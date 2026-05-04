@@ -76,55 +76,9 @@ const PRO_DELTA_FEATURES = [
   'Suporte prioritário',
 ];
 
-const MODO_TECNICO_ITEMS = [
-  'Execução rápida no campo',
-  'Registrar serviço e enviar relatório',
-  'Organizar equipamentos',
-  'Fluxo ideal para técnico autônomo',
-];
-
-const MODO_EMPRESA_ITEMS = [
-  'Tudo do modo técnico +',
-  'Gestão por cliente',
-  'Setores por local',
-  'Histórico por cliente',
-  'Relatórios separados por cliente',
-  'PMOC formal anual',
-  'Escala com organização',
-];
-
 function renderFeaturesList(features) {
   const items = features.map((f) => `<li>${f}</li>`).join('');
   return `<ul class="pricing-features" role="list">${items}</ul>`;
-}
-
-function renderModoComparison() {
-  const tecnicoItems = MODO_TECNICO_ITEMS.map((item) => `<li>${item}</li>`).join('');
-  const empresaItems = MODO_EMPRESA_ITEMS.map((item) => `<li>${item}</li>`).join('');
-  return `
-    <section class="pricing-mode-compare" aria-label="Comparação entre Modo Técnico e Modo Empresa">
-      <h3 class="pricing-mode-compare__title">Modo Técnico x Modo Empresa</h3>
-      <p class="pricing-mode-compare__subtitle">
-        Modo Técnico foca execução rápida. Modo Empresa adiciona gestão por cliente para escalar operação.
-      </p>
-      <div class="pricing-mode-compare__grid">
-        <article class="pricing-mode-card pricing-mode-card--tecnico" aria-label="Modo Técnico para Free e Plus">
-          <p class="pricing-mode-card__kicker">Free e Plus</p>
-          <h4 class="pricing-mode-card__title">Modo Técnico</h4>
-          <ul class="pricing-mode-card__list" role="list">
-            ${tecnicoItems}
-          </ul>
-        </article>
-        <article class="pricing-mode-card pricing-mode-card--empresa" aria-label="Modo Empresa para Pro">
-          <p class="pricing-mode-card__kicker">Plano Pro</p>
-          <h4 class="pricing-mode-card__title">Modo Empresa</h4>
-          <ul class="pricing-mode-card__list" role="list">
-            ${empresaItems}
-          </ul>
-        </article>
-      </div>
-    </section>
-  `;
 }
 
 function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}) {
@@ -409,7 +363,6 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
 
       </div>
 
-      ${renderModoComparison()}
 
       <!-- ── Tabela comparativa ── -->
       <section class="pricing-compare" aria-label="Comparativo detalhado dos planos">
