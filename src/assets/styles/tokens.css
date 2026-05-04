@@ -17,44 +17,38 @@
   /* ─── Tokens novos (prefixo --ct-) ───────────────────────────── */
 
   /* Brand */
-  --ct-app-bg: #26282b;
-  --ct-brand: #5f85db;
-  --ct-brand-hover: #90b8f8;
-  --ct-brand-text: #90b8f8;
-  --ct-brand-soft: rgba(95, 133, 219, 0.14);
-  --ct-brand-soft-hover: rgba(144, 184, 248, 0.18);
-  --ct-brand-soft-strong: rgba(144, 184, 248, 0.24);
-  --ct-brand-border: rgba(144, 184, 248, 0.18);
-  --ct-brand-border-hover: rgba(144, 184, 248, 0.32);
+  --ct-brand: #2f7bff;
+  --ct-brand-hover: #4f9bff;
+  --ct-brand-text: #1d4ed8;
+  --ct-brand-soft: rgba(47, 123, 255, 0.08);
+  --ct-brand-soft-hover: rgba(47, 123, 255, 0.12);
+  --ct-brand-soft-strong: rgba(47, 123, 255, 0.16);
+  --ct-brand-border: rgba(47, 123, 255, 0.18);
+  --ct-brand-border-hover: rgba(47, 123, 255, 0.3);
 
   /* Surfaces — workspace claro do mockup da landing */
-  --ct-bg: var(--ct-app-bg);
-  --ct-surface: #353941;
-  --ct-surface-raised: #3e434d;
-  --ct-surface-subtle: #2d3036;
-  --ct-surface-elev: var(--ct-surface-raised);
-  --ct-surface-hover: var(--ct-surface-raised);
-  --ct-border: rgba(144, 184, 248, 0.16);
-  --ct-border-strong: rgba(144, 184, 248, 0.28);
+  --ct-bg: #f5f7fb;
+  --ct-surface: #ffffff;
+  --ct-surface-elev: #eef2f9;
+  --ct-surface-hover: #e6ebf3;
+  --ct-border: #e6ebf3;
+  --ct-border-strong: #e3e8f1;
 
   /* Text */
-  --ct-text: #f4f7fb;
-  --ct-text-muted: #c7d0e0;
-  --ct-text-faint: #98a4b8;
-  --ct-text-ghost: #7f8b9f;
-  --ct-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.28);
+  --ct-text: #0a1530;
+  --ct-text-muted: #2a3656;
+  --ct-text-faint: #5a6b8c;
+  --ct-text-ghost: #7e8ca8;
 
   /* Status (dessaturados) */
-  --ct-success: #4ade80;
-  --ct-success-soft: rgba(74, 222, 128, 0.12);
-  --ct-info: #90b8f8;
-  --ct-info-soft: rgba(144, 184, 248, 0.14);
-  --ct-warn: #fbbf24;
-  --ct-warn-soft: rgba(251, 191, 36, 0.13);
-  --ct-error: #fb7185;
-  --ct-error-soft: rgba(251, 113, 133, 0.13);
-  --ct-whatsapp: #4ade80;
-  --ct-whatsapp-soft: rgba(74, 222, 128, 0.12);
+  --ct-success: #16a34a;
+  --ct-success-soft: #d6f4e1;
+  --ct-warn: #d97706;
+  --ct-warn-soft: #fde9c8;
+  --ct-error: #dc2626;
+  --ct-error-soft: #fcdcdc;
+  --ct-whatsapp: #4fa779;
+  --ct-whatsapp-soft: rgba(79, 167, 121, 0.12);
   /* Premium tier (Pro) — gold dessaturado */
   --ct-gold: #d9a441;
   --ct-gold-soft: rgba(217, 164, 65, 0.1);
@@ -63,9 +57,9 @@
   --ct-gold-border-hover: rgba(217, 164, 65, 0.36);
 
   /* Subtle hovers e backgrounds neutros */
-  --ct-hover-soft: rgba(144, 184, 248, 0.08);
-  --ct-hover-softer: rgba(144, 184, 248, 0.05);
-  --ct-card-tint: rgba(144, 184, 248, 0.06);
+  --ct-hover-soft: rgba(47, 123, 255, 0.06);
+  --ct-hover-softer: rgba(47, 123, 255, 0.035);
+  --ct-card-tint: rgba(47, 123, 255, 0.025);
 
   /* ─── Override das variáveis legadas ──────────────────────────
    * Mantém compatibilidade com components.css (22k linhas) sem
@@ -77,63 +71,63 @@
   --primary: var(--ct-brand);
   --primary-strong: var(--ct-brand-hover);
   --primary-soft: var(--ct-brand-soft);
-  --primary-dim: var(--ct-brand-soft);
+  --primary-dim: rgba(47, 123, 255, 0.08);
 
   /* Surfaces */
-  --bg: var(--ct-app-bg);
+  --bg: var(--ct-bg);
   --bg-soft: var(--ct-surface);
   --surface: var(--ct-surface);
-  --surface-2: var(--ct-surface-raised);
-  --surface-3: var(--ct-surface-subtle);
-  --surface-strong: var(--ct-surface-raised);
+  --surface-2: var(--ct-surface-elev);
+  --surface-3: var(--ct-surface-hover);
+  --surface-strong: var(--ct-surface-elev);
   --card: var(--ct-surface);
-  --card-hover: var(--ct-surface-raised);
+  --card-hover: var(--ct-surface-elev);
 
   /* Borders */
   --border: var(--ct-border);
   --border-2: var(--ct-border-strong);
   --border-strong: var(--ct-border-strong);
-  --border-focus: var(--ct-brand-hover);
+  --border-focus: rgba(47, 123, 255, 0.45);
 
   /* Text */
   --text: var(--ct-text);
   --text-2: var(--ct-text-muted);
   --text-3: var(--ct-text-faint);
   --text-muted: var(--ct-text-muted);
-  --muted: var(--ct-text-muted);
-  --muted-light: var(--ct-text-faint);
+  --muted: var(--ct-text-faint);
+  --muted-light: var(--ct-text-ghost);
   --white: var(--ct-text);
 
   /* Status */
   --success: var(--ct-success);
   --success-soft: var(--ct-success-soft);
-  --success-dim: var(--ct-success-soft);
+  --success-dim: rgba(63, 182, 139, 0.06);
   --warning: var(--ct-warn);
   --warning-soft: var(--ct-warn-soft);
-  --warning-dim: var(--ct-warn-soft);
+  --warning-dim: rgba(212, 148, 71, 0.06);
   --danger: var(--ct-error);
   --danger-soft: var(--ct-error-soft);
-  --danger-dim: var(--ct-error-soft);
+  --danger-dim: rgba(217, 84, 77, 0.06);
 
   /* Neon → versão sóbria (mata o "neon" cyan/verde/vermelho) */
   --neon-cyan: var(--ct-brand);
   --neon-cyan-soft: var(--ct-brand-soft);
   --neon-cyan-glow: var(--ct-brand-soft-hover);
-  --neon-cyan-faint: var(--ct-card-tint);
+  --neon-cyan-faint: rgba(47, 123, 255, 0.08);
   --neon-green: var(--ct-success);
   --neon-green-soft: var(--ct-success-soft);
-  --neon-green-glow: var(--ct-success-soft);
+  --neon-green-glow: rgba(63, 182, 139, 0.18);
   --neon-red: var(--ct-error);
   --neon-red-soft: var(--ct-error-soft);
-  --neon-red-glow: var(--ct-error-soft);
+  --neon-red-glow: rgba(217, 84, 77, 0.18);
   --neon-amber: var(--ct-warn);
   --neon-amber-soft: var(--ct-warn-soft);
 
   /* Surfaces premium → mapeamento direto */
-  --surface-premium: var(--ct-app-bg);
+  --surface-premium: var(--ct-bg);
   --surface-card: var(--ct-surface);
-  --surface-card-hover: var(--ct-surface-raised);
-  --surface-elevated: var(--ct-surface-raised);
+  --surface-card-hover: var(--ct-surface-elev);
+  --surface-elevated: var(--ct-surface-elev);
   --border-premium: var(--ct-border);
   --border-premium-hover: var(--ct-border-strong);
 

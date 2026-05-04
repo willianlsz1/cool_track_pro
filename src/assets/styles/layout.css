@@ -4,8 +4,6 @@
    ============================================================ */
 
 :root {
-  --app-safe-top: env(safe-area-inset-top, 0px);
-  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-header-top-height: 48px;
   --app-header-stats-height: 0px;
   --app-header-total-height: var(--app-header-top-height);
@@ -52,7 +50,6 @@ body {
   justify-content: space-between;
   gap: 12px;
   min-height: 48px;
-  padding-top: var(--app-safe-top);
 }
 
 .app-header__actions {
@@ -75,7 +72,7 @@ body {
   width: 28px;
   height: 28px;
   background: var(--primary-soft);
-  border: 1px solid var(--ct-border);
+  border: 1px solid rgba(0, 200, 232, 0.2);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -89,7 +86,7 @@ body {
   letter-spacing: 0.1em;
   color: var(--primary);
   background: var(--primary-dim);
-  border: 1px solid var(--ct-border);
+  border: 1px solid rgba(0, 200, 232, 0.2);
   padding: 2px 6px;
   border-radius: var(--radius-xs);
 }
@@ -179,26 +176,26 @@ body {
    ════════════════════════════════════════════════════════ */
 
 /* Paleta por tier — alinhada com pricing + account modal:
-   - Free: brand blue — é o default; o PILL "FREE" recebe override neutro
+   - Free: cyan (brand) — é o default; o PILL "FREE" recebe override neutro
      logo abaixo pra não parecer premium
-   - Plus: azul da marca
-   - Pro:  dourado premium via --ct-gold */
+   - Plus: azul (#3a8ee6)
+   - Pro:  dourado (#e8b94a) */
 .app-header {
-  --hdr-accent: var(--ct-brand);
-  --hdr-accent-dim: var(--ct-brand-soft);
-  --hdr-accent-soft: var(--ct-brand-border);
-  --hdr-accent-text: #ffffff;
+  --hdr-accent: #00c8e8;
+  --hdr-accent-dim: rgba(0, 200, 232, 0.14);
+  --hdr-accent-soft: rgba(0, 200, 232, 0.22);
+  --hdr-accent-text: #02131f;
 }
 .app-header[data-tier='plus'] {
-  --hdr-accent: var(--ct-brand);
-  --hdr-accent-dim: var(--ct-brand-soft);
-  --hdr-accent-soft: var(--ct-brand-border);
-  --hdr-accent-text: #ffffff;
+  --hdr-accent: #3a8ee6;
+  --hdr-accent-dim: rgba(58, 142, 230, 0.14);
+  --hdr-accent-soft: rgba(58, 142, 230, 0.22);
+  --hdr-accent-text: #041530;
 }
 .app-header[data-tier='pro'] {
-  --hdr-accent: var(--ct-gold);
-  --hdr-accent-dim: var(--ct-gold-soft);
-  --hdr-accent-soft: var(--ct-gold-border);
+  --hdr-accent: #e8b94a;
+  --hdr-accent-dim: rgba(232, 185, 74, 0.16);
+  --hdr-accent-soft: rgba(232, 185, 74, 0.26);
   --hdr-accent-text: #2a1f04;
 }
 
@@ -263,7 +260,7 @@ body {
   color: #3a8ee6;
 }
 
-/* PRO: dourado com gradiente, restrito ao acento premium. */
+/* PRO: dourado com gradiente — alinhado com #e8b94a da paleta canônica. */
 .app-logo__pill[data-tier='pro'] {
   background: linear-gradient(135deg, rgba(232, 185, 74, 0.18), rgba(232, 185, 74, 0.08));
   color: var(--hdr-accent);
@@ -288,18 +285,18 @@ body {
   flex-shrink: 0;
 }
 .header-sync.status-indicator--warn {
-  color: var(--ct-warn);
-  background: var(--ct-warn-soft);
+  color: var(--warning);
+  background: rgba(245, 196, 81, 0.1);
 }
 .header-sync.status-indicator--warn .header-sync__icon {
-  color: var(--ct-warn);
+  color: var(--warning);
 }
 .header-sync.status-indicator--ok {
-  color: var(--ct-success);
-  background: var(--ct-success-soft);
+  color: var(--success);
+  background: rgba(46, 202, 122, 0.1);
 }
 .header-sync.status-indicator--ok .header-sync__icon {
-  color: var(--ct-success);
+  color: var(--success);
 }
 .header-sync.status-indicator--syncing .header-sync__icon {
   animation: header-sync-spin 1.4s linear infinite;
@@ -379,10 +376,8 @@ body {
   width: min(var(--layout-max), calc(100% - 32px));
   margin: 0 auto;
   min-width: 0;
-  padding-top: calc(
-    var(--app-header-total-height) + var(--app-safe-top) + var(--app-content-top-gap)
-  );
-  padding-bottom: calc(var(--app-nav-height) + var(--app-safe-bottom) + 24px);
+  padding-top: calc(var(--app-header-total-height) + var(--app-content-top-gap));
+  padding-bottom: calc(var(--app-nav-height) + env(safe-area-inset-bottom) + 16px);
 }
 
 /* Espaçamento vertical base entre cards empilhados (lista de equipamentos /
@@ -404,10 +399,10 @@ body {
   z-index: 50;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  background: color-mix(in srgb, var(--ct-surface) 94%, transparent);
-  border-top: 1px solid var(--ct-border);
+  background: var(--surface);
+  border-top: 1px solid var(--border-2);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-  padding-bottom: var(--app-safe-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
   padding-top: 4px;
 }
 
@@ -483,12 +478,12 @@ body {
 
 /* Active state: neutro (sem cor de tier), pill de fundo + label 600 */
 .nav-btn.is-active {
-  color: var(--ct-text);
+  color: var(--text);
   opacity: 1;
   font-weight: 600;
 }
 .nav-btn.is-active .nav-btn__icon {
-  background: rgba(144, 184, 248, 0.12);
+  background: rgba(255, 255, 255, 0.08);
 }
 [data-theme='light'] .nav-btn.is-active .nav-btn__icon {
   background: rgba(0, 0, 0, 0.06);
@@ -501,10 +496,10 @@ body {
   align-self: start;
   margin-top: -18px;
   border-radius: 999px;
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover));
+  color: #02131f;
+  background: linear-gradient(135deg, #00d9ff, #00b5d4);
   box-shadow:
-    0 10px 22px rgba(95, 133, 219, 0.28),
+    0 10px 22px rgba(0, 200, 232, 0.35),
     inset 0 0 0 1px rgba(255, 255, 255, 0.18);
   font-size: 0;
   gap: 0;
@@ -728,12 +723,11 @@ main:focus {
 /* ── MOBILE (≤640px) ────────────────────────────── */
 @media (max-width: 640px) {
   :root {
-    --app-header-top-height: 52px;
+    --app-header-top-height: 46px;
     --app-header-stats-height: 0px;
     --app-header-total-height: var(--app-header-top-height);
     --app-header-height: var(--app-header-total-height);
-    --app-content-top-gap: 6px;
-    --app-nav-height: 86px;
+    --app-content-top-gap: 0px;
   }
 
   html {
@@ -766,10 +760,10 @@ main:focus {
   }
 
   .app-header__top {
-    min-height: var(--app-header-top-height) !important;
-    flex-wrap: nowrap !important;
+    height: auto !important;
+    flex-wrap: wrap !important;
     gap: 4px !important;
-    padding: calc(6px + var(--app-safe-top)) 10px 6px !important;
+    padding: 6px 10px !important;
   }
 
   .app-header__tagline {
@@ -816,7 +810,6 @@ main:focus {
   /* Espaço para navbar fixo no fundo */
   .app-content {
     width: calc(100% - 16px);
-    padding-bottom: calc(var(--app-nav-height) + var(--app-safe-bottom) + 40px);
   }
 
   /* Grids */
@@ -924,7 +917,7 @@ main:focus {
   #nav-registro {
     width: 58px;
     height: 58px;
-    margin-top: -12px;
+    margin-top: -16px;
   }
 }
 

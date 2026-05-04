@@ -1,9 +1,3 @@
-// Entry Tailwind para a app vanilla. Carregado primeiro para que as
-// utilities `tw-*` fiquem disponiveis antes da bootstrap chain. Sem efeito
-// visual nesta fase porque (a) `preflight: false`, (b) nenhum elemento
-// vanilla usa `tw-*` ainda. Migracao por tela vai introduzindo as classes.
-import './assets/styles/app.css';
-
 import { getState, setState } from './core/state.js';
 import { bindEvents } from './core/events.js';
 import { Modal } from './core/modal.js';

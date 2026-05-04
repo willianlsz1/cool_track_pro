@@ -1,20 +1,84 @@
 /*
- * CoolTrackPro - Redesign Components (2026)
- * Consolidated visual compatibility layer imported late by index.html.
- * Prefer scoped CSS files for new work; keep this file for cross-screen
- * compatibility rules and documented legacy exceptions only.
+ * Cool Track Pro — Redesign Components (2026)
+ * ─────────────────────────────────────────────────────────────────
+ * Ajustes finos pros componentes que tinham cores HARDCODED no CSS
+ * antigo (cyan, amarelo do Plano Pro, etc.) e que precisam migrar
+ * pro novo sistema azul-sóbrio.
+ *
+ * Importado por último em index.html — vence cascata.
+ *
+ * Usa tokens.css como fonte de cores (var(--ct-*)).
  */
 
-#app:not(.landing-active) {
-  --ct-legacy-light-surface: #ffffff;
-  --ct-legacy-light-surface-subtle: #f8fbff;
-  --ct-legacy-light-border: #e6ebf3;
-  --ct-legacy-light-border-strong: #e3e8f1;
-  --ct-legacy-light-text: #0a1530;
-  --ct-legacy-light-text-muted: #5a6b8c;
-  --ct-legacy-brand-blue: #2f7bff;
-  --ct-legacy-brand-blue-hover: #4f9bff;
-  --ct-legacy-cyan: #22d3ee;
+/* ═══════════════════════════════════════════════════════════════
+ * SIDEBAR
+ * ═══════════════════════════════════════════════════════════════ */
+
+/* Item ativo: barra lateral azul fina + texto azul, sem fundo cyan */
+.app-sidebar__nav-item.is-active {
+  background: transparent !important;
+  color: var(--ct-brand-text) !important;
+}
+.app-sidebar__nav-item.is-active::before {
+  background: var(--ct-brand) !important;
+  width: 2px !important;
+  border-radius: 0 2px 2px 0 !important;
+}
+.app-sidebar__nav-item.is-active svg {
+  color: var(--ct-brand) !important;
+}
+
+/* Hover sutil em itens não-ativos */
+.app-sidebar__nav-item:not(.is-active):hover {
+  background: var(--ct-hover-soft);
+}
+
+/* Badge de contador (alertas): bolinha pequena azul em vez de pill vermelha */
+.app-sidebar__nav-badge {
+  min-width: 6px !important;
+  width: 6px !important;
+  height: 6px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: var(--ct-brand) !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  text-indent: -9999px;
+}
+/* Esconde badge quando valor é 0 (apenas via atributo data-count="0") */
+.app-sidebar__nav-badge[data-count='0'] {
+  display: none !important;
+}
+
+/* Plan card: discreto. Sobrescreve o amarelo/laranja do PRO atual e
+   o azul gritante do Plus. Mantém um leve tint dependendo do plano. */
+.app-sidebar__plan-card,
+.app-sidebar__plan-card[data-plan='pro'],
+.app-sidebar__plan-card[data-plan='plus'],
+.app-sidebar__plan-card[data-plan='free'] {
+  background: var(--ct-surface) !important;
+  border: 1px solid var(--ct-border) !important;
+}
+.app-sidebar__plan-card-head {
+  color: var(--ct-text-muted) !important;
+}
+.app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-head,
+.app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-head {
+  color: var(--ct-brand-text) !important;
+}
+.app-sidebar__plan-card-cta {
+  background: var(--ct-brand-soft) !important;
+  color: var(--ct-brand-text) !important;
+  border: 1px solid var(--ct-brand-border) !important;
+}
+.app-sidebar__plan-card-cta:hover {
+  background: var(--ct-brand-soft-hover) !important;
+  border-color: var(--ct-brand-border-hover) !important;
+}
+
+/* Brand (logo) no topo: cor azul sóbria */
+.app-sidebar__brand-icon {
+  color: var(--ct-brand) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -102,8 +166,8 @@
   color: var(--ct-success) !important;
 }
 [data-status='visualizado'] .orc-status-pill {
-  background: color-mix(in srgb, var(--ct-legacy-cyan) 12%, transparent) !important;
-  color: var(--ct-legacy-cyan) !important;
+  background: rgba(34, 211, 238, 0.12) !important;
+  color: #22d3ee !important;
 }
 [data-status='rascunho'] .orc-status-pill {
   background: rgba(155, 161, 176, 0.1) !important;
@@ -363,6 +427,66 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+ * PLANOS — Opção B (Free cinza, Plus azul-marca, Pro gold dessaturado)
+ * ═══════════════════════════════════════════════════════════════ */
+
+/* SIDEBAR PLAN CARD — sobrescreve o tratamento uniforme anterior. */
+
+/* Free: cinza neutro, sem destaque */
+.app-sidebar .app-sidebar__plan-card[data-plan='free'] {
+  background: var(--ct-surface) !important;
+  border: 1px solid var(--ct-border) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='free'] .app-sidebar__plan-card-head {
+  color: var(--ct-text-muted) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='free'] .app-sidebar__plan-card-cta {
+  background: transparent !important;
+  color: var(--ct-text-muted) !important;
+  border: 1px solid var(--ct-border-strong) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='free'] .app-sidebar__plan-card-cta:hover {
+  background: var(--ct-hover-soft) !important;
+  color: var(--ct-text) !important;
+}
+
+/* Plus: azul-marca, mas em translúcido pra não chapar */
+.app-sidebar .app-sidebar__plan-card[data-plan='plus'] {
+  background: var(--ct-surface) !important;
+  border: 1px solid var(--ct-brand-border) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-head {
+  color: var(--ct-brand-text) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-cta {
+  background: var(--ct-brand-soft) !important;
+  color: var(--ct-brand-text) !important;
+  border: 1px solid var(--ct-brand-border) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='plus'] .app-sidebar__plan-card-cta:hover {
+  background: var(--ct-brand-soft-hover) !important;
+  border-color: var(--ct-brand-border-hover) !important;
+}
+
+/* Pro: gold dessaturado — único toque warm do app */
+.app-sidebar .app-sidebar__plan-card[data-plan='pro'] {
+  background: var(--ct-surface) !important;
+  border: 1px solid var(--ct-gold-border) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-head {
+  color: var(--ct-gold) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta {
+  background: var(--ct-gold-soft) !important;
+  color: var(--ct-gold) !important;
+  border: 1px solid var(--ct-gold-border) !important;
+}
+.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta:hover {
+  background: var(--ct-gold-soft-hover) !important;
+  border-color: var(--ct-gold-border-hover) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
  * LOGO HEADER — pill de plano (Free / Plus / Pro)
  * ═══════════════════════════════════════════════════════════════ */
 
@@ -576,35 +700,31 @@ body {
    Dark shell + light workspace, como o preview da landing. */
 #app:not(.landing-active),
 body:not(.landing-active) {
-  background:
-    radial-gradient(circle at 16% -12%, rgba(95, 133, 219, 0.2), transparent 34%),
-    linear-gradient(180deg, var(--ct-app-bg) 0%, #202225 100%) !important;
-  color: var(--ct-text) !important;
+  background: #f5f7fb !important;
 }
 
 .app-content {
   background:
-    radial-gradient(900px 420px at 88% -18%, rgba(144, 184, 248, 0.14), transparent 62%),
-    radial-gradient(720px 360px at 8% 105%, rgba(95, 133, 219, 0.1), transparent 58%),
-    linear-gradient(180deg, var(--ct-app-bg) 0%, #222428 100%) !important;
-  color: var(--ct-text) !important;
+    radial-gradient(900px 420px at 88% -18%, rgba(47, 123, 255, 0.08), transparent 62%),
+    linear-gradient(180deg, #f5f7fb 0%, #eef2f9 100%) !important;
+  color: #0a1530 !important;
 }
 
 .app-header {
-  background: rgba(53, 57, 65, 0.9) !important;
-  border-bottom: 1px solid var(--ct-border) !important;
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2) !important;
+  background: rgba(5, 11, 28, 0.94) !important;
+  border-bottom: 1px solid rgba(103, 232, 249, 0.12) !important;
+  box-shadow: 0 16px 34px rgba(5, 11, 28, 0.2) !important;
   backdrop-filter: blur(18px);
 }
 
 .app-logo__icon,
 .app-sidebar__brand-icon {
   background:
-    linear-gradient(135deg, rgba(95, 133, 219, 0.36), rgba(144, 184, 248, 0.16)),
-    var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border-strong) !important;
+    linear-gradient(135deg, rgba(47, 123, 255, 0.42), rgba(34, 211, 238, 0.24)),
+    rgba(8, 18, 48, 0.92) !important;
+  border: 1px solid rgba(103, 232, 249, 0.24) !important;
   box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.18),
+    0 10px 22px rgba(47, 123, 255, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -621,65 +741,48 @@ body:not(.landing-active) {
 .app-header .section-title,
 .app-header .hist-title,
 .app-header .rel-title {
-  color: var(--ct-text) !important;
+  color: #f8fafc !important;
 }
 
 .section-title,
 .hist-title,
 .rel-title {
-  color: var(--ct-legacy-light-text) !important;
+  color: #0a1530 !important;
 }
 
 @media (min-width: 1025px) {
   .app-shell--with-sidebar .app-sidebar {
     background:
-      radial-gradient(circle at 85% 8%, rgba(144, 184, 248, 0.1), transparent 32%),
-      linear-gradient(180deg, var(--ct-surface) 0%, var(--ct-surface-subtle) 100%) !important;
-    border-right: 1px solid var(--ct-border) !important;
-    box-shadow: 18px 0 42px rgba(0, 0, 0, 0.18) !important;
-  }
-
-  .app-shell--with-sidebar .app-sidebar__brand {
-    display: flex !important;
-    align-items: center;
-    gap: 10px;
-    padding: 2px 6px 14px !important;
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--ct-border);
+      radial-gradient(circle at 85% 8%, rgba(47, 123, 255, 0.14), transparent 32%),
+      linear-gradient(180deg, #0f1d3e 0%, #081530 100%) !important;
+    border-right: 1px solid rgba(103, 232, 249, 0.12) !important;
+    box-shadow: 18px 0 42px rgba(5, 11, 28, 0.18) !important;
   }
 }
 
 .app-sidebar .app-sidebar__nav-item {
-  color: var(--ct-text-muted) !important;
+  color: rgba(203, 213, 225, 0.76) !important;
 }
 
 .app-sidebar .app-sidebar__nav-item.is-active {
-  background: linear-gradient(
-    180deg,
-    rgba(95, 133, 219, 0.34),
-    rgba(95, 133, 219, 0.18)
-  ) !important;
-  border: 1px solid var(--ct-border-strong) !important;
-  color: var(--ct-text) !important;
+  background: linear-gradient(180deg, rgba(47, 123, 255, 0.3), rgba(20, 80, 200, 0.2)) !important;
+  border: 1px solid rgba(103, 232, 249, 0.18) !important;
+  color: #ffffff !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
 }
 
 .app-sidebar .app-sidebar__nav-item.is-active::before {
-  background: linear-gradient(180deg, var(--ct-brand-hover), var(--ct-brand)) !important;
-  box-shadow: 0 0 10px rgba(144, 184, 248, 0.28) !important;
+  background: linear-gradient(180deg, #4f9bff, #22d3ee) !important;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.44) !important;
 }
 
 .app-sidebar .app-sidebar__nav-item--register,
 #nav-registro,
 .btn.btn--primary,
 .dash__hero-cta:not(.dash__hero-cta--secondary) {
-  background: linear-gradient(
-    135deg,
-    var(--ct-legacy-brand-blue) 0%,
-    var(--ct-legacy-cyan) 100%
-  ) !important;
+  background: linear-gradient(135deg, #2f7bff 0%, #22d3ee 100%) !important;
   border-color: rgba(47, 123, 255, 0.18) !important;
-  color: var(--ct-legacy-light-surface) !important;
+  color: #ffffff !important;
   box-shadow:
     0 14px 28px rgba(47, 123, 255, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
@@ -688,26 +791,22 @@ body:not(.landing-active) {
 .btn.btn--primary:hover:not(:disabled),
 .dash__hero-cta:not(.dash__hero-cta--secondary):hover,
 .app-sidebar .app-sidebar__nav-item--register:hover {
-  background: linear-gradient(
-    135deg,
-    var(--ct-legacy-brand-blue-hover) 0%,
-    var(--ct-legacy-cyan) 100%
-  ) !important;
+  background: linear-gradient(135deg, #4f9bff 0%, #22d3ee 100%) !important;
   filter: none;
 }
 
 .app-sidebar .app-sidebar__nav-item--register,
 .app-sidebar #nav-registro {
-  background: var(--ct-brand-soft) !important;
-  border: 1px solid var(--ct-brand-border) !important;
-  color: var(--ct-brand-hover) !important;
+  background: rgba(47, 123, 255, 0.12) !important;
+  border: 1px solid rgba(103, 232, 249, 0.18) !important;
+  color: #dff7ff !important;
   box-shadow: none !important;
 }
 
 .app-sidebar .app-sidebar__nav-item--register:hover,
 .app-sidebar #nav-registro:hover {
-  background: var(--ct-brand-soft-hover) !important;
-  border-color: var(--ct-brand-border-hover) !important;
+  background: rgba(47, 123, 255, 0.18) !important;
+  border-color: rgba(103, 232, 249, 0.26) !important;
 }
 
 .dash__hero,
@@ -728,9 +827,9 @@ body:not(.landing-active) {
 .empty-state,
 .engaging-empty-state,
 .modal {
-  background: var(--ct-legacy-light-surface) !important;
-  border-color: var(--ct-legacy-light-border) !important;
-  color: var(--ct-legacy-light-text) !important;
+  background: #ffffff !important;
+  border-color: #e6ebf3 !important;
+  color: #0a1530 !important;
   box-shadow:
     0 18px 44px rgba(42, 54, 86, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
@@ -738,7 +837,7 @@ body:not(.landing-active) {
 
 .dash__hero {
   overflow: hidden;
-  border-color: var(--ct-legacy-light-border-strong) !important;
+  border-color: #e3e8f1 !important;
 }
 
 .dash__hero::before {
@@ -759,7 +858,7 @@ body:not(.landing-active) {
 .dash__kpi-sub,
 .empty-state__sub,
 .engaging-empty-state__description {
-  color: var(--ct-legacy-light-text-muted) !important;
+  color: #5a6b8c !important;
 }
 
 .dash__kpi {
@@ -769,19 +868,19 @@ body:not(.landing-active) {
 .dash__kpi-label,
 .dash__card-label,
 .dash__section-label {
-  color: var(--ct-legacy-light-text-muted) !important;
+  color: #5a6b8c !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
 }
 
 .dash__kpi-value,
 .dash__card-title {
-  color: var(--ct-legacy-light-text) !important;
+  color: #0a1530 !important;
 }
 
 .dash__hero-cta--secondary,
 .btn.btn--outline {
-  background: var(--ct-legacy-light-surface) !important;
+  background: #ffffff !important;
   border: 1px solid rgba(47, 123, 255, 0.18) !important;
   color: #2a3656 !important;
   box-shadow: none !important;
@@ -795,9 +894,9 @@ body:not(.landing-active) {
 #app .view input,
 #app .view select,
 #app .view textarea {
-  background: var(--ct-legacy-light-surface) !important;
-  border-color: var(--ct-legacy-light-border-strong) !important;
-  color: var(--ct-legacy-light-text) !important;
+  background: #ffffff !important;
+  border-color: #e3e8f1 !important;
+  color: #0a1530 !important;
 }
 
 .form-control:focus,
@@ -818,20 +917,20 @@ body:not(.landing-active) {
 }
 
 .onb-card {
-  background: var(--ct-legacy-light-surface) !important;
-  border: 1px solid var(--ct-legacy-light-border) !important;
+  background: #ffffff !important;
+  border: 1px solid #e6ebf3 !important;
   box-shadow: 0 14px 34px rgba(42, 54, 86, 0.08) !important;
 }
 
 .onb-step:not(.is-done) {
-  background: var(--ct-legacy-light-surface-subtle) !important;
+  background: #f8fbff !important;
   border-color: #eef1f7 !important;
 }
 
 .dash__hero-greeting,
 .dash__hero-body,
 .dash__hero-body * {
-  color: var(--ct-legacy-light-text) !important;
+  color: #0a1530 !important;
 }
 
 .empty-state,
@@ -840,7 +939,7 @@ body:not(.landing-active) {
 .engaging-empty-state *,
 .onb-card,
 .onb-card * {
-  color: var(--ct-legacy-light-text-muted) !important;
+  color: #5a6b8c !important;
 }
 
 .empty-state__title,
@@ -849,17 +948,49 @@ body:not(.landing-active) {
 .onb-card h2,
 .onb-card h3,
 .onb-step__title {
-  color: var(--ct-legacy-light-text) !important;
+  color: #0a1530 !important;
 }
 
+.app-sidebar .app-sidebar__plan-card,
+.app-sidebar .app-sidebar__plan-card[data-plan='free'],
+.app-sidebar .app-sidebar__plan-card[data-plan='plus'] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(8, 18, 48, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #eef3ff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.app-sidebar .app-sidebar__plan-card[data-plan='pro'] {
+  background:
+    linear-gradient(180deg, rgba(217, 164, 65, 0.12), rgba(255, 255, 255, 0.02)),
+    rgba(8, 18, 48, 0.72) !important;
+  border: 1px solid var(--ct-gold-border) !important;
+}
+
+.app-sidebar .app-sidebar__plan-card-sub,
+.app-sidebar .app-sidebar__plan-card-meta,
 .app-sidebar .app-sidebar__user-role,
 .app-sidebar .app-sidebar__settings {
-  color: var(--ct-text-faint) !important;
+  color: rgba(200, 212, 238, 0.72) !important;
+}
+
+.app-sidebar .app-sidebar__plan-card-cta {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #dbeafe !important;
+}
+
+.app-sidebar .app-sidebar__plan-card[data-plan='pro'] .app-sidebar__plan-card-cta {
+  background: var(--ct-gold-soft) !important;
+  border-color: var(--ct-gold-border) !important;
+  color: #f5c451 !important;
 }
 
 .app-sidebar__user-avatar {
-  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  color: var(--ct-legacy-light-surface) !important;
+  background: linear-gradient(135deg, #2f7bff, #22d3ee) !important;
+  color: #ffffff !important;
 }
 
 .app-sidebar__shortcut {
@@ -870,3207 +1001,4 @@ body:not(.landing-active) {
 .app-sidebar__settings {
   background: transparent !important;
   border-color: transparent !important;
-}
-
-.app-sidebar__user-chip:hover,
-.app-sidebar__settings:hover {
-  background: rgba(144, 184, 248, 0.08) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-}
-
-/* Sidebar rhythm polish: spacing-only refinement, contracts stay in markup. */
-@media (min-width: 1025px) {
-  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar {
-    padding: 20px !important;
-  }
-
-  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar__brand {
-    min-height: 54px;
-    padding: 2px 4px 18px !important;
-    margin-bottom: 20px !important;
-    gap: 12px;
-  }
-
-  #app:not(.landing-active) .app-sidebar__nav {
-    gap: 24px !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__section {
-    display: flex;
-    flex-direction: column;
-    gap: 7px !important;
-    margin: 0 !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__section-kicker {
-    margin: 0 0 4px !important;
-    padding: 0 15px !important;
-    color: var(--ct-text-faint) !important;
-    font-size: 10.5px !important;
-    letter-spacing: 0.095em !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item {
-    min-height: 46px;
-    margin: 0 !important;
-    padding: 0 15px !important;
-    border-radius: 13px !important;
-    gap: 12px;
-  }
-
-  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active {
-    box-shadow:
-      0 10px 24px rgba(0, 0, 0, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__footer {
-    margin-top: 24px !important;
-    padding-top: 22px !important;
-    gap: 12px !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__divider {
-    margin: 8px 0 2px !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__user-chip,
-  #app:not(.landing-active) .app-sidebar__settings {
-    min-height: 46px;
-    padding: 0 12px !important;
-    border-radius: 13px !important;
-  }
-}
-
-/* ============================================================
-   PR 3 — Shared controls token foundation
-   ============================================================ */
-
-#app:not(.landing-active) .btn,
-#app:not(.landing-active) .header-help-menu__cta,
-#app:not(.landing-active) .empty-state__cta,
-#app:not(.landing-active) .engaging-empty-state__cta {
-  border-radius: 12px !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: none !important;
-  transition:
-    background-color 0.16s ease,
-    border-color 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease,
-    transform 0.16s ease !important;
-}
-
-#app:not(.landing-active) .btn--primary,
-#app:not(.landing-active) .header-help-menu__cta--primary,
-#app:not(.landing-active) .empty-state__cta:not(.empty-state__cta--ghost),
-#app:not(.landing-active) .engaging-empty-state__cta:not(.engaging-empty-state__cta--secondary) {
-  background: var(--ct-brand) !important;
-  border-color: color-mix(in srgb, var(--ct-brand-hover) 42%, transparent) !important;
-  color: var(--ct-legacy-light-surface) !important;
-  box-shadow: 0 14px 30px rgba(95, 133, 219, 0.22) !important;
-}
-
-#app:not(.landing-active) .btn--primary:hover:not(:disabled),
-#app:not(.landing-active) .header-help-menu__cta--primary:hover,
-#app:not(.landing-active) .empty-state__cta:not(.empty-state__cta--ghost):hover,
-#app:not(.landing-active)
-  .engaging-empty-state__cta:not(.engaging-empty-state__cta--secondary):hover {
-  background: var(--ct-brand-hover) !important;
-  border-color: var(--ct-brand-hover) !important;
-  color: #0f172a !important;
-}
-
-#app:not(.landing-active) .btn--outline,
-#app:not(.landing-active) .btn--secondary,
-#app:not(.landing-active) .header-help-menu__cta--secondary,
-#app:not(.landing-active) .empty-state__cta--ghost,
-#app:not(.landing-active) .engaging-empty-state__cta--secondary {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) .btn--outline:hover:not(:disabled),
-#app:not(.landing-active) .btn--secondary:hover:not(:disabled),
-#app:not(.landing-active) .header-help-menu__cta--secondary:hover,
-#app:not(.landing-active) .empty-state__cta--ghost:hover,
-#app:not(.landing-active) .engaging-empty-state__cta--secondary:hover {
-  background: var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) .btn--ghost {
-  background: transparent !important;
-  border-color: transparent !important;
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) .btn--ghost:hover:not(:disabled) {
-  background: rgba(144, 184, 248, 0.08) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) .btn--danger {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) .btn--danger:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ct-error-soft) 72%, var(--ct-error) 28%) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 52%, transparent) !important;
-}
-
-#app:not(.landing-active) .btn:focus-visible,
-#app:not(.landing-active) .header-help-menu__cta:focus-visible,
-#app:not(.landing-active) .empty-state__cta:focus-visible,
-#app:not(.landing-active) .engaging-empty-state__cta:focus-visible {
-  outline: 2px solid var(--ct-brand-hover) !important;
-  outline-offset: 2px !important;
-  box-shadow: 0 0 0 4px rgba(144, 184, 248, 0.18) !important;
-}
-
-#app:not(.landing-active) .btn:disabled,
-#app:not(.landing-active) .btn[aria-disabled='true'] {
-  cursor: not-allowed !important;
-  opacity: 0.56 !important;
-  transform: none !important;
-}
-
-#app:not(.landing-active) .form-control,
-#app:not(.landing-active) .hist-input,
-#app:not(.landing-active) .search-bar,
-#app:not(.landing-active) .search-bar__input,
-#app:not(.landing-active) .info-row__setor-select,
-#app:not(.landing-active) .view input:not([type='checkbox']):not([type='radio']):not([type='file']),
-#app:not(.landing-active) .view select,
-#app:not(.landing-active) .view textarea {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .form-control::placeholder,
-#app:not(.landing-active) .hist-input::placeholder,
-#app:not(.landing-active) .search-bar__input::placeholder,
-#app:not(.landing-active) .view input::placeholder,
-#app:not(.landing-active) .view textarea::placeholder {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) .form-control:focus,
-#app:not(.landing-active) .hist-input:focus,
-#app:not(.landing-active) .search-bar__input:focus,
-#app:not(.landing-active) .info-row__setor-select:focus,
-#app:not(.landing-active)
-  .view
-  input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
-#app:not(.landing-active) .view select:focus,
-#app:not(.landing-active) .view textarea:focus {
-  border-color: var(--ct-brand-hover) !important;
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
-}
-
-#app:not(.landing-active) .form-control option,
-#app:not(.landing-active) .info-row__setor-select option,
-#app:not(.landing-active) .view select option {
-  background: var(--ct-surface) !important;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) .search-bar__icon {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) .search-bar__clear {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) .search-bar__clear:hover {
-  background: var(--ct-error-soft) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) .rel-filters,
-#app:not(.landing-active) .rel-filters__advanced,
-#app:not(.landing-active) .equip-filters,
-#app:not(.landing-active) .equip-search-row,
-#app:not(.landing-active) .hist-sticky-header,
-#app:not(.landing-active) .page-toolbar,
-#app:not(.landing-active) .servicos-toggle {
-  background: var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) .card,
-#app:not(.landing-active) .chart-card,
-#app:not(.landing-active) .info-list,
-#app:not(.landing-active) .report-record,
-#app:not(.landing-active) .orc-card,
-#app:not(.landing-active) .orc-kpi,
-#app:not(.landing-active) .rel-hero,
-#app:not(.landing-active) .rel-empty__preview,
-#app:not(.landing-active) .modal {
-  background: var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) .card:hover,
-#app:not(.landing-active) .chart-card:hover,
-#app:not(.landing-active) .report-record:hover,
-#app:not(.landing-active) .orc-card:hover {
-  background: var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) table {
-  background: var(--ct-surface) !important;
-  color: var(--ct-text) !important;
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) thead,
-#app:not(.landing-active) .table-header,
-#app:not(.landing-active) .rel-empty__preview-table th {
-  background: var(--ct-surface-subtle) !important;
-  color: var(--ct-text-faint) !important;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-#app:not(.landing-active) th,
-#app:not(.landing-active) td,
-#app:not(.landing-active) .info-row,
-#app:not(.landing-active) .rel-empty__preview-table td {
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) tbody tr:hover,
-#app:not(.landing-active) .info-row:hover {
-  background: rgba(144, 184, 248, 0.08) !important;
-}
-
-#app:not(.landing-active) .badge,
-#app:not(.landing-active) .hist-pill,
-#app:not(.landing-active) .orc-status-pill,
-#app:not(.landing-active) .status-pill,
-#app:not(.landing-active) .equip-card__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--ct-border);
-  border-radius: 999px;
-  background: rgba(199, 208, 224, 0.1);
-  color: var(--ct-text-muted);
-}
-
-#app:not(.landing-active) .badge::before,
-#app:not(.landing-active) .orc-status-pill::before,
-#app:not(.landing-active) .status-pill::before,
-#app:not(.landing-active) .equip-card__status::before {
-  content: '';
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-#app:not(.landing-active) .badge--ok,
-#app:not(.landing-active) .badge--success,
-#app:not(.landing-active) .hist-pill--success,
-#app:not(.landing-active) .status-pill--success,
-#app:not(.landing-active) .status-pill--ok {
-  background: var(--ct-success-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) .badge--info,
-#app:not(.landing-active) .hist-pill--info,
-#app:not(.landing-active) .hist-pill--blue,
-#app:not(.landing-active) .hist-pill--primary,
-#app:not(.landing-active) .status-pill--info {
-  background: var(--ct-info-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-info) 34%, transparent) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) .badge--warn,
-#app:not(.landing-active) .badge--warning,
-#app:not(.landing-active) .hist-pill--warn,
-#app:not(.landing-active) .hist-pill--warning,
-#app:not(.landing-active) .hist-pill--amber,
-#app:not(.landing-active) .status-pill--warn,
-#app:not(.landing-active) .status-pill--warning {
-  background: var(--ct-warn-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
-  color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) .badge--danger,
-#app:not(.landing-active) .badge--error,
-#app:not(.landing-active) .hist-pill--danger,
-#app:not(.landing-active) .hist-pill--error,
-#app:not(.landing-active) .hist-pill--red,
-#app:not(.landing-active) .status-pill--danger,
-#app:not(.landing-active) .status-pill--error {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) .empty-state,
-#app:not(.landing-active) .engaging-empty-state,
-#app:not(.landing-active) .cli-empty {
-  background: var(--ct-surface) !important;
-  border: 1px dashed var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) .empty-state *,
-#app:not(.landing-active) .engaging-empty-state *,
-#app:not(.landing-active) .cli-empty * {
-  color: inherit !important;
-}
-
-#app:not(.landing-active) .empty-state__title,
-#app:not(.landing-active) .engaging-empty-state__title,
-#app:not(.landing-active) .cli-empty__title {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) .empty-state__sub,
-#app:not(.landing-active) .engaging-empty-state__description,
-#app:not(.landing-active) .cli-empty__sub {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) .empty-state__icon,
-#app:not(.landing-active) .engaging-empty-state__icon,
-#app:not(.landing-active) .cli-empty__art {
-  background: var(--ct-info-soft) !important;
-  color: var(--ct-info) !important;
-}
-
-body:not(.landing-active) .modal-overlay {
-  background: rgba(10, 12, 16, 0.68) !important;
-  backdrop-filter: blur(6px);
-}
-
-#app:not(.landing-active) .modal__title {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) .modal__footer,
-#app:not(.landing-active) .modal__header,
-#app:not(.landing-active) .report-header {
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) .header-help-menu {
-  background: var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) .header-help-menu__section-title {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) .header-help-menu__item {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) .header-help-menu__item:hover {
-  background: rgba(144, 184, 248, 0.08) !important;
-  color: var(--ct-text) !important;
-}
-
-/* ============================================================
-   PR 4 - Dashboard operational dark refresh
-   ============================================================ */
-
-#app:not(.landing-active) #dash {
-  --dsh-gold: var(--ct-gold);
-  --dsh-blue: var(--ct-brand);
-  --dsh-red: var(--ct-error);
-  --dsh-neutral: var(--ct-text-faint);
-  --dsh-accent: var(--ct-brand);
-  --dsh-accent-dim: var(--ct-border-strong);
-  --dsh-accent-soft: var(--ct-info-soft);
-  --dsh-accent-strong: var(--ct-border-strong);
-  --dsh-accent-glow: rgba(95, 133, 219, 0.2);
-  --dsh-card-bg: var(--ct-surface);
-  --dsh-card-border: var(--ct-border);
-  --dsh-card-border-strong: var(--ct-border-strong);
-  --dsh-surface: var(--ct-surface);
-  --dsh-divider: var(--ct-border);
-  gap: 16px;
-  padding: 10px 4px 36px;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #dash[data-tier='pro'] {
-  --dsh-accent: var(--ct-brand);
-  --dsh-accent-dim: var(--ct-border-strong);
-  --dsh-accent-soft: var(--ct-info-soft);
-  --dsh-accent-strong: var(--ct-border-strong);
-  --dsh-accent-glow: rgba(95, 133, 219, 0.2);
-}
-
-#app:not(.landing-active) #dash[data-tone='alert'] {
-  --dsh-tone-accent: var(--ct-error);
-  --dsh-tone-strong: color-mix(in srgb, var(--ct-error) 42%, transparent);
-  --dsh-tone-soft: var(--ct-error-soft);
-  --dsh-tone-glow: rgba(251, 113, 133, 0.22);
-}
-
-#app:not(.landing-active) #dash .dash__hero,
-#app:not(.landing-active) #dash .dash__kpi,
-#app:not(.landing-active) #dash .dash__card,
-#app:not(.landing-active) #dash .dash__section,
-#app:not(.landing-active) #dash .dash__analise,
-#app:not(.landing-active) #dash .dash__continue-card,
-#app:not(.landing-active) #dash .onb-card,
-#app:not(.landing-active) #dash .install-card,
-#app:not(.landing-active) #dash .recent-card,
-#app:not(.landing-active) #dash .equip-card,
-#app:not(.landing-active) #dash .alert-card,
-#app:not(.landing-active) #dash .critical-now-item,
-#app:not(.landing-active) #dash .empty-state {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero {
-  padding: 20px !important;
-  border-radius: 18px !important;
-  background:
-    radial-gradient(circle at 9% 0%, rgba(144, 184, 248, 0.16), transparent 32%),
-    radial-gradient(circle at 95% 12%, rgba(95, 133, 219, 0.16), transparent 34%),
-    linear-gradient(145deg, var(--ct-surface-raised), var(--ct-surface)) !important;
-  border: 1px solid var(--ct-border-strong) !important;
-  overflow: hidden;
-}
-
-#app:not(.landing-active) #dash .dash__hero::before {
-  background: radial-gradient(circle, rgba(144, 184, 248, 0.12), transparent 68%) !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero:hover,
-#app:not(.landing-active) #dash .dash__kpi:hover,
-#app:not(.landing-active) #dash .dash__card:hover,
-#app:not(.landing-active) #dash .dash__section:hover,
-#app:not(.landing-active) #dash .dash__continue-card:hover,
-#app:not(.landing-active) #dash .equip-card:hover,
-#app:not(.landing-active) #dash .alert-card:hover,
-#app:not(.landing-active) #dash .recent-card:hover,
-#app:not(.landing-active) #dash .critical-now-item:hover {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.075), rgba(255, 255, 255, 0.018)),
-    var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-  transform: translateY(-1px);
-}
-
-#app:not(.landing-active) #dash .dash__hero-greeting,
-#app:not(.landing-active) #dash .dash__hero-body,
-#app:not(.landing-active) #dash .dash__hero-body *,
-#app:not(.landing-active) #dash .dash__kpi-value,
-#app:not(.landing-active) #dash .dash__card-title,
-#app:not(.landing-active) #dash .dash__section-label,
-#app:not(.landing-active) #dash .onb-card__title,
-#app:not(.landing-active) #dash .onb-step__label,
-#app:not(.landing-active) #dash .install-card__title,
-#app:not(.landing-active) #dash .dash__continue-card__title,
-#app:not(.landing-active) #dash .recent-card__title,
-#app:not(.landing-active) #dash .equip-card__name,
-#app:not(.landing-active) #dash .critical-now-item__title,
-#app:not(.landing-active) #dash .alert-card__equip,
-#app:not(.landing-active) #dash .empty-state__title {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero-summary,
-#app:not(.landing-active) #dash .dash__card-sub,
-#app:not(.landing-active) #dash .dash__card-desc,
-#app:not(.landing-active) #dash .dash__kpi-sub,
-#app:not(.landing-active) #dash .onb-card__sub,
-#app:not(.landing-active) #dash .onb-step__sub,
-#app:not(.landing-active) #dash .install-card__sub,
-#app:not(.landing-active) #dash .dash__continue-card__sub,
-#app:not(.landing-active) #dash .recent-card__equip,
-#app:not(.landing-active) #dash .recent-card__obs,
-#app:not(.landing-active) #dash .equip-card__tag,
-#app:not(.landing-active) #dash .equip-card__metric-label,
-#app:not(.landing-active) #dash .equip-card__metric-sub,
-#app:not(.landing-active) #dash .critical-now-item__subtitle,
-#app:not(.landing-active) #dash .alert-card__title,
-#app:not(.landing-active) #dash .alert-card__sub,
-#app:not(.landing-active) #dash .empty-state__sub {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi-label,
-#app:not(.landing-active) #dash .dash__card-label,
-#app:not(.landing-active) #dash .critical-now-group__label,
-#app:not(.landing-active) #dash .recent-card__date {
-  color: var(--ct-text-faint) !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero-cta:not(.dash__hero-cta--secondary),
-#app:not(.landing-active) #dash .dash__card-cta,
-#app:not(.landing-active) #dash .dash__continue-card__cta,
-#app:not(.landing-active) #dash .install-card__cta,
-#app:not(.landing-active) #dash .equip-card__cta {
-  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  border: 1px solid color-mix(in srgb, var(--ct-brand-hover) 36%, transparent) !important;
-  color: var(--ct-legacy-light-surface) !important;
-  box-shadow:
-    0 14px 28px rgba(95, 133, 219, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero-cta:not(.dash__hero-cta--secondary):hover,
-#app:not(.landing-active) #dash .dash__card-cta:hover,
-#app:not(.landing-active) #dash .dash__continue-card__cta:hover,
-#app:not(.landing-active) #dash .install-card__cta:hover,
-#app:not(.landing-active) #dash .equip-card__cta:hover {
-  background: linear-gradient(135deg, var(--ct-brand-hover), var(--ct-brand)) !important;
-  box-shadow:
-    0 16px 34px rgba(144, 184, 248, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero-cta--secondary,
-#app:not(.landing-active) #dash .install-card__close,
-#app:not(.landing-active) #dash .onb-card__close,
-#app:not(.landing-active) #dash .dash__continue-card__close {
-  background: var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero-cta--secondary:hover,
-#app:not(.landing-active) #dash .install-card__close:hover,
-#app:not(.landing-active) #dash .onb-card__close:hover,
-#app:not(.landing-active) #dash .dash__continue-card__close:hover {
-  background: rgba(144, 184, 248, 0.08) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi {
-  min-height: 112px;
-  border-radius: 16px !important;
-  padding: 18px !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi::before {
-  background: linear-gradient(90deg, transparent, var(--ct-brand-hover), transparent) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi-value[data-tone='ok'],
-#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='ok'],
-#app:not(.landing-active) #dash .equip-card__health-value--ok,
-#app:not(.landing-active) #dash .equip-card__status--ok {
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi-value[data-tone='warn'],
-#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='warn'],
-#app:not(.landing-active) #dash .dash__card--next-action[data-tone='warn'] .dash__card-cta {
-  color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi-value[data-tone='danger'],
-#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='danger'],
-#app:not(.landing-active) #dash .dash__card--next-action[data-tone='danger'] .dash__card-cta,
-#app:not(.landing-active) #dash .dash__card--next-action[data-tone='alert'] .dash__card-cta {
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi-value[data-tone='muted'],
-#app:not(.landing-active) #dash .dash__kpi-sub[data-tone='muted'] {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) #dash .dash__kpi-spark {
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) #dash .dash__card--next-action[data-tone='warn'],
-#app:not(.landing-active) #dash .critical-now-item--warn {
-  background:
-    linear-gradient(180deg, var(--ct-warn-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
-  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
-}
-
-#app:not(.landing-active) #dash .dash__card--next-action[data-tone='danger'],
-#app:not(.landing-active) #dash .dash__card--next-action[data-tone='alert'],
-#app:not(.landing-active) #dash .critical-now-item--danger,
-#app:not(.landing-active) #dash .alert-card--critical {
-  background:
-    linear-gradient(180deg, var(--ct-error-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-}
-
-#app:not(.landing-active) #dash .dash__section-header,
-#app:not(.landing-active) #dash .onb-card__head,
-#app:not(.landing-active) #dash .equip-card__metrics {
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #dash .dash__section-count,
-#app:not(.landing-active) #dash .dash__hero-pill,
-#app:not(.landing-active) #dash .equip-card__status,
-#app:not(.landing-active) #dash .equip-card__risk-badge,
-#app:not(.landing-active) #dash .equip-card__priority-badge,
-#app:not(.landing-active) #dash .onb-step__check,
-#app:not(.landing-active) #dash .install-card__icon,
-#app:not(.landing-active) #dash .empty-state__icon,
-#app:not(.landing-active) #dash .dash__card-icon,
-#app:not(.landing-active) #dash .dash__continue-card__icon {
-  background: var(--ct-info-soft) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #dash .dash__hero[data-tone='ok'] .dash__hero-pill,
-#app:not(.landing-active) #dash .onb-step.is-done .onb-step__check,
-#app:not(.landing-active) #dash .equip-card__status--ok {
-  background: var(--ct-success-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-success) 36%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) #dash .onb-card__progress,
-#app:not(.landing-active) #dash .equip-card__health-bar {
-  background: var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #dash .onb-card__progress-fill,
-#app:not(.landing-active) #dash .equip-card__health-fill {
-  background: linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-}
-
-#app:not(.landing-active) #dash .onb-step:not(.is-done),
-#app:not(.landing-active) #dash .critical-now-list,
-#app:not(.landing-active) #dash .dash-alertas-list,
-#app:not(.landing-active) #dash .dash-criticos-list,
-#app:not(.landing-active) #dash .dash-recentes-grid {
-  background: transparent !important;
-}
-
-#app:not(.landing-active) #dash .onb-step:not(.is-done) {
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #dash .dash-overflow-banner {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  border-left-color: var(--ct-error) !important;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #dash .dash-overflow-banner__icon,
-#app:not(.landing-active) #dash .dash-overflow-banner__cta {
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #dash .dash-overflow-banner__cta {
-  border-color: color-mix(in srgb, var(--ct-error) 42%, transparent) !important;
-}
-
-@media (min-width: 960px) {
-  #app:not(.landing-active) #dash .dash__hero {
-    padding: 26px 30px !important;
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-}
-
-@media (max-width: 720px) {
-  #app:not(.landing-active) #dash {
-    gap: 12px;
-    padding: 4px 0 28px;
-  }
-
-  #app:not(.landing-active) #dash .dash__hero,
-  #app:not(.landing-active) #dash .dash__kpi,
-  #app:not(.landing-active) #dash .dash__card,
-  #app:not(.landing-active) #dash .dash__section,
-  #app:not(.landing-active) #dash .onb-card {
-    border-radius: 14px !important;
-  }
-}
-
-/* ============================================================
-   PR 5 - Equipamentos operational dark refresh
-   ============================================================ */
-
-#app:not(.landing-active) #view-equipamentos {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .section-title,
-#app:not(.landing-active) #view-equipamentos .equip-hero__title,
-#app:not(.landing-active) #view-equipamentos .equip-card__name,
-#app:not(.landing-active) #view-equipamentos .equip-card__health-value,
-#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__title,
-#app:not(.landing-active) #view-equipamentos .setor-card__name,
-#app:not(.landing-active) #view-equipamentos .setor-card__metric-value {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .section-subtitle,
-#app:not(.landing-active) #view-equipamentos .equip-hero__sub,
-#app:not(.landing-active) #view-equipamentos .equip-card__tag,
-#app:not(.landing-active) #view-equipamentos .equip-card__subtitle,
-#app:not(.landing-active) #view-equipamentos .equip-card__metric-label,
-#app:not(.landing-active) #view-equipamentos .equip-card__meta,
-#app:not(.landing-active) #view-equipamentos .equip-card__hint,
-#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__hint,
-#app:not(.landing-active) #view-equipamentos .setor-card__meta,
-#app:not(.landing-active) #view-equipamentos .setor-card__metric-label {
-  color: var(--ct-text-muted) !important;
-}
-
-@media (max-width: 640px) {
-  #app:not(.landing-active) #dash .dash__hero {
-    padding: 14px !important;
-    min-height: auto !important;
-  }
-
-  #app:not(.landing-active) #dash .dash__hero-summary,
-  #app:not(.landing-active) #dash .dash__kpi-sub,
-  #app:not(.landing-active) #dash .dash__card-sub,
-  #app:not(.landing-active) #dash .dash__section-count,
-  #app:not(.landing-active) #view-equipamentos .section-subtitle,
-  #app:not(.landing-active) #view-equipamentos .equip-hero__sub,
-  #app:not(.landing-active) #view-equipamentos .equip-card__meta,
-  #app:not(.landing-active) #view-equipamentos .equip-card__hint {
-    color: color-mix(in srgb, var(--ct-text-muted) 80%, #ffffff 20%) !important;
-  }
-
-  #app:not(.landing-active) #view-equipamentos .equip-search-row {
-    width: 100%;
-    display: block;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 1;
-  }
-
-  #app:not(.landing-active) #view-equipamentos .equip-search-row > .search-bar {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  #app:not(.landing-active) #view-equipamentos .page-toolbar {
-    margin-top: 0;
-    margin-bottom: 10px;
-  }
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-hero,
-#app:not(.landing-active) #view-equipamentos .quick-move-banner,
-#app:not(.landing-active) #view-equipamentos .equip-card,
-#app:not(.landing-active) #view-equipamentos .equip-idle-cluster,
-#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__summary,
-#app:not(.landing-active) #view-equipamentos .setor-card,
-#app:not(.landing-active) #view-equipamentos .card,
-#app:not(.landing-active) #view-equipamentos .empty-state {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-hero {
-  background:
-    radial-gradient(circle at 0% 0%, rgba(144, 184, 248, 0.16), transparent 34%),
-    linear-gradient(135deg, var(--ct-surface) 0%, var(--ct-surface-subtle) 100%) !important;
-  border-left: 1px solid var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card:hover,
-#app:not(.landing-active) #view-equipamentos .equip-card:focus-within,
-#app:not(.landing-active) #view-equipamentos .setor-card:hover,
-#app:not(.landing-active) #view-equipamentos .setor-card:focus-within {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
-    var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filters,
-#app:not(.landing-active) #view-equipamentos .equip-breadcrumb,
-#app:not(.landing-active) #view-equipamentos .equip-card__metrics,
-#app:not(.landing-active) #view-equipamentos .equip-card__primary,
-#app:not(.landing-active) #view-equipamentos .equip-card__timeline-inline,
-#app:not(.landing-active) #view-equipamentos .equip-card__onboard,
-#app:not(.landing-active) #view-equipamentos .equip-idle-cluster__grid,
-#app:not(.landing-active) #view-equipamentos .setor-card__footer {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filter,
-#app:not(.landing-active) #view-equipamentos .equip-card__action,
-#app:not(.landing-active) #view-equipamentos .equip-card__secondary,
-#app:not(.landing-active) #view-equipamentos .equip-card__more,
-#app:not(.landing-active) #view-equipamentos .setor-card__action,
-#app:not(.landing-active) #view-equipamentos .quick-move-banner__select {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filter:hover,
-#app:not(.landing-active) #view-equipamentos .equip-card__action:hover,
-#app:not(.landing-active) #view-equipamentos .equip-card__secondary:hover,
-#app:not(.landing-active) #view-equipamentos .equip-card__more:hover,
-#app:not(.landing-active) #view-equipamentos .setor-card__action:hover,
-#app:not(.landing-active) #view-equipamentos .quick-move-banner__select:focus {
-  background: rgba(144, 184, 248, 0.1) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filter--active,
-#app:not(.landing-active) #view-equipamentos .equip-hero__cta-btn--action,
-#app:not(.landing-active) #view-equipamentos .equip-card__primary-cta,
-#app:not(.landing-active) #view-equipamentos .equip-card__onboard-cta,
-#app:not(.landing-active) #view-equipamentos .quick-move-banner__btn {
-  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  border-color: rgba(144, 184, 248, 0.4) !important;
-  color: var(--ct-legacy-light-surface) !important;
-  box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-hero__cta-btn--upsell {
-  background: rgba(217, 164, 65, 0.12) !important;
-  border-color: rgba(217, 164, 65, 0.34) !important;
-  color: var(--ct-gold) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__type-icon,
-#app:not(.landing-active) #view-equipamentos .equip-card__photo,
-#app:not(.landing-active) #view-equipamentos .equip-card__fallback,
-#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend,
-#app:not(.landing-active) #view-equipamentos .equip-card__context-chip,
-#app:not(.landing-active) #view-equipamentos .setor-card__icon {
-  background: var(--ct-info-soft) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card--ok,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--ok,
-#app:not(.landing-active) #view-equipamentos .equip-card__score-value--ok,
-#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx--positive,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--baixo,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--improving {
-  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--ok,
-#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx--positive,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--baixo,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--improving {
-  background: var(--ct-success-soft) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card--warn,
-#app:not(.landing-active) #view-equipamentos .equip-filter--warn,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--warn,
-#app:not(.landing-active) #view-equipamentos .equip-card__score-value--warn,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--medio,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--stable {
-  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
-  color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filter--warn,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--warn,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--medio,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--stable {
-  background: var(--ct-warn-soft) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card--danger,
-#app:not(.landing-active) #view-equipamentos .equip-filter--danger,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--danger,
-#app:not(.landing-active) #view-equipamentos .equip-card__score-value--danger,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--alto,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--worsening {
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filter--danger,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--danger,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-chip--alto,
-#app:not(.landing-active) #view-equipamentos .equip-card__risk-trend--worsening {
-  background: var(--ct-error-soft) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-filter--cyan,
-#app:not(.landing-active) #view-equipamentos .equip-card__tone-pill--neutral,
-#app:not(.landing-active) #view-equipamentos .equip-card__chip-ctx--neutral {
-  background: var(--ct-info-soft) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__health-bar,
-#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-full {
-  background: var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__health-fill,
-#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill {
-  background: linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__health-fill--ok,
-#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill--ok {
-  background: linear-gradient(90deg, var(--ct-success), #86efac) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__health-fill--warn,
-#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill--warn {
-  background: linear-gradient(90deg, var(--ct-warn), #fde68a) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__health-fill--danger,
-#app:not(.landing-active) #view-equipamentos .equip-card__health-bar-fill--danger {
-  background: linear-gradient(90deg, var(--ct-error), #fda4af) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .quick-move-banner__select {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-equipamentos .equip-card__menu,
-#app:not(.landing-active) #view-equipamentos .setor-card__menu {
-  background: var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-@media (max-width: 720px) {
-  #app:not(.landing-active) #view-equipamentos .equip-hero,
-  #app:not(.landing-active) #view-equipamentos .equip-card,
-  #app:not(.landing-active) #view-equipamentos .quick-move-banner,
-  #app:not(.landing-active) #view-equipamentos .equip-idle-cluster {
-    border-radius: 14px !important;
-  }
-}
-
-/* ============================================================
-   System visual polish - dark operational consistency
-   ============================================================ */
-
-body:not(.landing-active) .modal-overlay {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(144, 184, 248, 0.12), transparent 34%),
-    rgba(12, 13, 16, 0.78) !important;
-  backdrop-filter: blur(8px) saturate(1.05);
-}
-
-body:not(.landing-active) .modal,
-body:not(.landing-active) .modal-content,
-body:not(.landing-active) .modal__dialog {
-  max-width: min(94vw, 760px);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.014)),
-    var(--ct-surface) !important;
-  border: 1px solid var(--ct-border) !important;
-  border-radius: 18px !important;
-  color: var(--ct-text) !important;
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
-  overflow: hidden;
-}
-
-body:not(.landing-active) .modal__header,
-body:not(.landing-active) .modal-header,
-body:not(.landing-active) .modal__footer,
-body:not(.landing-active) .modal-footer {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.055), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-}
-
-body:not(.landing-active) .modal__body,
-body:not(.landing-active) .modal-body {
-  background: transparent !important;
-  color: var(--ct-text-muted) !important;
-  min-width: 0;
-}
-
-body:not(.landing-active) .modal__title,
-body:not(.landing-active) .modal-title {
-  color: var(--ct-text) !important;
-  overflow-wrap: anywhere;
-}
-
-body:not(.landing-active) .modal__text,
-body:not(.landing-active) .modal__subtitle,
-body:not(.landing-active) .modal small,
-body:not(.landing-active) .form-hint {
-  color: var(--ct-text-muted) !important;
-}
-
-body:not(.landing-active) .modal .form-group,
-body:not(.landing-active) .modal .form-section,
-body:not(.landing-active) .modal .summary-card,
-body:not(.landing-active) .modal .info-row,
-body:not(.landing-active) .modal .orc-summary,
-body:not(.landing-active) .modal .cliente-summary {
-  background: color-mix(in srgb, var(--ct-surface-subtle) 82%, transparent) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-}
-
-body:not(.landing-active)
-  .modal
-  input:not([type='checkbox']):not([type='radio']):not([type='file']),
-body:not(.landing-active) .modal select,
-body:not(.landing-active) .modal textarea {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
-}
-
-body:not(.landing-active)
-  .modal
-  input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
-body:not(.landing-active) .modal select:focus,
-body:not(.landing-active) .modal textarea:focus {
-  border-color: var(--ct-brand-hover) !important;
-  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.18) !important;
-}
-
-#app:not(.landing-active) .hist-quickfilter,
-#app:not(.landing-active) .orc-chip,
-#app:not(.landing-active) .equip-filter,
-#app:not(.landing-active) .rel-chip,
-#app:not(.landing-active) .servicos-toggle button,
-#app:not(.landing-active) .sfm-tabs button,
-#app:not(.landing-active) [role='tab'] {
-  background: color-mix(in srgb, var(--ct-surface-subtle) 86%, transparent) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .hist-quickfilter:hover,
-#app:not(.landing-active) .orc-chip:hover,
-#app:not(.landing-active) .equip-filter:hover,
-#app:not(.landing-active) .rel-chip:hover,
-#app:not(.landing-active) .servicos-toggle button:hover,
-#app:not(.landing-active) .sfm-tabs button:hover,
-#app:not(.landing-active) [role='tab']:hover {
-  background: rgba(144, 184, 248, 0.09) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) .hist-quickfilter.is-active,
-#app:not(.landing-active) .orc-chip.is-active,
-#app:not(.landing-active) .equip-filter--active,
-#app:not(.landing-active) .rel-chip.is-active,
-#app:not(.landing-active) .servicos-toggle button.is-active,
-#app:not(.landing-active) .sfm-tabs button[aria-selected='true'],
-#app:not(.landing-active) [role='tab'][aria-selected='true'] {
-  background: rgba(95, 133, 219, 0.18) !important;
-  border-color: color-mix(in srgb, var(--ct-brand-hover) 38%, transparent) !important;
-  color: var(--ct-brand-hover) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-}
-
-#app:not(.landing-active) .rel-filters,
-#app:not(.landing-active) .rel-filters__advanced,
-#app:not(.landing-active) .equip-filters,
-#app:not(.landing-active) .equip-search-row,
-#app:not(.landing-active) .hist-sticky-header,
-#app:not(.landing-active) .page-toolbar,
-#app:not(.landing-active) .servicos-toggle {
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-}
-
-#app:not(.landing-active) .view,
-#app:not(.landing-active) .card,
-#app:not(.landing-active) .cli-card,
-#app:not(.landing-active) .equip-card,
-#app:not(.landing-active) .orc-card,
-#app:not(.landing-active) .rel-record,
-#app:not(.landing-active) .alert-card,
-#app:not(.landing-active) .hist-card,
-#app:not(.landing-active) .info-row,
-#app:not(.landing-active) .modal,
-#app:not(.landing-active) .modal * {
-  min-width: 0;
-}
-
-#app:not(.landing-active) .cli-card,
-#app:not(.landing-active) .equip-card,
-#app:not(.landing-active) .orc-card,
-#app:not(.landing-active) .rel-record,
-#app:not(.landing-active) .alert-card,
-#app:not(.landing-active) .hist-card {
-  box-shadow:
-    0 18px 46px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-}
-
-#app:not(.landing-active) .cli-card__actions,
-#app:not(.landing-active) .equip-card__footer,
-#app:not(.landing-active) .equip-card__primary,
-#app:not(.landing-active) .orc-card__actions,
-#app:not(.landing-active) .rel-record__actions,
-#app:not(.landing-active) .alert-card__footer {
-  background: rgba(45, 48, 54, 0.72) !important;
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) .cli-card__action--secondary,
-#app:not(.landing-active) .cli-card__action--pmoc,
-#app:not(.landing-active) .cli-card__action--ghost,
-#app:not(.landing-active) .equip-card__action,
-#app:not(.landing-active) .equip-card__secondary,
-#app:not(.landing-active) .orc-card__action,
-#app:not(.landing-active) .rel-record__action {
-  background: rgba(144, 184, 248, 0.055) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .cli-card__action--secondary:hover,
-#app:not(.landing-active) .cli-card__action--pmoc:hover,
-#app:not(.landing-active) .cli-card__action--ghost:hover,
-#app:not(.landing-active) .equip-card__action:hover,
-#app:not(.landing-active) .equip-card__secondary:hover,
-#app:not(.landing-active) .orc-card__action:hover,
-#app:not(.landing-active) .rel-record__action:hover {
-  background: rgba(144, 184, 248, 0.11) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-brand-hover) !important;
-  transform: translateY(-1px);
-}
-
-#app:not(.landing-active) .badge,
-#app:not(.landing-active) .hist-pill,
-#app:not(.landing-active) .orc-status-pill,
-#app:not(.landing-active) .status-pill,
-#app:not(.landing-active) .equip-card__status,
-#app:not(.landing-active) .equip-card__tone-pill,
-#app:not(.landing-active) .equip-card__risk-chip,
-#app:not(.landing-active) .cli-card__pill,
-#app:not(.landing-active) .cli-pmoc__chip {
-  max-width: 100%;
-  min-height: 24px;
-  padding: 4px 9px !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .cli-card__name,
-#app:not(.landing-active) .cli-card__sub,
-#app:not(.landing-active) .cli-card__address,
-#app:not(.landing-active) .equip-card__name,
-#app:not(.landing-active) .equip-card__tag,
-#app:not(.landing-active) .equip-card__subtitle,
-#app:not(.landing-active) .equip-card__primary-title,
-#app:not(.landing-active) .orc-card__title,
-#app:not(.landing-active) .orc-card__meta,
-#app:not(.landing-active) .rel-record__title,
-#app:not(.landing-active) .rel-record__meta,
-#app:not(.landing-active) .alert-card__title,
-#app:not(.landing-active) .alert-card__meta {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#app:not(.landing-active) .cli-card__address,
-#app:not(.landing-active) .equip-card__subtitle,
-#app:not(.landing-active) .equip-card__primary-meta,
-#app:not(.landing-active) .rel-record__summary-line,
-#app:not(.landing-active) .alert-card__desc {
-  overflow-wrap: anywhere;
-  word-break: normal;
-}
-
-#app:not(.landing-active) #view-orcamentos,
-#app:not(.landing-active) #view-orcamentos .orc-page,
-#app:not(.landing-active) #view-orcamentos .orc-header,
-#app:not(.landing-active) #view-orcamentos .orc-header__title-row,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar,
-#app:not(.landing-active) #view-orcamentos .orc-kpis,
-#app:not(.landing-active) #view-orcamentos .orc-kpi,
-#app:not(.landing-active) #view-orcamentos .orc-cards,
-#app:not(.landing-active) #view-orcamentos .orc-list,
-#app:not(.landing-active) #view-orcamentos .orc-card,
-#app:not(.landing-active) #view-orcamentos .orc-card__head,
-#app:not(.landing-active) #view-orcamentos .orc-card__body,
-#app:not(.landing-active) #view-orcamentos .orc-card__actions {
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpis {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-header__title-row,
-#app:not(.landing-active) #view-orcamentos .orc-card__head {
-  flex-wrap: wrap;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-filter-chips {
-  max-width: 100%;
-  min-width: 0;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi__value,
-#app:not(.landing-active) #view-orcamentos .orc-kpi__label,
-#app:not(.landing-active) #view-orcamentos .orc-card__total,
-#app:not(.landing-active) #view-orcamentos .orc-card__cliente span,
-#app:not(.landing-active) #view-orcamentos .orc-card__actions .btn {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 720px) {
-  body:not(.landing-active) .modal,
-  body:not(.landing-active) .modal-content,
-  body:not(.landing-active) .modal__dialog {
-    width: calc(100vw - 24px) !important;
-    max-width: calc(100vw - 24px) !important;
-    border-radius: 16px !important;
-  }
-
-  #app:not(.landing-active) .rel-filters,
-  #app:not(.landing-active) .rel-filters__advanced,
-  #app:not(.landing-active) .equip-filters,
-  #app:not(.landing-active) .hist-sticky-header,
-  #app:not(.landing-active) .page-toolbar {
-    overflow-x: hidden;
-  }
-
-  #app:not(.landing-active) #view-orcamentos .orc-page {
-    width: 100%;
-    overflow-x: clip;
-  }
-
-  #app:not(.landing-active) #view-orcamentos .orc-kpis {
-    grid-template-columns: 1fr;
-  }
-
-  #app:not(.landing-active) #view-orcamentos .orc-filter-chips {
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-
-  #app:not(.landing-active) .badge,
-  #app:not(.landing-active) .hist-pill,
-  #app:not(.landing-active) .orc-status-pill,
-  #app:not(.landing-active) .status-pill,
-  #app:not(.landing-active) .equip-card__status,
-  #app:not(.landing-active) .equip-card__tone-pill,
-  #app:not(.landing-active) .equip-card__risk-chip,
-  #app:not(.landing-active) .cli-card__pill,
-  #app:not(.landing-active) .cli-pmoc__chip {
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-}
-
-/* ============================================================
-   PR 6 - Relatorios operational dark refresh
-   ============================================================ */
-
-#app:not(.landing-active) #view-relatorio {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-title,
-#app:not(.landing-active) #view-relatorio .rel-hero__title,
-#app:not(.landing-active) #view-relatorio .rel-kpi__value,
-#app:not(.landing-active) #view-relatorio .rel-record__title,
-#app:not(.landing-active) #view-relatorio .rel-record__equip-name,
-#app:not(.landing-active) #view-relatorio .rel-record__tech,
-#app:not(.landing-active) #view-relatorio .rel-record__cost-value,
-#app:not(.landing-active) #view-relatorio .rel-spec__value,
-#app:not(.landing-active) #view-relatorio .rel-empty__title,
-#app:not(.landing-active) #view-relatorio .rel-proximas__title {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-subtitle,
-#app:not(.landing-active) #view-relatorio .rel-hero__meta,
-#app:not(.landing-active) #view-relatorio .rel-hero__narrative,
-#app:not(.landing-active) #view-relatorio .rel-kpi__label,
-#app:not(.landing-active) #view-relatorio .rel-record__meta,
-#app:not(.landing-active) #view-relatorio .rel-record__summary-line,
-#app:not(.landing-active) #view-relatorio .rel-record__equip-tag,
-#app:not(.landing-active) #view-relatorio .rel-record__cost-label,
-#app:not(.landing-active) #view-relatorio .rel-spec__label,
-#app:not(.landing-active) #view-relatorio .rel-record__section-title,
-#app:not(.landing-active) #view-relatorio .rel-empty__desc,
-#app:not(.landing-active) #view-relatorio .rel-proximas__date,
-#app:not(.landing-active) #view-relatorio .rel-company-pmoc__desc {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar,
-#app:not(.landing-active) #view-relatorio .rel-hero,
-#app:not(.landing-active) #view-relatorio .rel-company-pmoc,
-#app:not(.landing-active) #view-relatorio .rel-filters,
-#app:not(.landing-active) #view-relatorio .rel-record,
-#app:not(.landing-active) #view-relatorio .rel-proximas,
-#app:not(.landing-active) #view-relatorio .rel-empty,
-#app:not(.landing-active) #view-relatorio .rel-export-dd__menu {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-hero {
-  background:
-    radial-gradient(circle at 0% 0%, rgba(144, 184, 248, 0.16), transparent 34%),
-    linear-gradient(135deg, var(--ct-surface) 0%, var(--ct-surface-subtle) 100%) !important;
-  border-left-color: var(--ct-brand) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-record:hover,
-#app:not(.landing-active) #view-relatorio .rel-record:focus-within {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
-    var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-segmented,
-#app:not(.landing-active) #view-relatorio .rel-filters__advanced,
-#app:not(.landing-active) #view-relatorio .rel-record__details,
-#app:not(.landing-active) #view-relatorio .rel-record__specs,
-#app:not(.landing-active) #view-relatorio .rel-record__pecas,
-#app:not(.landing-active) #view-relatorio .rel-record__cost-breakdown,
-#app:not(.landing-active) #view-relatorio .rel-record__obs,
-#app:not(.landing-active) #view-relatorio .rel-empty__preview,
-#app:not(.landing-active) #view-relatorio .rel-empty__preview-meta > div,
-#app:not(.landing-active) #view-relatorio .rel-empty__preview-table,
-#app:not(.landing-active) #view-relatorio .rel-proximas__item {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__back,
-#app:not(.landing-active) #view-relatorio .rel-segmented__opt,
-#app:not(.landing-active) #view-relatorio .rel-chip,
-#app:not(.landing-active) #view-relatorio .rel-chip__clear,
-#app:not(.landing-active) #view-relatorio .rel-record__toggle,
-#app:not(.landing-active) #view-relatorio .rel-export-dd__item {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:hover:not(:disabled),
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__back:hover,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__back:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-segmented__opt:hover,
-#app:not(.landing-active) #view-relatorio .rel-chip:hover,
-#app:not(.landing-active) #view-relatorio .rel-chip__clear:hover,
-#app:not(.landing-active) #view-relatorio .rel-record__toggle:hover,
-#app:not(.landing-active) #view-relatorio .rel-export-dd__item:hover {
-  background: rgba(144, 184, 248, 0.1) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-segmented__opt:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-chip:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-chip__clear:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-record__toggle:focus-visible,
-#app:not(.landing-active) #view-relatorio .rel-sigthumb--btn:focus-visible {
-  border-color: var(--ct-brand-hover) !important;
-  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
-  outline: none !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--primary,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--pdf,
-#app:not(.landing-active) #view-relatorio .rel-empty__cta {
-  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  border-color: rgba(144, 184, 248, 0.4) !important;
-  color: var(--ct-legacy-light-surface) !important;
-  box-shadow: 0 16px 32px rgba(95, 133, 219, 0.28) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp {
-  background: var(--ct-success-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-segmented__opt.is-active,
-#app:not(.landing-active) #view-relatorio .rel-chip.is-active,
-#app:not(.landing-active) #view-relatorio .rel-mode-segment__item.is-active,
-#app:not(.landing-active) #view-relatorio .rel-hero__brand,
-#app:not(.landing-active) #view-relatorio .rel-kpi__icon,
-#app:not(.landing-active) #view-relatorio .rel-tipo-icon,
-#app:not(.landing-active) #view-relatorio .rel-proximas__icon,
-#app:not(.landing-active) #view-relatorio .rel-empty__icon,
-#app:not(.landing-active) #view-relatorio .rel-empty__preview-flake {
-  background: var(--ct-info-soft) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-kpi__icon--gold,
-#app:not(.landing-active) #view-relatorio .rel-kpi__value--gold,
-#app:not(.landing-active) #view-relatorio .rel-tipo-icon--gold,
-#app:not(.landing-active) #view-relatorio .rel-tipo-icon--gold-soft,
-#app:not(.landing-active) #view-relatorio .rel-record__prox-badge--gold,
-#app:not(.landing-active) #view-relatorio .pro-badge {
-  background: rgba(217, 164, 65, 0.12) !important;
-  border-color: rgba(217, 164, 65, 0.34) !important;
-  color: var(--ct-gold) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-status--ok,
-#app:not(.landing-active) #view-relatorio .rel-record__prox-badge--default {
-  background: var(--ct-success-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-status--warn,
-#app:not(.landing-active) #view-relatorio .rel-proximas__label--warn,
-#app:not(.landing-active) #view-relatorio .rel-corretivas-banner,
-#app:not(.landing-active) #view-relatorio .rel-company-pmoc__alert {
-  background: var(--ct-warn-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
-  color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-status--danger,
-#app:not(.landing-active) #view-relatorio .rel-proximas__label--danger,
-#app:not(.landing-active) #view-relatorio .rel-record__prox-badge--red,
-#app:not(.landing-active) #view-relatorio .rel-kpi__value--red,
-#app:not(.landing-active) #view-relatorio .rel-kpi__icon--red {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-record__divider,
-#app:not(.landing-active) #view-relatorio .rel-hero__divider,
-#app:not(.landing-active) #view-relatorio .rel-empty__preview-table th,
-#app:not(.landing-active) #view-relatorio .rel-empty__preview-table td {
-  border-color: var(--ct-border) !important;
-  background-color: transparent !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-sigthumb {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #view-relatorio .rel-sigthumb--btn {
-  background: #f4f7fb !important;
-}
-
-/* ============================================================
-   PR 6 - Alertas operational dark refresh
-   ============================================================ */
-
-#app:not(.landing-active) #view-alertas {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-alertas .section-title,
-#app:not(.landing-active) #view-alertas .alert-card__title,
-#app:not(.landing-active) #view-alertas .alert-card__equip,
-#app:not(.landing-active) #view-alertas .engaging-empty-state__title {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alert-card__sub,
-#app:not(.landing-active) #view-alertas .alertas-context-banner__text,
-#app:not(.landing-active) #view-alertas .engaging-empty-state__description {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alertas-context-banner,
-#app:not(.landing-active) #view-alertas .alert-card,
-#app:not(.landing-active) #view-alertas .engaging-empty-state {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alert-card:hover,
-#app:not(.landing-active) #view-alertas .alert-card:focus {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
-    var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alert-card {
-  border-left-color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alert-card--critical {
-  background:
-    linear-gradient(90deg, var(--ct-error-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  border-left-color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alertas-context-banner {
-  background:
-    linear-gradient(90deg, var(--ct-warn-soft), rgba(255, 255, 255, 0.012)), var(--ct-surface) !important;
-  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
-  border-left: 3px solid var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alert-card__icon,
-#app:not(.landing-active) #view-alertas .engaging-empty-state__icon {
-  background: var(--ct-info-soft) !important;
-  border: 1px solid var(--ct-border-strong) !important;
-  border-radius: 12px !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alert-card--critical .alert-card__icon {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alertas-context-banner__cta,
-#app:not(.landing-active) #view-alertas .alert-card__action {
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) #view-alertas .alertas-context-banner__cta:focus-visible,
-#app:not(.landing-active) #view-alertas .alert-card:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
-}
-
-/* ============================================================
-   PR 6 - Orcamentos operational dark refresh
-   ============================================================ */
-
-#app:not(.landing-active) #view-orcamentos,
-#app:not(.landing-active) #view-orcamentos .orc-page {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-header__title,
-#app:not(.landing-active) #view-orcamentos .orc-kpi__value,
-#app:not(.landing-active) #view-orcamentos .orc-card__title,
-#app:not(.landing-active) #view-orcamentos .orc-card__total,
-#app:not(.landing-active) #view-orcamentos .orc-empty__title {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi__label,
-#app:not(.landing-active) #view-orcamentos .orc-card__cliente,
-#app:not(.landing-active) #view-orcamentos .orc-card__meta,
-#app:not(.landing-active) #view-orcamentos .orc-empty__sub,
-#app:not(.landing-active) #view-orcamentos .orc-empty-filter,
-#app:not(.landing-active) #view-orcamentos .orc-card__numero {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-header,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar,
-#app:not(.landing-active) #view-orcamentos .orc-kpi,
-#app:not(.landing-active) #view-orcamentos .orc-card,
-#app:not(.landing-active) #view-orcamentos .orc-empty,
-#app:not(.landing-active) #view-orcamentos .orc-empty-filter {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text) !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-header,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar {
-  border-radius: 16px !important;
-  padding: 16px !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-card:hover,
-#app:not(.landing-active) #view-orcamentos .orc-card:focus-within,
-#app:not(.landing-active) #view-orcamentos .orc-kpi:hover {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.06), rgba(255, 255, 255, 0.018)),
-    var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-search,
-#app:not(.landing-active) #view-orcamentos .orc-card__actions,
-#app:not(.landing-active) #view-orcamentos .orc-card__signed {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-search__input,
-#app:not(.landing-active) #view-orcamentos .orc-chip,
-#app:not(.landing-active) #view-orcamentos .orc-card__kebab {
-  background: var(--ct-surface-subtle) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-search__input {
-  color: var(--ct-text) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-search__input::placeholder {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-search__input:focus,
-#app:not(.landing-active) #view-orcamentos .orc-chip:focus-visible,
-#app:not(.landing-active) #view-orcamentos .orc-card__kebab:focus-visible {
-  border-color: var(--ct-brand-hover) !important;
-  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.22) !important;
-  outline: none !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-chip:hover,
-#app:not(.landing-active) #view-orcamentos .orc-card__kebab:hover {
-  background: rgba(144, 184, 248, 0.1) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-chip.is-active,
-#app:not(.landing-active) #view-orcamentos .orc-empty__art {
-  background: var(--ct-info-soft) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-status-pill {
-  background: var(--ct-info-soft) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi:nth-child(2) .orc-kpi__value,
-#app:not(.landing-active) #view-orcamentos .orc-card__signed,
-#app:not(.landing-active) #view-orcamentos .orc-card__signed svg,
-#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='aprovado'] {
-  background: var(--ct-success-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-success) 34%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi:nth-child(3) .orc-kpi__value {
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-card__validity,
-#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='pendente'],
-#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='enviado'] {
-  background: var(--ct-warn-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-warn) 34%, transparent) !important;
-  color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='recusado'],
-#app:not(.landing-active) #view-orcamentos .orc-status-pill[data-status='expirado'],
-#app:not(.landing-active) #view-orcamentos .orc-card__kebab:hover {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 34%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-card__actions {
-  border-top-color: var(--ct-border) !important;
-}
-
-@media (max-width: 720px) {
-  #app:not(.landing-active) #view-relatorio .rel-toolbar,
-  #app:not(.landing-active) #view-relatorio .rel-hero,
-  #app:not(.landing-active) #view-relatorio .rel-record,
-  #app:not(.landing-active) #view-alertas .alert-card,
-  #app:not(.landing-active) #view-alertas .engaging-empty-state,
-  #app:not(.landing-active) #view-orcamentos .orc-header,
-  #app:not(.landing-active) #view-orcamentos .orc-toolbar,
-  #app:not(.landing-active) #view-orcamentos .orc-card,
-  #app:not(.landing-active) #view-orcamentos .orc-empty {
-    border-radius: 14px !important;
-  }
-}
-
-/* ============================================================
-   PR 6 - Shell, page headers and action bars refinement
-   ============================================================ */
-
-#app:not(.landing-active) {
-  --ct-action-height: 44px;
-  --ct-page-header-radius: 18px;
-  --ct-page-header-pad: clamp(16px, 1.8vw, 22px);
-  --ct-action-gap: 10px;
-}
-
-@media (min-width: 1025px) {
-  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar {
-    position: sticky;
-    top: 0;
-    align-self: stretch;
-    min-height: 100dvh;
-    max-height: 100dvh;
-    padding: 20px !important;
-    gap: 0 !important;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ct-border-strong) transparent;
-    box-shadow:
-      inset -1px 0 0 var(--ct-border),
-      18px 0 44px rgba(0, 0, 0, 0.18) !important;
-  }
-
-  #app:not(.landing-active) .app-shell--with-sidebar .app-sidebar__brand {
-    min-height: 58px;
-    margin: 0 0 24px !important;
-    padding: 2px 4px 20px !important;
-    border-bottom: 1px solid var(--ct-border);
-  }
-
-  #app:not(.landing-active) .app-sidebar__nav {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    gap: 24px !important;
-    min-height: 0;
-  }
-
-  #app:not(.landing-active) .app-sidebar__section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px !important;
-    margin: 0 !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__section-kicker {
-    margin: 0 0 10px !important;
-    padding: 0 4px !important;
-    color: var(--ct-text-faint) !important;
-    font-size: 10.5px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.095em !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item {
-    min-height: 46px;
-    margin: 0 !important;
-    padding: 0 15px !important;
-    gap: 12px;
-    border-radius: 14px !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active {
-    background:
-      linear-gradient(135deg, rgba(95, 133, 219, 0.32), rgba(144, 184, 248, 0.13)),
-      var(--ct-surface-raised) !important;
-    border-color: var(--ct-border-strong) !important;
-    box-shadow:
-      0 14px 28px rgba(0, 0, 0, 0.14),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
-  }
-
-  #app:not(.landing-active) .app-sidebar__footer {
-    display: flex;
-    flex-direction: column;
-    gap: 14px !important;
-    margin-top: auto !important;
-    padding-top: 22px !important;
-    border-top: 1px solid var(--ct-border);
-  }
-
-  #app:not(.landing-active) .app-sidebar__user-chip,
-  #app:not(.landing-active) .app-sidebar__settings-link {
-    min-height: 44px;
-    padding: 10px 12px !important;
-    border-radius: 14px !important;
-  }
-}
-
-#app:not(.landing-active) .cli-page__header,
-#app:not(.landing-active) #view-equipamentos .equip-hero,
-#app:not(.landing-active) .hist-sticky-header,
-#app:not(.landing-active) #view-relatorio .rel-hero,
-#app:not(.landing-active) #view-alertas .section-title,
-#app:not(.landing-active) #view-orcamentos .orc-header {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  min-width: 0;
-  padding: var(--ct-page-header-pad) !important;
-  border: 1px solid var(--ct-border) !important;
-  border-radius: var(--ct-page-header-radius) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  color: var(--ct-text) !important;
-  box-shadow:
-    0 18px 42px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055) !important;
-}
-
-#app:not(.landing-active) .cli-page__header > *,
-#app:not(.landing-active) #view-equipamentos .equip-hero > *,
-#app:not(.landing-active) .hist-sticky-header > *,
-#app:not(.landing-active) #view-relatorio .rel-hero > *,
-#app:not(.landing-active) #view-alertas .section-title > *,
-#app:not(.landing-active) #view-orcamentos .orc-header > * {
-  min-width: 0;
-}
-
-#app:not(.landing-active) .cli-page__title,
-#app:not(.landing-active) #view-equipamentos .equip-hero__title,
-#app:not(.landing-active) .hist-title,
-#app:not(.landing-active) #view-relatorio .rel-hero__title,
-#app:not(.landing-active) #view-alertas .section-title,
-#app:not(.landing-active) #view-orcamentos .orc-header__title {
-  color: var(--ct-text) !important;
-  letter-spacing: 0 !important;
-}
-
-#app:not(.landing-active) .cli-page__sub,
-#app:not(.landing-active) #view-equipamentos .equip-hero__sub,
-#app:not(.landing-active) .hist-subtitle,
-#app:not(.landing-active) #view-relatorio .rel-hero__narrative,
-#app:not(.landing-active) #view-orcamentos .orc-kpi__label {
-  color: var(--ct-text-muted) !important;
-}
-
-#app:not(.landing-active) .cli-filters,
-#app:not(.landing-active) #view-equipamentos .equip-filters,
-#app:not(.landing-active) #view-equipamentos .equip-search-row,
-#app:not(.landing-active) .hist-sticky-header__row,
-#app:not(.landing-active) .hist-quickfilters,
-#app:not(.landing-active) #view-relatorio .rel-toolbar,
-#app:not(.landing-active) #view-relatorio .rel-filters,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar {
-  gap: var(--ct-action-gap) !important;
-  border-color: var(--ct-border) !important;
-}
-
-#app:not(.landing-active) .cli-page__cta,
-#app:not(.landing-active) .cli-empty__cta:not(.cli-empty__cta--ghost),
-#app:not(.landing-active) .equip-hero__cta-btn--action,
-#app:not(.landing-active) .dash__hero-cta:not(.dash__hero-cta--secondary),
-#app:not(.landing-active) #view-orcamentos .btn--primary,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--primary,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--pdf {
-  min-height: var(--ct-action-height) !important;
-  border-radius: 13px !important;
-  background: linear-gradient(135deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  border: 1px solid rgba(144, 184, 248, 0.38) !important;
-  color: var(--ct-legacy-light-surface) !important;
-  box-shadow:
-    0 14px 30px rgba(95, 133, 219, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-}
-
-#app:not(.landing-active) .cli-card__action--secondary,
-#app:not(.landing-active) .cli-card__action--pmoc,
-#app:not(.landing-active) .cli-card__action--ghost,
-#app:not(.landing-active) .equip-card__action,
-#app:not(.landing-active) .hist-item-actions__kebab,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__back,
-#app:not(.landing-active) #view-orcamentos .btn--outline,
-#app:not(.landing-active) #view-orcamentos .btn--ghost,
-#app:not(.landing-active) #view-orcamentos .orc-chip,
-#app:not(.landing-active) #view-orcamentos .orc-card__kebab,
-#app:not(.landing-active) #view-alertas .alertas-context-banner__cta {
-  min-height: 40px;
-  border-radius: 12px !important;
-  background: rgba(144, 184, 248, 0.065) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .cli-card__action--secondary:hover,
-#app:not(.landing-active) .cli-card__action--pmoc:hover,
-#app:not(.landing-active) .cli-card__action--ghost:hover,
-#app:not(.landing-active) .equip-card__action:hover,
-#app:not(.landing-active) .hist-item-actions__kebab:hover,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn:hover:not(:disabled),
-#app:not(.landing-active) #view-relatorio .rel-toolbar__back:hover,
-#app:not(.landing-active) #view-orcamentos .btn--outline:hover,
-#app:not(.landing-active) #view-orcamentos .btn--ghost:hover,
-#app:not(.landing-active) #view-orcamentos .orc-chip:hover,
-#app:not(.landing-active) #view-alertas .alertas-context-banner__cta:hover {
-  background: rgba(144, 184, 248, 0.11) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-brand-hover) !important;
-  transform: translateY(-1px);
-}
-
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn--whatsapp {
-  background: rgba(144, 184, 248, 0.09) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) .cli-card__actions,
-#app:not(.landing-active) #view-orcamentos .orc-card__actions,
-#app:not(.landing-active) .hist-item-actions,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__actions {
-  min-width: 0;
-  gap: 8px !important;
-}
-
-#app:not(.landing-active) .cli-card__action,
-#app:not(.landing-active) .equip-card__action,
-#app:not(.landing-active) .rel-toolbar__btn,
-#app:not(.landing-active) #view-orcamentos .btn,
-#app:not(.landing-active) .hist-item-actions__kebab {
-  max-width: 100%;
-  white-space: nowrap;
-}
-
-#app:not(.landing-active) .cli-card__action span,
-#app:not(.landing-active) .equip-card__action span,
-#app:not(.landing-active) .rel-toolbar__btn span,
-#app:not(.landing-active) #view-orcamentos .btn span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 920px) {
-  #app:not(.landing-active) .cli-page__header,
-  #app:not(.landing-active) #view-equipamentos .equip-hero,
-  #app:not(.landing-active) .hist-sticky-header,
-  #app:not(.landing-active) #view-relatorio .rel-hero,
-  #app:not(.landing-active) #view-orcamentos .orc-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #app:not(.landing-active) .cli-page__cta,
-  #app:not(.landing-active) .equip-hero__cta-btn--action,
-  #app:not(.landing-active) #view-orcamentos .btn--primary {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 640px) {
-  #app:not(.landing-active) .cli-filters,
-  #app:not(.landing-active) #view-equipamentos .equip-filters,
-  #app:not(.landing-active) .hist-sticky-header__row,
-  #app:not(.landing-active) .hist-quickfilters,
-  #app:not(.landing-active) #view-relatorio .rel-toolbar,
-  #app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
-  #app:not(.landing-active) #view-orcamentos .orc-toolbar,
-  #app:not(.landing-active) #view-orcamentos .orc-card__actions {
-    display: flex;
-    flex-wrap: wrap;
-    overflow-x: clip;
-  }
-
-  #app:not(.landing-active) .cli-card__actions,
-  #app:not(.landing-active) #view-orcamentos .orc-card__actions {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ============================================================
-   PR 7 - Charts, filters, chips and pills refinement
-   ============================================================ */
-
-#app:not(.landing-active) {
-  --ct-chip-height: 34px;
-  --ct-filter-height: 44px;
-  --ct-pill-dot-size: 6px;
-}
-
-#app:not(.landing-active) .chart-card {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    var(--ct-surface) !important;
-  border: 1px solid var(--ct-border) !important;
-  border-radius: 18px !important;
-  box-shadow: var(--ct-shadow-soft) !important;
-  overflow: hidden;
-}
-
-#app:not(.landing-active) .chart-card:hover,
-#app:not(.landing-active) .chart-card:focus-within {
-  background:
-    linear-gradient(180deg, rgba(144, 184, 248, 0.055), rgba(255, 255, 255, 0.016)),
-    var(--ct-surface-raised) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) .chart-card__title {
-  color: var(--ct-text) !important;
-  letter-spacing: 0 !important;
-}
-
-#app:not(.landing-active) .chart-card__body {
-  min-width: 0;
-  padding: 14px !important;
-  background: var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border);
-  border-radius: 14px;
-}
-
-#app:not(.landing-active) .chart-card__body canvas,
-#app:not(.landing-active) .bento-chart canvas {
-  display: block;
-  max-width: 100% !important;
-  min-width: 0;
-}
-
-#app:not(.landing-active) .cli-filters,
-#app:not(.landing-active) #view-equipamentos .equip-filters,
-#app:not(.landing-active) #view-equipamentos .equip-search-row,
-#app:not(.landing-active) .hist-sticky-header__row,
-#app:not(.landing-active) .hist-quickfilters,
-#app:not(.landing-active) #view-relatorio .rel-filters,
-#app:not(.landing-active) #view-relatorio .rel-filters__advanced,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar {
-  align-items: center;
-  min-width: 0;
-  padding: 12px !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.01)),
-    var(--ct-surface) !important;
-  border-color: var(--ct-border) !important;
-  box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
-}
-
-#app:not(.landing-active) .search-bar,
-#app:not(.landing-active) .cli-search,
-#app:not(.landing-active) .orc-search,
-#app:not(.landing-active) .hist-search {
-  min-width: 0;
-}
-
-#app:not(.landing-active) .search-bar__input,
-#app:not(.landing-active) .cli-search__input,
-#app:not(.landing-active) .cli-select__input,
-#app:not(.landing-active) #view-orcamentos .orc-search__input,
-#app:not(.landing-active) .hist-search input,
-#app:not(.landing-active) .hist-sticky-header select,
-#app:not(.landing-active) #view-relatorio .rel-filters input,
-#app:not(.landing-active) #view-relatorio .rel-filters select {
-  min-height: var(--ct-filter-height) !important;
-  background: var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border) !important;
-  border-radius: 13px !important;
-  color: var(--ct-text) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .search-bar__input::placeholder,
-#app:not(.landing-active) .cli-search__input::placeholder,
-#app:not(.landing-active) #view-orcamentos .orc-search__input::placeholder,
-#app:not(.landing-active) .hist-search input::placeholder,
-#app:not(.landing-active) #view-relatorio .rel-filters input::placeholder {
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) .search-bar__input:focus,
-#app:not(.landing-active) .cli-search__input:focus,
-#app:not(.landing-active) .cli-select__input:focus,
-#app:not(.landing-active) #view-orcamentos .orc-search__input:focus,
-#app:not(.landing-active) .hist-search input:focus,
-#app:not(.landing-active) .hist-sticky-header select:focus,
-#app:not(.landing-active) #view-relatorio .rel-filters input:focus,
-#app:not(.landing-active) #view-relatorio .rel-filters select:focus {
-  border-color: var(--ct-brand-hover) !important;
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(144, 184, 248, 0.2) !important;
-}
-
-#app:not(.landing-active) .rel-segmented,
-#app:not(.landing-active) .rel-mode-segment,
-#app:not(.landing-active) .hist-quickfilters,
-#app:not(.landing-active) #view-orcamentos .orc-filter-chips {
-  min-width: 0;
-  padding: 4px !important;
-  background: var(--ct-surface-subtle) !important;
-  border: 1px solid var(--ct-border) !important;
-  border-radius: 15px !important;
-  overflow: hidden;
-}
-
-#app:not(.landing-active) .rel-segmented__opt,
-#app:not(.landing-active) .rel-mode-segment__item,
-#app:not(.landing-active) .hist-quickfilter,
-#app:not(.landing-active) #view-orcamentos .orc-chip,
-#app:not(.landing-active) .equip-filter {
-  min-height: var(--ct-chip-height) !important;
-  max-width: 100%;
-  padding: 0 12px !important;
-  border: 1px solid transparent !important;
-  border-radius: 999px !important;
-  background: transparent !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-  white-space: nowrap;
-}
-
-#app:not(.landing-active) .rel-segmented__opt:hover,
-#app:not(.landing-active) .rel-mode-segment__item:hover,
-#app:not(.landing-active) .hist-quickfilter:hover,
-#app:not(.landing-active) #view-orcamentos .orc-chip:hover,
-#app:not(.landing-active) .equip-filter:hover {
-  background: rgba(144, 184, 248, 0.1) !important;
-  border-color: var(--ct-border) !important;
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) .rel-segmented__opt.is-active,
-#app:not(.landing-active) .rel-mode-segment__item.is-active,
-#app:not(.landing-active) .hist-quickfilter.is-active,
-#app:not(.landing-active) #view-orcamentos .orc-chip.is-active,
-#app:not(.landing-active) .equip-filter--active {
-  background: rgba(144, 184, 248, 0.14) !important;
-  border-color: var(--ct-border-strong) !important;
-  color: var(--ct-text) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055) !important;
-}
-
-#app:not(.landing-active) .rel-chip,
-#app:not(.landing-active) .hist-active-chip,
-#app:not(.landing-active) .cli-context__chip,
-#app:not(.landing-active) .eq-tech-sheet-wrap__summary-chip,
-#app:not(.landing-active) .equip-card__chip-ctx,
-#app:not(.landing-active) .equip-card__risk-chip,
-#app:not(.landing-active) .registro-quick-chip {
-  min-height: var(--ct-chip-height) !important;
-  max-width: 100%;
-  min-width: 0;
-  padding: 6px 10px !important;
-  border: 1px solid var(--ct-border) !important;
-  border-radius: 999px !important;
-  background: rgba(144, 184, 248, 0.075) !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  overflow-wrap: anywhere;
-}
-
-#app:not(.landing-active) .rel-chip.is-active,
-#app:not(.landing-active) .hist-active-chip,
-#app:not(.landing-active) .cli-context__chip b,
-#app:not(.landing-active) .equip-card__chip-ctx--positive {
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) .rel-chip__label,
-#app:not(.landing-active) .hist-active-chip span,
-#app:not(.landing-active) .cli-context__chip,
-#app:not(.landing-active) .equip-card__chip-ctx span,
-#app:not(.landing-active) .registro-quick-chip__label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#app:not(.landing-active) .rel-chip__clear,
-#app:not(.landing-active) .hist-active-chip__x,
-#app:not(.landing-active) .search-bar__clear {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 22px !important;
-  height: 22px !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.045) !important;
-  border: 1px solid var(--ct-border) !important;
-  color: var(--ct-text-faint) !important;
-}
-
-#app:not(.landing-active) .rel-chip__clear:hover,
-#app:not(.landing-active) .hist-active-chip__x:hover,
-#app:not(.landing-active) .search-bar__clear:hover {
-  background: rgba(144, 184, 248, 0.12) !important;
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) .badge,
-#app:not(.landing-active) .cli-card__pill,
-#app:not(.landing-active) .cli-pmoc__chip,
-#app:not(.landing-active) .hist-pill,
-#app:not(.landing-active) .equip-tone-pill,
-#app:not(.landing-active) .equip-card__tone-pill,
-#app:not(.landing-active) .equip-card__risk-badge,
-#app:not(.landing-active) .equip-card__priority-badge,
-#app:not(.landing-active) .orc-status-pill,
-#app:not(.landing-active) .rel-record__prox-badge,
-#app:not(.landing-active) .pdf-quota-badge,
-#app:not(.landing-active) .header-alert-pill {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 7px !important;
-  max-width: 100%;
-  min-width: 0;
-  min-height: 26px;
-  padding: 4px 9px !important;
-  border-radius: 999px !important;
-  border: 1px solid var(--ct-border) !important;
-  background: rgba(144, 184, 248, 0.08) !important;
-  color: var(--ct-text-muted) !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.02em !important;
-  line-height: 1.1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#app:not(.landing-active) .badge::before,
-#app:not(.landing-active) .cli-card__pill::before,
-#app:not(.landing-active) .cli-pmoc__chip::before,
-#app:not(.landing-active) .hist-pill::before,
-#app:not(.landing-active) .orc-status-pill::before,
-#app:not(.landing-active) .rel-record__prox-badge::before {
-  content: '';
-  flex: 0 0 auto;
-  width: var(--ct-pill-dot-size);
-  height: var(--ct-pill-dot-size);
-  border-radius: 999px;
-  background: currentColor;
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent);
-}
-
-#app:not(.landing-active) .badge--ok,
-#app:not(.landing-active) .cli-card__pill--ok,
-#app:not(.landing-active) .cli-pmoc__chip--ok,
-#app:not(.landing-active) .hist-pill--green,
-#app:not(.landing-active) .hist-pill--ok,
-#app:not(.landing-active) .equip-tone-pill--ok,
-#app:not(.landing-active) .equip-card__tone-pill--ok,
-#app:not(.landing-active) .equip-card__risk-badge--baixo,
-#app:not(.landing-active) .equip-card__priority-badge--1 {
-  background: var(--ct-success-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-success) 32%, transparent) !important;
-  color: var(--ct-success) !important;
-}
-
-#app:not(.landing-active) .badge--warn,
-#app:not(.landing-active) .cli-card__pill--warn,
-#app:not(.landing-active) .cli-pmoc__chip--warn,
-#app:not(.landing-active) .hist-pill--amber,
-#app:not(.landing-active) .hist-pill--warn,
-#app:not(.landing-active) .equip-tone-pill--warn,
-#app:not(.landing-active) .equip-card__tone-pill--warn,
-#app:not(.landing-active) .equip-card__risk-badge--medio,
-#app:not(.landing-active) .equip-card__priority-badge--2 {
-  background: var(--ct-warn-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-warn) 32%, transparent) !important;
-  color: var(--ct-warn) !important;
-}
-
-#app:not(.landing-active) .badge--danger,
-#app:not(.landing-active) .cli-card__pill--danger,
-#app:not(.landing-active) .cli-pmoc__chip--danger,
-#app:not(.landing-active) .hist-pill--red,
-#app:not(.landing-active) .hist-pill--danger,
-#app:not(.landing-active) .equip-tone-pill--danger,
-#app:not(.landing-active) .equip-card__tone-pill--danger,
-#app:not(.landing-active) .equip-card__risk-badge--alto,
-#app:not(.landing-active) .equip-card__priority-badge--3,
-#app:not(.landing-active) .equip-card__priority-badge--4 {
-  background: var(--ct-error-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-error) 32%, transparent) !important;
-  color: var(--ct-error) !important;
-}
-
-#app:not(.landing-active) .hist-pill--cyan,
-#app:not(.landing-active) .hist-pill--blue,
-#app:not(.landing-active) .hist-pill--neutral,
-#app:not(.landing-active) .equip-tone-pill--neutral,
-#app:not(.landing-active) .equip-card__tone-pill--neutral,
-#app:not(.landing-active) .rel-record__prox-badge--default {
-  background: var(--ct-info-soft) !important;
-  border-color: color-mix(in srgb, var(--ct-info) 32%, transparent) !important;
-  color: var(--ct-info) !important;
-}
-
-#app:not(.landing-active) .form-progress__bar,
-#app:not(.landing-active) .onb-card__progress,
-#app:not(.landing-active) .equip-health-mini__bar,
-#app:not(.landing-active) .equip-card__health-bar,
-#app:not(.landing-active) .equip-card__health-bar-full {
-  height: 8px !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.075) !important;
-  border: 1px solid var(--ct-border) !important;
-  overflow: hidden;
-}
-
-#app:not(.landing-active) .form-progress__fill,
-#app:not(.landing-active) .onb-card__progress-fill,
-#app:not(.landing-active) .equip-health-mini__val,
-#app:not(.landing-active) .equip-card__health-fill {
-  min-width: 0;
-  border-radius: inherit !important;
-  background: linear-gradient(90deg, var(--ct-brand), var(--ct-brand-hover)) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .equip-card__health-fill--ok,
-#app:not(.landing-active) .form-progress[data-state='complete'] .form-progress__fill {
-  background: linear-gradient(90deg, var(--ct-success), var(--ct-brand-hover)) !important;
-}
-
-#app:not(.landing-active) .equip-card__health-fill--warn,
-#app:not(.landing-active) .form-progress[data-state='partial'] .form-progress__fill {
-  background: linear-gradient(90deg, var(--ct-warn), var(--ct-brand-hover)) !important;
-}
-
-#app:not(.landing-active) .equip-card__health-fill--danger {
-  background: linear-gradient(90deg, var(--ct-error), var(--ct-warn)) !important;
-}
-
-@media (max-width: 720px) {
-  #app:not(.landing-active) .rel-segmented,
-  #app:not(.landing-active) .rel-mode-segment,
-  #app:not(.landing-active) .hist-quickfilters,
-  #app:not(.landing-active) .hist-active-chips,
-  #app:not(.landing-active) .rel-filters__chips,
-  #app:not(.landing-active) #view-orcamentos .orc-filter-chips,
-  #app:not(.landing-active) #view-equipamentos .equip-filters {
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 100%;
-    overflow-x: clip;
-  }
-
-  #app:not(.landing-active) .chart-card__body {
-    padding: 10px !important;
-  }
-}
-
-/* ============================================================
-   PR 8 - Overflow, spacing and visual cleanup
-   ============================================================ */
-
-#app:not(.landing-active) {
-  --ct-focus-soft: rgba(144, 184, 248, 0.16);
-  --ct-focus-border: rgba(144, 184, 248, 0.42);
-  --ct-shadow-tight: 0 10px 24px rgba(0, 0, 0, 0.16);
-  --ct-section-gap: clamp(14px, 2vw, 22px);
-}
-
-#app:not(.landing-active),
-#app:not(.landing-active) .app-shell,
-#app:not(.landing-active) .app-main,
-#app:not(.landing-active) .view,
-#app:not(.landing-active) .view-content,
-#app:not(.landing-active) .page,
-#app:not(.landing-active) .section,
-#app:not(.landing-active) .card,
-#app:not(.landing-active) .cli-card,
-#app:not(.landing-active) .equip-card,
-#app:not(.landing-active) .rel-record,
-#app:not(.landing-active) #view-orcamentos .orc-card,
-#app:not(.landing-active) #view-alertas .alert-card,
-#app:not(.landing-active) .chart-card {
-  min-width: 0;
-}
-
-#app:not(.landing-active) .view,
-#app:not(.landing-active) .view-content,
-#app:not(.landing-active) #dash,
-#app:not(.landing-active) #view-equipamentos,
-#app:not(.landing-active) #view-relatorio,
-#app:not(.landing-active) #view-alertas,
-#app:not(.landing-active) #view-orcamentos {
-  overflow-x: clip;
-}
-
-#app:not(.landing-active) h1,
-#app:not(.landing-active) h2,
-#app:not(.landing-active) h3,
-#app:not(.landing-active) h4,
-#app:not(.landing-active) p,
-#app:not(.landing-active) span,
-#app:not(.landing-active) small,
-#app:not(.landing-active) strong,
-#app:not(.landing-active) label,
-#app:not(.landing-active) .cli-card__name,
-#app:not(.landing-active) .cli-card__meta,
-#app:not(.landing-active) .equip-card__title,
-#app:not(.landing-active) .equip-card__meta,
-#app:not(.landing-active) .rel-record__title,
-#app:not(.landing-active) .rel-record__meta,
-#app:not(.landing-active) #view-orcamentos .orc-card__title,
-#app:not(.landing-active) #view-orcamentos .orc-card__cliente,
-#app:not(.landing-active) #view-alertas .alert-card__title {
-  max-width: 100%;
-  overflow-wrap: anywhere !important;
-}
-
-#app:not(.landing-active) .app-sidebar__nav-item,
-#app:not(.landing-active) .app-sidebar__section-title,
-#app:not(.landing-active) .app-sidebar__user-name,
-#app:not(.landing-active) .app-sidebar__user-email,
-#app:not(.landing-active) .cli-card__name,
-#app:not(.landing-active) .equip-card__title,
-#app:not(.landing-active) .rel-record__title,
-#app:not(.landing-active) #view-orcamentos .orc-card__title,
-#app:not(.landing-active) .chart-card__title,
-#app:not(.landing-active) .badge,
-#app:not(.landing-active) .hist-pill,
-#app:not(.landing-active) .orc-status-pill,
-#app:not(.landing-active) .cli-card__pill,
-#app:not(.landing-active) .cli-pmoc__chip,
-#app:not(.landing-active) .equip-card__tone-pill,
-#app:not(.landing-active) .equip-card__risk-badge,
-#app:not(.landing-active) .rel-record__prox-badge {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-#app:not(.landing-active) .app-sidebar__nav-item,
-#app:not(.landing-active) .app-sidebar__user-name,
-#app:not(.landing-active) .app-sidebar__user-email,
-#app:not(.landing-active) .cli-card__name,
-#app:not(.landing-active) .equip-card__title,
-#app:not(.landing-active) .rel-record__title,
-#app:not(.landing-active) #view-orcamentos .orc-card__title,
-#app:not(.landing-active) .chart-card__title {
-  white-space: nowrap;
-}
-
-#app:not(.landing-active) .app-sidebar__nav-item {
-  gap: 12px !important;
-  min-height: 46px !important;
-  padding-inline: 15px !important;
-}
-
-#app:not(.landing-active) .app-sidebar__nav-item span,
-#app:not(.landing-active) .app-sidebar__nav-item .app-sidebar__nav-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#app:not(.landing-active) .app-sidebar__nav-badge,
-#app:not(.landing-active) .badge::before,
-#app:not(.landing-active) .hist-pill::before,
-#app:not(.landing-active) .orc-status-pill::before,
-#app:not(.landing-active) .cli-card__pill::before,
-#app:not(.landing-active) .cli-pmoc__chip::before {
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .cli-page,
-#app:not(.landing-active) #view-equipamentos .equip-page,
-#app:not(.landing-active) #view-relatorio .rel-page,
-#app:not(.landing-active) #view-alertas,
-#app:not(.landing-active) #view-orcamentos {
-  gap: var(--ct-section-gap) !important;
-}
-
-#app:not(.landing-active) .cli-page__header,
-#app:not(.landing-active) #view-equipamentos .equip-hero,
-#app:not(.landing-active) .hist-sticky-header,
-#app:not(.landing-active) #view-relatorio .rel-hero,
-#app:not(.landing-active) #view-alertas .section-title,
-#app:not(.landing-active) #view-orcamentos .orc-header {
-  margin-bottom: var(--ct-section-gap) !important;
-}
-
-#app:not(.landing-active) .cli-filters,
-#app:not(.landing-active) #view-equipamentos .equip-filters,
-#app:not(.landing-active) #view-equipamentos .equip-search-row,
-#app:not(.landing-active) .hist-sticky-header__row,
-#app:not(.landing-active) .hist-quickfilters,
-#app:not(.landing-active) #view-relatorio .rel-toolbar,
-#app:not(.landing-active) #view-relatorio .rel-filters,
-#app:not(.landing-active) #view-relatorio .rel-filters__advanced,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar,
-#app:not(.landing-active) .chart-card,
-#app:not(.landing-active) .cli-card,
-#app:not(.landing-active) .equip-card,
-#app:not(.landing-active) .rel-record,
-#app:not(.landing-active) #view-orcamentos .orc-card,
-#app:not(.landing-active) #view-alertas .alert-card {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16) !important;
-}
-
-#app:not(.landing-active) .chart-card:hover,
-#app:not(.landing-active) .chart-card:focus-within,
-#app:not(.landing-active) .cli-card:hover,
-#app:not(.landing-active) .equip-card:hover,
-#app:not(.landing-active) .rel-record:hover,
-#app:not(.landing-active) #view-orcamentos .orc-card:hover,
-#app:not(.landing-active) #view-alertas .alert-card:hover {
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18) !important;
-  border-color: var(--ct-border-strong) !important;
-}
-
-#app:not(.landing-active) .search-bar__input:focus,
-#app:not(.landing-active) .cli-search__input:focus,
-#app:not(.landing-active) .cli-select__input:focus,
-#app:not(.landing-active) #view-orcamentos .orc-search__input:focus,
-#app:not(.landing-active) .hist-search input:focus,
-#app:not(.landing-active) .hist-sticky-header select:focus,
-#app:not(.landing-active) #view-relatorio .rel-filters input:focus,
-#app:not(.landing-active) #view-relatorio .rel-filters select:focus,
-#app:not(.landing-active) .form-control:focus,
-#app:not(.landing-active) input:focus,
-#app:not(.landing-active) select:focus,
-#app:not(.landing-active) textarea:focus {
-  border-color: var(--ct-focus-border) !important;
-  box-shadow: 0 0 0 3px var(--ct-focus-soft) !important;
-}
-
-#app:not(.landing-active) .rel-segmented__opt.is-active,
-#app:not(.landing-active) .rel-mode-segment__item.is-active,
-#app:not(.landing-active) .hist-quickfilter.is-active,
-#app:not(.landing-active) #view-orcamentos .orc-chip.is-active,
-#app:not(.landing-active) .equip-filter--active {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-}
-
-#app:not(.landing-active) .rel-table-wrap,
-#app:not(.landing-active) .table-wrap,
-#app:not(.landing-active) .responsive-table,
-#app:not(.landing-active) .table-container {
-  max-width: 100%;
-  min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-}
-
-#app:not(.landing-active) table {
-  max-width: 100%;
-}
-
-#app:not(.landing-active) th,
-#app:not(.landing-active) td {
-  min-width: 0;
-  overflow-wrap: anywhere !important;
-}
-
-#app:not(.landing-active) .cli-card__actions,
-#app:not(.landing-active) .equip-card__actions,
-#app:not(.landing-active) .hist-item-actions,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
-#app:not(.landing-active) #view-orcamentos .orc-card__actions {
-  align-items: center;
-  gap: 8px !important;
-  max-width: 100%;
-  min-width: 0;
-}
-
-#app:not(.landing-active) .cli-card__action,
-#app:not(.landing-active) .equip-card__action,
-#app:not(.landing-active) .hist-item-actions__kebab,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__btn,
-#app:not(.landing-active) #view-orcamentos .btn {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#app:not(.landing-active) .badge,
-#app:not(.landing-active) .hist-pill,
-#app:not(.landing-active) .orc-status-pill,
-#app:not(.landing-active) .cli-card__pill,
-#app:not(.landing-active) .cli-pmoc__chip,
-#app:not(.landing-active) .equip-card__tone-pill,
-#app:not(.landing-active) .equip-card__risk-badge,
-#app:not(.landing-active) .equip-card__priority-badge,
-#app:not(.landing-active) .rel-record__prox-badge,
-#app:not(.landing-active) .pdf-quota-badge {
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
-#app:not(.landing-active) .empty-state,
-#app:not(.landing-active) .cli-empty,
-#app:not(.landing-active) .equip-empty,
-#app:not(.landing-active) #view-orcamentos .orc-empty {
-  padding: clamp(18px, 4vw, 30px) !important;
-  border-color: var(--ct-border) !important;
-}
-
-@media (max-width: 720px) {
-  #app:not(.landing-active) .app-main,
-  #app:not(.landing-active) .view,
-  #app:not(.landing-active) .view-content {
-    max-width: 100vw;
-    overflow-x: clip;
-  }
-
-  #app:not(.landing-active) .cli-page__header,
-  #app:not(.landing-active) #view-equipamentos .equip-hero,
-  #app:not(.landing-active) .hist-sticky-header,
-  #app:not(.landing-active) #view-relatorio .rel-hero,
-  #app:not(.landing-active) #view-orcamentos .orc-header {
-    gap: 12px !important;
-  }
-
-  #app:not(.landing-active) .cli-card__name,
-  #app:not(.landing-active) .equip-card__title,
-  #app:not(.landing-active) .rel-record__title,
-  #app:not(.landing-active) #view-orcamentos .orc-card__title,
-  #app:not(.landing-active) .chart-card__title {
-    white-space: normal;
-  }
-
-  #app:not(.landing-active) .badge,
-  #app:not(.landing-active) .hist-pill,
-  #app:not(.landing-active) .orc-status-pill,
-  #app:not(.landing-active) .cli-card__pill,
-  #app:not(.landing-active) .cli-pmoc__chip,
-  #app:not(.landing-active) .equip-card__tone-pill,
-  #app:not(.landing-active) .equip-card__risk-badge,
-  #app:not(.landing-active) .rel-record__prox-badge {
-    white-space: normal;
-  }
-}
-
-/* ============================================================
-   PR 9 - Shell, sidebar and page headers refinement
-   ============================================================ */
-
-#app:not(.landing-active) .app-content.app-shell--with-sidebar {
-  background:
-    radial-gradient(circle at 2% 0%, rgba(144, 184, 248, 0.1), transparent 34%),
-    linear-gradient(135deg, rgba(38, 40, 43, 0.98), rgba(31, 33, 37, 0.98));
-}
-
-#app:not(.landing-active) .app-shell--with-sidebar #main-content {
-  min-width: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 180px), var(--ct-app-bg);
-}
-
-#app:not(.landing-active) .app-shell--with-sidebar .app-sidebar {
-  --ct-sidebar-pad-x: 20px;
-  --ct-sidebar-item-h: 46px;
-  position: sticky;
-  top: calc(var(--app-header-total-height, 0px) + 12px);
-  align-self: start;
-  height: calc(100dvh - var(--app-header-total-height, 0px) - 24px) !important;
-  max-height: calc(100dvh - var(--app-header-total-height, 0px) - 24px);
-  display: flex !important;
-  flex-direction: column;
-  padding: 22px var(--ct-sidebar-pad-x) 18px !important;
-  overflow: hidden;
-  border-right: 1px solid rgba(144, 184, 248, 0.12) !important;
-  background:
-    linear-gradient(180deg, rgba(53, 57, 65, 0.98), rgba(45, 48, 54, 0.98)), var(--ct-surface) !important;
-  box-shadow: 18px 0 44px rgba(0, 0, 0, 0.18) !important;
-}
-
-#app:not(.landing-active) .app-sidebar__brand {
-  flex: 0 0 auto;
-  min-height: 46px;
-  margin: 0 0 24px !important;
-  padding: 0 2px 20px !important;
-  border-bottom: 1px solid rgba(144, 184, 248, 0.12);
-}
-
-#app:not(.landing-active) .app-sidebar__brand-icon {
-  box-shadow: 0 10px 24px rgba(95, 133, 219, 0.18) !important;
-}
-
-#app:not(.landing-active) .app-sidebar__nav {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex !important;
-  flex-direction: column;
-  gap: 22px !important;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 2px 6px !important;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(144, 184, 248, 0.26) transparent;
-}
-
-#app:not(.landing-active) .app-sidebar__section {
-  display: flex !important;
-  flex-direction: column;
-  gap: 7px !important;
-  margin: 0 !important;
-}
-
-#app:not(.landing-active) .app-sidebar__section + .app-sidebar__section {
-  padding-top: 3px;
-}
-
-#app:not(.landing-active) .app-sidebar__section-kicker {
-  margin: 0 0 5px !important;
-  padding: 0 14px !important;
-  color: var(--ct-text-faint) !important;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.14em !important;
-  line-height: 1.2;
-  opacity: 0.82;
-}
-
-#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item {
-  min-height: var(--ct-sidebar-item-h) !important;
-  padding: 0 15px !important;
-  border-radius: 14px !important;
-  border: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--ct-text-muted) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item:hover {
-  background: rgba(144, 184, 248, 0.075) !important;
-  border-color: rgba(144, 184, 248, 0.13) !important;
-  color: var(--ct-text) !important;
-  transform: none !important;
-}
-
-#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active {
-  background:
-    linear-gradient(135deg, rgba(95, 133, 219, 0.94), rgba(144, 184, 248, 0.78)), var(--ct-brand) !important;
-  border-color: rgba(144, 184, 248, 0.38) !important;
-  color: var(--ct-legacy-light-surface) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 12px 26px rgba(95, 133, 219, 0.18) !important;
-}
-
-#app:not(.landing-active) .app-sidebar .app-sidebar__nav-item.is-active::before {
-  opacity: 0.82 !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .app-sidebar__shortcut,
-#app:not(.landing-active) .app-sidebar__nav-lock,
-#app:not(.landing-active) .app-sidebar__nav-badge {
-  margin-left: auto;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .app-sidebar__footer {
-  flex: 0 0 auto;
-  display: flex !important;
-  flex-direction: column;
-  gap: 10px !important;
-  margin-top: 18px !important;
-  padding: 16px 2px 0 !important;
-  border-top: 1px solid rgba(144, 184, 248, 0.12) !important;
-}
-
-#app:not(.landing-active) .app-sidebar__user-chip,
-#app:not(.landing-active) .app-sidebar__settings {
-  min-height: 46px !important;
-  padding: 9px 12px !important;
-  border-radius: 14px !important;
-  border: 1px solid rgba(144, 184, 248, 0.13) !important;
-  background: rgba(45, 48, 54, 0.74) !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .app-sidebar__user-chip:hover,
-#app:not(.landing-active) .app-sidebar__settings:hover {
-  background: rgba(144, 184, 248, 0.08) !important;
-  border-color: rgba(144, 184, 248, 0.22) !important;
-}
-
-#app:not(.landing-active) .app-sidebar__user-avatar {
-  flex: 0 0 32px;
-  width: 32px !important;
-  height: 32px !important;
-  box-shadow: none !important;
-}
-
-#app:not(.landing-active) .app-sidebar__sync {
-  min-height: 34px;
-  padding: 7px 10px !important;
-  border-radius: 12px !important;
-  background: rgba(144, 184, 248, 0.08) !important;
-  border: 1px solid rgba(144, 184, 248, 0.14) !important;
-}
-
-#app:not(.landing-active) .cli-page__header,
-#app:not(.landing-active) #view-equipamentos .equip-hero,
-#app:not(.landing-active) .hist-sticky-header,
-#app:not(.landing-active) #view-relatorio .rel-hero,
-#app:not(.landing-active) #view-alertas .section-title,
-#app:not(.landing-active) #view-orcamentos .orc-header {
-  position: relative;
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start !important;
-  gap: 14px 18px !important;
-  padding: clamp(16px, 2vw, 22px) !important;
-  border-radius: 20px !important;
-  border: 1px solid rgba(144, 184, 248, 0.16) !important;
-  background:
-    linear-gradient(135deg, rgba(62, 67, 77, 0.86), rgba(45, 48, 54, 0.94)), var(--ct-surface) !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;
-  overflow: hidden;
-}
-
-#app:not(.landing-active) .cli-page__header::before,
-#app:not(.landing-active) #view-equipamentos .equip-hero::before,
-#app:not(.landing-active) .hist-sticky-header::before,
-#app:not(.landing-active) #view-relatorio .rel-hero::before,
-#app:not(.landing-active) #view-alertas .section-title::before,
-#app:not(.landing-active) #view-orcamentos .orc-header::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(144, 184, 248, 0.34), transparent);
-  pointer-events: none;
-}
-
-#app:not(.landing-active) .cli-page__title,
-#app:not(.landing-active) #view-equipamentos .equip-hero__title,
-#app:not(.landing-active) .hist-title,
-#app:not(.landing-active) #view-relatorio .rel-hero__title,
-#app:not(.landing-active) #view-alertas .section-title h2,
-#app:not(.landing-active) #view-orcamentos .orc-header__title {
-  margin: 0 !important;
-  color: var(--ct-text) !important;
-  letter-spacing: 0 !important;
-  line-height: 1.08 !important;
-}
-
-#app:not(.landing-active) .cli-page__subtitle,
-#app:not(.landing-active) #view-equipamentos .equip-hero__subtitle,
-#app:not(.landing-active) .hist-subtitle,
-#app:not(.landing-active) #view-relatorio .rel-hero__subtitle,
-#app:not(.landing-active) #view-alertas .section-title p,
-#app:not(.landing-active) #view-orcamentos .orc-header__subtitle {
-  margin: 6px 0 0 !important;
-  color: var(--ct-text-muted) !important;
-  max-width: 72ch;
-}
-
-#app:not(.landing-active) .cli-page__actions,
-#app:not(.landing-active) #view-equipamentos .equip-hero__actions,
-#app:not(.landing-active) .hist-sticky-header__actions,
-#app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
-#app:not(.landing-active) #view-orcamentos .orc-header__actions {
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 9px !important;
-  min-width: 0;
-}
-
-#app:not(.landing-active) .cli-filters,
-#app:not(.landing-active) #view-equipamentos .equip-filters,
-#app:not(.landing-active) #view-equipamentos .equip-search-row,
-#app:not(.landing-active) .hist-sticky-header__row,
-#app:not(.landing-active) #view-relatorio .rel-toolbar,
-#app:not(.landing-active) #view-relatorio .rel-filters,
-#app:not(.landing-active) #view-orcamentos .orc-toolbar {
-  border-color: rgba(144, 184, 248, 0.14) !important;
-  background: rgba(45, 48, 54, 0.78) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14) !important;
-}
-
-@media (min-width: 1024px) {
-  #app:not(.landing-active) .app-content.app-shell--with-sidebar {
-    gap: 0 !important;
-  }
-}
-
-@media (max-width: 960px) {
-  #app:not(.landing-active) .cli-page__header,
-  #app:not(.landing-active) #view-equipamentos .equip-hero,
-  #app:not(.landing-active) .hist-sticky-header,
-  #app:not(.landing-active) #view-relatorio .rel-hero,
-  #app:not(.landing-active) #view-alertas .section-title,
-  #app:not(.landing-active) #view-orcamentos .orc-header {
-    grid-template-columns: 1fr;
-  }
-
-  #app:not(.landing-active) .cli-page__actions,
-  #app:not(.landing-active) #view-equipamentos .equip-hero__actions,
-  #app:not(.landing-active) .hist-sticky-header__actions,
-  #app:not(.landing-active) #view-relatorio .rel-toolbar__actions,
-  #app:not(.landing-active) #view-orcamentos .orc-header__actions {
-    justify-content: flex-start;
-  }
-}
-
-/* ============================================================
-   PR 10 - Modals, scroll, summary cards and terminology polish
-   ============================================================ */
-
-body:not(.landing-active) #modal-add-eq,
-body:not(.landing-active) #modal-eq-det,
-body:not(.landing-active) #modal-eq-photos {
-  align-items: center;
-  padding: clamp(12px, 3vw, 28px);
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  overscroll-behavior: contain;
-}
-
-body:not(.landing-active) #modal-add-eq .modal,
-body:not(.landing-active) #modal-eq-det .modal,
-body:not(.landing-active) #modal-eq-photos .modal {
-  display: flex;
-  flex-direction: column;
-  width: min(940px, calc(100vw - 24px));
-  max-height: min(88dvh, 860px);
-  min-height: 0;
-  overflow: hidden !important;
-  border-color: rgba(144, 184, 248, 0.18) !important;
-  box-shadow:
-    0 26px 70px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-}
-
-body:not(.landing-active) #modal-add-eq .modal__body--scroll,
-body:not(.landing-active) #modal-eq-photos .modal__body--scroll,
-body:not(.landing-active) #modal-eq-det #eq-det-corpo {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none !important;
-  overflow-x: hidden;
-  overflow-y: auto !important;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(144, 184, 248, 0.32) transparent;
-}
-
-body:not(.landing-active) #modal-eq-det #eq-det-corpo {
-  padding: clamp(18px, 3vw, 26px);
-}
-
-body:not(.landing-active) #modal-add-eq .modal__footer,
-body:not(.landing-active) #modal-eq-photos .modal__footer {
-  flex: 0 0 auto;
-  border-top: 1px solid rgba(144, 184, 248, 0.14) !important;
-  background:
-    linear-gradient(180deg, rgba(62, 67, 77, 0.94), rgba(53, 57, 65, 0.98)), var(--ct-surface) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-header {
-  grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.35fr);
-  align-items: stretch !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-header__title-row {
-  align-content: center;
-  align-items: flex-start;
-  gap: 14px !important;
-  min-width: 0;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpis {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px !important;
-  width: 100%;
-  min-width: 0;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi {
-  min-width: 0;
-  padding: 15px 16px !important;
-  border-radius: 16px !important;
-  background:
-    linear-gradient(180deg, rgba(62, 67, 77, 0.82), rgba(45, 48, 54, 0.92)), var(--ct-surface) !important;
-  border: 1px solid rgba(144, 184, 248, 0.14) !important;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi::before {
-  top: 13px;
-  left: 16px;
-  width: 30px;
-  height: 3px;
-  border-radius: 999px;
-  opacity: 0.8;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi__value {
-  color: var(--ct-text) !important;
-  font-size: clamp(1.34rem, 2.2vw, 1.75rem) !important;
-  line-height: 1.06 !important;
-  overflow-wrap: anywhere;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi__label {
-  color: var(--ct-text-muted) !important;
-  margin-top: 7px !important;
-  overflow-wrap: anywhere;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='aprovado'] .orc-kpi__value {
-  color: color-mix(in srgb, var(--ct-success) 86%, var(--ct-text)) !important;
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='negociacao']::before {
-  background: var(--ct-brand-hover);
-}
-
-#app:not(.landing-active) #view-orcamentos .orc-kpi[data-kind='negociacao'] .orc-kpi__value {
-  color: var(--ct-brand-hover) !important;
-}
-
-#app:not(.landing-active) .cli-kpi .cli-kpi__sub--ok,
-#app:not(.landing-active) .equip-card__health-value--ok,
-#app:not(.landing-active) .equip-card__status--ok,
-#app:not(.landing-active) .setor-card__status--ok {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 6px;
-  width: fit-content;
-  max-width: 100%;
-  min-height: 26px;
-  padding: 5px 10px !important;
-  border-radius: 999px !important;
-  background: color-mix(in srgb, var(--ct-success-soft) 58%, transparent) !important;
-  border: 1px solid color-mix(in srgb, var(--ct-success) 28%, transparent) !important;
-  color: color-mix(in srgb, var(--ct-success) 86%, var(--ct-text)) !important;
-  box-shadow: none !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#app:not(.landing-active) .cli-kpi .cli-kpi__sub--ok::before,
-#app:not(.landing-active) .equip-card__health-value--ok::before,
-#app:not(.landing-active) .equip-card__status--ok::before,
-#app:not(.landing-active) .setor-card__status--ok::before {
-  content: '';
-  flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0.9;
-}
-
-#app:not(.landing-active) .equip-card__health-bar-full {
-  height: 7px !important;
-  border-radius: 999px !important;
-  background: rgba(244, 247, 251, 0.08) !important;
-  border: 1px solid rgba(144, 184, 248, 0.1) !important;
-}
-
-#app:not(.landing-active) .equip-card__health-fill--ok {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--ct-success) 72%, var(--ct-brand)),
-    var(--ct-brand-hover)
-  ) !important;
-}
-
-@media (max-width: 960px) {
-  #app:not(.landing-active) #view-orcamentos .orc-header {
-    grid-template-columns: 1fr;
-  }
-
-  #app:not(.landing-active) #view-orcamentos .orc-kpis {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  body:not(.landing-active) #modal-add-eq,
-  body:not(.landing-active) #modal-eq-det,
-  body:not(.landing-active) #modal-eq-photos {
-    align-items: stretch;
-    padding: 8px;
-  }
-
-  body:not(.landing-active) #modal-add-eq .modal,
-  body:not(.landing-active) #modal-eq-det .modal,
-  body:not(.landing-active) #modal-eq-photos .modal {
-    width: 100%;
-    max-height: calc(100dvh - 16px);
-  }
-
-  #app:not(.landing-active) #view-orcamentos .orc-kpis {
-    grid-template-columns: 1fr;
-  }
 }

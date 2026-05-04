@@ -92,10 +92,10 @@ function eyeOffSVG() {
 
 function passwordInputHTML(id, placeholder, autocomplete) {
   return `
-    <div class="auth-input-wrap tw-relative tw-flex tw-items-center">
-      <input class="auth-input auth-pwd-input auth-input-base tw-pr-11" id="${id}" type="password"
+    <div class="auth-input-wrap">
+      <input class="auth-input auth-pwd-input" id="${id}" type="password"
         placeholder="${placeholder}" autocomplete="${autocomplete}" />
-      <button type="button" class="auth-pwd-toggle tw-absolute tw-right-2.5 tw-top-1/2 -tw-translate-y-1/2 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-p-1 tw-text-landing-text-dim tw-flex tw-items-center tw-transition-colors tw-duration-150 hover:tw-text-landing-text-body" aria-label="Mostrar senha" tabindex="-1">
+      <button type="button" class="auth-pwd-toggle" aria-label="Mostrar senha" tabindex="-1">
         ${eyeSVG()}
       </button>
     </div>`;
@@ -168,119 +168,784 @@ export const AuthScreen = {
 
     const overlay = document.createElement('div');
     overlay.id = 'auth-overlay';
-    overlay.className =
-      'auth-screen tw-fixed tw-inset-0 tw-z-[9000] tw-overflow-y-auto tw-text-landing-text-body auth-screen-bg auth-screen-grid';
+    overlay.className = 'auth-screen';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-labelledby', 'auth-title');
 
     overlay.innerHTML = `
-      <div class="auth-stage tw-relative tw-z-[1] tw-mx-auto tw-min-h-screen tw-max-w-[1280px] tw-px-14 tw-pt-12 tw-pb-[72px] tw-grid tw-grid-cols-[1fr_460px_360px] tw-gap-x-14 tw-gap-y-8 tw-box-border max-xl:tw-grid-cols-[1fr_460px] max-xl:tw-px-8 max-xl:tw-pt-10 max-xl:tw-pb-[60px] max-auth-md:tw-grid-cols-1 max-auth-md:tw-px-5 max-auth-md:tw-pt-7 max-auth-md:tw-pb-14 max-auth-md:tw-gap-y-6">
+      <style>
+        /* ─ Auth screen — alinhada a identidade da landing nova
+           (React + Tailwind). Tokens visuais espelham
+           tailwind.config.cjs > landing.* sempre que possivel.
+           CSS scoped em .auth-screen — nao toca CSS legado.
+
+           Paleta:
+             navy 1:        #02143b
+             navy 2:        #031B4E
+             navy deep:     #03080f / #061226
+             card:          rgba(15,33,60,0.95) → rgba(8,22,42,0.92)
+             border line:   rgba(120,170,230,0.10/0.18)
+             cyan:          #40C4FF (landing.cyan)
+             cyan soft:     #67E8F9
+             blue:          #006DFF / #2c7cff (landing.blue)
+             blue light:    #4d93ff
+             text head:     #ffffff
+             text body:     #cdd9ee
+             text mute:     #94a8c8
+             text dim:      #6b80a3
+             ok:            #2ecc8b */
+        .auth-screen {
+          position: fixed; inset: 0; z-index: 9000;
+          overflow-y: auto;
+          font-family: var(--font, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+          color: #cdd9ee;
+          background:
+            radial-gradient(1200px 600px at 18% -10%, rgba(44,124,255,0.18), transparent 60%),
+            radial-gradient(900px 600px at 95% 10%, rgba(64,196,255,0.10), transparent 65%),
+            radial-gradient(700px 500px at 50% 110%, rgba(44,124,255,0.10), transparent 60%),
+            linear-gradient(180deg, #05101f 0%, #040b18 60%, #03080f 100%);
+        }
+        .auth-screen::before {
+          content: '';
+          position: fixed; inset: 0;
+          background-image:
+            linear-gradient(rgba(120,170,230,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(120,170,230,0.05) 1px, transparent 1px);
+          background-size: 64px 64px;
+          mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 80%);
+          -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 80%);
+          pointer-events: none;
+          z-index: 0;
+        }
+        .auth-screen button:focus-visible,
+        .auth-screen input:focus-visible,
+        .auth-screen [role="tab"]:focus-visible,
+        .auth-screen a:focus-visible {
+          outline: 2px solid #40C4FF; outline-offset: 2px;
+        }
+
+        .auth-stage {
+          position: relative; z-index: 1;
+          max-width: 1280px; min-height: 100vh;
+          margin: 0 auto;
+          padding: 48px 56px 72px;
+          display: grid;
+          grid-template-columns: 1fr 460px 360px;
+          column-gap: 56px;
+          row-gap: 32px;
+          box-sizing: border-box;
+        }
+
+        /* ─ Left brand panel ─ */
+        .auth-brand {
+          display: flex; flex-direction: column;
+          padding: 0;
+          background: transparent;
+          border: 0;
+          position: relative;
+          box-sizing: border-box;
+        }
+        .auth-brand::before, .auth-brand::after { content: none; }
+
+        .auth-brand__logo {
+          display: flex; align-items: center; gap: 12px;
+          position: relative; z-index: 1;
+        }
+        .auth-brand__logo-text {
+          font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;
+        }
+        .auth-brand__logo-badge {
+          font-size: 11px; font-weight: 700; color: #40C4FF;
+          letter-spacing: 0.12em; text-transform: uppercase;
+          background: rgba(64,196,255,0.10);
+          border: 1px solid rgba(64,196,255,0.28);
+          padding: 3px 7px; border-radius: 5px;
+          vertical-align: 2px;
+        }
+
+        .auth-brand__headline {
+          font-size: 44px; font-weight: 700; color: #ffffff;
+          line-height: 1.04; letter-spacing: -0.02em;
+          margin: 28px 0 16px;
+          max-width: 520px;
+          text-wrap: pretty;
+          position: relative; z-index: 1;
+        }
+        .auth-brand__sub {
+          font-size: 16px; color: #b9c8dd; line-height: 1.55;
+          margin: 0; max-width: 480px;
+          position: relative; z-index: 1;
+        }
+
+        .auth-brand__features {
+          display: flex; flex-direction: column; gap: 18px;
+          margin-top: 36px;
+          max-width: 480px;
+          position: relative; z-index: 1;
+        }
+        .auth-brand__feat {
+          display: flex; align-items: flex-start; gap: 14px;
+        }
+        .auth-brand__feat-icon {
+          width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+          background: linear-gradient(180deg, rgba(44,124,255,0.18), rgba(44,124,255,0.06));
+          border: 1px solid rgba(77,147,255,0.30);
+          color: #67E8F9;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .auth-brand__feat-title {
+          font-size: 14.5px; font-weight: 600; color: #ffffff; margin: 2px 0 4px;
+        }
+        .auth-brand__feat-desc {
+          font-size: 13px; font-weight: 400; color: #94a8c8; line-height: 1.5;
+        }
+        .auth-brand__feat-desc strong { color: #cdd9ee; font-weight: 500; }
+
+        .auth-brand__stats {
+          margin-top: 56px;
+          padding-top: 28px;
+          border-top: 1px solid rgba(120,170,230,0.10);
+          display: flex; gap: 56px;
+          max-width: 520px;
+          position: relative; z-index: 1;
+        }
+        .auth-brand__stat-num {
+          font-size: 28px; font-weight: 700; color: #40C4FF;
+          letter-spacing: -0.02em; line-height: 1;
+        }
+        .auth-brand__stat-num.is-alt { color: #ffffff; }
+        .auth-brand__stat-label {
+          margin-top: 6px;
+          font-size: 11px; font-weight: 600; color: #6b80a3;
+          letter-spacing: 0.12em; text-transform: uppercase;
+        }
+
+        /* ─ Center form panel ─ */
+        .auth-form-panel {
+          display: flex; align-items: flex-start; justify-content: center;
+          padding: 0;
+          background: transparent;
+          box-sizing: border-box;
+          padding-top: 28px;
+        }
+        .auth-card {
+          position: relative;
+          width: 100%; max-width: 460px;
+          padding: 26px 28px 24px;
+          background: linear-gradient(180deg, rgba(15,33,60,0.95) 0%, rgba(8,22,42,0.92) 100%);
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 22px;
+          box-shadow:
+            0 30px 80px rgba(0,0,0,0.55),
+            0 0 0 1px rgba(120,170,230,0.04) inset,
+            0 1px 0 rgba(255,255,255,0.04) inset;
+        }
+        .auth-card::before {
+          content: '';
+          position: absolute; inset: -1px;
+          border-radius: 22px;
+          padding: 1px;
+          background: linear-gradient(180deg, rgba(77,147,255,0.35), rgba(77,147,255,0) 40%);
+          -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor; mask-composite: exclude;
+          pointer-events: none;
+        }
+        .auth-card-header {
+          text-align: center; margin-bottom: 18px;
+          display: none;
+        }
+        .auth-card-header__brand {
+          display: inline-flex; align-items: center; gap: 10px;
+          margin-bottom: 8px;
+        }
+        .auth-card-header__sub {
+          font-size: 13px; color: #94a8c8; line-height: 1.5;
+        }
+
+        /* ─ Tabs ─ */
+        .auth-tabs {
+          display: flex; gap: 4px; padding: 4px;
+          background: rgba(8,18,34,0.7);
+          border: 1px solid rgba(120,170,230,0.10);
+          border-radius: 12px;
+          margin-bottom: 22px;
+        }
+        .auth-tab {
+          flex: 1; padding: 10px 12px; border: none; cursor: pointer;
+          background: transparent; color: #6b80a3;
+          font-size: 14px; font-weight: 600; font-family: inherit;
+          border-radius: 9px;
+          transition: background .15s, color .15s, border-color .15s;
+        }
+        .auth-tab.active {
+          background: linear-gradient(180deg, rgba(44,124,255,0.22), rgba(44,124,255,0.10));
+          color: #ffffff;
+          border: 1px solid rgba(77,147,255,0.30);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.06) inset,
+            0 6px 16px rgba(44,124,255,0.18);
+        }
+
+        /* ─ Google button (white surface, dark text — Google brand
+             guidelines compatible) ─ */
+        .auth-btn-google {
+          width: 100%; height: 52px; border-radius: 14px;
+          background: linear-gradient(180deg, #ffffff 0%, #e9eef7 100%);
+          color: #11243f;
+          font-size: 15px; font-weight: 800; font-family: inherit;
+          display: flex; align-items: center; justify-content: center;
+          gap: 12px;
+          border: 1px solid rgba(255,255,255,0.82);
+          cursor: pointer;
+          box-shadow:
+            0 16px 34px rgba(44,124,255,0.34),
+            0 0 0 1px rgba(64,196,255,0.22),
+            0 1px 0 rgba(255,255,255,0.75) inset;
+          transition: opacity .15s, transform .12s, box-shadow .15s;
+        }
+        .auth-btn-google:hover {
+          opacity: .98;
+          transform: translateY(-1px);
+          box-shadow:
+            0 18px 38px rgba(44,124,255,0.42),
+            0 0 0 1px rgba(64,196,255,0.30),
+            0 1px 0 rgba(255,255,255,0.78) inset;
+        }
+        .auth-btn-google:active { transform: translateY(0); }
+
+        /* ─ Divider ─ */
+        .auth-divider {
+          display: grid; grid-template-columns: 1fr auto 1fr;
+          align-items: center; gap: 12px;
+          margin: 18px 0 16px;
+          font-size: 11.5px; color: #6b80a3;
+          letter-spacing: 0.06em;
+        }
+        .auth-divider::before, .auth-divider::after {
+          content: ''; height: 1px; background: rgba(120,170,230,0.10);
+        }
+
+        /* ─ Labels ─ */
+        .auth-label {
+          display: block;
+          font-size: 12.5px; font-weight: 600;
+          color: #cdd9ee;
+          margin-top: 14px; margin-bottom: 7px;
+          letter-spacing: 0.01em;
+        }
+        .auth-label--first { margin-top: 0; }
+
+        /* ─ Inputs ─ */
+        .auth-input {
+          width: 100%; box-sizing: border-box;
+          height: 48px; padding: 0 14px; border-radius: 12px;
+          background: rgba(6,14,28,0.7);
+          border: 1px solid rgba(120,170,230,0.10);
+          color: #f1f6fb; font-size: 14.5px; font-weight: 400; font-family: inherit;
+          outline: none;
+          transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+        .auth-input:focus {
+          border-color: rgba(77,147,255,0.55);
+          box-shadow: 0 0 0 4px rgba(44,124,255,0.12);
+          background: rgba(8,22,42,0.85);
+        }
+        .auth-input::placeholder { color: #4f6d92; }
+
+        .auth-input-wrap {
+          position: relative; display: flex; align-items: center;
+        }
+        .auth-input-wrap .auth-input { padding-right: 44px; }
+        .auth-pwd-toggle {
+          position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+          background: none; border: none; cursor: pointer; padding: 4px;
+          color: #6b80a3; display: flex; align-items: center;
+          transition: color .15s;
+        }
+        .auth-pwd-toggle:hover { color: #cdd9ee; }
+
+        /* ─ Strength meter ─ */
+        .auth-strength {
+          display: flex; align-items: center; gap: 10px;
+          margin-top: 8px;
+        }
+        .auth-strength__bars { display: flex; gap: 4px; flex: 1; }
+        .auth-strength__seg {
+          flex: 1; height: 4px; border-radius: 2px;
+          background: rgba(120,170,230,0.10);
+          transition: background .15s;
+        }
+        .auth-strength__label {
+          font-size: 11px; font-weight: 500;
+          min-width: 68px; text-align: right;
+          color: #6b80a3;
+        }
+
+        /* ─ Email CTA (secondary path after Google) ─ */
+        .auth-btn {
+          width: 100%; height: 50px; margin-top: 20px;
+          border-radius: 12px;
+          background: rgba(7, 21, 40, 0.54);
+          color: #eaf3ff;
+          font-size: 14.5px; font-weight: 700; font-family: inherit;
+          letter-spacing: -0.005em;
+          border: 1px solid rgba(64,196,255,0.34);
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 10px;
+          box-shadow:
+            0 10px 24px rgba(0,0,0,0.26),
+            0 1px 0 rgba(255,255,255,0.10) inset;
+          transition: transform .12s, opacity .15s, border-color .15s, background .15s;
+        }
+        .auth-btn--secondary {
+          background: rgba(7, 21, 40, 0.48);
+        }
+        .auth-btn--secondary:hover {
+          border-color: rgba(64,196,255,0.58);
+          background: rgba(12, 34, 62, 0.72);
+        }
+        .auth-btn:hover { transform: translateY(-1px); }
+        .auth-btn:active { transform: translateY(0); }
+
+        /* ─ Forgot link / hints ─ */
+        .auth-actions-center { text-align: center; margin: 4px 0 14px; }
+        .auth-btn-forgot {
+          background: none; border: none; cursor: pointer; font-family: inherit;
+          font-size: 13px; font-weight: 400;
+          color: #cdd9ee;
+          padding: 4px 8px;
+          border-bottom: 1px solid rgba(185,200,221,0.22);
+          border-radius: 0;
+          transition: color .15s, border-color .15s;
+        }
+        .auth-btn-forgot:hover { color: #ffffff; border-color: rgba(64,196,255,0.6); }
+
+        .auth-hint {
+          font-size: 12px; font-weight: 400; color: #6b80a3;
+          text-align: center;
+          margin-top: 14px; line-height: 1.5;
+        }
+
+        /* ─ Audience pill ─ */
+        .auth-brand__audience {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 7px 12px 7px 10px;
+          background: rgba(64,196,255,0.08);
+          border: 1px solid rgba(64,196,255,0.25);
+          border-radius: 999px;
+          font-size: 12px; font-weight: 600;
+          color: #67E8F9;
+          letter-spacing: 0.10em; text-transform: uppercase;
+          margin-top: 32px;
+          align-self: flex-start;
+          position: relative; z-index: 1;
+        }
+        .auth-brand__audience .auth-brand__audience-dot {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: #40C4FF;
+          box-shadow: 0 0 10px #40C4FF;
+        }
+
+        /* ─ Trust line (3 micro-promises) ─ */
+        .auth-trust-line {
+          display: flex; align-items: center; justify-content: center;
+          gap: 22px; flex-wrap: wrap;
+          margin: 14px 0 16px;
+          font-size: 12.5px; color: #94a8c8;
+        }
+        .auth-trust-line__item {
+          display: inline-flex; align-items: center; gap: 6px;
+        }
+        .auth-trust-line__item svg { color: #40C4FF; }
+
+        /* ─ Trust card — "Acesso seguro e criptografado" ─ */
+        .auth-trust-card {
+          display: flex; align-items: center; gap: 12px;
+          margin-bottom: 14px;
+          padding: 12px 14px;
+          background: rgba(46,204,139,0.08);
+          border: 1px solid rgba(46,204,139,0.22);
+          border-radius: 12px;
+        }
+        .auth-trust-card__icon {
+          width: 32px; height: 32px; border-radius: 9px;
+          background: rgba(46,204,139,0.14);
+          border: 1px solid rgba(46,204,139,0.30);
+          display: grid; place-items: center;
+          color: #5fe5ad; flex-shrink: 0;
+        }
+        .auth-trust-card__title {
+          font-size: 13.5px; font-weight: 600; color: #cdf3e0; line-height: 1.3;
+        }
+        .auth-trust-card__sub {
+          font-size: 12px; color: #8fc8a9; margin-top: 1px;
+        }
+
+        /* ─ Social proof ─ */
+        .auth-social-proof {
+          display: flex; align-items: center; gap: 12px;
+          margin-top: 6px; padding: 12px 14px;
+          background: rgba(8,18,34,0.6);
+          border: 1px solid rgba(120,170,230,0.10);
+          border-radius: 12px;
+        }
+        .auth-social-proof__avatars { display: flex; flex-shrink: 0; }
+        .auth-social-proof__avatar {
+          width: 26px; height: 26px; border-radius: 50%;
+          border: 2px solid #0a1a31;
+          display: flex; align-items: center; justify-content: center;
+          color: #fff; font-size: 11px; font-weight: 700;
+          margin-left: -8px;
+        }
+        .auth-social-proof__avatar:first-child { margin-left: 0; }
+        .auth-social-proof__text { flex: 1; min-width: 0; }
+        .auth-social-proof__num {
+          font-size: 13.5px; font-weight: 600; color: #ffffff; line-height: 1.2;
+        }
+        .auth-social-proof__label {
+          font-size: 12px; color: #94a8c8; margin-top: 2px;
+        }
+
+        /* ─ Right phone aside ─ */
+        .auth-phone-aside {
+          display: flex; flex-direction: column; align-items: center;
+          padding: 28px 0 0;
+          background: transparent;
+          border: 0;
+          position: relative;
+          box-sizing: border-box;
+        }
+        .auth-phone-aside::before { content: none; }
+        .auth-phone {
+          width: 320px; height: 640px; padding: 12px;
+          background: linear-gradient(180deg, #1a2942, #0a1729);
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 44px;
+          box-shadow:
+            0 50px 120px rgba(0,0,0,0.6),
+            0 0 0 1px rgba(120,170,230,0.06) inset,
+            0 30px 60px rgba(44,124,255,0.10);
+          position: relative;
+        }
+        .auth-phone::before {
+          content: '';
+          position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+          width: 110px; height: 26px; border-radius: 14px;
+          background: #03080f; z-index: 5;
+        }
+        .auth-phone__screen {
+          width: 100%; height: 100%; border-radius: 34px;
+          background:
+            radial-gradient(600px 300px at 50% -10%, rgba(44,124,255,0.25), transparent 60%),
+            linear-gradient(180deg, #07182f 0%, #050d1c 100%);
+          padding: 44px 16px 14px;
+          position: relative; overflow: hidden;
+          box-sizing: border-box;
+        }
+        .auth-phone__topbar {
+          display: flex; align-items: center; gap: 7px;
+          margin-bottom: 14px;
+        }
+        .auth-phone__topbar-brand {
+          display: inline-flex; align-items: center; gap: 7px;
+          font-size: 13px; font-weight: 700; color: #ffffff;
+        }
+        .auth-phone__topbar-pro {
+          font-size: 9px; font-weight: 700; color: #40C4FF;
+          letter-spacing: 0.12em;
+          background: rgba(64,196,255,0.12);
+          border: 1px solid rgba(64,196,255,0.28);
+          padding: 2px 5px; border-radius: 4px;
+        }
+        .auth-phone__topbar-spacer { flex: 1; }
+        .auth-phone__sync-pill {
+          display: inline-flex; align-items: center; gap: 5px;
+          font-size: 9.5px; font-weight: 600; color: #5fe5ad;
+          background: rgba(46,204,139,0.10);
+          border: 1px solid rgba(46,204,139,0.30);
+          padding: 4px 8px; border-radius: 999px;
+        }
+        .auth-phone__sync-dot {
+          width: 5px; height: 5px; border-radius: 50%;
+          background: #2ecc8b;
+          box-shadow: 0 0 6px #2ecc8b;
+        }
+        .auth-phone__hero {
+          padding: 12px 13px;
+          background: linear-gradient(180deg, rgba(15,33,60,0.9), rgba(8,22,42,0.7));
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 14px;
+          margin-bottom: 10px;
+        }
+        .auth-phone__greeting {
+          font-size: 14px; font-weight: 700; color: #ffffff;
+        }
+        .auth-phone__sub {
+          font-size: 11px; color: #94a8c8; margin-top: 2px;
+        }
+        .auth-phone__status-pill {
+          display: inline-flex; align-items: center; gap: 5px;
+          margin-top: 8px;
+          padding: 4px 8px;
+          background: rgba(46,204,139,0.12);
+          border: 1px solid rgba(46,204,139,0.30);
+          border-radius: 999px;
+          font-size: 10px; font-weight: 700; color: #5fe5ad;
+          letter-spacing: 0.06em;
+        }
+        .auth-phone__status-pill svg { width: 10px; height: 10px; }
+        .auth-phone__kpis {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+          margin-bottom: 10px;
+        }
+        .auth-phone__kpi {
+          padding: 10px 11px;
+          background: rgba(8,22,42,0.6);
+          border: 1px solid rgba(120,170,230,0.10);
+          border-radius: 12px;
+        }
+        .auth-phone__kpi-label {
+          font-size: 9.5px; font-weight: 700; color: #6b80a3;
+          letter-spacing: 0.10em; text-transform: uppercase;
+        }
+        .auth-phone__kpi-value {
+          font-size: 18px; font-weight: 700; color: #ffffff;
+          margin-top: 2px; letter-spacing: -0.02em; line-height: 1;
+        }
+        .auth-phone__kpi-value em {
+          font-style: normal; color: #40C4FF;
+        }
+        .auth-phone__kpi-sub {
+          font-size: 10px; color: #6b80a3; margin-top: 1px;
+        }
+        .auth-phone__card {
+          padding: 10px 11px;
+          background: linear-gradient(180deg, rgba(44,124,255,0.10), rgba(8,22,42,0.6));
+          border: 1px solid rgba(77,147,255,0.25);
+          border-radius: 12px;
+          margin-bottom: 8px;
+        }
+        .auth-phone__card.is-alt {
+          background: rgba(8,22,42,0.6);
+          border: 1px solid rgba(120,170,230,0.10);
+        }
+        .auth-phone__card-label {
+          font-size: 9.5px; font-weight: 700; color: #6b80a3;
+          letter-spacing: 0.10em; text-transform: uppercase;
+          margin-bottom: 3px;
+        }
+        .auth-phone__card-title {
+          font-size: 13px; font-weight: 600; color: #ffffff;
+          margin-bottom: 1px;
+        }
+        .auth-phone__card-meta {
+          font-size: 10.5px; color: #94a8c8;
+        }
+        .auth-phone__bottom-nav {
+          position: absolute; bottom: 12px; left: 12px; right: 12px;
+          height: 48px;
+          display: grid; grid-template-columns: repeat(4, 1fr);
+          align-items: center; justify-items: center;
+          background: rgba(6,14,28,0.85);
+          border: 1px solid rgba(120,170,230,0.18);
+          border-radius: 14px;
+          backdrop-filter: blur(8px);
+        }
+        .auth-phone__nav-item {
+          display: flex; flex-direction: column; align-items: center; gap: 2px;
+          font-size: 9px; font-weight: 600; color: #6b80a3;
+          text-align: center;
+        }
+        .auth-phone__nav-item.is-active { color: #40C4FF; }
+        .auth-phone__nav-item svg {
+          width: 16px; height: 16px;
+          display: block; margin: 0 auto 2px;
+        }
+        .auth-phone__caption {
+          margin: 22px auto 0;
+          text-align: center;
+          font-size: 12.5px; color: #94a8c8; line-height: 1.55;
+          max-width: 280px;
+        }
+        .auth-phone__caption strong { color: #ffffff; font-weight: 600; }
+
+        /* ─ Footer ─ */
+        .auth-footer {
+          grid-column: 1 / -1;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 16px; flex-wrap: wrap;
+          margin-top: 24px; padding-top: 20px;
+          border-top: 1px solid rgba(120,170,230,0.10);
+          font-size: 12px; color: #6b80a3;
+          position: relative; z-index: 1;
+        }
+        .auth-footer__brand-line {
+          display: inline-flex; align-items: center; gap: 14px;
+          flex-wrap: wrap;
+        }
+        .auth-footer__brand { color: #94a8c8; }
+        .auth-footer__sep {
+          display: inline-block; width: 1px; height: 12px;
+          background: rgba(120,170,230,0.18);
+        }
+        .auth-footer__link {
+          color: #6b80a3; text-decoration: none;
+          border-bottom: 1px solid rgba(120,170,230,0.0);
+          padding-bottom: 1px;
+          transition: color .15s, border-color .15s;
+        }
+        .auth-footer__link:hover { color: #cdd9ee; }
+        .auth-footer__status {
+          display: inline-flex; align-items: center; gap: 6px;
+          color: #94a8c8;
+        }
+        .auth-footer__status-dot {
+          width: 6px; height: 6px; border-radius: 50%;
+          background: #2ecc8b;
+          box-shadow: 0 0 8px #2ecc8b;
+        }
+
+        /* ─ Responsive ─ */
+        @media (max-width: 1280px) {
+          .auth-stage {
+            grid-template-columns: 1fr 460px;
+            padding: 40px 32px 60px;
+          }
+          .auth-phone-aside { display: none; }
+        }
+        @media (max-width: 900px) {
+          .auth-stage {
+            grid-template-columns: 1fr;
+            row-gap: 24px;
+            padding: 28px 20px 56px;
+          }
+          .auth-form-panel { order: 1; padding-top: 0; }
+          .auth-brand { order: 2; padding: 0; }
+          .auth-brand__headline { font-size: 32px; margin-top: 18px; }
+          .auth-brand__sub { font-size: 14.5px; }
+          .auth-brand__features { margin-top: 24px; gap: 14px; }
+          .auth-brand__stats { margin-top: 28px; gap: 28px; }
+          .auth-brand__stat-num { font-size: 22px; }
+        }
+        @media (max-width: 640px) {
+          .auth-brand { display: none; }
+          .auth-card-header { display: block; }
+          .auth-card { padding: 22px 22px 20px; }
+          .auth-footer {
+            flex-direction: column; align-items: flex-start; gap: 8px;
+          }
+        }
+      </style>
+
+      <div class="auth-stage">
       <!-- LEFT: Branding panel (role=complementary, NUNCA aria-hidden) -->
-      <aside class="auth-brand tw-flex tw-flex-col tw-relative tw-box-border max-auth-md:tw-order-2 max-sm:tw-hidden" role="complementary">
-        <div class="auth-brand__logo tw-flex tw-items-center tw-gap-3 tw-relative tw-z-[1]">
+      <aside class="auth-brand" role="complementary">
+        <div class="auth-brand__logo">
           ${ICON_LOGO}
-          <span class="auth-brand__logo-text tw-text-xl tw-font-bold tw-text-white tw-tracking-[-0.01em]">CoolTrack</span>
-          <span class="auth-brand__logo-badge tw-text-[11px] tw-font-bold tw-text-landing-cyan tw-tracking-[0.12em] tw-uppercase tw-bg-landing-cyan/10 tw-border tw-border-landing-cyan/[0.28] tw-px-[7px] tw-py-[3px] tw-rounded-[5px] tw-align-[2px]">PRO</span>
+          <span class="auth-brand__logo-text">CoolTrack</span>
+          <span class="auth-brand__logo-badge">PRO</span>
         </div>
 
         <!-- Pill de audiencia — qualifica em 1s "isso é pra mim". Dot
              cyan reforca o highlight visual sem icone semantico. -->
-        <span class="auth-brand__audience tw-inline-flex tw-items-center tw-gap-2 tw-pl-2.5 tw-pr-3 tw-py-[7px] tw-bg-landing-cyan/[0.08] tw-border tw-border-landing-cyan/25 tw-rounded-full tw-text-xs tw-font-semibold tw-text-landing-cyan-soft tw-tracking-[0.10em] tw-uppercase tw-mt-8 tw-self-start tw-relative tw-z-[1]">
-          <span class="auth-brand__audience-dot tw-w-1.5 tw-h-1.5 tw-rounded-full tw-bg-landing-cyan tw-shadow-[0_0_10px_#40C4FF]" aria-hidden="true"></span>
+        <span class="auth-brand__audience">
+          <span class="auth-brand__audience-dot" aria-hidden="true"></span>
           Para climatização e refrigeração
         </span>
 
-        <h1 class="auth-brand__headline tw-text-[44px] tw-font-bold tw-text-white tw-leading-[1.04] tw-tracking-[-0.02em] tw-mt-7 tw-mb-4 tw-max-w-[520px] [text-wrap:pretty] tw-relative tw-z-[1] max-auth-md:tw-text-[32px] max-auth-md:tw-mt-[18px]">
+        <h1 class="auth-brand__headline">
           Do serviço ao PDF, direto do celular.
         </h1>
-        <p class="auth-brand__sub tw-text-base tw-text-[#b9c8dd] tw-leading-[1.55] tw-m-0 tw-max-w-[480px] tw-relative tw-z-[1] max-auth-md:tw-text-[14.5px]">
+        <p class="auth-brand__sub">
           Cadastre o equipamento, registre o serviço e envie o relatório no
           WhatsApp em menos de 1 minuto — sem sair do local.
         </p>
 
-        <div class="auth-brand__features tw-flex tw-flex-col tw-gap-[18px] tw-mt-9 tw-max-w-[480px] tw-relative tw-z-[1] max-auth-md:tw-mt-6 max-auth-md:tw-gap-[14px]">
-          <div class="auth-brand__feat tw-flex tw-items-start tw-gap-[14px]">
-            <div class="auth-brand__feat-icon tw-w-[38px] tw-h-[38px] tw-rounded-[10px] tw-shrink-0 [background:linear-gradient(180deg,rgba(44,124,255,0.18),rgba(44,124,255,0.06))] tw-border tw-border-[#4d93ff]/30 tw-text-landing-cyan-soft tw-flex tw-items-center tw-justify-center">${ICON_SNOWFLAKE}</div>
+        <div class="auth-brand__features">
+          <div class="auth-brand__feat">
+            <div class="auth-brand__feat-icon">${ICON_SNOWFLAKE}</div>
             <div>
-              <div class="auth-brand__feat-title tw-text-[14.5px] tw-font-semibold tw-text-white tw-mt-0.5 tw-mb-1">Cadastro por foto da placa</div>
-              <div class="auth-brand__feat-desc tw-text-[13px] tw-font-normal tw-text-landing-text-mute tw-leading-[1.5]">Tire foto, a IA preenche modelo, marca e dados técnicos.</div>
+              <div class="auth-brand__feat-title">Cadastro por foto da placa</div>
+              <div class="auth-brand__feat-desc">Tire foto, a IA preenche modelo, marca e dados técnicos.</div>
             </div>
           </div>
-          <div class="auth-brand__feat tw-flex tw-items-start tw-gap-[14px]">
-            <div class="auth-brand__feat-icon tw-w-[38px] tw-h-[38px] tw-rounded-[10px] tw-shrink-0 [background:linear-gradient(180deg,rgba(44,124,255,0.18),rgba(44,124,255,0.06))] tw-border tw-border-[#4d93ff]/30 tw-text-landing-cyan-soft tw-flex tw-items-center tw-justify-center">${ICON_FILETEXT}</div>
+          <div class="auth-brand__feat">
+            <div class="auth-brand__feat-icon">${ICON_FILETEXT}</div>
             <div>
-              <div class="auth-brand__feat-title tw-text-[14.5px] tw-font-semibold tw-text-white tw-mt-0.5 tw-mb-1">Checklist rápido do serviço</div>
-              <div class="auth-brand__feat-desc tw-text-[13px] tw-font-normal tw-text-landing-text-mute tw-leading-[1.5]">Preventiva, corretiva, limpeza, carga de gás — em segundos.</div>
+              <div class="auth-brand__feat-title">Checklist rápido do serviço</div>
+              <div class="auth-brand__feat-desc">Preventiva, corretiva, limpeza, carga de gás — em segundos.</div>
             </div>
           </div>
-          <div class="auth-brand__feat tw-flex tw-items-start tw-gap-[14px]">
-            <div class="auth-brand__feat-icon tw-w-[38px] tw-h-[38px] tw-rounded-[10px] tw-shrink-0 [background:linear-gradient(180deg,rgba(44,124,255,0.18),rgba(44,124,255,0.06))] tw-border tw-border-[#4d93ff]/30 tw-text-landing-cyan-soft tw-flex tw-items-center tw-justify-center">${ICON_BELL}</div>
+          <div class="auth-brand__feat">
+            <div class="auth-brand__feat-icon">${ICON_BELL}</div>
             <div>
-              <div class="auth-brand__feat-title tw-text-[14.5px] tw-font-semibold tw-text-white tw-mt-0.5 tw-mb-1">PDF no WhatsApp em um toque</div>
-              <div class="auth-brand__feat-desc tw-text-[13px] tw-font-normal tw-text-landing-text-mute tw-leading-[1.5]">Relatório pronto com sua logo, fotos e assinatura do cliente.</div>
+              <div class="auth-brand__feat-title">PDF no WhatsApp em um toque</div>
+              <div class="auth-brand__feat-desc">Relatório pronto com sua logo, fotos e assinatura do cliente.</div>
             </div>
           </div>
         </div>
 
-        <div class="auth-brand__stats tw-mt-14 tw-pt-7 tw-border-t tw-border-landing-border-base/10 tw-flex tw-gap-14 tw-max-w-[520px] tw-relative tw-z-[1] max-auth-md:tw-mt-7 max-auth-md:tw-gap-7">
+        <div class="auth-brand__stats">
           <div>
-            <div class="auth-brand__stat-num tw-text-[28px] tw-font-bold tw-text-landing-cyan tw-tracking-[-0.02em] tw-leading-none max-auth-md:tw-text-[22px]">&lt;1 min</div>
-            <div class="auth-brand__stat-label tw-mt-1.5 tw-text-[11px] tw-font-semibold tw-text-landing-text-dim tw-tracking-[0.12em] tw-uppercase">Relatório pronto</div>
+            <div class="auth-brand__stat-num">&lt;1 min</div>
+            <div class="auth-brand__stat-label">Relatório pronto</div>
           </div>
           <div>
-            <div class="auth-brand__stat-num tw-text-[28px] tw-font-bold tw-text-landing-cyan tw-tracking-[-0.02em] tw-leading-none max-auth-md:tw-text-[22px]">&infin;</div>
-            <div class="auth-brand__stat-label tw-mt-1.5 tw-text-[11px] tw-font-semibold tw-text-landing-text-dim tw-tracking-[0.12em] tw-uppercase">Equipamentos no Pro</div>
+            <div class="auth-brand__stat-num">&infin;</div>
+            <div class="auth-brand__stat-label">Equipamentos no Pro</div>
           </div>
           <div>
-            <div class="auth-brand__stat-num is-alt tw-text-[28px] tw-font-bold tw-text-white tw-tracking-[-0.02em] tw-leading-none max-auth-md:tw-text-[22px]">100%</div>
-            <div class="auth-brand__stat-label tw-mt-1.5 tw-text-[11px] tw-font-semibold tw-text-landing-text-dim tw-tracking-[0.12em] tw-uppercase">Funciona offline</div>
+            <div class="auth-brand__stat-num is-alt">100%</div>
+            <div class="auth-brand__stat-label">Funciona offline</div>
           </div>
         </div>
       </aside>
 
       <!-- RIGHT: Form panel -->
-      <main class="auth-form-panel tw-flex tw-items-start tw-justify-center tw-box-border tw-pt-7 max-auth-md:tw-order-1 max-auth-md:tw-pt-0" aria-labelledby="auth-title">
-        <div class="auth-card auth-card-bg auth-card-glow tw-relative tw-w-full tw-max-w-[460px] tw-px-7 tw-pt-[26px] tw-pb-6 tw-rounded-[22px] max-sm:tw-px-[22px] max-sm:tw-pt-[22px] max-sm:tw-pb-5">
+      <main class="auth-form-panel" aria-labelledby="auth-title">
+        <div class="auth-card">
 
           <!-- Mobile-only logo (mesma marca cyan/blue do header desktop) -->
-          <div class="auth-card-header tw-hidden max-sm:tw-block tw-text-center tw-mb-[18px]">
-            <div class="auth-card-header__brand tw-inline-flex tw-items-center tw-gap-2.5 tw-mb-2">
+          <div class="auth-card-header">
+            <div class="auth-card-header__brand">
               ${ICON_LOGO_SM}
-              <span id="auth-title" class="tw-text-lg tw-font-bold tw-text-white">CoolTrack</span>
-              <span class="auth-brand__logo-badge tw-text-[11px] tw-font-bold tw-text-landing-cyan tw-tracking-[0.12em] tw-uppercase tw-bg-landing-cyan/10 tw-border tw-border-landing-cyan/[0.28] tw-px-[7px] tw-py-[3px] tw-rounded-[5px] tw-align-[2px]">PRO</span>
+              <span id="auth-title" style="font-size:18px;font-weight:700;color:#ffffff">CoolTrack</span>
+              <span class="auth-brand__logo-badge">PRO</span>
             </div>
-            <div class="auth-card-header__sub tw-text-[13px] tw-text-landing-text-mute tw-leading-[1.5]">Do serviço ao PDF, direto do celular.</div>
+            <div class="auth-card-header__sub">Do serviço ao PDF, direto do celular.</div>
           </div>
 
           <!-- Tabs -->
-          <div class="auth-tabs auth-tab-pill tw-flex tw-gap-1 tw-p-1 tw-rounded-xl tw-mb-[22px]" role="tablist" aria-label="Acesso">
-            <button class="auth-tab active tw-flex-1 tw-px-3 tw-py-2.5 tw-cursor-pointer tw-bg-transparent tw-text-landing-text-dim tw-text-sm tw-font-semibold tw-rounded-[9px] tw-transition-[background,color,border-color] tw-duration-150 tw-border-0" id="tab-signin" type="button" role="tab" aria-selected="true" aria-controls="auth-form-signin">Entrar</button>
-            <button class="auth-tab tw-flex-1 tw-px-3 tw-py-2.5 tw-cursor-pointer tw-bg-transparent tw-text-landing-text-dim tw-text-sm tw-font-semibold tw-rounded-[9px] tw-transition-[background,color,border-color] tw-duration-150 tw-border-0" id="tab-signup" type="button" role="tab" aria-selected="false" aria-controls="auth-form-signup">Criar conta</button>
+          <div class="auth-tabs" role="tablist" aria-label="Acesso">
+            <button class="auth-tab active" id="tab-signin" type="button" role="tab" aria-selected="true" aria-controls="auth-form-signin">Entrar</button>
+            <button class="auth-tab" id="tab-signup" type="button" role="tab" aria-selected="false" aria-controls="auth-form-signup">Criar conta</button>
           </div>
 
           <!-- Sign In panel -->
           <div id="auth-form-signin" role="tabpanel" aria-labelledby="tab-signin">
-            <button class="auth-btn-google auth-google-base" id="btn-google-signin" type="button">
+            <button class="auth-btn-google" id="btn-google-signin" type="button">
               ${ICON_GOOGLE}
               ${intentOptions.highlightCopy}
             </button>
-            <div class="auth-divider tw-grid tw-grid-cols-[1fr_auto_1fr] tw-items-center tw-gap-3 tw-mt-[18px] tw-mb-4 tw-text-[11.5px] tw-text-landing-text-dim tw-tracking-[0.06em] before:tw-content-[''] before:tw-h-px before:tw-bg-landing-border-base/10 after:tw-content-[''] after:tw-h-px after:tw-bg-landing-border-base/10">ou entre com email e senha</div>
-            <label class="auth-label auth-label--first auth-label-base auth-label-base--first" for="signin-email">Email</label>
-            <input class="auth-input auth-input-base" id="signin-email" type="email" placeholder="seu@email.com" autocomplete="email" />
-            <label class="auth-label auth-label-base" for="signin-password">Senha</label>
+            <div class="auth-divider">ou entre com email e senha</div>
+            <label class="auth-label auth-label--first" for="signin-email">Email</label>
+            <input class="auth-input" id="signin-email" type="email" placeholder="seu@email.com" autocomplete="email" />
+            <label class="auth-label" for="signin-password">Senha</label>
             ${passwordInputHTML('signin-password', 'senha', 'current-password')}
-            <button class="auth-btn auth-btn--secondary auth-btn-base auth-btn-base--secondary" id="btn-signin" type="button">Entrar no app ${ICON_ARROW_RIGHT}</button>
+            <button class="auth-btn auth-btn--secondary" id="btn-signin" type="button">Entrar no app ${ICON_ARROW_RIGHT}</button>
 
-            <div class="auth-trust-line tw-flex tw-items-center tw-justify-center tw-gap-[22px] tw-flex-wrap tw-mt-3.5 tw-mb-4 tw-text-[12.5px] tw-text-landing-text-mute">
-              <span class="auth-trust-line__item tw-inline-flex tw-items-center tw-gap-1.5 [&_svg]:tw-text-landing-cyan">
+            <div class="auth-trust-line">
+              <span class="auth-trust-line__item">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <rect x="2" y="6" width="20" height="12" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
                 </svg>
                 Sem cartão
               </span>
-              <span class="auth-trust-line__item tw-inline-flex tw-items-center tw-gap-1.5 [&_svg]:tw-text-landing-cyan">
+              <span class="auth-trust-line__item">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/>
@@ -288,7 +953,7 @@ export const AuthScreen = {
                 </svg>
                 Funciona offline
               </span>
-              <span class="auth-trust-line__item tw-inline-flex tw-items-center tw-gap-1.5 [&_svg]:tw-text-landing-cyan">
+              <span class="auth-trust-line__item">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>
@@ -297,8 +962,8 @@ export const AuthScreen = {
               </span>
             </div>
 
-            <div class="auth-trust-card auth-trust-card-bg tw-flex tw-items-center tw-gap-3 tw-mb-3.5 tw-px-3.5 tw-py-3 tw-rounded-xl">
-              <div class="auth-trust-card__icon auth-trust-card-icon-bg tw-w-8 tw-h-8 tw-rounded-[9px] tw-grid tw-place-items-center tw-text-[#5fe5ad] tw-shrink-0" aria-hidden="true">
+            <div class="auth-trust-card">
+              <div class="auth-trust-card__icon" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -306,54 +971,54 @@ export const AuthScreen = {
                 </svg>
               </div>
               <div>
-                <div class="auth-trust-card__title tw-text-[13.5px] tw-font-semibold tw-text-[#cdf3e0] tw-leading-[1.3]">Acesso seguro e criptografado</div>
-                <div class="auth-trust-card__sub tw-text-xs tw-text-[#8fc8a9] tw-mt-px">Seus dados sempre protegidos.</div>
+                <div class="auth-trust-card__title">Acesso seguro e criptografado</div>
+                <div class="auth-trust-card__sub">Seus dados sempre protegidos.</div>
               </div>
             </div>
 
-            <div class="auth-actions-center tw-text-center tw-mt-1 tw-mb-3.5">
-              <button class="auth-btn-forgot tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-[13px] tw-font-normal tw-text-landing-text-body tw-px-2 tw-py-1 tw-border-b tw-border-b-[#b9c8dd]/[0.22] tw-rounded-none tw-transition-colors tw-duration-150 hover:tw-text-white hover:tw-border-b-landing-cyan/60" id="btn-forgot" type="button">Esqueci minha senha</button>
+            <div class="auth-actions-center">
+              <button class="auth-btn-forgot" id="btn-forgot" type="button">Esqueci minha senha</button>
             </div>
 
-            <div class="auth-social-proof tw-flex tw-items-center tw-gap-3 tw-mt-1.5 tw-py-3 tw-px-3.5 tw-rounded-xl tw-bg-[#081822]/60 tw-border tw-border-landing-border-base/10">
-              <div class="auth-social-proof__avatars tw-flex tw-shrink-0" aria-hidden="true">
-                <span class="auth-social-proof__avatar tw-w-[26px] tw-h-[26px] tw-rounded-full tw-border-2 tw-border-[#0a1a31] tw-flex tw-items-center tw-justify-center tw-text-white tw-text-[11px] tw-font-bold first:tw-ml-0 -tw-ml-2" style="background:linear-gradient(135deg,#00c8e8,#0096b4)">CR</span>
-                <span class="auth-social-proof__avatar tw-w-[26px] tw-h-[26px] tw-rounded-full tw-border-2 tw-border-[#0a1a31] tw-flex tw-items-center tw-justify-center tw-text-white tw-text-[11px] tw-font-bold first:tw-ml-0 -tw-ml-2" style="background:linear-gradient(135deg,#2c7cff,#40c4ff)">FR</span>
-                <span class="auth-social-proof__avatar tw-w-[26px] tw-h-[26px] tw-rounded-full tw-border-2 tw-border-[#0a1a31] tw-flex tw-items-center tw-justify-center tw-text-white tw-text-[11px] tw-font-bold first:tw-ml-0 -tw-ml-2" style="background:linear-gradient(135deg,#5fe6b3,#1fa370)">LO</span>
+            <div class="auth-social-proof">
+              <div class="auth-social-proof__avatars" aria-hidden="true">
+                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#00c8e8,#0096b4)">CR</span>
+                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#2c7cff,#40c4ff)">FR</span>
+                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#5fe6b3,#1fa370)">LO</span>
               </div>
-              <div class="auth-social-proof__text tw-flex-1 tw-min-w-0">
-                <div class="auth-social-proof__num tw-text-[13.5px] tw-font-semibold tw-text-white tw-leading-[1.2]">+500 relatórios já gerados</div>
-                <div class="auth-social-proof__label tw-text-xs tw-text-landing-text-mute tw-mt-0.5">Beta em produção · técnicos ativos no Brasil</div>
+              <div class="auth-social-proof__text">
+                <div class="auth-social-proof__num">+500 relatórios já gerados</div>
+                <div class="auth-social-proof__label">Beta em produção · técnicos ativos no Brasil</div>
               </div>
             </div>
           </div>
 
           <!-- Sign Up panel -->
           <div id="auth-form-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
-            <button class="auth-btn-google auth-google-base" id="btn-google-signup" type="button">
+            <button class="auth-btn-google" id="btn-google-signup" type="button">
               ${ICON_GOOGLE}
               Criar conta com Google
             </button>
-            <div class="auth-divider tw-grid tw-grid-cols-[1fr_auto_1fr] tw-items-center tw-gap-3 tw-mt-[18px] tw-mb-4 tw-text-[11.5px] tw-text-landing-text-dim tw-tracking-[0.06em] before:tw-content-[''] before:tw-h-px before:tw-bg-landing-border-base/10 after:tw-content-[''] after:tw-h-px after:tw-bg-landing-border-base/10">ou crie sua conta com email e senha</div>
-            <label class="auth-label auth-label--first auth-label-base auth-label-base--first" for="signup-nome">Seu nome</label>
-            <input class="auth-input auth-input-base" id="signup-nome" type="text" placeholder="Carlos Figueiredo" autocomplete="name" />
-            <label class="auth-label auth-label-base" for="signup-email">Email</label>
-            <input class="auth-input auth-input-base" id="signup-email" type="email" placeholder="seu@email.com" autocomplete="email" />
-            <label class="auth-label auth-label-base" for="signup-password">Senha</label>
+            <div class="auth-divider">ou crie sua conta com email e senha</div>
+            <label class="auth-label auth-label--first" for="signup-nome">Seu nome</label>
+            <input class="auth-input" id="signup-nome" type="text" placeholder="Carlos Figueiredo" autocomplete="name" />
+            <label class="auth-label" for="signup-email">Email</label>
+            <input class="auth-input" id="signup-email" type="email" placeholder="seu@email.com" autocomplete="email" />
+            <label class="auth-label" for="signup-password">Senha</label>
             ${passwordInputHTML('signup-password', 'mínimo 8 caracteres', 'new-password')}
-            <div class="auth-strength tw-flex tw-items-center tw-gap-2.5 tw-mt-2" id="signup-strength" role="progressbar"
+            <div class="auth-strength" id="signup-strength" role="progressbar"
                  aria-live="polite" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0">
-              <div class="auth-strength__bars tw-flex tw-gap-1 tw-flex-1">
-                <div class="auth-strength__seg auth-strength-seg-empty tw-flex-1 tw-h-1 tw-rounded-sm tw-transition-colors tw-duration-150"></div>
-                <div class="auth-strength__seg auth-strength-seg-empty tw-flex-1 tw-h-1 tw-rounded-sm tw-transition-colors tw-duration-150"></div>
-                <div class="auth-strength__seg auth-strength-seg-empty tw-flex-1 tw-h-1 tw-rounded-sm tw-transition-colors tw-duration-150"></div>
+              <div class="auth-strength__bars">
+                <div class="auth-strength__seg"></div>
+                <div class="auth-strength__seg"></div>
+                <div class="auth-strength__seg"></div>
               </div>
-              <div class="auth-strength__label tw-text-[11px] tw-font-medium tw-min-w-[68px] tw-text-right tw-text-landing-text-dim">&nbsp;</div>
+              <div class="auth-strength__label">&nbsp;</div>
             </div>
-            <label class="auth-label auth-label-base" for="signup-confirm">Confirmar senha</label>
+            <label class="auth-label" for="signup-confirm">Confirmar senha</label>
             ${passwordInputHTML('signup-confirm', 'repita a senha', 'new-password')}
-            <button class="auth-btn auth-btn--secondary auth-btn-base auth-btn-base--secondary" id="btn-signup" type="button">Começar gratuitamente ${ICON_ARROW_RIGHT}</button>
-            <div class="auth-hint tw-text-xs tw-font-normal tw-text-landing-text-dim tw-text-center tw-mt-3.5 tw-leading-[1.5]">Grátis pra sempre · Sem cartão · PDF com marca d'água no free</div>
+            <button class="auth-btn auth-btn--secondary" id="btn-signup" type="button">Começar gratuitamente ${ICON_ARROW_RIGHT}</button>
+            <div class="auth-hint">Grátis pra sempre · Sem cartão · PDF com marca d’água no free</div>
           </div>
 
         </div>
@@ -361,24 +1026,24 @@ export const AuthScreen = {
 
       <!-- Phone mockup aside (decorativo, aria-hidden=true) — versao
            rica do app com dados ficticios. Visual only. -->
-      <aside class="auth-phone-aside tw-flex tw-flex-col tw-items-center tw-pt-7 tw-relative tw-box-border max-xl:tw-hidden" aria-hidden="true">
-        <div class="auth-phone auth-phone-bg auth-phone-notch tw-w-80 tw-h-[640px] tw-p-3 tw-rounded-[44px] tw-relative">
-          <div class="auth-phone__screen auth-phone-screen-bg tw-w-full tw-h-full tw-rounded-[34px] tw-pt-11 tw-px-4 tw-pb-3.5 tw-relative tw-overflow-hidden tw-box-border">
-            <div class="auth-phone__topbar tw-flex tw-items-center tw-gap-[7px] tw-mb-3.5">
-              <span class="auth-phone__topbar-brand tw-inline-flex tw-items-center tw-gap-[7px] tw-text-[13px] tw-font-bold tw-text-white">
+      <aside class="auth-phone-aside" aria-hidden="true">
+        <div class="auth-phone">
+          <div class="auth-phone__screen">
+            <div class="auth-phone__topbar">
+              <span class="auth-phone__topbar-brand">
                 ${brandIconHTML(22)} CoolTrack
               </span>
-              <span class="auth-phone__topbar-pro tw-text-[9px] tw-font-bold tw-text-landing-cyan tw-tracking-[0.12em] tw-bg-landing-cyan/[0.12] tw-border tw-border-landing-cyan/[0.28] tw-px-[5px] tw-py-0.5 tw-rounded">PRO</span>
-              <span class="auth-phone__topbar-spacer tw-flex-1"></span>
-              <span class="auth-phone__sync-pill tw-inline-flex tw-items-center tw-gap-[5px] tw-text-[9.5px] tw-font-semibold tw-text-[#5fe5ad] tw-bg-landing-green-online/10 tw-border tw-border-landing-green-online/30 tw-px-2 tw-py-1 tw-rounded-full">
-                <span class="auth-phone__sync-dot tw-w-[5px] tw-h-[5px] tw-rounded-full tw-bg-landing-green-online tw-shadow-[0_0_6px_#2ecc8b]"></span> 5 técnicos
+              <span class="auth-phone__topbar-pro">PRO</span>
+              <span class="auth-phone__topbar-spacer"></span>
+              <span class="auth-phone__sync-pill">
+                <span class="auth-phone__sync-dot"></span> 5 técnicos
               </span>
             </div>
 
-            <div class="auth-phone__hero auth-phone-hero-bg tw-px-[13px] tw-py-3 tw-rounded-[14px] tw-mb-2.5">
-              <div class="auth-phone__greeting tw-text-sm tw-font-bold tw-text-white">Olá, Carlos 👋</div>
-              <div class="auth-phone__sub tw-text-[11px] tw-text-landing-text-mute tw-mt-0.5">Seu parque está saudável.</div>
-              <span class="auth-phone__status-pill tw-inline-flex tw-items-center tw-gap-[5px] tw-mt-2 tw-px-2 tw-py-1 tw-bg-landing-green-online/[0.12] tw-border tw-border-landing-green-online/30 tw-rounded-full tw-text-[10px] tw-font-bold tw-text-[#5fe5ad] tw-tracking-[0.06em] [&_svg]:tw-w-2.5 [&_svg]:tw-h-2.5">
+            <div class="auth-phone__hero">
+              <div class="auth-phone__greeting">Olá, Carlos 👋</div>
+              <div class="auth-phone__sub">Seu parque está saudável.</div>
+              <span class="auth-phone__status-pill">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
@@ -386,54 +1051,54 @@ export const AuthScreen = {
               </span>
             </div>
 
-            <div class="auth-phone__kpis tw-grid tw-grid-cols-2 tw-gap-2 tw-mb-2.5">
-              <div class="auth-phone__kpi auth-phone-kpi-bg tw-px-[11px] tw-py-2.5 tw-rounded-xl">
-                <div class="auth-phone__kpi-label tw-text-[9.5px] tw-font-bold tw-text-landing-text-dim tw-tracking-[0.10em] tw-uppercase">Equipamentos</div>
-                <div class="auth-phone__kpi-value tw-text-lg tw-font-bold tw-text-white tw-mt-0.5 tw-tracking-[-0.02em] tw-leading-none [&_em]:tw-not-italic [&_em]:tw-text-landing-cyan">12<em>/12</em></div>
-                <div class="auth-phone__kpi-sub tw-text-[10px] tw-text-landing-text-dim tw-mt-px">ativos</div>
+            <div class="auth-phone__kpis">
+              <div class="auth-phone__kpi">
+                <div class="auth-phone__kpi-label">Equipamentos</div>
+                <div class="auth-phone__kpi-value">12<em>/12</em></div>
+                <div class="auth-phone__kpi-sub">ativos</div>
               </div>
-              <div class="auth-phone__kpi auth-phone-kpi-bg tw-px-[11px] tw-py-2.5 tw-rounded-xl">
-                <div class="auth-phone__kpi-label tw-text-[9.5px] tw-font-bold tw-text-landing-text-dim tw-tracking-[0.10em] tw-uppercase">Eficiência</div>
-                <div class="auth-phone__kpi-value tw-text-lg tw-font-bold tw-text-white tw-mt-0.5 tw-tracking-[-0.02em] tw-leading-none [&_em]:tw-not-italic [&_em]:tw-text-landing-cyan">96<em>%</em></div>
-                <div class="auth-phone__kpi-sub tw-text-[10px] tw-text-landing-text-dim tw-mt-px">excelente</div>
+              <div class="auth-phone__kpi">
+                <div class="auth-phone__kpi-label">Eficiência</div>
+                <div class="auth-phone__kpi-value">96<em>%</em></div>
+                <div class="auth-phone__kpi-sub">excelente</div>
               </div>
             </div>
 
-            <div class="auth-phone__card auth-phone-card-bg tw-px-[11px] tw-py-2.5 tw-rounded-xl tw-mb-2">
-              <div class="auth-phone__card-label tw-text-[9.5px] tw-font-bold tw-text-landing-text-dim tw-tracking-[0.10em] tw-uppercase tw-mb-[3px]">Próximo serviço</div>
-              <div class="auth-phone__card-title tw-text-[13px] tw-font-semibold tw-text-white tw-mb-px">Limpeza preventiva</div>
-              <div class="auth-phone__card-meta tw-text-[10.5px] tw-text-landing-text-mute">Climatec Norte · Sala 07 · 19/05</div>
+            <div class="auth-phone__card">
+              <div class="auth-phone__card-label">Próximo serviço</div>
+              <div class="auth-phone__card-title">Limpeza preventiva</div>
+              <div class="auth-phone__card-meta">Climatec Norte · Sala 07 · 19/05</div>
             </div>
 
-            <div class="auth-phone__card is-alt auth-phone-card-bg--alt tw-px-[11px] tw-py-2.5 tw-rounded-xl tw-mb-2">
-              <div class="auth-phone__card-label tw-text-[9.5px] tw-font-bold tw-text-landing-text-dim tw-tracking-[0.10em] tw-uppercase tw-mb-[3px]">Último serviço</div>
-              <div class="auth-phone__card-title tw-text-[13px] tw-font-semibold tw-text-white tw-mb-px">Limpeza de filtros</div>
-              <div class="auth-phone__card-meta tw-text-[10.5px] tw-text-landing-text-mute">há 2 dias · 12:55</div>
+            <div class="auth-phone__card is-alt">
+              <div class="auth-phone__card-label">Último serviço</div>
+              <div class="auth-phone__card-title">Limpeza de filtros</div>
+              <div class="auth-phone__card-meta">há 2 dias · 12:55</div>
             </div>
 
-            <div class="auth-phone__bottom-nav auth-phone-nav-bg tw-absolute tw-bottom-3 tw-left-3 tw-right-3 tw-h-12 tw-grid tw-grid-cols-4 tw-items-center tw-justify-items-center tw-rounded-[14px]">
-              <span class="auth-phone__nav-item is-active tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-text-[9px] tw-font-semibold tw-text-center [&_svg]:tw-w-4 [&_svg]:tw-h-4 [&_svg]:tw-block [&_svg]:tw-mx-auto [&_svg]:tw-mb-0.5">
+            <div class="auth-phone__bottom-nav">
+              <span class="auth-phone__nav-item is-active">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 </svg>
                 Painel
               </span>
-              <span class="auth-phone__nav-item tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-text-[9px] tw-font-semibold tw-text-landing-text-dim tw-text-center [&_svg]:tw-w-4 [&_svg]:tw-h-4 [&_svg]:tw-block [&_svg]:tw-mx-auto [&_svg]:tw-mb-0.5">
+              <span class="auth-phone__nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
                 </svg>
                 Parque
               </span>
-              <span class="auth-phone__nav-item tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-text-[9px] tw-font-semibold tw-text-landing-text-dim tw-text-center [&_svg]:tw-w-4 [&_svg]:tw-h-4 [&_svg]:tw-block [&_svg]:tw-mx-auto [&_svg]:tw-mb-0.5">
+              <span class="auth-phone__nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
                 </svg>
                 Serviços
               </span>
-              <span class="auth-phone__nav-item tw-flex tw-flex-col tw-items-center tw-gap-0.5 tw-text-[9px] tw-font-semibold tw-text-landing-text-dim tw-text-center [&_svg]:tw-w-4 [&_svg]:tw-h-4 [&_svg]:tw-block [&_svg]:tw-mx-auto [&_svg]:tw-mb-0.5">
+              <span class="auth-phone__nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -444,7 +1109,7 @@ export const AuthScreen = {
           </div>
         </div>
 
-        <p class="auth-phone__caption tw-mt-[22px] tw-mx-auto tw-text-center tw-text-[12.5px] tw-text-landing-text-mute tw-leading-[1.55] tw-max-w-[280px] [&_strong]:tw-text-white [&_strong]:tw-font-semibold">
+        <p class="auth-phone__caption">
           Veja seu parque inteiro <strong>em tempo real</strong>, registre e envie em segundos.
         </p>
       </aside>
@@ -453,18 +1118,18 @@ export const AuthScreen = {
            status. Links apontam pra /legal/*.html (paginas estaticas
            ja existentes) e pro hash #contato da landing como destino
            de "Suporte". -->
-      <footer class="auth-footer tw-col-span-full tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-wrap tw-mt-6 tw-pt-5 tw-border-t tw-border-landing-border-base/10 tw-text-xs tw-text-landing-text-dim tw-relative tw-z-[1] max-sm:tw-flex-col max-sm:tw-items-start max-sm:tw-gap-2" aria-label="Rodapé">
-        <span class="auth-footer__brand-line tw-inline-flex tw-items-center tw-gap-[14px] tw-flex-wrap">
-          <span class="auth-footer__brand tw-text-landing-text-mute">CoolTrackPro © 2026</span>
-          <span class="auth-footer__sep tw-inline-block tw-w-px tw-h-3 tw-bg-landing-border-base/[0.18]" aria-hidden="true"></span>
-          <a class="auth-footer__link tw-text-landing-text-dim tw-no-underline tw-border-b tw-border-b-transparent tw-pb-px tw-transition-colors tw-duration-150 hover:tw-text-landing-text-body" href="/legal/termos.html">Termos</a>
-          <span class="auth-footer__sep tw-inline-block tw-w-px tw-h-3 tw-bg-landing-border-base/[0.18]" aria-hidden="true"></span>
-          <a class="auth-footer__link tw-text-landing-text-dim tw-no-underline tw-border-b tw-border-b-transparent tw-pb-px tw-transition-colors tw-duration-150 hover:tw-text-landing-text-body" href="/legal/privacidade.html">Privacidade</a>
-          <span class="auth-footer__sep tw-inline-block tw-w-px tw-h-3 tw-bg-landing-border-base/[0.18]" aria-hidden="true"></span>
-          <a class="auth-footer__link tw-text-landing-text-dim tw-no-underline tw-border-b tw-border-b-transparent tw-pb-px tw-transition-colors tw-duration-150 hover:tw-text-landing-text-body" href="/#contato">Suporte</a>
+      <footer class="auth-footer" aria-label="Rodapé">
+        <span class="auth-footer__brand-line">
+          <span class="auth-footer__brand">CoolTrackPro © 2026</span>
+          <span class="auth-footer__sep" aria-hidden="true"></span>
+          <a class="auth-footer__link" href="/legal/termos.html">Termos</a>
+          <span class="auth-footer__sep" aria-hidden="true"></span>
+          <a class="auth-footer__link" href="/legal/privacidade.html">Privacidade</a>
+          <span class="auth-footer__sep" aria-hidden="true"></span>
+          <a class="auth-footer__link" href="/#contato">Suporte</a>
         </span>
-        <span class="auth-footer__status tw-inline-flex tw-items-center tw-gap-1.5 tw-text-landing-text-mute">
-          <span class="auth-footer__status-dot tw-w-1.5 tw-h-1.5 tw-rounded-full tw-bg-landing-green-online tw-shadow-[0_0_8px_#2ecc8b]" aria-hidden="true"></span>
+        <span class="auth-footer__status">
+          <span class="auth-footer__status-dot" aria-hidden="true"></span>
           Status: todos os sistemas operacionais
         </span>
       </footer>
