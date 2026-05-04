@@ -248,6 +248,12 @@ function _bindOnce() {
       case CLIENTES_ACTIONS.verServicos:
         _navigateVerServicos(id);
         break;
+      case CLIENTES_ACTIONS.novoOrcamento:
+        _navigateNovoOrcamento(id);
+        break;
+      case CLIENTES_ACTIONS.novoServico:
+        _navigateNovoServico(id);
+        break;
       case CLIENTES_ACTIONS.pmocFocus:
       case CLIENTES_ACTIONS.openPmocPanel:
         _openPmocPanel(id);
@@ -324,6 +330,24 @@ function _navigateVerServicos(id) {
   const cliente = (getState().clientes || []).find((c) => c.id === id);
   if (!cliente) return;
   goTo('historico', { clienteId: id, clienteNome: cliente.nome });
+}
+
+function _navigateNovoOrcamento(id) {
+  const cliente = (getState().clientes || []).find((c) => c.id === id);
+  if (!cliente) return;
+  goTo('orcamentos', {
+    clienteId: id,
+    clienteNome: cliente.nome || '',
+  });
+}
+
+function _navigateNovoServico(id) {
+  const cliente = (getState().clientes || []).find((c) => c.id === id);
+  if (!cliente) return;
+  goTo('registro', {
+    clienteId: id,
+    clienteNome: cliente.nome || '',
+  });
 }
 
 function _openPmocPanel(id) {
