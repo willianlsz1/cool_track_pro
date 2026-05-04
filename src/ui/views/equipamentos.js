@@ -1124,6 +1124,20 @@ export async function renderEquip(filtro = '', options = {}) {
 
   if (isPro && activeSectorId === null && searchBar) searchBar.style.display = '';
 
+  // Vista Pro padrão: grade de setores (global ou filtrada por cliente).
+  // Regressão pós-revert: esse branch tinha se perdido e caía sempre na lista
+  // flat, ocultando a feature de Setores (cards, Novo setor, Ver/Editar).
+  if (isPro && activeSectorId === null) {
+    if (activeClienteId) {
+      const setorial = Promise.resolve(
+        renderSetorGridForCliente(activeClienteId, activeClienteNome),
+      );
+      return Promise.all([headerRender, setorial]).then(([, result]) => result);
+    }
+    const setorial = Promise.resolve(renderSetorGrid());
+    return Promise.all([headerRender, setorial]).then(([, result]) => result);
+  }
+
   // Vista lista (FREE ou drill-down de setor)
   if (searchBar) searchBar.style.display = '';
 

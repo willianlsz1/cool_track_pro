@@ -700,14 +700,14 @@ body {
    Dark shell + light workspace, como o preview da landing. */
 #app:not(.landing-active),
 body:not(.landing-active) {
-  background: #f5f7fb !important;
+  background: #090c10 !important;
 }
 
 .app-content {
   background:
     radial-gradient(900px 420px at 88% -18%, rgba(47, 123, 255, 0.08), transparent 62%),
-    linear-gradient(180deg, #f5f7fb 0%, #eef2f9 100%) !important;
-  color: #0a1530 !important;
+    linear-gradient(180deg, #0b1220 0%, #0a101a 100%) !important;
+  color: #e6edf3 !important;
 }
 
 .app-header {
@@ -747,7 +747,7 @@ body:not(.landing-active) {
 .section-title,
 .hist-title,
 .rel-title {
-  color: #0a1530 !important;
+  color: #e6edf3 !important;
 }
 
 @media (min-width: 1025px) {
@@ -827,17 +827,17 @@ body:not(.landing-active) {
 .empty-state,
 .engaging-empty-state,
 .modal {
-  background: #ffffff !important;
-  border-color: #e6ebf3 !important;
-  color: #0a1530 !important;
+  background: #161b22 !important;
+  border-color: rgba(34, 211, 238, 0.16) !important;
+  color: #e6edf3 !important;
   box-shadow:
-    0 18px 44px rgba(42, 54, 86, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+    0 18px 44px rgba(1, 6, 16, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
 }
 
 .dash__hero {
   overflow: hidden;
-  border-color: #e3e8f1 !important;
+  border-color: rgba(34, 211, 238, 0.14) !important;
 }
 
 .dash__hero::before {
@@ -858,7 +858,7 @@ body:not(.landing-active) {
 .dash__kpi-sub,
 .empty-state__sub,
 .engaging-empty-state__description {
-  color: #5a6b8c !important;
+  color: #9aa4b2 !important;
 }
 
 .dash__kpi {
@@ -868,21 +868,21 @@ body:not(.landing-active) {
 .dash__kpi-label,
 .dash__card-label,
 .dash__section-label {
-  color: #5a6b8c !important;
+  color: #9aa4b2 !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
 }
 
 .dash__kpi-value,
 .dash__card-title {
-  color: #0a1530 !important;
+  color: #e6edf3 !important;
 }
 
 .dash__hero-cta--secondary,
 .btn.btn--outline {
-  background: #ffffff !important;
-  border: 1px solid rgba(47, 123, 255, 0.18) !important;
-  color: #2a3656 !important;
+  background: #161b22 !important;
+  border: 1px solid rgba(34, 211, 238, 0.22) !important;
+  color: #cdeff6 !important;
   box-shadow: none !important;
 }
 
@@ -894,17 +894,17 @@ body:not(.landing-active) {
 #app .view input,
 #app .view select,
 #app .view textarea {
-  background: #ffffff !important;
-  border-color: #e3e8f1 !important;
-  color: #0a1530 !important;
+  background: #161b22 !important;
+  border-color: rgba(34, 211, 238, 0.14) !important;
+  color: #e6edf3 !important;
 }
 
 .form-control:focus,
 #app .view input:focus,
 #app .view select:focus,
 #app .view textarea:focus {
-  border-color: rgba(47, 123, 255, 0.48) !important;
-  box-shadow: 0 0 0 3px rgba(47, 123, 255, 0.12) !important;
+  border-color: rgba(34, 211, 238, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.14) !important;
 }
 
 .empty-state,
@@ -917,20 +917,20 @@ body:not(.landing-active) {
 }
 
 .onb-card {
-  background: #ffffff !important;
-  border: 1px solid #e6ebf3 !important;
-  box-shadow: 0 14px 34px rgba(42, 54, 86, 0.08) !important;
+  background: #161b22 !important;
+  border: 1px solid rgba(34, 211, 238, 0.16) !important;
+  box-shadow: 0 14px 34px rgba(1, 6, 16, 0.42) !important;
 }
 
 .onb-step:not(.is-done) {
-  background: #f8fbff !important;
-  border-color: #eef1f7 !important;
+  background: #0f1724 !important;
+  border-color: rgba(34, 211, 238, 0.12) !important;
 }
 
 .dash__hero-greeting,
 .dash__hero-body,
 .dash__hero-body * {
-  color: #0a1530 !important;
+  color: #e6edf3 !important;
 }
 
 .empty-state,
@@ -939,7 +939,7 @@ body:not(.landing-active) {
 .engaging-empty-state *,
 .onb-card,
 .onb-card * {
-  color: #5a6b8c !important;
+  color: #9aa4b2 !important;
 }
 
 .empty-state__title,
@@ -948,7 +948,7 @@ body:not(.landing-active) {
 .onb-card h2,
 .onb-card h3,
 .onb-step__title {
-  color: #0a1530 !important;
+  color: #e6edf3 !important;
 }
 
 .app-sidebar .app-sidebar__plan-card,
@@ -1001,4 +1001,55 @@ body:not(.landing-active) {
 .app-sidebar__settings {
   background: transparent !important;
   border-color: transparent !important;
+}
+
+/* Internal dark tokens + hardening (mobile consistency) */
+#app:not(.landing-active) {
+  --ct-internal-bg: #090c10;
+  --ct-internal-surface: #161b22;
+  --ct-internal-elev: #1c2330;
+  --ct-internal-border: rgba(34, 211, 238, 0.16);
+  --ct-internal-text: #e6edf3;
+  --ct-internal-text-2: #9aa4b2;
+}
+
+.app-nav,
+.nav-bar,
+.app-nav__inner {
+  background: #0f1724 !important;
+  border-top-color: rgba(34, 211, 238, 0.18) !important;
+}
+
+.nav-btn,
+.nav-btn__label {
+  color: var(--ct-internal-text-2) !important;
+}
+
+.nav-btn.is-active,
+.nav-btn.is-active .nav-btn__label {
+  color: var(--ct-internal-text) !important;
+}
+
+.cli-card,
+.cli-kpi,
+.cli-page .card,
+#view-servicos .card,
+#view-servicos .servicos-toggle,
+#view-relatorio,
+#view-relatorio .card,
+#view-relatorio .rel-filters,
+#view-relatorio .rel-hero,
+.dash__continue-card {
+  background: var(--ct-internal-surface) !important;
+  color: var(--ct-internal-text) !important;
+  border-color: var(--ct-internal-border) !important;
+}
+
+.cli-card__sub,
+.cli-stat__label,
+#view-servicos .card p,
+#view-relatorio .rel-subtitle,
+#view-relatorio .section-subtitle,
+.dash__continue-card__sub {
+  color: var(--ct-internal-text-2) !important;
 }
