@@ -222,7 +222,6 @@ describe('global header legacy contracts', () => {
 
     [
       HEADER_ACTIONS.goAlertas,
-      HEADER_ACTIONS.toggleHelpMenu,
       HEADER_ACTIONS.goOrcamentos,
       HEADER_ACTIONS.openPmocModal,
       HEADER_ACTIONS.openPmocInfo,
@@ -237,7 +236,13 @@ describe('global header legacy contracts', () => {
 
     expect(document.querySelector(`[data-nav="${HEADER_NAV_TARGETS.registro}"]`)).not.toBeNull();
     expect(document.querySelector(`[data-nav="${HEADER_NAV_TARGETS.clientes}"]`)).not.toBeNull();
-    expect(document.getElementById(HEADER_PUBLIC_IDS.helpMenu)?.dataset.plan).toBe('free');
+    expect(document.querySelector('#header-help-btn[data-nav="configuracoes"]')).not.toBeNull();
+
+    const helpMenu = document.getElementById(HEADER_PUBLIC_IDS.helpMenu);
+    expect(helpMenu?.hasAttribute('hidden')).toBe(true);
+    expect(helpMenu?.getAttribute('aria-hidden')).toBe('true');
+    expect(helpMenu?.hasAttribute('inert')).toBe(true);
+    expect(helpMenu?.dataset.plan).toBe('free');
     assertNoUnsafeHtml(header);
   });
 

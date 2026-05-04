@@ -289,7 +289,19 @@
 }
 
 @media (max-width: 600px) {
+  .orcamento-modal {
+    /* Mobile: modal inteiro vira scroll container para o footer participar
+       do fluxo normal e só aparecer no fim da rolagem. */
+    overflow-y: auto;
+  }
+
+  .orcamento-modal__body {
+    /* Remove o scroll interno isolado no mobile; evita footer sobreposto. */
+    overflow: visible;
+  }
+
   .orcamento-modal__actions {
+    position: static;
     flex-wrap: wrap;
     /* Botões ocupam linha cheia em mobile, hierarquia vertical clara. */
     flex-direction: column-reverse;
