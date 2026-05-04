@@ -319,7 +319,13 @@ describe('global header legacy contracts', () => {
     );
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.root}"`);
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpMenu}"`);
-    expect(headerSource).toContain(`data-action="${HEADER_ACTIONS.toggleHelpMenu}"`);
+    expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpButton}"`);
+    expect(headerSource).toContain(`data-nav="configuracoes"`);
+    expect(headerSource).toContain(`aria-label="Configurações e ajuda"`);
+    expect(headerSource).toContain(`title="Configurações e ajuda"`);
+    expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpMenu}"`);
+    expect(headerSource).toContain(`aria-hidden="true"`);
+    expect(headerSource).toContain(`inert`);
     expect(headerSource).toContain(`data-nav="${HEADER_NAV_TARGETS.registro}"`);
   });
 });
