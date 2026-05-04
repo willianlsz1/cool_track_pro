@@ -22,6 +22,35 @@ import { bindPhoneMaskInput } from '../../core/phoneMask.js';
 
 const OVERLAY_ID = 'orcamento-modal-overlay';
 let _a11yCleanup = null;
+const ORC_MODELO_DEFAULT = 'instalacao_ar_condicionado';
+const ORC_MODELOS = [
+  { id: 'instalacao_ar_condicionado', label: 'Instalação de ar-condicionado' },
+  { id: 'manutencao_corretiva', label: 'Manutenção corretiva' },
+  { id: 'preventiva_pmoc', label: 'Preventiva / PMOC' },
+  { id: 'pecas_mao_de_obra', label: 'Peças e mão de obra' },
+  { id: 'personalizado', label: 'Personalizado' },
+];
+const ORC_MODELO_ITEMS = {
+  instalacao_ar_condicionado: TEMPLATE_INSTALACAO_SPLIT,
+  manutencao_corretiva: [
+    { descricao: 'Diagnóstico técnico', qty: 1, valorUnitario: 180 },
+    { descricao: 'Reparo corretivo', qty: 1, valorUnitario: 280 },
+    { descricao: 'Peça de reposição', qty: 1, valorUnitario: 320 },
+    { descricao: 'Mão de obra técnica', qty: 1, valorUnitario: 240 },
+  ],
+  preventiva_pmoc: [
+    { descricao: 'Limpeza preventiva', qty: 1, valorUnitario: 160 },
+    { descricao: 'Inspeção técnica', qty: 1, valorUnitario: 150 },
+    { descricao: 'Check-up operacional', qty: 1, valorUnitario: 140 },
+    { descricao: 'Relatório PMOC', qty: 1, valorUnitario: 120 },
+  ],
+  pecas_mao_de_obra: [
+    { descricao: 'Peça principal', qty: 1, valorUnitario: 350 },
+    { descricao: 'Quantidade adicional de peça', qty: 1, valorUnitario: 0 },
+    { descricao: 'Mão de obra técnica', qty: 1, valorUnitario: 240 },
+  ],
+  personalizado: [{ descricao: '', qty: 1, valorUnitario: 0 }],
+};
 
 function brl(n) {
   return Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -57,6 +86,7 @@ function renderItemRow(item, idx) {
 
 function buildHtml(orcamento, isEdit) {
   const o = orcamento || {};
+  const modeloOrcamento = o.modeloOrcamento || ORC_MODELO_DEFAULT;
   const itens = o.itens && o.itens.length ? o.itens : [...TEMPLATE_INSTALACAO_SPLIT];
 
   return `
@@ -114,6 +144,15 @@ function buildHtml(orcamento, isEdit) {
         <!-- Bloco Serviço -->
         <section class="orcamento-modal__section">
           <h3>Descrição do serviço</h3>
+          <div class="orcamento-modal__field">
+            <label for="orc-modelo">Modelo de orçamento</label>
+            <select id="orc-modelo" class="form-control" ${isEdit ? '' : ''}>
+              ${ORC_MODELOS.map(
+                (modelo) =>
+                  `<option value="${modelo.id}" ${modelo.id === modeloOrcamento ? 'selected' : ''}>${Utils.escapeHtml(modelo.label)}</option>`,
+              ).join('')}
+            </select>
+          </div>
           <div class="orcamento-modal__field">
             <label for="orc-titulo">Título <span class="req">*</span></label>
             <input type="text" id="orc-titulo" class="form-control"
@@ -260,6 +299,18 @@ function bindEvents(overlay, orcamento, isEdit) {
   // Máscara de telefone (XX) XXXXX-XXXX no campo do cliente
   bindPhoneMaskInput(overlay.querySelector('#orc-cliente-tel'));
 
+  const applyModeloItems = (modeloId) => {
+    if (isEdit) return;
+    const list = overlay.querySelector('#orc-items-list');
+    if (!list) return;
+    const template = ORC_MODELO_ITEMS[modeloId] || ORC_MODELO_ITEMS[ORC_MODELO_DEFAULT];
+    list.innerHTML = template.map(renderItemRow).join('');
+    recomputeTotals(overlay);
+  };
+  overlay.querySelector('#orc-modelo')?.addEventListener('change', (e) => {
+    applyModeloItems(e.target.value);
+  });
+
   // Recompute totals on any input change
   overlay.addEventListener('input', (e) => {
     if (e.target.matches('[data-field], #orc-desconto')) {
@@ -333,6 +384,7 @@ function bindEvents(overlay, orcamento, isEdit) {
       validadeDias: parseInt(overlay.querySelector('#orc-validade')?.value, 10) || 7,
       formaPagamento: overlay.querySelector('#orc-pagamento')?.value.trim() || '',
       observacoes: overlay.querySelector('#orc-obs')?.value.trim() || '',
+      modeloOrcamento: overlay.querySelector('#orc-modelo')?.value || ORC_MODELO_DEFAULT,
     };
 
     // Modos: 'draft' (só salva), 'pdf' (salva + baixa PDF), 'send' (salva + WhatsApp)
