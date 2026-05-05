@@ -271,7 +271,7 @@ async function _resolveRegistroClientFork({ forceClientFork = false } = {}) {
   const hasResolvedClient = Boolean(_resolvedRegistroContext?.cliente);
   if (!forceClientFork && hasResolvedClient) return true;
   const result = await RegistroClienteForkSheet.open({ initial: _readRegistroFormModelSnapshot() });
-  if (!result) return false;
+  if (!result || result.canceled === true) return false;
   _applyRegistroClientFields(result);
   return true;
 }

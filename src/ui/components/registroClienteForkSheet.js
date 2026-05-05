@@ -8,11 +8,12 @@ const EMPTY_CLIENT = {
   clienteContato: '',
   localAtendimento: '',
 };
+const CANCELED_RESULT = { canceled: true };
 
 let _a11yCleanup = null;
 let _activeResolve = null;
 
-function close(overlay, result = null) {
+function close(overlay, result = CANCELED_RESULT) {
   if (_a11yCleanup) {
     _a11yCleanup();
     _a11yCleanup = null;
@@ -82,11 +83,11 @@ export const RegistroClienteForkSheet = {
     return new Promise((resolve) => {
       _activeResolve = resolve;
       requestAnimationFrame(() => overlay.classList.add('is-open'));
-      _a11yCleanup = attachDialogA11y(overlay, { onDismiss: () => close(overlay, null) });
+      _a11yCleanup = attachDialogA11y(overlay, { onDismiss: () => close(overlay) });
       overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) close(overlay, null);
+        if (event.target === overlay) close(overlay);
       });
-      overlay.querySelector('#rcf-close')?.addEventListener('click', () => close(overlay, null));
+      overlay.querySelector('#rcf-close')?.addEventListener('click', () => close(overlay));
       const identify = overlay.querySelector('#rcf-identify');
       const fields = overlay.querySelector('#rcf-fields');
       identify?.addEventListener('click', () => {
