@@ -731,6 +731,11 @@ export function renderShellViews() {
                   </svg>
                   <span>Salvar e enviar pro cliente</span>
                 </button>
+                <button class="btn btn--ghost registro-actions__other" data-action="save-and-share-other-registro"
+                  title="Enviar pra outro destinatário" hidden aria-hidden="true">
+                  <span aria-hidden="true">⋯</span>
+                  <span class="sr-only">Enviar pra outro destinatário</span>
+                </button>
                 <button class="btn btn--ghost registro-actions__save-only" data-action="save-registro"
                   title="Só salva (sem enviar)">
                   <svg aria-hidden="true"><use href="#ri-save"/></svg>

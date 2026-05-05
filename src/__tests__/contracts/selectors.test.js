@@ -67,6 +67,8 @@ describe('contracts/selectors (static)', () => {
       expect(extract(registro, 'data-action')).toMatchInlineSnapshot(`
       [
         "quick-service-template",
+        "save-and-share-other-registro",
+        "save-and-share-registro",
         "save-registro",
       ]
     `));
