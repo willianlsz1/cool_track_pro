@@ -2,9 +2,9 @@ import { Utils } from '../../../core/utils.js';
 import { regsForEquip } from '../../../core/state.js';
 import {
   calculateHealthScore,
-  getHealthClass,
   evaluateEquipmentRisk,
   evaluateEquipmentRiskTrend,
+  getHealthClass,
   getEquipmentMaintenanceContext,
 } from '../../../domain/maintenance.js';
 import { evaluateEquipmentPriority } from '../../../domain/priorityEngine.js';

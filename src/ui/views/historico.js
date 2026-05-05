@@ -24,7 +24,7 @@ import {
 import { Photos } from '../components/photos.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
-import { updateHeader } from './dashboard.js';
+import { updateGlobalHeader } from '../composables/header.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
 import { buildClientePmocDetails } from '../../core/clientePmoc.js';
@@ -1647,6 +1647,6 @@ export function deleteReg(id) {
   });
   localStorage.removeItem(`cooltrack-sig-${id}`);
   renderHist();
-  updateHeader();
+  updateGlobalHeader();
   Toast.warning('Registro removido do histórico.');
 }

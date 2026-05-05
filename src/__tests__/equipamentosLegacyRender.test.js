@@ -188,6 +188,9 @@ vi.mock('../ui/views/dashboard.js', () => ({
   getHealthClass: vi.fn(() => 'ok'),
   updateHeader: vi.fn(),
 }));
+vi.mock('../ui/composables/header.js', () => ({
+  updateGlobalHeader: vi.fn(),
+}));
 
 function setupDom() {
   document.body.innerHTML = `

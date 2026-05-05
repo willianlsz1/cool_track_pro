@@ -10,7 +10,7 @@ import { Toast } from '../../core/toast.js';
 import { OnboardingBanner } from '../components/onboarding.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { Profile } from '../../features/profile.js';
-import { updateHeader } from './dashboard.js';
+import { updateGlobalHeader } from '../composables/header.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { checkPlanLimit } from '../../core/planLimits.js';
 import { currentRoute, goTo } from '../../core/router.js';
@@ -2065,7 +2065,7 @@ export async function saveEquip(options = {}) {
     });
   }
   renderEquip();
-  updateHeader();
+  updateGlobalHeader();
   Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
 
   if (keepOpen) {
@@ -2662,7 +2662,7 @@ export async function deleteEquip(id) {
     });
   }
   renderEquip();
-  updateHeader();
+  updateGlobalHeader();
   Toast.info('Equipamento removido.');
 }
 
