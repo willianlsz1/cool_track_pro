@@ -7,6 +7,7 @@
 import { Toast } from './toast.js';
 import { handleError, ErrorCodes } from './errors.js';
 import { Modal } from './modal.js';
+import { createCorrelationId, trackRouteEnter, trackRouteError } from './telemetry.js';
 
 const safeWindow = typeof window !== 'undefined' ? window : undefined;
 
@@ -379,6 +380,18 @@ export function goTo(name, params = {}, options = {}) {
  * Evita tela em branco e oferece caminho de recuperação (recarregar).
  */
 function _handleViewError(name, el, error) {
+  let correlationId = 'n/a';
+  try {
+    correlationId = createCorrelationId();
+  } catch {
+    // never propagate telemetry/id generation failure from boundary
+  }
+  try {
+    trackRouteError(name, error, correlationId);
+  } catch {
+    // telemetry must never throw inside error boundary
+  }
+
   handleError(error, {
     code: ErrorCodes.NETWORK_ERROR,
     message: 'Não foi possível carregar esta tela. Tente novamente.',
@@ -400,6 +413,9 @@ function _handleViewError(name, el, error) {
       <h2 class="view-error-boundary__title">Não foi possível carregar esta tela</h2>
       <p class="view-error-boundary__desc">
         Algo deu errado ao montar o conteúdo. Tente recarregar a página.
+      </p>
+      <p class="view-error-boundary__meta">
+        ID: <code class="view-error-boundary__cid" tabindex="0">${String(correlationId)}</code>
       </p>
       <button type="button" class="btn btn--primary view-error-boundary__retry">
         Recarregar
@@ -447,6 +463,11 @@ function _activateRoute(name, el, params, options = {}) {
 
   _current = name;
   _currentParams = safeParams;
+  try {
+    trackRouteEnter(name);
+  } catch {
+    // telemetry must never break routing
+  }
   emitRouteChanged(name, previousRoute);
   _transitioning = false;
 

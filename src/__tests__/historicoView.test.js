@@ -39,6 +39,10 @@ vi.mock('../ui/components/skeleton.js', () => ({
 vi.mock('../ui/views/dashboard.js', () => ({
   updateHeader: vi.fn(),
 }));
+vi.mock('../ui/composables/header.js', () => ({
+  updateGlobalHeader: vi.fn(),
+}));
+
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'Em dia' })),
 }));

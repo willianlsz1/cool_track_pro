@@ -70,6 +70,7 @@ const evaluateEquipmentRiskMock = vi.fn(() => ({
   factors: ['rotina estável'],
 }));
 vi.mock('../domain/maintenance.js', () => ({
+  calculateHealthScore: vi.fn(() => 82),
   evaluateEquipmentHealth: vi.fn(() => ({ score: 80, context: { daysToNext: 30 } })),
   getHealthClass: vi.fn((score) => {
     if (score >= 85) return 'ok';

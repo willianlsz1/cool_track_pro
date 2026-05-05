@@ -1393,6 +1393,7 @@ export async function saveRegistro({ andShare = false } = {}) {
   // Modo criação — continua fluxo normal
   const novoId = Utils.uid();
   let fotosRegistro = [...Photos.pending].filter(isSafeRegistroPhotoSrc);
+  let fotosPendentes = [];
 
   // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
   // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
@@ -1464,6 +1465,9 @@ export async function saveRegistro({ andShare = false } = {}) {
     try {
       const uploadResult = await uploadPendingPhotos(fotosRegistro, { recordId: novoId });
       fotosRegistro = uploadResult.photos;
+      fotosPendentes = fotosRegistro
+        .filter((entry) => entry?.pending === true && typeof entry.queueKey === 'string')
+        .map((entry) => entry.queueKey);
       if (uploadResult.failedCount > 0) {
         Toast.warning(
           'Algumas fotos não puderam ser enviadas para a nuvem e ficaram salvas localmente.',
@@ -1504,6 +1508,7 @@ export async function saveRegistro({ andShare = false } = {}) {
           pecas,
           proxima,
           fotos: fotosRegistro,
+          ...(fotosPendentes.length > 0 ? { fotos_pendentes: fotosPendentes } : {}),
           tecnico,
           prioridade,
           custoPecas,

@@ -86,7 +86,12 @@ describe('photoStorage', () => {
     expect(supabaseMock.upload).toHaveBeenCalledTimes(1);
     expect(result.uploadedCount).toBe(0);
     expect(result.failedCount).toBe(1);
-    expect(result.photos[0]).toBe(SAMPLE_DATA_URL);
+    expect(result.photos[0]).toMatchObject({
+      pending: true,
+      queueKey: 'photo-r-2-0',
+      recordId: 'r-2',
+      index: 0,
+    });
   });
 
   it('migrates legacy inline photos in registros', async () => {

@@ -62,6 +62,9 @@ vi.mock('../ui/components/historicoFiltersSheet.js', () => ({
 vi.mock('../ui/views/dashboard.js', () => ({
   updateHeader: mocks.updateHeader,
 }));
+vi.mock('../ui/composables/header.js', () => ({
+  updateGlobalHeader: vi.fn(),
+}));
 
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: mocks.getOperationalStatus,

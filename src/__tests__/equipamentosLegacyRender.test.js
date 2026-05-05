@@ -116,6 +116,8 @@ vi.mock('../domain/suggestedAction.js', () => ({
 }));
 
 vi.mock('../domain/maintenance.js', () => ({
+  calculateHealthScore: vi.fn(() => 82),
+  getHealthClass: vi.fn(() => 'ok'),
   evaluateEquipmentHealth: vi.fn((eq) => ({
     score: eq?.__score ?? 82,
     reasons: ['rotina estável'],
@@ -185,6 +187,9 @@ vi.mock('../ui/views/dashboard.js', () => ({
   calcHealthScore: vi.fn(() => 82),
   getHealthClass: vi.fn(() => 'ok'),
   updateHeader: vi.fn(),
+}));
+vi.mock('../ui/composables/header.js', () => ({
+  updateGlobalHeader: vi.fn(),
 }));
 
 function setupDom() {

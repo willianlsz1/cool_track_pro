@@ -10,12 +10,14 @@ import { Toast } from '../../core/toast.js';
 import { OnboardingBanner } from '../components/onboarding.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { Profile } from '../../features/profile.js';
-import { calcHealthScore, getHealthClass, updateHeader } from './dashboard.js';
+import { updateGlobalHeader } from '../composables/header.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { checkPlanLimit } from '../../core/planLimits.js';
 import { currentRoute, goTo } from '../../core/router.js';
 import { trackEvent } from '../../core/telemetry.js';
 import {
+  calculateHealthScore,
+  getHealthClass,
   evaluateEquipmentHealth,
   evaluateEquipmentRisk,
   getSuggestedPreventiveDays,
@@ -797,7 +799,7 @@ function buildEquipamentoListCardModel(eq, evalCtx) {
   const eqRegs = evalCtx.getRegs(eq.id);
   const context = evalCtx.getMaintenanceContext(eq);
   const last = context.ultimoRegistro;
-  const score = calcHealthScore(eq.id);
+  const score = calculateHealthScore(eq, regsForEquip(eq.id));
   const healthClass = getHealthClass(score);
   const statusClass = Utils.safeStatus(eq.status);
   const priorityLabel = PRIORIDADE_LABEL[eq.criticidade] || PRIORIDADE_LABEL.media;
@@ -2053,7 +2055,7 @@ export async function saveEquip(options = {}) {
     });
   }
   renderEquip();
-  updateHeader();
+  updateGlobalHeader();
   Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
 
   if (keepOpen) {
@@ -2650,7 +2652,7 @@ export async function deleteEquip(id) {
     });
   }
   renderEquip();
-  updateHeader();
+  updateGlobalHeader();
   Toast.info('Equipamento removido.');
 }
 
