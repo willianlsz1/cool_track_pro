@@ -544,14 +544,13 @@ export function renderShellViews() {
               </div>
             </details>
 
-            <details class="registro-details">
-              <summary class="registro-details__summary">
+            <details class="registro-details" id="registro-materiais-details">
+              <summary class="registro-details__summary" aria-expanded="false">
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-package"/></svg></span>
                 <div class="registro-details__titles">
-                  <div class="registro-details__title">Materiais e custo</div>
-                  <div class="registro-details__subtitle">opcional — entra no relatório</div>
+                  <div class="registro-details__title">+ Usei peças neste serviço</div>
+                  <div class="registro-details__subtitle">opcional — materiais, peças e custos</div>
                 </div>
-                <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
               </summary>
               <div class="registro-details__body">
                 <div class="registro-field">
