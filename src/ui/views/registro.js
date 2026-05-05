@@ -9,6 +9,7 @@ import { Toast } from '../../core/toast.js';
 import { goTo, setRouteGuard, clearRouteGuard } from '../../core/router.js';
 import { CustomConfirm } from '../../core/modal.js';
 import { Photos } from '../components/photos.js';
+import { RegistroClienteForkSheet } from '../components/registroClienteForkSheet.js';
 import { SavedHighlight } from '../components/onboarding.js';
 import { Profile } from '../../features/profile.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
@@ -142,10 +143,12 @@ let _registroSignatureBridgePromise = null;
 let _registroSignatureBridge = null;
 let _registroSignatureRenderGeneration = 0;
 let _registroSignatureDraftSrc = '';
+let _isSavingRegistro = false;
 // Persiste o último cliente preenchido para auto-prefill no próximo registro —
 // técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
 let _currentRouteParams = {};
+let _resolvedRegistroContext = null;
 
 function _loadLastClient() {
   try {
@@ -192,6 +195,23 @@ function _updateImpactCopy(context) {
     'Defina o status final e a próxima preventiva para acompanhar melhor este equipamento.';
 }
 
+function _setRegistroSaveButtonsLoading(isLoading) {
+  const actionAttr = 'data-action';
+  const buttons = document.querySelectorAll(
+    `[${actionAttr}="save-registro"], [${actionAttr}="save-and-share-registro"]`,
+  );
+  buttons.forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) return;
+    button.disabled = isLoading;
+    button.classList.toggle('is-loading', isLoading);
+    if (isLoading) {
+      button.setAttribute('aria-busy', 'true');
+    } else {
+      button.removeAttribute('aria-busy');
+    }
+  });
+}
+
 function _applyClienteDetailsContext(context) {
   const details = document.getElementById('registro-cliente-details');
   if (!details) return;
@@ -203,6 +223,7 @@ function _applyClienteDetailsContext(context) {
   if (!subtitle || !body || !summary) return;
 
   if (context?.cliente) {
+    details.hidden = false;
     subtitle.textContent = 'vinculado automaticamente ao contexto';
     body.hidden = true;
     add?.setAttribute('hidden', 'hidden');
@@ -214,11 +235,45 @@ function _applyClienteDetailsContext(context) {
     return;
   }
 
-  subtitle.textContent = 'opcional — aparece na capa do PDF';
-  body.hidden = false;
-  add?.removeAttribute('hidden');
+  details.hidden = true;
+  subtitle.textContent = 'definido no momento do envio';
+  body.hidden = true;
+  add?.setAttribute('hidden', 'hidden');
+  details.removeAttribute('open');
   summary.hidden = true;
   summary.textContent = '';
+}
+
+function _updateRegistroShareActions(context) {
+  const shareButton = document.querySelector('[data-action="save-and-share-registro"]');
+  const shareLabel = shareButton?.querySelector('span');
+  const otherButton = document.querySelector('[data-action="save-and-share-other-registro"]');
+  const clienteNome = context?.cliente?.nome?.trim();
+  if (shareLabel) {
+    shareLabel.textContent = clienteNome
+      ? `Salvar e enviar pro ${clienteNome}`
+      : 'Salvar e enviar pro cliente';
+  }
+  if (otherButton) {
+    otherButton.hidden = !clienteNome;
+    otherButton.setAttribute('aria-hidden', clienteNome ? 'false' : 'true');
+  }
+}
+
+function _applyRegistroClientFields(fields = {}) {
+  Utils.setVal('r-cliente-nome', fields.clienteNome || '');
+  Utils.setVal('r-cliente-documento', fields.clienteDocumento || '');
+  Utils.setVal('r-cliente-contato', fields.clienteContato || '');
+  Utils.setVal('r-local-atendimento', fields.localAtendimento || '');
+}
+
+async function _resolveRegistroClientFork({ forceClientFork = false } = {}) {
+  const hasResolvedClient = Boolean(_resolvedRegistroContext?.cliente);
+  if (!forceClientFork && hasResolvedClient) return true;
+  const result = await RegistroClienteForkSheet.open({ initial: _readRegistroFormModelSnapshot() });
+  if (!result) return false;
+  _applyRegistroClientFields(result);
+  return true;
 }
 
 function _applyResolvedContext(context) {
@@ -264,6 +319,7 @@ function _applyResolvedContext(context) {
   }
 
   _applyClienteDetailsContext(context);
+  _updateRegistroShareActions(context);
   _updateImpactCopy(context);
 }
 
@@ -277,6 +333,7 @@ function _refreshRegistroContext() {
     },
     stateNow,
   );
+  _resolvedRegistroContext = context;
   _applyResolvedContext(context);
 }
 
@@ -1224,373 +1281,388 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
   }
 }
 
-export async function saveRegistro({ andShare = false } = {}) {
-  const prioridade = Utils.getVal('r-prioridade') || 'media';
-  const { equipamentos } = getState();
+export async function saveRegistro({ andShare = false, forceClientFork = false } = {}) {
+  if (_isSavingRegistro) return false;
 
-  // Quando o tipo é "Outro", combinamos com o label livre → "Outro · {custom}".
-  // Validamos o custom ANTES de mandar pra validateRegistroPayload porque o
-  // validador trata tipo como um blob só e não sabe sobre o campo auxiliar.
-  let tipoForPayload = Utils.getVal('r-tipo');
-  if (tipoForPayload === 'Outro') {
-    const custom = Utils.getVal('r-tipo-custom').trim();
-    if (!custom) {
-      Toast.warning('Descreva o serviço no campo "Qual serviço?" pra continuar.');
-      Utils.getEl('r-tipo-custom')?.focus();
+  if (andShare) {
+    const canContinue = await _resolveRegistroClientFork({ forceClientFork });
+    if (!canContinue) return false;
+  }
+
+  _isSavingRegistro = true;
+  _setRegistroSaveButtonsLoading(true);
+
+  try {
+    const prioridade = Utils.getVal('r-prioridade') || 'media';
+    const { equipamentos } = getState();
+
+    // Quando o tipo é "Outro", combinamos com o label livre → "Outro · {custom}".
+    // Validamos o custom ANTES de mandar pra validateRegistroPayload porque o
+    // validador trata tipo como um blob só e não sabe sobre o campo auxiliar.
+    let tipoForPayload = Utils.getVal('r-tipo');
+    if (tipoForPayload === 'Outro') {
+      const custom = Utils.getVal('r-tipo-custom').trim();
+      if (!custom) {
+        Toast.warning('Descreva o serviço no campo "Qual serviço?" pra continuar.');
+        Utils.getEl('r-tipo-custom')?.focus();
+        return false;
+      }
+      if (custom.length > TIPO_CUSTOM_MAX) {
+        Toast.warning(`A descricao do serviço passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
+        Utils.getEl('r-tipo-custom')?.focus();
+        return false;
+      }
+      tipoForPayload = `${TIPO_OUTRO_PREFIX}${custom}`;
+    }
+
+    const payloadValidation = validateRegistroPayload(
+      {
+        equipId: Utils.getVal('r-equip'),
+        data: Utils.getVal('r-data'),
+        tipo: tipoForPayload,
+        obs: Utils.getVal('r-obs'),
+        tecnico: Utils.getVal('r-tecnico'),
+        status: Utils.getVal('r-status'),
+        pecas: Utils.getVal('r-pecas'),
+        proxima: Utils.getVal('r-proxima'),
+        custoPecas: Utils.getVal('r-custo-pecas'),
+        custoMaoObra: Utils.getVal('r-custo-mao-obra'),
+        clienteNome: Utils.getVal('r-cliente-nome'),
+        clienteDocumento: Utils.getVal('r-cliente-documento'),
+        localAtendimento: Utils.getVal('r-local-atendimento'),
+        clienteContato: Utils.getVal('r-cliente-contato'),
+      },
+      { existingEquipamentos: equipamentos },
+    );
+
+    if (!payloadValidation.valid) {
+      Toast.warning(payloadValidation.errors[0]);
       return false;
     }
-    if (custom.length > TIPO_CUSTOM_MAX) {
-      Toast.warning(`A descricao do serviço passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
-      Utils.getEl('r-tipo-custom')?.focus();
+
+    const {
+      equipId,
+      data,
+      tipo,
+      tecnico,
+      obs,
+      pecas,
+      proxima,
+      status,
+      custoPecas,
+      custoMaoObra,
+      clienteNome,
+      clienteDocumento,
+      localAtendimento,
+      clienteContato,
+    } = payloadValidation.value;
+
+    const descricaoFinal =
+      obs && obs.length >= 10 ? obs : `Serviço de ${tipo.toLowerCase()} registrado em modo rapido.`;
+
+    const validation = validateOperationalPayload({ data, status });
+    if (!validation.valid) {
+      Toast.error(validation.errors[0]);
       return false;
     }
-    tipoForPayload = `${TIPO_OUTRO_PREFIX}${custom}`;
-  }
 
-  const payloadValidation = validateRegistroPayload(
-    {
-      equipId: Utils.getVal('r-equip'),
-      data: Utils.getVal('r-data'),
-      tipo: tipoForPayload,
-      obs: Utils.getVal('r-obs'),
-      tecnico: Utils.getVal('r-tecnico'),
-      status: Utils.getVal('r-status'),
-      pecas: Utils.getVal('r-pecas'),
-      proxima: Utils.getVal('r-proxima'),
-      custoPecas: Utils.getVal('r-custo-pecas'),
-      custoMaoObra: Utils.getVal('r-custo-mao-obra'),
-      clienteNome: Utils.getVal('r-cliente-nome'),
-      clienteDocumento: Utils.getVal('r-cliente-documento'),
-      localAtendimento: Utils.getVal('r-local-atendimento'),
-      clienteContato: Utils.getVal('r-cliente-contato'),
-    },
-    { existingEquipamentos: equipamentos },
-  );
-
-  if (!payloadValidation.valid) {
-    Toast.warning(payloadValidation.errors[0]);
-    return false;
-  }
-
-  const {
-    equipId,
-    data,
-    tipo,
-    tecnico,
-    obs,
-    pecas,
-    proxima,
-    status,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-  } = payloadValidation.value;
-
-  const descricaoFinal =
-    obs && obs.length >= 10 ? obs : `Serviço de ${tipo.toLowerCase()} registrado em modo rapido.`;
-
-  const validation = validateOperationalPayload({ data, status });
-  if (!validation.valid) {
-    Toast.error(validation.errors[0]);
-    return false;
-  }
-
-  // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
-  // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
-  // pra ele saber que esse registro NÃO entra no PMOC formal completo.
-  if (isPreventivaTipo(tipo)) {
-    const cl = getCurrentChecklist();
-    if (!cl) {
-      Toast.warning(
-        'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.',
-      );
-    } else {
-      const validationCl = validateChecklist(cl);
-      if (!validationCl.complete && validationCl.missing?.length) {
-        const first = validationCl.missing[0];
-        const rest = validationCl.missing.length - 1;
-        const msg =
-          rest > 0
-            ? `${validationCl.missing.length} itens obrigatórios pendentes (ex: "${first}"). Salvando mesmo assim.`
-            : `1 item obrigatório pendente: "${first}". Salvando mesmo assim.`;
-        Toast.warning(msg);
+    // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
+    // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
+    // pra ele saber que esse registro NÃO entra no PMOC formal completo.
+    if (isPreventivaTipo(tipo)) {
+      const cl = getCurrentChecklist();
+      if (!cl) {
+        Toast.warning(
+          'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.',
+        );
+      } else {
+        const validationCl = validateChecklist(cl);
+        if (!validationCl.complete && validationCl.missing?.length) {
+          const first = validationCl.missing[0];
+          const rest = validationCl.missing.length - 1;
+          const msg =
+            rest > 0
+              ? `${validationCl.missing.length} itens obrigatórios pendentes (ex: "${first}"). Salvando mesmo assim.`
+              : `1 item obrigatório pendente: "${first}". Salvando mesmo assim.`;
+          Toast.warning(msg);
+        }
       }
     }
-  }
 
-  Profile.saveLastTecnico(tecnico);
+    Profile.saveLastTecnico(tecnico);
 
-  // UX V2 audit fix #81: auto-default tecnico no Profile apos primeiro
-  // registro. Se o user nao tem nome no perfil ainda (ex.: pulou
-  // onboarding), assumimos o nome do tecnico do registro recem-salvo como
-  // o nome dele. Salva apenas o campo .nome — outros campos (empresa,
-  // CNPJ) ficam pra ele preencher em /conta. Idempotente: nao sobrescreve
-  // perfil ja preenchido.
-  try {
-    const currentProfile = Profile.get() || {};
-    if (!currentProfile.nome && tecnico) {
-      Profile.save({ ...currentProfile, nome: tecnico });
+    // UX V2 audit fix #81: auto-default tecnico no Profile apos primeiro
+    // registro. Se o user nao tem nome no perfil ainda (ex.: pulou
+    // onboarding), assumimos o nome do tecnico do registro recem-salvo como
+    // o nome dele. Salva apenas o campo .nome — outros campos (empresa,
+    // CNPJ) ficam pra ele preencher em /conta. Idempotente: nao sobrescreve
+    // perfil ja preenchido.
+    try {
+      const currentProfile = Profile.get() || {};
+      if (!currentProfile.nome && tecnico) {
+        Profile.save({ ...currentProfile, nome: tecnico });
+      }
+    } catch (_err) {
+      /* storage off — nao bloqueia o save do registro */
     }
-  } catch (_err) {
-    /* storage off — nao bloqueia o save do registro */
-  }
 
-  // Modo edição — atualiza registro existente
-  const editingId = sessionStorage.getItem(EDITING_KEY);
-  if (editingId) {
-    setState((prev) => {
-      const previousRegistro = prev.registros.find((r) => r.id === editingId) || null;
-      const updatedRegistros = prev.registros.map((r) =>
-        r.id === editingId
-          ? {
-              ...r,
-              equipId,
-              data,
-              tipo,
-              obs: descricaoFinal,
-              tecnico,
-              prioridade,
-              status,
-              pecas,
-              proxima,
-              custoPecas,
-              custoMaoObra,
-              clienteNome,
-              clienteDocumento,
-              localAtendimento,
-              clienteContato,
-              // PMOC Fase 3: preserva checklist; null se user limpou tudo.
-              checklist: getCurrentChecklist() || r.checklist || null,
-            }
-          : r,
-      );
+    // Modo edição — atualiza registro existente
+    const editingId = sessionStorage.getItem(EDITING_KEY);
+    if (editingId) {
+      setState((prev) => {
+        const previousRegistro = prev.registros.find((r) => r.id === editingId) || null;
+        const updatedRegistros = prev.registros.map((r) =>
+          r.id === editingId
+            ? {
+                ...r,
+                equipId,
+                data,
+                tipo,
+                obs: descricaoFinal,
+                tecnico,
+                prioridade,
+                status,
+                pecas,
+                proxima,
+                custoPecas,
+                custoMaoObra,
+                clienteNome,
+                clienteDocumento,
+                localAtendimento,
+                clienteContato,
+                // PMOC Fase 3: preserva checklist; null se user limpou tudo.
+                checklist: getCurrentChecklist() || r.checklist || null,
+              }
+            : r,
+        );
 
-      const updatedRegistro = updatedRegistros.find((r) => r.id === editingId) || null;
-      const updatedEquipamentos = reconcileEquipmentStatusesAfterRegistroEdit({
-        equipamentos: prev.equipamentos,
-        registros: updatedRegistros,
-        previousRegistro,
-        updatedRegistro,
+        const updatedRegistro = updatedRegistros.find((r) => r.id === editingId) || null;
+        const updatedEquipamentos = reconcileEquipmentStatusesAfterRegistroEdit({
+          equipamentos: prev.equipamentos,
+          registros: updatedRegistros,
+          previousRegistro,
+          updatedRegistro,
+        });
+
+        return {
+          ...prev,
+          registros: updatedRegistros,
+          equipamentos: updatedEquipamentos,
+        };
       });
+      _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
+      resetEditingState();
+      clearRegistro();
+      Toast.success('Registro atualizado.');
+      goTo('historico');
+      return true;
+    }
 
+    // Modo criação — continua fluxo normal
+    const novoId = Utils.uid();
+    let fotosRegistro = [...Photos.pending].filter(isSafeRegistroPhotoSrc);
+    let fotosPendentes = [];
+
+    // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
+    // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
+    let assinatura = null;
+    // Reference do Storage quando upload OK; null quando offline ou plano Free.
+    // Shape: { version, provider, bucket, path, url, urlExpiresAt, ... }
+    let signatureReference = null;
+    const canUseSignature = isCachedPlanPlusOrHigher();
+    let SignatureModal;
+    let saveSignatureForRecord;
+    if (canUseSignature) {
+      try {
+        ({ SignatureModal, saveSignatureForRecord } = await import('../components/signature.js'));
+      } catch (error) {
+        handleError(error, {
+          code: ErrorCodes.NETWORK_ERROR,
+          severity: 'warning',
+          message: 'Não foi possível carregar o módulo de assinatura.',
+          context: { action: 'registro.saveRegistro.signatureImport' },
+        });
+      }
+    }
+    const eq = findEquip(equipId);
+    if (canUseSignature && SignatureModal?.request) {
+      try {
+        const result = await SignatureModal.request(novoId, eq?.nome || 'Equipamento');
+        // UX: a assinatura é opcional. Cancelar o modal (X/backdrop/Escape) não
+        // invalida mais o save — o técnico pode ter o cliente assinando depois
+        // ou o serviço foi concluído sem cliente presente. Apenas não anexa
+        // assinatura ao registro. Se aparecer um valor (data URL), usamos.
+        if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
+          assinatura = result;
+          if (saveSignatureForRecord) {
+            try {
+              // Upload pro Storage (async). Retorna reference object ou null
+              // se offline/falha — nesse caso a captura fica na queue
+              // `cooltrack-sig-pending-upload` pra sync posterior.
+              signatureReference = await saveSignatureForRecord(novoId, assinatura);
+              if (!signatureReference) {
+                Toast.info?.('Assinatura salva no dispositivo. Será sincronizada quando conectar.');
+              }
+            } catch (uploadError) {
+              // Falha inesperada — mantém flag local, queue já foi populada
+              // dentro do saveSignatureForRecord. Não bloqueia save do registro.
+              handleError(uploadError, {
+                code: ErrorCodes.SYNC_FAILED,
+                severity: 'warning',
+                message: 'Assinatura ficou salva localmente. Tentaremos sincronizar depois.',
+                context: { action: 'registro.saveRegistro.signatureUpload', registroId: novoId },
+              });
+            }
+          }
+        } else if (result && result !== SignatureModal.CANCELED) {
+          Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
+        } else if (result === SignatureModal.CANCELED) {
+          Toast.info?.('Registro salvo sem assinatura. Você pode adicioná-la depois.');
+        }
+      } catch (error) {
+        handleError(error, {
+          code: ErrorCodes.VALIDATION_ERROR,
+          severity: 'warning',
+          message: 'Não foi possível registrar a assinatura digital.',
+          context: { action: 'registro.saveRegistro.signatureRequest', registroId: novoId },
+        });
+      }
+    }
+
+    if (fotosRegistro.length > 0) {
+      try {
+        const uploadResult = await uploadPendingPhotos(fotosRegistro, { recordId: novoId });
+        fotosRegistro = uploadResult.photos;
+        fotosPendentes = fotosRegistro
+          .filter((entry) => entry?.pending === true && typeof entry.queueKey === 'string')
+          .map((entry) => entry.queueKey);
+        if (uploadResult.failedCount > 0) {
+          Toast.warning(
+            'Algumas fotos não puderam ser enviadas para a nuvem e ficaram salvas localmente.',
+          );
+        }
+      } catch (error) {
+        handleError(error, {
+          code: ErrorCodes.SYNC_FAILED,
+          severity: 'warning',
+          message: 'Falha no upload das fotos. O registro será salvo com fallback local.',
+          context: { action: 'registro.saveRegistro.photoUpload', registroId: novoId },
+        });
+      }
+    }
+
+    const operationalStatus = getOperationalStatus({
+      status,
+      lastStatus: status,
+      ultimoRegistro: { status },
+    });
+
+    setState((prev) => {
+      const currentTecs = prev.tecnicos || [];
+      const updatedTecs =
+        tecnico && !currentTecs.includes(tecnico) ? [...currentTecs, tecnico] : currentTecs;
       return {
         ...prev,
-        registros: updatedRegistros,
-        equipamentos: updatedEquipamentos,
+        tecnicos: updatedTecs,
+        registros: [
+          ...prev.registros,
+          {
+            id: novoId,
+            equipId,
+            data,
+            tipo,
+            obs: descricaoFinal,
+            status,
+            pecas,
+            proxima,
+            fotos: fotosRegistro,
+            ...(fotosPendentes.length > 0 ? { fotos_pendentes: fotosPendentes } : {}),
+            tecnico,
+            prioridade,
+            custoPecas,
+            custoMaoObra,
+            clienteNome,
+            clienteDocumento,
+            localAtendimento,
+            clienteContato,
+            // Prefer reference do Storage (cross-device). Se upload falhou e
+            // ficou só no localStorage, grava `true` pra indicar "tem
+            // assinatura" — queue reconcile troca pelo reference depois.
+            assinatura: signatureReference || (assinatura ? true : false),
+            // PMOC Fase 3: checklist NBR (null se não preenchido).
+            checklist: getCurrentChecklist(),
+          },
+        ],
+        equipamentos: prev.equipamentos.map((e) => {
+          if (e.id !== equipId) return e;
+          return {
+            ...e,
+            status:
+              operationalStatus.uiStatus === 'unknown'
+                ? e.status || 'ok'
+                : operationalStatus.uiStatus,
+            statusDescricao: operationalStatus.label,
+          };
+        }),
       };
     });
+
+    SavedHighlight.markForHighlight(novoId);
     _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
-    resetEditingState();
     clearRegistro();
-    Toast.success('Registro atualizado.');
-    goTo('historico');
-    return true;
-  }
 
-  // Modo criação — continua fluxo normal
-  const novoId = Utils.uid();
-  let fotosRegistro = [...Photos.pending].filter(isSafeRegistroPhotoSrc);
-  let fotosPendentes = [];
-
-  // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
-  // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
-  let assinatura = null;
-  // Reference do Storage quando upload OK; null quando offline ou plano Free.
-  // Shape: { version, provider, bucket, path, url, urlExpiresAt, ... }
-  let signatureReference = null;
-  const canUseSignature = isCachedPlanPlusOrHigher();
-  let SignatureModal;
-  let saveSignatureForRecord;
-  if (canUseSignature) {
-    try {
-      ({ SignatureModal, saveSignatureForRecord } = await import('../components/signature.js'));
-    } catch (error) {
-      handleError(error, {
-        code: ErrorCodes.NETWORK_ERROR,
-        severity: 'warning',
-        message: 'Não foi possível carregar o módulo de assinatura.',
-        context: { action: 'registro.saveRegistro.signatureImport' },
-      });
-    }
-  }
-  const eq = findEquip(equipId);
-  if (canUseSignature && SignatureModal?.request) {
-    try {
-      const result = await SignatureModal.request(novoId, eq?.nome || 'Equipamento');
-      // UX: a assinatura é opcional. Cancelar o modal (X/backdrop/Escape) não
-      // invalida mais o save — o técnico pode ter o cliente assinando depois
-      // ou o serviço foi concluído sem cliente presente. Apenas não anexa
-      // assinatura ao registro. Se aparecer um valor (data URL), usamos.
-      if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
-        assinatura = result;
-        if (saveSignatureForRecord) {
-          try {
-            // Upload pro Storage (async). Retorna reference object ou null
-            // se offline/falha — nesse caso a captura fica na queue
-            // `cooltrack-sig-pending-upload` pra sync posterior.
-            signatureReference = await saveSignatureForRecord(novoId, assinatura);
-            if (!signatureReference) {
-              Toast.info?.('Assinatura salva no dispositivo. Será sincronizada quando conectar.');
-            }
-          } catch (uploadError) {
-            // Falha inesperada — mantém flag local, queue já foi populada
-            // dentro do saveSignatureForRecord. Não bloqueia save do registro.
-            handleError(uploadError, {
-              code: ErrorCodes.SYNC_FAILED,
-              severity: 'warning',
-              message: 'Assinatura ficou salva localmente. Tentaremos sincronizar depois.',
-              context: { action: 'registro.saveRegistro.signatureUpload', registroId: novoId },
-            });
-          }
+    // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
+    // dispara o botao primário verde, pulamos o toast com escolhas e ja
+    // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
+    if (andShare && equipId) {
+      Toast.success('Serviço salvo. Abrindo WhatsApp...');
+      try {
+        const filters = { equipId, registroId: novoId };
+        const ok = await shareWhatsAppFlow({ filters });
+        // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
+        // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
+        if (!ok) {
+          goTo('relatorio', { equipId, intent: 'whatsapp', registroId: novoId });
         }
-      } else if (result && result !== SignatureModal.CANCELED) {
-        Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
-      } else if (result === SignatureModal.CANCELED) {
-        Toast.info?.('Registro salvo sem assinatura. Você pode adicioná-la depois.');
-      }
-    } catch (error) {
-      handleError(error, {
-        code: ErrorCodes.VALIDATION_ERROR,
-        severity: 'warning',
-        message: 'Não foi possível registrar a assinatura digital.',
-        context: { action: 'registro.saveRegistro.signatureRequest', registroId: novoId },
-      });
-    }
-  }
-
-  if (fotosRegistro.length > 0) {
-    try {
-      const uploadResult = await uploadPendingPhotos(fotosRegistro, { recordId: novoId });
-      fotosRegistro = uploadResult.photos;
-      fotosPendentes = fotosRegistro
-        .filter((entry) => entry?.pending === true && typeof entry.queueKey === 'string')
-        .map((entry) => entry.queueKey);
-      if (uploadResult.failedCount > 0) {
-        Toast.warning(
-          'Algumas fotos não puderam ser enviadas para a nuvem e ficaram salvas localmente.',
-        );
-      }
-    } catch (error) {
-      handleError(error, {
-        code: ErrorCodes.SYNC_FAILED,
-        severity: 'warning',
-        message: 'Falha no upload das fotos. O registro será salvo com fallback local.',
-        context: { action: 'registro.saveRegistro.photoUpload', registroId: novoId },
-      });
-    }
-  }
-
-  const operationalStatus = getOperationalStatus({
-    status,
-    lastStatus: status,
-    ultimoRegistro: { status },
-  });
-
-  setState((prev) => {
-    const currentTecs = prev.tecnicos || [];
-    const updatedTecs =
-      tecnico && !currentTecs.includes(tecnico) ? [...currentTecs, tecnico] : currentTecs;
-    return {
-      ...prev,
-      tecnicos: updatedTecs,
-      registros: [
-        ...prev.registros,
-        {
-          id: novoId,
-          equipId,
-          data,
-          tipo,
-          obs: descricaoFinal,
-          status,
-          pecas,
-          proxima,
-          fotos: fotosRegistro,
-          ...(fotosPendentes.length > 0 ? { fotos_pendentes: fotosPendentes } : {}),
-          tecnico,
-          prioridade,
-          custoPecas,
-          custoMaoObra,
-          clienteNome,
-          clienteDocumento,
-          localAtendimento,
-          clienteContato,
-          // Prefer reference do Storage (cross-device). Se upload falhou e
-          // ficou só no localStorage, grava `true` pra indicar "tem
-          // assinatura" — queue reconcile troca pelo reference depois.
-          assinatura: signatureReference || (assinatura ? true : false),
-          // PMOC Fase 3: checklist NBR (null se não preenchido).
-          checklist: getCurrentChecklist(),
-        },
-      ],
-      equipamentos: prev.equipamentos.map((e) => {
-        if (e.id !== equipId) return e;
-        return {
-          ...e,
-          status:
-            operationalStatus.uiStatus === 'unknown'
-              ? e.status || 'ok'
-              : operationalStatus.uiStatus,
-          statusDescricao: operationalStatus.label,
-        };
-      }),
-    };
-  });
-
-  SavedHighlight.markForHighlight(novoId);
-  _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
-  clearRegistro();
-
-  // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
-  // dispara o botao primário verde, pulamos o toast com escolhas e ja
-  // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
-  if (andShare && equipId) {
-    Toast.success('Serviço salvo. Abrindo WhatsApp...');
-    try {
-      const filters = { equipId, registroId: novoId };
-      const ok = await shareWhatsAppFlow({ filters });
-      // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
-      // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
-      if (!ok) {
+      } catch (_error) {
+        // Erro inesperado — leva pro relatorio com intent pra user retentar.
         goTo('relatorio', { equipId, intent: 'whatsapp', registroId: novoId });
       }
-    } catch (_error) {
-      // Erro inesperado — leva pro relatorio com intent pra user retentar.
-      goTo('relatorio', { equipId, intent: 'whatsapp', registroId: novoId });
+      return true;
     }
+
+    // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
+    // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
+    // mesmas regras de quota/validação do fluxo de relatório.
+    const eqForToast = equipamentos.find((e) => e.id === equipId) || null;
+    const toastShown = PostSaveRegistroToast.show({
+      equipId,
+      registroId: novoId,
+      equipName: eqForToast?.nome || null,
+      onAction: async ({ destination, equipId: targetEquipId, registroId }) => {
+        const filters = { equipId: targetEquipId, registroId };
+        if (destination === 'pdf') return exportPdfFlow({ filters });
+        return shareWhatsAppFlow({ filters });
+      },
+      onFallback: ({ destination, equipId: targetEquipId, registroId }) => {
+        goTo('relatorio', {
+          equipId: targetEquipId,
+          intent: destination,
+          ...(registroId ? { registroId } : {}),
+        });
+      },
+    });
+    // Fallback: se não tinha equipId (edge case) ou o toast recusou renderizar,
+    // volta pro feedback simples — user ainda precisa saber que salvou.
+    if (!toastShown) {
+      Toast.success('Serviço registrado com sucesso.');
+    }
+
     return true;
+  } finally {
+    _isSavingRegistro = false;
+    _setRegistroSaveButtonsLoading(false);
   }
-
-  // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
-  // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
-  // mesmas regras de quota/validação do fluxo de relatório.
-  const eqForToast = equipamentos.find((e) => e.id === equipId) || null;
-  const toastShown = PostSaveRegistroToast.show({
-    equipId,
-    registroId: novoId,
-    equipName: eqForToast?.nome || null,
-    onAction: async ({ destination, equipId: targetEquipId, registroId }) => {
-      const filters = { equipId: targetEquipId, registroId };
-      if (destination === 'pdf') return exportPdfFlow({ filters });
-      return shareWhatsAppFlow({ filters });
-    },
-    onFallback: ({ destination, equipId: targetEquipId, registroId }) => {
-      goTo('relatorio', {
-        equipId: targetEquipId,
-        intent: destination,
-        ...(registroId ? { registroId } : {}),
-      });
-    },
-  });
-  // Fallback: se não tinha equipId (edge case) ou o toast recusou renderizar,
-  // volta pro feedback simples — user ainda precisa saber que salvou.
-  if (!toastShown) {
-    Toast.success('Serviço registrado com sucesso.');
-  }
-
-  return true;
 }
 
 export function clearRegistro(preserveEquip = false) {

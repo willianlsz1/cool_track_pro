@@ -49,6 +49,21 @@ export function bindRegistroHandlers() {
     }
   });
 
+  on('save-and-share-other-registro', async (el) => {
+    try {
+      await runAsyncAction(el, { loadingLabel: 'Escolhendo destinatário...' }, async () => {
+        const saved = await saveRegistro({ andShare: true, forceClientFork: true });
+        if (!saved) return;
+      });
+    } catch (error) {
+      handleError(error, {
+        code: ErrorCodes.VALIDATION_ERROR,
+        message: 'Não foi possível enviar para outro destinatário.',
+        context: { action: 'controller.save-and-share-other-registro' },
+      });
+    }
+  });
+
   on('clear-registro', () => clearRegistro());
   on('quick-service-template', (el) => applyQuickTemplate(el.dataset.template, el));
   on(REGISTRO_SIGNATURE_ACTIONS.capture, (el) => captureRegistroSignatureFromHint(el));
