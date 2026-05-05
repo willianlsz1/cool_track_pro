@@ -1,6 +1,8 @@
 import { Utils } from '../../../core/utils.js';
 import { regsForEquip } from '../../../core/state.js';
 import {
+  calculateHealthScore,
+  getHealthClass,
   evaluateEquipmentRisk,
   evaluateEquipmentRiskTrend,
   getEquipmentMaintenanceContext,
@@ -9,7 +11,6 @@ import { evaluateEquipmentPriority } from '../../../domain/priorityEngine.js';
 import { ACTION_CODE, evaluateEquipmentSuggestedAction } from '../../../domain/suggestedAction.js';
 import { getActionPriorityScore } from '../../../domain/actionPriority.js';
 import { getEquipmentVisualMeta } from '../../components/equipmentVisual.js';
-import { calcHealthScore, getHealthClass } from '../dashboard.js';
 import { PRIORIDADE_LABEL, RISK_CLASS_LABEL, STATUS_OPERACIONAL } from './constants.js';
 
 function renderTrendBadge(trend) {
@@ -273,7 +274,7 @@ export function equipCardHtml(eq, { showLocal: _showLocal = true, evalCtx = null
     ? evalCtx.getMaintenanceContext(eq)
     : getEquipmentMaintenanceContext(eq, eqRegs);
   const last = context.ultimoRegistro;
-  const score = calcHealthScore(eq.id);
+  const score = calculateHealthScore(eq, regsForEquip(eq.id));
   const hcls = getHealthClass(score);
   const scls = Utils.safeStatus(eq.status);
   const safeId = Utils.escapeAttr(eq.id);
