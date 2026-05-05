@@ -1,5 +1,12 @@
 # BUGS-FOUND
 
+## BUG-CT-003
+
+- **Tipo**: gap de cobertura de storage
+- **Arquivo**: `src/__tests__/storage.integration.test.js` e fluxos de `src/ui/views/registro.js`
+- **Motivo**: contratos existentes cobrem shape e sincronização, mas não garantem explicitamente que fluxos de save persistem URLs/referências remotas em vez de payload inline/base64.
+- **Critério de resolução**: adicionar regressões direcionadas para save de fotos/assinatura verificando payload final persistido.
+
 ## BUG-CT-001
 
 - **Tipo**: limitação de método (teste estático)
