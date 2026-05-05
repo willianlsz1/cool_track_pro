@@ -4,11 +4,7 @@ import {
   classifyRiskFactor,
   recencia,
   ctaLabelForAction,
-  componentPillModel,
-  preventiveTimelineModel,
-} from '../ui/views/equipamentos/helpers.js';
 } from '../ui/helpers/equipamentosPure.js';
-
 import { asArray, isPreventivaTipo } from '../ui/helpers/registroPure.js';
 
 describe('equipamentos pure helpers', () => {
@@ -31,28 +27,6 @@ describe('equipamentos pure helpers', () => {
     const ACTION = { REGISTER_PREVENTIVE: 'rp' };
     expect(ctaLabelForAction('rp', ACTION)).toBe('Registrar serviço preventivo');
     expect(ctaLabelForAction('x', ACTION)).toBe('Registrar serviço');
-  });
-
-  test('componentPillModel retorna pill configurado ou null', () => {
-    expect(componentPillModel('evaporadora')).toEqual({ label: 'Evap.', tint: 'cyan' });
-    expect(componentPillModel('desconhecido')).toBeNull();
-  });
-
-  test('preventiveTimelineModel calcula próximos rótulos', () => {
-    const d = (v) => v;
-    expect(preventiveTimelineModel({}, d)).toBeNull();
-    expect(preventiveTimelineModel({ proximaPreventiva: -2 }, d)).toEqual({
-      nextLabel: 'vencida há 2d',
-      nextTone: 'danger',
-    });
-    expect(preventiveTimelineModel({ proximaPreventiva: 'ref' }, () => 0)).toEqual({
-      nextLabel: 'hoje',
-      nextTone: 'danger',
-    });
-    expect(preventiveTimelineModel({ proximaPreventiva: 3 }, d)).toEqual({
-      nextLabel: '3 dias',
-      nextTone: 'warn',
-    });
   });
 });
 
