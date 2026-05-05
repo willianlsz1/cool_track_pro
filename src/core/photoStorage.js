@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js';
 import { AppError, ErrorCodes } from './errors.js';
+import { enqueueBlob, getBlobEntry, removeBlob, listBlobs } from './blobQueue.js';
 
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_PHOTOS_BUCKET || 'registro-fotos';
 const DEFAULT_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;
@@ -14,6 +15,83 @@ const SIGNED_URL_TTL_SECONDS = parseSignedUrlTtlSeconds(
   import.meta.env.VITE_SUPABASE_PHOTO_URL_TTL,
 );
 const PHOTO_REF_VERSION = 1;
+const PENDING_PHOTO_QUEUE_PREFIX = 'photo';
+const PENDING_PHOTO_QUEUE_KEY = 'cooltrack-photo-pending-upload';
+
+function buildPhotoQueueKey(recordId, index) {
+  return `${PENDING_PHOTO_QUEUE_PREFIX}-${String(recordId)}-${Number(index)}`;
+}
+
+function readPendingPhotoRefs() {
+  try {
+    const raw = localStorage.getItem(PENDING_PHOTO_QUEUE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_err) {
+    return [];
+  }
+}
+
+function writePendingPhotoRefs(entries) {
+  try {
+    localStorage.setItem(PENDING_PHOTO_QUEUE_KEY, JSON.stringify(entries));
+  } catch (_err) {
+    /* noop */
+  }
+}
+
+function normalizePendingPhotoRef(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  if (!isString(entry.queueKey) || !entry.queueKey.trim()) return null;
+  if (!isString(entry.recordId) || !entry.recordId.trim()) return null;
+  if (!Number.isFinite(Number(entry.index))) return null;
+  return {
+    queueKey: entry.queueKey.trim(),
+    recordId: entry.recordId.trim(),
+    index: Number(entry.index),
+    queuedAt: Number(entry.queuedAt) || Date.now(),
+  };
+}
+
+function upsertPendingPhotoRef(entry) {
+  const normalized = normalizePendingPhotoRef(entry);
+  if (!normalized) return;
+  const current = readPendingPhotoRefs().map(normalizePendingPhotoRef).filter(Boolean);
+  const next = current.filter((it) => it.queueKey !== normalized.queueKey);
+  next.push(normalized);
+  writePendingPhotoRefs(next);
+}
+
+function removePendingPhotoRef(queueKey) {
+  const current = readPendingPhotoRefs().map(normalizePendingPhotoRef).filter(Boolean);
+  const next = current.filter((it) => it.queueKey !== queueKey);
+  if (next.length !== current.length) writePendingPhotoRefs(next);
+}
+
+function listPendingPhotoRefs() {
+  return readPendingPhotoRefs().map(normalizePendingPhotoRef).filter(Boolean);
+}
+
+export async function enqueuePhotoForRetry(blob, recordId, index) {
+  if (!(blob instanceof Blob) || !recordId || !Number.isFinite(Number(index))) return null;
+  const queueKey = buildPhotoQueueKey(recordId, index);
+  await enqueueBlob(queueKey, blob, {
+    recordId: String(recordId),
+    index: Number(index),
+    queuedAt: Date.now(),
+  });
+  upsertPendingPhotoRef({
+    queueKey,
+    recordId: String(recordId),
+    index: Number(index),
+    queuedAt: Date.now(),
+  });
+  return { pending: true, queueKey, recordId: String(recordId), index: Number(index) };
+}
+
+export function listPendingPhotos() {
+  return listPendingPhotoRefs();
+}
 
 function isString(value) {
   return typeof value === 'string';
@@ -124,6 +202,7 @@ async function getAuthenticatedUserId() {
 
 function isValidPhotoRefObject(photo) {
   if (!photo || typeof photo !== 'object') return false;
+  if (photo.pending === true && isString(photo.queueKey) && isString(photo.recordId)) return true;
   return Boolean(photo.path || photo.url || photo.signedUrl || photo.publicUrl);
 }
 
@@ -152,6 +231,15 @@ export function normalizePhotoEntry(photo) {
   }
 
   if (!isValidPhotoRefObject(photo)) return null;
+
+  if (photo.pending === true && isString(photo.queueKey) && isString(photo.recordId)) {
+    return {
+      pending: true,
+      queueKey: photo.queueKey.trim(),
+      recordId: photo.recordId.trim(),
+      index: Number(photo.index) || 0,
+    };
+  }
 
   const bucket =
     isString(photo.bucket) && photo.bucket.trim() ? photo.bucket.trim() : DEFAULT_BUCKET;
@@ -272,8 +360,13 @@ export async function uploadPendingPhotos(
         result.push(uploaded);
         uploadedCount += 1;
       } catch (_err) {
-        // fallback: preserva o dataURL no registro para não perder evidência
-        result.push(photo);
+        try {
+          const blob = await dataUrlToBlob(photo);
+          const pendingMarker = await enqueuePhotoForRetry(blob, recordId, i);
+          if (pendingMarker) result.push(pendingMarker);
+        } catch {
+          // queue write falhou - perde essa foto sem quebrar save
+        }
         failedCount += 1;
       }
       continue;
@@ -284,6 +377,98 @@ export async function uploadPendingPhotos(
   }
 
   return { photos: normalizePhotoList(result), uploadedCount, failedCount };
+}
+
+/**
+ * Race condition possível se usuário salvar registro durante flush.
+ * Mesmo padrão de signatures não tem proteção; aceitar comportamento atual.
+ */
+export async function flushPendingPhotos() {
+  const pendingRefs = listPendingPhotoRefs();
+  if (!pendingRefs.length) return { processed: 0, failed: 0, skipped: 0 };
+
+  const authUserId = await getAuthenticatedUserId();
+  if (!authUserId) return { processed: 0, failed: 0, skipped: pendingRefs.length };
+
+  const updatesByRecord = new Map();
+  let processed = 0;
+  let failed = 0;
+  let skipped = 0;
+
+  for (const ref of pendingRefs) {
+    const row = await getBlobEntry(ref.queueKey);
+    if (!row || !(row.blob instanceof Blob)) {
+      removePendingPhotoRef(ref.queueKey);
+      skipped += 1;
+      continue;
+    }
+    try {
+      const path = buildObjectPath({
+        userId: authUserId,
+        recordId: ref.recordId,
+        index: ref.index,
+        mimeType: row.blob.type || 'image/jpeg',
+        scope: 'registros',
+      });
+      const { error: uploadError } = await supabase.storage
+        .from(DEFAULT_BUCKET)
+        .upload(path, row.blob, {
+          upsert: false,
+          contentType: row.blob.type || 'image/jpeg',
+          cacheControl: '31536000',
+        });
+      if (uploadError) throw uploadError;
+
+      const signed = await createSignedUrl(DEFAULT_BUCKET, path);
+      const uploadedRef = {
+        version: PHOTO_REF_VERSION,
+        provider: 'supabase-storage',
+        bucket: DEFAULT_BUCKET,
+        path,
+        url: signed.url,
+        urlExpiresAt: signed.expiresAt,
+        mimeType: row.blob.type || 'image/jpeg',
+        size: row.blob.size,
+        uploadedAt: new Date().toISOString(),
+      };
+
+      if (!updatesByRecord.has(ref.recordId)) updatesByRecord.set(ref.recordId, []);
+      updatesByRecord.get(ref.recordId).push({ queueKey: ref.queueKey, uploadedRef });
+      await removeBlob(ref.queueKey);
+      removePendingPhotoRef(ref.queueKey);
+      processed += 1;
+    } catch (_err) {
+      failed += 1;
+    }
+  }
+
+  for (const [recordId, items] of updatesByRecord.entries()) {
+    const { data } = await supabase
+      .from('registros')
+      .select('fotos,fotos_pendentes')
+      .eq('id', recordId)
+      .maybeSingle();
+
+    const currentPhotos = normalizePhotoList(data?.fotos || []);
+    const pendingKeys = new Set(Array.isArray(data?.fotos_pendentes) ? data.fotos_pendentes : []);
+    const byKey = new Map(items.map((it) => [it.queueKey, it.uploadedRef]));
+
+    const nextPhotos = currentPhotos.map((entry) => {
+      if (entry?.pending === true && byKey.has(entry.queueKey)) {
+        return byKey.get(entry.queueKey);
+      }
+      return entry;
+    });
+
+    items.forEach((it) => pendingKeys.delete(it.queueKey));
+    const patch = { fotos: normalizePhotoList(nextPhotos) };
+    if (pendingKeys.size > 0) patch.fotos_pendentes = Array.from(pendingKeys);
+    else patch.fotos_pendentes = null;
+
+    await supabase.from('registros').update(patch).eq('id', recordId);
+  }
+
+  return { processed, failed, skipped };
 }
 
 export async function migrateLegacyPhotosForRegistros(
