@@ -21,6 +21,7 @@ import { withSkeleton } from '../components/skeleton.js';
 import { validateRegistroPayload } from '../../core/inputValidation.js';
 import { isCachedPlanPlusOrHigher } from '../../core/plans/planCache.js';
 import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
+import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPreventivaPrompt.js';
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
@@ -47,6 +48,10 @@ const PROGRESS_COUNT_ID = 'form-progress-count';
 const METER_ID = 'registro-hero-meter';
 const REGISTRO_HEADER_ROOT_ID = 'registro-header-root';
 const REGISTRO_CHECKLIST_ROOT_ID = 'r-checklist-body';
+const REGISTRO_MATERIAIS_DETAILS_ID = 'registro-materiais-details';
+const REGISTRO_IMPACT_DETAILS_ID = 'registro-impact-details';
+const DEFAULT_REGISTRO_STATUS = 'ok';
+const DEFAULT_REGISTRO_PRIORIDADE = 'media';
 const QUICK_TEMPLATE_MAP = {
   limpeza: {
     tipo: 'Limpeza de Filtros',
@@ -174,25 +179,133 @@ function isSafeSignatureCaptureDataUrl(dataUrl) {
 }
 
 function _updateImpactCopy(context) {
-  const title = document.getElementById('registro-impact-title');
   const subtitle = document.getElementById('registro-impact-subtitle');
   const hint = document.getElementById('registro-impact-hint');
-  if (!title || !subtitle || !hint) return;
+  if (!subtitle || !hint) return;
 
   if (context?.hasCompanyContext) {
-    title.innerHTML = 'Impacto no PMOC <span class="registro-details__pri">Recomendado</span>';
-    subtitle.textContent =
-      'status final, prioridade e próxima preventiva para acompanhamento do cliente';
+    subtitle.textContent = 'opcional — status final e prioridade para PMOC';
     hint.textContent =
-      'Esse registro atualiza o histórico do equipamento e ajuda a manter o PMOC do cliente em dia.';
+      'Se houve falha, risco ou pendência, ajuste o impacto para o acompanhamento do cliente.';
     return;
   }
 
-  title.innerHTML =
-    'Impacto no acompanhamento <span class="registro-details__pri">Recomendado</span>';
-  subtitle.textContent = 'status final, prioridade e próxima preventiva';
-  hint.textContent =
-    'Defina o status final e a próxima preventiva para acompanhar melhor este equipamento.';
+  subtitle.textContent = 'opcional — status final e prioridade';
+  hint.textContent = 'Se algo saiu do normal, ajuste o status e a prioridade.';
+}
+
+function _isFilledMaterialValue(value) {
+  const normalized = String(value ?? '').trim();
+  return normalized !== '' && normalized !== '0' && normalized !== '0.00' && normalized !== '0,00';
+}
+
+function _hasMateriaisValues(source = null) {
+  if (source) {
+    return (
+      _isFilledMaterialValue(source.pecas) ||
+      _isFilledMaterialValue(source.custoPecas) ||
+      _isFilledMaterialValue(source.custoMaoObra)
+    );
+  }
+
+  return (
+    _isFilledMaterialValue(Utils.getVal('r-pecas')) ||
+    _isFilledMaterialValue(Utils.getVal('r-custo-pecas')) ||
+    _isFilledMaterialValue(Utils.getVal('r-custo-mao-obra'))
+  );
+}
+
+function _syncMateriaisDetailsState(expanded = null) {
+  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
+  if (!details) return;
+
+  if (typeof expanded === 'boolean') {
+    if (expanded) details.setAttribute('open', '');
+    else details.removeAttribute('open');
+  }
+
+  const isExpanded = details.hasAttribute('open');
+  details.querySelector('summary')?.setAttribute('aria-expanded', String(isExpanded));
+}
+
+function _bindMateriaisDetailsToggle() {
+  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
+  if (!details || details.dataset.bound === '1') return;
+
+  details.dataset.bound = '1';
+  const summary = details.querySelector('summary');
+  summary?.addEventListener('click', () => {
+    queueMicrotask(() => _syncMateriaisDetailsState());
+  });
+  details.addEventListener('toggle', () => _syncMateriaisDetailsState());
+  _syncMateriaisDetailsState(details.hasAttribute('open'));
+}
+
+function _hasImpactValues(source = null) {
+  const status = String(source?.status ?? Utils.getVal('r-status') ?? '').trim();
+  const prioridade = String(source?.prioridade ?? Utils.getVal('r-prioridade') ?? '').trim();
+  return (
+    (status && status !== DEFAULT_REGISTRO_STATUS) ||
+    (prioridade && prioridade !== DEFAULT_REGISTRO_PRIORIDADE)
+  );
+}
+
+function _syncImpactDetailsState(expanded = null) {
+  const details = document.getElementById(REGISTRO_IMPACT_DETAILS_ID);
+  if (!details) return;
+
+  if (typeof expanded === 'boolean') {
+    if (expanded) details.setAttribute('open', '');
+    else details.removeAttribute('open');
+  }
+
+  const isExpanded = details.hasAttribute('open');
+  details.querySelector('summary')?.setAttribute('aria-expanded', String(isExpanded));
+}
+
+function _bindImpactDetailsToggle() {
+  const details = document.getElementById(REGISTRO_IMPACT_DETAILS_ID);
+  if (!details || details.dataset.bound === '1') return;
+
+  details.dataset.bound = '1';
+  const summary = details.querySelector('summary');
+  summary?.addEventListener('click', () => {
+    queueMicrotask(() => _syncImpactDetailsState());
+  });
+  details.addEventListener('toggle', () => _syncImpactDetailsState());
+  _syncImpactDetailsState(details.hasAttribute('open'));
+}
+
+function _setRegistroProximaPreventiva(registroId, proxima) {
+  if (!registroId) return;
+  // setState salva localmente imediatamente e agenda sync Supabase via Storage.
+  setState((prev) => ({
+    ...prev,
+    registros: prev.registros.map((registro) =>
+      registro.id === registroId ? { ...registro, proxima } : registro,
+    ),
+  }));
+}
+
+async function _showProximaPreventivaPrompt(registroId) {
+  const result = await RegistroProximaPreventivaPrompt.open();
+  if (!result || result.canceled === true) {
+    // Dismiss (X/backdrop/Escape) é indecisão: preserva a data `proxima`
+    // existente em vez de gravar uma escolha implícita.
+    return result;
+  }
+
+  if (result.semRetorno === true) {
+    // "Sem retorno" é uma decisão explícita do técnico: limpamos `proxima`
+    // conscientemente para diferenciar de apenas fechar/ignorar o prompt.
+    _setRegistroProximaPreventiva(registroId, null);
+    return result;
+  }
+
+  if (result.proxima) {
+    _setRegistroProximaPreventiva(registroId, result.proxima);
+  }
+  return result;
 }
 
 function _setRegistroSaveButtonsLoading(isLoading) {
@@ -1117,6 +1230,10 @@ export function initRegistro(params = {}) {
       }
       // Garante o estado correto na entrada da view (inclusive vindo de edit).
       _syncTipoCustomVisibility();
+      _bindMateriaisDetailsToggle();
+      _syncMateriaisDetailsState(_hasMateriaisValues());
+      _bindImpactDetailsToggle();
+      _syncImpactDetailsState(_hasImpactValues());
       _updateProgressBar();
       _renderHeroSub();
       Photos.render?.();
@@ -1628,8 +1745,11 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
         // Erro inesperado — leva pro relatorio com intent pra user retentar.
         goTo('relatorio', { equipId, intent: 'whatsapp', registroId: novoId });
       }
+      void _showProximaPreventivaPrompt(novoId);
       return true;
     }
+
+    void _showProximaPreventivaPrompt(novoId);
 
     // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
     // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
@@ -1684,8 +1804,8 @@ export function clearRegistro(preserveEquip = false) {
   if (!preserveEquip) toClear.push('r-equip');
   Utils.clearVals(...toClear);
   resetEditingState();
-  Utils.setVal('r-status', 'ok');
-  Utils.setVal('r-prioridade', 'media');
+  Utils.setVal('r-status', DEFAULT_REGISTRO_STATUS);
+  Utils.setVal('r-prioridade', DEFAULT_REGISTRO_PRIORIDADE);
   Utils.setVal('r-data', Utils.nowDatetime());
   Photos.clear();
   _registroSignatureDraftSrc = '';
@@ -1693,6 +1813,8 @@ export function clearRegistro(preserveEquip = false) {
 
   // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
   _syncTipoCustomVisibility();
+  _syncMateriaisDetailsState(false);
+  _syncImpactDetailsState(false);
 
   // Reseta o meter do hero pra empty sem remover o markup (ele é estático no
   // template agora, diferente da v5 que injetava dinamicamente).
@@ -1776,7 +1898,13 @@ export function loadRegistroForEdit(id) {
 
   Utils.setVal('r-obs', r.obs);
   Utils.setVal('r-tecnico', r.tecnico || '');
-  Utils.setVal('r-status', r.status);
+  Utils.setVal('r-status', r.status || DEFAULT_REGISTRO_STATUS);
+  Utils.setVal('r-prioridade', r.prioridade || DEFAULT_REGISTRO_PRIORIDADE);
+  _syncImpactDetailsState(_hasImpactValues(r));
+  Utils.setVal('r-pecas', r.pecas || '');
+  Utils.setVal('r-custo-pecas', r.custoPecas ?? '');
+  Utils.setVal('r-custo-mao-obra', r.custoMaoObra ?? '');
+  _syncMateriaisDetailsState(_hasMateriaisValues(r));
   Utils.setVal('r-cliente-nome', r.clienteNome || '');
   Utils.setVal('r-cliente-documento', r.clienteDocumento || '');
   Utils.setVal('r-local-atendimento', r.localAtendimento || '');
