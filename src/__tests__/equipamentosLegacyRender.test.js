@@ -116,6 +116,8 @@ vi.mock('../domain/suggestedAction.js', () => ({
 }));
 
 vi.mock('../domain/maintenance.js', () => ({
+  calculateHealthScore: vi.fn(() => 82),
+  getHealthClass: vi.fn(() => 'ok'),
   evaluateEquipmentHealth: vi.fn((eq) => ({
     score: eq?.__score ?? 82,
     reasons: ['rotina estável'],

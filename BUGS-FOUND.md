@@ -21,59 +21,22 @@
 - **Motivo**: placeholders de template string (`\${...}`) não são literais de contrato; precisam ser filtrados para não poluir snapshots com valores não determinísticos.
 - **Critério de resolução**: manter filtro ativo no helper `extract()` e complementar com teste runtime para validar caminhos dinâmicos.
 
-## BUG-001
+## BUG-009
 
-- **Tipo**: limpeza de estado de edição (`clearRegistro/sessionStorage`)
-- **Arquivo**: `src/ui/views/registro.js`
-- **Status**: não reproduzível na baseline atual; teste mantido como regressão preventiva.
-- **Cobertura adicionada**: `src/__tests__/regressions/clear-registro-edit-state.test.js` (cenários cancelar, salvar edição e saída sem salvar).
-- **Referência**: PR 1.5.1.
+- **Tipo:** extração arquitetural pendente
+- **Arquivo:** `src/ui/views/dashboard.js`
+- **Severidade:** baixa
+- **Sintoma:** `updateHeader`/`_updateGlobalHeader`/`_renderKPIs` em `dashboard.js`, importado cruzado por `equipamentos.js` e `historico.js`.
+- **Critério:** extrair para `src/ui/composables/header.js`. Requer mover `_updateGlobalHeader` e `_renderKPIs` também.
+- **Status:** aberto, deferido para sub-PR 2.1B.
+- **Código:** BUG-009
 
-## BUG-002
+## BUG-010
 
-- **Tipo**: edição preservando fotos originais
-- **Arquivo**: `src/ui/views/registro.js`
-- **Status**: não reproduzível na baseline atual; teste mantido como regressão preventiva.
-- **Cobertura adicionada**: `src/__tests__/regressions/edit-preserves-photos.test.js` (edição alterando apenas `r-obs` preserva 3 fotos existentes no payload salvo).
-- **Referência**: PR 1.5.2.
-
-## BUG-003
-
-- **Tipo**: persistência de fotos base64 no payload final
-- **Arquivo**: `src/ui/views/registro.js` + `src/core/photoStorage.js` + `src/core/storage.js`
-- **Status**: resolvido em PR 1.5.4.
-- **Evidência técnica**:
-  - fallback de upload em `uploadPendingPhotos` passou a enfileirar blob + marker pendente (sem `data:image` no payload novo);
-  - `saveRegistro` persiste markers em `fotos` e queue keys em `fotos_pendentes`;
-  - `flushPendingPhotos` reconcilia markers para refs remotas sem perder pendências parciais.
-- **Cobertura de regressão**: `src/__tests__/regressions/photo-failure-path.test.js` (5 cenários, incluindo flush parcial sem perda).
-
-## BUG-004
-
-- **Tipo**: persistência de assinatura em cloud vs base64 inline
-- **Arquivo**: `src/ui/views/registro.js` + `src/core/signatureStorage.js`
-- **Status**: não reproduzível no caminho validado (upload retorna referência); teste mantido como regressão preventiva.
-- **Achado**: payload final persiste objeto de referência (`version/provider/bucket/path/url`), sem DataURL/base64.
-- **Comportamento em falha de upload (design atual)**: assinatura cai em fila pendente e `saveRegistro` salva `assinatura: true` como flag local para reconcile posterior.
-- **Cobertura adicionada**: `src/__tests__/exploratory/signature-payload.test.js`.
-
-## BUG-006
-
-- **Tipo**: limpeza de dados legados base64 no Postgres
-- **Arquivo**: `registros.fotos` históricos
-- **Status**: fora de escopo deste PR.
-- **Nota**: PR 1.5.4 previne novos base64. Migração/limpeza de dados antigos fica para PR futuro dedicado.
-
-## BUG-007
-
-- **Tipo**: hipótese de gap no modo edição
-- **Arquivo**: fluxo de edição em `src/ui/views/registro.js`
-- **Status**: a validar.
-- **Hipótese**: edição com novas fotos e falha de upload pode não estar coberta pelo mesmo conjunto de testes do create mode.
-
-## BUG-008
-
-- **Tipo**: inconsistência de shape (`fotos_pendentes`)
-- **Arquivo**: `saveRegistro` vs `flushPendingPhotos`
-- **Status**: aberto (cleanup futuro).
-- **Nota**: save omite campo vazio; flush grava `null` quando esvazia pendências.
+- **Tipo:** dívida de duplicação
+- **Arquivo:** `src/ui/views/dashboard.js` e `src/ui/views/dashboard/metrics.js`
+- **Severidade:** baixa
+- **Sintoma:** ambos arquivos têm wrappers idênticos para `calcHealthScore` e `getHealthClass`.
+- **Critério:** consolidar em um único local (ou eliminar wrappers se domain direto for suficiente).
+- **Status:** aberto.
+- **Código:** BUG-010
