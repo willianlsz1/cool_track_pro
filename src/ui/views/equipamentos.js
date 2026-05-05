@@ -81,7 +81,13 @@ import {
   RISK_CLASS_LABEL,
   STATUS_OPERACIONAL,
 } from './equipamentos/constants.js';
-import { classifyRiskFactor, recencia, ctaLabelForAction } from '../helpers/equipamentosPure.js';
+import {
+  classifyRiskFactor,
+  recencia,
+  ctaLabelForAction,
+  componentPillModel,
+  preventiveTimelineModel,
+} from './equipamentos/helpers.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -789,25 +795,6 @@ const EQUIP_TONE_LABELS = {
   danger: 'Crítico',
 };
 
-const COMPONENT_PILL_META = {
-  evaporadora: { label: 'Evap.', tint: 'cyan' },
-  condensadora: { label: 'Cond.', tint: 'orange' },
-  unidade_unica: { label: 'Unidade unica', tint: 'neutral' },
-};
-
-function componentPillModel(componente) {
-  return COMPONENT_PILL_META[componente] || null;
-}
-
-function preventiveTimelineModel(context = {}) {
-  if (!context.proximaPreventiva) return null;
-  const diff = Utils.daysDiff(context.proximaPreventiva);
-  if (diff < 0) return { nextLabel: `vencida há ${Math.abs(diff)}d`, nextTone: 'danger' };
-  if (diff === 0) return { nextLabel: 'hoje', nextTone: 'danger' };
-  if (diff <= 7) return { nextLabel: `${diff} dia${diff > 1 ? 's' : ''}`, nextTone: 'warn' };
-  return { nextLabel: `${diff} dias`, nextTone: 'neutral' };
-}
-
 function buildEquipamentoListCardModel(eq, evalCtx) {
   const eqRegs = evalCtx.getRegs(eq.id);
   const context = evalCtx.getMaintenanceContext(eq);
@@ -837,7 +824,10 @@ function buildEquipamentoListCardModel(eq, evalCtx) {
   const timeline = hasMetrics
     ? {
         lastLabel: last ? recencia(last.data) : '—',
-        ...(preventiveTimelineModel(context) || { nextLabel: 'sem agenda', nextTone: 'neutral' }),
+        ...(preventiveTimelineModel(context, Utils.daysDiff) || {
+          nextLabel: 'sem agenda',
+          nextTone: 'neutral',
+        }),
       }
     : null;
   const visual = getEquipmentVisualMeta(eq);
