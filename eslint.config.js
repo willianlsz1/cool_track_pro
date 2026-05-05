@@ -148,7 +148,8 @@ export default [
     },
   },
 
-  // Layer 2: views top-level NAO podem importar de outras views top-level.
+  // Layer 2 (promovido para error após Sub-PRs 2.1A re-aplicado + 2.1B):
+  // views top-level NAO podem importar de outras views top-level.
   // Aplica APENAS a src/ui/views/*.js (sem **) -- imports dentro do mesmo
   // subfolder de feature (ex: equipamentos/setores.js -> ./constants.js)
   // sao permitidos e legitimos.
@@ -156,7 +157,7 @@ export default [
     files: ['src/ui/views/*.js'],
     rules: {
       'no-restricted-imports': [
-        'warn',
+        'error',
         {
           patterns: [
             {
