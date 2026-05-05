@@ -8,6 +8,7 @@ import { STORAGE_KEY, Utils } from './utils.js';
 import { Toast } from './toast.js';
 import { supabase } from './supabase.js';
 import { flushPendingSignatures } from './signatureStorage.js';
+import { flushPendingPhotos } from './photoStorage.js';
 import { AppError, ErrorCodes, handleError } from './errors.js';
 import { sanitizePersistedSetor } from './inputValidation.js';
 import {
@@ -209,6 +210,15 @@ export const Storage = {
           severity: 'info',
           message: 'Falha ao sincronizar assinaturas pendentes.',
           context: { action: 'loadFromSupabase.flushPendingSignatures' },
+        });
+      });
+
+      flushPendingPhotos().catch((err) => {
+        handleError(err, {
+          code: ErrorCodes.SYNC_FAILED,
+          severity: 'info',
+          message: 'Falha ao sincronizar fotos pendentes.',
+          context: { action: 'loadFromSupabase.flushPendingPhotos' },
         });
       });
 
