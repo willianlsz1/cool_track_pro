@@ -2,6 +2,82 @@ import { queueEvent } from './telemetrySink.js';
 import { addBreadcrumb } from './observability.js';
 
 const TELEMETRY_EVENT = 'cooltrack:telemetry';
+const ROUTE_BUFFER_MAX = 50;
+const _routeEvents = [];
+
+let _idGenerator = () => {
+  const randomUUID = globalThis?.crypto?.randomUUID;
+  if (typeof randomUUID === 'function') return randomUUID.call(globalThis.crypto);
+  return `rt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
+function _isDev() {
+  return Boolean(import.meta.env?.DEV);
+}
+
+function _pushRouteEvent(event) {
+  _routeEvents.push(event);
+  if (_routeEvents.length > ROUTE_BUFFER_MAX) {
+    _routeEvents.splice(0, _routeEvents.length - ROUTE_BUFFER_MAX);
+  }
+}
+
+function _installDevTelemetryBridge() {
+  if (!_isDev()) return;
+  if (typeof window === 'undefined') return;
+  window.__telemetry = {
+    get events() {
+      return [..._routeEvents];
+    },
+    clear() {
+      _routeEvents.length = 0;
+    },
+  };
+}
+
+export function createCorrelationId() {
+  return _idGenerator();
+}
+
+export function __setIdGeneratorForTests(nextGenerator) {
+  if (typeof nextGenerator !== 'function') return;
+  _idGenerator = nextGenerator;
+}
+
+export function __resetTelemetryForTests() {
+  _routeEvents.length = 0;
+  _idGenerator = () => {
+    const randomUUID = globalThis?.crypto?.randomUUID;
+    if (typeof randomUUID === 'function') return randomUUID.call(globalThis.crypto);
+    return `rt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  };
+}
+
+export function trackRouteEnter(routeId) {
+  const detail = {
+    type: 'route_enter',
+    routeId: String(routeId || 'unknown'),
+    timestamp: new Date().toISOString(),
+  };
+  _pushRouteEvent(detail);
+  _installDevTelemetryBridge();
+  if (_isDev()) {
+    console.log('[route-enter]', detail.routeId);
+  }
+}
+
+export function trackRouteError(routeId, error, correlationId) {
+  const detail = {
+    type: 'route_error',
+    routeId: String(routeId || 'unknown'),
+    correlationId: String(correlationId || 'n/a'),
+    message: error?.message ? String(error.message) : 'unknown error',
+    timestamp: new Date().toISOString(),
+  };
+  _pushRouteEvent(detail);
+  _installDevTelemetryBridge();
+  console.error('[route-error]', detail);
+}
 
 export function trackEvent(name, payload = {}) {
   const eventName = String(name || '').trim();

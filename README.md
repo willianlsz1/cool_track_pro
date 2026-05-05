@@ -50,6 +50,27 @@ Fluxo principal:
 3. `core/storage` salva localmente e tenta sincronizar com Supabase.
 4. `domain` concentra regras e montagem de relatórios (ex.: PDF).
 
+### Guard rails de import (ESLint)
+
+As regras abaixo estão ativas como **warning** e serão promovidas para **error**
+após os PRs 3 e 4 do plano de desacoplamento:
+
+1. `src/domain/**` **não pode** importar de `src/ui/**`.
+2. `src/core/**` **não pode** importar de `src/ui/**` nem `src/domain/**`.
+3. `src/ui/views/**` **não pode** importar de outras pastas dentro de `src/ui/views/**` (views top-level não importam views top-level).
+
+### Telemetria mínima de rotas (dev)
+
+- O roteador registra `route_enter` e `route_error` com `correlationId`.
+- Em ambiente de desenvolvimento (`import.meta.env.DEV`), o buffer em memória
+  (últimos 50 eventos) fica acessível em `window.__telemetry`.
+- Uso rápido no DevTools:
+
+```js
+window.__telemetry?.events;
+window.__telemetry?.clear();
+```
+
 ## Estrutura real de pastas
 
 ```text

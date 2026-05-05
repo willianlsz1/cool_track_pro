@@ -2,6 +2,10 @@ import js from '@eslint/js';
 import globals from 'globals';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
+// Guard rails arquiteturais estão como "warn" nesta fase para permitir
+// remediação incremental das violações existentes. Após PRs 3 e 4 do plano
+// de desacoplamento, promover estas regras para "error".
+
 const baseGlobals = {
   ...globals.browser,
   ...globals.node,
@@ -93,9 +97,9 @@ export default [
   //     - src/ui/components/nameplateCapture.js:36
   // Plano de remediacao: docs/audits/.
 
-  // Layer 1: core/ e domain/ NAO podem importar de ui/.
+  // Layer 1A: domain/ NAO pode importar de ui/.
   {
-    files: ['src/core/**/*.js', 'src/domain/**/*.js'],
+    files: ['src/domain/**/*.js'],
     ignores: ['src/**/__tests__/**', 'src/**/*.test.js'],
     rules: {
       'no-restricted-imports': [
@@ -106,6 +110,37 @@ export default [
               group: ['**/ui/**', '../ui/**', '../../ui/**', '../../../ui/**', 'src/ui/**'],
               message:
                 'core/ e domain/ nao podem importar de ui/. Mover logica compartilhada para domain/ ou core/, ou inverter dependencia via callback/registry. Ver docs/audits/product-review.md.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  // Layer 1B: core/ NAO pode importar de ui/ nem de domain/.
+  {
+    files: ['src/core/**/*.js'],
+    ignores: ['src/**/__tests__/**', 'src/**/*.test.js'],
+    rules: {
+      'no-restricted-imports': [
+        'warn',
+        {
+          patterns: [
+            {
+              group: ['**/ui/**', '../ui/**', '../../ui/**', '../../../ui/**', 'src/ui/**'],
+              message:
+                'core/ nao pode importar de ui/. Mover integracao para ui/controller ou inverter dependencia por callback/registry.',
+            },
+            {
+              group: [
+                '**/domain/**',
+                '../domain/**',
+                '../../domain/**',
+                '../../../domain/**',
+                'src/domain/**',
+              ],
+              message:
+                'core/ nao pode importar de domain/. Mantenha core como infraestrutura pura e aplique regras de negocio fora desta camada.',
             },
           ],
         },
