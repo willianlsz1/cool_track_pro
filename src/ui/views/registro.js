@@ -308,6 +308,53 @@ async function _showProximaPreventivaPrompt(registroId) {
   return result;
 }
 
+function _isFilledMaterialValue(value) {
+  const normalized = String(value ?? '').trim();
+  return normalized !== '' && normalized !== '0' && normalized !== '0.00' && normalized !== '0,00';
+}
+
+function _hasMateriaisValues(source = null) {
+  if (source) {
+    return (
+      _isFilledMaterialValue(source.pecas) ||
+      _isFilledMaterialValue(source.custoPecas) ||
+      _isFilledMaterialValue(source.custoMaoObra)
+    );
+  }
+
+  return (
+    _isFilledMaterialValue(Utils.getVal('r-pecas')) ||
+    _isFilledMaterialValue(Utils.getVal('r-custo-pecas')) ||
+    _isFilledMaterialValue(Utils.getVal('r-custo-mao-obra'))
+  );
+}
+
+function _syncMateriaisDetailsState(expanded = null) {
+  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
+  if (!details) return;
+
+  if (typeof expanded === 'boolean') {
+    if (expanded) details.setAttribute('open', '');
+    else details.removeAttribute('open');
+  }
+
+  const isExpanded = details.hasAttribute('open');
+  details.querySelector('summary')?.setAttribute('aria-expanded', String(isExpanded));
+}
+
+function _bindMateriaisDetailsToggle() {
+  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
+  if (!details || details.dataset.bound === '1') return;
+
+  details.dataset.bound = '1';
+  const summary = details.querySelector('summary');
+  summary?.addEventListener('click', () => {
+    queueMicrotask(() => _syncMateriaisDetailsState());
+  });
+  details.addEventListener('toggle', () => _syncMateriaisDetailsState());
+  _syncMateriaisDetailsState(details.hasAttribute('open'));
+}
+
 function _setRegistroSaveButtonsLoading(isLoading) {
   const actionAttr = 'data-action';
   const buttons = document.querySelectorAll(
