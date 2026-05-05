@@ -47,6 +47,7 @@ const PROGRESS_COUNT_ID = 'form-progress-count';
 const METER_ID = 'registro-hero-meter';
 const REGISTRO_HEADER_ROOT_ID = 'registro-header-root';
 const REGISTRO_CHECKLIST_ROOT_ID = 'r-checklist-body';
+const REGISTRO_MATERIAIS_DETAILS_ID = 'registro-materiais-details';
 const QUICK_TEMPLATE_MAP = {
   limpeza: {
     tipo: 'Limpeza de Filtros',
@@ -193,6 +194,53 @@ function _updateImpactCopy(context) {
   subtitle.textContent = 'status final, prioridade e próxima preventiva';
   hint.textContent =
     'Defina o status final e a próxima preventiva para acompanhar melhor este equipamento.';
+}
+
+function _isFilledMaterialValue(value) {
+  const normalized = String(value ?? '').trim();
+  return normalized !== '' && normalized !== '0' && normalized !== '0.00' && normalized !== '0,00';
+}
+
+function _hasMateriaisValues(source = null) {
+  if (source) {
+    return (
+      _isFilledMaterialValue(source.pecas) ||
+      _isFilledMaterialValue(source.custoPecas) ||
+      _isFilledMaterialValue(source.custoMaoObra)
+    );
+  }
+
+  return (
+    _isFilledMaterialValue(Utils.getVal('r-pecas')) ||
+    _isFilledMaterialValue(Utils.getVal('r-custo-pecas')) ||
+    _isFilledMaterialValue(Utils.getVal('r-custo-mao-obra'))
+  );
+}
+
+function _syncMateriaisDetailsState(expanded = null) {
+  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
+  if (!details) return;
+
+  if (typeof expanded === 'boolean') {
+    if (expanded) details.setAttribute('open', '');
+    else details.removeAttribute('open');
+  }
+
+  const isExpanded = details.hasAttribute('open');
+  details.querySelector('summary')?.setAttribute('aria-expanded', String(isExpanded));
+}
+
+function _bindMateriaisDetailsToggle() {
+  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
+  if (!details || details.dataset.bound === '1') return;
+
+  details.dataset.bound = '1';
+  const summary = details.querySelector('summary');
+  summary?.addEventListener('click', () => {
+    queueMicrotask(() => _syncMateriaisDetailsState());
+  });
+  details.addEventListener('toggle', () => _syncMateriaisDetailsState());
+  _syncMateriaisDetailsState(details.hasAttribute('open'));
 }
 
 function _setRegistroSaveButtonsLoading(isLoading) {
@@ -1117,6 +1165,8 @@ export function initRegistro(params = {}) {
       }
       // Garante o estado correto na entrada da view (inclusive vindo de edit).
       _syncTipoCustomVisibility();
+      _bindMateriaisDetailsToggle();
+      _syncMateriaisDetailsState(_hasMateriaisValues());
       _updateProgressBar();
       _renderHeroSub();
       Photos.render?.();
@@ -1693,6 +1743,7 @@ export function clearRegistro(preserveEquip = false) {
 
   // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
   _syncTipoCustomVisibility();
+  _syncMateriaisDetailsState(false);
 
   // Reseta o meter do hero pra empty sem remover o markup (ele é estático no
   // template agora, diferente da v5 que injetava dinamicamente).
@@ -1777,6 +1828,10 @@ export function loadRegistroForEdit(id) {
   Utils.setVal('r-obs', r.obs);
   Utils.setVal('r-tecnico', r.tecnico || '');
   Utils.setVal('r-status', r.status);
+  Utils.setVal('r-pecas', r.pecas || '');
+  Utils.setVal('r-custo-pecas', r.custoPecas ?? '');
+  Utils.setVal('r-custo-mao-obra', r.custoMaoObra ?? '');
+  _syncMateriaisDetailsState(_hasMateriaisValues(r));
   Utils.setVal('r-cliente-nome', r.clienteNome || '');
   Utils.setVal('r-cliente-documento', r.clienteDocumento || '');
   Utils.setVal('r-local-atendimento', r.localAtendimento || '');
