@@ -48,6 +48,7 @@ export const REGISTRO_PUBLIC_IDS = Object.freeze({
   checklistPri: 'r-checklist-pri',
   checklistSummary: 'r-checklist-summary',
   checklistBody: 'r-checklist-body',
+  checklistUpsell: 'r-checklist-upsell',
   signatureHint: 'registro-signature-hint',
   actionAnchor: 'tour-signature-anchor',
 });

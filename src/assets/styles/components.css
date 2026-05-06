@@ -12977,6 +12977,38 @@ mark,
   outline-offset: 2px;
 }
 
+/* ---------- Variante Free/Plus: upsell pro plano Pro (checklist PMOC) ---------- */
+#view-registro .registro-sig-hint.registro-sig-hint--pro {
+  border-color: rgba(124, 92, 255, 0.3);
+  border-left-color: #7c5cff;
+  background: linear-gradient(90deg, rgba(124, 92, 255, 0.1) 0%, rgba(124, 92, 255, 0.03) 100%);
+}
+
+#view-registro .registro-sig-hint__ic--pro {
+  background: rgba(124, 92, 255, 0.14);
+  color: #7c5cff;
+}
+
+#view-registro .registro-sig-hint__badge--pro {
+  background: rgba(124, 92, 255, 0.14);
+  color: #8f7aff;
+  border: 1px solid rgba(124, 92, 255, 0.3);
+}
+
+#view-registro .registro-sig-hint__cta--pro {
+  color: #8f7aff;
+  border-color: rgba(124, 92, 255, 0.38);
+}
+
+#view-registro .registro-sig-hint__cta--pro:hover {
+  background: rgba(124, 92, 255, 0.08);
+  border-color: rgba(124, 92, 255, 0.55);
+}
+
+#view-registro .registro-sig-hint__cta--pro:focus-visible {
+  outline-color: rgba(124, 92, 255, 0.65);
+}
+
 /* ---------- Small screen adjustments ---------- */
 @media (max-width: 520px) {
   #view-registro .registro-hero {

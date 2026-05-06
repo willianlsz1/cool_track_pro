@@ -21,6 +21,7 @@ const mocks = vi.hoisted(() => ({
   trackEvent: vi.fn(),
   withSkeleton: vi.fn((_el, _opts, renderFn) => renderFn()),
   isCachedPlanPlusOrHigher: vi.fn(),
+  isCachedPlanPro: vi.fn(),
   postSaveToastShow: vi.fn(),
   exportPdfFlow: vi.fn(),
   shareWhatsAppFlow: vi.fn(),
@@ -110,6 +111,7 @@ vi.mock('../ui/components/skeleton.js', () => ({
 
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
+  isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({

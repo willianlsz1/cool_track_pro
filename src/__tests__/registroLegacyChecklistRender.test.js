@@ -27,6 +27,7 @@ const mocks = vi.hoisted(() => {
     trackEvent: vi.fn(),
     withSkeleton: vi.fn((_el, _opts, renderFn) => renderFn()),
     isCachedPlanPlusOrHigher: vi.fn(),
+    isCachedPlanPro: vi.fn(),
     postSaveToastShow: vi.fn(),
     exportPdfFlow: vi.fn(),
     shareWhatsAppFlow: vi.fn(),
@@ -112,6 +113,7 @@ vi.mock('../ui/components/skeleton.js', () => ({
 
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
+  isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
@@ -185,6 +187,7 @@ async function loadRegistroView(state = baseState()) {
   );
   mocks.lastRegForEquip.mockReturnValue(null);
   mocks.isCachedPlanPlusOrHigher.mockReturnValue(false);
+  mocks.isCachedPlanPro.mockReturnValue(true);
   mocks.profileDefaultTecnico.mockReturnValue('Tecnico Padrao');
   mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
@@ -213,10 +216,15 @@ async function mountRegistroHeader(registro, params = { equipId: 'eq-1' }) {
   return root;
 }
 
-async function renderChecklistForState(state = baseState(), params = { equipId: 'eq-1' }) {
+async function renderChecklistForState(
+  state = baseState(),
+  params = { equipId: 'eq-1' },
+  { isPro = true } = {},
+) {
   setupDom(state);
   const registro = await loadRegistroView(state);
   await mountRegistroHeader(registro, params);
+  mocks.isCachedPlanPro.mockReturnValue(isPro);
 
   await act(async () => {
     registro.renderChecklist();
@@ -228,6 +236,7 @@ async function renderChecklistForState(state = baseState(), params = { equipId: 
     wrapper: document.getElementById('r-checklist-details'),
     body: document.getElementById('r-checklist-body'),
     summary: document.getElementById('r-checklist-summary'),
+    upsell: document.getElementById('r-checklist-upsell'),
   };
 }
 
@@ -276,6 +285,31 @@ describe('registro legacy checklist render adapter', () => {
     sessionStorage.clear();
     document.body.innerHTML = '';
     delete document.body.dataset.checklistObsBound;
+  });
+
+  it('bloqueia checklist PMOC para plano nao-Pro com CTA de upgrade', async () => {
+    const { wrapper, body, upsell, registro } = await renderChecklistForState(
+      baseState(),
+      { equipId: 'eq-1' },
+      { isPro: false },
+    );
+
+    expect(wrapper?.hidden).toBe(true);
+    expect(body?.children).toHaveLength(0);
+    expect(upsell?.hidden).toBe(false);
+    expect(upsell?.querySelector('.registro-sig-hint__ic--pro')).not.toBeNull();
+    expect(upsell?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe('PRO');
+    expect(upsell?.textContent).toContain('Checklist PMOC preenchível (NBR 13971)');
+    expect(upsell?.textContent).toContain(
+      'Preencha o checklist completo conforme NBR 13971 — recurso do plano Pro.',
+    );
+
+    const cta = upsell?.querySelector('[data-action="open-upgrade"][data-highlight-plan="pro"]');
+    expect(cta?.textContent).toContain('Conhecer Pro');
+
+    registro.setChecklistItemStatus('filtros_limpeza', 'ok');
+    expect(mocks.goTo).toHaveBeenCalledWith('pricing', { highlightPlan: 'pro' });
+    expect(registro.getCurrentChecklist()).toBeNull();
   });
 
   it('renderiza checklist inicial preservando ids, classes e contratos data-action', async () => {

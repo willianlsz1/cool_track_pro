@@ -678,6 +678,36 @@ export function renderShellViews() {
               </div>
             </details>
 
+            <div
+              class="registro-sig-hint registro-sig-hint--upsell registro-sig-hint--pro"
+              id="r-checklist-upsell"
+              hidden>
+              <span class="registro-sig-hint__ic registro-sig-hint__ic--upsell registro-sig-hint__ic--pro" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="11" width="16" height="10" rx="2"/>
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+              </span>
+              <div class="registro-sig-hint__body">
+                <div class="registro-sig-hint__head">
+                  <strong class="registro-sig-hint__title">Checklist PMOC preenchível (NBR 13971)</strong>
+                  <span class="registro-sig-hint__badge registro-sig-hint__badge--pro">PRO</span>
+                </div>
+                <p class="registro-sig-hint__desc">
+                  Preencha o checklist completo conforme NBR 13971 — recurso do plano Pro.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="registro-sig-hint__cta registro-sig-hint__cta--pro"
+                data-action="open-upgrade"
+                data-upgrade-source="registro_pmoc_checklist"
+                data-highlight-plan="pro">
+                Conhecer Pro →
+              </button>
+            </div>
+
             <!-- UX V2 audit fix #90: assinatura do cliente movida pra ANTES
                  do rodape de acao. Antes ficava DEPOIS do botao Salvar — usuario
                  ja achava que tinha terminado. Agora ele ve "Assinatura: Incluso"

@@ -19,7 +19,7 @@ import { reconcileEquipmentStatusesAfterRegistroEdit } from '../../domain/regist
 import { trackEvent } from '../../core/telemetry.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { validateRegistroPayload } from '../../core/inputValidation.js';
-import { isCachedPlanPlusOrHigher } from '../../core/plans/planCache.js';
+import * as PlanCache from '../../core/plans/planCache.js';
 import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
 import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPreventivaPrompt.js';
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
@@ -48,6 +48,8 @@ const PROGRESS_COUNT_ID = 'form-progress-count';
 const METER_ID = 'registro-hero-meter';
 const REGISTRO_HEADER_ROOT_ID = 'registro-header-root';
 const REGISTRO_CHECKLIST_ROOT_ID = 'r-checklist-body';
+const REGISTRO_CHECKLIST_DETAILS_ID = 'r-checklist-details';
+const REGISTRO_CHECKLIST_UPSELL_ID = 'r-checklist-upsell';
 const REGISTRO_MATERIAIS_DETAILS_ID = 'registro-materiais-details';
 const REGISTRO_IMPACT_DETAILS_ID = 'registro-impact-details';
 const DEFAULT_REGISTRO_STATUS = 'ok';
@@ -478,7 +480,7 @@ function _buildRegistroReadOnlyViewModel(params = {}) {
     form: _readRegistroFormModelSnapshot(),
     editingId: sessionStorage.getItem(EDITING_KEY),
     checklist: getCurrentChecklist(),
-    isPlusOrHigher: isCachedPlanPlusOrHigher(),
+    isPlusOrHigher: PlanCache.isCachedPlanPlusOrHigher(),
   });
 }
 
@@ -891,7 +893,7 @@ function loadRegistroSignatureBridge() {
 
 function buildRegistroSignatureReactProps() {
   return {
-    isPlusOrHigher: isCachedPlanPlusOrHigher(),
+    isPlusOrHigher: PlanCache.isCachedPlanPlusOrHigher(),
     signatureSrc: _registroSignatureDraftSrc,
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
@@ -967,7 +969,7 @@ function readRegistroSignatureSrc(el = null) {
 }
 
 export async function captureRegistroSignatureFromHint(el = null) {
-  if (!isCachedPlanPlusOrHigher()) return false;
+  if (!PlanCache.isCachedPlanPlusOrHigher()) return false;
 
   const { SignatureModal } = await import('../components/signature.js');
   if (!SignatureModal?.request) return false;
@@ -1013,6 +1015,32 @@ export async function removeRegistroSignatureFromHint() {
   return true;
 }
 
+function _hasPmocChecklistAccess() {
+  return PlanCache.isCachedPlanPro?.() === true;
+}
+
+function _showPmocChecklistUpsell(visible) {
+  const upsell = document.getElementById(REGISTRO_CHECKLIST_UPSELL_ID);
+  if (upsell) upsell.hidden = !visible;
+}
+
+function _redirectPmocChecklistUpsell() {
+  trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
+  goTo('pricing', { highlightPlan: 'pro' });
+}
+
+function _ensurePmocChecklistAccess({ redirect = false } = {}) {
+  if (_hasPmocChecklistAccess()) return true;
+
+  const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
+  if (wrapper) wrapper.hidden = true;
+  unmountRegistroChecklist();
+  _showPmocChecklistUpsell(true);
+
+  if (redirect) _redirectPmocChecklistUpsell();
+  return false;
+}
+
 function _updateChecklistSummary() {
   const summaryEl = document.getElementById('r-checklist-summary');
   if (!summaryEl) return;
@@ -1052,8 +1080,8 @@ function _refreshChecklistPriBadge() {
  * ele trocar de equip e voltar. Senão, reseta para checklist vazio.
  */
 export function renderChecklist() {
-  const wrapper = document.getElementById('r-checklist-details');
-  const body = document.getElementById('r-checklist-body');
+  const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
+  const body = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
   if (!wrapper || !body) return;
 
   const equipId = Utils.getVal('r-equip');
@@ -1061,6 +1089,7 @@ export function renderChecklist() {
     wrapper.hidden = true;
     _currentChecklist = null;
     unmountRegistroChecklist();
+    _showPmocChecklistUpsell(false);
     _updateChecklistSummary();
     return;
   }
@@ -1068,6 +1097,13 @@ export function renderChecklist() {
   if (!equip) {
     wrapper.hidden = true;
     unmountRegistroChecklist();
+    _showPmocChecklistUpsell(false);
+    return;
+  }
+
+  if (!_ensurePmocChecklistAccess()) {
+    _currentChecklist = null;
+    _updateChecklistSummary();
     return;
   }
 
@@ -1078,6 +1114,7 @@ export function renderChecklist() {
     _currentChecklist = buildEmptyChecklist(equip.tipo);
   }
 
+  _showPmocChecklistUpsell(false);
   wrapper.hidden = false;
   _refreshChecklistPriBadge();
 
@@ -1088,6 +1125,7 @@ export function renderChecklist() {
 
 /** Atualiza status de um item — chamado pelo handler de click. */
 export function setChecklistItemStatus(itemId, status) {
+  if (!_ensurePmocChecklistAccess({ redirect: true })) return;
   if (!_currentChecklist) return;
   const item = _currentChecklist.items.find((i) => i.id === itemId);
   if (!item) return;
@@ -1108,6 +1146,7 @@ export function setChecklistItemStatus(itemId, status) {
 
 /** Atualiza obs de um item — chamado pelo handler de input do textarea. */
 export function setChecklistItemObs(itemId, obs) {
+  if (!_ensurePmocChecklistAccess({ redirect: true })) return;
   if (!_currentChecklist) return;
   const item = _currentChecklist.items.find((i) => i.id === itemId);
   if (item) item.obs = String(obs || '');
@@ -1120,6 +1159,7 @@ export function setChecklistItemObs(itemId, obs) {
  * filtra mas defensivo aqui também).
  */
 export function setChecklistItemMeasure(itemId, rawValue, unit) {
+  if (!_ensurePmocChecklistAccess({ redirect: true })) return;
   if (!_currentChecklist) return;
   const item = _currentChecklist.items.find((i) => i.id === itemId);
   if (!item) return;
@@ -1148,11 +1188,12 @@ export function getCurrentChecklist() {
 /** Reset — chamado por clearRegistro. */
 export function resetChecklist() {
   _currentChecklist = null;
-  const body = document.getElementById('r-checklist-body');
+  const body = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
   unmountRegistroChecklist();
   if (body) body.textContent = '';
-  const wrapper = document.getElementById('r-checklist-details');
+  const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
   if (wrapper) wrapper.hidden = true;
+  _showPmocChecklistUpsell(false);
   _updateChecklistSummary();
 }
 
@@ -1586,7 +1627,7 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
     // Reference do Storage quando upload OK; null quando offline ou plano Free.
     // Shape: { version, provider, bucket, path, url, urlExpiresAt, ... }
     let signatureReference = null;
-    const canUseSignature = isCachedPlanPlusOrHigher();
+    const canUseSignature = PlanCache.isCachedPlanPlusOrHigher();
     let SignatureModal;
     let saveSignatureForRecord;
     if (canUseSignature) {
