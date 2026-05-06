@@ -36,32 +36,42 @@ function needsActionText(summary) {
 function buildHtml(summary) {
   const equipamentos = summary.equipamentosResumo
     .map((item) => {
-      const setor = item.setorLabel
-        ? `<span>Setor/local: ${Utils.escapeHtml(item.setorLabel)}</span>`
-        : '';
       const ultimo = item.ultimoServico ? Utils.formatDate(item.ultimoServico) : 'Sem registro';
       const proxima = item.proximaManutencao
         ? Utils.formatDate(item.proximaManutencao)
         : 'Sem data prevista';
       const cta =
         item.status === 'vencido' || item.status === 'sem_registro'
-          ? `<button type="button" class="cliente-pmoc__cta" data-pmoc-action="register" data-equip-id="${Utils.escapeAttr(item.equipamento.id)}">Registrar serviço</button>`
+          ? `<button type="button" class="cli-card__action cli-card__action--primary cliente-pmoc__equip-cta" data-pmoc-action="register" data-equip-id="${Utils.escapeAttr(item.equipamento.id)}">Registrar serviço</button>`
           : '';
+      const metaParts = [];
+      if (item.setorLabel) metaParts.push(`Setor/local: ${Utils.escapeHtml(item.setorLabel)}`);
+      metaParts.push(`Periodicidade: ${Utils.escapeHtml(item.periodicidadeLabel)}`);
+      const meta = metaParts.map((part) => `<span>${part}</span>`).join('');
       return `<article class="cliente-pmoc__equip">
         <header class="cliente-pmoc__equip-head">
-          <strong>${Utils.escapeHtml(item.nome)}</strong>
+          <h3 class="cliente-pmoc__equip-name">${Utils.escapeHtml(item.nome)}</h3>
           <span class="cliente-pmoc__equip-status ${equipStatusClass(item.status)}">${Utils.escapeHtml(item.statusLabel)}</span>
         </header>
-        <div class="cliente-pmoc__equip-meta">
-          ${setor}
-          <span>Periodicidade: ${Utils.escapeHtml(item.periodicidadeLabel)}</span>
-          <span>Último serviço: ${Utils.escapeHtml(ultimo)}</span>
-          <span>Próxima manutenção: ${Utils.escapeHtml(proxima)}</span>
+        <div class="cliente-pmoc__equip-kpis">
+          <div class="cli-stat">
+            <div class="cli-stat__value">${Utils.escapeHtml(ultimo)}</div>
+            <div class="cli-stat__label">Último serviço</div>
+          </div>
+          <div class="cli-stat">
+            <div class="cli-stat__value">${Utils.escapeHtml(proxima)}</div>
+            <div class="cli-stat__label">Próxima manutenção</div>
+          </div>
         </div>
+        <footer class="cliente-pmoc__equip-meta">${meta}</footer>
         ${cta}
       </article>`;
     })
     .join('');
+
+  const statusToneClass = statusClass(summary.status);
+  const realizadasLabel = `${summary.progresso.feitos} / ${summary.progresso.previstos}`;
+  const proximaLabel = summary.proximaManutencaoLabel || 'Sem manutenção prevista';
 
   return `
     <div class="modal cliente-pmoc">
@@ -77,15 +87,35 @@ function buildHtml(summary) {
         <p>O PMOC é montado automaticamente com os serviços registrados.</p>
         <p>${Utils.escapeHtml(needsActionText(summary))}</p>
       </section>
-      <section class="cliente-pmoc__summary">
-        <span>Ano PMOC: <strong>${summary.year}</strong></span>
-        <span>Status geral: <strong class="cliente-pmoc__status ${statusClass(summary.status)}">${Utils.escapeHtml(summary.statusLabel)}</strong></span>
-        <span>${Utils.escapeHtml(summary.statusHelp || '')}</span>
-        <span>Realizadas: <strong>${summary.progresso.feitos} de ${summary.progresso.previstos}</strong></span>
-        <span>Próxima manutenção: <strong>${Utils.escapeHtml(summary.proximaManutencaoLabel || 'Sem manutenção prevista')}</strong></span>
-        <span>Equipamentos sem registro: <strong>${summary.equipamentosSemRegistro || 0}</strong></span>
-        <span>Última atualização: <strong>${Utils.escapeHtml(summary.ultimaAtualizacaoLabel)}</strong></span>
+      <section class="cliente-pmoc__summary cliente-pmoc__summary--strong" aria-label="Resumo PMOC do cliente">
+        <div class="cli-stat">
+          <span class="cliente-pmoc__status-badge ${statusToneClass}">${Utils.escapeHtml(summary.statusLabel)}</span>
+          <div class="cli-stat__label">Status geral</div>
+        </div>
+        <div class="cli-stat">
+          <div class="cli-stat__value">${Utils.escapeHtml(realizadasLabel)}</div>
+          <div class="cli-stat__label">Realizadas</div>
+        </div>
+        <div class="cli-stat">
+          <div class="cli-stat__value">${Utils.escapeHtml(proximaLabel)}</div>
+          <div class="cli-stat__label">Próxima manutenção</div>
+        </div>
       </section>
+      <section class="cliente-pmoc__summary cliente-pmoc__summary--soft" aria-label="Detalhes adicionais">
+        <div class="cli-stat">
+          <div class="cli-stat__value cli-stat__value--soft">${Number(summary.equipamentosSemRegistro || 0)}</div>
+          <div class="cli-stat__label">Sem registro</div>
+        </div>
+        <div class="cli-stat">
+          <div class="cli-stat__value cli-stat__value--soft">${Number(summary.year)}</div>
+          <div class="cli-stat__label">Ano PMOC</div>
+        </div>
+        <div class="cli-stat">
+          <div class="cli-stat__value cli-stat__value--soft">${Utils.escapeHtml(summary.ultimaAtualizacaoLabel)}</div>
+          <div class="cli-stat__label">Última atualização</div>
+        </div>
+      </section>
+      ${summary.statusHelp ? `<p class="cliente-pmoc__status-help">${Utils.escapeHtml(summary.statusHelp)}</p>` : ''}
       <section class="cliente-pmoc__list" aria-label="Lista de equipamentos PMOC">
         ${equipamentos || '<p class="cliente-pmoc__empty">Nenhum equipamento vinculado a este cliente.</p>'}
       </section>
