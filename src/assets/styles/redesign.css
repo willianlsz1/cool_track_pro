@@ -780,11 +780,15 @@ body:not(.landing-active) {
 #nav-registro,
 .btn.btn--primary,
 .dash__hero-cta:not(.dash__hero-cta--secondary) {
-  background: linear-gradient(135deg, #2f7bff 0%, #22d3ee 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--ct-brand-light) 0%,
+    var(--ct-brand-text) 100%
+  ) !important;
   border-color: rgba(47, 123, 255, 0.18) !important;
   color: #ffffff !important;
   box-shadow:
-    0 14px 28px rgba(47, 123, 255, 0.22),
+    0 14px 28px var(--ct-brand-shadow),
     inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
@@ -989,7 +993,7 @@ body:not(.landing-active) {
 }
 
 .app-sidebar__user-avatar {
-  background: linear-gradient(135deg, #2f7bff, #22d3ee) !important;
+  background: linear-gradient(135deg, var(--ct-brand-light), var(--ct-brand-text)) !important;
   color: #ffffff !important;
 }
 
