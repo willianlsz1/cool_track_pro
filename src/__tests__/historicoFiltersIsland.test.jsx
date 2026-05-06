@@ -102,9 +102,7 @@ describe('historico filters React island', () => {
       document.querySelectorAll('[data-hist-action="hist-filter-tipo"][data-tipo-id]'),
     ).toHaveLength(5);
     expect(document.querySelector('#hist-active-chips-slot .hist-active-chips')).toBeNull();
-    expect(document.querySelector('#hist-chrono-label.hist-chrono-label')?.textContent).toContain(
-      'Mais recente primeiro',
-    );
+    expect(document.querySelector('#hist-chrono-label.hist-chrono-label')).toBeNull();
     expect(document.getElementById('timeline')?.querySelector('#hist-busca')).toBeNull();
   });
 

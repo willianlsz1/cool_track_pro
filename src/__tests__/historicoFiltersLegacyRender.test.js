@@ -248,9 +248,7 @@ describe('historico legacy filters/search render adapter', () => {
       document.querySelectorAll('[data-hist-action="hist-filter-tipo"][data-tipo-id]'),
     ).toHaveLength(5);
     expect(document.querySelector('#hist-active-chips-slot .hist-active-chips')).toBeNull();
-    expect(document.querySelector('#hist-chrono-label.hist-chrono-label')?.textContent).toContain(
-      'Mais recente primeiro',
-    );
+    expect(document.querySelector('#hist-chrono-label.hist-chrono-label')).toBeNull();
   });
 
   it('integra busca textual ao view model e preserva chip/botao de limpar busca', async () => {
@@ -304,7 +302,7 @@ describe('historico legacy filters/search render adapter', () => {
     expect(chipsSlot?.textContent).toContain('Split Recepcao');
     expect(chipsSlot?.textContent).toContain('Tipo');
     expect(chipsSlot?.textContent).toContain('Preventiva');
-    expect(chipsSlot?.textContent).toMatch(/[UÚ]ltimos 7 dias/);
+    expect(chipsSlot?.textContent).toContain('7 dias');
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-setor"]')).not.toBeNull();
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-equip"]')).not.toBeNull();
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-tipo"]')).not.toBeNull();

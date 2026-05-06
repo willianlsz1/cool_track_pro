@@ -175,27 +175,31 @@ function EmptyState({ emptyState }) {
 
 function OperationSummary({ summary }) {
   const model = summary || { totalServicosHoje: 0, totalEquipHoje: 0 };
+  const totalServicosHoje = Number(model.totalServicosHoje) || 0;
+  const totalEquipHoje = Number(model.totalEquipHoje) || 0;
 
   return (
     <section className="hist-op-summary" aria-label="Resumo de hoje">
-      <div className="hist-op-summary__head">Resumo de hoje</div>
-      <div className="hist-op-summary__kpis">
-        <div className="hist-op-summary__kpi">
-          <strong>{Number(model.totalServicosHoje) || 0}</strong>
-          <span>servicos realizados</span>
+      <div className="hist-op-summary__head">Hoje</div>
+      {totalServicosHoje > 0 ? (
+        <div className="hist-op-summary__kpis">
+          <div className="hist-op-summary__kpi">
+            <strong>{totalServicosHoje}</strong>
+            <span>serviços realizados</span>
+          </div>
+          <div className="hist-op-summary__kpi">
+            <strong>{totalEquipHoje}</strong>
+            <span>equipamentos atendidos</span>
+          </div>
         </div>
-        <div className="hist-op-summary__kpi">
-          <strong>{Number(model.totalEquipHoje) || 0}</strong>
-          <span>equipamentos atendidos</span>
+      ) : (
+        <div className="hist-op-summary__empty">
+          <strong>Nada registrado ainda hoje.</strong>
+          <p>
+            Toque no <span className="hist-op-summary__empty-fab">+</span> da barra pra começar.
+          </p>
         </div>
-      </div>
-      <button
-        type="button"
-        className="hist-op-summary__cta"
-        data-nav={HISTORICO_NAV_TARGETS.registro}
-      >
-        Registrar servico
-      </button>
+      )}
     </section>
   );
 }
@@ -205,8 +209,8 @@ function AttentionSection({ items }) {
   if (!rows.length) return null;
 
   return (
-    <section className="hist-attention" aria-label="Itens em atencao">
-      <div className="hist-attention__head">Atencao</div>
+    <section className="hist-attention" aria-label="Itens em atenção">
+      <div className="hist-attention__head">Atenção</div>
       {rows.map((item, index) => (
         <article
           key={item.id || `${item.title}-${index}`}
@@ -217,7 +221,7 @@ function AttentionSection({ items }) {
         >
           <div className="hist-attention__content">
             <strong>{text(item.title, 'Item')}</strong>
-            <span>{text(item.reason, 'Exige atencao')}</span>
+            <span>{text(item.reason, 'Exige atenção')}</span>
           </div>
           <button
             type="button"
@@ -298,7 +302,7 @@ function PhotoStrip({ item }) {
   if (!urls.length) return null;
 
   return (
-    <div className="timeline__item__photos" aria-label="Fotos do servico">
+    <div className="timeline__item__photos" aria-label="Fotos do serviço">
       {urls.slice(0, 3).map((url, index) => (
         <button
           key={`${item.id}-photo-${index}`}
@@ -308,7 +312,7 @@ function PhotoStrip({ item }) {
           data-photo-url={url}
           aria-label={`Abrir foto ${index + 1}`}
         >
-          <img src={url} alt={`Foto ${index + 1} do servico`} loading="lazy" />
+          <img src={url} alt={`Foto ${index + 1} do serviço`} loading="lazy" />
         </button>
       ))}
       {Number(item.extraPhotoCount) > 0 ? (
@@ -402,7 +406,7 @@ function TimelineItem({ item }) {
             className="timeline__item__focus-equip"
             data-hist-action={HISTORICO_ACTIONS.filterEquip}
             data-equip-id={item.equipId}
-            aria-label="Ver todos os servicos deste equipamento"
+            aria-label="Ver todos os serviços deste equipamento"
           >
             Ver tudo deste equipamento {'→'}
           </button>

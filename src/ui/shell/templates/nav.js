@@ -20,6 +20,30 @@ export function renderShellNav(planCode) {
           </span>
           Painel
         </button>
+<!--
+          Botão "Clientes" no bottom nav (mobile). Mantido com Pro-gate:
+          não-Pro abre pelo CTA do header/paywall existente; no Pro fica junto
+          dos destinos de navegação antes de Equipamentos.
+        -->
+        ${
+          showClientes
+            ? `<button class="nav-btn" id="nav-clientes" data-nav="clientes" aria-label="Clientes">
+          <span class="nav-btn__icon" aria-hidden="true">
+            <svg class="nav-btn__svg nav-btn__svg--outline" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg class="nav-btn__svg nav-btn__svg--filled" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2a6 6 0 0 0-6 6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1a6 6 0 0 0-6-6Zm7-9.87a4 4 0 0 1 0 7.75v-7.75ZM23 21v-2a4 4 0 0 0-3-3.87v9.87Z"/>
+            </svg>
+          </span>
+          Clientes
+        </button>
+        `
+            : ''
+        }
         <button class="nav-btn" id="nav-equipamentos" data-nav="equipamentos" aria-label="Equipamentos">
           <span class="nav-btn__icon" aria-hidden="true">
             <svg class="nav-btn__svg nav-btn__svg--outline" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -51,45 +75,6 @@ export function renderShellNav(planCode) {
           </span>
           Serviços
         </button>
-        <button class="nav-btn" id="nav-relatorio" data-nav="relatorio" aria-label="Relatório">
-          <span class="nav-btn__icon" aria-hidden="true">
-            <svg class="nav-btn__svg nav-btn__svg--outline" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M7 14l4-4 4 4 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <svg class="nav-btn__svg nav-btn__svg--filled" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M4 3.5a1 1 0 0 1 2 0V18h14.5a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1V3.5Z"/>
-              <path d="M18.7 8.3a1 1 0 0 1 0 1.4l-4 4a1 1 0 0 1-1.4 0L11 11.4l-3.3 3.3a1 1 0 1 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0l2.3 2.3 3.3-3.3a1 1 0 0 1 1.4 0Z"/>
-            </svg>
-          </span>
-          Relatório
-        </button>
-<!--
-          Botao "Clientes" no bottom nav (mobile). Antes era "Alertas" — mas
-          o sino no top header já cobre alertas, entao reaproveitamos o slot
-          pra Clientes (que antes ficava escondido dentro do menu de ajuda).
-          Pro-gate: não-Pro abre paywall via routes.js (não precisa CSS lock
-          aqui pq mobile-first não tem espaco pra um pill PRO ao lado do label).
-        -->
-        ${
-          showClientes
-            ? `<button class="nav-btn" id="nav-clientes" data-nav="clientes" aria-label="Clientes">
-          <span class="nav-btn__icon" aria-hidden="true">
-            <svg class="nav-btn__svg nav-btn__svg--outline" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <svg class="nav-btn__svg nav-btn__svg--filled" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2a6 6 0 0 0-6 6v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1a6 6 0 0 0-6-6Zm7-9.87a4 4 0 0 1 0 7.75v-7.75ZM23 21v-2a4 4 0 0 0-3-3.87v9.87Z"/>
-            </svg>
-          </span>
-          Clientes
-        </button>
-        `
-            : ''
-        }
       </nav>
 `;
 }

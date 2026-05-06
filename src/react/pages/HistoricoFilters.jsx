@@ -52,25 +52,6 @@ function FiltersIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </svg>
-  );
-}
-
 function CloseIcon() {
   return (
     <svg
@@ -89,12 +70,12 @@ function CloseIcon() {
   );
 }
 
-function QuickFilters({ filters, periodOptions, tipoOptions }) {
+function QuickFilters({ filters, filtersCount, periodOptions, tipoOptions }) {
   const period = text(filters?.period, 'tudo');
   const tipo = text(filters?.tipo);
 
   return (
-    <div className="hist-quickfilters" role="toolbar" aria-label="Filtros rapidos">
+    <div className="hist-quickfilters" role="toolbar" aria-label="Filtros rápidos">
       {asArray(periodOptions).map((option) => {
         const id = text(option?.id);
         const active = period === id || (!period && id === 'tudo');
@@ -111,6 +92,28 @@ function QuickFilters({ filters, periodOptions, tipoOptions }) {
           </button>
         );
       })}
+      <button
+        type="button"
+        className={classNames(
+          'hist-quickfilter',
+          'hist-filters-trigger',
+          'hist-quickfilter--filters',
+          filtersCount > 0 && 'is-active',
+        )}
+        id="hist-filters-trigger"
+        data-hist-action={HISTORICO_ACTIONS.openFiltersSheet}
+        aria-label="Abrir filtros avançados"
+      >
+        <FiltersIcon />
+        Filtros
+        <span
+          className="hist-filters-trigger__count"
+          id="hist-filters-count"
+          hidden={filtersCount <= 0}
+        >
+          {filtersCount || 0}
+        </span>
+      </button>
       <div className="hist-quickfilters__sep" aria-hidden="true"></div>
       {asArray(tipoOptions).map((option) => {
         const id = text(option?.id);
@@ -222,23 +225,6 @@ export function HistoricoFilters({ viewModel = {} }) {
                 defaultValue={text(filters.busca)}
               />
             </label>
-            <button
-              type="button"
-              className={classNames('hist-filters-trigger', filtersCount > 0 && 'is-active')}
-              id="hist-filters-trigger"
-              data-hist-action={HISTORICO_ACTIONS.openFiltersSheet}
-              aria-label={'Abrir filtros avançados'}
-            >
-              <FiltersIcon />
-              Filtros
-              <span
-                className="hist-filters-trigger__count"
-                id="hist-filters-count"
-                hidden={filtersCount <= 0}
-              >
-                {filtersCount || 0}
-              </span>
-            </button>
             <SelectFilter
               id="hist-setor"
               label="Filtrar por setor"
@@ -262,16 +248,18 @@ export function HistoricoFilters({ viewModel = {} }) {
         >
           <QuickFilters
             filters={filters}
+            filtersCount={filtersCount}
             periodOptions={viewModel.periodOptions}
             tipoOptions={viewModel.tipoOptions}
           />
         </div>
       </div>
       <ActiveChips chips={viewModel.activeChips} />
-      <div className="hist-chrono-label" id="hist-chrono-label">
-        <ClockIcon />
-        Mais recente primeiro
-      </div>
+      {viewModel.sortLabel && !viewModel.isDefaultSort ? (
+        <div className="hist-chrono-label" id="hist-chrono-label">
+          {text(viewModel.sortLabel)}
+        </div>
+      ) : null}
     </>
   );
 }
