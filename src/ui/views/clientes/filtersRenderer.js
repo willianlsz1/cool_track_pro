@@ -1,11 +1,10 @@
 import { Utils } from '../../../core/utils.js';
 import {
-  CLIENTES_ACTIONS,
   CLIENTES_PUBLIC_IDS,
   CLIENTES_SORT_OPTIONS,
   CLIENTES_STATUS_OPTIONS,
 } from '../../viewModels/clientesContracts.js';
-import { ICON_FILTER, ICON_SEARCH } from './constants.js';
+import { ICON_SEARCH } from './constants.js';
 
 export function renderFilters({ cities, searchTerm, statusFilter, cityFilter, sortBy }) {
   const cityOptions = ['todas', ...Array.from(new Set(cities)).filter(Boolean).sort()];
@@ -47,7 +46,5 @@ export function renderFilters({ cities, searchTerm, statusFilter, cityFilter, so
           ).join('')}
         </select>
       </label>
-      <button type="button" class="cli-filters__reset" data-cli-action="${CLIENTES_ACTIONS.clearFilters}"
-        aria-label="Limpar filtros" title="Limpar filtros">${ICON_FILTER}</button>
     </div>`;
 }

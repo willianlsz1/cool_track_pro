@@ -18310,26 +18310,6 @@ select option {
   border-color: rgba(74, 163, 255, 0.4);
 }
 
-.cli-filters__reset {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--surface, #0e1820);
-  border: 1px solid var(--border);
-  color: var(--text-2, #8aaac8);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.cli-filters__reset:hover {
-  border-color: rgba(74, 163, 255, 0.32);
-  color: #6fbfff;
-}
-.cli-filters__reset svg {
-  display: block;
-}
-
 .cli-context {
   display: flex;
   flex-wrap: wrap;
