@@ -1290,4 +1290,171 @@ body:not(.landing-active) {
     background: #1c2330 !important;
     border-color: rgba(34, 211, 238, 0.24) !important;
   }
+
+  /* Fase 2: contraste real no desktop dark do Histórico.
+     Escopo restrito para preservar mobile e evitar alterar layout. */
+  #view-historico {
+    --ct-desktop-text-primary: var(--ct-text, #e6edf3);
+    --ct-desktop-text-secondary: #c8d4e3;
+    --ct-desktop-text-tertiary: #adbac7;
+    --ct-desktop-text-disabled: #98a6b7;
+  }
+
+  #view-historico .hist-title,
+  #view-historico .timeline__item__service,
+  #view-historico .empty-state__title,
+  #view-historico .engaging-empty-state__title,
+  #view-historico .hist-op-summary__empty strong {
+    color: var(--ct-desktop-text-primary) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-count,
+  #view-historico .hist-input__icon,
+  #view-historico .hist-chrono-label,
+  #view-historico .hist-chrono-label svg,
+  #view-historico .hist-op-summary__head,
+  #view-historico .hist-op-summary__kpi span,
+  #view-historico .hist-attention__content span,
+  #view-historico .timeline__item__date,
+  #view-historico .timeline__item__rel,
+  #view-historico .timeline__item__equipment-tag,
+  #view-historico .timeline__item__meta,
+  #view-historico .meta-neutral,
+  #view-historico .hist-day-group__count,
+  #view-historico .hist-active-chips__label,
+  #view-historico .hist-signature-preview__label,
+  #view-historico .hist-signature-preview__label b,
+  #view-historico .hist-signature-unavailable,
+  #view-historico .hist-op-summary__empty,
+  #view-historico .hist-op-summary__empty p,
+  #view-historico .empty-state__sub,
+  #view-historico .engaging-empty-state__description,
+  #view-historico .engaging-empty-state__microcopy {
+    color: var(--ct-desktop-text-secondary) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-input input,
+  #view-historico .hist-select select,
+  #view-historico .hist-op-summary__kpi strong,
+  #view-historico .hist-attention__content strong,
+  #view-historico .hist-active-chip,
+  #view-historico .hist-active-chip b,
+  #view-historico .hist-day-group__label,
+  #view-historico .timeline__item__obs,
+  #view-historico .timeline__item__context,
+  #view-historico .hist-summary-card__kpi-value,
+  #view-historico .hist-summary-card__kpi-value--mono,
+  #view-historico .hist-summary-card__insight-chip,
+  #view-historico .hist-summary-card__insight-chip b,
+  #view-historico .hist-summary-card__recurring-text,
+  #view-historico .hist-summary-card__recurring-text b,
+  #view-historico .hist-signature-preview__zoom {
+    color: var(--ct-desktop-text-primary) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-input input::placeholder,
+  #view-historico .hist-select select:invalid,
+  #view-historico .hist-summary-card__kpi-value--muted,
+  #view-historico .hist-summary-card__kpi-unit,
+  #view-historico .hist-summary-card__kpi-label,
+  #view-historico .hist-summary-card__upsell,
+  #view-historico .timeline__item__equipment-sep,
+  #view-historico .meta-chunk svg,
+  #view-historico .meta-details,
+  #view-historico .meta-sep,
+  #view-historico .hist-signature-preview__zoom::before,
+  #view-historico .hist-signature-unavailable svg,
+  #view-historico .hist-item-actions__menuitem,
+  #view-historico .hist-item-actions__kebab {
+    color: var(--ct-desktop-text-tertiary) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-select::after {
+    border-right-color: var(--ct-desktop-text-tertiary) !important;
+    border-bottom-color: var(--ct-desktop-text-tertiary) !important;
+  }
+
+  #view-historico .hist-quickfilter {
+    color: var(--ct-desktop-text-secondary) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-quickfilter:hover,
+  #view-historico .hist-quickfilter.is-active,
+  #view-historico .hist-quickfilter:focus-visible {
+    color: var(--ct-desktop-text-primary) !important;
+  }
+
+  #view-historico .hist-active-chips__clear,
+  #view-historico .hist-summary-card__upsell-link,
+  #view-historico .hist-attention__cta,
+  #view-historico .timeline__item__equipment,
+  #view-historico .timeline__item__focus-equip,
+  #view-historico .meta-cyan,
+  #view-historico .hist-summary-card__recurring-link {
+    color: var(--ct-brand-text, #7dd3fc) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-pill--neutral {
+    color: var(--ct-desktop-text-secondary) !important;
+    background: rgba(181, 194, 209, 0.14) !important;
+  }
+
+  #view-historico .hist-pill--cyan,
+  #view-historico .hist-pill--teal,
+  #view-historico .hist-quickfilter--cyan,
+  #view-historico .hist-quickfilter--teal {
+    color: #8bd5d7 !important;
+  }
+
+  #view-historico .hist-pill--amber,
+  #view-historico .hist-quickfilter--amber,
+  #view-historico .meta-warn {
+    color: #f0b45a !important;
+  }
+
+  #view-historico .hist-pill--violet,
+  #view-historico .hist-quickfilter--violet {
+    color: #c4b5fd !important;
+  }
+
+  #view-historico .hist-pill--red,
+  #view-historico .hist-quickfilter--red,
+  #view-historico .meta-danger {
+    color: #f87171 !important;
+  }
+
+  #view-historico .hist-pill--success {
+    color: #7ee7b0 !important;
+  }
+
+  #view-historico .hist-quickfilter.is-active,
+  #view-historico .hist-quickfilter:hover,
+  #view-historico .hist-quickfilter:focus-visible {
+    color: var(--ct-desktop-text-primary) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item {
+    color: var(--ct-desktop-text-secondary, #c8d4e3) !important;
+  }
+
+  .app-sidebar .app-sidebar__section-kicker,
+  .app-sidebar .app-sidebar__plan-card-sub,
+  .app-sidebar .app-sidebar__plan-card-meta,
+  .app-sidebar .app-sidebar__user-role,
+  .app-sidebar .app-sidebar__settings,
+  .app-sidebar .app-sidebar__settings-icon,
+  .app-sidebar .app-sidebar__settings-chev,
+  .app-sidebar .app-sidebar__user-chip svg {
+    color: var(--ct-desktop-text-tertiary, #adbac7) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item--locked {
+    color: var(--ct-desktop-text-disabled, #98a6b7) !important;
+  }
 }
