@@ -68,7 +68,7 @@ function drawServicesPageHeader(doc, pageWidth, margin, profile, context = {}) {
   fillRect(doc, 0, 14, pageWidth, 0.3, C.borderStrong);
   fillRect(doc, 0, 0, pageWidth, 2, C.primary);
 
-  txt(doc, 'COOLTRACK PRO', margin, 7.5, {
+  txt(doc, 'COOLTRACK', margin, 7.5, {
     size: 7,
     style: 'bold',
     color: C.primary,

@@ -13,13 +13,11 @@ export function drawFooter(doc, pageWidth, pageHeight, margin, profile, pageNum,
   doc.setTextColor(...PDF_COLORS.text3);
 
   // Linha 1 — identidade do prestador (empresa + telefone). Quando o perfil
-  // não tem empresa/telefone cai em "Gerado por CoolTrack Pro" como antes.
+  // não tem empresa/telefone cai em "Gerado por CoolTrack" como antes.
   const empresa = profile?.empresa?.trim();
   const telefone = profile?.telefone?.trim();
   const prestadorParts = [empresa, telefone].filter(Boolean);
-  const prestador = prestadorParts.length
-    ? prestadorParts.join('  ·  ')
-    : 'Gerado por CoolTrack Pro';
+  const prestador = prestadorParts.length ? prestadorParts.join('  ·  ') : 'Gerado por CoolTrack';
 
   doc.setFontSize(PDF_TYPO.micro.size);
   doc.text(prestador, margin, footerY + 3);
@@ -42,7 +40,7 @@ export function drawFooter(doc, pageWidth, pageHeight, margin, profile, pageNum,
     doc.text(leftLineParts.join('  ·  '), margin, footerY + 8);
   }
 
-  doc.text('Gerado por CoolTrack Pro', pageWidth - margin, footerY + 8, { align: 'right' });
+  doc.text('Gerado por CoolTrack', pageWidth - margin, footerY + 8, { align: 'right' });
 }
 
 // Aplica o total de páginas ao rodapé depois que todas as seções foram desenhadas.
