@@ -774,7 +774,7 @@ export function renderShellViews() {
                   </button>
                 </div>
               </div>
-              <p class="action-footer__hint">Ao tocar em <strong>Salvar e enviar</strong>, o PDF é gerado e o WhatsApp abre direto pro cliente.</p>
+              <p class="action-footer__hint">💡 Ao tocar em <strong>Salvar e enviar</strong>, o PDF é gerado e o WhatsApp abre direto pro cliente.</p>
             </div>
           </div>
         </div>
