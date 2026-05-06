@@ -356,4 +356,28 @@ describe('LandingPage (React)', () => {
     });
     expect(osProblemBtn?.getAttribute('aria-pressed')).toBe('false');
   });
+
+  it('ProblemsSection renderiza painel inline mobile e lateral desktop ao clicar', async () => {
+    const root = createRoot();
+    await act(async () => {
+      mountLandingPageReact(root, { onLogin: vi.fn() });
+    });
+
+    const osProblemBtn = findButtonByText(root, 'Atendimento sem padrão');
+    expect(osProblemBtn).toBeDefined();
+
+    await act(async () => {
+      osProblemBtn?.click();
+    });
+
+    const inlinePanel = root.querySelector('.solution--inline');
+    const sidePanel = root.querySelector('.solution--side');
+
+    expect(inlinePanel).not.toBeNull();
+    expect(sidePanel).not.toBeNull();
+    expect(inlinePanel?.textContent).toContain('Como o CoolTrack resolve');
+    expect(sidePanel?.textContent).toContain('Como o CoolTrack resolve');
+    expect(inlinePanel?.textContent).toContain('Template pronto pra cada tipo de serviço');
+    expect(sidePanel?.textContent).toContain('Template pronto pra cada tipo de serviço');
+  });
 });
