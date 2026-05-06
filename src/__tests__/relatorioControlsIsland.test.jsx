@@ -8,7 +8,6 @@ import {
 } from '../react/entrypoints/relatorioControlsIsland.jsx';
 import {
   RELATORIO_ACTIONS,
-  RELATORIO_NAV_TARGETS,
   RELATORIO_PUBLIC_IDS,
   RELATORIO_VIEW_MODES,
 } from '../ui/viewModels/relatorioContracts.js';
@@ -27,8 +26,8 @@ function setRoot() {
 
 function createControls(overrides = {}) {
   return {
-    pageTitle: 'Relatorio rapido',
-    pageSubtitle: 'Gere e envie o PDF do servico em poucos toques.',
+    pageTitle: 'Seus relatorios',
+    pageSubtitle: 'Veja servicos por cliente, equipamento ou setor.',
     viewMode: RELATORIO_VIEW_MODES.compact,
     isPro: false,
     advancedOpen: false,
@@ -52,7 +51,7 @@ function createControls(overrides = {}) {
 
 function createFilteredControls(overrides = {}) {
   return createControls({
-    pageTitle: 'Relatorios da empresa',
+    pageTitle: 'Seus relatorios',
     pageSubtitle: 'Contexto Pro por cliente, setor e equipamento.',
     viewMode: RELATORIO_VIEW_MODES.detailed,
     isPro: true,
@@ -113,12 +112,12 @@ describe('relatorio controls React island', () => {
     expect(document.querySelector('#rel-export-dd.rel-export-dd')).not.toBeNull();
     expect(document.querySelector('#btn-export-dd-toggle')).not.toBeNull();
     expect(document.querySelector('#rel-export-dd-menu.rel-export-dd__menu')).not.toBeNull();
-    expect(document.querySelectorAll('#rel-export-dd-menu .rel-export-dd__item')).toHaveLength(3);
+    expect(document.querySelectorAll('#rel-export-dd-menu .rel-export-dd__item')).toHaveLength(0);
     expect(document.querySelector('#pdf-quota-slot.rel-toolbar__quota-slot')).not.toBeNull();
 
-    expect(document.querySelector('#rel-main-title')?.textContent).toBe('Relatorio rapido');
+    expect(document.querySelector('#rel-main-title')?.textContent).toBe('Seus relatorios');
     expect(document.querySelector('#rel-mode-segment-slot')).not.toBeNull();
-    expect(document.querySelector('#rel-mode-segment-slot .rel-mode-segment')).toBeNull();
+    expect(document.querySelector('#rel-mode-segment-slot .rel-mode-segment')).not.toBeNull();
     expect(document.querySelector('#rel-hero.rel-hero')).not.toBeNull();
     expect(document.querySelector('#rel-filters.rel-filters')).not.toBeNull();
     expect(document.querySelector('#rel-filters-chips.rel-filters__chips')).not.toBeNull();
@@ -154,7 +153,7 @@ describe('relatorio controls React island', () => {
     expect(root?.querySelector('[data-action="rel-clear-filters"]')).not.toBeNull();
     expect(root?.querySelector('#rel-filters-advanced')?.hasAttribute('hidden')).toBe(false);
     expect(root?.querySelectorAll('#rel-mode-segment-slot .rel-mode-segment__item')).toHaveLength(
-      4,
+      3,
     );
     expect(consoleError).not.toHaveBeenCalledWith(
       expect.stringContaining(
@@ -202,18 +201,12 @@ describe('relatorio controls React island', () => {
     expect(document.querySelector('#rel-filters-chips')?.textContent).toContain('Fechar filtros');
 
     expect(document.querySelector('#rel-dd-pmoc-main')?.hidden).toBe(false);
-    expect(document.querySelector('#rel-dd-pmoc-info')?.hidden).toBe(false);
-    expect(document.querySelector('#rel-dd-pmoc-nudge')?.hidden).toBe(true);
+    expect(document.querySelector('#rel-dd-pmoc-info')).toBeNull();
+    expect(document.querySelector('#rel-dd-pmoc-nudge')).toBeNull();
     expect(document.querySelector('#rel-dd-pmoc-main')?.getAttribute('data-action')).toBe(
       RELATORIO_ACTIONS.openPmocModal,
     );
-    expect(document.querySelector('#rel-dd-pmoc-info')?.getAttribute('data-action')).toBe(
-      RELATORIO_ACTIONS.openPmocInfo,
-    );
-    expect(document.querySelector('#rel-dd-pmoc-main')?.getAttribute('data-tier')).toBe('unknown');
-    expect(document.querySelector('#rel-dd-pmoc-nudge')?.getAttribute('data-nav')).toBe(
-      RELATORIO_NAV_TARGETS.pricing,
-    );
+    expect(document.querySelector('#rel-dd-pmoc-main')?.getAttribute('data-tier')).toBe('pro');
     expect(document.querySelector('#pdf-quota-slot')).not.toBeNull();
   });
 

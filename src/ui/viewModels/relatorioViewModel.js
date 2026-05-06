@@ -251,20 +251,12 @@ export function getProximasAcoes(
   }));
 }
 
-export function resolveRelatorioModeCopy({ isPro }) {
-  if (isPro) {
-    return {
-      pageTitle: 'Relatórios da empresa',
-      pageSubtitle: 'Acompanhe serviços por cliente, setor, equipamento e PMOC.',
-      heroTitle: 'Contexto do relatório',
-      heroBrand: 'Relatórios da empresa',
-    };
-  }
+export function resolveRelatorioModeCopy() {
   return {
-    pageTitle: 'Relatório rápido',
-    pageSubtitle: 'Gere e envie o PDF do serviço em poucos toques.',
-    heroTitle: 'Resumo dos serviços',
-    heroBrand: 'Relatório rápido',
+    pageTitle: 'Seus relatórios',
+    pageSubtitle: 'Veja serviços por cliente, equipamento ou setor.',
+    heroTitle: 'Contexto do relatório',
+    heroBrand: 'Relatório livre',
   };
 }
 
@@ -308,6 +300,9 @@ function buildFiltersViewModel({
     hasEquipFilter,
     equipFiltrado,
     periodoTxt: hasPeriodoFilter ? formatShortDateRange(filters.de, filters.ate) : 'Todo o período',
+    periodoResumo: hasPeriodoFilter
+      ? formatShortDateRange(filters.de, filters.ate)
+      : 'todo o período',
     equipTxt: hasEquipFilter
       ? equipFiltrado?.nome || 'Equipamento selecionado'
       : 'Todos os equipamentos',
@@ -352,6 +347,9 @@ export function buildRelatorioViewModel({
   const hasPmocAttention = Boolean(
     pmocSummary && (pmocSummary.status === 'atencao' || pmocSummary.status === 'atrasado'),
   );
+  const equipmentIds = new Set(
+    records.map((registro) => safeString(registro?.equipId)).filter(Boolean),
+  );
 
   return {
     viewMode: normalizeViewMode(viewMode),
@@ -360,7 +358,12 @@ export function buildRelatorioViewModel({
     isEmpty: records.length === 0,
     records,
     filters: filterVm,
-    modeCopy: resolveRelatorioModeCopy({ isPro }),
+    reportSummary: {
+      servicos: records.length,
+      equipamentos: equipmentIds.size,
+      periodo: filterVm.periodoResumo,
+    },
+    modeCopy: resolveRelatorioModeCopy(),
     context,
     hasPmocAttention,
     kpis,

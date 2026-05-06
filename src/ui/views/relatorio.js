@@ -8,7 +8,6 @@ import { PdfQuotaBadge } from '../components/pdfQuotaBadge.js';
 import { getSignatureForRecord, SignatureViewerModal } from '../components/signature.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
 import { RELATORIO_PLAN_CODES, RELATORIO_VIEW_MODES } from '../viewModels/relatorioContracts.js';
-import { buildRelatorioCompanyPmocModel } from '../viewModels/relatorioCompanyPmocModel.js';
 import { buildReportContext, buildRelatorioViewModel } from '../viewModels/relatorioViewModel.js';
 
 export {
@@ -361,6 +360,7 @@ function buildRelatorioControlsReactViewModel({
   filters,
   advancedOpen,
   equipamentos,
+  reportSummary,
 }) {
   const modeSegmentActive = context?.cliente ? 'cliente' : context?.setor ? 'setor' : 'servicos';
   const equipOptions = (Array.isArray(equipamentos) ? equipamentos : []).map((equipamento) => ({
@@ -385,6 +385,7 @@ function buildRelatorioControlsReactViewModel({
       periodoTxt: filters.periodoTxt,
       equipTxt: filters.equipTxt,
     },
+    reportSummary,
   };
 }
 
@@ -567,31 +568,6 @@ function mountRelatorioCards({ root, cards }) {
   return loadRelatorioCardsBridge().then(mountWithBridge);
 }
 
-function renderCompanyPmocBlock(model) {
-  if (!model?.visible) return '';
-  return `
-    <section class="rel-company-pmoc" aria-label="${Utils.escapeHtml(model.ariaLabel)}">
-      <div class="rel-company-pmoc__head">
-        <h3>${Utils.escapeHtml(model.title)}</h3>
-        ${
-          model.showAttention
-            ? `<span class="rel-company-pmoc__alert">${Utils.escapeHtml(model.attentionLabel)}</span>`
-            : ''
-        }
-      </div>
-      <p class="rel-company-pmoc__desc">${Utils.escapeHtml(model.description)}</p>
-      <div class="rel-company-pmoc__actions">
-        <button type="button" class="btn btn--primary btn--sm" data-action="${Utils.escapeHtml(model.primaryAction)}">${Utils.escapeHtml(model.primaryLabel)}</button>
-        ${
-          model.showAttention
-            ? `<button type="button" class="btn btn--ghost btn--sm" data-nav="${Utils.escapeHtml(model.secondaryNav)}">${Utils.escapeHtml(model.secondaryLabel)}</button>`
-            : ''
-        }
-      </div>
-    </section>
-  `;
-}
-
 function getSafeSignatureUrl(value) {
   const url = String(value || '').trim();
   if (/^data:image\/(?:png|jpe?g|gif|webp|bmp|avif);base64,/i.test(url)) return url;
@@ -721,6 +697,7 @@ export function renderRelatorio(options = {}) {
   const corpoEl = Utils.getEl('relatorio-corpo');
   const companyPmocEl = Utils.getEl('rel-company-pmoc-slot');
   if (!corpoEl) return;
+  if (companyPmocEl) companyPmocEl.textContent = '';
 
   const hoje = new Date().toLocaleDateString('pt-BR');
   const viewMode = getStoredViewMode();
@@ -755,7 +732,6 @@ export function renderRelatorio(options = {}) {
     filters: { periodoTxt, equipTxt, singleEquipFilter },
     modeCopy,
     context,
-    hasPmocAttention,
     kpis,
     narrative,
     corretivasCount,
@@ -775,11 +751,6 @@ export function renderRelatorio(options = {}) {
   const rerender = (opts = {}) => renderRelatorio(opts);
 
   const renderContent = () => {
-    if (companyPmocEl) {
-      const companyPmocModel = buildRelatorioCompanyPmocModel({ isPro, hasPmocAttention });
-      companyPmocEl.innerHTML = renderCompanyPmocBlock(companyPmocModel);
-    }
-
     const controlsViewModel = buildRelatorioControlsReactViewModel({
       modeCopy,
       viewMode,
@@ -788,6 +759,7 @@ export function renderRelatorio(options = {}) {
       filters: reportViewModel.filters,
       advancedOpen,
       equipamentos,
+      reportSummary: reportViewModel.reportSummary,
     });
     const controlsMountResult = mountRelatorioControls({
       root: controlsRootEl,

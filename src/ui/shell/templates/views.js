@@ -858,10 +858,8 @@ export function renderShellViews() {
             </button>
           </div>
           <!--
-            Toolbar V2 (audit UX): WhatsApp como acao PRIMARIA (botao verde
-            grande, ponto que tecnico em campo precisa). PDF secundario
-            (outline cyan). Acoes raras (PMOC, Sobre) ficam dentro do "+ mais"
-            kebab no canto. Reduz cliques pra acao mais comum de 5 -> 2.
+            Toolbar V3: acoes consolidadas em uma linha com cyan consistente.
+            PMOC formal fica destacado no hero Pro acima do relatorio livre.
           -->
           <div class="rel-toolbar">
             <div class="rel-toolbar__actions rel-toolbar__actions--v2">
@@ -892,58 +890,14 @@ export function renderShellViews() {
                   </svg>
                 </button>
                 <div class="rel-export-dd__menu" id="rel-export-dd-menu" role="menu" hidden>
-                  <button type="button" class="rel-export-dd__item rel-export-dd__item--pmoc rel-export-dd__item--featured"
-                    id="rel-dd-pmoc-main"
-                    role="menuitem" data-action="open-pmoc-modal" data-tier="unknown"
-                    title="Documento PMOC formal anual conforme NBR 13971 — Pro.">
-                    <span class="rel-export-dd__item-icon" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="9" y1="15" x2="15" y2="15"/>
-                      <line x1="9" y1="11" x2="15" y2="11"/>
-                    </svg>
-                    </span>
-                    <div class="rel-export-dd__item-text">
-                      <strong>Gerar PMOC formal <span class="pro-badge pro-badge--inline" aria-hidden="true">PRO</span></strong>
-                      <span>Documento anual conforme NBR 13971 — capa institucional, cronograma 12 meses e termo de RT</span>
-                    </div>
-                    <span class="rel-export-dd__item-arrow" aria-hidden="true">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 6l6 6-6 6"/>
-                      </svg>
-                    </span>
-                  </button>
-                  <button type="button" class="rel-export-dd__item rel-export-dd__item--meta"
-                    id="rel-dd-pmoc-info"
-                    role="menuitem" data-action="open-pmoc-info" title="Saiba quando usar cada um.">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  
-                      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>
-                    </svg>
-                    <span>Sobre o PMOC</span>
-                  </button>
-                  <button type="button" class="rel-export-dd__item rel-export-dd__item--meta"
-                    id="rel-dd-pmoc-nudge"
-                    role="menuitem" data-nav="pricing" hidden
-                    title="Conheça o plano Pro para PMOC formal.">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M12 3l2.5 5.3L20 9l-4 3.9.9 5.6L12 16l-4.9 2.5.9-5.6L4 9l5.5-.7z"/>
-                    </svg>
-                    <span>Conheça o Pro (PMOC)</span>
-                  </button>
                 </div>
               </div>
               <div id="pdf-quota-slot" class="rel-toolbar__quota-slot"></div>
             </div>
           </div>
 
-          <h1 id="rel-main-title" class="rel-title">Relatório rápido</h1>
-          <p id="rel-main-subtitle" class="rel-subtitle">Gere e envie o PDF do serviço em poucos toques.</p>
+          <h1 id="rel-main-title" class="rel-title">Seus relatórios</h1>
+          <p id="rel-main-subtitle" class="rel-subtitle">Veja serviços por cliente, equipamento ou setor.</p>
           <div id="rel-mode-segment-slot"></div>
 
           <div id="rel-hero" class="rel-hero" aria-live="polite"></div>

@@ -168,39 +168,29 @@ describe('relatorio legacy #rel-company-pmoc-slot contracts', () => {
     expect(ctx.mocks.signatureOpen).not.toHaveBeenCalled();
   });
 
-  it('preserva contrato Pro com PMOC disponivel e sem pendencias', async () => {
+  it('move o PMOC Pro para o hero e mantem o slot legado vazio', async () => {
     const ctx = await loadRelatorio({ planCode: 'pro', pmocSummary: { status: 'em_dia' } });
 
     await renderRelatorio(ctx, { equipId: 'eq-1' });
 
-    const block = slot()?.querySelector('.rel-company-pmoc');
-    const primary = block?.querySelector('[data-action="open-pmoc-modal"]');
+    const hero = document.querySelector('.pmoc-hero');
+    const primary = hero?.querySelector('[data-action="open-pmoc-modal"]');
 
-    expect(block).not.toBeNull();
-    expect(block?.getAttribute('aria-label')).toBe('PMOC da empresa');
-    expect(block?.querySelector('.rel-company-pmoc__head h3')?.textContent).toBe('PMOC');
-    expect(block?.querySelector('.rel-company-pmoc__desc')?.textContent).toContain(
-      'Documento anual',
-    );
-    expect(block?.querySelector('.rel-company-pmoc__actions')).not.toBeNull();
-    expect(primary?.textContent).toContain('Gerar PMOC formal');
-    expect(primary?.classList.contains('btn--primary')).toBe(true);
-    expect(block?.querySelector('.rel-company-pmoc__alert')).toBeNull();
-    expect(block?.querySelector('[data-nav="clientes"]')).toBeNull();
+    expect(slot()?.querySelector('.rel-company-pmoc')).toBeNull();
+    expect(hero?.textContent).toContain('PMOC formal');
+    expect(primary?.textContent).toContain('Gerar PMOC');
+    expect(primary?.getAttribute('data-tier')).toBe('pro');
+    expect(ctx.mocks.refreshQuota).toHaveBeenCalled();
   });
 
-  it('preserva alerta e navegacao legada para clientes quando PMOC exige atencao', async () => {
+  it('nao reintroduz alerta ou navegacao PMOC legada quando PMOC exige atencao', async () => {
     const ctx = await loadRelatorio({ planCode: 'pro', pmocSummary: { status: 'atencao' } });
 
     await renderRelatorio(ctx, { equipId: 'eq-1' });
 
-    const block = slot()?.querySelector('.rel-company-pmoc');
-    const alert = block?.querySelector('.rel-company-pmoc__alert');
-    const pending = block?.querySelector('[data-nav="clientes"]');
-
-    expect(alert?.textContent).toBe('PMOC precisa de aten\u00e7\u00e3o');
-    expect(pending?.textContent).toContain('Ver pend\u00eancias');
-    expect(pending?.classList.contains('btn--ghost')).toBe(true);
+    expect(slot()?.querySelector('.rel-company-pmoc')).toBeNull();
+    expect(document.querySelector('.pmoc-hero')?.textContent).toContain('PMOC formal');
+    expect(document.querySelector('[data-nav="clientes"]')).toBeNull();
     expect(ctx.mocks.refreshQuota).toHaveBeenCalled();
     expect(ctx.mocks.signatureOpen).not.toHaveBeenCalled();
   });
