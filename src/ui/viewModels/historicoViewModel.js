@@ -212,7 +212,7 @@ export function getProximaStatus(proximaIso, now = new Date()) {
       days,
     };
   }
-  return { tone: 'neutral', label: `Proxima em ${days} dias`, days };
+  return { tone: 'neutral', label: `Próxima em ${days} dias`, days };
 }
 
 export function getEquipStatusPill(equipamento) {
@@ -221,8 +221,8 @@ export function getEquipStatusPill(equipamento) {
   const tone = status === 'danger' ? 'danger' : status === 'warn' ? 'warn' : 'ok';
   const defaultLabels = {
     ok: 'Em dia',
-    warn: 'Atencao',
-    danger: 'Critico',
+    warn: 'Atenção',
+    danger: 'Crítico',
   };
   const label = safeString(equipamento?.statusDescricao).trim() || defaultLabels[tone] || 'Em dia';
   return { tone, label };

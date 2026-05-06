@@ -13242,6 +13242,28 @@ select option {
   border-color: var(--primary-dim);
   background: var(--primary-soft);
 }
+#view-historico .hist-quickfilter--filters {
+  border-color: var(--primary-dim);
+}
+#view-historico .hist-quickfilter--filters svg {
+  width: 14px;
+  height: 14px;
+}
+#view-historico .hist-quickfilter--filters .hist-filters-trigger__count {
+  display: inline-grid;
+  min-width: 16px;
+  height: 16px;
+  place-items: center;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 800;
+}
+#view-historico .hist-quickfilter--filters .hist-filters-trigger__count[hidden] {
+  display: none;
+}
 /* Tipo pill: dot colorido ao lado do label — cor herdada de .hist-quickfilter--X */
 #view-historico .hist-quickfilter__dot {
   width: 6px;
@@ -18911,7 +18933,7 @@ select option {
     box-shadow: 0 0 8px rgba(0, 200, 232, 0.5);
   }
 
-  /* Item especial "Registrar servico" com tint cyan permanente */
+  /* Item especial "Registrar serviço" com tint cyan permanente */
   .app-sidebar__nav-item--register {
     background: rgba(0, 200, 232, 0.05);
     border: 1px solid rgba(0, 200, 232, 0.18);
@@ -22403,15 +22425,34 @@ select option {
   font-size: 11px;
   color: #93a8bf;
 }
-.hist-op-summary__cta {
-  margin-top: 10px;
-  width: 100%;
-  min-height: 40px;
-  border: 0;
-  border-radius: 10px;
-  background: #01c286;
-  color: #062016;
+.hist-op-summary__empty {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text-3, #93a8bf);
+}
+.hist-op-summary__empty strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text, #f2f8ff);
+  font-size: 14px;
+  font-weight: 600;
+}
+.hist-op-summary__empty p {
+  margin: 0;
+  font-size: 12px;
+}
+.hist-op-summary__empty-fab {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  margin: 0 2px;
+  border-radius: 50%;
+  background: var(--primary, #00c8e8);
+  color: var(--bg, #07111f);
+  font-size: 13px;
   font-weight: 700;
+  vertical-align: middle;
 }
 
 .hist-attention {

@@ -24,7 +24,8 @@ describe('shell bootstrap', () => {
     expect(document.body.querySelectorAll('.app-header')).toHaveLength(1);
     expect(document.getElementById('header-help-btn')).not.toBeNull();
     expect(document.getElementById('tour-help-btn')).toBeNull();
-    expect(document.body.querySelectorAll('.app-nav .nav-btn')).toHaveLength(5);
+    expect(document.body.querySelectorAll('.app-nav .nav-btn')).toHaveLength(4);
+    expect(document.getElementById('nav-relatorio')).toBeNull();
     expect(document.getElementById('dash-hero-cta-label')?.textContent).toContain(
       'Registrar serviço',
     );
@@ -116,6 +117,8 @@ describe('shell bootstrap', () => {
     initAppShell();
 
     expect(document.getElementById('nav-clientes')?.hidden).toBe(false);
+    expect(document.getElementById('nav-relatorio')).toBeNull();
+    expect(document.body.querySelectorAll('.app-nav .nav-btn')).toHaveLength(5);
     expect(document.getElementById('header-help-go-clientes')?.hidden).toBe(false);
     expect(document.getElementById('header-help-clientes-upsell')?.hidden).toBe(true);
   });

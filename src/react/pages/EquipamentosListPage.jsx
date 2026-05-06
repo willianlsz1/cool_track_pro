@@ -396,7 +396,7 @@ function ActiveCardBody({ card }) {
           className="equip-card__primary-cta"
           data-action={EQUIPAMENTOS_ACTIONS.goRegisterEquip}
           data-id={card.id}
-          aria-label={card.ctaLabel || 'Registrar servico'}
+          aria-label={card.ctaLabel || 'Registrar serviço'}
         >
           <ArrowIcon />
         </button>

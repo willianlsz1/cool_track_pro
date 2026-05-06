@@ -84,8 +84,8 @@ export const HISTORICO_PUBLIC_CLASSES = Object.freeze([
 
 export const HISTORICO_PERIOD_OPTIONS = Object.freeze([
   Object.freeze({ id: 'hoje', label: 'Hoje', days: 0 }),
-  Object.freeze({ id: '7d', label: 'Últimos 7 dias', days: 7 }),
-  Object.freeze({ id: '30d', label: 'Últimos 30 dias', days: 30 }),
+  Object.freeze({ id: '7d', label: '7 dias', days: 7 }),
+  Object.freeze({ id: '30d', label: '30 dias', days: 30 }),
   Object.freeze({ id: 'tudo', label: 'Tudo', days: null }),
 ]);
 
