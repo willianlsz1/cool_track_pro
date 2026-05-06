@@ -86,7 +86,10 @@ vi.mock('../core/telemetry.js', () => ({ trackEvent: vi.fn() }));
 vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: vi.fn((_root, _options, callback) => callback()),
 }));
-vi.mock('../core/plans/planCache.js', () => ({ isCachedPlanPlusOrHigher: vi.fn(() => false) }));
+vi.mock('../core/plans/planCache.js', () => ({
+  isCachedPlanPlusOrHigher: vi.fn(() => false),
+  isCachedPlanPro: vi.fn(() => false),
+}));
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: mocks.postSaveToast,
 }));

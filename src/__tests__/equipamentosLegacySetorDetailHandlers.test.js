@@ -30,6 +30,7 @@ const mocks = vi.hoisted(() => ({
   applyNameplateCtaGate: vi.fn(),
   resetNameplateCtaState: vi.fn(),
   isCachedPlanPlusOrHigher: vi.fn(),
+  isCachedPlanPro: vi.fn(),
 }));
 
 vi.mock('../core/modal.js', () => ({
@@ -140,6 +141,7 @@ vi.mock('../ui/components/nameplateCapture.js', () => ({
 
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
+  isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
 vi.mock('../ui/controller/helpers/themeInitHelpers.js', () => ({

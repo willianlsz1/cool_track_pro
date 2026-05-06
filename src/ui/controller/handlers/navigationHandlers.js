@@ -350,6 +350,7 @@ export function bindNavigationHandlers() {
       'overflow_banner',
       'overflow_modal',
       'equip_detail_photos',
+      'registro_pmoc_checklist',
     ].includes(el?.dataset?.upgradeSource)
       ? el.dataset.upgradeSource
       : 'dashboard';
