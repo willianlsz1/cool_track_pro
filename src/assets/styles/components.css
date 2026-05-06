@@ -9021,17 +9021,12 @@ mark,
   margin: 0;
 }
 
-.action-footer.modal__footer {
-  position: static;
-  bottom: auto;
-  z-index: auto;
+.action-footer {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 16px;
   margin-top: 24px;
-  border-top: 0;
-  background: transparent;
 }
 
 .action-footer__primary {

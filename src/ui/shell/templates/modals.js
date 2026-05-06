@@ -593,28 +593,28 @@ export function renderShellModals() {
             <div class="form-hint" id="eq-periodicidade-hint">Sugestão automática conforme tipo e criticidade.</div>
           </div>
         </div>
-      </div>
 
-      <div class="action-footer modal__footer" id="eq-action-footer">
-        <button class="btn btn--primary action-footer__primary" data-action="save-equip" id="eq-save-primary">Cadastrar equipamento</button>
-        <div class="action-tray" role="group" aria-label="Outras ações">
-          <div class="action-tray__row" id="eq-save-tertiary-row" style="display:none">
-            <button class="action-tray__btn action-tray__btn--secondary" data-action="save-equip" data-post-action="tertiary" id="eq-save-tertiary">
-            </button>
+        <div class="action-footer" id="eq-action-footer">
+          <button class="btn btn--primary action-footer__primary" data-action="save-equip" id="eq-save-primary">Cadastrar equipamento</button>
+          <div class="action-tray" role="group" aria-label="Outras ações">
+            <div class="action-tray__row" id="eq-save-tertiary-row" style="display:none">
+              <button class="action-tray__btn action-tray__btn--secondary" data-action="save-equip" data-post-action="tertiary" id="eq-save-tertiary">
+              </button>
+            </div>
+            <div class="action-tray__row" id="eq-save-secondary-row" style="display:none">
+              <button class="action-tray__btn action-tray__btn--tertiary" data-action="save-equip" data-post-action="secondary" id="eq-save-secondary">
+              </button>
+            </div>
+            <div class="action-tray__row">
+              <button class="action-tray__btn action-tray__btn--destructive" data-action="close-modal" data-id="modal-add-eq">Cancelar</button>
+            </div>
           </div>
-          <div class="action-tray__row" id="eq-save-secondary-row" style="display:none">
-            <button class="action-tray__btn action-tray__btn--tertiary" data-action="save-equip" data-post-action="secondary" id="eq-save-secondary">
-            </button>
-          </div>
-          <div class="action-tray__row">
-            <button class="action-tray__btn action-tray__btn--destructive" data-action="close-modal" data-id="modal-add-eq">Cancelar</button>
-          </div>
+          <p class="action-footer__hint" id="eq-action-footer-hint" hidden>
+            💡 <strong>Cadastrar outro</strong> mantém o local — útil pra cliente com vários equipamentos
+          </p>
+          <p class="modal-trust-note modal-trust-note--footer">&#10003; Você pode editar ou excluir a qualquer momento
+          </p>
         </div>
-        <p class="action-footer__hint" id="eq-action-footer-hint" hidden>
-          💡 <strong>Cadastrar outro</strong> mantém o local — útil pra cliente com vários equipamentos
-        </p>
-        <p class="modal-trust-note modal-trust-note--footer">&#10003; Você pode editar ou excluir a qualquer momento
-        </p>
       </div>
     </div>
   </div>
