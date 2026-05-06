@@ -3,6 +3,7 @@ import {
   RELATORIO_NAV_TARGETS,
   RELATORIO_VIEW_MODES,
 } from '../../ui/viewModels/relatorioContracts.js';
+import { CardActions } from '../components/CardActions.jsx';
 
 const DEFAULT_CARDS = Object.freeze({
   today: '',
@@ -420,6 +421,8 @@ function RecordCard({ record }) {
           </div>
         ) : null}
       </div>
+
+      <CardActions registroId={text(item.id)} />
 
       <button
         type="button"

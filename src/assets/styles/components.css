@@ -3320,6 +3320,84 @@ mark,
 .rel-record__details[hidden] {
   display: none;
 }
+
+/* ───────── Card actions (Histórico + Relatório) ─────────
+   Linha horizontal de ações por registro: "Baixar PDF" + "Enviar pro cliente".
+   Reusa data-action global ('export-pdf' / 'whatsapp-export') do
+   reportExportHandlers.js — o data-registro-id no botão filtra pelo registro
+   do card. Compartilhado entre os 2 components React (CardActions.jsx) pra
+   manter visual sincronizado. */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border, rgba(255, 255, 255, 0.06));
+}
+
+.card-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px; /* touch target ≥44px (a11y mobile) */
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid var(--border, rgba(0, 200, 232, 0.18));
+  border-radius: 10px;
+  color: var(--primary, #00c8e8);
+  font: 600 13px/1 var(--font-body, inherit);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.card-actions__btn:hover:not(:disabled) {
+  background: rgba(0, 200, 232, 0.06);
+  border-color: var(--primary, #00c8e8);
+}
+
+.card-actions__btn:focus-visible {
+  outline: 2px solid var(--border-focus, var(--primary, #00c8e8));
+  outline-offset: 2px;
+}
+
+.card-actions__btn:disabled {
+  cursor: not-allowed;
+}
+
+.card-actions__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+/* Variante WhatsApp: ghost igual ao default, só troca a cor pra verde
+   WhatsApp. Peso visual idêntico ao --pdf — em listas longas o gradient
+   verde cheio do .btn--whats viraria parede; o card pede sutileza. */
+.card-actions__btn--whatsapp {
+  color: #25d366;
+  border-color: rgba(37, 211, 102, 0.28);
+}
+.card-actions__btn--whatsapp:hover:not(:disabled) {
+  background: rgba(37, 211, 102, 0.08);
+  border-color: #25d366;
+}
+
+/* Mutex de loading: runAsyncAction (actionFeedback.js) seta data-busy="1"
+   no botão clicado durante a geração de PDF / share. O selector :has
+   detecta isso no container e desabilita visualmente o irmão até terminar. */
+.card-actions:has(.card-actions__btn[data-busy='1']) .card-actions__btn:not([data-busy='1']) {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .rel-record__section-title {
   font: 600 11px/1 var(--font-body);
   color: var(--muted);

@@ -45,11 +45,17 @@ export function buildReportFilters({
   };
 }
 
-function getReportFilters() {
+function getReportFilters({ triggerEl = null } = {}) {
+  // registroId vem do botão clicado quando a ação é disparada de um card
+  // individual (Histórico/Relatório). Quando vem da toolbar global, o botão
+  // não carrega data-registro-id e o filtro segue lendo os campos da view
+  // de Relatório (#rel-equip / #rel-de / #rel-ate). filterRegistrosForReport
+  // curto-circuita pelo registroId, então passar os dois é seguro.
   return buildReportFilters({
     filtEq: document.getElementById('rel-equip')?.value || '',
     de: document.getElementById('rel-de')?.value || '',
     ate: document.getElementById('rel-ate')?.value || '',
+    registroId: triggerEl?.dataset?.registroId || '',
   });
 }
 
@@ -284,7 +290,7 @@ function bindPdfExport() {
   on('export-pdf', async (el) => {
     try {
       await exportPdfFlow({
-        filters: getReportFilters(),
+        filters: getReportFilters({ triggerEl: el }),
         triggerEl: el,
       });
     } catch (error) {
@@ -382,7 +388,7 @@ function bindWhatsAppExport() {
   on('whatsapp-export', async (el) => {
     try {
       await shareWhatsAppFlow({
-        filters: getReportFilters(),
+        filters: getReportFilters({ triggerEl: el }),
         triggerEl: el,
       });
     } catch (error) {

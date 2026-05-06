@@ -2,6 +2,7 @@ import {
   HISTORICO_ACTIONS,
   HISTORICO_NAV_TARGETS,
 } from '../../ui/viewModels/historicoContracts.js';
+import { CardActions } from '../components/CardActions.jsx';
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
@@ -411,6 +412,7 @@ function TimelineItem({ item }) {
             Ver tudo deste equipamento {'→'}
           </button>
         ) : null}
+        <CardActions registroId={item.id} />
       </div>
       <div className="hist-item-actions">
         <div className="hist-item-actions__menu" role="menu" hidden>
