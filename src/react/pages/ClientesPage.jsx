@@ -56,16 +56,6 @@ function SearchIcon() {
   );
 }
 
-function FilterIcon() {
-  return (
-    <SvgIcon width={16} height={16}>
-      <line x1="4" y1="6" x2="20" y2="6" />
-      <line x1="7" y1="12" x2="17" y2="12" />
-      <line x1="10" y1="18" x2="14" y2="18" />
-    </SvgIcon>
-  );
-}
-
 function UsersIcon({ size = 20 }) {
   return (
     <SvgIcon width={size} height={size} strokeWidth={1.7}>
@@ -535,15 +525,6 @@ function Filters({ viewModel }) {
           ))}
         </select>
       </label>
-      <button
-        type="button"
-        className="cli-filters__reset"
-        data-cli-action={CLIENTES_ACTIONS.clearFilters}
-        aria-label="Limpar filtros"
-        title="Limpar filtros"
-      >
-        <FilterIcon />
-      </button>
     </div>
   );
 }
@@ -875,7 +856,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--secondary"
+          className="cli-card__action cli-card__action--primary"
           data-cli-action={CLIENTES_ACTIONS.verServicos}
           data-id={clienteId}
         >
@@ -884,7 +865,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--pmoc"
+          className="cli-card__action cli-card__action--primary"
           data-cli-action={CLIENTES_ACTIONS.openPmocPanel}
           data-id={clienteId}
         >
@@ -893,7 +874,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--secondary"
+          className="cli-card__action cli-card__action--primary"
           data-cli-action={CLIENTES_ACTIONS.novoOrcamento}
           data-id={clienteId}
         >
@@ -901,7 +882,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--secondary"
+          className="cli-card__action cli-card__action--primary"
           data-cli-action={CLIENTES_ACTIONS.novoServico}
           data-id={clienteId}
         >

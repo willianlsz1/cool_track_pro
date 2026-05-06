@@ -149,11 +149,11 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
           data-cli-action="${CLIENTES_ACTIONS.verEquipamentos}" data-id="${safeId}">
           ${ICON_MONITOR_SM}<span>Ver equipamentos</span>
         </button>
-        <button type="button" class="cli-card__action cli-card__action--secondary"
+        <button type="button" class="cli-card__action cli-card__action--primary"
           data-cli-action="${CLIENTES_ACTIONS.verServicos}" data-id="${safeId}">
           ${ICON_CLOCK_SM}<span>Ver serviços</span>
         </button>
-        <button type="button" class="cli-card__action cli-card__action--pmoc"
+        <button type="button" class="cli-card__action cli-card__action--primary"
           data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}" data-id="${safeId}">
           ${ICON_FILE}<span>PMOC</span>
         </button>
