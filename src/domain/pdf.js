@@ -23,6 +23,7 @@ import { drawCover } from './pdf/sections/cover.js';
 import { stampFooterTotals } from './pdf/sections/footer.js';
 import { drawServices } from './pdf/sections/services.js';
 import { drawSignaturePages } from './pdf/sections/signatures.js';
+import { drawUpsellBlock } from './pdf/sections/upsell.js';
 import { PLAN_CODE_FREE } from '../core/plans/subscriptionPlans.js';
 
 const PAGE_MARGIN = 15;
@@ -117,19 +118,20 @@ export const PDFGenerator = {
         );
       }
 
+      // Upsell discreto e marca d'água para PDFs Free. O upsell é desenhado
+      // antes da watermark para manter a marca d'água por cima, ainda diluída.
+      if (planCode === PLAN_CODE_FREE) {
+        drawUpsellBlock(doc, pageWidth, pageHeight, PAGE_MARGIN);
+        drawWatermarkAllPages(doc, pageWidth, pageHeight);
+      }
+
       // Rodapé final com paginação X/Y. Tem que rodar depois de todas as
       // páginas estarem criadas (inclusive as de assinatura) pra que o total
-      // seja correto em cada folha.
+      // seja correto em cada folha e fique por cima de elementos próximos à base.
       stampFooterTotals(doc, pageWidth, pageHeight, PAGE_MARGIN, profile, {
         osNumber,
         emitido,
       });
-
-      // Marca d'água "CoolTrack Free" por último. No plano Free aparece em
-      // malha diagonal atrás de todo o conteúdo. Plus/Pro geram PDF limpo.
-      if (planCode === PLAN_CODE_FREE) {
-        drawWatermarkAllPages(doc, pageWidth, pageHeight);
-      }
 
       const fileName = buildReportFileName(profile);
 
