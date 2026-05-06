@@ -9046,7 +9046,12 @@ mark,
   border-bottom: 1px solid var(--ct-border, rgba(255, 255, 255, 0.06));
 }
 
-.action-tray__row:last-child {
+/* Sem borda na última row OU na última row visível: o seletor :has
+   garante que se uma row no fim/meio fica com [hidden] (caso do
+   "Enviar pra outro destinatário" no footer da view de registro), o
+   divisor não fica flutuando. O :last-child cobre o caso comum. */
+.action-tray__row:last-child,
+.action-tray__row:not([hidden]):not(:has(~ .action-tray__row:not([hidden]))) {
   border-bottom: none;
 }
 
@@ -12740,87 +12745,22 @@ mark,
   display: none;
 }
 
-/* ---------- Footer actions ---------- */
+/* ---------- Footer actions (V3) ----------
+   Migrado pro padrão .action-footer/.action-tray (definido em ~9024).
+   O wrapper preserva a classe .registro-actions pro contrato em
+   registroContracts.js. Aqui mantemos só o spacing externo do bloco no
+   contexto da view de registro (top border + margin separando do hint
+   de assinatura acima). Visual de botão/tray vem das regras genéricas. */
 #view-registro .registro-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   margin-top: 22px;
   padding-top: 18px;
   border-top: 1px solid var(--r-border-soft);
 }
 
-#view-registro .registro-actions .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition:
-    transform 0.05s,
-    box-shadow 0.15s,
-    background 0.15s,
-    filter 0.15s;
-}
-
-#view-registro .registro-actions .btn svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 2;
-}
-
-#view-registro .registro-actions .btn--ghost {
-  background: transparent;
-  color: var(--text-2);
-  border-color: var(--border-strong);
-}
-
-#view-registro .registro-actions .btn--ghost:hover {
-  color: var(--text);
-  background: var(--surface-2);
-}
-
-#view-registro .registro-actions .btn--primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
-  color: #031620;
-  box-shadow: var(--r-shadow-cta);
-  flex: 1;
-}
-
-#view-registro .registro-actions .btn--primary:hover {
-  filter: brightness(1.04);
-}
-
-#view-registro .registro-actions .btn--primary:active {
-  transform: translateY(1px);
-}
-
-/* UX V2 audit fix #80: layout V2 — botão primário "Salvar e enviar pro
-   cliente" verde WhatsApp ocupa o espaço principal; "Só salvar" aparece
-   como ghost compacto secundário ao lado. Recomeçar fica a esquerda. */
-#view-registro .registro-actions--v2 {
-  align-items: stretch;
-  gap: 12px;
-}
-#view-registro .registro-actions--v2 .registro-actions__main {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-#view-registro .registro-actions--v2 .registro-actions__main .btn {
-  flex: 0 1 auto;
-}
-#view-registro .registro-actions--v2 .btn.btn--whats {
-  flex: 1 1 auto;
+/* Botão primário verde-WhatsApp do "Salvar e enviar pro cliente". Único uso
+   no app é o footer da view de registro; mantemos o seletor sem escopo
+   pra cobrir também o caso de usar fora do .registro-actions no futuro. */
+.btn.btn--whats {
   background: linear-gradient(135deg, #25d366, #1da851);
   color: #fff;
   border: none;
@@ -12828,25 +12768,24 @@ mark,
   font-weight: 700;
   letter-spacing: -0.01em;
 }
-#view-registro .registro-actions--v2 .btn.btn--whats:hover:not(:disabled) {
+.btn.btn--whats:hover:not(:disabled) {
   filter: brightness(1.05);
   transform: translateY(-1px);
 }
-#view-registro .registro-actions--v2 .btn.btn--whats:active {
+.btn.btn--whats:active {
   transform: translateY(0);
 }
-#view-registro .registro-actions--v2 .btn.btn--whats svg {
+.btn.btn--whats svg {
   width: 18px;
   height: 18px;
   fill: currentColor;
 }
-#view-registro .registro-actions--v2 .registro-actions__save-only {
-  font-size: 13px;
-  padding: 12px 14px;
-  white-space: nowrap;
-}
 
-#view-registro .registro-actions .btn.btn--editing {
+/* Editing state: quando o serviço está em modo edit, registro.js troca o
+   label de "Só salvar" pra "Salvar alterações" e adiciona .btn--editing.
+   No layout V3 esse botão é um .action-tray__btn (não tem .btn base), por
+   isso a regra precisa ser aplicada explicitamente aqui. */
+.action-tray__btn.btn--editing {
   background: linear-gradient(135deg, var(--warning), #c87a0c);
   color: #1a1100;
 }
@@ -13019,27 +12958,9 @@ mark,
     font-size: 22px;
   }
 
-  #view-registro .registro-actions {
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-
-  #view-registro .registro-actions .btn--ghost,
-  #view-registro .registro-actions .btn--primary {
-    width: 100%;
-  }
-
-  /* V2 mobile: na coluna invertida, __main vai pro topo. Empilhamos
-     "Salvar e enviar" + "Só salvar" verticalmente pra evitar duas linhas
-     truncadas. Recomeçar fica na ponta. */
-  #view-registro .registro-actions--v2 .registro-actions__main {
-    flex-direction: column;
-    width: 100%;
-  }
-  #view-registro .registro-actions--v2 .registro-actions__main .btn,
-  #view-registro .registro-actions--v2 .registro-actions__save-only {
-    width: 100%;
-  }
+  /* Footer V3 mobile: o .action-footer já é flex-column por padrão e
+     .action-footer__primary tem width:100%; .action-tray também ocupa a
+     largura toda. Não precisa de overrides específicos aqui. */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -22591,11 +22512,6 @@ select option {
   padding: 12px 14px;
   font-size: 13px;
   color: var(--text-2);
-}
-
-.registro-actions__other {
-  min-width: 42px;
-  padding-inline: 12px;
 }
 
 .registro-cliente-fork-overlay {

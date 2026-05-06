@@ -363,14 +363,20 @@ function _updateRegistroShareActions(context) {
   const shareButton = document.querySelector('[data-action="save-and-share-registro"]');
   const shareLabel = shareButton?.querySelector('span');
   const otherButton = document.querySelector('[data-action="save-and-share-other-registro"]');
+  // Layout V3: o botão "Enviar pra outro destinatário" agora vive dentro de
+  // uma row no .action-tray. Ocultar o botão sozinho deixaria a row vazia
+  // (afetando a borda do divisor), por isso togglamos o hidden no row pai.
+  const otherRow = document.getElementById('r-action-other-row');
   const clienteNome = context?.cliente?.nome?.trim();
   if (shareLabel) {
     shareLabel.textContent = clienteNome
       ? `Salvar e enviar pro ${clienteNome}`
       : 'Salvar e enviar pro cliente';
   }
+  if (otherRow) {
+    otherRow.hidden = !clienteNome;
+  }
   if (otherButton) {
-    otherButton.hidden = !clienteNome;
     otherButton.setAttribute('aria-hidden', clienteNome ? 'false' : 'true');
   }
 }
