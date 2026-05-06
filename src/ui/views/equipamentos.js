@@ -237,6 +237,42 @@ function _refreshRenderEquipPlan({
 export function getEditingEquipId() {
   return _editingEquipId;
 }
+
+function setEquipActionButtonVisible(button, visible) {
+  if (!button) return;
+  const display = visible ? '' : 'none';
+  button.style.display = display;
+  const row = button.closest?.('.action-tray__row');
+  if (row) row.style.display = display;
+}
+
+function setEquipActionFooterHintVisible(visible) {
+  const hint = document.getElementById('eq-action-footer-hint');
+  if (hint) hint.hidden = !visible;
+}
+
+function createActionTrayPlusIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('class', 'action-tray__icon');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M12 5v14M5 12h14');
+  path.setAttribute('stroke', 'currentColor');
+  path.setAttribute('stroke-width', '2');
+  path.setAttribute('stroke-linecap', 'round');
+  icon.append(path);
+
+  return icon;
+}
+
+function setEquipActionTrayButtonLabel(button, label, { plusIcon = false } = {}) {
+  if (!button) return;
+  button.replaceChildren();
+  if (plusIcon) button.append(createActionTrayPlusIcon());
+  button.append(document.createTextNode(label));
+}
 export function clearEditingState() {
   _editingEquipId = null;
   const titleEl = Utils.getEl('modal-add-eq-title');
@@ -251,9 +287,12 @@ export function clearEditingState() {
     primaryBtn.textContent = 'Cadastrar equipamento';
     primaryBtn.dataset.postAction = '';
   }
-  if (secondaryBtn) secondaryBtn.style.display = 'none';
-  if (tertiaryRow) tertiaryRow.style.display = 'none';
-  if (tertiaryBtn) tertiaryBtn.textContent = '';
+  setEquipActionButtonVisible(secondaryBtn, false);
+  setEquipActionButtonVisible(tertiaryBtn || tertiaryRow, false);
+  if (tertiaryBtn) {
+    setEquipActionTrayButtonLabel(tertiaryBtn, '');
+  }
+  setEquipActionFooterHintVisible(false);
   const detailsPanel = Utils.getEl('eq-step-2');
   if (detailsPanel) {
     detailsPanel.style.display = '';
@@ -308,8 +347,8 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
   }
   if (!primaryBtn || !secondaryBtn || !tertiaryRow || !tertiaryBtn) return;
 
-  secondaryBtn.style.display = '';
-  tertiaryRow.style.display = '';
+  setEquipActionButtonVisible(secondaryBtn, true);
+  setEquipActionButtonVisible(tertiaryBtn || tertiaryRow, true);
 
   if (!isPro) {
     if (subtitleEl) {
@@ -319,8 +358,9 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
     primaryBtn.dataset.postAction = '';
     secondaryBtn.textContent = 'Cadastrar e registrar serviço';
     secondaryBtn.dataset.postAction = 'register';
-    tertiaryBtn.textContent = 'Cadastrar outro parecido';
+    setEquipActionTrayButtonLabel(tertiaryBtn, 'Cadastrar outro parecido', { plusIcon: true });
     tertiaryBtn.dataset.postAction = 'clone';
+    setEquipActionFooterHintVisible(false);
     return;
   }
 
@@ -347,8 +387,9 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
     primaryBtn.dataset.postAction = '';
     secondaryBtn.textContent = 'Cadastrar outro neste setor';
     secondaryBtn.dataset.postAction = 'clone';
-    tertiaryBtn.textContent = 'Salvar e abrir PMOC';
+    setEquipActionTrayButtonLabel(tertiaryBtn, 'Salvar e abrir PMOC');
     tertiaryBtn.dataset.postAction = 'pmoc';
+    setEquipActionFooterHintVisible(false);
     return;
   }
 
@@ -361,8 +402,9 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
   primaryBtn.dataset.postAction = '';
   secondaryBtn.textContent = 'Salvar sem cliente por enquanto';
   secondaryBtn.dataset.postAction = 'save-without-client';
-  tertiaryBtn.textContent = 'Cadastrar outro';
+  setEquipActionTrayButtonLabel(tertiaryBtn, 'Cadastrar outro', { plusIcon: true });
   tertiaryBtn.dataset.postAction = 'clone';
+  setEquipActionFooterHintVisible(true);
 }
 
 export function clearForcedEquipContext() {
@@ -1742,8 +1784,11 @@ export async function openEditEquip(id, opts = {}) {
   if (saveBtn) saveBtn.textContent = 'Salvar alterações →';
   const secondaryBtn = document.getElementById('eq-save-secondary');
   const tertiaryRow = document.getElementById('eq-save-tertiary-row');
-  if (secondaryBtn) secondaryBtn.style.display = 'none';
-  if (tertiaryRow) tertiaryRow.style.display = 'none';
+  const tertiaryBtn = document.getElementById('eq-save-tertiary');
+  setEquipActionButtonVisible(secondaryBtn, false);
+  setEquipActionButtonVisible(tertiaryBtn || tertiaryRow, false);
+  if (tertiaryBtn) setEquipActionTrayButtonLabel(tertiaryBtn, '');
+  setEquipActionFooterHintVisible(false);
 
   // Fecha o modal de detalhes e abre o de edição
   try {
