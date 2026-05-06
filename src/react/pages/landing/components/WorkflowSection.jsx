@@ -3,7 +3,7 @@ import { workflowSteps, workflowDefaultStepId } from '../data/landingMockData.js
 import { SectionHead } from './SegmentSection.jsx';
 
 /**
- * Secao "Fluxo conectado" — interativa.
+ * Secao "Como funciona" — interativa.
  *
  * Cada etapa e um `<button>` clicavel. State local (`activeStepId`)
  * determina qual etapa fica destacada visualmente e qual descricao
@@ -33,15 +33,15 @@ export function WorkflowSection() {
       <div className="tw-relative tw-max-w-[1280px] tw-mx-auto tw-px-6">
         <SectionHead
           dark
-          eyebrow="Fluxo conectado"
-          title="Do chamado ao relatório final."
-          description="Um fluxo simples, completo e conectado para sua operação. Clique em uma etapa para ver os detalhes."
+          eyebrow="Como funciona"
+          title="Do chamado ao PDF no WhatsApp do cliente."
+          description="Cliente liga, você abre o app, atende, gera o PDF — pronto. Toca numa etapa pra ver o que rola."
         />
 
         {/* Desktop horizontal */}
         <div
           role="tablist"
-          aria-label="Etapas do fluxo CoolTrackPro"
+          aria-label="Etapas do fluxo CoolTrack"
           className="tw-hidden lg:tw-grid tw-grid-cols-7 tw-gap-0 tw-relative tw-pt-5"
         >
           <div
@@ -64,7 +64,7 @@ export function WorkflowSection() {
             elemento intermediario. */}
         <div
           role="tablist"
-          aria-label="Etapas do fluxo CoolTrackPro"
+          aria-label="Etapas do fluxo CoolTrack"
           className="tw-flex tw-flex-col tw-gap-3 lg:tw-hidden tw-pl-1"
         >
           {workflowSteps.map((step) => (

@@ -22,7 +22,7 @@ afterEach(() => {
 });
 
 describe('LandingPage (React)', () => {
-  it('renderiza marker de mount, secoes principais e CTA "Comecar agora"', async () => {
+  it('renderiza marker de mount, secoes principais e CTA "Comecar gratis"', async () => {
     const root = createRoot();
     await act(async () => {
       mountLandingPageReact(root, { onLogin: vi.fn() });
@@ -43,7 +43,7 @@ describe('LandingPage (React)', () => {
     expect(text).not.toMatch(/\\u00[0-9a-fA-F]{2}/);
     expect(text).toContain('Relatórios');
     expect(text).toContain('Câmaras frias');
-    expect(text).toContain('Começar agora');
+    expect(text).toContain('Começar grátis');
 
     // Anti-regressao: "Ver demonstracao" nao volta.
     expect(text).not.toMatch(/Ver demonstra[çc][aã]o/i);
@@ -51,14 +51,14 @@ describe('LandingPage (React)', () => {
     expect(buttons.some((b) => /Ver demonstra[çc][aã]o/i.test(b.textContent || ''))).toBe(false);
   });
 
-  it('aciona onLogin/onStart quando clica em "Comecar agora"', async () => {
+  it('aciona onLogin/onStart quando clica no CTA principal', async () => {
     const root = createRoot();
     const onLogin = vi.fn();
     await act(async () => {
       mountLandingPageReact(root, { onLogin });
     });
 
-    const startBtn = findButtonByText(root, 'Começar agora');
+    const startBtn = findButtonByText(root, 'Começar grátis');
     expect(startBtn).toBeDefined();
 
     await act(async () => {
@@ -91,10 +91,10 @@ describe('LandingPage (React)', () => {
 
     const previewTabs = Array.from(dashboardArea?.querySelectorAll('button[role="tab"]') ?? []);
     expect(previewTabs.map((b) => (b.textContent || '').trim())).toEqual([
-      'Dashboard',
+      'Painel',
       'Clientes',
       'Equipamentos',
-      'Ordens de serviço',
+      'Atendimentos',
       'Preventivas',
       'Relatórios',
       'Alertas',
@@ -121,7 +121,7 @@ describe('LandingPage (React)', () => {
     expect(dashboardArea?.textContent).toContain('Equipamentos críticos');
 
     // Volta para Dashboard — deve voltar a mostrar Alertas de manutenção.
-    const dashboardTab = previewTabs.find((b) => (b.textContent || '').trim() === 'Dashboard');
+    const dashboardTab = previewTabs.find((b) => (b.textContent || '').trim() === 'Painel');
     await act(async () => {
       dashboardTab?.click();
     });
@@ -137,15 +137,15 @@ describe('LandingPage (React)', () => {
     const fluxo = document.getElementById('fluxo');
     expect(fluxo).not.toBeNull();
 
-    // Etapa default (id 3) renderiza descricao de "Servico e agendado".
-    expect(fluxo?.textContent).toContain('Etapa 3 de 7');
-    expect(fluxo?.textContent).toContain('Serviço é agendado');
+    // Etapa default (id 3) renderiza descricao de preventiva no calendario.
+    expect(fluxo?.textContent).toContain('Etapa 3 de 6');
+    expect(fluxo?.textContent).toContain('Preventiva no calendário');
 
-    // Clica na etapa 1 (titulo "Cliente solicita atendimento") — primeira
+    // Clica na etapa 1 (titulo "Cliente chama") — primeira
     // ocorrencia do botao com `role="tab"` (desktop view + mobile view
     // renderizadas, ambas com mesmo texto).
     const stepButtons = Array.from(fluxo?.querySelectorAll('button[role="tab"]') ?? []).filter(
-      (b) => (b.textContent || '').includes('Cliente solicita atendimento'),
+      (b) => (b.textContent || '').includes('Cliente chama'),
     );
     expect(stepButtons.length).toBeGreaterThan(0);
 
@@ -153,8 +153,8 @@ describe('LandingPage (React)', () => {
       stepButtons[0].click();
     });
 
-    expect(fluxo?.textContent).toContain('Etapa 1 de 7');
-    expect(fluxo?.textContent).toContain('Cliente solicita atendimento');
+    expect(fluxo?.textContent).toContain('Etapa 1 de 6');
+    expect(fluxo?.textContent).toContain('Cliente chama');
     expect(stepButtons[0].getAttribute('aria-selected')).toBe('true');
   });
 
@@ -291,7 +291,7 @@ describe('LandingPage (React)', () => {
     expect(planosLink?.getAttribute('href')).toBe('#planos');
   });
 
-  it('PricingSection CTAs dos planos acionam o mesmo callback do "Comecar agora"', async () => {
+  it('PricingSection CTAs dos planos acionam o mesmo callback principal', async () => {
     const root = createRoot();
     const onLogin = vi.fn();
     await act(async () => {
@@ -318,7 +318,7 @@ describe('LandingPage (React)', () => {
       proCta?.click();
     });
 
-    // 3 CTAs disparam o mesmo callback usado pelo "Comecar agora".
+    // 3 CTAs disparam o mesmo callback principal.
     expect(onLogin).toHaveBeenCalledTimes(3);
 
     // CTAs sao botoes reais (nao <a target="_blank">) — i.e., nao abrem
@@ -336,9 +336,9 @@ describe('LandingPage (React)', () => {
     });
 
     // Antes do clique, painel de solucao nao aparece.
-    expect(root.textContent || '').not.toContain('Como o CoolTrackPro resolve');
+    expect(root.textContent || '').not.toContain('Como o CoolTrack resolve');
 
-    const osProblemBtn = findButtonByText(root, 'OS sem padrão');
+    const osProblemBtn = findButtonByText(root, 'Atendimento sem padrão');
     expect(osProblemBtn).toBeDefined();
     expect(osProblemBtn?.getAttribute('aria-pressed')).toBe('false');
 
@@ -347,8 +347,8 @@ describe('LandingPage (React)', () => {
     });
 
     expect(osProblemBtn?.getAttribute('aria-pressed')).toBe('true');
-    expect(root.textContent || '').toContain('Como o CoolTrackPro resolve');
-    expect(root.textContent || '').toContain('Templates de OS');
+    expect(root.textContent || '').toContain('Como o CoolTrack resolve');
+    expect(root.textContent || '').toContain('Template pronto pra cada tipo de serviço');
 
     // Toggle: clicar de novo no mesmo problema desativa.
     await act(async () => {

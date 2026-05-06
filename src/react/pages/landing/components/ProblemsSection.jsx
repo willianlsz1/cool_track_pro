@@ -28,7 +28,7 @@ const PROBLEM_ICONS = {
  * Secao "Os problemas que travam a operacao" — interativa.
  *
  * Cada card e um `<button>` clicavel. Ao clicar, o card fica destacado
- * (borda cyan + leve scale) e um painel "Como o CoolTrackPro resolve"
+ * (borda cyan + leve scale) e um painel "Como o CoolTrack resolve"
  * aparece abaixo da grade com a `solution` correspondente.
  *
  * Default: nenhum problema ativo (`activeId === null`). Clicar de novo
@@ -54,9 +54,9 @@ export function ProblemsSection() {
       <div className="tw-relative tw-max-w-[1280px] tw-mx-auto tw-px-6">
         <SectionHead
           dark
-          eyebrow="Diagnóstico"
-          title="Os problemas que travam a operação"
-          description="Sinais comuns no dia a dia de quem atende climatização e refrigeração — clique em um problema para ver como o CoolTrackPro resolve."
+          eyebrow="Você reconhece?"
+          title="Os problemas que te tiram a paz no dia a dia."
+          description="Você atende sozinho, organiza sozinho e cobra sozinho. Aqui é onde a maioria perde tempo, dinheiro ou cliente. Toca num problema pra ver como o CoolTrack resolve."
         />
 
         <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 sm:tw-gap-5">
@@ -98,7 +98,7 @@ export function ProblemsSection() {
           })}
         </div>
 
-        {/* Painel "Como o CoolTrackPro resolve" — aparece quando ha
+        {/* Painel "Como o CoolTrack resolve" — aparece quando ha
             problema ativo. Centralizado abaixo da grade. */}
         {activeProblem ? (
           <div
@@ -120,7 +120,7 @@ export function ProblemsSection() {
             </span>
             <div>
               <div className="tw-text-[11px] tw-font-bold tw-tracking-[0.08em] tw-uppercase tw-text-landing-cyan tw-mb-1">
-                Como o CoolTrackPro resolve
+                Como o CoolTrack resolve
               </div>
               <p className="tw-text-sm sm:tw-text-[15px] tw-leading-[1.55] tw-text-white">
                 {activeProblem.solution}
