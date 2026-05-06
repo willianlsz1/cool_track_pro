@@ -698,7 +698,7 @@ body {
 
 /* CoolTrack dashboard mockup alignment
    Dark shell + light workspace, como o preview da landing. */
-#app:not(.landing-active),
+body:not(.landing-active) #app,
 body:not(.landing-active) {
   background: #090c10 !important;
 }
@@ -1008,7 +1008,7 @@ body:not(.landing-active) {
 }
 
 /* Internal dark tokens + hardening (mobile consistency) */
-#app:not(.landing-active) {
+body:not(.landing-active) #app {
   --ct-internal-bg: #090c10;
   --ct-internal-surface: #161b22;
   --ct-internal-elev: #1c2330;
@@ -1056,4 +1056,429 @@ body:not(.landing-active) {
 #view-relatorio .section-subtitle,
 .dash__continue-card__sub {
   color: var(--ct-internal-text-2) !important;
+}
+
+/* Desktop UI hardening: fixed neutral sidebar + contrast pass.
+   Scoped to >=1024px to preserve the current mobile bottom navigation. */
+@media (min-width: 1024px) {
+  .app-shell--with-sidebar.app-content {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+
+  .app-shell--with-sidebar #main-content {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .app-shell--with-sidebar .app-sidebar {
+    position: fixed;
+    top: var(--app-header-total-height, 48px);
+    left: max(16px, calc((100vw - var(--layout-max, 1600px)) / 2));
+    bottom: 0;
+    width: 260px;
+    min-height: 0;
+    height: auto;
+    overflow-y: auto;
+    z-index: 40;
+    background: #0f141d !important;
+    border-right: 1px solid rgba(181, 194, 209, 0.14) !important;
+    box-shadow: 14px 0 32px rgba(1, 6, 16, 0.18) !important;
+    scrollbar-gutter: stable;
+  }
+
+  .app-sidebar .app-sidebar__brand {
+    border-bottom-color: rgba(181, 194, 209, 0.12) !important;
+  }
+
+  .app-sidebar .app-sidebar__brand-icon {
+    background: rgba(34, 211, 238, 0.1) !important;
+    color: var(--ct-brand) !important;
+    box-shadow: none !important;
+  }
+
+  .app-sidebar .app-sidebar__section-kicker {
+    color: var(--ct-text-muted) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item {
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    color: var(--ct-text-muted) !important;
+    box-shadow: none !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item svg {
+    color: currentColor !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item:hover,
+  .app-sidebar .app-sidebar__settings:hover,
+  .app-sidebar .app-sidebar__user-chip:hover {
+    background: rgba(181, 194, 209, 0.07) !important;
+    border-color: rgba(181, 194, 209, 0.12) !important;
+    color: var(--ct-text) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item.is-active {
+    background: rgba(34, 211, 238, 0.08) !important;
+    border-color: rgba(34, 211, 238, 0.16) !important;
+    color: var(--ct-text) !important;
+    box-shadow: none !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item.is-active::before {
+    display: block !important;
+    content: '' !important;
+    background: var(--ct-brand) !important;
+    box-shadow: none !important;
+    width: 2px !important;
+    left: 0 !important;
+    top: 8px !important;
+    bottom: 8px !important;
+    border-radius: 0 2px 2px 0 !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item.is-active svg {
+    color: var(--ct-brand) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item--register,
+  .app-sidebar .app-sidebar__nav-item--register.is-active {
+    background: rgba(34, 211, 238, 0.07) !important;
+    border-color: rgba(34, 211, 238, 0.14) !important;
+    color: var(--ct-text) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item--register:hover {
+    background: rgba(34, 211, 238, 0.11) !important;
+    border-color: rgba(34, 211, 238, 0.22) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item--register svg {
+    color: var(--ct-brand) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item--locked {
+    color: var(--ct-text-faint) !important;
+  }
+
+  .app-sidebar .app-sidebar__plan-card,
+  .app-sidebar .app-sidebar__plan-card[data-plan='free'],
+  .app-sidebar .app-sidebar__plan-card[data-plan='plus'] {
+    background: #161b22 !important;
+    border: 1px solid rgba(181, 194, 209, 0.14) !important;
+    color: var(--ct-text) !important;
+    box-shadow: none !important;
+  }
+
+  .app-sidebar .app-sidebar__plan-card[data-plan='pro'] {
+    background: #161b22 !important;
+    border-color: var(--ct-gold-border) !important;
+  }
+
+  .app-sidebar .app-sidebar__plan-card-sub,
+  .app-sidebar .app-sidebar__plan-card-meta,
+  .app-sidebar .app-sidebar__user-role,
+  .app-sidebar .app-sidebar__settings,
+  .app-sidebar .app-sidebar__settings-icon,
+  .app-sidebar .app-sidebar__settings-chev,
+  .app-sidebar .app-sidebar__user-chip svg {
+    color: var(--ct-text-muted) !important;
+  }
+
+  .app-sidebar .app-sidebar__plan-card-cta {
+    background: rgba(181, 194, 209, 0.06) !important;
+    border: 1px solid rgba(181, 194, 209, 0.16) !important;
+    color: var(--ct-text) !important;
+    box-shadow: none !important;
+  }
+
+  .app-sidebar .app-sidebar__plan-card-cta:hover {
+    background: rgba(181, 194, 209, 0.1) !important;
+    border-color: rgba(181, 194, 209, 0.22) !important;
+  }
+
+  .app-sidebar .app-sidebar__user-avatar {
+    background: rgba(34, 211, 238, 0.12) !important;
+    border: 1px solid rgba(34, 211, 238, 0.18) !important;
+    color: var(--ct-text) !important;
+  }
+
+  .app-sidebar .app-sidebar__divider,
+  .app-sidebar .app-sidebar__footer {
+    border-color: rgba(181, 194, 209, 0.12) !important;
+  }
+
+  /* Fase 3: legibilidade sistêmica no desktop dark.
+     Os tokens desktop vêm de tokens.css; aqui só conectamos componentes
+     reutilizáveis aos níveis primário/secundário/terciário sem alterar layout. */
+  body:not(.landing-active)
+    #app
+    :is(
+      .card,
+      .dash__hero,
+      .dash__kpi,
+      .dash__card,
+      .dash__section,
+      .dash__analise,
+      .cli-card,
+      .cli-kpi,
+      .cli-summary,
+      .cli-alert,
+      .orc-card,
+      .orc-empty,
+      .orc-kpi,
+      .rel-hero,
+      .rel-filters,
+      .hist-sticky-header,
+      .hist-summary-card,
+      .timeline__item,
+      .empty-state,
+      .engaging-empty-state,
+      .page-toolbar,
+      .cfg-page__header,
+      .cfg-page__section,
+      .cfg-page__item
+    ) {
+    color: var(--ct-desktop-text-primary, var(--ct-text)) !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(
+      .page-title,
+      .section-title,
+      .cfg-page__title,
+      .cfg-page__item-label,
+      .dash__hero-greeting,
+      .dash__kpi-value,
+      .dash__card-title,
+      .dash__section-count,
+      .cli-page__title,
+      .cli-kpi__value,
+      .cli-alert__title,
+      .cli-card__name,
+      .cli-stat__value,
+      .cli-summary__title,
+      .cli-context__chip b,
+      .orc-header__title,
+      .orc-kpi__value,
+      .orc-card__title,
+      .orc-card__value,
+      .orc-card__total,
+      .orc-empty__title,
+      .rel-title,
+      .rel-kpi__value,
+      .hist-title,
+      .timeline__item__service,
+      .empty-state__title,
+      .engaging-empty-state__title,
+      .hist-op-summary__empty strong
+    ) {
+    color: var(--ct-desktop-text-primary, var(--ct-text)) !important;
+    opacity: 1 !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(
+      .form-label,
+      .form-hint,
+      .form-label__opt,
+      .section-subtitle,
+      .page-subtitle,
+      .dash__hero-summary,
+      .dash__hero-desc,
+      .dash__card-sub,
+      .dash__card-desc,
+      .dash__kpi-sub,
+      .dash__accordion-body,
+      .dash__continue-card__sub,
+      .cli-page__sub,
+      .cli-kpi__sub,
+      .cli-alert__desc,
+      .cli-card__sub,
+      .cli-card__address,
+      .cli-pag__info,
+      .cli-context__label,
+      .cli-summary__hint,
+      .orc-card__sub,
+      .orc-card__meta,
+      .orc-card__desc,
+      .orc-card__cliente,
+      .orc-card__signed,
+      .orc-empty__sub,
+      .orc-empty-filter,
+      .orc-kpi__label,
+      .rel-subtitle,
+      .rel-card__meta,
+      .rel-card__sub,
+      .hist-count,
+      .hist-op-summary__head,
+      .hist-op-summary__kpi span,
+      .hist-attention__content span,
+      .timeline__item__date,
+      .timeline__item__rel,
+      .timeline__item__equipment-tag,
+      .timeline__item__meta,
+      .meta-neutral,
+      .hist-day-group__count,
+      .hist-active-chips__label,
+      .empty-state__sub,
+      .engaging-empty-state__description,
+      .engaging-empty-state__microcopy,
+      .equip-card__subtitle,
+      .equip-card__data-label,
+      .equip-card__footer-text,
+      .recent-card__date,
+      .recent-card__obs,
+      .alert-card__sub,
+      .cfg-page__subtitle,
+      .cfg-page__section-title
+    ) {
+    color: var(--ct-desktop-text-secondary, var(--ct-text-muted)) !important;
+    opacity: 1 !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(
+      .dash__kpi-label,
+      .dash__card-label,
+      .dash__section-label,
+      .cli-kpi__label,
+      .cli-search__icon,
+      .cli-select__label,
+      .cli-stat__label,
+      .cli-card__kebab,
+      .orc-search svg,
+      .orc-card__label,
+      .orc-card__kebab,
+      .hist-input__icon,
+      .hist-summary-card__kpi-value--muted,
+      .hist-summary-card__kpi-unit,
+      .hist-summary-card__kpi-label,
+      .hist-summary-card__upsell,
+      .timeline__item__equipment-sep,
+      .meta-chunk svg,
+      .meta-details,
+      .meta-sep,
+      .hist-item-actions__menuitem,
+      .hist-item-actions__kebab,
+      .app-sidebar__section-kicker,
+      .app-sidebar__plan-card-sub,
+      .app-sidebar__plan-card-meta,
+      .app-sidebar__user-role,
+      .app-sidebar__settings,
+      .app-sidebar__settings-icon,
+      .app-sidebar__settings-chev
+    ) {
+    color: var(--ct-desktop-text-tertiary, var(--ct-text-faint)) !important;
+    opacity: 1 !important;
+  }
+
+  body:not(.landing-active) #app :is(input, textarea)::placeholder,
+  body:not(.landing-active)
+    #app
+    :is(.form-control, .cli-search__input, .orc-search__input, .hist-input input)::placeholder {
+    color: var(--ct-desktop-text-tertiary, var(--ct-text-faint)) !important;
+    opacity: 1 !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(
+      .hist-quickfilter,
+      .equip-filter,
+      .orc-chip,
+      .cli-context__chip,
+      .cli-card__pill,
+      .orc-status-pill,
+      .hist-pill
+    ) {
+    color: var(--ct-desktop-text-secondary, var(--ct-text-muted)) !important;
+    opacity: 1 !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(
+      .hist-quickfilter:hover,
+      .hist-quickfilter.is-active,
+      .hist-quickfilter:focus-visible,
+      .equip-filter:hover,
+      .equip-filter--active,
+      .orc-chip:hover,
+      .orc-chip.is-active,
+      .cli-context__chip:hover,
+      .cli-context__chip.is-active
+    ) {
+    color: var(--ct-desktop-text-primary, var(--ct-text)) !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(.btn-ghost, .btn.btn--outline, .cli-card__action--ghost, .dash__hero-cta--secondary) {
+    color: var(--ct-desktop-text-secondary, var(--ct-text-muted)) !important;
+    opacity: 1 !important;
+  }
+
+  body:not(.landing-active)
+    #app
+    :is(.btn-ghost:hover, .btn.btn--outline:hover, .cli-card__action--ghost:hover) {
+    color: var(--ct-desktop-text-primary, var(--ct-text)) !important;
+  }
+
+  #view-historico .hist-select::after {
+    border-right-color: var(--ct-desktop-text-tertiary, var(--ct-text-faint)) !important;
+    border-bottom-color: var(--ct-desktop-text-tertiary, var(--ct-text-faint)) !important;
+  }
+
+  #view-historico
+    :is(
+      .hist-active-chips__clear,
+      .hist-summary-card__upsell-link,
+      .hist-attention__cta,
+      .timeline__item__equipment,
+      .timeline__item__focus-equip,
+      .meta-cyan,
+      .hist-summary-card__recurring-link
+    ) {
+    color: var(--ct-desktop-brand-text, var(--ct-brand-text)) !important;
+    opacity: 1 !important;
+  }
+
+  #view-historico .hist-pill--neutral {
+    background: rgba(181, 194, 209, 0.14) !important;
+  }
+
+  #view-historico
+    :is(.hist-pill--cyan, .hist-pill--teal, .hist-quickfilter--cyan, .hist-quickfilter--teal) {
+    color: #8bd5d7 !important;
+  }
+
+  #view-historico :is(.hist-pill--amber, .hist-quickfilter--amber, .meta-warn) {
+    color: #f0b45a !important;
+  }
+
+  #view-historico :is(.hist-pill--violet, .hist-quickfilter--violet) {
+    color: #c4b5fd !important;
+  }
+
+  #view-historico :is(.hist-pill--red, .hist-quickfilter--red, .meta-danger) {
+    color: #f87171 !important;
+  }
+
+  #view-historico .hist-pill--success {
+    color: #7ee7b0 !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item {
+    color: var(--ct-desktop-text-secondary, var(--ct-text-muted)) !important;
+  }
+
+  .app-sidebar .app-sidebar__nav-item--locked,
+  body:not(.landing-active) #app :is([disabled], .is-disabled, .is-locked, [aria-disabled='true']) {
+    color: var(--ct-desktop-text-disabled, var(--ct-text-ghost)) !important;
+  }
 }
