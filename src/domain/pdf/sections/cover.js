@@ -56,12 +56,12 @@ function drawMasthead(doc, pageWidth, margin, profile) {
   fillRect(doc, 0, 0, pageWidth, 2.5, C.primary);
 
   // Lado esquerdo: produto que gerou o PDF (pequeno, discreto — não rouba cena)
-  txt(doc, 'COOLTRACK PRO', margin, 10, {
+  txt(doc, 'COOLTRACK', margin, 10, {
     size: 8,
     style: 'bold',
     color: C.primary,
   });
-  txt(doc, 'Sistema de Gestão de Manutenção', margin, 15, {
+  txt(doc, 'Gestão de Manutenção', margin, 15, {
     size: 7,
     color: C.text3,
   });
