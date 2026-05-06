@@ -733,38 +733,49 @@ export function renderShellViews() {
               </div>
             </div>
 
-            <!-- ============== Rodapé de ação V2 (UX audit #80) ============== -->
-            <!-- Hierarquia: 1 botao primario verde "Salvar e enviar pro cliente"
-                 que faz save + abre WhatsApp em 1 clique. Save-only fica como
-                 acao secundaria (link inline). Recomeçar é ghost. -->
-            <div class="registro-actions registro-actions--v2" id="tour-signature-anchor">
-              <button class="btn btn--ghost registro-actions__ghost" data-action="clear-registro"
-                title="Limpa todos os campos">
-                <svg aria-hidden="true"><use href="#ri-rewind"/></svg>
-                <span>Recomeçar</span>
+            <!-- ============== Rodapé de ação V3 — alinhado ao padrão do
+                 footer do modal de equipamento (modals.js#eq-action-footer) ===
+                 Estrutura: .action-footer envolve primário + .action-tray
+                 (card com separadores) + hint. Dá affordance de botão às
+                 ações secundárias e marca Recomeçar como destrutivo (vermelho).
+                 Mantém wrapper .registro-actions pra contrato em
+                 registroContracts.js + #tour-signature-anchor pro tour. -->
+            <div class="action-footer registro-actions" id="tour-signature-anchor">
+              <button class="btn btn--primary btn--whats action-footer__primary"
+                data-action="save-and-share-registro"
+                title="Salva o serviço e ja abre o WhatsApp pro cliente">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <span>Salvar e enviar pro cliente</span>
               </button>
-              <div class="registro-actions__main">
-                <button class="btn btn--primary btn--whats registro-actions__primary"
-                  data-action="save-and-share-registro"
-                  title="Salva o serviço e ja abre o WhatsApp pro cliente">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                  </svg>
-                  <span>Salvar e enviar pro cliente</span>
-                </button>
-                <button class="btn btn--ghost registro-actions__other" data-action="save-and-share-other-registro"
-                  title="Enviar pra outro destinatário" hidden aria-hidden="true">
-                  <span aria-hidden="true">⋯</span>
-                  <span class="sr-only">Enviar pra outro destinatário</span>
-                </button>
-                <button class="btn btn--ghost registro-actions__save-only" data-action="save-registro"
-                  title="Só salva (sem enviar)">
-                  <svg aria-hidden="true"><use href="#ri-save"/></svg>
-                  <span>Só salvar</span>
-                </button>
+              <div class="action-tray" role="group" aria-label="Outras ações">
+                <div class="action-tray__row" id="r-action-other-row" hidden>
+                  <button class="action-tray__btn action-tray__btn--secondary"
+                    data-action="save-and-share-other-registro"
+                    title="Enviar pra outro destinatário">
+                    <span>Enviar pra outro destinatário</span>
+                  </button>
+                </div>
+                <div class="action-tray__row">
+                  <button class="action-tray__btn action-tray__btn--tertiary"
+                    data-action="save-registro"
+                    title="Só salva (sem enviar)">
+                    <svg class="action-tray__icon" aria-hidden="true"><use href="#ri-save"/></svg>
+                    <span>Só salvar</span>
+                  </button>
+                </div>
+                <div class="action-tray__row">
+                  <button class="action-tray__btn action-tray__btn--destructive"
+                    data-action="clear-registro"
+                    title="Limpa todos os campos">
+                    <svg class="action-tray__icon" aria-hidden="true"><use href="#ri-rewind"/></svg>
+                    <span>Recomeçar</span>
+                  </button>
+                </div>
               </div>
+              <p class="action-footer__hint">💡 Ao tocar em <strong>Salvar e enviar</strong>, o PDF é gerado e o WhatsApp abre direto pro cliente.</p>
             </div>
-            <p class="registro-field__help" style="margin:8px 0 0">Ao tocar em <strong>Salvar e enviar</strong>, o PDF é gerado e o WhatsApp abre direto pro cliente.</p>
           </div>
         </div>
 
