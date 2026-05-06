@@ -132,8 +132,14 @@ describe('relatorio view model', () => {
       equipTxt: 'Todos os equipamentos',
     });
     expect(vm.modeCopy).toMatchObject({
-      pageTitle: 'Relat\u00f3rio r\u00e1pido',
-      heroBrand: 'Relat\u00f3rio r\u00e1pido',
+      pageTitle: 'Seus relat\u00f3rios',
+      pageSubtitle: 'Veja servi\u00e7os por cliente, equipamento ou setor.',
+      heroBrand: 'Relat\u00f3rio livre',
+    });
+    expect(vm.reportSummary).toEqual({
+      servicos: 0,
+      equipamentos: 0,
+      periodo: 'todo o per\u00edodo',
     });
     expect(vm.narrative).toBeNull();
     expect(vm.proximasAcoes).toEqual([]);
@@ -171,8 +177,14 @@ describe('relatorio view model', () => {
       equipamento: { id: 'eq-1', nome: 'Split Recepcao' },
     });
     expect(vm.modeCopy).toMatchObject({
-      pageTitle: 'Relat\u00f3rios da empresa',
-      heroBrand: 'Relat\u00f3rios da empresa',
+      pageTitle: 'Seus relat\u00f3rios',
+      pageSubtitle: 'Veja servi\u00e7os por cliente, equipamento ou setor.',
+      heroBrand: 'Relat\u00f3rio livre',
+    });
+    expect(vm.reportSummary).toEqual({
+      servicos: 2,
+      equipamentos: 1,
+      periodo: '2026-04-01 -> 2026-04-30',
     });
     expect(vm.hasPmocAttention).toBe(true);
     expect(vm.kpis).toMatchObject({

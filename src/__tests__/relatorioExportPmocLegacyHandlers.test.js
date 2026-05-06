@@ -428,15 +428,12 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
 
     expect(quotaSlot?.classList.contains('rel-toolbar__quota-slot')).toBe(true);
     expect(pmocMain?.hidden).toBe(false);
-    expect(pmocInfo?.hidden).toBe(false);
-    expect(pmocNudge?.hidden).toBe(true);
+    expect(pmocInfo).toBeNull();
+    expect(pmocNudge).toBeNull();
     expect(pmocMain?.getAttribute('data-action')).toBe('open-pmoc-modal');
-    expect(pmocInfo?.getAttribute('data-action')).toBe('open-pmoc-info');
-    expect(pmocMain?.getAttribute('data-tier')).toBe('unknown');
-    expect(pmocNudge?.getAttribute('data-nav')).toBe('pricing');
+    expect(pmocMain?.getAttribute('data-tier')).toBe('pro');
 
     await runLegacyAction(ctx, pmocMain);
-    await runLegacyAction(ctx, pmocInfo);
 
     expect(ctx.mocks.loadClientes).toHaveBeenCalled();
     expect(ctx.mocks.pmocModalOpen).toHaveBeenCalledWith(
@@ -447,7 +444,7 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
         onConfirm: expect.any(Function),
       }),
     );
-    expect(ctx.mocks.pmocInfoOpen).toHaveBeenCalledTimes(1);
+    expect(ctx.mocks.pmocInfoOpen).not.toHaveBeenCalled();
     expect(ctx.mocks.generatePmocPdf).not.toHaveBeenCalled();
     expect(ctx.mocks.generateMaintenanceReport).not.toHaveBeenCalled();
     expect(ctx.mocks.shareReportPdf).not.toHaveBeenCalled();

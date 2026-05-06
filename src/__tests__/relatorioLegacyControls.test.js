@@ -171,7 +171,7 @@ describe('relatorio legacy filters and controls render adapter', () => {
 
     expectClass(document.querySelector('#rel-export-dd'), 'rel-export-dd');
     expectClass(document.querySelector('#rel-export-dd-menu'), 'rel-export-dd__menu');
-    expect(document.querySelectorAll('#rel-export-dd-menu .rel-export-dd__item').length).toBe(3);
+    expect(document.querySelectorAll('#rel-export-dd-menu .rel-export-dd__item').length).toBe(0);
     expectClass(document.querySelector('#pdf-quota-slot'), 'rel-toolbar__quota-slot');
     expect(module.mocks.refreshQuota).toHaveBeenCalledTimes(1);
 
@@ -268,7 +268,7 @@ describe('relatorio legacy filters and controls render adapter', () => {
 
     const modeSegment = document.querySelector('#rel-mode-segment-slot .rel-mode-segment');
     expect(modeSegment).not.toBeNull();
-    expect(modeSegment.querySelectorAll('.rel-mode-segment__item')).toHaveLength(4);
+    expect(modeSegment.querySelectorAll('.rel-mode-segment__item')).toHaveLength(3);
   });
 
   it('preserva disclosure avancado, PMOC e dropdown apenas como contratos DOM', async () => {
@@ -296,12 +296,10 @@ describe('relatorio legacy filters and controls render adapter', () => {
     const pmocInfo = document.querySelector('#rel-dd-pmoc-info');
     const pmocNudge = document.querySelector('#rel-dd-pmoc-nudge');
     expect(pmocMain.hidden).toBe(false);
-    expect(pmocInfo.hidden).toBe(false);
-    expect(pmocNudge.hidden).toBe(true);
+    expect(pmocInfo).toBeNull();
+    expect(pmocNudge).toBeNull();
     expect(pmocMain.getAttribute('data-action')).toBe('open-pmoc-modal');
-    expect(pmocInfo.getAttribute('data-action')).toBe('open-pmoc-info');
-    expect(pmocMain.getAttribute('data-tier')).toBe('unknown');
-    expect(pmocNudge.getAttribute('data-nav')).toBe('pricing');
+    expect(pmocMain.getAttribute('data-tier')).toBe('pro');
   });
 
   it('escapa labels de equipamentos e chips sem injetar HTML/script/event handler', async () => {

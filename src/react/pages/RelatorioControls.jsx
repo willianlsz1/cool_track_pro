@@ -16,14 +16,19 @@ const DEFAULT_FILTERS = Object.freeze({
 });
 
 const DEFAULT_CONTROLS = Object.freeze({
-  pageTitle: 'Relatório rápido',
-  pageSubtitle: 'Gere e envie o PDF do serviço em poucos toques.',
+  pageTitle: 'Seus relatórios',
+  pageSubtitle: 'Veja serviços por cliente, equipamento ou setor.',
   viewMode: RELATORIO_VIEW_MODES.compact,
   isPro: false,
   advancedOpen: false,
   filters: DEFAULT_FILTERS,
   equipOptions: [],
   modeSegmentActive: 'servicos',
+  reportSummary: {
+    servicos: 0,
+    equipamentos: 0,
+    periodo: 'todo o período',
+  },
 });
 
 function asArray(value) {
@@ -179,7 +184,47 @@ function ServicosToggle() {
   );
 }
 
-function ExportToolbar({ isPro }) {
+function PmocHero({ isPro }) {
+  return (
+    <section className="pmoc-hero" aria-label="PMOC formal">
+      <div className="pmoc-hero__head">
+        <div className="pmoc-hero__icon">
+          <Icon name="file" />
+        </div>
+        <div className="pmoc-hero__name">PMOC formal</div>
+        <span className="pmoc-hero__badge">PRO</span>
+      </div>
+      <p className="pmoc-hero__desc">
+        Documento anual conforme NBR 13971 — capa institucional, cronograma 12 meses e termo de RT.{' '}
+        <strong>Diferencial pra clientes corporativos.</strong>
+      </p>
+      {isPro ? (
+        <button
+          className="pmoc-hero__btn"
+          id={RELATORIO_PUBLIC_IDS.pmocMain}
+          data-action={RELATORIO_ACTIONS.openPmocModal}
+          data-tier="pro"
+          type="button"
+          title="Documento PMOC formal anual conforme NBR 13971 - Pro."
+        >
+          Gerar PMOC →
+        </button>
+      ) : (
+        <button
+          className="pmoc-hero__btn pmoc-hero__btn--locked"
+          id={RELATORIO_PUBLIC_IDS.pmocNudge}
+          data-nav={RELATORIO_NAV_TARGETS.pricing}
+          type="button"
+          title="Conheça o plano Pro para PMOC formal."
+        >
+          🔒 Conhecer Pro
+        </button>
+      )}
+    </section>
+  );
+}
+
+function ExportToolbar() {
   return (
     <div className="rel-toolbar">
       <div className="rel-toolbar__actions rel-toolbar__actions--v2">
@@ -222,61 +267,7 @@ function ExportToolbar({ isPro }) {
             id={RELATORIO_PUBLIC_IDS.exportDropdownMenu}
             role="menu"
             hidden
-          >
-            <button
-              type="button"
-              className="rel-export-dd__item rel-export-dd__item--pmoc rel-export-dd__item--featured"
-              id={RELATORIO_PUBLIC_IDS.pmocMain}
-              role="menuitem"
-              data-action={RELATORIO_ACTIONS.openPmocModal}
-              data-tier="unknown"
-              title="Documento PMOC formal anual conforme NBR 13971 - Pro."
-              hidden={!isPro}
-            >
-              <span className="rel-export-dd__item-icon" aria-hidden="true">
-                <Icon name="file" />
-              </span>
-              <div className="rel-export-dd__item-text">
-                <strong>
-                  Gerar PMOC formal{' '}
-                  <span className="pro-badge pro-badge--inline" aria-hidden="true">
-                    PRO
-                  </span>
-                </strong>
-                <span>
-                  Documento anual conforme NBR 13971 - capa institucional, cronograma 12 meses e
-                  termo de RT
-                </span>
-              </div>
-              <span className="rel-export-dd__item-arrow" aria-hidden="true">
-                <Icon name="arrowRight" />
-              </span>
-            </button>
-            <button
-              type="button"
-              className="rel-export-dd__item rel-export-dd__item--meta"
-              id={RELATORIO_PUBLIC_IDS.pmocInfo}
-              role="menuitem"
-              data-action={RELATORIO_ACTIONS.openPmocInfo}
-              title="Saiba quando usar cada um."
-              hidden={!isPro}
-            >
-              <Icon name="info" />
-              <span>Sobre o PMOC</span>
-            </button>
-            <button
-              type="button"
-              className="rel-export-dd__item rel-export-dd__item--meta"
-              id={RELATORIO_PUBLIC_IDS.pmocNudge}
-              role="menuitem"
-              data-nav={RELATORIO_NAV_TARGETS.pricing}
-              title="Conheça o plano Pro para PMOC formal."
-              hidden={isPro}
-            >
-              <Icon name="star" />
-              <span>Conheça o Pro (PMOC)</span>
-            </button>
-          </div>
+          />
         </div>
         <div id={RELATORIO_PUBLIC_IDS.pdfQuotaSlot} className="rel-toolbar__quota-slot"></div>
       </div>
@@ -284,17 +275,15 @@ function ExportToolbar({ isPro }) {
   );
 }
 
-function ModeSegment({ isPro, active }) {
-  if (!isPro) return null;
+function ModeSegment({ active }) {
   const options = [
     ['servicos', 'Serviços'],
     ['cliente', 'Cliente'],
     ['setor', 'Setor'],
-    ['pmoc', 'PMOC'],
   ];
 
   return (
-    <div className="rel-mode-segment" role="group" aria-label="Contexto dos relatórios">
+    <div className="rel-mode-segment" role="group" aria-label="Agrupar por">
       {options.map(([key, label]) => (
         <span
           className={classNames('rel-mode-segment__item', active === key && 'is-active')}
@@ -303,6 +292,15 @@ function ModeSegment({ isPro, active }) {
           {label}
         </span>
       ))}
+    </div>
+  );
+}
+
+function FilterBlock({ label, children }) {
+  return (
+    <div className="rel-filter-block">
+      <div className="rel-filter-label">{label}</div>
+      {children}
     </div>
   );
 }
@@ -404,6 +402,22 @@ function FilterChips({ filters, advancedOpen, isPro }) {
   );
 }
 
+function ReportSummary({ summary }) {
+  const servicos = Number(summary?.servicos) || 0;
+  const equipamentos = Number(summary?.equipamentos) || 0;
+  const periodo = text(summary?.periodo, 'todo o período');
+
+  return (
+    <div className="rel-summary-card" aria-live="polite">
+      <div className="rel-summary-card__icon">ⓘ</div>
+      <div className="rel-summary-card__text">
+        Gerando: <strong>{servicos} serviços</strong> · <strong>{equipamentos} equipamentos</strong>{' '}
+        · {periodo}
+      </div>
+    </div>
+  );
+}
+
 function AdvancedFilters({ filters, equipOptions, advancedOpen }) {
   return (
     <div
@@ -468,16 +482,21 @@ export function RelatorioControls({ controls = DEFAULT_CONTROLS }) {
   return (
     <>
       <ServicosToggle />
-      <ExportToolbar isPro={isPro} />
       <h1 id={RELATORIO_PUBLIC_IDS.mainTitle} className="rel-title">
         {text(data.pageTitle, DEFAULT_CONTROLS.pageTitle)}
       </h1>
       <p id={RELATORIO_PUBLIC_IDS.mainSubtitle} className="rel-subtitle">
         {text(data.pageSubtitle, DEFAULT_CONTROLS.pageSubtitle)}
       </p>
-      <div id={RELATORIO_PUBLIC_IDS.modeSegmentSlot}>
-        <ViewModeSegment viewMode={data.viewMode} />
-        <ModeSegment isPro={isPro} active={text(data.modeSegmentActive, 'servicos')} />
+      <PmocHero isPro={isPro} />
+      <div className="rel-section-divider">Relatório livre</div>
+      <div id={RELATORIO_PUBLIC_IDS.modeSegmentSlot} className="rel-control-blocks">
+        <FilterBlock label="Visualizar:">
+          <ViewModeSegment viewMode={data.viewMode} />
+        </FilterBlock>
+        <FilterBlock label="Agrupar por:">
+          <ModeSegment active={text(data.modeSegmentActive, 'servicos')} />
+        </FilterBlock>
       </div>
       <div id={RELATORIO_PUBLIC_IDS.hero} className="rel-hero" aria-live="polite"></div>
       <div
@@ -495,6 +514,8 @@ export function RelatorioControls({ controls = DEFAULT_CONTROLS }) {
           advancedOpen={advancedOpen}
         />
       </div>
+      <ReportSummary summary={data.reportSummary} />
+      <ExportToolbar />
     </>
   );
 }

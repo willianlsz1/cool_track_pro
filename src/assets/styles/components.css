@@ -22617,3 +22617,196 @@ select option {
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Relatório — Mudança 10: PMOC hero + relatório livre
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.pmoc-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 14px;
+  margin: 0 0 14px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(34, 211, 238, 0.05) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 14px;
+}
+
+.pmoc-hero::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  content: '';
+  background: linear-gradient(90deg, #8b5cf6 0%, var(--ct-brand) 100%);
+}
+
+.pmoc-hero__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pmoc-hero__icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  color: #ffffff;
+  place-items: center;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  border-radius: 8px;
+}
+
+.pmoc-hero__name {
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ct-text);
+}
+
+.pmoc-hero__badge {
+  padding: 2px 6px;
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--ct-brand-light) 0%, #8b5cf6 100%);
+  border-radius: 3px;
+}
+
+.pmoc-hero__desc {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ct-text-muted);
+}
+
+.pmoc-hero__desc strong {
+  font-weight: 600;
+  color: var(--ct-text);
+}
+
+.pmoc-hero__btn {
+  width: 100%;
+  padding: 10px;
+  font-family: var(--font-body, 'Manrope', sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  border: none;
+  border-radius: 10px;
+}
+
+.pmoc-hero__btn--locked {
+  color: var(--ct-text-muted);
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-border-strong);
+}
+
+.rel-section-divider {
+  margin: 14px 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ct-text-faint);
+  text-transform: uppercase;
+}
+
+.rel-control-blocks {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.rel-filter-block {
+  display: grid;
+  gap: 6px;
+}
+
+.rel-filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ct-text-muted);
+}
+
+.rel-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--ct-text-muted);
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-border);
+  border-radius: 10px;
+}
+
+.rel-summary-card__icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  color: var(--ct-brand-light);
+  place-items: center;
+  background: var(--ct-brand-soft);
+  border-radius: 5px;
+}
+
+.rel-summary-card__text strong {
+  font-weight: 600;
+  color: var(--ct-text);
+}
+
+.rel-toolbar__actions--v2 {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.rel-toolbar__actions--v2 .rel-toolbar__btn--whatsapp {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px;
+  font-size: 13px;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--ct-brand-light) 0%, var(--ct-brand-text) 100%);
+  border: none;
+  box-shadow: 0 4px 12px var(--ct-brand-shadow);
+}
+
+.rel-toolbar__actions--v2 .rel-toolbar__btn--whatsapp:hover {
+  box-shadow: 0 6px 16px var(--ct-brand-shadow);
+}
+
+.rel-toolbar__actions--v2 .rel-toolbar__btn--pdf {
+  flex: 1 1 0;
+  justify-content: center;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--ct-brand-light);
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-brand-border);
+}
+
+.rel-toolbar__actions--v2 .rel-toolbar__btn--icon {
+  width: 44px;
+  height: 44px;
+  color: var(--ct-text-muted);
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-border);
+}
+
+.rel-toolbar__actions--v2 {
+  flex-wrap: nowrap;
+}
+
+.rel-toolbar__actions--v2 .rel-toolbar__btn--whatsapp {
+  width: auto;
+}

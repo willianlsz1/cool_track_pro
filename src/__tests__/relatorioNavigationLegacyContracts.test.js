@@ -223,11 +223,8 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
     ctx.setPmocSummary({ status: 'atencao' });
     await renderRelatorio(ctx, { equipId: 'eq-1' });
 
-    await clickNavAndExpect(
-      ctx,
-      document.querySelector('#rel-company-pmoc-slot [data-nav="clientes"]'),
-      RELATORIO_NAV_TARGETS.clientes,
-    );
+    expect(document.querySelector('#rel-company-pmoc-slot [data-nav="clientes"]')).toBeNull();
+    expect(document.querySelector('.pmoc-hero [data-action="open-pmoc-modal"]')).not.toBeNull();
     expect(ctx.mocks.refreshQuota).toHaveBeenCalled();
     expect(ctx.mocks.signatureOpen).not.toHaveBeenCalled();
   });
