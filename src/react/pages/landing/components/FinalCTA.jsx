@@ -2,7 +2,7 @@ import coolingTechAsset from '../assets/cooling-tech.png';
 
 /**
  * CTA final — gradiente azul, foto dos equipamentos a esquerda e
- * unico botao "Comecar agora" a direita.
+ * dois botoes e selos de baixo atrito a direita.
  *
  * O asset `cooling-tech.png` foi importado em
  * `src/react/pages/landing/assets/` e e processado pelo Vite (hash no
@@ -58,22 +58,39 @@ export function FinalCTA({ onStart }) {
           </div>
 
           <div>
-            <h2 className="tw-text-2xl sm:tw-text-3xl lg:tw-text-[32px] tw-leading-[1.2] tw-font-bold tw-tracking-[-0.015em] tw-max-w-[720px]">
-              Organize sua operação antes que seus atendimentos virem só áudio, foto perdida e
-              anotação no bloco de notas.
+            <span className="tw-text-[13px] tw-font-semibold tw-tracking-[0.04em] tw-uppercase tw-text-[rgba(255,255,255,0.78)]">
+              Última parada
+            </span>
+            <h2 className="tw-text-2xl sm:tw-text-3xl lg:tw-text-[32px] tw-leading-[1.2] tw-font-bold tw-tracking-[-0.015em] tw-max-w-[720px] tw-mt-3">
+              Antes que seus atendimentos virem{' '}
+              <span className="tw-text-[#bfe6ff]">
+                só áudio, foto perdida e anotação no bloco de notas.
+              </span>
             </h2>
             <p className="tw-text-base tw-text-[rgba(255,255,255,0.85)] tw-my-3.5 tw-max-w-[680px]">
-              Mais organização, mais profissionalismo e mais tempo para o que importa.
+              3 equipamentos grátis pra sempre, sem cartão, sem prazo. Em 5 minutos você registra o
+              primeiro atendimento e manda o PDF pro cliente.
             </p>
-            <div className="tw-mt-6">
+            <div className="tw-mt-6 tw-flex tw-flex-col sm:tw-flex-row tw-gap-3">
               <button
                 type="button"
                 onClick={onStart}
-                className="tw-inline-flex tw-items-center tw-gap-2 tw-px-5 tw-py-3.5 tw-rounded-xl tw-text-[15px] tw-font-bold tw-text-landing-blue tw-bg-white tw-shadow-[0_4px_14px_rgba(3,27,78,0.08)] hover:-tw-translate-y-px tw-transition-all tw-cursor-pointer tw-border-0"
+                className="tw-inline-flex tw-items-center tw-justify-center tw-gap-2 tw-px-5 tw-py-3.5 tw-rounded-xl tw-text-[15px] tw-font-bold tw-text-landing-blue tw-bg-white tw-shadow-[0_4px_14px_rgba(3,27,78,0.08)] hover:-tw-translate-y-px tw-transition-all tw-cursor-pointer tw-border-0"
               >
-                Começar agora
+                Testar com 3 equipamentos grátis
                 <ArrowRightIcon size={14} />
               </button>
+              <a
+                href="#planos"
+                className="tw-inline-flex tw-items-center tw-justify-center tw-gap-2 tw-px-5 tw-py-3.5 tw-rounded-xl tw-text-[15px] tw-font-bold tw-text-white tw-no-underline tw-border tw-border-[rgba(255,255,255,0.38)] tw-bg-[rgba(255,255,255,0.08)] hover:tw-bg-[rgba(255,255,255,0.14)] hover:-tw-translate-y-px tw-transition-all"
+              >
+                Ver os planos
+              </a>
+            </div>
+            <div className="tw-mt-5 tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-2 tw-text-[13px] tw-font-semibold tw-text-[rgba(255,255,255,0.82)]">
+              <span>✓ Sem cartão</span>
+              <span>✓ Sem fidelidade</span>
+              <span>✓ Cancela quando quiser</span>
             </div>
           </div>
         </div>

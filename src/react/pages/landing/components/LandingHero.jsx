@@ -14,10 +14,10 @@ export function LandingHero({ onStart, dashboardSlot }) {
       <div className="tw-text-white">
         <span className="tw-inline-flex tw-items-center tw-gap-2 tw-px-3.5 tw-py-1.5 tw-rounded-full tw-bg-[rgba(64,196,255,0.1)] tw-border tw-border-[rgba(64,196,255,0.3)] tw-text-[#bfe6ff] tw-text-[13px] tw-font-medium">
           <span className="tw-w-1.5 tw-h-1.5 tw-rounded-full tw-bg-landing-cyan tw-shadow-[0_0_12px_currentColor]" />
-          Plataforma para climatização e refrigeração
+          Pro técnico autônomo de climatização e refrigeração
         </span>
         <h1 className="tw-text-4xl sm:tw-text-5xl lg:tw-text-6xl tw-leading-[1.04] tw-tracking-[-0.025em] tw-font-bold tw-mt-5 tw-mb-5">
-          Gestão de manutenção para{' '}
+          Você atende sozinho. Seu app devia ser{' '}
           <span
             // Inline style garante o gradient + clip funcionarem mesmo se
             // o purge do Tailwind nao gerar a combinacao especifica de
@@ -29,14 +29,13 @@ export function LandingHero({ onStart, dashboardSlot }) {
               color: 'transparent',
             }}
           >
-            climatização e refrigeração
+            tão direto quanto você
           </span>
           .
         </h1>
         <p className="tw-text-base sm:tw-text-[17px] tw-leading-[1.6] tw-text-[#bccae0] tw-max-w-[520px]">
-          Controle clientes, equipamentos, ordens de serviço, preventivas, alertas e relatórios
-          técnicos em uma plataforma feita para técnicos de ar-condicionado, câmaras frias,
-          geladeiras comerciais e sistemas de refrigeração.
+          CoolTrack foi feito do zero pro técnico que vai à obra com a furadeira e o celular. Zero
+          burocracia de empresa, zero treinamento — registra, gera o PDF, manda pro cliente. Pronto.
         </p>
 
         <div className="tw-mt-7">
@@ -49,7 +48,7 @@ export function LandingHero({ onStart, dashboardSlot }) {
               color: '#fff',
             }}
           >
-            Começar agora
+            Testar com 3 equipamentos grátis
             <ArrowRightIcon size={14} />
           </button>
         </div>

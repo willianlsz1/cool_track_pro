@@ -13,89 +13,100 @@
 
 export const navItems = [
   { href: '#recursos', label: 'Recursos' },
-  { href: '#segmentos', label: 'Segmentos' },
-  { href: '#fluxo', label: 'Fluxo' },
+  { href: '#fluxo', label: 'Como funciona' },
   { href: '#planos', label: 'Planos' },
-  { href: '#relatorios', label: 'Relatórios' },
-  { href: '#contato', label: 'Contato' },
 ];
 
 export const heroQuickCards = [
-  { id: 'os', label: 'OS digital' },
-  { id: 'historico', label: 'Histórico por equipamento' },
-  { id: 'relatorios', label: 'Relatórios técnicos' },
-  { id: 'alertas', label: 'Alertas de preventiva' },
-  { id: 'fotos', label: 'Fotos antes e depois' },
+  { id: 'celular', label: 'Tudo do celular' },
+  { id: 'pdf', label: 'PDF que dá orgulho de mandar' },
+  { id: 'offline', label: 'Funciona com sinal ruim' },
+  { id: 'assinatura', label: 'Cliente assina na hora' },
+  { id: 'cobranca', label: 'Sem cobrança escondida' },
+  { id: 'cartao', label: 'Sem cartão pra começar' },
 ];
 
 export const segments = [
   {
     id: 'split',
     title: 'Ar-condicionado split',
-    description: 'Instalação, limpeza, correção e manutenção preventiva.',
+    where: 'Residencial · Comercial pequeno',
+    description:
+      'Limpeza, manutenção preventiva, recarga de gás, troca de placa, instalação. O básico do dia a dia.',
   },
   {
     id: 'comercial',
     title: 'Ar-condicionado comercial',
-    description: 'Organização de contratos, visitas e histórico técnico.',
+    where: 'Loja · Escritório · Clínica',
+    description:
+      'Visitas recorrentes em cliente fixo. Histórico do que rolou na última, próxima preventiva já agendada.',
   },
   {
     id: 'camara',
     title: 'Câmaras frias',
-    description: 'Controle de temperatura, fluido, componentes e manutenções.',
+    where: 'Padaria · Restaurante · Mercearia',
+    description:
+      'Temperatura, fluido, compressor, evaporador. Tudo registrado pra próxima visita ou chamado urgente.',
   },
   {
     id: 'freezer',
     title: 'Geladeiras e freezers comerciais',
-    description: 'Acompanhamento de chamados, peças, diagnóstico e relatório final.',
+    where: 'Bar · Lanchonete · Sorveteria',
+    description:
+      'Diagnóstico, peça trocada, relatório com foto antes/depois. Cliente vê o que foi feito e por quê.',
   },
   {
     id: 'industrial',
     title: 'Refrigeração industrial',
-    description: 'Gestão de ativos, preventivas e serviços com rastreabilidade.',
+    where: 'Frigorífico · Indústria alimentícia · Química',
+    description:
+      'Equipamentos grandes com histórico técnico detalhado e periodicidade rigorosa de manutenção.',
   },
   {
     id: 'pmoc',
     title: 'PMOC e manutenção preventiva',
-    description: 'Controle de rotinas, datas, checklists e evidências do serviço.',
+    where: 'Hospital · Prédio comercial · Escola',
+    description:
+      'PMOC NBR 13971 com termo de RT. Calendário de preventivas, checklists técnicos e evidências fotográficas.',
   },
 ];
 
 export const problems = [
   {
     id: 'os',
-    title: 'OS sem padrão',
-    description: 'Informações faltando e desorganizadas.',
-    solution: 'Templates de OS com campos obrigatórios e checklist por tipo de serviço.',
+    title: 'Atendimento sem padrão',
+    description: 'Cada serviço fica registrado de um jeito diferente.',
+    solution: 'Template pronto pra cada tipo de serviço — você só preenche o que mudou.',
   },
   {
     id: 'historico',
     title: 'Histórico perdido',
-    description: 'Dados importantes perdidos ou difíceis de encontrar.',
+    description: 'Cliente liga, você não lembra o que fez no último.',
     solution: 'Linha do tempo por equipamento com filtros, fotos e assinaturas.',
   },
   {
     id: 'relatorios',
-    title: 'Relatórios improvisados',
-    description: 'Relatórios feitos às pressas, sem padrão ou credibilidade.',
-    solution: 'PDF profissional com KPIs, fotos antes/depois e assinatura do cliente.',
+    title: 'Relatório no WhatsApp',
+    description: 'Texto solto, foto separada, sem cara de profissional.',
+    solution:
+      'PDF profissional com cabeçalho da sua marca, foto antes/depois, assinatura do cliente. PMOC NBR 13971 quando precisar.',
   },
   {
     id: 'preventivas',
-    title: 'Preventivas esquecidas',
-    description: 'Manutenções em atraso e risco de paradas.',
+    title: 'Preventiva esquecida',
+    description: 'Cliente não chama porque você não cobrou data.',
     solution: 'Calendário com alertas automáticos e recorrência por equipamento.',
   },
   {
     id: 'fotos',
-    title: 'Fotos espalhadas',
-    description: 'Fotos salvas no celular e difíceis de localizar depois.',
-    solution: 'Captura direto na OS, vinculada ao equipamento e ao serviço.',
+    title: 'Foto perdida no celular',
+    description: '"Cadê aquela foto do antes? Apaguei sem querer."',
+    solution: 'Foto entra direto no atendimento e fica vinculada ao equipamento — pra sempre.',
   },
   {
     id: 'dados',
-    title: 'Dados técnicos soltos',
-    description: 'Informações técnicas dispersas, sem padronização.',
+    title: 'Ficha do equipamento incompleta',
+    description: 'Modelo, fluido, capacidade — tudo na cabeça.',
     solution: 'Ficha completa com fluido, capacidade, modelo e periodicidade preventiva.',
   },
 ];
@@ -103,81 +114,78 @@ export const problems = [
 export const features = [
   {
     id: 'clientes',
-    title: 'Clientes',
-    description: 'Cadastre clientes e unidades, com contatos, endereços e contratos organizados.',
+    title: 'Cliente que volta',
+    description:
+      'Ficha viva com histórico, contatos e equipamentos. Cliente liga? Você já sabe quem é e o que rolou no último atendimento.',
   },
   {
     id: 'equipamentos',
-    title: 'Equipamentos',
+    title: 'Equipamento com biografia',
     description:
-      'Cadastro completo com dados técnicos, histórico de serviços e anexos importantes.',
+      'Modelo, fluido, capacidade, garantia. Foto da etiqueta. Tudo que já rolou no equipamento fica salvo, mesmo se você trocar de celular.',
   },
   {
     id: 'os',
-    title: 'Ordens de serviço',
-    description: 'Crie, organize e acompanhe OS do início ao fim, com status e prioridades.',
+    title: 'Atendimento em 1 minuto',
+    description:
+      'Template pronto pra cada tipo (preventiva, corretiva, instalação). Foto, peça e checklist em poucos toques — direto na obra, do celular.',
   },
   {
     id: 'preventivas',
-    title: 'Preventivas',
+    title: 'Preventiva que não escapa',
     description:
-      'Planeje e controle manutenções preventivas com calendário, checklists e recorrências.',
+      'Calendário avisa antes de vencer. Cada equipamento tem sua periodicidade. Cliente fica feliz, você não perde recorrência.',
   },
   {
     id: 'relatorios',
-    title: 'Relatórios técnicos',
+    title: 'PDF que dá orgulho',
     description:
-      'Gere relatórios profissionais com dados, fotos, peças utilizadas e assinatura do cliente.',
+      'Logo, CNPJ, foto antes/depois, peças usadas, assinatura do cliente. Cabeçalho profissional, WhatsApp em 1 toque. PMOC NBR 13971 quando precisar.',
   },
   {
     id: 'dashboard',
-    title: 'Dashboard',
-    description: 'Acompanhe indicadores em tempo real e tome decisões com base em dados.',
+    title: 'Painel que cabe no bolso',
+    description:
+      'Quantos atendimentos no mês, quantas preventivas vencendo, quanto faturou. Tudo numa tela, sem PC, sem complicação.',
   },
 ];
 
 export const workflowSteps = [
   {
     id: 1,
-    title: 'Cliente solicita atendimento',
+    title: 'Cliente chama',
     description:
-      'Pedido entra pelo canal de atendimento (telefone, WhatsApp, e-mail). Cliente, equipamento e prioridade já ficam pré-vinculados.',
+      'Liga, manda WhatsApp ou mensagem. Você abre o cadastro dele e vê histórico, equipamentos, último atendimento. Sem puxar pela cabeça.',
   },
   {
     id: 2,
-    title: 'Técnico cria ou aceita a OS',
+    title: 'Você abre um novo registro',
     description:
-      'O técnico responsável recebe a OS com contexto: histórico do equipamento, contrato vigente e SLA do cliente.',
+      'Escolhe o cliente e o equipamento. O histórico aparece automático — última visita, fluido, modelo, garantia. Sem precisar lembrar de nada.',
   },
   {
     id: 3,
-    title: 'Serviço é agendado',
+    title: 'Preventiva no calendário',
     description:
-      'Data, hora e equipe alocadas. Calendário evita choque com preventivas já agendadas e respeita restrições do cliente.',
+      'O app te avisa quando tá perto de vencer. Você nunca esquece de marcar a próxima visita com o cliente.',
   },
   {
     id: 4,
-    title: 'Atendimento é executado',
+    title: 'Atendimento na obra',
     description:
-      'No campo, o técnico registra checklist, leituras técnicas (fluido, pressão, temperatura) e peças utilizadas.',
+      'Foto antes, leituras técnicas (fluido, pressão, temperatura), peças trocadas, checklist preventivo, foto depois. Tudo do celular, na obra mesmo — funciona offline se não tiver sinal.',
   },
   {
     id: 5,
-    title: 'Fotos e checklist são registrados',
+    title: 'Cliente assina e PDF sai',
     description:
-      'Captura direto pelo app — antes e depois, etiqueta do equipamento, evidências de execução. Tudo vinculado à OS.',
+      'Cliente assina na tela do seu celular. Você gera o PDF profissional com sua marca, logo e CNPJ. WhatsApp abre direto pro número dele.',
   },
   {
     id: 6,
-    title: 'Relatório técnico é gerado',
+    title: 'Histórico salva pro próximo',
     description:
-      'PDF profissional com KPIs, fotos, peças, assinatura do cliente e marca da empresa. Pronto pra envio por WhatsApp.',
-  },
-  {
-    id: 7,
-    title: 'Histórico fica salvo no equipamento',
-    description:
-      'Cada serviço alimenta a linha do tempo do equipamento — disponível para próxima visita, PMOC e auditoria.',
+      'Tudo entra na linha do tempo do equipamento. Na próxima visita, você já chega com contexto. PMOC formal anual? Já tá meio pronto.',
   },
 ];
 
@@ -187,31 +195,27 @@ export const workflowDefaultStepId = 3;
 
 // Abas interativas do DashboardPreview. Apenas estes ids tem conteudo
 // proprio em `dashboardTabContent` — clicar troca o body central via
-// state local. As 3 entradas finais (Checklists/Fotos/Configurações)
-// ficam visuais-only no sidebar pra preservar o look-and-feel SaaS.
+// state local. Configurações fica visual-only no sidebar pra preservar
+// o look-and-feel do app sem virar aba principal.
 export const dashboardTabs = [
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'dashboard', label: 'Painel' },
   { id: 'clientes', label: 'Clientes' },
   { id: 'equipamentos', label: 'Equipamentos' },
-  { id: 'os', label: 'Ordens de serviço' },
+  { id: 'os', label: 'Atendimentos' },
   { id: 'preventivas', label: 'Preventivas' },
   { id: 'relatorios', label: 'Relatórios' },
   { id: 'alertas', label: 'Alertas' },
 ];
 
-export const dashboardSidebarStaticItems = [
-  { id: 'checklists', label: 'Checklists' },
-  { id: 'fotos', label: 'Fotos' },
-  { id: 'config', label: 'Configurações' },
-];
+export const dashboardSidebarStaticItems = [{ id: 'config', label: 'Configurações' }];
 
 export const dashboardDefaultTabId = 'dashboard';
 
 export const dashboardKpis = [
-  { id: 'os-abertas', label: 'OS abertas', value: '28' },
-  { id: 'preventivas-mes', label: 'Preventivas do mês', value: '34' },
-  { id: 'equipamentos', label: 'Equipamentos cadastrados', value: '482' },
-  { id: 'relatorios', label: 'Relatórios gerados', value: '76' },
+  { id: 'equipamentos', label: 'Equipamentos', value: '12', delta: '+2 mês' },
+  { id: 'atendimentos', label: 'Atendimentos', value: '23', delta: '+18% vs abr' },
+  { id: 'pdfs', label: 'PDFs enviados', value: '21', delta: '91% taxa' },
+  { id: 'proxima-preventiva', label: 'Próx. preventiva', value: '3d', delta: 'Padaria Estrela' },
 ];
 
 export const dashboardAlerts = [
@@ -219,25 +223,25 @@ export const dashboardAlerts = [
     id: 'a1',
     tone: 'red',
     title: 'Preventiva vencida',
-    subtitle: 'Climatize SA · Split 18.000 BTU · 6 dias em atraso',
+    subtitle: '1 · Padaria Estrela · Câmara fria',
   },
   {
     id: 'a2',
     tone: 'orange',
-    title: 'Preventiva próxima do vencimento',
-    subtitle: 'Frigorífico Norte · Câmara fria 2 · 3 dias',
+    title: 'Próxima do vencimento',
+    subtitle: '2 · Mercado São José · Split 12k',
   },
   {
     id: 'a3',
     tone: 'blue',
-    title: 'OS aguardando execução',
-    subtitle: 'Padaria São Lucas · Freezer comercial',
+    title: 'Atendimento sem relatório enviado',
+    subtitle: '1 · Restaurante Don Carlo · Geladeira comercial',
   },
   {
     id: 'a4',
     tone: 'green',
-    title: 'PMOC vencido',
-    subtitle: 'Edifício Cantareira · 14 unidades split',
+    title: 'Cliente sem retorno há 60 dias',
+    subtitle: '1 · Bar do João · Freezer comercial',
   },
 ];
 
@@ -251,24 +255,24 @@ export const dashboardChartBars = [
  * Conteudo por aba do DashboardPreview interativo.
  *
  * `dashboard` mantem o layout overview (KPIs animaveis + alerts + chart
- * + tabela OS + strip equipamentos) — continua sendo o "vendedor" da
+ * + tabela de atendimentos + strip equipamentos) — continua sendo o "vendedor" da
  * interface. Demais abas usam layout `kpis-list` (4 KPIs + lista
  * tabular curta) pra dar sensacao de SaaS real sem inflar o bundle.
  */
 export const dashboardTabContent = {
   dashboard: {
-    title: 'Dashboard',
-    subtitle: 'Visão geral do seu parque',
+    title: 'Painel',
+    subtitle: 'Bom dia, Carlos',
     layout: 'overview',
   },
   clientes: {
     title: 'Clientes',
-    subtitle: 'Carteira de clientes e unidades',
+    subtitle: 'Clientes e equipamentos no bolso',
     layout: 'kpis-list',
     kpis: [
       { id: 'total', label: 'Total de clientes', value: 86 },
       { id: 'unidades', label: 'Unidades ativas', value: 142 },
-      { id: 'contratos', label: 'Contratos ativos', value: 64 },
+      { id: 'recorrentes', label: 'Clientes recorrentes', value: 12 },
       { id: 'novos', label: 'Novos no mês', value: 8 },
     ],
     list: {
@@ -283,7 +287,13 @@ export const dashboardTabContent = {
           tone: 'orange',
           status: 'PMOC próximo',
         },
-        { col1: 'Padaria São Lucas', col2: '2', col3: '7', tone: 'blue', status: 'OS aberta' },
+        {
+          col1: 'Padaria Estrela',
+          col2: '2',
+          col3: '7',
+          tone: 'blue',
+          status: 'Atendimento aberto',
+        },
         { col1: 'Mercado Bom Preço', col2: '4', col3: '23', tone: 'green', status: 'Em dia' },
       ],
     },
@@ -293,71 +303,64 @@ export const dashboardTabContent = {
     subtitle: 'Parque cadastrado por tipo',
     layout: 'kpis-list',
     kpis: [
-      { id: 'total', label: 'Total de equipamentos', value: 482 },
-      { id: 'ativos', label: 'Ativos', value: 423 },
-      { id: 'pendentes', label: 'Manutenção pendente', value: 31 },
-      { id: 'vencidas', label: 'Preventiva vencida', value: 12 },
+      { id: 'total', label: 'Total de equipamentos', value: 12 },
+      { id: 'ativos', label: 'Equipamentos ativos', value: 12 },
+      { id: 'pendentes', label: 'Manutenção pendente', value: 2 },
+      { id: 'vencidas', label: 'Preventiva vencida', value: 1 },
     ],
     list: {
       title: 'Distribuição por tipo',
-      headers: ['Tipo', 'Total', 'Ativos', 'Status'],
+      headers: ['Tipo', 'Total', 'Equip.', 'Status'],
       rows: [
-        { col1: 'Split', col2: '186', col3: '178', tone: 'green', status: 'OK' },
-        { col1: 'Câmara fria', col2: '58', col3: '52', tone: 'orange', status: 'Atenção' },
-        { col1: 'Freezer comercial', col2: '71', col3: '68', tone: 'green', status: 'OK' },
-        { col1: 'Condensadora', col2: '89', col3: '82', tone: 'green', status: 'OK' },
-        { col1: 'Compressor', col2: '42', col3: '38', tone: 'red', status: 'Crítico' },
+        { col1: 'Split', col2: '5', col3: '5', tone: 'green', status: 'OK' },
+        { col1: 'Câmara fria', col2: '2', col3: '2', tone: 'orange', status: 'Atenção' },
+        { col1: 'Freezer comercial', col2: '2', col3: '2', tone: 'green', status: 'OK' },
+        { col1: 'Condensadora', col2: '2', col3: '2', tone: 'green', status: 'OK' },
+        { col1: 'Compressor', col2: '1', col3: '1', tone: 'red', status: 'Crítico' },
       ],
     },
   },
   os: {
-    title: 'Ordens de serviço',
-    subtitle: 'Pipeline de atendimentos',
+    title: 'Atendimentos',
+    subtitle: 'Registros do mês',
     layout: 'kpis-list',
     kpis: [
-      { id: 'abertas', label: 'OS abertas', value: 28 },
+      { id: 'abertas', label: 'Atendimentos abertos', value: 4 },
       { id: 'execucao', label: 'Em execução', value: 11 },
       { id: 'aguardando', label: 'Aguardando peça', value: 4 },
       { id: 'concluidas', label: 'Concluídas no mês', value: 142 },
     ],
     list: {
-      title: 'OS recentes',
-      headers: ['OS', 'Cliente', 'Tipo', 'Status'],
+      title: 'Atendimentos recentes',
+      headers: ['#', 'Cliente', 'Tipo', 'Status'],
       rows: [
         {
-          col1: '#OS-3421',
-          col2: 'Climatize SA',
-          col3: 'Preventiva',
+          col1: 'A-0089',
+          col2: 'Padaria Estrela',
+          col3: 'Câmara fria · Compressor · Corretiva',
           tone: 'green',
-          status: 'Concluída',
+          status: 'Concluído',
         },
         {
-          col1: '#OS-3420',
-          col2: 'Frigorífico Norte',
-          col3: 'Corretiva',
+          col1: 'A-0088',
+          col2: 'Mercado São José',
+          col3: 'Split 12k · Sala · Preventiva',
+          tone: 'green',
+          status: 'Concluído',
+        },
+        {
+          col1: 'A-0087',
+          col2: 'Restaurante Don Carlo',
+          col3: 'Geladeira comercial · Corretiva',
           tone: 'orange',
-          status: 'Em execução',
-        },
-        {
-          col1: '#OS-3419',
-          col2: 'Padaria São Lucas',
-          col3: 'Diagnóstico',
-          tone: 'blue',
-          status: 'Agendada',
-        },
-        {
-          col1: '#OS-3418',
-          col2: 'Mercado Bom Preço',
-          col3: 'Preventiva',
-          tone: 'red',
-          status: 'Atrasada',
+          status: 'Aguarda PDF',
         },
       ],
     },
   },
   preventivas: {
     title: 'Preventivas',
-    subtitle: 'Plano mensal de manutenção',
+    subtitle: 'Preventivas que não escapam',
     layout: 'kpis-list',
     kpis: [
       { id: 'mes', label: 'Preventivas do mês', value: 34 },
@@ -447,12 +450,12 @@ export const dashboardTabContent = {
   },
   alertas: {
     title: 'Alertas',
-    subtitle: 'Itens críticos da operação',
+    subtitle: 'Itens importantes do dia a dia',
     layout: 'kpis-list',
     kpis: [
       { id: 'preventiva-venc', label: 'Preventivas vencidas', value: 5 },
       { id: 'pmoc-venc', label: 'PMOC vencido', value: 2 },
-      { id: 'os-atrasada', label: 'OS atrasadas', value: 3 },
+      { id: 'atendimento-atrasado', label: 'Atendimentos atrasados', value: 3 },
       { id: 'criticos', label: 'Equipamentos críticos', value: 4 },
     ],
     list: {
@@ -474,7 +477,7 @@ export const dashboardTabContent = {
           status: 'Crítica',
         },
         {
-          col1: 'OS atrasada',
+          col1: 'Atendimento atrasado',
           col2: 'Mercado Bom Preço',
           col3: 'Refrig. industrial',
           tone: 'orange',
@@ -494,50 +497,42 @@ export const dashboardTabContent = {
 
 export const dashboardOsRows = [
   {
-    id: 'OS-3421',
-    customer: 'Climatize SA',
-    equipment: 'Split 18k',
-    type: 'Preventiva',
-    status: { label: 'Concluída', tone: 'green' },
-  },
-  {
-    id: 'OS-3420',
-    customer: 'Frigorífico Norte',
-    equipment: 'Câmara fria 2',
+    id: 'A-0089',
+    customer: 'Padaria Estrela',
+    equipment: 'Câmara fria · Compressor',
     type: 'Corretiva',
-    status: { label: 'Em execução', tone: 'orange' },
+    status: { label: 'Concluído', tone: 'green' },
   },
   {
-    id: 'OS-3419',
-    customer: 'Padaria São Lucas',
-    equipment: 'Freezer comercial',
-    type: 'Diagnóstico',
-    status: { label: 'Agendada', tone: 'blue' },
-  },
-  {
-    id: 'OS-3418',
-    customer: 'Mercado Bom Preço',
-    equipment: 'Refrig. industrial',
+    id: 'A-0088',
+    customer: 'Mercado São José',
+    equipment: 'Split 12k · Sala',
     type: 'Preventiva',
-    status: { label: 'Atrasada', tone: 'red' },
+    status: { label: 'Concluído', tone: 'green' },
+  },
+  {
+    id: 'A-0087',
+    customer: 'Restaurante Don Carlo',
+    equipment: 'Geladeira comercial',
+    type: 'Corretiva',
+    status: { label: 'Aguarda PDF', tone: 'orange' },
   },
 ];
 
 export const dashboardEquipStrip = [
-  { id: 'split', label: 'Split', value: '186' },
-  { id: 'camara', label: 'Câmara fria', value: '58' },
-  { id: 'freezer', label: 'Freezer comercial', value: '71' },
-  { id: 'condensadora', label: 'Condensadora', value: '89' },
-  { id: 'compressor', label: 'Compressor', value: '42' },
-  { id: 'evaporadora', label: 'Evaporadora', value: '36' },
+  { id: 'split', label: 'Split', value: '5' },
+  { id: 'camara', label: 'Câmara fria', value: '2' },
+  { id: 'freezer', label: 'Freezer comercial', value: '2' },
+  { id: 'condensadora', label: 'Condensadora', value: '2' },
+  { id: 'compressor', label: 'Compressor', value: '1' },
+  { id: 'evaporadora', label: 'Evaporadora', value: '0' },
 ];
 
 export const footerProductLinks = [
   { href: '#recursos', label: 'Recursos' },
-  { href: '#segmentos', label: 'Segmentos' },
-  { href: '#fluxo', label: 'Fluxo' },
+  { href: '#segmentos', label: 'Onde funciona' },
+  { href: '#fluxo', label: 'Como funciona' },
   { href: '#planos', label: 'Planos' },
-  { href: '#relatorios', label: 'Relatórios' },
 ];
 
 export const footerCompanyLinks = [

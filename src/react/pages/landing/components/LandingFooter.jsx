@@ -25,11 +25,11 @@ export function LandingFooter() {
               className="tw-flex tw-items-center tw-gap-2.5 tw-text-white visited:tw-text-white tw-font-bold tw-text-lg tw-tracking-tight tw-no-underline"
             >
               <BrandMark size={36} />
-              CoolTrack<span className="tw-text-landing-cyan tw-font-semibold">Pro</span>
+              CoolTrack
             </a>
             <p className="tw-text-[13.5px] tw-leading-[1.6] tw-mt-3.5 tw-max-w-[300px]">
-              Plataforma para climatização e refrigeração. Feita para técnicos e empresas que
-              precisam organizar OS, preventivas e relatórios em um só lugar.
+              Ferramenta pra técnico autônomo de climatização e refrigeração registrar serviços,
+              gerar PDF profissional e mandar pro cliente — tudo do celular.
             </p>
           </div>
 
@@ -43,18 +43,14 @@ export function LandingFooter() {
             <ul className="tw-list-none tw-flex tw-flex-col tw-gap-2.5 tw-text-sm tw-p-0 tw-m-0">
               <li className="tw-flex tw-items-center tw-gap-2.5">
                 <MailIcon size={14} />
-                contato@cooltrackpro.com.br
-              </li>
-              <li className="tw-flex tw-items-center tw-gap-2.5">
-                <PhoneIcon size={14} />
-                (31) 98765-4321
+                cooltracksuporte@gmail.com
               </li>
             </ul>
           </div>
         </div>
 
         <div className="tw-mt-12 tw-pt-5 tw-border-t tw-border-[rgba(255,255,255,0.08)] tw-flex tw-flex-col sm:tw-flex-row tw-justify-between tw-gap-3 tw-text-[13px] tw-text-[#7d8fae]">
-          <span>© 2026 CoolTrackPro. Todos os direitos reservados.</span>
+          <span>© 2026 CoolTrack. Todos os direitos reservados.</span>
           <nav
             aria-label="Documentos legais"
             className="tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-1.5"
@@ -116,24 +112,6 @@ function MailIcon({ size = 14 }) {
     >
       <rect x="3" y="6" width="18" height="12" rx="2" />
       <path d="M3 7l9 6 9-6" />
-    </svg>
-  );
-}
-
-function PhoneIcon({ size = 14 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M5 4h4l2 5-2 1c1 2 3 4 5 5l1-2 5 2v4c0 1-1 2-2 2A16 16 0 013 6c0-1 1-2 2-2z" />
     </svg>
   );
 }

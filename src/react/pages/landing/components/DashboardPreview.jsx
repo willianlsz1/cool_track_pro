@@ -96,9 +96,7 @@ function DashboardSidebar({ activeTabId, onSelectTab }) {
         <span className="tw-grid tw-h-7 tw-w-7 tw-place-items-center tw-rounded-[9px] tw-bg-white/10 tw-ring-1 tw-ring-white/15">
           <img src="/brand/favicon.svg" alt="" className="tw-h-4 tw-w-4" aria-hidden="true" />
         </span>
-        <span>
-          CoolTrack<span className="tw-text-[11px] tw-font-semibold tw-text-[#67e8f9]">Pro</span>
-        </span>
+        <span>CoolTrack</span>
       </div>
 
       <div
@@ -159,8 +157,8 @@ function DashboardSidebar({ activeTabId, onSelectTab }) {
           TC
         </span>
         <div>
-          Técnico Carlos
-          <div className="tw-text-[10px] tw-font-normal tw-text-[#d9a441]">Plano Pro</div>
+          Carlos M.
+          <div className="tw-text-[10px] tw-font-normal tw-text-[#d9a441]">Plus</div>
         </div>
       </div>
     </aside>
@@ -177,7 +175,7 @@ function DashboardMain({ activeTabId, activeTab }) {
       <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between">
         <div>
           <p className="tw-text-[10px] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#2f7bff]">
-            Operação em tempo real
+            Hoje em CoolTrack
           </p>
           <h3 className="tw-mt-1 tw-text-lg tw-font-extrabold tw-tracking-[-0.02em] tw-text-[#0a1530]">
             {activeTab.title}
@@ -190,11 +188,11 @@ function DashboardMain({ activeTabId, activeTab }) {
         </div>
         <div className="tw-flex tw-items-center tw-gap-2">
           <span className="tw-hidden tw-rounded-xl tw-border tw-border-[#e6ebf3] tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-semibold tw-text-[#5a6b8c] tw-shadow-[0_10px_22px_-20px_rgba(10,21,48,0.5)] sm:tw-inline-flex">
-            Buscar OS, cliente ou equipamento
+            Buscar atendimento, cliente ou equipamento
           </span>
           <span className="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-[#dbeafe] tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#2a3656] tw-shadow-[0_10px_22px_-20px_rgba(10,21,48,0.5)]">
             <span className="tw-h-2 tw-w-2 tw-rounded-full tw-bg-[#22d3ee]" aria-hidden="true" />
-            01/05/2024 - 31/05/2024
+            Maio · 2026
           </span>
         </div>
       </div>
@@ -216,7 +214,8 @@ function OverviewLayout() {
           <KpiCard
             key={kpi.id}
             label={kpi.label}
-            value={Number.parseInt(kpi.value, 10) || 0}
+            value={kpi.value}
+            delta={kpi.delta}
             index={index}
           />
         ))}
@@ -238,7 +237,13 @@ function KpisListLayout({ activeTab }) {
     <>
       <div className="tw-grid tw-grid-cols-2 tw-gap-2.5 sm:tw-grid-cols-4">
         {(activeTab.kpis || []).map((kpi, index) => (
-          <KpiCard key={kpi.id} label={kpi.label} value={kpi.value} index={index} />
+          <KpiCard
+            key={kpi.id}
+            label={kpi.label}
+            value={kpi.value}
+            delta={kpi.delta}
+            index={index}
+          />
         ))}
       </div>
       {activeTab.list ? <SimpleListPanel list={activeTab.list} /> : null}
@@ -246,7 +251,7 @@ function KpisListLayout({ activeTab }) {
   );
 }
 
-function KpiCard({ label, value, index = 0 }) {
+function KpiCard({ label, value, delta, index = 0 }) {
   const accent = KPI_ACCENT[index % KPI_ACCENT.length];
   return (
     <div
@@ -263,12 +268,18 @@ function KpiCard({ label, value, index = 0 }) {
           <span className="tw-h-2 tw-w-2 tw-rounded-full tw-bg-current" />
         </span>
       </div>
-      <AnimatedCounter
-        end={Number(value) || 0}
-        className="tw-text-[24px] tw-font-black tw-tracking-[-0.03em] tw-text-[#0a1530]"
-      />
+      {typeof value === 'string' && /[^0-9]/.test(value) ? (
+        <span className="tw-text-[24px] tw-font-black tw-tracking-[-0.03em] tw-text-[#0a1530]">
+          {value}
+        </span>
+      ) : (
+        <AnimatedCounter
+          end={Number(value) || 0}
+          className="tw-text-[24px] tw-font-black tw-tracking-[-0.03em] tw-text-[#0a1530]"
+        />
+      )}
       <span className="tw-text-[10.5px] tw-font-bold tw-text-[#2f7bff] group-hover:tw-text-[#0ea5e9]">
-        Ver detalhes →
+        {delta || 'Ver detalhes →'}
       </span>
     </div>
   );
@@ -441,12 +452,12 @@ function DashboardChartPanel() {
 function DashboardOsPanel() {
   return (
     <div className={`${CARD_CLASS} tw-overflow-hidden tw-rounded-2xl`}>
-      <PanelHeader title="OS recentes" action="Ver todas" />
+      <PanelHeader title="Atendimentos recentes" action="Ver todos" />
       <MobileOsList rows={dashboardOsRows} />
       <div className="tw-hidden sm:tw-block">
         <div>
           <TableHeader
-            columns={['OS', 'Cliente / Equipamento', 'Tipo', 'Status']}
+            columns={['#', 'Cliente / Equipamento', 'Tipo', 'Status']}
             template="tw-grid-cols-[80px_1fr_90px_104px]"
           />
           {dashboardOsRows.map((row, i, arr) => (
@@ -457,7 +468,7 @@ function DashboardOsPanel() {
               }`}
             >
               <span className="tw-font-mono tw-text-[10.5px] tw-font-bold tw-text-[#2f7bff]">
-                #{row.id}
+                {row.id}
               </span>
               <span className="tw-text-[#5a6b8c]">
                 <strong className="tw-font-bold tw-text-[#0a1530]">{row.customer}</strong> ·{' '}
@@ -485,7 +496,7 @@ function MobileOsList({ rows }) {
         >
           <div className="tw-flex tw-items-start tw-justify-between tw-gap-2">
             <span className="tw-font-mono tw-text-[11px] tw-font-bold tw-text-[#2f7bff]">
-              #{row.id}
+              {row.id}
             </span>
             <StatusPill tone={row.status.tone}>{row.status.label}</StatusPill>
           </div>

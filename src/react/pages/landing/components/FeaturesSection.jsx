@@ -36,8 +36,8 @@ export function FeaturesSection() {
       <div className="tw-max-w-[1280px] tw-mx-auto tw-px-6">
         <SectionHead
           eyebrow="Recursos"
-          title="Tudo o que você precisa em um só sistema"
-          description="De clientes a relatórios técnicos: uma plataforma única, conectada e pensada para a rotina do técnico."
+          title="O que tem aqui dentro."
+          description="Poucas peças, cada uma resolvendo uma dor real do técnico autônomo. Sem feature de empresa que ninguém usa. Sem complicação."
         />
         <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-5">
           {features.map((f) => {

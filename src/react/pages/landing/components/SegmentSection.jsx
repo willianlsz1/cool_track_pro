@@ -23,7 +23,7 @@ const SEGMENT_ICONS = {
 };
 
 /**
- * Secao "Segmentos atendidos" — fundo claro, grid 3 colunas (desktop),
+ * Secao "Onde funciona" — fundo claro, grid 3 colunas (desktop),
  * 2 colunas (tablet), 1 coluna (mobile). Hover lift via Tailwind.
  */
 export function SegmentSection() {
@@ -31,9 +31,9 @@ export function SegmentSection() {
     <section id="segmentos" className="tw-py-16 sm:tw-py-20 lg:tw-py-24 tw-bg-landing-off">
       <div className="tw-max-w-[1280px] tw-mx-auto tw-px-6">
         <SectionHead
-          eyebrow="Segmentos atendidos"
-          title="Feito para quem trabalha com climatização e refrigeração"
-          description="Solução especializada para técnicos e empresas que atuam em sistemas de climatização e refrigeração."
+          eyebrow="Onde funciona"
+          title="Pra todo tipo de equipamento que esfria."
+          description="Não importa se você atende split residencial, câmara fria de padaria ou refrigeração industrial — o app cobre toda a rotina."
         />
         <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-5">
           {segments.map((seg) => {
@@ -55,6 +55,11 @@ export function SegmentSection() {
                 <h3 className="tw-text-lg tw-font-bold tw-mb-1.5 tw-tracking-[-0.01em] tw-text-landing-ink">
                   {seg.title}
                 </h3>
+                {seg.where ? (
+                  <p className="tw-text-[12px] tw-font-semibold tw-text-landing-blue-vivid tw-mb-2 tw-leading-[1.4]">
+                    {seg.where}
+                  </p>
+                ) : null}
                 <p className="tw-text-sm tw-text-landing-ink-2 tw-leading-[1.5]">
                   {seg.description}
                 </p>

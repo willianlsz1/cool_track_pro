@@ -2,7 +2,7 @@ import { navItems } from '../data/landingMockData.js';
 import { BrandMark } from './BrandMark.jsx';
 
 /**
- * Header da landing — logo + menu (desktop) + CTA "Comecar agora".
+ * Header da landing — logo + menu (desktop) + CTA "Comecar gratis".
  * Mobile esconde o menu (PR 1 — sem hamburger). Layout simples para
  * permitir ajustes finos na PR de responsividade.
  *
@@ -35,7 +35,7 @@ export function LandingHeader({ onStart }) {
         className="tw-flex tw-items-center tw-gap-2.5 tw-text-white visited:tw-text-white tw-font-bold tw-text-lg tw-tracking-tight tw-no-underline"
       >
         <BrandMark size={36} />
-        CoolTrack<span className="tw-text-landing-cyan tw-font-semibold">Pro</span>
+        CoolTrack
       </a>
 
       <nav
@@ -63,7 +63,7 @@ export function LandingHeader({ onStart }) {
           color: '#fff',
         }}
       >
-        Começar agora
+        Começar grátis
         <ArrowRightIcon size={14} />
       </button>
     </header>
