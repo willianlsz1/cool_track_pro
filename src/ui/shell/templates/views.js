@@ -612,17 +612,17 @@ export function renderShellViews() {
               </div>
             </details>
 
-            <details class="registro-details registro-details--next">
-              <summary class="registro-details__summary">
+            <input id="r-proxima" type="hidden" value="" />
+            <details class="registro-details registro-details--next" id="registro-impact-details">
+              <summary class="registro-details__summary" aria-expanded="false">
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-signal"/></svg></span>
                 <div class="registro-details__titles">
-                  <div class="registro-details__title" id="registro-impact-title">Impacto no acompanhamento <span class="registro-details__pri">Recomendado</span></div>
-                  <div class="registro-details__subtitle" id="registro-impact-subtitle">prioridade, status e próxima preventiva</div>
+                  <div class="registro-details__title" id="registro-impact-title">+ Houve algum problema?</div>
+                  <div class="registro-details__subtitle" id="registro-impact-subtitle">opcional — status final e prioridade</div>
                 </div>
-                <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
               </summary>
               <div class="registro-details__body">
-                <p class="registro-bloco__hint" id="registro-impact-hint">Defina o status final e a próxima preventiva para acompanhar melhor este equipamento.</p>
+                <p class="registro-bloco__hint" id="registro-impact-hint">Se algo saiu do normal, ajuste o status e a prioridade.</p>
                 <div class="registro-field__row">
                   <div class="registro-field registro-field--select">
                     <label class="registro-field__label" for="r-prioridade">Prioridade sugerida</label>
@@ -640,14 +640,6 @@ export function renderShellViews() {
                       <option value="danger">Fora de operação</option>
                     </select>
                   </div>
-                </div>
-                <div class="registro-field">
-                  <label class="registro-field__label" for="r-proxima">Quando retornar para preventiva?</label>
-                  <div class="registro-field__with-icon">
-                    <svg aria-hidden="true"><use href="#ri-calendar"/></svg>
-                    <input id="r-proxima" class="registro-field__input" type="date" />
-                  </div>
-                  <p class="registro-field__help">Deixe em branco se não souber agora.</p>
                 </div>
               </div>
             </details>
