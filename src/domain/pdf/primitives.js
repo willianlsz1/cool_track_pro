@@ -29,25 +29,25 @@ export function roundRect(doc, x, y, w, h, r, color) {
 }
 
 // Marca d'água diagonal aplicada em todas as páginas. Usada no plano Free
-// para que clientes do técnico vejam "CoolTrack Free" e descubram o produto.
+// para que clientes do técnico vejam a marca Free e descubram o produto.
 //
-// Implementação em malha: o texto se repete em diagonal por toda a página com
-// opacidade baixa. Esse é o padrão de documentos "SAMPLE"/"DRAFT" em escritórios
-// jurídicos e contábeis — diluído o bastante pra não obscurecer dado algum.
+// Implementação: 1 texto centralizado por página, rotacionado -25°, opacidade
+// 6% — diluído o bastante pra não obscurecer dado algum. Padrão de documentos
+// "SAMPLE"/"DRAFT" em escritórios jurídicos e contábeis.
 export function drawWatermarkAllPages(doc, pageWidth, pageHeight, options = {}) {
-  const text = options.text || 'COOLTRACK FREE';
-  const opacity = typeof options.opacity === 'number' ? options.opacity : 0.045;
-  const angle = typeof options.angle === 'number' ? options.angle : -30;
-  const fontSize = typeof options.fontSize === 'number' ? options.fontSize : 18;
-  const color = options.color || PDF_COLORS.primary;
-
-  // Espaçamento da malha (mm). Menor = mais denso; ajuste equilibra saturação
-  // com densidade visual pra não parecer texto no meio da página.
-  const stepX = typeof options.stepX === 'number' ? options.stepX : 120;
-  const stepY = typeof options.stepY === 'number' ? options.stepY : 75;
+  const text = options.text || 'CoolTrack Free';
+  const opacity = typeof options.opacity === 'number' ? options.opacity : 0.06;
+  const angle = typeof options.angle === 'number' ? options.angle : -25;
+  const fontSize = typeof options.fontSize === 'number' ? options.fontSize : 36;
+  // Cor padrão: azul profundo #1e3a8a (Tailwind blue-900). Não é a primary do
+  // produto — escolhido por contraste/leitura quando aplicado a 6% sobre conteúdo.
+  const color = options.color || [30, 58, 138];
 
   const totalPages = doc.internal.getNumberOfPages();
   const supportsGState = typeof doc.GState === 'function' && typeof doc.setGState === 'function';
+
+  const cx = pageWidth / 2;
+  const cy = pageHeight / 2;
 
   for (let i = 1; i <= totalPages; i += 1) {
     doc.setPage(i);
@@ -60,17 +60,7 @@ export function drawWatermarkAllPages(doc, pageWidth, pageHeight, options = {}) 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(fontSize);
     doc.setTextColor(...color);
-
-    // Malha: começa fora da página (negativo) pra garantir cobertura nas bordas
-    // mesmo com rotação diagonal.
-    for (let y = -stepY; y <= pageHeight + stepY; y += stepY) {
-      // Linhas alternadas em offset horizontal (padrão "tijolo") evita alinhamento
-      // rígido e melhora a aparência de textura.
-      const rowOffset = (Math.round(y / stepY) % 2) * (stepX / 2);
-      for (let x = -stepX; x <= pageWidth + stepX; x += stepX) {
-        doc.text(text, x + rowOffset, y, { align: 'center', angle });
-      }
-    }
+    doc.text(text, cx, cy, { align: 'center', baseline: 'middle', angle });
 
     if (supportsGState) {
       const gsReset = doc.GState({ opacity: 1 });
