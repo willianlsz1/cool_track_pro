@@ -44,6 +44,14 @@ export function renderShellNav(planCode) {
         `
             : ''
         }
+        <button class="nav-btn" id="nav-registro" data-nav="registro" aria-label="Registrar serviço">
+          <span class="nav-btn__icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-btn__label nav-btn__label--compact">Registrar</span>
+        </button>
         <button class="nav-btn" id="nav-equipamentos" data-nav="equipamentos" aria-label="Equipamentos">
           <span class="nav-btn__icon" aria-hidden="true">
             <svg class="nav-btn__svg nav-btn__svg--outline" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -54,14 +62,6 @@ export function renderShellNav(planCode) {
             </svg>
           </span>
           Equip.
-        </button>
-        <button class="nav-btn" id="nav-registro" data-nav="registro" aria-label="Registrar serviço">
-          <span class="nav-btn__icon" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <span class="nav-btn__label nav-btn__label--compact">Registrar</span>
         </button>
         <button class="nav-btn" id="nav-historico" data-nav="historico" aria-label="Serviços">
           <span class="nav-btn__icon" aria-hidden="true">
