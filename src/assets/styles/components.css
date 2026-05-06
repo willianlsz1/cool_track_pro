@@ -18641,32 +18641,18 @@ select option {
   display: block;
   flex-shrink: 0;
 }
+/* Botão de ação do card: ghost cyan unificado.
+   Antes existiam variantes --secondary (roxo) e --pmoc (verde) hardcoded;
+   convergimos pra um único peso visual com diferenciação só pelos ícones.
+   Tokens do design system (--ct-brand-*) cobrem bg/border/hover sem hex novos. */
 .cli-card__action--primary {
-  background: rgba(74, 163, 255, 0.08);
-  border: 1px solid rgba(74, 163, 255, 0.22);
-  color: #6fbfff;
+  background: var(--ct-brand-soft);
+  border: 1px solid var(--ct-brand-border);
+  color: var(--primary);
 }
 .cli-card__action--primary:hover {
-  background: rgba(74, 163, 255, 0.15);
-  border-color: rgba(74, 163, 255, 0.34);
-}
-.cli-card__action--secondary {
-  background: rgba(168, 132, 255, 0.08);
-  border: 1px solid rgba(168, 132, 255, 0.2);
-  color: #b89eff;
-}
-.cli-card__action--secondary:hover {
-  background: rgba(168, 132, 255, 0.14);
-  border-color: rgba(168, 132, 255, 0.3);
-}
-.cli-card__action--pmoc {
-  background: rgba(45, 212, 164, 0.08);
-  border: 1px solid rgba(45, 212, 164, 0.2);
-  color: #5fe6b3;
-}
-.cli-card__action--pmoc:hover {
-  background: rgba(45, 212, 164, 0.14);
-  border-color: rgba(45, 212, 164, 0.3);
+  background: var(--ct-brand-soft-strong);
+  border-color: var(--ct-brand-border-hover);
 }
 .cli-card__action--ghost {
   background: transparent;
@@ -18717,10 +18703,7 @@ select option {
   .cli-card__actions {
     grid-template-columns: 1fr auto;
   }
-  .cli-card__action--secondary {
-    grid-column: 1;
-  }
-  .cli-card__action--pmoc {
+  .cli-card__action--primary {
     grid-column: 1;
   }
   .cli-card__action--options {
