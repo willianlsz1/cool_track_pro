@@ -180,3 +180,32 @@
   --ct-hover-softer: rgba(0, 0, 0, 0.02);
   --ct-card-tint: rgba(0, 0, 0, 0.015);
 }
+
+/* Desktop dark readability scale.
+   Scoped to >=1024px so mobile bottom navigation and compact layouts keep
+   their current contrast/tone. The aliases intentionally lift legacy
+   --text-3/--muted/--muted-light away from ghost colors because many older
+   components use them for functional labels, counters and metadata. */
+@media (min-width: 1024px) {
+  body:not(.landing-active):not([data-theme='light']) {
+    --ct-desktop-text-primary: #e6edf3;
+    --ct-desktop-text-secondary: #c8d4e3;
+    --ct-desktop-text-tertiary: #adbac7;
+    --ct-desktop-text-disabled: #98a6b7;
+    --ct-desktop-brand-text: #7dd3fc;
+
+    --ct-text: var(--ct-desktop-text-primary);
+    --ct-text-muted: var(--ct-desktop-text-secondary);
+    --ct-text-faint: var(--ct-desktop-text-tertiary);
+    --ct-text-ghost: var(--ct-desktop-text-disabled);
+    --ct-brand-text: var(--ct-desktop-brand-text);
+
+    --text: var(--ct-desktop-text-primary);
+    --text-2: var(--ct-desktop-text-secondary);
+    --text-3: var(--ct-desktop-text-tertiary);
+    --text-muted: var(--ct-desktop-text-secondary);
+    --muted: var(--ct-desktop-text-tertiary);
+    --muted-light: var(--ct-desktop-text-disabled);
+    --secondary: var(--ct-desktop-text-tertiary);
+  }
+}
