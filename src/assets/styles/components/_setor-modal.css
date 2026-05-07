@@ -34,9 +34,9 @@
   padding: 16px 20px 18px;
   border-bottom: 1px solid var(--border-2, rgba(255, 255, 255, 0.1));
   background:
-    radial-gradient(360px 180px at 88% 0%, rgba(0, 200, 232, 0.18), transparent 70%),
-    radial-gradient(320px 200px at 10% 120%, rgba(0, 200, 232, 0.1), transparent 70%),
-    linear-gradient(180deg, rgba(0, 200, 232, 0.06), rgba(0, 200, 232, 0));
+    radial-gradient(360px 180px at 88% 0%, rgba(34, 211, 238, 0.18), transparent 70%),
+    radial-gradient(320px 200px at 10% 120%, rgba(34, 211, 238, 0.1), transparent 70%),
+    linear-gradient(180deg, rgba(34, 211, 238, 0.06), rgba(34, 211, 238, 0));
   overflow: hidden;
   isolation: isolate;
 }
@@ -65,7 +65,7 @@
   height: 160px;
   right: -30px;
   top: -40px;
-  background: rgba(0, 200, 232, 0.22);
+  background: rgba(34, 211, 238, 0.22);
 }
 
 .setor-modal__orb--bl {
@@ -73,7 +73,7 @@
   height: 120px;
   left: -40px;
   bottom: -60px;
-  background: rgba(0, 200, 232, 0.12);
+  background: rgba(34, 211, 238, 0.12);
 }
 
 .setor-modal__hero-row {
@@ -99,8 +99,8 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: #9fe6f6;
-  background: rgba(0, 200, 232, 0.14);
-  border: 1px solid rgba(0, 200, 232, 0.35);
+  background: rgba(34, 211, 238, 0.14);
+  border: 1px solid rgba(34, 211, 238, 0.35);
 }
 
 .setor-modal__title {
@@ -142,7 +142,7 @@
 
 .setor-modal__close:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 200, 232, 0.35);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.35);
 }
 
 /* ── Body ─────────────────────────────────────────────────── */
@@ -228,8 +228,8 @@
 
 .setor-modal__input:focus {
   outline: none;
-  border-color: var(--primary-dim, rgba(0, 200, 232, 0.5));
-  box-shadow: 0 0 0 3px rgba(0, 200, 232, 0.18);
+  border-color: var(--primary-dim, rgba(34, 211, 238, 0.5));
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18);
   background: #0b1a2c;
 }
 
@@ -367,7 +367,7 @@
 
 .setor-modal__swatch:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 200, 232, 0.35);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.35);
 }
 
 .setor-modal__swatch--selected {
@@ -705,7 +705,7 @@
   justify-content: space-between;
   gap: 12px;
   border-top: 1px solid var(--border-2, rgba(255, 255, 255, 0.1));
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(0, 200, 232, 0.04));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(34, 211, 238, 0.04));
   position: sticky;
   bottom: 0;
   z-index: 2;
@@ -733,7 +733,7 @@
 
 .setor-modal__btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 200, 232, 0.35);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.35);
 }
 
 .setor-modal__btn:disabled {

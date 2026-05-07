@@ -149,7 +149,7 @@ function Header({ kpis }) {
           <div className="orc-kpi__label">Aprovados</div>
         </div>
         <div className="orc-kpi">
-          <div className="orc-kpi__value" style={{ color: '#00c8e8' }}>
+          <div className="orc-kpi__value" style={{ color: '#22d3ee' }}>
             {safeKpis.valorPipelineLabel || 'R$ 0,00'}
           </div>
           <div className="orc-kpi__label">Pipeline</div>

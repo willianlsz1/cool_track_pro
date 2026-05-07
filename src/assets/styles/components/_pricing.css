@@ -113,7 +113,7 @@
 }
 
 .pricing-plan-tabs__btn--pro.pricing-plan-tabs__btn--active {
-  background: linear-gradient(90deg, #e8b94a, #00c8e8);
+  background: linear-gradient(90deg, #e8b94a, var(--ct-brand));
   color: #1a1206;
 }
 
@@ -228,7 +228,7 @@
 
 /* Pro badge: gold+cyan com shimmer sutil (alinhado ao account modal) */
 .pricing-badge--popular {
-  background: linear-gradient(90deg, #e8b94a, #00c8e8);
+  background: linear-gradient(90deg, #e8b94a, var(--ct-brand));
   background-size: 200% 100%;
   color: #1a1206;
   animation: pricing-pro-shimmer 3.5s ease-in-out infinite;
@@ -330,7 +330,7 @@
 
 /* Pro price: text-gradient gold→cyan (alinhado ao account modal) */
 .pricing-card__price--pro {
-  background: linear-gradient(135deg, #e8b94a, #00c8e8);
+  background: linear-gradient(135deg, #e8b94a, var(--ct-brand));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -506,7 +506,7 @@
   border: 1px solid rgba(232, 185, 74, 0.4);
   color: #1a1206;
   font-weight: 700;
-  background: linear-gradient(90deg, #e8b94a, #f0d27a, #00c8e8, #e8b94a);
+  background: linear-gradient(90deg, #e8b94a, #f0d27a, var(--ct-brand), #e8b94a);
   background-size: 200% 100%;
   box-shadow: 0 8px 20px rgba(232, 185, 74, 0.24);
   transition:
@@ -1072,7 +1072,7 @@
 }
 
 .pricing-compare__col--pro {
-  background: linear-gradient(135deg, #e8b94a, #00c8e8) !important;
+  background: linear-gradient(135deg, #e8b94a, var(--ct-brand)) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;

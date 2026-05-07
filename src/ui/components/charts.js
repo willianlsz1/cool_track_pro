@@ -14,7 +14,7 @@ function cssVar(name) {
 
 function getThemeColors() {
   return {
-    primary: cssVar('--primary') || '#00C8E8',
+    primary: cssVar('--primary') || '#22d3ee',
     success: cssVar('--success') || '#00C870',
     warning: cssVar('--warning') || '#E8A020',
     danger: cssVar('--danger') || '#E03040',

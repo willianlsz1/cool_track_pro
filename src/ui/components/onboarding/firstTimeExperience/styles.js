@@ -11,7 +11,7 @@ export const ftxStyles = `
 
   #ftx-card{
     background:#0C1929;
-    border:1px solid rgba(0,200,232,0.15);
+    border:1px solid rgba(34,211,238,0.15);
     border-radius:16px;
     width:100%;max-width:480px;
     padding:32px;
@@ -25,11 +25,11 @@ export const ftxStyles = `
   }
   .ftx-step-dot{
     width:6px;height:6px;border-radius:50%;
-    background:rgba(0,200,232,0.2);
+    background:rgba(34,211,238,0.2);
     transition:all .2s;
   }
   .ftx-step-dot.active{
-    background:#00C8E8;width:20px;border-radius:3px;
+    background:#22d3ee;width:20px;border-radius:3px;
   }
   .ftx-step-dot.done{background:rgba(0,200,112,0.6)}
 
@@ -41,22 +41,22 @@ export const ftxStyles = `
   }
   .ftx-logo-icon{
     width:40px;height:40px;
-    background:rgba(0,200,232,0.1);
-    border:1px solid rgba(0,200,232,0.2);
+    background:rgba(34,211,238,0.1);
+    border:1px solid rgba(34,211,238,0.2);
     border-radius:10px;
     display:flex;align-items:center;justify-content:center;
   }
   .ftx-logo-text{font-size:18px;font-weight:600;color:#E8F2FA;letter-spacing:.02em}
   .ftx-logo-sub{
     font-size:9px;font-weight:600;letter-spacing:.1em;
-    color:#00C8E8;background:rgba(0,200,232,0.1);
-    border:1px solid rgba(0,200,232,0.2);
+    color:#22d3ee;background:rgba(34,211,238,0.1);
+    border:1px solid rgba(34,211,238,0.2);
     padding:2px 6px;border-radius:4px;
   }
 
   .ftx-eyebrow{
     font-size:11px;font-weight:600;letter-spacing:.1em;
-    color:#00C8E8;margin-bottom:8px;
+    color:#22d3ee;margin-bottom:8px;
   }
   .ftx-title{
     font-size:22px;font-weight:700;color:#E8F2FA;
@@ -80,7 +80,7 @@ export const ftxStyles = `
     transition:border-color .15s;
     margin-bottom:14px;
   }
-  .ftx-input:focus{border-color:rgba(0,200,232,0.5)}
+  .ftx-input:focus{border-color:rgba(34,211,238,0.5)}
   .ftx-input::placeholder{color:rgba(138,170,200,0.4)}
   .ftx-select{
     width:100%;background:rgba(255,255,255,0.05);
@@ -92,13 +92,13 @@ export const ftxStyles = `
     margin-bottom:14px;
     cursor:pointer;
   }
-  .ftx-select:focus{border-color:rgba(0,200,232,0.5)}
+  .ftx-select:focus{border-color:rgba(34,211,238,0.5)}
   .ftx-select option{background:#0C1929;color:#E8F2FA}
 
   .ftx-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
   .ftx-btn-primary{
-    width:100%;background:#00C8E8;color:#07111F;
+    width:100%;background:#22d3ee;color:#07111F;
     border:none;border-radius:10px;
     padding:14px;font-size:15px;font-weight:600;
     font-family:inherit;cursor:pointer;
@@ -142,8 +142,8 @@ export const ftxStyles = `
   }
   .ftx-prop-icon{
     width:28px;height:28px;border-radius:6px;
-    background:rgba(0,200,232,0.08);
-    border:1px solid rgba(0,200,232,0.15);
+    background:rgba(34,211,238,0.08);
+    border:1px solid rgba(34,211,238,0.15);
     display:flex;align-items:center;justify-content:center;
     font-size:13px;flex-shrink:0;
   }

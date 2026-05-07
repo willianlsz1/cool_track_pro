@@ -241,7 +241,7 @@ export const UpgradeNudge = {
           }
 
           .upgrade-inline-hint__link {
-            color: #00c8e8;
+            color: #22d3ee;
             text-decoration: none;
             font-weight: 500;
           }
