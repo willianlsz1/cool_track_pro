@@ -181,19 +181,19 @@ body {
    - Plus: azul (#3a8ee6)
    - Pro:  dourado (#e8b94a) */
 .app-header {
-  --hdr-accent: #00c8e8;
-  --hdr-accent-dim: rgba(0, 200, 232, 0.14);
-  --hdr-accent-soft: rgba(0, 200, 232, 0.22);
+  --hdr-accent: var(--ct-brand);
+  --hdr-accent-dim: rgba(34, 211, 238, 0.14);
+  --hdr-accent-soft: rgba(34, 211, 238, 0.22);
   --hdr-accent-text: #02131f;
 }
 .app-header[data-tier='plus'] {
-  --hdr-accent: #3a8ee6;
+  --hdr-accent: #3a8ee6; /* tier plus identity color */
   --hdr-accent-dim: rgba(58, 142, 230, 0.14);
   --hdr-accent-soft: rgba(58, 142, 230, 0.22);
   --hdr-accent-text: #041530;
 }
 .app-header[data-tier='pro'] {
-  --hdr-accent: #e8b94a;
+  --hdr-accent: #e8b94a; /* tier pro identity color */
   --hdr-accent-dim: rgba(232, 185, 74, 0.16);
   --hdr-accent-soft: rgba(232, 185, 74, 0.26);
   --hdr-accent-text: #2a1f04;
