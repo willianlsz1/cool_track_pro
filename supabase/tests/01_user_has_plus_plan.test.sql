@@ -10,6 +10,13 @@
 --   - null uuid → false
 -- ============================================================
 
+-- TAP plan (Mudança 7.1): pg_prove parseia stdout esperando 1..N + ok M.
+-- Como os tests usam PL/pgSQL puro com NOTICE/RAISE em vez de framework
+-- pgTAP de verdade, emitimos o plano + ok manualmente. Se o `do $$`
+-- raise exception, psql aborta antes do `\echo 'ok 1'` final → pg_prove
+-- vê plan sem ok → reporta fail correto.
+\echo '1..1'
+
 begin;
 
 -- Fixtures: 4 usuários cobrindo as combinações.
@@ -92,3 +99,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - user_has_plus_plan + user_has_pro_plan'

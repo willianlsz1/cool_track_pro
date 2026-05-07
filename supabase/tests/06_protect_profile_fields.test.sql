@@ -18,6 +18,9 @@
 --     - User autenticado insere com is_dev=true → bloqueia
 -- ============================================================
 
+-- TAP plan: ver nota em 01_user_has_plus_plan.test.sql.
+\echo '1..1'
+
 begin;
 
 do $$
@@ -173,3 +176,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - protect_profile_fields + protect_profile_insert'

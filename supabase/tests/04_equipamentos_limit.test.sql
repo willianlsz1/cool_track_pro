@@ -9,6 +9,9 @@
 --   - Limit usa contagem total de rows do user, não só created_at do mês
 -- ============================================================
 
+-- TAP plan: ver nota em 01_user_has_plus_plan.test.sql.
+\echo '1..1'
+
 begin;
 
 do $$
@@ -123,3 +126,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - enforce_equipamentos_limit'

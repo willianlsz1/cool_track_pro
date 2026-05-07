@@ -9,6 +9,9 @@
 --   - service_role → bypassa
 -- ============================================================
 
+-- TAP plan: ver nota em 01_user_has_plus_plan.test.sql.
+\echo '1..1'
+
 begin;
 
 do $$
@@ -118,3 +121,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - enforce_photo_plan_gate'
