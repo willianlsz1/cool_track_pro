@@ -112,6 +112,7 @@ export {
  * Idempotente — pode ser chamado a qualquer momento (open modal, change tipo,
  * edit equip).
  */
+/** @sliceTarget ui/componente */
 export function syncComponenteVisibility() {
   const tipo = Utils.getVal('eq-tipo');
   const wrapper = Utils.getEl('eq-componente-wrapper');
@@ -140,6 +141,7 @@ let _equipamentosListBridgePromise = null;
 let _equipamentosListBridge = null;
 let _equipamentosListRenderGeneration = 0;
 
+/** @sliceTarget controller/bridges */
 function loadEquipamentosHeaderBridge() {
   _equipamentosHeaderBridgePromise ??=
     import('../../react/entrypoints/equipamentosHeaderIsland.jsx').then((bridge) => {
@@ -149,6 +151,7 @@ function loadEquipamentosHeaderBridge() {
   return _equipamentosHeaderBridgePromise;
 }
 
+/** @sliceTarget controller/bridges */
 function loadEquipamentosListBridge() {
   _equipamentosListBridgePromise ??=
     import('../../react/entrypoints/equipamentosListIsland.jsx').then((bridge) => {
@@ -158,6 +161,7 @@ function loadEquipamentosListBridge() {
   return _equipamentosListBridgePromise;
 }
 
+/** @sliceTarget ui/unmount */
 export function unmountEquipamentosHeader() {
   _equipamentosHeaderRenderGeneration += 1;
   const root = document.getElementById('equip-hero');
@@ -174,6 +178,7 @@ export function unmountEquipamentosHeader() {
   });
 }
 
+/** @sliceTarget ui/unmount */
 export function unmountEquipamentosList() {
   _equipamentosListRenderGeneration += 1;
   const root = document.getElementById('lista-equip');
@@ -190,6 +195,7 @@ export function unmountEquipamentosList() {
   });
 }
 
+/** @sliceTarget controller/eventBind */
 function _bindRenderEquipPlanInvalidationEvents() {
   if (_renderEquipPlanEventsBound || typeof window === 'undefined') return;
   _renderEquipPlanEventsBound = true;
@@ -202,11 +208,13 @@ function _bindRenderEquipPlanInvalidationEvents() {
   );
 }
 
+/** @sliceTarget utils/options */
 function _stripRenderInternalOptions(options = {}) {
   const { __skipPlanRefresh: _skip, ...publicOptions } = options || {};
   return publicOptions;
 }
 
+/** @sliceTarget controller/planSync */
 function _refreshRenderEquipPlan({
   filtro = '',
   options = {},
@@ -234,10 +242,12 @@ function _refreshRenderEquipPlan({
   })();
 }
 
+/** @sliceTarget utils/state */
 export function getEditingEquipId() {
   return _editingEquipId;
 }
 
+/** @sliceTarget ui/actionButtons */
 function setEquipActionButtonVisible(button, visible) {
   if (!button) return;
   const display = visible ? '' : 'none';
@@ -246,11 +256,13 @@ function setEquipActionButtonVisible(button, visible) {
   if (row) row.style.display = display;
 }
 
+/** @sliceTarget ui/actionButtons */
 function setEquipActionFooterHintVisible(visible) {
   const hint = document.getElementById('eq-action-footer-hint');
   if (hint) hint.hidden = !visible;
 }
 
+/** @sliceTarget ui/svg */
 function createActionTrayPlusIcon() {
   const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   icon.setAttribute('class', 'action-tray__icon');
@@ -267,12 +279,18 @@ function createActionTrayPlusIcon() {
   return icon;
 }
 
+/** @sliceTarget ui/actionButtons */
 function setEquipActionTrayButtonLabel(button, label, { plusIcon = false } = {}) {
   if (!button) return;
   button.replaceChildren();
   if (plusIcon) button.append(createActionTrayPlusIcon());
   button.append(document.createTextNode(label));
 }
+/**
+ * @sliceSplit
+ *   ui/modal: reset visual do modal-add-eq (titulos, botoes, photos)
+ *   crud/clear: reset de _editingEquipId + nameplate metadata + forced context
+ */
 export function clearEditingState() {
   _editingEquipId = null;
   const titleEl = Utils.getEl('modal-add-eq-title');
@@ -314,6 +332,11 @@ export function clearEditingState() {
   clearForcedEquipContext();
 }
 
+/**
+ * @sliceSplit
+ *   ui/modal: render plan-aware (Free/Plus/Pro) com labels, subheads e CTAs
+ *   setor/context: leitura de _forcedEquipContext + lock UI dos triggers
+ */
 export function applyEquipModalExperience({ triggerEl = null } = {}) {
   const titleEl = Utils.getEl('modal-add-eq-title');
   const subtitleEl = Utils.getEl('modal-add-eq-subtitle');
@@ -407,6 +430,7 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
   setEquipActionFooterHintVisible(true);
 }
 
+/** @sliceTarget setor/context */
 export function clearForcedEquipContext() {
   _forcedEquipContext = null;
   const setorTrigger = document.getElementById('eq-setor-trigger');
@@ -424,6 +448,7 @@ export function clearForcedEquipContext() {
   }
 }
 
+/** @sliceTarget setor/context */
 export function lockEquipContext({
   clienteId = null,
   clienteNome = '',
@@ -496,9 +521,11 @@ export function lockEquipContext({
 
 // Setor card rendering lives in ./equipamentos/setores.js.
 
+/** @sliceTarget utils/state */
 export function getActiveQuickFilter() {
   return _getRouteEquipCtx().quickFilter;
 }
+/** @sliceTarget controller/navigation */
 export function setActiveQuickFilter(id) {
   const quickFilter = id && id !== 'todos' ? id : null;
   const currentCtx = _getRouteEquipCtx();
@@ -526,6 +553,7 @@ export { computeEquipKpis, renderEquipHero, renderEquipFilters };
  *  hideDefaultCta=true suprime o "+ Novo equipamento" default (usado em
  *  contexto cliente, onde adicionar equipamento é feito via drill-down
  *  de setor — não via toolbar global). */
+/** @sliceTarget ui/toolbar */
 function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   const titleEl = Utils.getEl('equip-page-title');
   const subtitleEl = Utils.getEl('equip-page-subtitle');
@@ -550,6 +578,7 @@ function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   }
 }
 
+/** @sliceTarget controller/mount */
 function mountEquipamentosHeader(viewModel) {
   const root = Utils.getEl('equip-hero');
   if (!root) return null;
@@ -569,6 +598,7 @@ function mountEquipamentosHeader(viewModel) {
  * e com um cadeado + pill PRO pra deixar explícito que é feature paga.
  * Tooltip nativo via `title` explica porque está bloqueado.
  */
+/** @sliceTarget ui/setor */
 function _lockedSetorBtnHtml() {
   return `
     <button
@@ -586,6 +616,7 @@ function _lockedSetorBtnHtml() {
 }
 
 /** Popula o select de setores no modal de cadastro de equipamento. */
+/** @sliceTarget ui/form */
 export function populateSetorSelect(isPro = false) {
   const wrapper = Utils.getEl('eq-setor-wrapper');
   const select = Utils.getEl('eq-setor');
@@ -622,6 +653,7 @@ export function populateSetorSelect(isPro = false) {
  *  Preserva clienteId se estivermos no contexto de um cliente — assim o
  *  drill-down dentro do cliente ainda mostra o chip "Limpar cliente" e
  *  o titulo "Setor X de [Cliente Y]". */
+/** @sliceTarget setor/navigation */
 export function setActiveSector(id) {
   const currentCtx = _getRouteEquipCtx();
   _navigateEquipCtx({
@@ -635,6 +667,11 @@ export function setActiveSector(id) {
 }
 
 /** Renderiza a grade de setores (vista PRO). */
+/**
+ * @sliceSplit
+ *   ui/setor: render dos setor cards + empty state + toolbar
+ *   controller/render: orquestracao (unmount React, fetch state, set toolbar)
+ */
 function renderSetorGrid() {
   const el = Utils.getEl('lista-equip');
   if (!el) return;
@@ -682,6 +719,11 @@ function renderSetorGrid() {
  *
  * Inclui tile "Sem setor" se houver equipamentos do cliente sem setor
  * (compat: equipamentos antigos cadastrados antes da hierarquia).
+ */
+/**
+ * @sliceSplit
+ *   ui/setor: render filtrado por cliente + empty state hero + toolbar customizada
+ *   controller/render: orquestracao + bug fix #100 (dual-path filter)
  */
 function renderSetorGridForCliente(clienteId, clienteNome) {
   const el = Utils.getEl('lista-equip');
@@ -837,6 +879,7 @@ const EQUIP_TONE_LABELS = {
   danger: 'Crítico',
 };
 
+/** @sliceTarget utils/cardModel */
 function buildEquipamentoListCardModel(eq, evalCtx) {
   const eqRegs = evalCtx.getRegs(eq.id);
   const context = evalCtx.getMaintenanceContext(eq);
@@ -914,6 +957,7 @@ function buildEquipamentoListCardModel(eq, evalCtx) {
   };
 }
 
+/** @sliceTarget utils/emptyState */
 function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
   const fallback = {
     title: 'Nenhum equipamento encontrado',
@@ -952,6 +996,7 @@ function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
   };
 }
 
+/** @sliceTarget utils/listModel */
 function buildReactListViewModel(viewModel, { evalCtx, clusterActive, filterClienteId, isPro }) {
   const cards = viewModel.sortedItems.map((eq) => buildEquipamentoListCardModel(eq, evalCtx));
   const cardsById = new Map(cards.map((card) => [card.id, card]));
@@ -972,6 +1017,11 @@ function buildReactListViewModel(viewModel, { evalCtx, clusterActive, filterClie
 }
 
 /** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
+/**
+ * @sliceSplit
+ *   ui/list: build do reactViewModel + render skeleton + mount React
+ *   controller/render: orquestra fetch state, viewModel build, generation counter
+ */
 function renderFlatList(filtro = '', options = {}, setorId = null) {
   const { equipamentos, registros, clientes, setores } = getState();
   const evalCtx = _createEquipRenderEvalContext();
@@ -1035,6 +1085,13 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   );
 }
 
+/**
+ * @sliceSplit
+ *   controller/render: entrypoint principal, route resolution, plan refresh, gate logic
+ *   ui/hero: subtitle + searchBar visibility + toolbar + header mount
+ *   ui/list: chamadas a renderFlatList/renderSetorGrid em cada branch
+ * @sliceObs god-function central — alvo prioritario de pre-split em CP-G
+ */
 export async function renderEquip(filtro = '', options = {}) {
   _bindRenderEquipPlanInvalidationEvents();
   const renderToken = ++_renderEquipPlanToken;
@@ -1183,6 +1240,7 @@ export async function renderEquip(filtro = '', options = {}) {
 // passar por ensureProForSetores() — defesa em profundidade contra gates
 // de UI que podem ficar stale se o usuário abrir a modal e depois rebaixar
 // o plano em outra aba.
+/** @sliceTarget setor/guard */
 async function ensureProForSetores({ action = 'manage' } = {}) {
   try {
     const { fetchMyProfileBilling } = await import('../../core/plans/monetization.js');
@@ -1208,6 +1266,7 @@ async function ensureProForSetores({ action = 'manage' } = {}) {
 //
 // Paleta de 10 cores (expandida de 6) pra dar mais identidade visual aos
 // setores sem virar arco-íris. Default = --primary (#00c8e8, Ciano).
+/** @sliceTarget ui/modal */
 function _setSaveBtnLabel(text) {
   const btn = Utils.getEl('setor-save-btn');
   if (!btn) return;
@@ -1215,6 +1274,7 @@ function _setSaveBtnLabel(text) {
   if (label) label.textContent = text;
 }
 
+/** @sliceTarget ui/validation */
 function _setSetorNomeValidationState({ showError, focus = false, markTouched = false } = {}) {
   const err = Utils.getEl('setor-nome-err');
   const nomeInput = Utils.getEl('setor-nome');
@@ -1226,6 +1286,7 @@ function _setSetorNomeValidationState({ showError, focus = false, markTouched = 
   }
 }
 
+/** @sliceTarget ui/validation */
 function _syncSetorSaveButtonState() {
   const saveBtn = Utils.getEl('setor-save-btn');
   if (!saveBtn) return;
@@ -1237,6 +1298,7 @@ function _syncSetorSaveButtonState() {
 // Estado do fluxo de edição do setor. Quando preenchido, saveSetor()
 // atualiza em vez de criar.
 let _editingSetorId = null;
+/** @sliceTarget utils/state */
 export function getEditingSetorId() {
   return _editingSetorId;
 }
@@ -1257,6 +1319,7 @@ export function getEditingSetorId() {
  *   orphan ao cliente. No-op se setor já tiver clienteId.
  * @returns {{moved: number, linkedSetor: boolean}}
  */
+/** @sliceTarget crud/move */
 export function moveEquipsToSetor(equipIds, setorId, clienteIdToLink = null) {
   if (!Array.isArray(equipIds) || !equipIds.length || !setorId) {
     return { moved: 0, linkedSetor: false };
@@ -1291,6 +1354,7 @@ export function moveEquipsToSetor(equipIds, setorId, clienteIdToLink = null) {
 }
 
 /** Reseta todo o form do modal e volta pra modo "criar". */
+/** @sliceTarget ui/modal */
 export function clearSetorEditingState() {
   _editingSetorId = null;
   const titleEl = Utils.getEl('modal-add-setor-title');
@@ -1334,6 +1398,7 @@ export function clearSetorEditingState() {
   _syncSetorSaveButtonState();
 }
 
+/** @sliceTarget ui/modal */
 export function openEditSetor(id) {
   const setor = findSetor(id);
   if (!setor) {
@@ -1386,6 +1451,7 @@ export function openEditSetor(id) {
  * Roda síncrono e barato: altera textContent + CSS custom property.
  * Também pulsa o card por 350ms pra sinalizar troca de cor.
  */
+/** @sliceTarget ui/preview */
 function _syncSetorModalPreview() {
   const card = Utils.getEl('setor-modal-preview-card');
   if (!card) return;
@@ -1435,6 +1501,7 @@ function _syncSetorModalPreview() {
 }
 
 /** Atualiza contadores (0/40, 0/120) + marca como over quando passa do limite. */
+/** @sliceTarget ui/validation */
 function _syncSetorModalCounters() {
   const nome = Utils.getVal('setor-nome') || '';
   const desc = Utils.getVal('setor-descricao') || '';
@@ -1455,6 +1522,7 @@ function _syncSetorModalCounters() {
  * Inicializa o color picker + live preview do modal de setor. Idempotente:
  * Se já foi wirado, apenas sincroniza o preview sem rebindar listeners.
  */
+/** @sliceTarget ui/colorPicker */
 export function initSetorColorPicker() {
   const picker = Utils.getEl('setor-color-picker');
   const hiddenInput = Utils.getEl('setor-cor');
@@ -1515,6 +1583,11 @@ export function initSetorColorPicker() {
   _syncSetorSaveButtonState();
 }
 
+/**
+ * @sliceSplit
+ *   crud/setor: validacao, persistencia (state + storage), assign equips
+ *   ui/modal: closeModal + clearSetorEditingState + Toast pos-save
+ */
 export async function saveSetor() {
   const isEditing = Boolean(_editingSetorId);
   const allowed = await ensureProForSetores({ action: isEditing ? 'update' : 'create' });
@@ -1581,6 +1654,7 @@ export async function saveSetor() {
   return true;
 }
 
+/** @sliceTarget crud/setor */
 export async function deleteSetor(id) {
   if (id === '__sem_setor__') return;
 
@@ -1614,6 +1688,7 @@ export async function deleteSetor(id) {
  * Atribui (ou remove) um setor a um equipamento já cadastrado.
  * Chamado pelo select inline no modal de detalhes.
  */
+/** @sliceTarget crud/setor */
 export async function assignEquipToSetor(equipId, setorId) {
   const eq = findEquip(equipId);
   if (!eq) return;
@@ -1665,6 +1740,12 @@ export async function assignEquipToSetor(equipId, setorId) {
  * @param {string} id - id do equipamento
  * @param {object} [opts]
  * @param {string} [opts.focusField] - slug do campo a focar (ex: 'tag')
+ */
+/**
+ * @sliceSplit
+ *   ui/modal: pre-popula form fields, abre modal-add-eq, sync nameplate UI
+ *   nameplate: aplica nameplate metadata + restore dados placa
+ * @sliceObs depende de fetchMyProfileBillingCached (async billing) — ver CP-F
  */
 export async function openEditEquip(id, opts = {}) {
   const eq = findEquip(id);
@@ -1821,6 +1902,7 @@ export async function openEditEquip(id, opts = {}) {
  * loga warning e segue — o modal já abriu e o usuário pode editar
  * normalmente.
  */
+/** @sliceTarget ui/modal */
 function _focusEditField(fieldKey) {
   const targetId = EDIT_FOCUS_FIELD_MAP[fieldKey];
   if (!targetId) {
@@ -1893,6 +1975,13 @@ function _focusEditField(fieldKey) {
   });
 }
 
+/**
+ * @sliceSplit
+ *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
+ *   ui/modal: clearEditingState + closeModal + Toast feedback
+ *   controller/post: dispatch das post-actions (clone, register, pmoc, save-without-client)
+ * @sliceObs god-function de CRUD — alvo prioritario de pre-split em CP-F
+ */
 export async function saveEquip(options = {}) {
   const postAction = String(options?.postAction || '').trim();
   const keepOpen = postAction === 'clone';
@@ -2134,6 +2223,7 @@ export async function saveEquip(options = {}) {
  * Sem TAG: apenas o local. Sem local (caso impossível mas defensivo):
  * apenas a TAG ou string vazia.
  */
+/** @sliceTarget utils/detail */
 function _eqDetailSubtitle(eq) {
   const parts = [];
   if (eq.local) parts.push(Utils.escapeHtml(eq.local));
@@ -2158,6 +2248,7 @@ function _eqDetailSubtitle(eq) {
  * @param {string} [fieldKey] - slug pra openEditEquip focar o campo após
  *   abrir o modal (ex: 'tag', 'modelo'). Sem fieldKey, modal abre sem foco.
  */
+/** @sliceTarget utils/detail */
 function _infoRowValueOrEmpty(value, addLabel, safeId, variant = '', fieldKey = '') {
   const clean = value && String(value).trim() !== '' ? String(value).trim() : null;
   if (clean) {
@@ -2187,6 +2278,7 @@ function _infoRowValueOrEmpty(value, addLabel, safeId, variant = '', fieldKey = 
  *  - positivos ("rotina estável", "sem corretivas") → chip informativo
  *  - outros → chip informativo neutro
  */
+/** @sliceTarget utils/detail */
 function _riskFactorChipHtml(factor, safeId) {
   const factorStr = String(factor || '').trim();
   const lower = factorStr.toLowerCase();
@@ -2226,6 +2318,12 @@ function _riskFactorChipHtml(factor, safeId) {
     </button>`;
 }
 
+/**
+ * @sliceSplit
+ *   ui/detail: ~448 LOC de HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
+ *   risco: avaliacao de risk + classification + factors + suggested action
+ * @sliceObs god-function de detail (#1 LOC do arquivo) — alvo prioritario de pre-split em CP-G
+ */
 export async function viewEquip(id) {
   const eq = findEquip(id);
   if (!eq) return;
@@ -2675,6 +2773,7 @@ export async function viewEquip(id) {
   }
 }
 
+/** @sliceTarget crud/equip */
 export async function deleteEquip(id) {
   const { registros } = getState();
   const linkedRegistros = registros.filter((r) => r.equipId === id).map((r) => r.id);
@@ -2701,6 +2800,7 @@ export async function deleteEquip(id) {
   Toast.info('Equipamento removido.');
 }
 
+/** @sliceTarget ui/form */
 export function populateEquipSelects() {
   const { equipamentos, técnicos } = getState();
   const selectConfigs = [
