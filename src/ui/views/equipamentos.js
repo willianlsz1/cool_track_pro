@@ -16,14 +16,12 @@ import { checkPlanLimit } from '../../core/planLimits.js';
 import { currentRoute, goTo } from '../../core/router.js';
 import { trackEvent } from '../../core/telemetry.js';
 import {
-  calculateHealthScore,
   getHealthClass,
   evaluateEquipmentHealth,
   evaluateEquipmentRisk,
   getSuggestedPreventiveDays,
   normalizePeriodicidadePreventivaDias,
 } from '../../domain/maintenance.js';
-import { ACTION_CODE } from '../../domain/suggestedAction.js';
 import { getPreventivaDueEquipmentIds } from '../../domain/alerts.js';
 import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { DadosPlacaValidationError, formatDecimalHint } from '../../domain/dadosPlacaValidation.js';
@@ -77,17 +75,14 @@ import {
   setorContrastWithWhite,
 } from './equipamentos/setorHelpers.js';
 import {
-  PRIORIDADE_LABEL,
-  RISK_CLASS_LABEL,
-  STATUS_OPERACIONAL,
-} from './equipamentos/constants.js';
+  _stripRenderInternalOptions,
+  buildReactListViewModel,
+} from '../../features/equipamentos/utils/viewModels.js';
 import {
-  classifyRiskFactor,
-  recencia,
-  ctaLabelForAction,
-  componentPillModel,
-  preventiveTimelineModel,
-} from './equipamentos/helpers.js';
+  _eqDetailSubtitle,
+  _infoRowValueOrEmpty,
+  _riskFactorChipHtml,
+} from '../../features/equipamentos/utils/detail.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -208,11 +203,8 @@ function _bindRenderEquipPlanInvalidationEvents() {
   );
 }
 
-/** @sliceTarget utils/options */
-function _stripRenderInternalOptions(options = {}) {
-  const { __skipPlanRefresh: _skip, ...publicOptions } = options || {};
-  return publicOptions;
-}
+// _stripRenderInternalOptions extraído pra
+// src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
 
 /** @sliceTarget controller/planSync */
 function _refreshRenderEquipPlan({
@@ -242,7 +234,11 @@ function _refreshRenderEquipPlan({
   })();
 }
 
-/** @sliceTarget utils/state */
+/**
+ * @sliceTarget state/editingState
+ * @sliceObs reclassificada em CP-B (lê _editingEquipId module-level — não é
+ *   pura). Vai pra src/features/equipamentos/state/editingState.js no CP-B.5.
+ */
 export function getEditingEquipId() {
   return _editingEquipId;
 }
@@ -521,7 +517,11 @@ export function lockEquipContext({
 
 // Setor card rendering lives in ./equipamentos/setores.js.
 
-/** @sliceTarget utils/state */
+/**
+ * @sliceTarget state/editingState
+ * @sliceObs reclassificada em CP-B (lê state via _getRouteEquipCtx()). Vai
+ *   pra src/features/equipamentos/state/editingState.js no CP-B.5.
+ */
 export function getActiveQuickFilter() {
   return _getRouteEquipCtx().quickFilter;
 }
@@ -873,148 +873,9 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
   el.innerHTML = `<div class="setor-grid">${setorCards.join('')}${semSetorTile}</div>`;
 }
 
-const EQUIP_TONE_LABELS = {
-  ok: 'Estável',
-  warn: 'Em atenção',
-  danger: 'Crítico',
-};
-
-/** @sliceTarget utils/cardModel */
-function buildEquipamentoListCardModel(eq, evalCtx) {
-  const eqRegs = evalCtx.getRegs(eq.id);
-  const context = evalCtx.getMaintenanceContext(eq);
-  const last = context.ultimoRegistro;
-  const score = calculateHealthScore(eq, regsForEquip(eq.id));
-  const healthClass = getHealthClass(score);
-  const statusClass = Utils.safeStatus(eq.status);
-  const priorityLabel = PRIORIDADE_LABEL[eq.criticidade] || PRIORIDADE_LABEL.media;
-  const risk = evalCtx.getRisk(eq);
-  const suggestedAction = evalCtx.getSuggestedAction(eq);
-  const hasAction =
-    suggestedAction.actionCode !== ACTION_CODE.NONE &&
-    suggestedAction.actionCode !== ACTION_CODE.MONITOR;
-  const hasMetrics = Boolean(last) || Boolean(context.proximaPreventiva);
-  const isFullyIdle = evalCtx.isFullyIdle(eq);
-  const isActivationPending = !last && suggestedAction.actionCode === ACTION_CODE.COLLECT_DATA;
-  const ctaLabel =
-    !last && !hasAction ? 'Começar' : ctaLabelForAction(suggestedAction.actionCode, ACTION_CODE);
-  const isUrgent =
-    statusClass === 'danger' ||
-    (risk.factors || []).some((factor) => /parado desde|preventiva vencida/i.test(String(factor)));
-  const primaryLabel = isActivationPending
-    ? 'STATUS INICIAL'
-    : isUrgent
-      ? 'AÇÃO URGENTE'
-      : 'PRÓXIMA AÇÃO';
-  const timeline = hasMetrics
-    ? {
-        lastLabel: last ? recencia(last.data) : '—',
-        ...(preventiveTimelineModel(context, Utils.daysDiff) || {
-          nextLabel: 'sem agenda',
-          nextTone: 'neutral',
-        }),
-      }
-    : null;
-  const visual = getEquipmentVisualMeta(eq);
-
-  return {
-    id: String(eq.id || ''),
-    name: String(eq.nome || ''),
-    statusClass,
-    statusLabel: EQUIP_TONE_LABELS[statusClass] || EQUIP_TONE_LABELS.ok,
-    ariaLabel: `${eq.nome || ''} — ${STATUS_OPERACIONAL[statusClass] || ''}`,
-    isIdle: isFullyIdle,
-    visual,
-    nameClass: statusClass === 'danger' ? 'equip-card__name--danger' : '',
-    tagParts: [
-      isFullyIdle && eq.tag && String(eq.tag).trim() ? String(eq.tag).trim() : eq.tag || '—',
-      eq.fluido || eq.tipo || '—',
-      priorityLabel,
-    ].filter((part, index) => (isFullyIdle && index === 0 ? Boolean(part && part !== '—') : true)),
-    componentPill: componentPillModel(eq.componente),
-    subtitle: eq.local || 'Local não informado',
-    score,
-    healthClass,
-    risk: {
-      classification: risk.classification || 'baixo',
-      label: RISK_CLASS_LABEL[risk.classification] || RISK_CLASS_LABEL.baixo,
-      score: Number(risk.score) || 0,
-      factors: (risk.factors || []).map((factor) => ({
-        label: String(factor || ''),
-        tone: classifyRiskFactor(factor),
-      })),
-    },
-    timeline,
-    primaryLabel,
-    primaryTitle: isActivationPending
-      ? 'Sem manutenção recente ⚠️'
-      : hasAction
-        ? suggestedAction.actionLabel
-        : ctaLabel,
-    primaryMeta: hasAction && last?.tecnico ? `Por ${last.tecnico} · ${recencia(last.data)}` : '',
-    ctaLabel,
-    eqRegsCount: eqRegs.length,
-  };
-}
-
-/** @sliceTarget utils/emptyState */
-function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
-  const fallback = {
-    title: 'Nenhum equipamento encontrado',
-    description: 'Tente outro termo ou cadastre um novo.',
-    cta: {
-      label: '+ Novo equipamento',
-      action: 'open-modal',
-      id: 'modal-add-eq',
-    },
-  };
-  const source = emptyCopy || fallback;
-  const cta = source.cta?.action
-    ? {
-        label: source.cta.label,
-        action: source.cta.action,
-        id: source.cta.id || '',
-        tone: 'primary',
-        size: 'sm',
-        autoWidth: true,
-      }
-    : {
-        label: '+ Novo equipamento',
-        action: 'open-modal',
-        id: 'modal-add-eq',
-        tone: 'primary',
-        size: 'sm',
-        autoWidth: true,
-      };
-
-  return {
-    icon: source.cta?.action === 'eq-add-for-cliente' ? '👥' : '🔧',
-    title: source.title,
-    description: source.description,
-    cta,
-    proHint: Boolean(isPro && !filterClienteId),
-  };
-}
-
-/** @sliceTarget utils/listModel */
-function buildReactListViewModel(viewModel, { evalCtx, clusterActive, filterClienteId, isPro }) {
-  const cards = viewModel.sortedItems.map((eq) => buildEquipamentoListCardModel(eq, evalCtx));
-  const cardsById = new Map(cards.map((card) => [card.id, card]));
-  const toCards = (items) =>
-    (items || []).map((eq) => cardsById.get(String(eq.id || ''))).filter(Boolean);
-
-  return {
-    listTitle: 'Todos os equipamentos',
-    cards,
-    idleCards: toCards(viewModel.idleItems),
-    activeCards: toCards(viewModel.activeItems),
-    clusterActive,
-    quickMove: viewModel.quickMove,
-    emptyState: cards.length
-      ? null
-      : buildReactListEmptyState(viewModel.emptyState, { filterClienteId, isPro }),
-  };
-}
+// EQUIP_TONE_LABELS, buildEquipamentoListCardModel, buildReactListEmptyState,
+// buildReactListViewModel extraídos pra
+// src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
 
 /** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
 /**
@@ -1298,7 +1159,11 @@ function _syncSetorSaveButtonState() {
 // Estado do fluxo de edição do setor. Quando preenchido, saveSetor()
 // atualiza em vez de criar.
 let _editingSetorId = null;
-/** @sliceTarget utils/state */
+/**
+ * @sliceTarget state/editingState
+ * @sliceObs reclassificada em CP-B (lê _editingSetorId module-level — não é
+ *   pura). Vai pra src/features/equipamentos/state/editingState.js no CP-B.5.
+ */
 export function getEditingSetorId() {
   return _editingSetorId;
 }
@@ -2217,106 +2082,8 @@ export async function saveEquip(options = {}) {
   return true;
 }
 
-/**
- * Subtítulo do detail view: combina Local + TAG numa única linha muted
- * abaixo do nome do equipamento. Local é obrigatório, TAG é opcional.
- * Sem TAG: apenas o local. Sem local (caso impossível mas defensivo):
- * apenas a TAG ou string vazia.
- */
-/** @sliceTarget utils/detail */
-function _eqDetailSubtitle(eq) {
-  const parts = [];
-  if (eq.local) parts.push(Utils.escapeHtml(eq.local));
-  if (eq.tag && String(eq.tag).trim() !== '') {
-    parts.push(
-      `<span class="eq-detail-title-block__tag">${Utils.escapeHtml(String(eq.tag).trim())}</span>`,
-    );
-  }
-  return parts.join(' · ');
-}
-
-/**
- * Renderiza um info-row__value: mostra o valor se existe, ou um CTA
- * "Adicionar X" clicável (abre o modal de editar) se vazio. Antes, campos
- * vazios mostravam só "—" — desperdício de atenção do técnico. Agora o "—"
- * vira convite a preencher no momento em que ele está lendo a ficha.
- *
- * @param {string} value
- * @param {string} addLabel
- * @param {string} safeId
- * @param {string} [variant] - 'mono' aplica info-row__value--mono
- * @param {string} [fieldKey] - slug pra openEditEquip focar o campo após
- *   abrir o modal (ex: 'tag', 'modelo'). Sem fieldKey, modal abre sem foco.
- */
-/** @sliceTarget utils/detail */
-function _infoRowValueOrEmpty(value, addLabel, safeId, variant = '', fieldKey = '') {
-  const clean = value && String(value).trim() !== '' ? String(value).trim() : null;
-  if (clean) {
-    const variantCls = variant === 'mono' ? ' info-row__value--mono' : '';
-    return `<span class="info-row__value${variantCls}">${Utils.escapeHtml(clean)}</span>`;
-  }
-  const focusAttr = fieldKey ? ` data-focus-field="${Utils.escapeAttr(fieldKey)}"` : '';
-  return `<button type="button" class="info-row__value info-row__value--add"
-    data-action="edit-equip" data-id="${safeId}"${focusAttr}
-    aria-label="${Utils.escapeAttr(addLabel)}">
-    ${Utils.escapeHtml(addLabel)}
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-  </button>`;
-}
-
-/**
- * Mapeia um "factor" de risco (string vinda de evaluateEquipmentRisk) pra um
- * chip com ou sem CTA. Pedido do refino UX: antes, os factors eram só texto
- * informativo — "preventiva sem agenda" aparecia mas não levava a ação
- * alguma. Agora, chips acionáveis viram atalho: click abre modal de editar
- * (pra agendar) ou o fluxo de registro (pra preventiva vencida).
- *
- * Regra de decisão:
- *  - "sem agenda" / "não agendada" → CTA "Agendar" (edit-equip)
- *  - "vencida" / "atrasada" → CTA "Registrar" (go-register-equip)
- *  - "criticidade alta/crítica/operacional" → CTA "Ajustar" (edit-equip)
- *  - positivos ("rotina estável", "sem corretivas") → chip informativo
- *  - outros → chip informativo neutro
- */
-/** @sliceTarget utils/detail */
-function _riskFactorChipHtml(factor, safeId) {
-  const factorStr = String(factor || '').trim();
-  const lower = factorStr.toLowerCase();
-  const escaped = Utils.escapeHtml(factorStr);
-
-  // Detecta intenção a partir do texto do factor + qual campo focar
-  // quando o action é edit-equip (focusField propaga via data attribute).
-  let action = null;
-  let actionLabel = null;
-  let focusField = null;
-  if (lower.includes('sem agenda') || lower.includes('não agendada')) {
-    action = 'edit-equip';
-    actionLabel = 'Agendar';
-    focusField = 'periodicidade';
-  } else if (lower.includes('vencida') || lower.includes('atrasada')) {
-    action = 'go-register-equip';
-    actionLabel = 'Registrar';
-  } else if (
-    lower.includes('criticidade') &&
-    (lower.includes('alta') || lower.includes('crítica') || lower.includes('operacional'))
-  ) {
-    action = 'edit-equip';
-    actionLabel = 'Ajustar';
-    focusField = 'criticidade';
-  }
-
-  if (!action) {
-    return `<span class="eq-risk-panel__factor">${escaped}</span>`;
-  }
-  const focusAttr = focusField ? ` data-focus-field="${focusField}"` : '';
-  return `<button type="button"
-      class="eq-risk-panel__factor eq-risk-panel__factor--actionable"
-      data-action="${action}" data-id="${safeId}"${focusAttr}
-      aria-label="${escaped} — ${actionLabel}">
-      <span class="eq-risk-panel__factor-text">${escaped}</span>
-      <span class="eq-risk-panel__factor-cta">${actionLabel} <span aria-hidden="true">→</span></span>
-    </button>`;
-}
+// _eqDetailSubtitle, _infoRowValueOrEmpty, _riskFactorChipHtml extraídos
+// pra src/features/equipamentos/utils/detail.js (Mudança 11 / CP-B).
 
 /**
  * @sliceSplit
