@@ -1325,20 +1325,23 @@ function _focusEditField(fieldKey) {
 }
 
 /**
- * @sliceSplit
- *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
- *   ui/modal: clearEditingState + closeModal + Toast feedback
- *   controller/post: dispatch das post-actions (clone, register, pmoc, save-without-client)
- * @sliceObs god-function de CRUD — alvo prioritario de pre-split em CP-F
+ * @sliceTarget ui/form
  */
-export async function saveEquip(options = {}) {
+function _getSaveEquipPostActionContext(options = {}) {
   const postAction = String(options?.postAction || '').trim();
-  const keepOpen = postAction === 'clone';
-  const openRegistro = postAction === 'register';
-  const openPmoc = postAction === 'pmoc';
-  const saveWithoutClient = postAction === 'save-without-client';
-  const { equipamentos } = getState();
+  return {
+    postAction,
+    keepOpen: postAction === 'clone',
+    openRegistro: postAction === 'register',
+    openPmoc: postAction === 'pmoc',
+    saveWithoutClient: postAction === 'save-without-client',
+  };
+}
 
+/**
+ * @sliceTarget crud/validate
+ */
+async function _checkSaveEquipPlanLimit(equipamentos) {
   // Pula a verificação de limite quando está editando (não cria novo registro)
   if (!getEditingEquipId()) {
     const planLimit = await checkPlanLimit('equipamentos', equipamentos.length);
@@ -1360,9 +1363,14 @@ export async function saveEquip(options = {}) {
       return false;
     }
   }
-  const tipo = Utils.getVal('eq-tipo');
-  const criticidade = Utils.getVal('eq-criticidade') || 'media';
-  const prioridadeOperacional = Utils.getVal('eq-prioridade') || 'normal';
+
+  return true;
+}
+
+/**
+ * @sliceTarget crud/validate
+ */
+function _validateSaveEquipPayload(equipamentos) {
   const payloadValidation = validateEquipamentoPayload(
     {
       nome: Utils.getVal('eq-nome'),
@@ -1375,21 +1383,16 @@ export async function saveEquip(options = {}) {
 
   if (!payloadValidation.valid) {
     Toast.warning(payloadValidation.errors[0]);
-    return false;
+    return null;
   }
 
-  const periodicidadePreventivaDias = normalizePeriodicidadePreventivaDias(
-    Utils.getVal('eq-periodicidade'),
-    tipo,
-    criticidade,
-  );
+  return payloadValidation;
+}
 
-  const setorId = getForcedEquipContext()?.setorId || Utils.getVal('eq-setor') || null;
-  // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
-  const clienteId = saveWithoutClient
-    ? null
-    : getForcedEquipContext()?.clienteId || Utils.getVal('eq-cliente') || null;
-
+/**
+ * @sliceTarget nameplate/bridge
+ */
+function _collectSaveEquipDadosPlaca() {
   // Dados da etiqueta (13 campos opcionais). Coletados em JSONB pra persistência
   // em equipamentos.dados_placa. Se nenhum foi preenchido, mantém object vazio
   // (migration constraint: jsonb_typeof = 'object').
@@ -1397,9 +1400,8 @@ export async function saveEquip(options = {}) {
   // collectDadosPlaca() pode lançar DadosPlacaValidationError quando um valor
   // decimal ultrapassa o range plausível (provável separador decimal esquecido).
   // Traduzimos pra Toast amigável e focamos o input em vez de propagar o erro.
-  let dadosPlaca;
   try {
-    dadosPlaca = collectDadosPlaca();
+    return { ok: true, dadosPlaca: collectDadosPlaca() };
   } catch (err) {
     if (err instanceof DadosPlacaValidationError) {
       const hint = formatDecimalHint(err.value);
@@ -1412,11 +1414,50 @@ export async function saveEquip(options = {}) {
         input.focus();
         if (typeof input.select === 'function') input.select();
       }
-      return false;
+      return { ok: false };
     }
     throw err;
   }
+}
 
+/**
+ * @sliceTarget ui/form
+ */
+function _collectSaveEquipBaseFormValues() {
+  return {
+    tipo: Utils.getVal('eq-tipo'),
+    criticidade: Utils.getVal('eq-criticidade') || 'media',
+    prioridadeOperacional: Utils.getVal('eq-prioridade') || 'normal',
+  };
+}
+
+/**
+ * @sliceTarget ui/form
+ */
+function _collectSaveEquipContextFormValues({ baseFormValues, saveWithoutClient }) {
+  const periodicidadePreventivaDias = normalizePeriodicidadePreventivaDias(
+    Utils.getVal('eq-periodicidade'),
+    baseFormValues.tipo,
+    baseFormValues.criticidade,
+  );
+  const setorId = getForcedEquipContext()?.setorId || Utils.getVal('eq-setor') || null;
+  // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
+  const clienteId = saveWithoutClient
+    ? null
+    : getForcedEquipContext()?.clienteId || Utils.getVal('eq-cliente') || null;
+
+  return {
+    ...baseFormValues,
+    periodicidadePreventivaDias,
+    setorId,
+    clienteId,
+  };
+}
+
+/**
+ * @sliceTarget crud/persist
+ */
+function _buildSaveEquipPayload({ formValues, payloadValidation, dadosPlaca }) {
   // ── Fotos do equipamento ─────────────────────────────────────────────────
   // V4: upload de fotos saiu desse fluxo. Criação/edição de dados só lida
   // com os campos textuais; fotos são gerenciadas via detail view →
@@ -1427,65 +1468,100 @@ export async function saveEquip(options = {}) {
     ? normalizePhotoList(findEquip(getEditingEquipId())?.fotos || [])
     : [];
 
+  return {
+    equipId,
+    fotosPayload,
+    ...formValues,
+    nome: payloadValidation.value.nome,
+    local: payloadValidation.value.local,
+    tag: payloadValidation.value.tag,
+    modelo: payloadValidation.value.modelo,
+    fluido: Utils.getVal('eq-fluido'),
+    componente: TIPOS_COM_COMPONENTE.has(formValues.tipo)
+      ? Utils.getVal('eq-componente') || null
+      : null,
+    dadosPlaca,
+  };
+}
+
+/**
+ * @sliceTarget crud/update
+ */
+function _updateSaveEquipInState(payload) {
+  const editingId = getEditingEquipId();
+  setState((prev) => ({
+    ...prev,
+    equipamentos: prev.equipamentos.map((e) =>
+      e.id === editingId
+        ? {
+            ...e,
+            nome: payload.nome,
+            local: payload.local,
+            tag: payload.tag,
+            tipo: payload.tipo,
+            modelo: payload.modelo,
+            fluido: payload.fluido,
+            componente: payload.componente,
+            criticidade: payload.criticidade,
+            prioridadeOperacional: payload.prioridadeOperacional,
+            periodicidadePreventivaDias: payload.periodicidadePreventivaDias,
+            setorId: payload.setorId,
+            clienteId: payload.clienteId,
+            fotos: payload.fotosPayload,
+            dadosPlaca: payload.dadosPlaca,
+          }
+        : e,
+    ),
+  }));
+}
+
+/**
+ * @sliceTarget crud/create
+ */
+function _createSaveEquipInState(payload) {
+  setState((prev) => ({
+    ...prev,
+    equipamentos: [
+      ...prev.equipamentos,
+      {
+        id: payload.equipId,
+        nome: payload.nome,
+        local: payload.local,
+        status: 'ok',
+        tag: payload.tag,
+        tipo: payload.tipo,
+        modelo: payload.modelo,
+        fluido: payload.fluido,
+        componente: payload.componente,
+        criticidade: payload.criticidade,
+        prioridadeOperacional: payload.prioridadeOperacional,
+        periodicidadePreventivaDias: payload.periodicidadePreventivaDias,
+        setorId: payload.setorId,
+        clienteId: payload.clienteId,
+        fotos: payload.fotosPayload,
+        dadosPlaca: payload.dadosPlaca,
+      },
+    ],
+  }));
+}
+
+/**
+ * @sliceTarget crud/persist
+ */
+function _applySaveEquipToState(payload) {
   if (getEditingEquipId()) {
     // ── UPDATE: atualiza equipamento existente ──────────────────────────────
-    const editingId = getEditingEquipId();
-    setState((prev) => ({
-      ...prev,
-      equipamentos: prev.equipamentos.map((e) =>
-        e.id === editingId
-          ? {
-              ...e,
-              nome: payloadValidation.value.nome,
-              local: payloadValidation.value.local,
-              tag: payloadValidation.value.tag,
-              tipo,
-              modelo: payloadValidation.value.modelo,
-              fluido: Utils.getVal('eq-fluido'),
-              componente: TIPOS_COM_COMPONENTE.has(tipo)
-                ? Utils.getVal('eq-componente') || null
-                : null,
-              criticidade,
-              prioridadeOperacional,
-              periodicidadePreventivaDias,
-              setorId,
-              clienteId,
-              fotos: fotosPayload,
-              dadosPlaca,
-            }
-          : e,
-      ),
-    }));
+    _updateSaveEquipInState(payload);
   } else {
     // ── CREATE: novo equipamento ────────────────────────────────────────────
-    setState((prev) => ({
-      ...prev,
-      equipamentos: [
-        ...prev.equipamentos,
-        {
-          id: equipId,
-          nome: payloadValidation.value.nome,
-          local: payloadValidation.value.local,
-          status: 'ok',
-          tag: payloadValidation.value.tag,
-          tipo,
-          modelo: payloadValidation.value.modelo,
-          fluido: Utils.getVal('eq-fluido'),
-          componente: TIPOS_COM_COMPONENTE.has(tipo) ? Utils.getVal('eq-componente') || null : null,
-          criticidade,
-          prioridadeOperacional,
-          periodicidadePreventivaDias,
-          setorId,
-          clienteId,
-          fotos: fotosPayload,
-          dadosPlaca,
-        },
-      ],
-    }));
+    _createSaveEquipInState(payload);
   }
+}
 
-  const wasEditing = Boolean(getEditingEquipId());
-
+/**
+ * @sliceTarget ui/modal
+ */
+async function _closeSaveEquipModal(keepOpen) {
   if (!keepOpen) {
     try {
       const { Modal: M } = await import('../../core/modal.js');
@@ -1499,7 +1575,12 @@ export async function saveEquip(options = {}) {
       });
     }
   }
+}
 
+/**
+ * @sliceTarget ui/form
+ */
+function _resetSaveEquipForm(keepOpen) {
   const fieldsToClear = ['eq-nome', 'eq-tag'];
   if (!keepOpen) fieldsToClear.push('eq-local', 'eq-modelo', 'eq-periodicidade');
   Utils.clearVals(...fieldsToClear);
@@ -1524,7 +1605,12 @@ export async function saveEquip(options = {}) {
   if (!keepOpen) {
     clearEditingState();
   }
+}
 
+/**
+ * @sliceTarget controller/render
+ */
+async function _refreshSaveEquipViews() {
   OnboardingBanner.remove();
   try {
     const { renderDashboard } = await import('./dashboard.js');
@@ -1539,12 +1625,26 @@ export async function saveEquip(options = {}) {
   }
   renderEquip();
   updateGlobalHeader();
-  Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
+}
 
+/**
+ * @sliceTarget ui/modal
+ */
+async function _finishSaveEquipSuccess({ keepOpen, wasEditing }) {
+  await _closeSaveEquipModal(keepOpen);
+  _resetSaveEquipForm(keepOpen);
+  await _refreshSaveEquipViews();
+  Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
+}
+
+/**
+ * @sliceTarget controller/render
+ */
+function _runSaveEquipPostActions({ keepOpen, openRegistro, openPmoc, equipId, clienteId }) {
   if (keepOpen) {
     const nomeInput = Utils.getEl('eq-nome');
     if (nomeInput) nomeInput.focus();
-    return true;
+    return;
   }
 
   if (openRegistro && equipId) {
@@ -1562,6 +1662,49 @@ export async function saveEquip(options = {}) {
       });
     });
   }
+}
+
+/**
+ * @sliceSplit
+ *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
+ *   ui/modal: clearEditingState + closeModal + Toast feedback
+ *   controller/post: dispatch das post-actions (clone, register, pmoc, save-without-client)
+ * @sliceObs god-function de CRUD — alvo prioritario de pre-split em CP-F
+ */
+export async function saveEquip(options = {}) {
+  const postActionContext = _getSaveEquipPostActionContext(options);
+  const { equipamentos } = getState();
+
+  const isPlanLimitAllowed = await _checkSaveEquipPlanLimit(equipamentos);
+  if (!isPlanLimitAllowed) return false;
+
+  const baseFormValues = _collectSaveEquipBaseFormValues();
+  const payloadValidation = _validateSaveEquipPayload(equipamentos);
+  if (!payloadValidation) return false;
+
+  const formValues = _collectSaveEquipContextFormValues({
+    baseFormValues,
+    saveWithoutClient: postActionContext.saveWithoutClient,
+  });
+  const dadosPlacaResult = _collectSaveEquipDadosPlaca();
+  if (!dadosPlacaResult.ok) return false;
+
+  const payload = _buildSaveEquipPayload({
+    formValues,
+    payloadValidation,
+    dadosPlaca: dadosPlacaResult.dadosPlaca,
+  });
+  _applySaveEquipToState(payload);
+
+  const wasEditing = Boolean(getEditingEquipId());
+  await _finishSaveEquipSuccess({ keepOpen: postActionContext.keepOpen, wasEditing });
+  _runSaveEquipPostActions({
+    keepOpen: postActionContext.keepOpen,
+    openRegistro: postActionContext.openRegistro,
+    openPmoc: postActionContext.openPmoc,
+    equipId: payload.equipId,
+    clienteId: payload.clienteId,
+  });
 
   return true;
 }
