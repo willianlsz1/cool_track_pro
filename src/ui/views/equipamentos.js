@@ -43,6 +43,7 @@ import { SETOR_NOME_MAX } from '../../core/setorRules.js';
 import { getEffectivePlan, hasProAccess } from '../../core/plans/subscriptionPlans.js';
 import {
   configureEquipContextState,
+  getActiveQuickFilter,
   getRouteEquipCtx as _getRouteEquipCtx,
   navigateEquipCtx as _navigateEquipCtx,
   resolveEquipCtx as _resolveEquipCtx,
@@ -83,11 +84,35 @@ import {
   _infoRowValueOrEmpty,
   _riskFactorChipHtml,
 } from '../../features/equipamentos/utils/detail.js';
+import {
+  getEditingEquipId,
+  getEditingSetorId,
+  getForcedEquipContext,
+  setEditingEquipId,
+  setEditingSetorId,
+  setForcedEquipContext,
+} from '../../features/equipamentos/state/editingState.js';
+import {
+  getEquipamentosHeaderBridge,
+  getEquipamentosHeaderBridgePromise,
+  getEquipamentosHeaderRenderGeneration,
+  getEquipamentosListBridge,
+  getEquipamentosListBridgePromise,
+  getEquipamentosListRenderGeneration,
+  incrementEquipamentosHeaderRenderGeneration,
+  incrementEquipamentosListRenderGeneration,
+  setEquipamentosHeaderBridge,
+  setEquipamentosHeaderBridgePromise,
+  setEquipamentosListBridge,
+  setEquipamentosListBridgePromise,
+} from '../../features/equipamentos/state/bridgeState.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
+export { getActiveQuickFilter };
+export { getEditingEquipId, getEditingSetorId };
 export { setorCardHtml } from './equipamentos/setores.js';
 export { setorContrastWithWhite };
 export {
@@ -121,49 +146,48 @@ export function syncComponenteVisibility() {
   }
 }
 
-// ── Edit mode tracking ─────────────────────────────────────────────────────
-// Quando preenchido, saveEquip() atualiza o equipamento existente em vez de criar um novo.
-let _editingEquipId = null;
+// ── Render plan tracking ───────────────────────────────────────────────────
+// CP-C moverá estas vars para state/renderPlanState.js.
 let _renderEquipPlanToken = 0;
 let _renderEquipPlanNeedsRefresh = true;
 let _renderEquipPlanEventsBound = false;
 let _renderEquipPlanRefreshPromise = null;
-let _forcedEquipContext = null;
-let _equipamentosHeaderBridgePromise = null;
-let _equipamentosHeaderBridge = null;
-let _equipamentosHeaderRenderGeneration = 0;
-let _equipamentosListBridgePromise = null;
-let _equipamentosListBridge = null;
-let _equipamentosListRenderGeneration = 0;
 
 /** @sliceTarget controller/bridges */
 function loadEquipamentosHeaderBridge() {
-  _equipamentosHeaderBridgePromise ??=
-    import('../../react/entrypoints/equipamentosHeaderIsland.jsx').then((bridge) => {
-      _equipamentosHeaderBridge = bridge;
+  let promise = getEquipamentosHeaderBridgePromise();
+  if (!promise) {
+    promise = import('../../react/entrypoints/equipamentosHeaderIsland.jsx').then((bridge) => {
+      setEquipamentosHeaderBridge(bridge);
       return bridge;
     });
-  return _equipamentosHeaderBridgePromise;
+    setEquipamentosHeaderBridgePromise(promise);
+  }
+  return promise;
 }
 
 /** @sliceTarget controller/bridges */
 function loadEquipamentosListBridge() {
-  _equipamentosListBridgePromise ??=
-    import('../../react/entrypoints/equipamentosListIsland.jsx').then((bridge) => {
-      _equipamentosListBridge = bridge;
+  let promise = getEquipamentosListBridgePromise();
+  if (!promise) {
+    promise = import('../../react/entrypoints/equipamentosListIsland.jsx').then((bridge) => {
+      setEquipamentosListBridge(bridge);
       return bridge;
     });
-  return _equipamentosListBridgePromise;
+    setEquipamentosListBridgePromise(promise);
+  }
+  return promise;
 }
 
 /** @sliceTarget ui/unmount */
 export function unmountEquipamentosHeader() {
-  _equipamentosHeaderRenderGeneration += 1;
+  incrementEquipamentosHeaderRenderGeneration();
   const root = document.getElementById('equip-hero');
   if (!root?.dataset.reactEquipamentosHeaderMounted) return null;
 
-  if (_equipamentosHeaderBridge?.unmountEquipamentosHeaderReact) {
-    _equipamentosHeaderBridge.unmountEquipamentosHeaderReact(root);
+  const bridge = getEquipamentosHeaderBridge();
+  if (bridge?.unmountEquipamentosHeaderReact) {
+    bridge.unmountEquipamentosHeaderReact(root);
     return null;
   }
 
@@ -175,12 +199,13 @@ export function unmountEquipamentosHeader() {
 
 /** @sliceTarget ui/unmount */
 export function unmountEquipamentosList() {
-  _equipamentosListRenderGeneration += 1;
+  incrementEquipamentosListRenderGeneration();
   const root = document.getElementById('lista-equip');
   if (!root?.dataset.reactEquipamentosListMounted) return null;
 
-  if (_equipamentosListBridge?.unmountEquipamentosListReact) {
-    _equipamentosListBridge.unmountEquipamentosListReact(root);
+  const bridge = getEquipamentosListBridge();
+  if (bridge?.unmountEquipamentosListReact) {
+    bridge.unmountEquipamentosListReact(root);
     return null;
   }
 
@@ -234,15 +259,6 @@ function _refreshRenderEquipPlan({
   })();
 }
 
-/**
- * @sliceTarget state/editingState
- * @sliceObs reclassificada em CP-B (lê _editingEquipId module-level — não é
- *   pura). Vai pra src/features/equipamentos/state/editingState.js no CP-B.5.
- */
-export function getEditingEquipId() {
-  return _editingEquipId;
-}
-
 /** @sliceTarget ui/actionButtons */
 function setEquipActionButtonVisible(button, visible) {
   if (!button) return;
@@ -285,10 +301,10 @@ function setEquipActionTrayButtonLabel(button, label, { plusIcon = false } = {})
 /**
  * @sliceSplit
  *   ui/modal: reset visual do modal-add-eq (titulos, botoes, photos)
- *   crud/clear: reset de _editingEquipId + nameplate metadata + forced context
+ *   crud/clear: reset de editing state + nameplate metadata + forced context
  */
 export function clearEditingState() {
-  _editingEquipId = null;
+  setEditingEquipId(null);
   const titleEl = Utils.getEl('modal-add-eq-title');
   if (titleEl) titleEl.textContent = 'Qual equipamento você quer monitorar?';
   const saveBtn = document.getElementById('eq-save-primary');
@@ -331,7 +347,7 @@ export function clearEditingState() {
 /**
  * @sliceSplit
  *   ui/modal: render plan-aware (Free/Plus/Pro) com labels, subheads e CTAs
- *   setor/context: leitura de _forcedEquipContext + lock UI dos triggers
+ *   setor/context: leitura de forced context + lock UI dos triggers
  */
 export function applyEquipModalExperience({ triggerEl = null } = {}) {
   const titleEl = Utils.getEl('modal-add-eq-title');
@@ -348,8 +364,9 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
   const triggerClienteId = triggerEl?.dataset?.clienteId || '';
   const routeCtx = _getRouteEquipCtx();
   const lockedClienteId =
-    _forcedEquipContext?.clienteId || triggerClienteId || routeCtx.clienteId || '';
-  const lockedSetorId = _forcedEquipContext?.setorId || triggerSetorId || routeCtx.sectorId || '';
+    getForcedEquipContext()?.clienteId || triggerClienteId || routeCtx.clienteId || '';
+  const lockedSetorId =
+    getForcedEquipContext()?.setorId || triggerSetorId || routeCtx.sectorId || '';
   const hasLockedCtx = Boolean(lockedClienteId || lockedSetorId);
   const isGlobalEquipRoute = isPro && currentRoute() === 'equipamentos' && !hasLockedCtx;
 
@@ -390,12 +407,12 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
 
   if (hasLockedCtx) {
     const clienteNome =
-      _forcedEquipContext?.clienteNome ||
+      getForcedEquipContext()?.clienteNome ||
       triggerEl?.dataset?.clienteNome ||
       document.querySelector('#eq-cliente option:checked')?.textContent ||
       'Cliente selecionado';
     const setorNome =
-      _forcedEquipContext?.setorNome ||
+      getForcedEquipContext()?.setorNome ||
       document.querySelector('#eq-setor option:checked')?.textContent ||
       'Setor selecionado';
     if (summaryEl) {
@@ -428,7 +445,7 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
 
 /** @sliceTarget setor/context */
 export function clearForcedEquipContext() {
-  _forcedEquipContext = null;
+  setForcedEquipContext(null);
   const setorTrigger = document.getElementById('eq-setor-trigger');
   const clienteTrigger = document.getElementById('eq-cliente-trigger');
   const createClienteBtn = document.querySelector(
@@ -451,7 +468,7 @@ export function lockEquipContext({
   setorId = null,
   setorNome = '',
 } = {}) {
-  _forcedEquipContext =
+  setForcedEquipContext(
     clienteId || setorId
       ? {
           clienteId: clienteId || null,
@@ -459,7 +476,8 @@ export function lockEquipContext({
           setorId: setorId || null,
           setorNome: setorNome || '',
         }
-      : null;
+      : null,
+  );
 
   const setorTrigger = document.getElementById('eq-setor-trigger');
   const clienteTrigger = document.getElementById('eq-cliente-trigger');
@@ -468,26 +486,27 @@ export function lockEquipContext({
   );
   const lockedSummary = document.getElementById('eq-context-locked-summary');
 
-  if (!_forcedEquipContext) {
+  if (!getForcedEquipContext()) {
     clearForcedEquipContext();
     return;
   }
 
-  if (_forcedEquipContext.clienteId) {
-    Utils.setVal('eq-cliente', _forcedEquipContext.clienteId);
+  if (getForcedEquipContext().clienteId) {
+    Utils.setVal('eq-cliente', getForcedEquipContext().clienteId);
     document.getElementById('eq-cliente')?.dispatchEvent(new Event('change', { bubbles: true }));
   }
-  if (_forcedEquipContext.setorId) {
-    Utils.setVal('eq-setor', _forcedEquipContext.setorId);
+  if (getForcedEquipContext().setorId) {
+    Utils.setVal('eq-setor', getForcedEquipContext().setorId);
     document.getElementById('eq-setor')?.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  if (setorTrigger && _forcedEquipContext.setorId) setorTrigger.disabled = true;
-  if (clienteTrigger && _forcedEquipContext.clienteId) clienteTrigger.disabled = true;
-  if (createClienteBtn && _forcedEquipContext.clienteId) createClienteBtn.style.display = 'none';
+  if (setorTrigger && getForcedEquipContext().setorId) setorTrigger.disabled = true;
+  if (clienteTrigger && getForcedEquipContext().clienteId) clienteTrigger.disabled = true;
+  if (createClienteBtn && getForcedEquipContext().clienteId)
+    createClienteBtn.style.display = 'none';
   if (lockedSummary) {
-    const cliente = _forcedEquipContext.clienteNome || 'Cliente definido no contexto';
-    const setor = _forcedEquipContext.setorNome || 'Setor definido no contexto';
+    const cliente = getForcedEquipContext().clienteNome || 'Cliente definido no contexto';
+    const setor = getForcedEquipContext().setorNome || 'Setor definido no contexto';
     lockedSummary.style.display = '';
     lockedSummary.textContent = `Contexto travado: Cliente ${cliente} / Setor ${setor}.`;
   }
@@ -517,14 +536,6 @@ export function lockEquipContext({
 
 // Setor card rendering lives in ./equipamentos/setores.js.
 
-/**
- * @sliceTarget state/editingState
- * @sliceObs reclassificada em CP-B (lê state via _getRouteEquipCtx()). Vai
- *   pra src/features/equipamentos/state/editingState.js no CP-B.5.
- */
-export function getActiveQuickFilter() {
-  return _getRouteEquipCtx().quickFilter;
-}
 /** @sliceTarget controller/navigation */
 export function setActiveQuickFilter(id) {
   const quickFilter = id && id !== 'todos' ? id : null;
@@ -584,10 +595,10 @@ function mountEquipamentosHeader(viewModel) {
   if (!root) return null;
   const filtersRoot = Utils.getEl('equip-filters');
   const contextRoot = Utils.getEl('equip-context-chip');
-  const renderGeneration = ++_equipamentosHeaderRenderGeneration;
+  const renderGeneration = incrementEquipamentosHeaderRenderGeneration();
 
   return loadEquipamentosHeaderBridge().then(({ mountEquipamentosHeaderReact }) => {
-    if (renderGeneration !== _equipamentosHeaderRenderGeneration) return null;
+    if (renderGeneration !== getEquipamentosHeaderRenderGeneration()) return null;
     return mountEquipamentosHeaderReact(root, { viewModel, filtersRoot, contextRoot });
   });
 }
@@ -931,14 +942,14 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     filterClienteId,
     isPro: isCachedPlanPro(),
   });
-  const renderGeneration = ++_equipamentosListRenderGeneration;
+  const renderGeneration = incrementEquipamentosListRenderGeneration();
 
   return withSkeleton(
     el,
     { enabled: true, variant: 'equipment', count: viewModel.skeletonCount },
     () =>
       loadEquipamentosListBridge().then(({ mountEquipamentosListReact }) => {
-        if (renderGeneration !== _equipamentosListRenderGeneration) return null;
+        if (renderGeneration !== getEquipamentosListRenderGeneration()) return null;
         const mounted = mountEquipamentosListReact(el, { viewModel: reactViewModel });
         _bindEquipCardImageFallbacks(el);
         return mounted;
@@ -1156,18 +1167,6 @@ function _syncSetorSaveButtonState() {
   saveBtn.setAttribute('aria-disabled', isValid ? 'false' : 'true');
 }
 
-// Estado do fluxo de edição do setor. Quando preenchido, saveSetor()
-// atualiza em vez de criar.
-let _editingSetorId = null;
-/**
- * @sliceTarget state/editingState
- * @sliceObs reclassificada em CP-B (lê _editingSetorId module-level — não é
- *   pura). Vai pra src/features/equipamentos/state/editingState.js no CP-B.5.
- */
-export function getEditingSetorId() {
-  return _editingSetorId;
-}
-
 /**
  * Move um conjunto de equipamentos pra um setor especifico (batch).
  * Usado pelo banner quick-move no drill-down __sem_setor__ dentro do contexto
@@ -1221,7 +1220,7 @@ export function moveEquipsToSetor(equipIds, setorId, clienteIdToLink = null) {
 /** Reseta todo o form do modal e volta pra modo "criar". */
 /** @sliceTarget ui/modal */
 export function clearSetorEditingState() {
-  _editingSetorId = null;
+  setEditingSetorId(null);
   const titleEl = Utils.getEl('modal-add-setor-title');
   if (titleEl) titleEl.textContent = 'Novo setor';
   _setSaveBtnLabel('Criar setor →');
@@ -1270,7 +1269,7 @@ export function openEditSetor(id) {
     Toast.warning('Setor não encontrado.');
     return;
   }
-  _editingSetorId = id;
+  setEditingSetorId(id);
 
   Utils.setVal('setor-nome', setor.nome || '');
   Utils.setVal('setor-descricao', setor.descricao || '');
@@ -1454,7 +1453,7 @@ export function initSetorColorPicker() {
  *   ui/modal: closeModal + clearSetorEditingState + Toast pos-save
  */
 export async function saveSetor() {
-  const isEditing = Boolean(_editingSetorId);
+  const isEditing = Boolean(getEditingSetorId());
   const allowed = await ensureProForSetores({ action: isEditing ? 'update' : 'create' });
   if (!allowed) return false;
 
@@ -1485,7 +1484,7 @@ export async function saveSetor() {
   const clienteId = clienteIdRaw ? String(clienteIdRaw) : null;
 
   if (isEditing) {
-    const editingId = _editingSetorId;
+    const editingId = getEditingSetorId();
     setState((prev) => ({
       ...prev,
       setores: (prev.setores || []).map((s) =>
@@ -1616,7 +1615,7 @@ export async function openEditEquip(id, opts = {}) {
   const eq = findEquip(id);
   if (!eq) return;
 
-  _editingEquipId = id;
+  setEditingEquipId(id);
   const focusField = typeof opts?.focusField === 'string' ? opts.focusField : null;
 
   // Pre-popula os campos do modal com os dados do equipamento
@@ -1856,7 +1855,7 @@ export async function saveEquip(options = {}) {
   const { equipamentos } = getState();
 
   // Pula a verificação de limite quando está editando (não cria novo registro)
-  if (!_editingEquipId) {
+  if (!getEditingEquipId()) {
     const planLimit = await checkPlanLimit('equipamentos', equipamentos.length);
     if (planLimit.blocked) {
       trackEvent('limit_reached', {
@@ -1886,7 +1885,7 @@ export async function saveEquip(options = {}) {
       tag: Utils.getVal('eq-tag'),
       modelo: Utils.getVal('eq-modelo'),
     },
-    { existingEquipamentos: equipamentos, editingId: _editingEquipId },
+    { existingEquipamentos: equipamentos, editingId: getEditingEquipId() },
   );
 
   if (!payloadValidation.valid) {
@@ -1900,11 +1899,11 @@ export async function saveEquip(options = {}) {
     criticidade,
   );
 
-  const setorId = _forcedEquipContext?.setorId || Utils.getVal('eq-setor') || null;
+  const setorId = getForcedEquipContext()?.setorId || Utils.getVal('eq-setor') || null;
   // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
   const clienteId = saveWithoutClient
     ? null
-    : _forcedEquipContext?.clienteId || Utils.getVal('eq-cliente') || null;
+    : getForcedEquipContext()?.clienteId || Utils.getVal('eq-cliente') || null;
 
   // Dados da etiqueta (13 campos opcionais). Coletados em JSONB pra persistência
   // em equipamentos.dados_placa. Se nenhum foi preenchido, mantém object vazio
@@ -1938,14 +1937,14 @@ export async function saveEquip(options = {}) {
   // com os campos textuais; fotos são gerenciadas via detail view →
   // modal-eq-photos. Em edit mode, preservamos as fotos já persistidas
   // (eq.fotos) pra não perdê-las ao salvar alterações de texto.
-  const equipId = _editingEquipId || Utils.uid();
-  const fotosPayload = _editingEquipId
-    ? normalizePhotoList(findEquip(_editingEquipId)?.fotos || [])
+  const equipId = getEditingEquipId() || Utils.uid();
+  const fotosPayload = getEditingEquipId()
+    ? normalizePhotoList(findEquip(getEditingEquipId())?.fotos || [])
     : [];
 
-  if (_editingEquipId) {
+  if (getEditingEquipId()) {
     // ── UPDATE: atualiza equipamento existente ──────────────────────────────
-    const editingId = _editingEquipId;
+    const editingId = getEditingEquipId();
     setState((prev) => ({
       ...prev,
       equipamentos: prev.equipamentos.map((e) =>
@@ -2000,7 +1999,7 @@ export async function saveEquip(options = {}) {
     }));
   }
 
-  const wasEditing = Boolean(_editingEquipId);
+  const wasEditing = Boolean(getEditingEquipId());
 
   if (!keepOpen) {
     try {
