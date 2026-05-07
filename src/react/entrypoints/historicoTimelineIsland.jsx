@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { HistoricoTimeline } from '../pages/HistoricoTimeline.jsx';
 
 const DEFAULT_ROOT_ID = 'timeline';
@@ -25,7 +26,11 @@ export function mountHistoricoTimelineReact(
   root.dataset.reactHistoricoTimelineMounted = 'true';
 
   flushSync(() => {
-    state.root.render(<HistoricoTimeline key={state.renderVersion} {...props} />);
+    state.root.render(
+      <ErrorBoundary name="historicoTimelineIsland">
+        <HistoricoTimeline key={state.renderVersion} {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return state.root;

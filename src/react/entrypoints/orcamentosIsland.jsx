@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { OrcamentosPage } from '../pages/OrcamentosPage.jsx';
 import '../styles/tailwind.css';
 
@@ -16,7 +17,11 @@ export function mountOrcamentosReact(root = document.getElementById(DEFAULT_ROOT
     root.dataset.reactOrcamentosMounted = 'true';
   }
 
-  reactRoot.render(<OrcamentosPage {...props} />);
+  reactRoot.render(
+    <ErrorBoundary name="orcamentosIsland">
+      <OrcamentosPage {...props} />
+    </ErrorBoundary>,
+  );
   return reactRoot;
 }
 

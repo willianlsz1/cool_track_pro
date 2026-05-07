@@ -5,6 +5,7 @@ import {
   RELATORIO_PUBLIC_IDS,
   RELATORIO_VIEW_MODES,
 } from '../../ui/viewModels/relatorioContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { RelatorioCards } from '../pages/RelatorioCards.jsx';
 
 const roots = new WeakMap();
@@ -31,7 +32,11 @@ export function mountRelatorioCardsReact(
   root.dataset.reactRelatorioCardsMounted = 'true';
   root.dataset.viewMode = normalizeViewMode(props?.cards?.viewMode);
   flushSync(() => {
-    reactRoot.render(<RelatorioCards {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="relatorioCardsIsland">
+        <RelatorioCards {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return reactRoot;

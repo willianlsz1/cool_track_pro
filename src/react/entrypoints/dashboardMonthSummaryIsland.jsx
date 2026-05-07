@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { DashboardMonthSummary } from '../pages/DashboardMonthSummary.jsx';
 
 const DEFAULT_ROOT_ID = DASHBOARD_PUBLIC_IDS.monthSection;
@@ -21,7 +22,11 @@ export function mountDashboardMonthSummaryReact(
   }
 
   flushSync(() => {
-    reactRoot.render(<DashboardMonthSummary {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="dashboardMonthSummaryIsland">
+        <DashboardMonthSummary {...props} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }

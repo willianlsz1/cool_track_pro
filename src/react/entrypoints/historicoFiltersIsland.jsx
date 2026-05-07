@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { HistoricoFilters } from '../pages/HistoricoFilters.jsx';
 
 const DEFAULT_ROOT_ID = 'hist-filters-root';
@@ -23,7 +24,11 @@ export function mountHistoricoFiltersReact(
   root.dataset.reactHistoricoFiltersMounted = 'true';
 
   flushSync(() => {
-    state.root.render(<HistoricoFilters {...props} />);
+    state.root.render(
+      <ErrorBoundary name="historicoFiltersIsland">
+        <HistoricoFilters {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return state.root;

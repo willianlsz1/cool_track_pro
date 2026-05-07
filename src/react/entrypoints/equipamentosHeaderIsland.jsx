@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { EQUIPAMENTOS_PUBLIC_IDS } from '../../ui/viewModels/equipamentosContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { EquipamentosHeader } from '../pages/EquipamentosHeader.jsx';
 
 const DEFAULT_ROOT_ID = EQUIPAMENTOS_PUBLIC_IDS.hero;
@@ -55,11 +56,13 @@ export function mountEquipamentosHeaderReact(
   syncShell(root, filtersRoot, viewModel);
   flushSync(() => {
     reactRoot.render(
-      <EquipamentosHeader
-        viewModel={viewModel}
-        filtersRoot={filtersRoot}
-        contextRoot={contextRoot}
-      />,
+      <ErrorBoundary name="equipamentosHeaderIsland">
+        <EquipamentosHeader
+          viewModel={viewModel}
+          filtersRoot={filtersRoot}
+          contextRoot={contextRoot}
+        />
+      </ErrorBoundary>,
     );
   });
   return reactRoot;

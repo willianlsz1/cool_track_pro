@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { DashboardReadOnlyBlocks } from '../pages/DashboardReadOnlyBlocks.jsx';
 
 const DEFAULT_ROOT_ID = DASHBOARD_PUBLIC_IDS.readOnlyBlocksRoot;
@@ -25,7 +26,11 @@ export function mountDashboardReadOnlyBlocksReact(
   }
 
   flushSync(() => {
-    reactRoot.render(<DashboardReadOnlyBlocks {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="dashboardReadOnlyBlocksIsland">
+        <DashboardReadOnlyBlocks {...props} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }

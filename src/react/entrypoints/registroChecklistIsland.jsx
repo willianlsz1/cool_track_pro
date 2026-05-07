@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { RegistroChecklist } from '../pages/RegistroChecklist.jsx';
 
 const DEFAULT_ROOT_ID = 'r-checklist-body';
@@ -21,7 +22,11 @@ export function mountRegistroChecklistReact(
   root.dataset.reactRegistroChecklistMounted = 'true';
 
   flushSync(() => {
-    reactRoot.render(<RegistroChecklist {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="registroChecklistIsland">
+        <RegistroChecklist {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return reactRoot;

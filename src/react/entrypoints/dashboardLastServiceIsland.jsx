@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { DashboardLastService } from '../pages/DashboardLastService.jsx';
 
 const DEFAULT_ROOT_ID = DASHBOARD_PUBLIC_IDS.lastServiceCard;
@@ -26,7 +27,11 @@ export function mountDashboardLastServiceReact(
 
   root.hidden = isHidden(props);
   flushSync(() => {
-    reactRoot.render(<DashboardLastService {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="dashboardLastServiceIsland">
+        <DashboardLastService {...props} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }
