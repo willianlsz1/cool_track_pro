@@ -16,14 +16,12 @@ import { checkPlanLimit } from '../../core/planLimits.js';
 import { currentRoute, goTo } from '../../core/router.js';
 import { trackEvent } from '../../core/telemetry.js';
 import {
-  calculateHealthScore,
   getHealthClass,
   evaluateEquipmentHealth,
   evaluateEquipmentRisk,
   getSuggestedPreventiveDays,
   normalizePeriodicidadePreventivaDias,
 } from '../../domain/maintenance.js';
-import { ACTION_CODE } from '../../domain/suggestedAction.js';
 import { getPreventivaDueEquipmentIds } from '../../domain/alerts.js';
 import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
 import { DadosPlacaValidationError, formatDecimalHint } from '../../domain/dadosPlacaValidation.js';
@@ -77,17 +75,14 @@ import {
   setorContrastWithWhite,
 } from './equipamentos/setorHelpers.js';
 import {
-  PRIORIDADE_LABEL,
-  RISK_CLASS_LABEL,
-  STATUS_OPERACIONAL,
-} from './equipamentos/constants.js';
+  _stripRenderInternalOptions,
+  buildReactListViewModel,
+} from '../../features/equipamentos/utils/viewModels.js';
 import {
-  classifyRiskFactor,
-  recencia,
-  ctaLabelForAction,
-  componentPillModel,
-  preventiveTimelineModel,
-} from './equipamentos/helpers.js';
+  _eqDetailSubtitle,
+  _infoRowValueOrEmpty,
+  _riskFactorChipHtml,
+} from '../../features/equipamentos/utils/detail.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -112,6 +107,7 @@ export {
  * Idempotente — pode ser chamado a qualquer momento (open modal, change tipo,
  * edit equip).
  */
+/** @sliceTarget ui/componente */
 export function syncComponenteVisibility() {
   const tipo = Utils.getVal('eq-tipo');
   const wrapper = Utils.getEl('eq-componente-wrapper');
@@ -140,6 +136,7 @@ let _equipamentosListBridgePromise = null;
 let _equipamentosListBridge = null;
 let _equipamentosListRenderGeneration = 0;
 
+/** @sliceTarget controller/bridges */
 function loadEquipamentosHeaderBridge() {
   _equipamentosHeaderBridgePromise ??=
     import('../../react/entrypoints/equipamentosHeaderIsland.jsx').then((bridge) => {
@@ -149,6 +146,7 @@ function loadEquipamentosHeaderBridge() {
   return _equipamentosHeaderBridgePromise;
 }
 
+/** @sliceTarget controller/bridges */
 function loadEquipamentosListBridge() {
   _equipamentosListBridgePromise ??=
     import('../../react/entrypoints/equipamentosListIsland.jsx').then((bridge) => {
@@ -158,6 +156,7 @@ function loadEquipamentosListBridge() {
   return _equipamentosListBridgePromise;
 }
 
+/** @sliceTarget ui/unmount */
 export function unmountEquipamentosHeader() {
   _equipamentosHeaderRenderGeneration += 1;
   const root = document.getElementById('equip-hero');
@@ -174,6 +173,7 @@ export function unmountEquipamentosHeader() {
   });
 }
 
+/** @sliceTarget ui/unmount */
 export function unmountEquipamentosList() {
   _equipamentosListRenderGeneration += 1;
   const root = document.getElementById('lista-equip');
@@ -190,6 +190,7 @@ export function unmountEquipamentosList() {
   });
 }
 
+/** @sliceTarget controller/eventBind */
 function _bindRenderEquipPlanInvalidationEvents() {
   if (_renderEquipPlanEventsBound || typeof window === 'undefined') return;
   _renderEquipPlanEventsBound = true;
@@ -202,11 +203,10 @@ function _bindRenderEquipPlanInvalidationEvents() {
   );
 }
 
-function _stripRenderInternalOptions(options = {}) {
-  const { __skipPlanRefresh: _skip, ...publicOptions } = options || {};
-  return publicOptions;
-}
+// _stripRenderInternalOptions extraído pra
+// src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
 
+/** @sliceTarget controller/planSync */
 function _refreshRenderEquipPlan({
   filtro = '',
   options = {},
@@ -234,10 +234,16 @@ function _refreshRenderEquipPlan({
   })();
 }
 
+/**
+ * @sliceTarget state/editingState
+ * @sliceObs reclassificada em CP-B (lê _editingEquipId module-level — não é
+ *   pura). Vai pra src/features/equipamentos/state/editingState.js no CP-B.5.
+ */
 export function getEditingEquipId() {
   return _editingEquipId;
 }
 
+/** @sliceTarget ui/actionButtons */
 function setEquipActionButtonVisible(button, visible) {
   if (!button) return;
   const display = visible ? '' : 'none';
@@ -246,11 +252,13 @@ function setEquipActionButtonVisible(button, visible) {
   if (row) row.style.display = display;
 }
 
+/** @sliceTarget ui/actionButtons */
 function setEquipActionFooterHintVisible(visible) {
   const hint = document.getElementById('eq-action-footer-hint');
   if (hint) hint.hidden = !visible;
 }
 
+/** @sliceTarget ui/svg */
 function createActionTrayPlusIcon() {
   const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   icon.setAttribute('class', 'action-tray__icon');
@@ -267,12 +275,18 @@ function createActionTrayPlusIcon() {
   return icon;
 }
 
+/** @sliceTarget ui/actionButtons */
 function setEquipActionTrayButtonLabel(button, label, { plusIcon = false } = {}) {
   if (!button) return;
   button.replaceChildren();
   if (plusIcon) button.append(createActionTrayPlusIcon());
   button.append(document.createTextNode(label));
 }
+/**
+ * @sliceSplit
+ *   ui/modal: reset visual do modal-add-eq (titulos, botoes, photos)
+ *   crud/clear: reset de _editingEquipId + nameplate metadata + forced context
+ */
 export function clearEditingState() {
   _editingEquipId = null;
   const titleEl = Utils.getEl('modal-add-eq-title');
@@ -314,6 +328,11 @@ export function clearEditingState() {
   clearForcedEquipContext();
 }
 
+/**
+ * @sliceSplit
+ *   ui/modal: render plan-aware (Free/Plus/Pro) com labels, subheads e CTAs
+ *   setor/context: leitura de _forcedEquipContext + lock UI dos triggers
+ */
 export function applyEquipModalExperience({ triggerEl = null } = {}) {
   const titleEl = Utils.getEl('modal-add-eq-title');
   const subtitleEl = Utils.getEl('modal-add-eq-subtitle');
@@ -407,6 +426,7 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
   setEquipActionFooterHintVisible(true);
 }
 
+/** @sliceTarget setor/context */
 export function clearForcedEquipContext() {
   _forcedEquipContext = null;
   const setorTrigger = document.getElementById('eq-setor-trigger');
@@ -424,6 +444,7 @@ export function clearForcedEquipContext() {
   }
 }
 
+/** @sliceTarget setor/context */
 export function lockEquipContext({
   clienteId = null,
   clienteNome = '',
@@ -496,9 +517,15 @@ export function lockEquipContext({
 
 // Setor card rendering lives in ./equipamentos/setores.js.
 
+/**
+ * @sliceTarget state/editingState
+ * @sliceObs reclassificada em CP-B (lê state via _getRouteEquipCtx()). Vai
+ *   pra src/features/equipamentos/state/editingState.js no CP-B.5.
+ */
 export function getActiveQuickFilter() {
   return _getRouteEquipCtx().quickFilter;
 }
+/** @sliceTarget controller/navigation */
 export function setActiveQuickFilter(id) {
   const quickFilter = id && id !== 'todos' ? id : null;
   const currentCtx = _getRouteEquipCtx();
@@ -526,6 +553,7 @@ export { computeEquipKpis, renderEquipHero, renderEquipFilters };
  *  hideDefaultCta=true suprime o "+ Novo equipamento" default (usado em
  *  contexto cliente, onde adicionar equipamento é feito via drill-down
  *  de setor — não via toolbar global). */
+/** @sliceTarget ui/toolbar */
 function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   const titleEl = Utils.getEl('equip-page-title');
   const subtitleEl = Utils.getEl('equip-page-subtitle');
@@ -550,6 +578,7 @@ function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
   }
 }
 
+/** @sliceTarget controller/mount */
 function mountEquipamentosHeader(viewModel) {
   const root = Utils.getEl('equip-hero');
   if (!root) return null;
@@ -569,6 +598,7 @@ function mountEquipamentosHeader(viewModel) {
  * e com um cadeado + pill PRO pra deixar explícito que é feature paga.
  * Tooltip nativo via `title` explica porque está bloqueado.
  */
+/** @sliceTarget ui/setor */
 function _lockedSetorBtnHtml() {
   return `
     <button
@@ -586,6 +616,7 @@ function _lockedSetorBtnHtml() {
 }
 
 /** Popula o select de setores no modal de cadastro de equipamento. */
+/** @sliceTarget ui/form */
 export function populateSetorSelect(isPro = false) {
   const wrapper = Utils.getEl('eq-setor-wrapper');
   const select = Utils.getEl('eq-setor');
@@ -622,6 +653,7 @@ export function populateSetorSelect(isPro = false) {
  *  Preserva clienteId se estivermos no contexto de um cliente — assim o
  *  drill-down dentro do cliente ainda mostra o chip "Limpar cliente" e
  *  o titulo "Setor X de [Cliente Y]". */
+/** @sliceTarget setor/navigation */
 export function setActiveSector(id) {
   const currentCtx = _getRouteEquipCtx();
   _navigateEquipCtx({
@@ -635,6 +667,11 @@ export function setActiveSector(id) {
 }
 
 /** Renderiza a grade de setores (vista PRO). */
+/**
+ * @sliceSplit
+ *   ui/setor: render dos setor cards + empty state + toolbar
+ *   controller/render: orquestracao (unmount React, fetch state, set toolbar)
+ */
 function renderSetorGrid() {
   const el = Utils.getEl('lista-equip');
   if (!el) return;
@@ -682,6 +719,11 @@ function renderSetorGrid() {
  *
  * Inclui tile "Sem setor" se houver equipamentos do cliente sem setor
  * (compat: equipamentos antigos cadastrados antes da hierarquia).
+ */
+/**
+ * @sliceSplit
+ *   ui/setor: render filtrado por cliente + empty state hero + toolbar customizada
+ *   controller/render: orquestracao + bug fix #100 (dual-path filter)
  */
 function renderSetorGridForCliente(clienteId, clienteNome) {
   const el = Utils.getEl('lista-equip');
@@ -831,147 +873,16 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
   el.innerHTML = `<div class="setor-grid">${setorCards.join('')}${semSetorTile}</div>`;
 }
 
-const EQUIP_TONE_LABELS = {
-  ok: 'Estável',
-  warn: 'Em atenção',
-  danger: 'Crítico',
-};
-
-function buildEquipamentoListCardModel(eq, evalCtx) {
-  const eqRegs = evalCtx.getRegs(eq.id);
-  const context = evalCtx.getMaintenanceContext(eq);
-  const last = context.ultimoRegistro;
-  const score = calculateHealthScore(eq, regsForEquip(eq.id));
-  const healthClass = getHealthClass(score);
-  const statusClass = Utils.safeStatus(eq.status);
-  const priorityLabel = PRIORIDADE_LABEL[eq.criticidade] || PRIORIDADE_LABEL.media;
-  const risk = evalCtx.getRisk(eq);
-  const suggestedAction = evalCtx.getSuggestedAction(eq);
-  const hasAction =
-    suggestedAction.actionCode !== ACTION_CODE.NONE &&
-    suggestedAction.actionCode !== ACTION_CODE.MONITOR;
-  const hasMetrics = Boolean(last) || Boolean(context.proximaPreventiva);
-  const isFullyIdle = evalCtx.isFullyIdle(eq);
-  const isActivationPending = !last && suggestedAction.actionCode === ACTION_CODE.COLLECT_DATA;
-  const ctaLabel =
-    !last && !hasAction ? 'Começar' : ctaLabelForAction(suggestedAction.actionCode, ACTION_CODE);
-  const isUrgent =
-    statusClass === 'danger' ||
-    (risk.factors || []).some((factor) => /parado desde|preventiva vencida/i.test(String(factor)));
-  const primaryLabel = isActivationPending
-    ? 'STATUS INICIAL'
-    : isUrgent
-      ? 'AÇÃO URGENTE'
-      : 'PRÓXIMA AÇÃO';
-  const timeline = hasMetrics
-    ? {
-        lastLabel: last ? recencia(last.data) : '—',
-        ...(preventiveTimelineModel(context, Utils.daysDiff) || {
-          nextLabel: 'sem agenda',
-          nextTone: 'neutral',
-        }),
-      }
-    : null;
-  const visual = getEquipmentVisualMeta(eq);
-
-  return {
-    id: String(eq.id || ''),
-    name: String(eq.nome || ''),
-    statusClass,
-    statusLabel: EQUIP_TONE_LABELS[statusClass] || EQUIP_TONE_LABELS.ok,
-    ariaLabel: `${eq.nome || ''} — ${STATUS_OPERACIONAL[statusClass] || ''}`,
-    isIdle: isFullyIdle,
-    visual,
-    nameClass: statusClass === 'danger' ? 'equip-card__name--danger' : '',
-    tagParts: [
-      isFullyIdle && eq.tag && String(eq.tag).trim() ? String(eq.tag).trim() : eq.tag || '—',
-      eq.fluido || eq.tipo || '—',
-      priorityLabel,
-    ].filter((part, index) => (isFullyIdle && index === 0 ? Boolean(part && part !== '—') : true)),
-    componentPill: componentPillModel(eq.componente),
-    subtitle: eq.local || 'Local não informado',
-    score,
-    healthClass,
-    risk: {
-      classification: risk.classification || 'baixo',
-      label: RISK_CLASS_LABEL[risk.classification] || RISK_CLASS_LABEL.baixo,
-      score: Number(risk.score) || 0,
-      factors: (risk.factors || []).map((factor) => ({
-        label: String(factor || ''),
-        tone: classifyRiskFactor(factor),
-      })),
-    },
-    timeline,
-    primaryLabel,
-    primaryTitle: isActivationPending
-      ? 'Sem manutenção recente ⚠️'
-      : hasAction
-        ? suggestedAction.actionLabel
-        : ctaLabel,
-    primaryMeta: hasAction && last?.tecnico ? `Por ${last.tecnico} · ${recencia(last.data)}` : '',
-    ctaLabel,
-    eqRegsCount: eqRegs.length,
-  };
-}
-
-function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
-  const fallback = {
-    title: 'Nenhum equipamento encontrado',
-    description: 'Tente outro termo ou cadastre um novo.',
-    cta: {
-      label: '+ Novo equipamento',
-      action: 'open-modal',
-      id: 'modal-add-eq',
-    },
-  };
-  const source = emptyCopy || fallback;
-  const cta = source.cta?.action
-    ? {
-        label: source.cta.label,
-        action: source.cta.action,
-        id: source.cta.id || '',
-        tone: 'primary',
-        size: 'sm',
-        autoWidth: true,
-      }
-    : {
-        label: '+ Novo equipamento',
-        action: 'open-modal',
-        id: 'modal-add-eq',
-        tone: 'primary',
-        size: 'sm',
-        autoWidth: true,
-      };
-
-  return {
-    icon: source.cta?.action === 'eq-add-for-cliente' ? '👥' : '🔧',
-    title: source.title,
-    description: source.description,
-    cta,
-    proHint: Boolean(isPro && !filterClienteId),
-  };
-}
-
-function buildReactListViewModel(viewModel, { evalCtx, clusterActive, filterClienteId, isPro }) {
-  const cards = viewModel.sortedItems.map((eq) => buildEquipamentoListCardModel(eq, evalCtx));
-  const cardsById = new Map(cards.map((card) => [card.id, card]));
-  const toCards = (items) =>
-    (items || []).map((eq) => cardsById.get(String(eq.id || ''))).filter(Boolean);
-
-  return {
-    listTitle: 'Todos os equipamentos',
-    cards,
-    idleCards: toCards(viewModel.idleItems),
-    activeCards: toCards(viewModel.activeItems),
-    clusterActive,
-    quickMove: viewModel.quickMove,
-    emptyState: cards.length
-      ? null
-      : buildReactListEmptyState(viewModel.emptyState, { filterClienteId, isPro }),
-  };
-}
+// EQUIP_TONE_LABELS, buildEquipamentoListCardModel, buildReactListEmptyState,
+// buildReactListViewModel extraídos pra
+// src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
 
 /** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
+/**
+ * @sliceSplit
+ *   ui/list: build do reactViewModel + render skeleton + mount React
+ *   controller/render: orquestra fetch state, viewModel build, generation counter
+ */
 function renderFlatList(filtro = '', options = {}, setorId = null) {
   const { equipamentos, registros, clientes, setores } = getState();
   const evalCtx = _createEquipRenderEvalContext();
@@ -1035,6 +946,13 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   );
 }
 
+/**
+ * @sliceSplit
+ *   controller/render: entrypoint principal, route resolution, plan refresh, gate logic
+ *   ui/hero: subtitle + searchBar visibility + toolbar + header mount
+ *   ui/list: chamadas a renderFlatList/renderSetorGrid em cada branch
+ * @sliceObs god-function central — alvo prioritario de pre-split em CP-G
+ */
 export async function renderEquip(filtro = '', options = {}) {
   _bindRenderEquipPlanInvalidationEvents();
   const renderToken = ++_renderEquipPlanToken;
@@ -1183,6 +1101,7 @@ export async function renderEquip(filtro = '', options = {}) {
 // passar por ensureProForSetores() — defesa em profundidade contra gates
 // de UI que podem ficar stale se o usuário abrir a modal e depois rebaixar
 // o plano em outra aba.
+/** @sliceTarget setor/guard */
 async function ensureProForSetores({ action = 'manage' } = {}) {
   try {
     const { fetchMyProfileBilling } = await import('../../core/plans/monetization.js');
@@ -1208,6 +1127,7 @@ async function ensureProForSetores({ action = 'manage' } = {}) {
 //
 // Paleta de 10 cores (expandida de 6) pra dar mais identidade visual aos
 // setores sem virar arco-íris. Default = --primary (#00c8e8, Ciano).
+/** @sliceTarget ui/modal */
 function _setSaveBtnLabel(text) {
   const btn = Utils.getEl('setor-save-btn');
   if (!btn) return;
@@ -1215,6 +1135,7 @@ function _setSaveBtnLabel(text) {
   if (label) label.textContent = text;
 }
 
+/** @sliceTarget ui/validation */
 function _setSetorNomeValidationState({ showError, focus = false, markTouched = false } = {}) {
   const err = Utils.getEl('setor-nome-err');
   const nomeInput = Utils.getEl('setor-nome');
@@ -1226,6 +1147,7 @@ function _setSetorNomeValidationState({ showError, focus = false, markTouched = 
   }
 }
 
+/** @sliceTarget ui/validation */
 function _syncSetorSaveButtonState() {
   const saveBtn = Utils.getEl('setor-save-btn');
   if (!saveBtn) return;
@@ -1237,6 +1159,11 @@ function _syncSetorSaveButtonState() {
 // Estado do fluxo de edição do setor. Quando preenchido, saveSetor()
 // atualiza em vez de criar.
 let _editingSetorId = null;
+/**
+ * @sliceTarget state/editingState
+ * @sliceObs reclassificada em CP-B (lê _editingSetorId module-level — não é
+ *   pura). Vai pra src/features/equipamentos/state/editingState.js no CP-B.5.
+ */
 export function getEditingSetorId() {
   return _editingSetorId;
 }
@@ -1257,6 +1184,7 @@ export function getEditingSetorId() {
  *   orphan ao cliente. No-op se setor já tiver clienteId.
  * @returns {{moved: number, linkedSetor: boolean}}
  */
+/** @sliceTarget crud/move */
 export function moveEquipsToSetor(equipIds, setorId, clienteIdToLink = null) {
   if (!Array.isArray(equipIds) || !equipIds.length || !setorId) {
     return { moved: 0, linkedSetor: false };
@@ -1291,6 +1219,7 @@ export function moveEquipsToSetor(equipIds, setorId, clienteIdToLink = null) {
 }
 
 /** Reseta todo o form do modal e volta pra modo "criar". */
+/** @sliceTarget ui/modal */
 export function clearSetorEditingState() {
   _editingSetorId = null;
   const titleEl = Utils.getEl('modal-add-setor-title');
@@ -1334,6 +1263,7 @@ export function clearSetorEditingState() {
   _syncSetorSaveButtonState();
 }
 
+/** @sliceTarget ui/modal */
 export function openEditSetor(id) {
   const setor = findSetor(id);
   if (!setor) {
@@ -1386,6 +1316,7 @@ export function openEditSetor(id) {
  * Roda síncrono e barato: altera textContent + CSS custom property.
  * Também pulsa o card por 350ms pra sinalizar troca de cor.
  */
+/** @sliceTarget ui/preview */
 function _syncSetorModalPreview() {
   const card = Utils.getEl('setor-modal-preview-card');
   if (!card) return;
@@ -1435,6 +1366,7 @@ function _syncSetorModalPreview() {
 }
 
 /** Atualiza contadores (0/40, 0/120) + marca como over quando passa do limite. */
+/** @sliceTarget ui/validation */
 function _syncSetorModalCounters() {
   const nome = Utils.getVal('setor-nome') || '';
   const desc = Utils.getVal('setor-descricao') || '';
@@ -1455,6 +1387,7 @@ function _syncSetorModalCounters() {
  * Inicializa o color picker + live preview do modal de setor. Idempotente:
  * Se já foi wirado, apenas sincroniza o preview sem rebindar listeners.
  */
+/** @sliceTarget ui/colorPicker */
 export function initSetorColorPicker() {
   const picker = Utils.getEl('setor-color-picker');
   const hiddenInput = Utils.getEl('setor-cor');
@@ -1515,6 +1448,11 @@ export function initSetorColorPicker() {
   _syncSetorSaveButtonState();
 }
 
+/**
+ * @sliceSplit
+ *   crud/setor: validacao, persistencia (state + storage), assign equips
+ *   ui/modal: closeModal + clearSetorEditingState + Toast pos-save
+ */
 export async function saveSetor() {
   const isEditing = Boolean(_editingSetorId);
   const allowed = await ensureProForSetores({ action: isEditing ? 'update' : 'create' });
@@ -1581,6 +1519,7 @@ export async function saveSetor() {
   return true;
 }
 
+/** @sliceTarget crud/setor */
 export async function deleteSetor(id) {
   if (id === '__sem_setor__') return;
 
@@ -1614,6 +1553,7 @@ export async function deleteSetor(id) {
  * Atribui (ou remove) um setor a um equipamento já cadastrado.
  * Chamado pelo select inline no modal de detalhes.
  */
+/** @sliceTarget crud/setor */
 export async function assignEquipToSetor(equipId, setorId) {
   const eq = findEquip(equipId);
   if (!eq) return;
@@ -1665,6 +1605,12 @@ export async function assignEquipToSetor(equipId, setorId) {
  * @param {string} id - id do equipamento
  * @param {object} [opts]
  * @param {string} [opts.focusField] - slug do campo a focar (ex: 'tag')
+ */
+/**
+ * @sliceSplit
+ *   ui/modal: pre-popula form fields, abre modal-add-eq, sync nameplate UI
+ *   nameplate: aplica nameplate metadata + restore dados placa
+ * @sliceObs depende de fetchMyProfileBillingCached (async billing) — ver CP-F
  */
 export async function openEditEquip(id, opts = {}) {
   const eq = findEquip(id);
@@ -1821,6 +1767,7 @@ export async function openEditEquip(id, opts = {}) {
  * loga warning e segue — o modal já abriu e o usuário pode editar
  * normalmente.
  */
+/** @sliceTarget ui/modal */
 function _focusEditField(fieldKey) {
   const targetId = EDIT_FOCUS_FIELD_MAP[fieldKey];
   if (!targetId) {
@@ -1893,6 +1840,13 @@ function _focusEditField(fieldKey) {
   });
 }
 
+/**
+ * @sliceSplit
+ *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
+ *   ui/modal: clearEditingState + closeModal + Toast feedback
+ *   controller/post: dispatch das post-actions (clone, register, pmoc, save-without-client)
+ * @sliceObs god-function de CRUD — alvo prioritario de pre-split em CP-F
+ */
 export async function saveEquip(options = {}) {
   const postAction = String(options?.postAction || '').trim();
   const keepOpen = postAction === 'clone';
@@ -2128,104 +2082,15 @@ export async function saveEquip(options = {}) {
   return true;
 }
 
-/**
- * Subtítulo do detail view: combina Local + TAG numa única linha muted
- * abaixo do nome do equipamento. Local é obrigatório, TAG é opcional.
- * Sem TAG: apenas o local. Sem local (caso impossível mas defensivo):
- * apenas a TAG ou string vazia.
- */
-function _eqDetailSubtitle(eq) {
-  const parts = [];
-  if (eq.local) parts.push(Utils.escapeHtml(eq.local));
-  if (eq.tag && String(eq.tag).trim() !== '') {
-    parts.push(
-      `<span class="eq-detail-title-block__tag">${Utils.escapeHtml(String(eq.tag).trim())}</span>`,
-    );
-  }
-  return parts.join(' · ');
-}
+// _eqDetailSubtitle, _infoRowValueOrEmpty, _riskFactorChipHtml extraídos
+// pra src/features/equipamentos/utils/detail.js (Mudança 11 / CP-B).
 
 /**
- * Renderiza um info-row__value: mostra o valor se existe, ou um CTA
- * "Adicionar X" clicável (abre o modal de editar) se vazio. Antes, campos
- * vazios mostravam só "—" — desperdício de atenção do técnico. Agora o "—"
- * vira convite a preencher no momento em que ele está lendo a ficha.
- *
- * @param {string} value
- * @param {string} addLabel
- * @param {string} safeId
- * @param {string} [variant] - 'mono' aplica info-row__value--mono
- * @param {string} [fieldKey] - slug pra openEditEquip focar o campo após
- *   abrir o modal (ex: 'tag', 'modelo'). Sem fieldKey, modal abre sem foco.
+ * @sliceSplit
+ *   ui/detail: ~448 LOC de HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
+ *   risco: avaliacao de risk + classification + factors + suggested action
+ * @sliceObs god-function de detail (#1 LOC do arquivo) — alvo prioritario de pre-split em CP-G
  */
-function _infoRowValueOrEmpty(value, addLabel, safeId, variant = '', fieldKey = '') {
-  const clean = value && String(value).trim() !== '' ? String(value).trim() : null;
-  if (clean) {
-    const variantCls = variant === 'mono' ? ' info-row__value--mono' : '';
-    return `<span class="info-row__value${variantCls}">${Utils.escapeHtml(clean)}</span>`;
-  }
-  const focusAttr = fieldKey ? ` data-focus-field="${Utils.escapeAttr(fieldKey)}"` : '';
-  return `<button type="button" class="info-row__value info-row__value--add"
-    data-action="edit-equip" data-id="${safeId}"${focusAttr}
-    aria-label="${Utils.escapeAttr(addLabel)}">
-    ${Utils.escapeHtml(addLabel)}
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-  </button>`;
-}
-
-/**
- * Mapeia um "factor" de risco (string vinda de evaluateEquipmentRisk) pra um
- * chip com ou sem CTA. Pedido do refino UX: antes, os factors eram só texto
- * informativo — "preventiva sem agenda" aparecia mas não levava a ação
- * alguma. Agora, chips acionáveis viram atalho: click abre modal de editar
- * (pra agendar) ou o fluxo de registro (pra preventiva vencida).
- *
- * Regra de decisão:
- *  - "sem agenda" / "não agendada" → CTA "Agendar" (edit-equip)
- *  - "vencida" / "atrasada" → CTA "Registrar" (go-register-equip)
- *  - "criticidade alta/crítica/operacional" → CTA "Ajustar" (edit-equip)
- *  - positivos ("rotina estável", "sem corretivas") → chip informativo
- *  - outros → chip informativo neutro
- */
-function _riskFactorChipHtml(factor, safeId) {
-  const factorStr = String(factor || '').trim();
-  const lower = factorStr.toLowerCase();
-  const escaped = Utils.escapeHtml(factorStr);
-
-  // Detecta intenção a partir do texto do factor + qual campo focar
-  // quando o action é edit-equip (focusField propaga via data attribute).
-  let action = null;
-  let actionLabel = null;
-  let focusField = null;
-  if (lower.includes('sem agenda') || lower.includes('não agendada')) {
-    action = 'edit-equip';
-    actionLabel = 'Agendar';
-    focusField = 'periodicidade';
-  } else if (lower.includes('vencida') || lower.includes('atrasada')) {
-    action = 'go-register-equip';
-    actionLabel = 'Registrar';
-  } else if (
-    lower.includes('criticidade') &&
-    (lower.includes('alta') || lower.includes('crítica') || lower.includes('operacional'))
-  ) {
-    action = 'edit-equip';
-    actionLabel = 'Ajustar';
-    focusField = 'criticidade';
-  }
-
-  if (!action) {
-    return `<span class="eq-risk-panel__factor">${escaped}</span>`;
-  }
-  const focusAttr = focusField ? ` data-focus-field="${focusField}"` : '';
-  return `<button type="button"
-      class="eq-risk-panel__factor eq-risk-panel__factor--actionable"
-      data-action="${action}" data-id="${safeId}"${focusAttr}
-      aria-label="${escaped} — ${actionLabel}">
-      <span class="eq-risk-panel__factor-text">${escaped}</span>
-      <span class="eq-risk-panel__factor-cta">${actionLabel} <span aria-hidden="true">→</span></span>
-    </button>`;
-}
-
 export async function viewEquip(id) {
   const eq = findEquip(id);
   if (!eq) return;
@@ -2675,6 +2540,7 @@ export async function viewEquip(id) {
   }
 }
 
+/** @sliceTarget crud/equip */
 export async function deleteEquip(id) {
   const { registros } = getState();
   const linkedRegistros = registros.filter((r) => r.equipId === id).map((r) => r.id);
@@ -2701,6 +2567,7 @@ export async function deleteEquip(id) {
   Toast.info('Equipamento removido.');
 }
 
+/** @sliceTarget ui/form */
 export function populateEquipSelects() {
   const { equipamentos, técnicos } = getState();
   const selectConfigs = [
