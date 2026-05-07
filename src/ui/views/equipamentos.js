@@ -121,6 +121,12 @@ import {
   moveEquipsToSetor,
   saveSetor,
 } from '../../features/equipamentos/setor/setorPersist.js';
+import {
+  checkSaveEquipPlanLimit,
+  validateSaveEquipPayload,
+} from '../../features/equipamentos/crud/validate.js';
+import { buildSaveEquipPayload } from '../../features/equipamentos/crud/payload.js';
+import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplate/dadosPlaca.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -1339,88 +1345,6 @@ function _getSaveEquipPostActionContext(options = {}) {
 }
 
 /**
- * @sliceTarget crud/validate
- */
-async function _checkSaveEquipPlanLimit(equipamentos) {
-  // Pula a verificação de limite quando está editando (não cria novo registro)
-  if (!getEditingEquipId()) {
-    const planLimit = await checkPlanLimit('equipamentos', equipamentos.length);
-    if (planLimit.blocked) {
-      trackEvent('limit_reached', {
-        resource: 'equipamentos',
-        current: planLimit.current,
-        limit: planLimit.limit,
-        planCode: planLimit.planCode,
-      });
-      const msg =
-        planLimit.planCode === 'pro'
-          ? 'Você atingiu o limite de equipamentos do seu plano.'
-          : 'Você atingiu o limite do plano Free. Faça upgrade para continuar.';
-      Toast.warning(msg);
-      if (planLimit.planCode !== 'pro') {
-        goTo('pricing');
-      }
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * @sliceTarget crud/validate
- */
-function _validateSaveEquipPayload(equipamentos) {
-  const payloadValidation = validateEquipamentoPayload(
-    {
-      nome: Utils.getVal('eq-nome'),
-      local: Utils.getVal('eq-local'),
-      tag: Utils.getVal('eq-tag'),
-      modelo: Utils.getVal('eq-modelo'),
-    },
-    { existingEquipamentos: equipamentos, editingId: getEditingEquipId() },
-  );
-
-  if (!payloadValidation.valid) {
-    Toast.warning(payloadValidation.errors[0]);
-    return null;
-  }
-
-  return payloadValidation;
-}
-
-/**
- * @sliceTarget nameplate/bridge
- */
-function _collectSaveEquipDadosPlaca() {
-  // Dados da etiqueta (13 campos opcionais). Coletados em JSONB pra persistência
-  // em equipamentos.dados_placa. Se nenhum foi preenchido, mantém object vazio
-  // (migration constraint: jsonb_typeof = 'object').
-  //
-  // collectDadosPlaca() pode lançar DadosPlacaValidationError quando um valor
-  // decimal ultrapassa o range plausível (provável separador decimal esquecido).
-  // Traduzimos pra Toast amigável e focamos o input em vez de propagar o erro.
-  try {
-    return { ok: true, dadosPlaca: collectDadosPlaca() };
-  } catch (err) {
-    if (err instanceof DadosPlacaValidationError) {
-      const hint = formatDecimalHint(err.value);
-      Toast.warning(
-        `${err.label} (${err.unit}): ${err.value} parece alto demais. ` +
-          `Use vírgula como separador decimal — ex: ${hint} em vez de ${err.value}.`,
-      );
-      const input = document.getElementById(err.inputId);
-      if (input) {
-        input.focus();
-        if (typeof input.select === 'function') input.select();
-      }
-      return { ok: false };
-    }
-    throw err;
-  }
-}
-
-/**
  * @sliceTarget ui/form
  */
 function _collectSaveEquipBaseFormValues() {
@@ -1451,36 +1375,6 @@ function _collectSaveEquipContextFormValues({ baseFormValues, saveWithoutClient 
     periodicidadePreventivaDias,
     setorId,
     clienteId,
-  };
-}
-
-/**
- * @sliceTarget crud/persist
- */
-function _buildSaveEquipPayload({ formValues, payloadValidation, dadosPlaca }) {
-  // ── Fotos do equipamento ─────────────────────────────────────────────────
-  // V4: upload de fotos saiu desse fluxo. Criação/edição de dados só lida
-  // com os campos textuais; fotos são gerenciadas via detail view →
-  // modal-eq-photos. Em edit mode, preservamos as fotos já persistidas
-  // (eq.fotos) pra não perdê-las ao salvar alterações de texto.
-  const equipId = getEditingEquipId() || Utils.uid();
-  const fotosPayload = getEditingEquipId()
-    ? normalizePhotoList(findEquip(getEditingEquipId())?.fotos || [])
-    : [];
-
-  return {
-    equipId,
-    fotosPayload,
-    ...formValues,
-    nome: payloadValidation.value.nome,
-    local: payloadValidation.value.local,
-    tag: payloadValidation.value.tag,
-    modelo: payloadValidation.value.modelo,
-    fluido: Utils.getVal('eq-fluido'),
-    componente: TIPOS_COM_COMPONENTE.has(formValues.tipo)
-      ? Utils.getVal('eq-componente') || null
-      : null,
-    dadosPlaca,
   };
 }
 
@@ -1675,24 +1569,48 @@ export async function saveEquip(options = {}) {
   const postActionContext = _getSaveEquipPostActionContext(options);
   const { equipamentos } = getState();
 
-  const isPlanLimitAllowed = await _checkSaveEquipPlanLimit(equipamentos);
+  const isPlanLimitAllowed = await checkSaveEquipPlanLimit({
+    equipamentos,
+    editingId: getEditingEquipId(),
+    checkPlanLimit,
+    trackEvent,
+    Toast,
+    goTo,
+  });
   if (!isPlanLimitAllowed) return false;
 
   const baseFormValues = _collectSaveEquipBaseFormValues();
-  const payloadValidation = _validateSaveEquipPayload(equipamentos);
+  const payloadValidation = validateSaveEquipPayload({
+    equipamentos,
+    editingId: getEditingEquipId(),
+    getValue: Utils.getVal,
+    validateEquipamentoPayload,
+    Toast,
+  });
   if (!payloadValidation) return false;
 
   const formValues = _collectSaveEquipContextFormValues({
     baseFormValues,
     saveWithoutClient: postActionContext.saveWithoutClient,
   });
-  const dadosPlacaResult = _collectSaveEquipDadosPlaca();
+  const dadosPlacaResult = collectSaveEquipDadosPlaca({
+    collectDadosPlaca,
+    DadosPlacaValidationError,
+    formatDecimalHint,
+    Toast,
+  });
   if (!dadosPlacaResult.ok) return false;
 
-  const payload = _buildSaveEquipPayload({
+  const payload = buildSaveEquipPayload({
     formValues,
     payloadValidation,
     dadosPlaca: dadosPlacaResult.dadosPlaca,
+    editingId: getEditingEquipId(),
+    createId: Utils.uid,
+    findEquip,
+    normalizePhotoList,
+    getValue: Utils.getVal,
+    tiposComComponente: TIPOS_COM_COMPONENTE,
   });
   _applySaveEquipToState(payload);
 
