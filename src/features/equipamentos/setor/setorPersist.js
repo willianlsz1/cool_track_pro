@@ -2,10 +2,23 @@ const setorPersistDeps = {
   findEquip: null,
   findSetor: null,
   setState: null,
+  Storage: null,
   Toast: null,
   renderEquip: null,
-  ensureProForSetores: null,
   escapeHtml: null,
+  Utils: null,
+  getSetorNomeValidation: null,
+  setSetorNomeValidationState: null,
+  getEditingSetorId: null,
+  clearSetorEditingState: null,
+  getRouteEquipCtx: null,
+  navigateEquipCtx: null,
+  closeSetorModal: null,
+  setorNomeMax: null,
+  setorDescLimit: null,
+  defaultSetorColor: null,
+  fetchMyProfileBilling: null,
+  hasProAccess: null,
 };
 
 export function configureSetorPersist(deps = {}) {
@@ -16,6 +29,45 @@ function requireSetorPersistDep(name) {
   const dep = setorPersistDeps[name];
   if (!dep) throw new Error(`configureSetorPersist missing dependency: ${name}`);
   return dep;
+}
+
+function getSetorPersistValue(name, fallback) {
+  const value = setorPersistDeps[name];
+  return value == null ? fallback : value;
+}
+
+// Setores são feature exclusiva do plano Pro. Todas as mutações devem
+// passar por ensureProForSetores() — defesa em profundidade contra gates
+// de UI que podem ficar stale se o usuário abrir a modal e depois rebaixar
+// o plano em outra aba.
+/** @sliceTarget setor/guard */
+export async function ensureProForSetores({ action = 'manage' } = {}) {
+  try {
+    let fetchMyProfileBilling = setorPersistDeps.fetchMyProfileBilling;
+    let hasProAccess = setorPersistDeps.hasProAccess;
+    if (!fetchMyProfileBilling || !hasProAccess) {
+      const { fetchMyProfileBilling: fetchBilling } =
+        await import('../../../core/plans/monetization.js');
+      const { hasProAccess: hasAccess } = await import('../../../core/plans/subscriptionPlans.js');
+      fetchMyProfileBilling = fetchBilling;
+      hasProAccess = hasAccess;
+    }
+    const { profile } = await fetchMyProfileBilling();
+    if (hasProAccess(profile)) return true;
+  } catch {
+    // Em modo guest ou sem conexão, bloqueia por padrão
+  }
+  const message =
+    action === 'delete'
+      ? 'Exclusão de setor é um recurso Pro. Faça upgrade para continuar.'
+      : action === 'update'
+        ? 'Edição de setor é um recurso Pro. Faça upgrade para continuar.'
+        : action === 'assign'
+          ? 'Atribuir setores é um recurso Pro. Faça upgrade para continuar.'
+          : 'Criar setores é um recurso Pro. Faça upgrade para continuar.';
+  const Toast = requireSetorPersistDep('Toast');
+  Toast.warning(message);
+  return false;
 }
 
 /**
@@ -79,7 +131,6 @@ export async function assignEquipToSetor(equipId, setorId) {
   const eq = findEquip(equipId);
   if (!eq) return;
 
-  const ensureProForSetores = requireSetorPersistDep('ensureProForSetores');
   const allowed = await ensureProForSetores({ action: 'assign' });
   if (!allowed) return;
 
@@ -98,4 +149,125 @@ export async function assignEquipToSetor(equipId, setorId) {
   Toast.success(`${escapeHtml(eq.nome)} movido para ${label}.`);
   const renderEquip = requireSetorPersistDep('renderEquip');
   renderEquip(); // atualiza os cards de setor em background
+}
+
+/**
+ * @sliceSplit
+ *   crud/setor: validacao, persistencia (state + storage), assign equips
+ *   ui/modal: closeModal + clearSetorEditingState + Toast pos-save
+ */
+export async function saveSetor() {
+  const getEditingSetorId = requireSetorPersistDep('getEditingSetorId');
+  const isEditing = Boolean(getEditingSetorId());
+  const allowed = await ensureProForSetores({ action: isEditing ? 'update' : 'create' });
+  if (!allowed) return false;
+
+  const Utils = requireSetorPersistDep('Utils');
+  const nomeRaw = Utils.getVal('setor-nome') || '';
+  const getSetorNomeValidation = requireSetorPersistDep('getSetorNomeValidation');
+  const { empty, tooLong } = getSetorNomeValidation(nomeRaw);
+  if (empty || tooLong) {
+    // Validação inline: mostra erro abaixo do input + foco + toast leve.
+    // Marca o campo como "touched" pra que o erro passe a reaparecer
+    // automaticamente se o usuário esvaziar o input depois de digitar.
+    const setSetorNomeValidationState = requireSetorPersistDep('setSetorNomeValidationState');
+    setSetorNomeValidationState({ showError: true, focus: true, markTouched: true });
+    const Toast = requireSetorPersistDep('Toast');
+    const setorNomeMax = requireSetorPersistDep('setorNomeMax');
+    Toast.warning(
+      tooLong
+        ? `Use no máximo ${setorNomeMax} caracteres no nome do setor.`
+        : 'Digite um nome para o setor.',
+    );
+    return false;
+  }
+  const nome = nomeRaw.trim();
+
+  const cor = Utils.getEl('setor-cor')?.value || requireSetorPersistDep('defaultSetorColor');
+  const setorDescLimit = requireSetorPersistDep('setorDescLimit');
+  const descricao = (Utils.getVal('setor-descricao') || '').trim().slice(0, setorDescLimit);
+  const responsavel = (Utils.getVal('setor-responsavel') || '').trim();
+  // clienteId armazenado em hidden input (preenchido quando o modal abre via
+  // contexto de cliente). Hierarquia Cliente -> Setor -> Equipamento: setores
+  // novos sempre tem cliente, mas mantemos null como valid value pra compat
+  // com setores legacy que ainda não foram vinculados.
+  const clienteIdRaw = Utils.getEl('setor-cliente-id')?.value || '';
+  const clienteId = clienteIdRaw ? String(clienteIdRaw) : null;
+
+  const setState = requireSetorPersistDep('setState');
+  if (isEditing) {
+    const editingId = getEditingSetorId();
+    setState((prev) => ({
+      ...prev,
+      setores: (prev.setores || []).map((s) =>
+        s.id === editingId
+          ? { ...s, nome, cor, descricao, responsavel, ...(clienteId ? { clienteId } : {}) }
+          : s,
+      ),
+    }));
+  } else {
+    setState((prev) => ({
+      ...prev,
+      setores: [
+        ...(prev.setores || []),
+        { id: Utils.uid(), nome, cor, descricao, responsavel, clienteId },
+      ],
+    }));
+  }
+
+  try {
+    const closeSetorModal = getSetorPersistValue('closeSetorModal', async () => {
+      const { Modal: M } = await import('../../../core/modal.js');
+      M.close('modal-add-setor');
+    });
+    await closeSetorModal('modal-add-setor');
+  } catch {
+    /* ignora */
+  }
+
+  // Limpa form + reseta estado de edição
+  const clearSetorEditingState = requireSetorPersistDep('clearSetorEditingState');
+  clearSetorEditingState();
+
+  const Toast = requireSetorPersistDep('Toast');
+  Toast.success(isEditing ? `Setor "${nome}" atualizado.` : `Setor "${nome}" criado.`);
+  const renderEquip = requireSetorPersistDep('renderEquip');
+  renderEquip();
+  return true;
+}
+
+/** @sliceTarget crud/setor */
+export async function deleteSetor(id) {
+  if (id === '__sem_setor__') return;
+
+  const allowed = await ensureProForSetores({ action: 'delete' });
+  if (!allowed) return;
+
+  // Remove setorId dos equipamentos que pertencem ao setor
+  const setState = requireSetorPersistDep('setState');
+  setState((prev) => ({
+    ...prev,
+    setores: (prev.setores || []).filter((s) => s.id !== id),
+    equipamentos: prev.equipamentos.map((e) => (e.setorId === id ? { ...e, setorId: null } : e)),
+  }));
+
+  // Enfileira deleção remota (Supabase). ON DELETE SET NULL no FK cuida dos equipamentos.
+  try {
+    const Storage = requireSetorPersistDep('Storage');
+    Storage.markSetorDeleted(id);
+  } catch {
+    /* ignora — a queue é melhor esforço */
+  }
+
+  const getRouteEquipCtx = requireSetorPersistDep('getRouteEquipCtx');
+  const activeSectorId = getRouteEquipCtx().sectorId;
+  if (activeSectorId === id) {
+    const navigateEquipCtx = requireSetorPersistDep('navigateEquipCtx');
+    navigateEquipCtx({ sectorId: null, quickFilter: null });
+    return;
+  }
+  const Toast = requireSetorPersistDep('Toast');
+  Toast.info('Setor removido. Os equipamentos foram movidos para "Sem setor".');
+  const renderEquip = requireSetorPersistDep('renderEquip');
+  renderEquip();
 }
