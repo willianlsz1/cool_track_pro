@@ -20,7 +20,6 @@ import {
   resetNameplateCtaState,
 } from '../../components/nameplateCapture.js';
 import { isCachedPlanPlusOrHigher } from '../../../core/plans/planCache.js';
-import { toggleTheme } from '../helpers/themeInitHelpers.js';
 import { PushOptInCard } from '../../components/pushOptInCard.js';
 import { InstallAppPrompt } from '../../components/installAppPrompt.js';
 
@@ -272,11 +271,6 @@ export function bindNavigationHandlers() {
   on('help-feedback', () => {
     setHelpMenuState(false);
     SupportFeedbackModal.open('feedback');
-  });
-
-  on('toggle-theme', () => {
-    setHelpMenuState(false);
-    toggleTheme();
   });
 
   on('go-register-equip', (el) => {

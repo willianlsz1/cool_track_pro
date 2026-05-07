@@ -44,10 +44,7 @@ export function renderConfiguracoes() {
         { label: 'Alertas', dataAttr: 'data-action="go-alertas"' },
       ])}
 
-      ${renderSection('Conta', [
-        { label: 'Meu perfil', dataAttr: 'data-action="open-profile"' },
-        { label: 'Tema claro/escuro', dataAttr: 'data-action="toggle-theme"' },
-      ])}
+      ${renderSection('Conta', [{ label: 'Meu perfil', dataAttr: 'data-action="open-profile"' }])}
 
       ${renderSection('Ajuda', [
         { label: 'Ver tutorial', dataAttr: 'data-action="help-open-tutorial"' },

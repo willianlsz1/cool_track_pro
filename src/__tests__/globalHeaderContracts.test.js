@@ -227,7 +227,6 @@ describe('global header legacy contracts', () => {
       HEADER_ACTIONS.openPmocInfo,
       HEADER_ACTIONS.openUpgrade,
       HEADER_ACTIONS.openProfile,
-      HEADER_ACTIONS.toggleTheme,
       HEADER_ACTIONS.helpOpenTutorial,
       HEADER_ACTIONS.helpScoreInfo,
       HEADER_ACTIONS.helpSupport,

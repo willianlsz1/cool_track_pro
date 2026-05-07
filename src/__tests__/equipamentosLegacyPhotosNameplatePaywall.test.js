@@ -132,10 +132,6 @@ vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: vi.fn(() => false),
 }));
 
-vi.mock('../ui/controller/helpers/themeInitHelpers.js', () => ({
-  toggleTheme: vi.fn(),
-}));
-
 vi.mock('../ui/components/pushOptInCard.js', () => ({
   PushOptInCard: {
     enable: vi.fn(),

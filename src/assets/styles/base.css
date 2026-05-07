@@ -5,47 +5,10 @@
    ============================================================ */
 
 :root {
-  --bg: #07111f;
-  --bg-soft: #0c1929;
-  --surface: #0c1929;
-  --surface-2: #112236;
-  --surface-3: #172d45;
+  /* Color tokens (--bg, --surface, --primary, --text, --success, --warning,
+     --danger, --border, etc.) são definidos em tokens.css como var(--ct-*).
+     tokens.css é importado depois e vence o cascade. */
 
-  --card: #0c1929;
-  --card-hover: #112236;
-
-  --border: rgba(255, 255, 255, 0.07);
-  --border-2: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(0, 200, 232, 0.45);
-
-  --primary: #00c8e8;
-  --primary-strong: #00aac8;
-  --primary-soft: rgba(0, 200, 232, 0.1);
-  --primary-dim: rgba(0, 200, 232, 0.06);
-
-  --success: #00c870;
-  --success-soft: rgba(0, 200, 112, 0.1);
-  --success-dim: rgba(0, 200, 112, 0.06);
-
-  --warning: #e8a020;
-  --warning-soft: rgba(232, 160, 32, 0.12);
-  --warning-dim: rgba(232, 160, 32, 0.06);
-
-  --danger: #e03040;
-  --danger-soft: rgba(224, 48, 64, 0.1);
-  --danger-dim: rgba(224, 48, 64, 0.06);
-
-  --text: #e8f2fa;
-  --text-2: #8aaac8;
-  --text-3: #6a8ba8;
-  --text-muted: #8aaac8;
-  --muted: #6a8ba8;
-  --muted-light: #5a7890;
-
-  --surface-strong: #112236;
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --secondary: #4a6880;
-  --white: #e8f2fa;
   --black: #07111f;
 
   --font-display: 'Inter', sans-serif;
@@ -85,71 +48,6 @@
   :root {
     --layout-max: 1880px;
   }
-}
-
-/* ────────────────────────────────────────────────────────────
-   LIGHT THEME — Cool neutral (GitHub/Linear-style)
-   Princípios:
-   • Fundo cinza-neutro (#f6f8fa) em vez do azulado antigo
-     — reduz o "frio clínico" e deixa cards brancos com separação natural.
-   • Bordas sólidas #d8dee4 (estilo GH) em vez de rgba(azul) tênue
-     — dá hierarquia visível sem depender de shadow.
-   • Texto em slate escuro (#0f172a / #3e4c5e / #596878) — todos passam
-     WCAG AA ≥ 4.5:1 em fundo branco e #f6f8fa.
-   • Accents (primary cyan, danger, warning, success) ajustados pra ter
-     contraste AA em branco sem perder a identidade do produto.
-   • Shadows combinam y-offset real + ring de borda — imitam GH cards.
-   ────────────────────────────────────────────────────────────── */
-[data-theme='light'] {
-  /* Base "off-white" cool — levemente dessaturada, com hint de azul-acinzentado.
-     Reduz o stark white que ofusca, mantém cards (--card/--surface) em branco
-     puro pra continuarem se destacando do canvas. */
-  --bg: #eff3f8;
-  --bg-soft: #e6ecf2;
-  --surface: #ffffff;
-  --surface-2: #eff3f8;
-  --surface-3: #e2e8ee;
-
-  --card: #ffffff;
-  --card-hover: #eff3f8;
-
-  --border: #d8dee4;
-  --border-2: #afb8c1;
-  --border-focus: rgba(9, 105, 218, 0.45);
-
-  --primary: #0096b4;
-  --primary-strong: #007a96;
-  --primary-soft: rgba(0, 150, 180, 0.12);
-  --primary-dim: rgba(0, 150, 180, 0.06);
-
-  --success: #1a7f37;
-  --success-soft: rgba(26, 127, 55, 0.1);
-  --success-dim: rgba(26, 127, 55, 0.05);
-
-  --warning: #9a6700;
-  --warning-soft: rgba(154, 103, 0, 0.1);
-  --warning-dim: rgba(154, 103, 0, 0.05);
-
-  --danger: #cf222e;
-  --danger-soft: rgba(207, 34, 46, 0.08);
-  --danger-dim: rgba(207, 34, 46, 0.04);
-
-  --text: #0f172a;
-  --text-2: #3e4c5e;
-  --text-3: #596878; /* slate-500 — WCAG AA ≥ 4.5:1 em branco */
-  --text-muted: #3e4c5e;
-  --muted: #596878;
-  --muted-light: #768496;
-
-  --surface-strong: #e2e8ee;
-  --border-strong: #afb8c1;
-  --white: #0f172a;
-  --black: #ffffff;
-
-  /* Shadows com y-offset real + ring de borda — imitam GH/Linear cards. */
-  --shadow: 0 1px 2px rgba(27, 31, 36, 0.06), 0 0 0 1px rgba(27, 31, 36, 0.04);
-  --shadow-lg: 0 8px 24px rgba(27, 31, 36, 0.12);
-  --shadow-elevated: 0 3px 6px rgba(27, 31, 36, 0.08), 0 0 0 1px rgba(27, 31, 36, 0.05);
 }
 
 *,

@@ -57,9 +57,7 @@
 
   /* Internal aliases (design system unificado) */
   --ct-primary: var(--ct-brand);
-  --ct-success: #16a34a;
-  --ct-danger: #dc2626;
-  --ct-warning: #d97706;
+  --ct-danger: var(--ct-error);
   --ct-surface-2: var(--ct-surface-elev);
   --ct-text-2: var(--ct-text-muted);
   --ct-text-3: var(--ct-text-faint);
@@ -81,9 +79,9 @@
   --ct-gold-border-hover: rgba(217, 164, 65, 0.36);
 
   /* Subtle hovers e backgrounds neutros */
-  --ct-hover-soft: rgba(47, 123, 255, 0.06);
-  --ct-hover-softer: rgba(47, 123, 255, 0.035);
-  --ct-card-tint: rgba(47, 123, 255, 0.025);
+  --ct-hover-soft: rgba(34, 211, 238, 0.06);
+  --ct-hover-softer: rgba(34, 211, 238, 0.035);
+  --ct-card-tint: rgba(34, 211, 238, 0.025);
 
   /* ─── Override das variáveis legadas ──────────────────────────
    * Mantém compatibilidade com components.css (22k linhas) sem
@@ -95,7 +93,7 @@
   --primary: var(--ct-brand);
   --primary-strong: var(--ct-brand-hover);
   --primary-soft: var(--ct-brand-soft);
-  --primary-dim: rgba(47, 123, 255, 0.08);
+  --primary-dim: rgba(34, 211, 238, 0.08);
 
   /* Surfaces */
   --bg: var(--ct-bg);
@@ -111,7 +109,7 @@
   --border: var(--ct-border);
   --border-2: var(--ct-border-strong);
   --border-strong: var(--ct-border-strong);
-  --border-focus: rgba(47, 123, 255, 0.45);
+  --border-focus: rgba(34, 211, 238, 0.45);
 
   /* Text */
   --text: var(--ct-text);
@@ -125,25 +123,25 @@
   /* Status */
   --success: var(--ct-success);
   --success-soft: var(--ct-success-soft);
-  --success-dim: rgba(63, 182, 139, 0.06);
+  --success-dim: rgba(22, 163, 74, 0.06);
   --warning: var(--ct-warn);
   --warning-soft: var(--ct-warn-soft);
-  --warning-dim: rgba(212, 148, 71, 0.06);
+  --warning-dim: rgba(217, 119, 6, 0.06);
   --danger: var(--ct-error);
   --danger-soft: var(--ct-error-soft);
-  --danger-dim: rgba(217, 84, 77, 0.06);
+  --danger-dim: rgba(220, 38, 38, 0.06);
 
   /* Neon → versão sóbria (mata o "neon" cyan/verde/vermelho) */
   --neon-cyan: var(--ct-brand);
   --neon-cyan-soft: var(--ct-brand-soft);
   --neon-cyan-glow: var(--ct-brand-soft-hover);
-  --neon-cyan-faint: rgba(47, 123, 255, 0.08);
+  --neon-cyan-faint: rgba(34, 211, 238, 0.08);
   --neon-green: var(--ct-success);
   --neon-green-soft: var(--ct-success-soft);
-  --neon-green-glow: rgba(63, 182, 139, 0.18);
+  --neon-green-glow: rgba(22, 163, 74, 0.18);
   --neon-red: var(--ct-error);
   --neon-red-soft: var(--ct-error-soft);
-  --neon-red-glow: rgba(217, 84, 77, 0.18);
+  --neon-red-glow: rgba(220, 38, 38, 0.18);
   --neon-amber: var(--ct-warn);
   --neon-amber-soft: var(--ct-warn-soft);
 
@@ -159,35 +157,13 @@
   --secondary: var(--ct-text-faint);
 }
 
-/*
- * Hook pro tema light futuro. Não ativo agora — só documentado.
- * Quando habilitar: <html data-theme="light">.
- */
-[data-theme='light'] {
-  --ct-bg: #f7f8fb;
-  --ct-surface: #161b22;
-  --ct-surface-elev: #f1f3f8;
-  --ct-surface-hover: #e9edf3;
-  --ct-border: #e4e7ee;
-  --ct-border-strong: #c7cdd8;
-  --ct-text: #1a1d26;
-  --ct-text-muted: #5a6173;
-  --ct-text-faint: #5b6478; /* WCAG AA Body em fundo claro */
-  --ct-text-ghost: #b5bac8;
-  --ct-brand: #0891b2;
-  --ct-brand-text: #0e7490;
-  --ct-hover-soft: rgba(0, 0, 0, 0.04);
-  --ct-hover-softer: rgba(0, 0, 0, 0.02);
-  --ct-card-tint: rgba(0, 0, 0, 0.015);
-}
-
 /* Desktop dark readability scale.
    Scoped to >=1024px so mobile bottom navigation and compact layouts keep
    their current contrast/tone. The aliases intentionally lift legacy
    --text-3/--muted/--muted-light away from ghost colors because many older
    components use them for functional labels, counters and metadata. */
 @media (min-width: 1024px) {
-  body:not(.landing-active):not([data-theme='light']) {
+  body:not(.landing-active) {
     --ct-desktop-text-primary: #e6edf3;
     --ct-desktop-text-secondary: #c8d4e3;
     --ct-desktop-text-tertiary: #adbac7;

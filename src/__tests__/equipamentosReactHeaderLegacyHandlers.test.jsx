@@ -196,10 +196,6 @@ vi.mock('../core/usageLimits.js', () => ({
   getMonthlyUsageSnapshot: mocks.getMonthlyUsageSnapshot,
 }));
 
-vi.mock('../ui/controller/helpers/themeInitHelpers.js', () => ({
-  toggleTheme: vi.fn(),
-}));
-
 vi.mock('../ui/components/pushOptInCard.js', () => ({
   PushOptInCard: {
     enable: vi.fn(),
