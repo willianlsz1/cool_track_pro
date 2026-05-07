@@ -8,16 +8,19 @@ import { Profile } from '../../../features/profile.js';
 import { findOrcamento, generateShareToken } from '../../../core/orcamentos.js';
 import { ErrorCodes, handleError } from '../../../core/errors.js';
 import { goTo } from '../../../core/router.js';
-import {
-  setOrcStatusFilter,
-  deleteOrcamentoFlow,
-  markOrcamentoApproved,
-  renderOrcamentos,
-} from '../../views/orcamentos.js';
 import { ORCAMENTO_ACTIONS } from '../../viewModels/orcamentosViewModel.js';
 import { OrcamentoModal } from '../../components/orcamentoModal.js';
 import { CustomConfirm } from '../../../core/modal.js';
 import { OnboardingChecklist } from '../../components/onboarding/onboardingChecklist.js';
+
+function loadOrcamentosView() {
+  return import('../../views/orcamentos.js');
+}
+
+async function renderOrcamentosView() {
+  const { renderOrcamentos } = await loadOrcamentosView();
+  return renderOrcamentos();
+}
 
 /**
  * Fase 2 — Envia o orçamento pra assinatura digital.
@@ -76,7 +79,7 @@ export async function sendOrcamentoForSignature(orcamento) {
     }
 
     // Re-renderiza a lista pra mostrar o novo status (aguardando_assinatura)
-    renderOrcamentos();
+    await renderOrcamentosView();
   } catch (error) {
     handleError(error, {
       code: ErrorCodes.NETWORK_ERROR,
@@ -182,18 +185,21 @@ export function bindOrcamentoHandlers() {
   });
 
   // Filtros de status
-  on(ORCAMENTO_ACTIONS.setStatusFilter, (el) => {
-    setOrcStatusFilter(el.dataset.status || 'todos');
+  on(ORCAMENTO_ACTIONS.setStatusFilter, async (el) => {
+    const { setOrcStatusFilter } = await loadOrcamentosView();
+    return setOrcStatusFilter(el.dataset.status || 'todos');
   });
 
   // Apagar (com confirm)
-  on(ORCAMENTO_ACTIONS.delete, (el) => {
-    deleteOrcamentoFlow(el.dataset.id);
+  on(ORCAMENTO_ACTIONS.delete, async (el) => {
+    const { deleteOrcamentoFlow } = await loadOrcamentosView();
+    return deleteOrcamentoFlow(el.dataset.id);
   });
 
   // Marcar como aprovado (manual — quando cliente respondeu OK no WhatsApp)
-  on(ORCAMENTO_ACTIONS.markApproved, (el) => {
-    markOrcamentoApproved(el.dataset.id);
+  on(ORCAMENTO_ACTIONS.markApproved, async (el) => {
+    const { markOrcamentoApproved } = await loadOrcamentosView();
+    return markOrcamentoApproved(el.dataset.id);
   });
 
   // Compartilhar via WhatsApp (PDF + mensagem)

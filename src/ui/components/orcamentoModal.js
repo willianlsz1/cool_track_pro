@@ -17,8 +17,12 @@ import {
   TEMPLATE_INSTALACAO_SPLIT,
 } from '../../core/orcamentos.js';
 import { Profile } from '../../features/profile.js';
-import { renderOrcamentos } from '../views/orcamentos.js';
 import { bindPhoneMaskInput } from '../../core/phoneMask.js';
+
+async function renderOrcamentosView() {
+  const { renderOrcamentos } = await import('../views/orcamentos.js');
+  return renderOrcamentos();
+}
 
 const OVERLAY_ID = 'orcamento-modal-overlay';
 let _a11yCleanup = null;
@@ -403,7 +407,7 @@ function bindEvents(overlay, orcamento, isEdit) {
           : `Orçamento ${saved.numero} salvo.`,
       );
       hardClose();
-      renderOrcamentos();
+      await renderOrcamentosView();
 
       // Pos-save: WhatsApp share OU download PDF, conforme o modo.
       if (sendMode === 'send') {
