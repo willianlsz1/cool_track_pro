@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Entry chunk (initial JS)",
+    "path": "dist/assets/index.*.js",
+    "limit": "260 KB",
+    "gzip": true
+  },
+  {
+    "name": "Vendor PDF",
+    "path": "dist/assets/vendor-pdf.*.js",
+    "limit": "260 KB",
+    "gzip": true
+  },
+  {
+    "name": "React client",
+    "path": "dist/assets/client.*.js",
+    "limit": "50 KB",
+    "gzip": true
+  },
+  {
+    "name": "All CSS",
+    "path": "dist/assets/*.css",
+    "limit": "100 KB",
+    "gzip": true
+  }
+]
