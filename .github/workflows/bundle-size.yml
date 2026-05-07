@@ -1,14 +1,15 @@
 name: Bundle Size
 
-# Mede tamanho de chunks (gzip) em PRs contra main e comenta o delta.
-# Limites em .size-limit.json. Detecta regressão; não força otimização.
+# Mede tamanho de chunks (gzip) em PRs contra main. Limites em .size-limit.json.
+# Detecta regressão; não força otimização. Sem comentário automático no PR —
+# logs do step "Check bundle size" mostram limite + tamanho real por chunk.
 
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
-  pull-requests: write
   contents: read
 
 concurrency:
@@ -19,19 +20,12 @@ jobs:
   size:
     name: size-limit
     runs-on: ubuntu-latest
-    env:
-      CI_JOB_NUMBER: 1
-      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-      VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -39,11 +33,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Compare size
-        uses: andresz1/size-limit-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: build
-          skip_step: install
-          script: npm run size
-          package_manager: npm
+      - name: Build
+        run: npm run build
+
+      - name: Check bundle size
+        run: npm run size

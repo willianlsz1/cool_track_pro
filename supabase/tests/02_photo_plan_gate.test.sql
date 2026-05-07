@@ -25,10 +25,18 @@ begin
     (v_plus_id, 'plus2@test.local', '', now(), now());
 
   delete from public.profiles where id in (v_free_id, v_plus_id);
+
+  -- Bypass protect_profile_insert trigger pro setup (Mudança 7.1).
+  -- session_replication_role = 'replica' desliga triggers USER (não constraint),
+  -- vale só nesta transação por ser SET LOCAL.
+  set local session_replication_role = 'replica';
+
   insert into public.profiles (id, plan, plan_code, subscription_status, is_dev)
   values
     (v_free_id, 'free', 'free', 'inactive', false),
     (v_plus_id, 'plus', 'plus', 'active', false);
+
+  set local session_replication_role = 'origin';
 
   -- ── Caso 1: Free inserindo sem fotos → passa ──
   -- Simula sessão Free

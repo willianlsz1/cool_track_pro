@@ -81,7 +81,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Obs ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 1 (Free registro #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 1 (Free registro #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Free: 5 registros no mês passaram';
@@ -131,7 +131,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Plus ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 3 (Plus insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 3 (Plus insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Plus: 10 registros passaram (unlimited)';
@@ -149,7 +149,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Pro ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 4 (Pro insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 4 (Pro insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Pro: 10 registros passaram (unlimited)';
@@ -167,7 +167,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Dev ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 5 (dev insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 5 (dev insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ dev: 10 registros passaram (bypass)';
