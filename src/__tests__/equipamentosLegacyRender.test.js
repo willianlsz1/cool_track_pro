@@ -368,6 +368,74 @@ describe('equipamentos legacy render adapter', () => {
     expect(addButton?.getAttribute('data-cliente-id')).toBe('cli-1');
   });
 
+  it('renderiza estado vazio de setores por cliente preservando ações essenciais', async () => {
+    stateMocks.isPro = true;
+    setState({
+      equipamentos: [{ ...activeEquip, id: 'eq-sem-setor', clienteId: 'cli-1', setorId: null }],
+      clientes: [{ id: 'cli-1', nome: 'Cliente Alpha' }],
+      setores: [],
+    });
+
+    await renderEquip('', {
+      equipCtx: { clienteId: 'cli-1', clienteNome: 'Cliente Alpha', sectorId: null },
+    });
+
+    expect(document.querySelector('#lista-equip .setor-cliente-empty')).not.toBeNull();
+    expect(document.querySelector('.setor-cliente-empty__title')?.textContent).toContain(
+      'Cliente Alpha',
+    );
+    expect(
+      document.querySelector('[data-action="open-setor-modal"][data-cliente-id="cli-1"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('[data-action="open-setor"][data-id="__sem_setor__"]'),
+    ).not.toBeNull();
+    expect(document.querySelector('.setor-cliente-empty__sem-body')?.textContent).toContain(
+      '1 equipamento sem setor vinculado',
+    );
+    expect(document.getElementById('equip-search-bar')?.style.display).toBe('none');
+    expect(document.querySelector('.equip-view-toggle')?.style.display).toBe('none');
+    expect(document.querySelector('[data-action="equip-clear-cliente-filter"]')).not.toBeNull();
+  });
+
+  it('renderiza grade de setores por cliente preservando cards e tile sem setor', async () => {
+    stateMocks.isPro = true;
+    setState({
+      equipamentos: [
+        { ...activeEquip, id: 'eq-setor', clienteId: 'cli-1', setorId: 's1' },
+        { ...activeEquip, id: 'eq-legacy', clienteId: '', setorId: 's1' },
+        { ...activeEquip, id: 'eq-sem-setor', clienteId: 'cli-1', setorId: '' },
+      ],
+      clientes: [{ id: 'cli-1', nome: 'Cliente Alpha' }],
+      setores: [{ id: 's1', nome: 'Sala Técnica', clienteId: 'cli-1', cor: '#00c853' }],
+    });
+
+    await renderEquip('', {
+      equipCtx: { clienteId: 'cli-1', clienteNome: 'Cliente Alpha', sectorId: null },
+    });
+
+    expect(document.querySelector('#lista-equip .setor-grid')).not.toBeNull();
+    expect(
+      document.querySelector('.setor-card[data-action="open-setor"][data-id="s1"]'),
+    ).not.toBeNull();
+    expect(document.querySelector('[data-action="edit-setor"][data-id="s1"]')).not.toBeNull();
+    expect(
+      document.querySelector('[data-action="toggle-setor-menu"][data-id="s1"]'),
+    ).not.toBeNull();
+    expect(document.querySelector('[data-action="delete-setor"][data-id="s1"]')).not.toBeNull();
+    expect(
+      document.querySelector(
+        '.setor-card--sem-setor[data-action="open-setor"][data-id="__sem_setor__"]',
+      ),
+    ).not.toBeNull();
+    expect(document.querySelector('.setor-card__sub')?.textContent).toContain(
+      '1 equipamento sem setor vinculado',
+    );
+    expect(document.querySelector('[data-action="open-setor-modal"]')?.dataset.clienteId).toBe(
+      'cli-1',
+    );
+  });
+
   it('preserva quick move no contexto cliente sem setor', async () => {
     setState({
       equipamentos: [

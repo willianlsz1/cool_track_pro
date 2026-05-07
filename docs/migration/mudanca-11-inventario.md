@@ -297,7 +297,7 @@ Descobertas em CP-A que afetam a estratégia:
 | utils              | ✅ extraído (7) + reclassificado (3)    | CP-B           |         ~233 |            7 / 7 movíveis |
 | state/editingState | ✅ extraído (editing/context state)     | CP-B.5         |           ~3 |                     3 / 3 |
 | controller         | 📦 inventariado (bridge state extraído) | —              |            0 |                     0 / 7 |
-| setor              | 📦 inventariado                         | —              |            0 |                     0 / 4 |
+| setor              | 🚧 pré-split in-place (CP-E.0)          | —              |            0 |                     0 / 4 |
 | crud               | 📦 inventariado                         | —              |            0 |                     0 / 6 |
 | ui                 | 📦 inventariado                         | —              |            0 |                    0 / 27 |
 | nameplate          | 📦 inventariado (split-only)            | —              |            0 |  0 / 0 (fold em ui/modal) |
@@ -364,3 +364,67 @@ Status: **CP-C aplicado**.
 ### Próximo CP recomendado
 
 **CP-E — setor**. Se `renderSetorGridForCliente` estiver misturado demais para mover com fachada pequena e segura, executar antes um **CP-E.0 pré-split** focado em separar a orquestração de render do setor sem mover CRUD, modal ou `renderEquip`.
+
+## Atualização CP-E.0 — Setor preflight + pré-split in-place (2026-05-07)
+
+Status: **CP-E.0 aplicado com pré-split in-place**.
+
+### Decisão
+
+`renderSetorGridForCliente` precisava de pré-split antes do CP-E porque tinha ~158 LOC e misturava:
+
+- orquestração de render legado (`#lista-equip`, unmount React);
+- leitura de state (`setores`, `equipamentos`);
+- chrome/toolbar da tela por cliente;
+- filtro dual-path de setores por cliente;
+- montagem de HTML de estado vazio, banner `Sem setor`, cards e tile `Sem setor`.
+
+CP-E agora pode mover o cluster de setor com fachada menor, desde que preserve o adapter legado e extraia somente setor para `src/features/equipamentos/setor/` no próximo checkpoint.
+
+### Funções criadas em `src/ui/views/equipamentos.js`
+
+| Função                                | LOC aprox | Destino futuro                        | Observação                                                   |
+| ------------------------------------- | --------: | ------------------------------------- | ------------------------------------------------------------ |
+| `_prepareSetorGridForClienteShell`    |       ~26 | `setor/setorUI` + `controller/render` | Esconde search/view toggle e configura toolbar por cliente.  |
+| `_buildSetorGridForClienteModel`      |       ~30 | `setor/setorState`                    | Mantém filtro dual-path e cálculo de equipamentos sem setor. |
+| `_renderSetorGridForClienteHtml`      |       ~47 | `setor/setorUI`                       | Decide entre empty state e grade; preserva markup final.     |
+| `_renderSetorGridForClienteEmptyHtml` |       ~81 | `setor/setorUI`                       | Isola HTML do estado vazio por cliente e banner `Sem setor`. |
+
+### LOC
+
+| Função                      | Antes CP-E.0 | Depois CP-E.0 | Delta |
+| --------------------------- | -----------: | ------------: | ----: |
+| `renderSetorGridForCliente` |         ~158 |           ~18 |  -140 |
+
+| Arquivo                        | Antes CP-E.0 | Depois CP-E.0 | Delta |
+| ------------------------------ | -----------: | ------------: | ----: |
+| `src/ui/views/equipamentos.js` |        ~2496 |         ~2540 |   +44 |
+
+O aumento líquido é esperado: o checkpoint adicionou JSDoc de slice e separou blocos sem mover código para novos módulos.
+
+### Comportamento preservado
+
+- Sem mudança de UX, classes, IDs, `data-action`, `data-id`, rotas ou contratos externos.
+- `renderSetorGridForCliente` continua sendo chamado pelo branch Pro com cliente em `renderEquip`.
+- Filtro dual-path de setores por cliente preservado.
+- Estado vazio de setor por cliente preservado.
+- Tile/banner `Sem setor` preservados.
+- Nenhuma função de setor foi movida para `src/features/equipamentos/setor/` neste CP.
+- `saveSetor`, `deleteSetor`, `assignEquipToSetor`, `renderEquip`, `saveEquip` e `viewEquip` não foram movidos.
+
+### Testes adicionados/alterados
+
+Alterado `src/__tests__/equipamentosLegacyRender.test.js` com testes de caracterização para:
+
+- estado vazio de setores por cliente, incluindo CTA `open-setor-modal`, banner/link `__sem_setor__`, toolbar e ocultação de busca/toggle;
+- grade de setores por cliente, incluindo card de setor, ações `edit-setor`, `toggle-setor-menu`, `delete-setor`, tile `Sem setor` e `data-cliente-id`.
+
+### Próximo CP recomendado
+
+**CP-E — extrair setor para `src/features/equipamentos/setor/`**.
+
+Sugestão de destino inicial:
+
+- `setor/setorUI`: `_lockedSetorBtnHtml`, `renderSetorGrid`, `_prepareSetorGridForClienteShell`, `_renderSetorGridForClienteHtml`, `_renderSetorGridForClienteEmptyHtml` e integração com `setorCardHtml`.
+- `setor/setorState`: `_buildSetorGridForClienteModel`, `setActiveSector`, contexto forçado relacionado a setor se mantido no recorte.
+- `setor/setorPersist`: somente em CP posterior ou subpasso explícito, porque `saveSetor`, `deleteSetor`, `moveEquipsToSetor` e `assignEquipToSetor` tocam state/storage/toast/render e merecem fachada cuidadosa.
