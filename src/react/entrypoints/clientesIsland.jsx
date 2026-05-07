@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { ClientesPage } from '../pages/ClientesPage.jsx';
 import '../styles/tailwind.css';
 
@@ -18,7 +19,11 @@ export function mountClientesReact(root = document.getElementById(DEFAULT_ROOT_I
   }
 
   flushSync(() => {
-    reactRoot.render(<ClientesPage {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="clientesIsland">
+        <ClientesPage {...props} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }

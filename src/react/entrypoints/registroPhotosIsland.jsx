@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { RegistroPhotos } from '../pages/RegistroPhotos.jsx';
 
 const DEFAULT_ROOT_ID = 'registro-photos-root';
@@ -21,7 +22,11 @@ export function mountRegistroPhotosReact(
   root.dataset.reactRegistroPhotosMounted = 'true';
 
   flushSync(() => {
-    reactRoot.render(<RegistroPhotos {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="registroPhotosIsland">
+        <RegistroPhotos {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return reactRoot;

@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { AlertasPage } from '../pages/AlertasPage.jsx';
 import '../styles/tailwind.css';
 
@@ -16,7 +17,11 @@ export function mountAlertasReact(root = document.getElementById(DEFAULT_ROOT_ID
     root.dataset.reactAlertasMounted = 'true';
   }
 
-  reactRoot.render(<AlertasPage {...props} />);
+  reactRoot.render(
+    <ErrorBoundary name="alertasIsland">
+      <AlertasPage {...props} />
+    </ErrorBoundary>,
+  );
   return reactRoot;
 }
 

@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { EquipamentosListPage } from '../pages/EquipamentosListPage.jsx';
 import '../styles/tailwind.css';
 
@@ -21,7 +22,11 @@ export function mountEquipamentosListReact(
   }
 
   flushSync(() => {
-    reactRoot.render(<EquipamentosListPage {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="equipamentosListIsland">
+        <EquipamentosListPage {...props} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }

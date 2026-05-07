@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { DashboardNextAction } from '../pages/DashboardNextAction.jsx';
 
 const DEFAULT_ROOT_ID = DASHBOARD_PUBLIC_IDS.nextActionCard;
@@ -27,7 +28,11 @@ export function mountDashboardNextActionReact(
 
   root.dataset.tone = rootTone(props);
   flushSync(() => {
-    reactRoot.render(<DashboardNextAction {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="dashboardNextActionIsland">
+        <DashboardNextAction {...props} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }

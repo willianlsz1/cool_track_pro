@@ -2,6 +2,7 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { DashboardOnboarding } from '../pages/DashboardOnboarding.jsx';
 
 const DEFAULT_ROOT_ID = DASHBOARD_PUBLIC_IDS.onboarding;
@@ -41,7 +42,9 @@ export function mountDashboardOnboardingReact(
 
   flushSync(() => {
     reactRoot.render(
-      <DashboardOnboarding {...props} emptyRoot={emptyRoot} overflowRoot={overflowRoot} />,
+      <ErrorBoundary name="dashboardOnboardingIsland">
+        <DashboardOnboarding {...props} emptyRoot={emptyRoot} overflowRoot={overflowRoot} />
+      </ErrorBoundary>,
     );
   });
 

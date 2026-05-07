@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import '../styles/tailwind.css';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { LandingPage } from '../pages/landing/LandingPage.jsx';
 
 /**
@@ -37,7 +38,11 @@ export function mountLandingPageReact(targetEl, options = {}) {
   const root = createRoot(targetEl);
   targetEl[ROOT_KEY] = root;
 
-  root.render(<LandingPage onStart={options.onStart || options.onLogin} />);
+  root.render(
+    <ErrorBoundary name="landingIsland">
+      <LandingPage onStart={options.onStart || options.onLogin} />
+    </ErrorBoundary>,
+  );
 
   return root;
 }

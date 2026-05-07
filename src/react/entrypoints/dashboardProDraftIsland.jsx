@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { DASHBOARD_PUBLIC_IDS } from '../../ui/viewModels/dashboardContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { DashboardProDraft } from '../pages/DashboardProDraft.jsx';
 
 const DEFAULT_ROOT_ID = DASHBOARD_PUBLIC_IDS.proOpsRow;
@@ -28,7 +29,11 @@ export function mountDashboardProDraftReact(
     props.draftRoot || document.getElementById(DASHBOARD_PUBLIC_IDS.proDraftRoot) || null;
 
   flushSync(() => {
-    reactRoot.render(<DashboardProDraft {...props} draftRoot={draftRoot} />);
+    reactRoot.render(
+      <ErrorBoundary name="dashboardProDraftIsland">
+        <DashboardProDraft {...props} draftRoot={draftRoot} />
+      </ErrorBoundary>,
+    );
   });
   return reactRoot;
 }

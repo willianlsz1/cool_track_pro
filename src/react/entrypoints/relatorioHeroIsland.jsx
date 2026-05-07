@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
 import { RELATORIO_PUBLIC_IDS } from '../../ui/viewModels/relatorioContracts.js';
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { RelatorioHero } from '../pages/RelatorioHero.jsx';
 
 const roots = new WeakMap();
@@ -20,7 +21,11 @@ export function mountRelatorioHeroReact(
 
   root.dataset.reactRelatorioHeroMounted = 'true';
   flushSync(() => {
-    reactRoot.render(<RelatorioHero {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="relatorioHeroIsland">
+        <RelatorioHero {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return reactRoot;

@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { RegistroHeader } from '../pages/RegistroHeader.jsx';
 
 const DEFAULT_ROOT_ID = 'registro-header-root';
@@ -21,7 +22,11 @@ export function mountRegistroHeaderReact(
   root.dataset.reactRegistroHeaderMounted = 'true';
 
   flushSync(() => {
-    reactRoot.render(<RegistroHeader {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="registroHeaderIsland">
+        <RegistroHeader {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return reactRoot;

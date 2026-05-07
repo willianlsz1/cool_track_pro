@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 
+import { ErrorBoundary } from '../components/ErrorBoundary.jsx';
 import { RegistroSignature } from '../pages/RegistroSignature.jsx';
 import { REGISTRO_SIGNATURE_ROOT_ID } from '../../ui/viewModels/registroSignatureModel.js';
 
@@ -28,7 +29,11 @@ export function mountRegistroSignatureReact(
   applyRootState(root, props);
 
   flushSync(() => {
-    reactRoot.render(<RegistroSignature {...props} />);
+    reactRoot.render(
+      <ErrorBoundary name="registroSignatureIsland">
+        <RegistroSignature {...props} />
+      </ErrorBoundary>,
+    );
   });
 
   return reactRoot;
