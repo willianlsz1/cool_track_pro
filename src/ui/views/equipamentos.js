@@ -113,6 +113,11 @@ import {
   configureSetorNavigation,
   setActiveSector,
 } from '../../features/equipamentos/setor/setorNavigation.js';
+import {
+  assignEquipToSetor,
+  configureSetorPersist,
+  moveEquipsToSetor,
+} from '../../features/equipamentos/setor/setorPersist.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -129,9 +134,19 @@ configureSetorNavigation({
   getRouteEquipCtx: _getRouteEquipCtx,
   navigateEquipCtx: _navigateEquipCtx,
 });
+configureSetorPersist({
+  findEquip,
+  findSetor,
+  setState,
+  Toast,
+  renderEquip,
+  ensureProForSetores,
+  escapeHtml: Utils.escapeHtml,
+});
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
 export { getActiveQuickFilter, setActiveSector };
+export { assignEquipToSetor, moveEquipsToSetor };
 export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
 export { setorCardHtml } from './equipamentos/setores.js';
@@ -827,56 +842,6 @@ function _syncSetorSaveButtonState() {
   saveBtn.setAttribute('aria-disabled', isValid ? 'false' : 'true');
 }
 
-/**
- * Move um conjunto de equipamentos pra um setor especifico (batch).
- * Usado pelo banner quick-move no drill-down __sem_setor__ dentro do contexto
- * cliente. Atualiza state.equipamentos e re-renderiza.
- *
- * Se clienteIdToLink for passado e o setor de destino for orphan (sem cliente),
- * o setor TAMBEM é vinculado ao cliente — preenchendo o gap da hierarquia
- * Cliente -> Setor -> Equipamento (assume que o user quer organizar tudo sob
- * a mesma carteira).
- *
- * @param {string[]} equipIds
- * @param {string} setorId
- * @param {string} [clienteIdToLink] — se passado, vincula também o setor
- *   orphan ao cliente. No-op se setor já tiver clienteId.
- * @returns {{moved: number, linkedSetor: boolean}}
- */
-/** @sliceTarget crud/move */
-export function moveEquipsToSetor(equipIds, setorId, clienteIdToLink = null) {
-  if (!Array.isArray(equipIds) || !equipIds.length || !setorId) {
-    return { moved: 0, linkedSetor: false };
-  }
-  const idsSet = new Set(equipIds);
-  let moved = 0;
-  let linkedSetor = false;
-
-  setState((prev) => {
-    // Se for vincular o setor orphan ao cliente, atualiza setores também.
-    let nextSetores = prev.setores;
-    if (clienteIdToLink) {
-      nextSetores = (prev.setores || []).map((s) => {
-        if (s.id === setorId && !s.clienteId) {
-          linkedSetor = true;
-          return { ...s, clienteId: clienteIdToLink };
-        }
-        return s;
-      });
-    }
-    const nextEquipamentos = (prev.equipamentos || []).map((e) => {
-      if (idsSet.has(e.id)) {
-        moved++;
-        return { ...e, setorId };
-      }
-      return e;
-    });
-    return { ...prev, setores: nextSetores, equipamentos: nextEquipamentos };
-  });
-
-  return { moved, linkedSetor };
-}
-
 /** Reseta todo o form do modal e volta pra modo "criar". */
 /** @sliceTarget ui/modal */
 export function clearSetorEditingState() {
@@ -1206,30 +1171,6 @@ export async function deleteSetor(id) {
   }
   Toast.info('Setor removido. Os equipamentos foram movidos para "Sem setor".');
   renderEquip();
-}
-
-/**
- * Atribui (ou remove) um setor a um equipamento já cadastrado.
- * Chamado pelo select inline no modal de detalhes.
- */
-/** @sliceTarget crud/setor */
-export async function assignEquipToSetor(equipId, setorId) {
-  const eq = findEquip(equipId);
-  if (!eq) return;
-
-  const allowed = await ensureProForSetores({ action: 'assign' });
-  if (!allowed) return;
-
-  setState((prev) => ({
-    ...prev,
-    equipamentos: prev.equipamentos.map((e) =>
-      e.id === equipId ? { ...e, setorId: setorId || null } : e,
-    ),
-  }));
-  const setor = setorId ? findSetor(setorId) : null;
-  const label = setor ? `"${setor.nome}"` : '"Sem setor"';
-  Toast.success(`${Utils.escapeHtml(eq.nome)} movido para ${label}.`);
-  renderEquip(); // atualiza os cards de setor em background
 }
 
 // Nameplate data helpers live in ./equipamentos/placaData.js.
