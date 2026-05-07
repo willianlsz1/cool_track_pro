@@ -9,6 +9,9 @@
 --   - Limit usa contagem total de rows do user, não só created_at do mês
 -- ============================================================
 
+-- TAP plan: ver nota em 01_user_has_plus_plan.test.sql.
+\echo '1..1'
+
 begin;
 
 do $$
@@ -27,12 +30,20 @@ begin
     (v_dev_id, 'dev4@test.local', '', now(), now());
 
   delete from public.profiles where id in (v_free_id, v_plus_id, v_pro_id, v_dev_id);
+
+  -- Bypass protect_profile_insert trigger pro setup (Mudança 7.1).
+  -- session_replication_role = 'replica' desliga triggers USER (não constraint),
+  -- vale só nesta transação por ser SET LOCAL.
+  set local session_replication_role = 'replica';
+
   insert into public.profiles (id, plan, plan_code, subscription_status, is_dev)
   values
     (v_free_id, 'free', 'free', 'inactive', false),
     (v_plus_id, 'plus', 'plus', 'active', false),
     (v_pro_id, 'pro', 'pro', 'active', false),
     (v_dev_id, 'free', 'free', 'inactive', true);
+
+  set local session_replication_role = 'origin';
 
   -- ── Caso 1: Free — 3 passam, 4º bloqueia ────────────────────────────
   perform set_config('request.jwt.claims', json_build_object('sub', v_free_id)::text, true);
@@ -43,7 +54,7 @@ begin
       insert into public.equipamentos (id, user_id, nome, tipo, local, status)
       values (gen_random_uuid()::text, v_free_id, 'Ar Free ' || i, 'Split', 'Sala', 'ok');
     exception when others then
-      raise exception 'FAIL caso 1 (Free insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 1 (Free insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Free: 3 inserts passaram';
@@ -67,7 +78,7 @@ begin
       insert into public.equipamentos (id, user_id, nome, tipo, local, status)
       values (gen_random_uuid()::text, v_plus_id, 'Ar Plus ' || i, 'Split', 'Sala', 'ok');
     exception when others then
-      raise exception 'FAIL caso 2 (Plus insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 2 (Plus insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Plus: 15 inserts passaram';
@@ -91,7 +102,7 @@ begin
       insert into public.equipamentos (id, user_id, nome, tipo, local, status)
       values (gen_random_uuid()::text, v_pro_id, 'Ar Pro ' || i, 'Split', 'Sala', 'ok');
     exception when others then
-      raise exception 'FAIL caso 3 (Pro insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 3 (Pro insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Pro: 20 inserts passaram (unlimited)';
@@ -106,7 +117,7 @@ begin
       insert into public.equipamentos (id, user_id, nome, tipo, local, status)
       values (gen_random_uuid()::text, v_dev_id, 'Ar Dev ' || i, 'Split', 'Sala', 'ok');
     exception when others then
-      raise exception 'FAIL caso 4 (dev insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 4 (dev insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ dev: 20 inserts passaram (bypass)';
@@ -115,3 +126,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - enforce_equipamentos_limit'

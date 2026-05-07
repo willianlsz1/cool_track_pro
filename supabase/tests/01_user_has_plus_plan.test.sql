@@ -10,6 +10,13 @@
 --   - null uuid → false
 -- ============================================================
 
+-- TAP plan (Mudança 7.1): pg_prove parseia stdout esperando 1..N + ok M.
+-- Como os tests usam PL/pgSQL puro com NOTICE/RAISE em vez de framework
+-- pgTAP de verdade, emitimos o plano + ok manualmente. Se o `do $$`
+-- raise exception, psql aborta antes do `\echo 'ok 1'` final → pg_prove
+-- vê plan sem ok → reporta fail correto.
+\echo '1..1'
+
 begin;
 
 -- Fixtures: 4 usuários cobrindo as combinações.
@@ -35,6 +42,11 @@ begin
   -- versões custom.
   delete from public.profiles where id in (v_free_id, v_plus_id, v_pro_id, v_pro_past_due_id, v_dev_id);
 
+  -- Bypass protect_profile_insert trigger pro setup (Mudança 7.1).
+  -- session_replication_role = 'replica' desliga triggers USER (não constraint),
+  -- vale só nesta transação por ser SET LOCAL.
+  set local session_replication_role = 'replica';
+
   -- Insere profiles via service_role path (bypass da protect_profile_insert).
   insert into public.profiles (id, plan, plan_code, subscription_status, is_dev)
   values
@@ -43,6 +55,8 @@ begin
     (v_pro_id, 'pro', 'pro', 'active', false),
     (v_pro_past_due_id, 'pro', 'pro', 'past_due', false),
     (v_dev_id, 'free', 'free', 'inactive', true);
+
+  set local session_replication_role = 'origin';
 
   -- ── user_has_plus_plan ────────────────────────────────────────────
   if public.user_has_plus_plan(v_free_id) then
@@ -85,3 +99,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - user_has_plus_plan + user_has_pro_plan'

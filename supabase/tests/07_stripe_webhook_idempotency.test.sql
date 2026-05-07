@@ -13,6 +13,9 @@
 --     mas a coluna em si não tem limite)
 -- ============================================================
 
+-- TAP plan: ver nota em 01_user_has_plus_plan.test.sql.
+\echo '1..1'
+
 begin;
 
 do $$
@@ -87,3 +90,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - stripe_webhook_events idempotency'

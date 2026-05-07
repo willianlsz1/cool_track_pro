@@ -10,6 +10,9 @@
 --   - UPDATE em registro Free não aciona limit (trigger é BEFORE INSERT only)
 -- ============================================================
 
+-- TAP plan: ver nota em 01_user_has_plus_plan.test.sql.
+\echo '1..1'
+
 begin;
 
 do $$
@@ -33,12 +36,20 @@ begin
     (v_dev_id, 'dev5@test.local', '', now(), now());
 
   delete from public.profiles where id in (v_free_id, v_plus_id, v_pro_id, v_dev_id);
+
+  -- Bypass protect_profile_insert trigger pro setup (Mudança 7.1).
+  -- session_replication_role = 'replica' desliga triggers USER (não constraint),
+  -- vale só nesta transação por ser SET LOCAL.
+  set local session_replication_role = 'replica';
+
   insert into public.profiles (id, plan, plan_code, subscription_status, is_dev)
   values
     (v_free_id, 'free', 'free', 'inactive', false),
     (v_plus_id, 'plus', 'plus', 'active', false),
     (v_pro_id, 'pro', 'pro', 'active', false),
     (v_dev_id, 'free', 'free', 'inactive', true);
+
+  set local session_replication_role = 'origin';
 
   -- Setup: cria 1 equipamento pra cada user (service_role-ish via DO block).
   -- Como o trigger de equipamentos_limit também roda, fazemos antes de trocar
@@ -81,7 +92,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Obs ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 1 (Free registro #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 1 (Free registro #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Free: 5 registros no mês passaram';
@@ -131,7 +142,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Plus ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 3 (Plus insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 3 (Plus insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Plus: 10 registros passaram (unlimited)';
@@ -149,7 +160,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Pro ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 4 (Pro insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 4 (Pro insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ Pro: 10 registros passaram (unlimited)';
@@ -167,7 +178,7 @@ begin
         to_char(now(), 'YYYY-MM-DD'), 'manutencao', 'Dev ' || i, 'ok'
       );
     exception when others then
-      raise exception 'FAIL caso 5 (dev insert #%% deveria passar): % %', i, sqlstate, sqlerrm;
+      raise exception 'FAIL caso 5 (dev insert #% deveria passar): % %', i, sqlstate, sqlerrm;
     end;
   end loop;
   raise notice '✓ dev: 10 registros passaram (bypass)';
@@ -196,3 +207,5 @@ begin
 end $$;
 
 rollback;
+
+\echo 'ok 1 - enforce_registros_monthly_limit'
