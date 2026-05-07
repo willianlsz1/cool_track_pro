@@ -38,7 +38,6 @@
   --ct-brand-border: rgba(34, 211, 238, 0.18);
   --ct-brand-light: #67e8f9; /* fim de gradientes, hover suave */
   --ct-brand-shadow: rgba(34, 211, 238, 0.3); /* box-shadow de botões primários */
-  --ct-brand-strong: rgba(34, 211, 238, 0.6); /* focus ring, accents fortes */
   --ct-brand-border-hover: rgba(34, 211, 238, 0.3);
 
   /* Surfaces — tema interno dark padronizado */
@@ -56,11 +55,7 @@
   --ct-text-ghost: #7d8898;
 
   /* Internal aliases (design system unificado) */
-  --ct-primary: var(--ct-brand);
   --ct-danger: var(--ct-error);
-  --ct-surface-2: var(--ct-surface-elev);
-  --ct-text-2: var(--ct-text-muted);
-  --ct-text-3: var(--ct-text-faint);
 
   /* Status (dessaturados) */
   --ct-success: #16a34a;
@@ -69,6 +64,7 @@
   --ct-warn-soft: #fde9c8;
   --ct-error: #dc2626;
   --ct-error-soft: #fcdcdc;
+  /* WhatsApp brand — usado em chip/badge de envio (FUTURE USE) */
   --ct-whatsapp: #4fa779;
   --ct-whatsapp-soft: rgba(79, 167, 121, 0.12);
   /* Premium tier (Pro) — gold dessaturado */
@@ -101,7 +97,6 @@
   --surface: var(--ct-surface);
   --surface-2: var(--ct-surface-elev);
   --surface-3: var(--ct-surface-hover);
-  --surface-strong: var(--ct-surface-elev);
   --card: var(--ct-surface);
   --card-hover: var(--ct-surface-elev);
 
@@ -117,8 +112,6 @@
   --text-3: var(--ct-text-faint);
   --text-muted: var(--ct-text-muted);
   --muted: var(--ct-text-faint);
-  --muted-light: var(--ct-text-ghost);
-  --white: var(--ct-text);
 
   /* Status */
   --success: var(--ct-success);
@@ -181,7 +174,6 @@
     --text-3: var(--ct-desktop-text-tertiary);
     --text-muted: var(--ct-desktop-text-secondary);
     --muted: var(--ct-desktop-text-tertiary);
-    --muted-light: var(--ct-desktop-text-disabled);
     --secondary: var(--ct-desktop-text-tertiary);
   }
 }
