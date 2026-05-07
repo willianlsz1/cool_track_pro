@@ -746,3 +746,65 @@ Status: **CP-F.0 aplicado**.
 1. `crud/validate` + `nameplate/bridge` com testes focados em guards e dados de placa;
 2. `crud/create`/`crud/update`/`crud/persist` com contrato de fotos e edição;
 3. `ui/form`/`ui/modal`/`controller/render` como segunda extração, mantendo fachada pública em `equipamentos.js` até o final do CP-F.
+
+---
+
+## Atualização CP-F.1 — Extração de validação/payload/nameplate de `saveEquip` (2026-05-07)
+
+Status: **CP-F.1 aplicado**.
+
+### Resumo
+
+- `saveEquip` permanece em `src/ui/views/equipamentos.js` como orquestrador.
+- Helpers de validação, limite de plano, payload e dados de placa foram extraídos para `src/features/equipamentos/` com dependências recebidas por argumento.
+- Ordem preservada no fluxo: plan gate → leitura base do form → validação textual → contexto de cliente/setor → dados de placa → payload/fotos → state mutation → modal/reset/render/toast/post-actions.
+- Sem alteração de estado, modal, render, delete/view, setor, React bridges, CSS, schema/migrations, dependências ou barrels.
+
+### Recorte decidido
+
+| Helper                               | Movido? | Destino                                             | Dependências injetadas                                                                        | Motivo                                                                                  |
+| ------------------------------------ | ------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `_checkSaveEquipPlanLimit`           | Sim     | `src/features/equipamentos/crud/validate.js`        | `checkPlanLimit`, `trackEvent`, `Toast`, `goTo`, `editingId`, `equipamentos`                  | Guard isolado; telemetria/toast/rota preservados via argumentos sem importar adapter.   |
+| `_validateSaveEquipPayload`          | Sim     | `src/features/equipamentos/crud/validate.js`        | `validateEquipamentoPayload`, `Toast`, `getValue`, `editingId`, `equipamentos`                | Validação textual isolada; mantém retorno `null` e warning original.                    |
+| `_collectSaveEquipDadosPlaca`        | Sim     | `src/features/equipamentos/nameplate/dadosPlaca.js` | `collectDadosPlaca`, `DadosPlacaValidationError`, `formatDecimalHint`, `Toast`, `documentRef` | Coesão maior em nameplate; preserva warning, focus/select e rethrow de erro inesperado. |
+| `_buildSaveEquipPayload`             | Sim     | `src/features/equipamentos/crud/payload.js`         | `editingId`, `createId`, `findEquip`, `normalizePhotoList`, `getValue`, `tiposComComponente`  | Montagem de payload isolada; preserva contrato de fotos em edição/criação.              |
+| `_collectSaveEquipBaseFormValues`    | Não     | Adapter                                             | `Utils.getVal`                                                                                | Helper de form/DOM; melhor recorte para CP de UI/form.                                  |
+| `_collectSaveEquipContextFormValues` | Não     | Adapter                                             | `Utils.getVal`, `getForcedEquipContext`, normalização de periodicidade                        | Helper de form/contexto; manter no adapter evita misturar UI/contexto neste CP.         |
+| `_applySaveEquipToState`             | Não     | Adapter                                             | `setState`, `getEditingEquipId`                                                               | State mutation fora do escopo do CP-F.1.                                                |
+
+### Arquivos criados
+
+- `src/features/equipamentos/crud/validate.js`
+- `src/features/equipamentos/crud/payload.js`
+- `src/features/equipamentos/nameplate/dadosPlaca.js`
+- `src/features/equipamentos/__tests__/crud/validate.test.js`
+- `src/features/equipamentos/__tests__/crud/payload.test.js`
+- `src/features/equipamentos/__tests__/nameplate/dadosPlaca.test.js`
+
+### Helpers movidos
+
+| Helper original               | Novo nome                    | Origem                         | Destino                                             |
+| ----------------------------- | ---------------------------- | ------------------------------ | --------------------------------------------------- |
+| `_checkSaveEquipPlanLimit`    | `checkSaveEquipPlanLimit`    | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/validate.js`        |
+| `_validateSaveEquipPayload`   | `validateSaveEquipPayload`   | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/validate.js`        |
+| `_collectSaveEquipDadosPlaca` | `collectSaveEquipDadosPlaca` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/nameplate/dadosPlaca.js` |
+| `_buildSaveEquipPayload`      | `buildSaveEquipPayload`      | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/payload.js`         |
+
+### LOC
+
+| Item                           | Antes CP-F.1 | Depois CP-F.1 | Delta |
+| ------------------------------ | -----------: | ------------: | ----: |
+| `src/ui/views/equipamentos.js` |         2240 |          2158 |   -82 |
+
+### Testes adicionados/alterados
+
+- Adicionado `src/features/equipamentos/__tests__/crud/validate.test.js` com 4 testes.
+- Adicionado `src/features/equipamentos/__tests__/crud/payload.test.js` com 3 testes.
+- Adicionado `src/features/equipamentos/__tests__/nameplate/dadosPlaca.test.js` com 3 testes.
+- Mantido `src/__tests__/equipamentosSaveEquip.test.js` como caracterização do fluxo legado.
+
+### Próximo CP recomendado
+
+**CP-F.2a — mapear antes de mover state mutation**.
+
+Justificativa: após CP-F.1, o próximo bloco natural é `_applySaveEquipToState`/`_updateSaveEquipInState`/`_createSaveEquipInState`, mas ele ainda toca contrato de estado e edição. Um mapeamento curto reduz risco antes de extrair persistência/state mutation.
