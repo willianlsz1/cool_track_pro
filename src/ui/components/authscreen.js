@@ -982,7 +982,7 @@ export const AuthScreen = {
 
             <div class="auth-social-proof">
               <div class="auth-social-proof__avatars" aria-hidden="true">
-                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#00c8e8,#0096b4)">CR</span>
+                <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#22d3ee,#0096b4)">CR</span>
                 <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#2c7cff,#40c4ff)">FR</span>
                 <span class="auth-social-proof__avatar" style="background:linear-gradient(135deg,#5fe6b3,#1fa370)">LO</span>
               </div>

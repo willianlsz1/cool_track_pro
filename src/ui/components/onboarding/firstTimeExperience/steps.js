@@ -24,7 +24,7 @@ export function renderStep0(ctx) {
       <div class="ftx-logo">
         <div class="ftx-logo-icon">
           <svg width="20" height="20" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <g stroke="#00C8E8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <g stroke="#22d3ee" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
               <g>
                 <line x1="8" y1="2" x2="8" y2="14"/>
                 <polyline points="6.5,3.2 8,2 9.5,3.2"/>
@@ -41,7 +41,7 @@ export function renderStep0(ctx) {
                 <polyline points="6.5,12.8 8,14 9.5,12.8"/>
               </g>
             </g>
-            <circle cx="8" cy="8" r="0.9" fill="#00C8E8"/>
+            <circle cx="8" cy="8" r="0.9" fill="#22d3ee"/>
           </svg>
         </div>
         <span class="ftx-logo-text">CoolTrack</span>
