@@ -1,7 +1,7 @@
 # Mudança 11 — Inventário de equipamentos.js
 
 > Gerado em CP-A. Será atualizado a cada CP conforme funções saem do arquivo original.
-> Última atualização: 2026-05-07 (CP-B — branch `refactor/mudanca-11-cp-b-utils`, commit ver HEAD final do branch).
+> Última atualização: 2026-05-07 (CP-B.5 — extração de state module-level de edição/contexto e bridge cache).
 
 ## Métricas atuais
 
@@ -10,10 +10,11 @@
 | LOC total (pré-anotação JSDoc)                                     |                                                                                                          2746 |
 | LOC total (pós-anotação JSDoc, fim do CP-A)                        |                                                                                                          2846 |
 | LOC total (pós-CP-B, 7 fns extraídas)                              |                                                                                                          2613 |
+| LOC total (pós-CP-B.5, state module-level extraído)                |                                                                                                          2612 |
 | Funções top-level declaradas                                       |                                                                                                            54 |
 | Linhas com `@sliceTarget` simples                                  |                                                                                                            44 |
 | Linhas com `@sliceSplit` (multi-destino)                           |                                                                                                            10 |
-| Imports externos (linhas `^import`)                                |                                                                                                            40 |
+| Imports externos (linhas `^import`)                                |                                                                                                            41 |
 | Chamadas a `getState/setState/findEquip/findSetor/regsForEquip`    |                                                                                                            26 |
 | Chamadas diretas a Storage / Supabase / persist                    |                                                                                                             3 |
 | Acessos a DOM (`document.*`, `querySelector`, `Utils.getEl`, etc.) |                                                                                                           184 |
@@ -267,24 +268,40 @@ Descobertas em CP-A que afetam a estratégia:
 - **Tempo gasto:** 1 turno Claude Code (estimado: 1–2). ✓
 - **Imports limpados:** 11 imports em `equipamentos.js` ficaram unused após o move (os que só serviam pras funções movidas) — removidos no mesmo PR. Sintoma esperado, não regressão.
 - **Tests:** 28 novos casos (16 em `detail.test.js` + 12 em `viewModels.test.js`). Esperado ≥14 (7 fns × 2). Cobertura mais alta porque algumas fns têm múltiplos branches.
-- **Riscos pendentes pro CP-B.5:** As 3 fns reclassificadas leem state via 2 mecanismos distintos:
-  - direto (`_editingEquipId`, `_editingSetorId` — vars locais a `equipamentos.js`)
+- **Riscos que motivaram CP-B.5:** As 3 fns reclassificadas leem state via 2 mecanismos distintos:
+  - direto (`_editingEquipId`, `_editingSetorId` — vars que estavam locais a `equipamentos.js`)
   - via import (`_getRouteEquipCtx` — vem de `./equipamentos/contextState.js`)
-  - **Decisão pra CP-B.5:** extrair `_editingEquipId`/`_editingSetorId` pra `state/editingState.js`, mas manter `_getRouteEquipCtx` onde está (já é módulo separado). O `getActiveQuickFilter` vai pra `state/routeState.js` ou similar.
+  - **Decisão aplicada no CP-B.5:** extrair `_editingEquipId`/`_editingSetorId` para `state/editingState.js`, extrair `_forcedEquipContext` junto por pertencer ao mesmo fluxo de contexto de edição, e mover `getActiveQuickFilter` para `equipamentos/contextState.js` por ser leitura direta de route context.
+
+## Lições do CP-B.5 (state module-level)
+
+- **Escopo aplicado:** extraído somente state module-level de edição/contexto e state de cache/generation dos React bridges. Render plan permaneceu no god-object para o CP-C.
+- **Arquivos criados:**
+  - `src/features/equipamentos/state/editingState.js` — encapsula `_editingEquipId`, `_editingSetorId` e `_forcedEquipContext` com getters/setters simples.
+  - `src/features/equipamentos/state/bridgeState.js` — encapsula promises memoizadas, bridges carregadas e generation counters de header/list.
+- **Vars movidas:** `_editingEquipId`, `_editingSetorId`, `_forcedEquipContext`, `_equipamentosHeaderBridgePromise`, `_equipamentosHeaderBridge`, `_equipamentosHeaderRenderGeneration`, `_equipamentosListBridgePromise`, `_equipamentosListBridge`, `_equipamentosListRenderGeneration`.
+- **Decisão `getActiveQuickFilter`:** movida para `src/ui/views/equipamentos/contextState.js`, porque a leitura já depende exclusivamente de `getRouteEquipCtx()`. `src/ui/views/equipamentos.js` preserva o export público via re-export. `setActiveQuickFilter` permaneceu em `equipamentos.js` por ser controller/navigation.
+- **LOC real em `equipamentos.js`:** 2613 → 2612 (delta -1). O delta pequeno é esperado porque getters/setters/imports substituem acesso direto sem mover bridge functions neste CP.
+- **Tests adicionados:**
+  - `src/features/equipamentos/__tests__/state/editingState.test.js` — 6 testes.
+  - `src/features/equipamentos/__tests__/state/bridgeState.test.js` — 9 testes.
+  - `src/__tests__/equipamentosContextState.test.js` — 2 testes para `getActiveQuickFilter`.
+- **Ainda no god-object para CP-C:** `_renderEquipPlanToken`, `_renderEquipPlanNeedsRefresh`, `_renderEquipPlanEventsBound`, `_renderEquipPlanRefreshPromise`, `_bindRenderEquipPlanInvalidationEvents`, `_refreshRenderEquipPlan`, `loadEquipamentosHeaderBridge` e `loadEquipamentosListBridge`.
+- **Próximo CP:** CP-C — mover render plan + React bridge functions preservando dynamic imports e facade pública.
 
 ## Estado por categoria (atualizar a cada CP)
 
-| Categoria          | Status                                      | CP que extraiu | LOC removido |           Funções movidas |
-| ------------------ | ------------------------------------------- | -------------- | -----------: | ------------------------: |
-| utils              | ✅ extraído (7) + reclassificado (3)        | CP-B           |         ~233 |            7 / 7 movíveis |
-| state/editingState | 📦 inventariado (3 reclassificadas em CP-B) | —              |            0 |                     0 / 3 |
-| controller         | 📦 inventariado                             | —              |            0 |                     0 / 7 |
-| setor              | 📦 inventariado                             | —              |            0 |                     0 / 4 |
-| crud               | 📦 inventariado                             | —              |            0 |                     0 / 6 |
-| ui                 | 📦 inventariado                             | —              |            0 |                    0 / 27 |
-| nameplate          | 📦 inventariado (split-only)                | —              |            0 |  0 / 0 (fold em ui/modal) |
-| risco              | 📦 inventariado (split-only)                | —              |            0 | 0 / 0 (fold em ui/detail) |
-| filtros            | ✅ pré-extraído (já em `equipamentos/`)     | pré-CP-A       |            — |                     0 / 0 |
+| Categoria          | Status                                  | CP que extraiu | LOC removido |           Funções movidas |
+| ------------------ | --------------------------------------- | -------------- | -----------: | ------------------------: |
+| utils              | ✅ extraído (7) + reclassificado (3)    | CP-B           |         ~233 |            7 / 7 movíveis |
+| state/editingState | ✅ extraído (editing/context state)     | CP-B.5         |           ~3 |                     3 / 3 |
+| controller         | 📦 inventariado (bridge state extraído) | —              |            0 |                     0 / 7 |
+| setor              | 📦 inventariado                         | —              |            0 |                     0 / 4 |
+| crud               | 📦 inventariado                         | —              |            0 |                     0 / 6 |
+| ui                 | 📦 inventariado                         | —              |            0 |                    0 / 27 |
+| nameplate          | 📦 inventariado (split-only)            | —              |            0 |  0 / 0 (fold em ui/modal) |
+| risco              | 📦 inventariado (split-only)            | —              |            0 | 0 / 0 (fold em ui/detail) |
+| filtros            | ✅ pré-extraído (já em `equipamentos/`) | pré-CP-A       |            — |                     0 / 0 |
 
 **Legenda:**
 

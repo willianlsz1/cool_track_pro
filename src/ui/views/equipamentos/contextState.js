@@ -45,6 +45,10 @@ export function getRouteEquipCtx() {
   return normalizeEquipCtx();
 }
 
+export function getActiveQuickFilter() {
+  return getRouteEquipCtx().quickFilter;
+}
+
 export function resolveEquipCtx(options = {}) {
   if (options?.equipCtx) return normalizeEquipCtx(options.equipCtx);
   if (
