@@ -1114,7 +1114,7 @@ textarea.form-control {
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-primary, #00c8e8) 85%, #000);
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 85%, #000);
   color: #fff;
   font: 700 10.5px/1 var(--font-body);
   letter-spacing: 0.04em;
@@ -1154,8 +1154,8 @@ textarea.form-control {
 }
 
 .photo-thumb__set-cover:hover {
-  background: var(--color-primary, #00c8e8);
-  border-color: var(--color-primary, #00c8e8);
+  background: var(--color-primary, #22d3ee);
+  border-color: var(--color-primary, #22d3ee);
 }
 
 /* Em telas touch (sem hover real), mostrar o botão com opacidade parcial
@@ -1168,7 +1168,7 @@ textarea.form-control {
 
 /* Border dourado/cyan sutil na thumb que É a capa, pra reforçar visualmente. */
 .photo-thumb--cover {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary, #00c8e8) 60%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary, #22d3ee) 60%, transparent);
 }
 
 /* Input de legenda por foto (#3.B refino UX). Opcional, ajuda o técnico a
@@ -1197,7 +1197,7 @@ textarea.form-control {
 
 .photo-thumb__caption:focus {
   background: rgba(0, 0, 0, 0.75);
-  border-top-color: var(--color-primary, #00c8e8);
+  border-top-color: var(--color-primary, #22d3ee);
 }
 
 /* ─── Equipment photos (feature Plus+) ─────────────────────────────────────
@@ -1361,7 +1361,7 @@ textarea.form-control {
     font-size: 14px;
     font-weight: 600;
     color: #fff;
-    background: var(--color-primary, #00c8e8);
+    background: var(--color-primary, #22d3ee);
     border-radius: 10px;
   }
 
@@ -1373,7 +1373,7 @@ textarea.form-control {
 
   .equip-photo-shortcut:hover,
   .equip-photo-shortcut:focus-visible {
-    background: color-mix(in srgb, var(--color-primary, #00c8e8) 85%, #000);
+    background: color-mix(in srgb, var(--color-primary, #22d3ee) 85%, #000);
     color: #fff;
   }
 
@@ -3337,7 +3337,7 @@ mark,
   background: transparent;
   border: 1px solid var(--border, rgba(34, 211, 238, 0.18));
   border-radius: 10px;
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
   font: 600 13px/1 var(--font-body, inherit);
   cursor: pointer;
   white-space: nowrap;
@@ -3349,11 +3349,11 @@ mark,
 
 .card-actions__btn:hover:not(:disabled) {
   background: rgba(34, 211, 238, 0.06);
-  border-color: var(--primary, #00c8e8);
+  border-color: var(--primary, #22d3ee);
 }
 
 .card-actions__btn:focus-visible {
-  outline: 2px solid var(--border-focus, var(--primary, #00c8e8));
+  outline: 2px solid var(--border-focus, var(--primary, #22d3ee));
   outline-offset: 2px;
 }
 
@@ -4537,13 +4537,13 @@ mark,
 
 .eq-risk-panel__factor--actionable:hover,
 .eq-risk-panel__factor--actionable:focus-visible {
-  border-color: color-mix(in srgb, var(--color-primary, #00c8e8) 55%, var(--border-2));
-  background: color-mix(in srgb, var(--color-primary, #00c8e8) 8%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary, #22d3ee) 55%, var(--border-2));
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 8%, transparent);
   color: var(--text);
 }
 
 .eq-risk-panel__factor--actionable:focus-visible {
-  outline: 2px solid var(--color-primary, #00c8e8);
+  outline: 2px solid var(--color-primary, #22d3ee);
   outline-offset: 2px;
 }
 
@@ -4553,8 +4553,8 @@ mark,
   gap: 2px;
   padding: 2px 6px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-primary, #00c8e8) 20%, transparent);
-  color: var(--color-primary, #00c8e8);
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 20%, transparent);
+  color: var(--color-primary, #22d3ee);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -4567,9 +4567,9 @@ mark,
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border: 1px dashed color-mix(in srgb, var(--color-primary, #00c8e8) 40%, var(--border));
+  border: 1px dashed color-mix(in srgb, var(--color-primary, #22d3ee) 40%, var(--border));
   background: transparent;
-  color: color-mix(in srgb, var(--color-primary, #00c8e8) 75%, var(--text-3));
+  color: color-mix(in srgb, var(--color-primary, #22d3ee) 75%, var(--text-3));
   border-radius: 999px;
   font: inherit;
   font-size: 11.5px;
@@ -4582,9 +4582,9 @@ mark,
 
 .info-row__value--add:hover,
 .info-row__value--add:focus-visible {
-  border-color: var(--color-primary, #00c8e8);
-  background: color-mix(in srgb, var(--color-primary, #00c8e8) 10%, transparent);
-  color: var(--color-primary, #00c8e8);
+  border-color: var(--color-primary, #22d3ee);
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 10%, transparent);
+  color: var(--color-primary, #22d3ee);
   outline: none;
 }
 
@@ -4602,12 +4602,12 @@ mark,
    (este vive no <input> dentro). */
 @keyframes is-focus-target-pulse {
   0% {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary, #00c8e8) 35%, transparent);
-    background: color-mix(in srgb, var(--color-primary, #00c8e8) 8%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary, #22d3ee) 35%, transparent);
+    background: color-mix(in srgb, var(--color-primary, #22d3ee) 8%, transparent);
   }
   60% {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary, #00c8e8) 25%, transparent);
-    background: color-mix(in srgb, var(--color-primary, #00c8e8) 5%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary, #22d3ee) 25%, transparent);
+    background: color-mix(in srgb, var(--color-primary, #22d3ee) 5%, transparent);
   }
   100% {
     box-shadow: 0 0 0 0 transparent;
@@ -4629,8 +4629,8 @@ mark,
     /* Acessibilidade: usuário com motion reduzido vê só o highlight estático
        1s, sem pulse animado. */
     animation: none;
-    background: color-mix(in srgb, var(--color-primary, #00c8e8) 8%, transparent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary, #00c8e8) 40%, transparent);
+    background: color-mix(in srgb, var(--color-primary, #22d3ee) 8%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary, #22d3ee) 40%, transparent);
     transition:
       background 1s ease 0.5s,
       box-shadow 1s ease 0.5s;
@@ -4693,7 +4693,7 @@ mark,
    Antes era cinza neutro; agora destaca a hierarquia visual entre as
    sub-seções (Identificação / Operação / Etiqueta). */
 .eq-tech-sheet-wrap .eq-tech-sheet__title {
-  color: var(--color-primary, #00c8e8);
+  color: var(--color-primary, #22d3ee);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-size: 10.5px;
@@ -4739,7 +4739,7 @@ mark,
 }
 
 .eq-tech-sheet-wrap__summary:focus-visible {
-  outline: 2px solid var(--color-primary, #00c8e8);
+  outline: 2px solid var(--color-primary, #22d3ee);
   outline-offset: -2px;
 }
 
@@ -4765,7 +4765,7 @@ mark,
 
 .eq-tech-sheet-wrap[open] .eq-tech-sheet-wrap__chev {
   transform: rotate(-180deg);
-  color: var(--color-primary, #00c8e8);
+  color: var(--color-primary, #22d3ee);
 }
 
 .eq-tech-sheet-wrap__summary-preview {
@@ -4901,13 +4901,13 @@ mark,
 .equip-view-toggle__btn[aria-pressed='true'] {
   background: var(
     --primary-soft,
-    color-mix(in srgb, var(--color-primary, #00c8e8) 14%, transparent)
+    color-mix(in srgb, var(--color-primary, #22d3ee) 14%, transparent)
   );
-  color: var(--color-primary, #00c8e8);
+  color: var(--color-primary, #22d3ee);
 }
 
 .equip-view-toggle__btn:focus-visible {
-  outline: 2px solid var(--color-primary, #00c8e8);
+  outline: 2px solid var(--color-primary, #22d3ee);
   outline-offset: 1px;
 }
 
@@ -5960,7 +5960,7 @@ mark,
 .eq-modal-footer__more-btn[aria-expanded='true'] {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
-  border-color: color-mix(in srgb, var(--color-primary, #00c8e8) 40%, var(--border));
+  border-color: color-mix(in srgb, var(--color-primary, #22d3ee) 40%, var(--border));
   outline: none;
 }
 
@@ -6335,12 +6335,12 @@ mark,
 
 .equip-card__type-icon--empty:hover,
 .equip-card__type-icon--empty:focus-visible {
-  background: color-mix(in srgb, var(--color-primary, #00c8e8) 18%, var(--surface-3));
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 18%, var(--surface-3));
   transform: translateY(-1px);
 }
 
 .equip-card__type-icon--empty:focus-visible {
-  outline: 2px solid var(--color-primary, #00c8e8);
+  outline: 2px solid var(--color-primary, #22d3ee);
   outline-offset: 2px;
 }
 
@@ -6360,7 +6360,7 @@ mark,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--color-primary, #00c8e8) 30%, rgba(0, 0, 0, 0.6));
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 30%, rgba(0, 0, 0, 0.6));
   color: #fff;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -7787,8 +7787,8 @@ mark,
   margin: 4px 0 12px;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--primary, #00c8e8) 25%, transparent);
-  background: color-mix(in srgb, var(--primary, #00c8e8) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #22d3ee) 25%, transparent);
+  background: color-mix(in srgb, var(--primary, #22d3ee) 6%, transparent);
   color: var(--text-2);
   font: 400 12.5px/1.45 var(--font-body);
 }
@@ -7796,7 +7796,7 @@ mark,
 .eq-etiqueta-skip__icon {
   flex-shrink: 0;
   margin-top: 2px;
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
 }
 
 .eq-etiqueta-skip__text {
@@ -7827,12 +7827,12 @@ mark,
 
 .eq-etiqueta-more-toggle:hover {
   color: var(--text);
-  border-color: color-mix(in srgb, var(--primary, #00c8e8) 45%, transparent);
+  border-color: color-mix(in srgb, var(--primary, #22d3ee) 45%, transparent);
   background: rgba(255, 255, 255, 0.02);
 }
 
 .eq-etiqueta-more-toggle:focus-visible {
-  outline: 2px solid var(--primary, #00c8e8);
+  outline: 2px solid var(--primary, #22d3ee);
   outline-offset: 2px;
 }
 
@@ -7844,7 +7844,7 @@ mark,
 
 .eq-etiqueta-more-toggle[aria-expanded='true'] .eq-etiqueta-more-toggle__chev {
   transform: rotate(-180deg);
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
 }
 
 .eq-etiqueta-more-toggle__label {
@@ -10105,17 +10105,17 @@ mark,
   background:
     radial-gradient(
       130% 130% at 0% 0%,
-      color-mix(in srgb, var(--primary, #00c8e8) 20%, transparent),
+      color-mix(in srgb, var(--primary, #22d3ee) 20%, transparent),
       transparent 55%
     ),
     radial-gradient(
       130% 130% at 100% 100%,
-      color-mix(in srgb, var(--primary, #00c8e8) 10%, transparent),
+      color-mix(in srgb, var(--primary, #22d3ee) 10%, transparent),
       transparent 55%
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--primary, #00c8e8) 8%, transparent),
+      color-mix(in srgb, var(--primary, #22d3ee) 8%, transparent),
       transparent
     );
 }
@@ -10139,7 +10139,7 @@ mark,
   height: 160px;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--primary, #00c8e8) 28%, transparent),
+    color-mix(in srgb, var(--primary, #22d3ee) 28%, transparent),
     transparent 70%
   );
 }
@@ -10151,7 +10151,7 @@ mark,
   height: 160px;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--primary, #00c8e8) 18%, transparent),
+    color-mix(in srgb, var(--primary, #22d3ee) 18%, transparent),
     transparent 70%
   );
 }
@@ -10193,7 +10193,7 @@ mark,
   flex-shrink: 0;
   letter-spacing: 0.02em;
   box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--primary, #00c8e8) 10%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--primary, #22d3ee) 10%, transparent),
     0 6px 14px rgba(0, 0, 0, 0.28);
   transition:
     background 0.2s,
@@ -10285,7 +10285,7 @@ mark,
 }
 
 .profile-modal__close:focus-visible {
-  outline: 2px solid var(--primary, #00c8e8);
+  outline: 2px solid var(--primary, #22d3ee);
   outline-offset: 2px;
 }
 
@@ -12824,7 +12824,7 @@ mark,
   margin: 14px 2px 0;
   border-radius: 10px;
   border: 1px solid rgba(34, 211, 238, 0.22);
-  border-left: 3px solid var(--primary, #00c8e8);
+  border-left: 3px solid var(--primary, #22d3ee);
   background: linear-gradient(90deg, rgba(34, 211, 238, 0.08) 0%, rgba(34, 211, 238, 0.02) 100%);
 }
 
@@ -12837,7 +12837,7 @@ mark,
   height: 28px;
   border-radius: 7px;
   background: rgba(34, 211, 238, 0.12);
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
 }
 
 #view-registro .registro-sig-hint__ic svg {
@@ -14771,7 +14771,7 @@ select option {
   border-bottom: 1px solid var(--border-soft);
 }
 .sig-capture-modal__header-ic {
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
   flex-shrink: 0;
   display: inline-flex;
 }
@@ -15806,8 +15806,8 @@ select option {
 .profile-modal__hero .profile-modal__avatar {
   box-shadow:
     0 0 0 2px var(--bg, #0c1929),
-    0 0 0 4px color-mix(in srgb, var(--primary, #00c8e8) 50%, transparent),
-    0 0 18px color-mix(in srgb, var(--primary, #00c8e8) 35%, transparent);
+    0 0 0 4px color-mix(in srgb, var(--primary, #22d3ee) 50%, transparent),
+    0 0 18px color-mix(in srgb, var(--primary, #22d3ee) 35%, transparent);
 }
 
 /* Body — V10: hero removido entao body comeca direto. Sem border-top
@@ -15831,7 +15831,7 @@ select option {
   transition: border-color 0.18s ease;
 }
 .profile-modal__section--card:hover {
-  border-color: color-mix(in srgb, var(--primary, #00c8e8) 18%, var(--border));
+  border-color: color-mix(in srgb, var(--primary, #22d3ee) 18%, var(--border));
 }
 
 /* Header da secao — icone + titulo + subtitulo */
@@ -15841,7 +15841,7 @@ select option {
   gap: 12px;
   padding-bottom: 14px;
   margin-bottom: 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--primary, #00c8e8) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--primary, #22d3ee) 12%, transparent);
 }
 .profile-modal__section-icon {
   flex-shrink: 0;
@@ -15850,8 +15850,8 @@ select option {
   border-radius: 8px;
   display: grid;
   place-items: center;
-  color: var(--primary, #00c8e8);
-  background: color-mix(in srgb, var(--primary, #00c8e8) 12%, transparent);
+  color: var(--primary, #22d3ee);
+  background: color-mix(in srgb, var(--primary, #22d3ee) 12%, transparent);
 }
 .profile-modal__section-text {
   flex: 1;
@@ -15906,7 +15906,7 @@ select option {
   padding-right: 38px !important;
 }
 .profile-modal__input-wrap:focus-within .profile-modal__input-trailing-icon {
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
 }
 
 /* Linha 2 colunas (CNPJ + IE) — desktop side-by-side, mobile empilha */
@@ -15925,8 +15925,8 @@ select option {
 .profile-modal__info-banner {
   margin-top: 14px;
   padding: 12px 14px;
-  background: color-mix(in srgb, var(--primary, #00c8e8) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary, #00c8e8) 22%, transparent);
+  background: color-mix(in srgb, var(--primary, #22d3ee) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary, #22d3ee) 22%, transparent);
   border-radius: 8px;
   display: flex;
   gap: 10px;
@@ -15937,7 +15937,7 @@ select option {
 }
 .profile-modal__info-banner-icon {
   flex-shrink: 0;
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
   display: inline-flex;
   margin-top: 1px;
 }
@@ -16181,7 +16181,7 @@ select option {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary, #00c8e8), transparent);
+  background: linear-gradient(90deg, transparent, var(--primary, #22d3ee), transparent);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -16456,7 +16456,7 @@ select option {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: var(--primary, #00c8e8);
+  background: var(--primary, #22d3ee);
   color: var(--bg, #07111f);
   display: grid;
   place-items: center;
@@ -16521,7 +16521,7 @@ select option {
 }
 .app-sidebar__nav-item.is-active {
   background: rgba(34, 211, 238, 0.1);
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
 }
 .app-sidebar__nav-item.is-active::before {
   content: '';
@@ -16531,7 +16531,7 @@ select option {
   bottom: 6px;
   width: 3px;
   border-radius: 0 2px 2px 0;
-  background: var(--primary, #00c8e8);
+  background: var(--primary, #22d3ee);
 }
 .app-sidebar__nav-item svg {
   flex-shrink: 0;
@@ -17429,7 +17429,7 @@ select option {
   background: rgba(255, 255, 255, 0.03);
 }
 .conta-row:focus-visible {
-  outline: 2px solid var(--primary, #00c8e8);
+  outline: 2px solid var(--primary, #22d3ee);
   outline-offset: -2px;
   background: rgba(34, 211, 238, 0.05);
 }
@@ -17743,7 +17743,7 @@ select option {
   transition: color 0.15s ease;
 }
 .privacy-page__back:hover {
-  color: var(--primary, #00c8e8);
+  color: var(--primary, #22d3ee);
 }
 .privacy-page__back svg {
   display: block;
@@ -18321,7 +18321,7 @@ select option {
   transform: translateY(-1px);
 }
 .cli-card:focus-visible {
-  outline: 2px solid var(--primary, #00c8e8);
+  outline: 2px solid var(--primary, #22d3ee);
   outline-offset: -1px;
 }
 
@@ -18814,7 +18814,7 @@ select option {
   }
   .app-sidebar__nav-item.is-active {
     background: rgba(34, 211, 238, 0.1);
-    color: var(--primary, #00c8e8);
+    color: var(--primary, #22d3ee);
     font-weight: 600;
   }
   .app-sidebar__nav-item.is-active::before {
@@ -18825,7 +18825,7 @@ select option {
     bottom: 8px;
     width: 3px;
     border-radius: 0 3px 3px 0;
-    background: var(--primary, #00c8e8);
+    background: var(--primary, #22d3ee);
     box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
   }
 
@@ -18851,7 +18851,7 @@ select option {
     padding: 3px 8px;
     border-radius: 5px;
     background: rgba(34, 211, 238, 0.1);
-    color: var(--primary, #00c8e8);
+    color: var(--primary, #22d3ee);
     border: 1px solid rgba(34, 211, 238, 0.25);
     letter-spacing: 0.02em;
     flex-shrink: 0;
@@ -22436,7 +22436,7 @@ select option {
   place-items: center;
   margin: 0 2px;
   border-radius: 50%;
-  background: var(--primary, #00c8e8);
+  background: var(--primary, #22d3ee);
   color: var(--bg, #07111f);
   font-size: 13px;
   font-weight: 700;
