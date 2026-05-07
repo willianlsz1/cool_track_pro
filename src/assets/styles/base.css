@@ -5,47 +5,10 @@
    ============================================================ */
 
 :root {
-  --bg: #07111f;
-  --bg-soft: #0c1929;
-  --surface: #0c1929;
-  --surface-2: #112236;
-  --surface-3: #172d45;
+  /* Color tokens (--bg, --surface, --primary, --text, --success, --warning,
+     --danger, --border, etc.) são definidos em tokens.css como var(--ct-*).
+     tokens.css é importado depois e vence o cascade. */
 
-  --card: #0c1929;
-  --card-hover: #112236;
-
-  --border: rgba(255, 255, 255, 0.07);
-  --border-2: rgba(255, 255, 255, 0.12);
-  --border-focus: rgba(0, 200, 232, 0.45);
-
-  --primary: #00c8e8;
-  --primary-strong: #00aac8;
-  --primary-soft: rgba(0, 200, 232, 0.1);
-  --primary-dim: rgba(0, 200, 232, 0.06);
-
-  --success: #00c870;
-  --success-soft: rgba(0, 200, 112, 0.1);
-  --success-dim: rgba(0, 200, 112, 0.06);
-
-  --warning: #e8a020;
-  --warning-soft: rgba(232, 160, 32, 0.12);
-  --warning-dim: rgba(232, 160, 32, 0.06);
-
-  --danger: #e03040;
-  --danger-soft: rgba(224, 48, 64, 0.1);
-  --danger-dim: rgba(224, 48, 64, 0.06);
-
-  --text: #e8f2fa;
-  --text-2: #8aaac8;
-  --text-3: #6a8ba8;
-  --text-muted: #8aaac8;
-  --muted: #6a8ba8;
-  --muted-light: #5a7890;
-
-  --surface-strong: #112236;
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --secondary: #4a6880;
-  --white: #e8f2fa;
   --black: #07111f;
 
   --font-display: 'Inter', sans-serif;
