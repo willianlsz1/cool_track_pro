@@ -628,6 +628,19 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
   unmountEquipamentosList();
 
   const { setores, equipamentos } = getState();
+  const safeNome = clienteNome || 'cliente';
+
+  _prepareSetorGridForClienteShell({ clienteId, safeNome });
+
+  const model = _buildSetorGridForClienteModel({ setores, equipamentos, clienteId });
+  el.innerHTML = _renderSetorGridForClienteHtml({ ...model, clienteId, safeNome });
+}
+
+/**
+ * @sliceTarget setor/setorUI
+ * @sliceSplit controller/render: prepara chrome legado antes do mount da grade por cliente.
+ */
+function _prepareSetorGridForClienteShell({ clienteId, safeNome }) {
   // Esconde search bar + view toggle em contexto cliente (irrelevantes na
   // grade de setores enxuta).
   const searchBar = Utils.getEl('equip-search-bar');
@@ -635,7 +648,6 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
   const viewToggle = document.querySelector('.equip-view-toggle');
   if (viewToggle) viewToggle.style.display = 'none';
 
-  const safeNome = clienteNome || 'cliente';
   // Toolbar enxuto: SEM "+ Novo equipamento" (acessado via drill-down do setor).
   // Apenas: + Novo setor (primario) + Limpar cliente (ghost discreto).
   // O "+ Novo equipamento" default vem do _setToolbar — passamos hideDefaultCta
@@ -648,7 +660,13 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
     `,
     hideDefaultCta: true,
   });
+}
 
+/**
+ * @sliceTarget setor/setorState
+ * @sliceSplit setor/setorUI: modela setores/equipamentos usados pelo HTML filtrado por cliente.
+ */
+function _buildSetorGridForClienteModel({ setores, equipamentos, clienteId }) {
   // Bug fix #100: Filtra setores DUAL-PATH pra ser robusto a sync issues.
   //
   //   Caminho 1 (direto): setor.clienteId === clienteId
@@ -666,12 +684,68 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
   // Equipamentos do cliente sem setor (compat backward)
   const equipsSemSetor = equipsDoCliente.filter((e) => !e.setorId);
 
+  return {
+    setoresDoCliente,
+    equipamentos,
+    equipsDoCliente,
+    equipsSemSetor,
+  };
+}
+
+/**
+ * @sliceTarget setor/setorUI
+ * @sliceSplit setor/setorState: consome model filtrado e preserva markup final da grade por cliente.
+ */
+function _renderSetorGridForClienteHtml({
+  setoresDoCliente,
+  equipamentos,
+  equipsSemSetor,
+  clienteId,
+  safeNome,
+}) {
   // Hero convidativo + (opcional) banner Sem setor: mostrado quando o cliente
   // ainda não tem nenhum setor real cadastrado. Equipamentos sem setor (compat
   // backward) aparecem como banner discreto secundario, NÃO como card primary.
   if (!setoresDoCliente.length) {
-    const semSetorBanner = equipsSemSetor.length
-      ? `
+    return _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId, safeNome });
+  }
+
+  // Cliente JA tem setores: mostra grade dos setores + tile "Sem setor"
+  // (compat backward) caso ainda haja equipamentos sem vínculo de setor.
+  // Bug fix #100: filtro AND (setorId === s.id) AND (clienteId match OR
+  // sem clienteId pra preservar setores compartilhados entre clientes que
+  // existiam antes do PMOC). Evita misturar equips de outros clientes
+  // que por acaso compartilhem setor (raro mas possivel).
+  const setorCards = setoresDoCliente.map((s) => {
+    const eqs = (equipamentos || []).filter(
+      (e) => e.setorId === s.id && (!e.clienteId || e.clienteId === clienteId),
+    );
+    return setorCardHtml(s, eqs);
+  });
+
+  let semSetorTile = '';
+  if (equipsSemSetor.length) {
+    semSetorTile = `
+      <article class="setor-card setor-card--sem-setor" data-action="open-setor" data-id="__sem_setor__">
+        <div class="setor-card__head">
+          <div class="setor-card__title">
+            <h3 class="setor-card__name">Sem setor</h3>
+            <p class="setor-card__sub">${equipsSemSetor.length} equipamento${equipsSemSetor.length !== 1 ? 's' : ''} sem setor vinculado</p>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  return `<div class="setor-grid">${setorCards.join('')}${semSetorTile}</div>`;
+}
+
+/**
+ * @sliceTarget setor/setorUI
+ * @sliceSplit setor/setorState: renderiza estado vazio da grade de setores por cliente.
+ */
+function _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId, safeNome }) {
+  const semSetorBanner = equipsSemSetor.length
+    ? `
         <div class="setor-cliente-empty__sem-banner">
           <div class="setor-cliente-empty__sem-icon" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -694,9 +768,9 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
             </svg>
           </button>
         </div>`
-      : '';
+    : '';
 
-    el.innerHTML = `
+  return `
       <section class="setor-cliente-empty" aria-label="Cliente sem setores ainda">
         <div class="setor-cliente-empty__hero">
           <div class="setor-cliente-empty__art" aria-hidden="true">
@@ -738,36 +812,6 @@ function renderSetorGridForCliente(clienteId, clienteNome) {
         </div>
         ${semSetorBanner}
       </section>`;
-    return;
-  }
-
-  // Cliente JA tem setores: mostra grade dos setores + tile "Sem setor"
-  // (compat backward) caso ainda haja equipamentos sem vínculo de setor.
-  // Bug fix #100: filtro AND (setorId === s.id) AND (clienteId match OR
-  // sem clienteId pra preservar setores compartilhados entre clientes que
-  // existiam antes do PMOC). Evita misturar equips de outros clientes
-  // que por acaso compartilhem setor (raro mas possivel).
-  const setorCards = setoresDoCliente.map((s) => {
-    const eqs = equipamentos.filter(
-      (e) => e.setorId === s.id && (!e.clienteId || e.clienteId === clienteId),
-    );
-    return setorCardHtml(s, eqs);
-  });
-
-  let semSetorTile = '';
-  if (equipsSemSetor.length) {
-    semSetorTile = `
-      <article class="setor-card setor-card--sem-setor" data-action="open-setor" data-id="__sem_setor__">
-        <div class="setor-card__head">
-          <div class="setor-card__title">
-            <h3 class="setor-card__name">Sem setor</h3>
-            <p class="setor-card__sub">${equipsSemSetor.length} equipamento${equipsSemSetor.length !== 1 ? 's' : ''} sem setor vinculado</p>
-          </div>
-        </div>
-      </article>`;
-  }
-
-  el.innerHTML = `<div class="setor-grid">${setorCards.join('')}${semSetorTile}</div>`;
 }
 
 // EQUIP_TONE_LABELS, buildEquipamentoListCardModel, buildReactListEmptyState,
