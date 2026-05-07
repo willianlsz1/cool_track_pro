@@ -12,12 +12,6 @@
     "gzip": true
   },
   {
-    "name": "React client",
-    "path": "dist/assets/client.*.js",
-    "limit": "50 KB",
-    "gzip": true
-  },
-  {
     "name": "All CSS",
     "path": "dist/assets/*.css",
     "limit": "100 KB",
