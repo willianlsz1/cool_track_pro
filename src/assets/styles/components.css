@@ -8473,9 +8473,9 @@ mark,
   --acm-bg: var(--surface);
   --acm-border: var(--border);
   --acm-divider: var(--border);
-  --acm-gold: #e8b94a;
-  --acm-plus-blue: #3a8ee6;
-  --acm-red: #ff5577;
+  --acm-gold: var(--ct-gold);
+  --acm-plus-blue: #3a8ee6; /* tier plus identity color */
+  --acm-red: var(--ct-error);
 
   --acm-accent: var(--text-2);
   --acm-accent-dim: color-mix(in srgb, var(--text-3) 30%, transparent);
@@ -10972,9 +10972,9 @@ mark,
    A cor brand ciano (--primary) NÃO é usada como accent de tier — ficaria
    confundindo com o azul do Plus em certas telas/monitores. */
 .dash {
-  --dsh-gold: #e8b94a;
-  --dsh-blue: #3a8ee6;
-  --dsh-red: #ff5577;
+  --dsh-gold: var(--ct-gold);
+  --dsh-blue: #3a8ee6; /* tier plus identity color */
+  --dsh-red: var(--ct-error);
   --dsh-neutral: #8aaac8; /* casa com --text-2 do tema escuro */
 
   /* Default = Free (cinza neutro). Plus/Pro sobrescrevem via [data-tier]. */
@@ -11989,18 +11989,18 @@ mark,
    fica branco com orbs sutis;como o resto do registro {
   --r-surface-3: #172d45;
   --r-border-soft: rgba(255, 255, 255, 0.07);
-  --r-accent-tint: rgba(0, 200, 232, 0.32);
-  --r-accent-soft: rgba(0, 200, 232, 0.12);
-  --r-accent-ghost: rgba(0, 200, 232, 0.04);
-  --r-warn-soft: rgba(232, 160, 32, 0.14);
-  --r-warn-tint: rgba(232, 160, 32, 0.34);
-  --r-danger-soft: rgba(224, 48, 64, 0.14);
-  --r-danger-tint: rgba(224, 48, 64, 0.34);
-  --r-success-soft: rgba(0, 200, 112, 0.14);
+  --r-accent-tint: rgba(34, 211, 238, 0.32);
+  --r-accent-soft: rgba(34, 211, 238, 0.12);
+  --r-accent-ghost: rgba(34, 211, 238, 0.04);
+  --r-warn-soft: rgba(217, 119, 6, 0.14);
+  --r-warn-tint: rgba(217, 119, 6, 0.34);
+  --r-danger-soft: rgba(220, 38, 38, 0.14);
+  --r-danger-tint: rgba(220, 38, 38, 0.34);
+  --r-success-soft: rgba(22, 163, 74, 0.14);
   --r-radius-md: 10px;
   --r-radius-lg: 16px;
-  --r-shadow-hero: 0 24px 48px rgba(0, 0, 0, 0.42), 0 4px 12px rgba(0, 200, 232, 0.06);
-  --r-shadow-cta: 0 12px 24px rgba(0, 200, 232, 0.25);
+  --r-shadow-hero: 0 24px 48px rgba(0, 0, 0, 0.42), 0 4px 12px rgba(34, 211, 238, 0.06);
+  --r-shadow-cta: 0 12px 24px rgba(34, 211, 238, 0.25);
 }
 /* Sprite é posicionado absoluto + tamanho zero pra não ocupar layout. */
 #view-registro .registro-sprite {
@@ -12300,7 +12300,7 @@ mark,
 
 /* Color variants — pinta o tile pelo data-color. */
 #view-registro .registro-quick__tile[data-color='cyan'] {
-  --chip-bg: rgba(0, 200, 232, 0.14);
+  --chip-bg: rgba(34, 211, 238, 0.14);
   --chip-fg: var(--primary);
 }
 
@@ -12315,7 +12315,7 @@ mark,
 }
 
 #view-registro .registro-quick__tile[data-color='teal'] {
-  --chip-bg: rgba(0, 200, 112, 0.14);
+  --chip-bg: rgba(22, 163, 74, 0.14);
   --chip-fg: var(--success);
 }
 
@@ -13005,6 +13005,8 @@ mark,
   --danger-soft: rgba(220, 38, 38, 0.1);
   --success-dim: rgba(22, 163, 74, 0.28);
   --success-soft: rgba(22, 163, 74, 0.08);
+  /* --info / --violet: categorias semânticas locais do histórico
+     (não brand, não candidatas a token global). Manter hardcoded. */
   --info: #00b0a0;
   --info-dim: rgba(0, 176, 160, 0.28);
   --info-soft: rgba(0, 176, 160, 0.08);
