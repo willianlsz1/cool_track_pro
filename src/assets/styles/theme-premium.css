@@ -16,24 +16,9 @@
   --premier-radius: 12px;
   --premier-radius-sm: 8px;
   --premier-radius-xs: 6px;
-  --neon-cyan: #00d4ff;
-  --neon-cyan-soft: rgba(0, 212, 255, 0.15);
-  --neon-cyan-glow: rgba(0, 212, 255, 0.25);
-  --neon-cyan-faint: rgba(0, 212, 255, 0.06);
-  --neon-green: #00ff88;
-  --neon-green-soft: rgba(0, 255, 136, 0.12);
-  --neon-green-glow: rgba(0, 255, 136, 0.2);
-  --neon-red: #ff4466;
-  --neon-red-soft: rgba(255, 68, 102, 0.12);
-  --neon-red-glow: rgba(255, 68, 102, 0.2);
-  --neon-amber: #ffb830;
-  --neon-amber-soft: rgba(255, 184, 48, 0.12);
-  --surface-premium: #0d1117;
-  --surface-card: #161b22;
-  --surface-card-hover: #1c2230;
-  --surface-elevated: #1e2530;
-  --border-premium: rgba(255, 255, 255, 0.06);
-  --border-premium-hover: rgba(255, 255, 255, 0.1);
+  /* --neon-* e --surface-premium-* são definidos em tokens.css
+     (apontam pros canônicos --ct-brand / --ct-success / --ct-error /
+     --ct-warn). theme-premium.css herda via cascade. */
 }
 
 body {
