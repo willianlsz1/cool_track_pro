@@ -34,13 +34,8 @@ import { resetCamposExtrasState, setCamposExtrasState } from '../components/name
 import { Photos } from '../components/photos.js';
 import { getEquipmentVisualMeta } from '../components/equipmentVisual.js';
 import { normalizePhotoList } from '../../core/photoStorage.js';
-import {
-  isCachedPlanPlusOrHigher,
-  isCachedPlanPro,
-  setCachedPlan,
-} from '../../core/plans/planCache.js';
+import { isCachedPlanPlusOrHigher, isCachedPlanPro } from '../../core/plans/planCache.js';
 import { SETOR_NOME_MAX } from '../../core/setorRules.js';
-import { getEffectivePlan, hasProAccess } from '../../core/plans/subscriptionPlans.js';
 import {
   configureEquipContextState,
   getActiveQuickFilter,
@@ -93,26 +88,31 @@ import {
   setForcedEquipContext,
 } from '../../features/equipamentos/state/editingState.js';
 import {
-  getEquipamentosHeaderBridge,
-  getEquipamentosHeaderBridgePromise,
-  getEquipamentosHeaderRenderGeneration,
-  getEquipamentosListBridge,
-  getEquipamentosListBridgePromise,
-  getEquipamentosListRenderGeneration,
-  incrementEquipamentosHeaderRenderGeneration,
-  incrementEquipamentosListRenderGeneration,
-  setEquipamentosHeaderBridge,
-  setEquipamentosHeaderBridgePromise,
-  setEquipamentosListBridge,
-  setEquipamentosListBridgePromise,
-} from '../../features/equipamentos/state/bridgeState.js';
+  incrementRenderEquipPlanToken,
+  getRenderEquipPlanNeedsRefresh,
+} from '../../features/equipamentos/state/renderPlanState.js';
+import {
+  bindRenderEquipPlanInvalidationEvents,
+  configureRenderEquipPlan,
+  refreshRenderEquipPlan,
+} from '../../features/equipamentos/bridges/renderPlan.js';
+import {
+  mountEquipamentosHeader as mountEquipamentosHeaderBridge,
+  unmountEquipamentosHeader,
+} from '../../features/equipamentos/bridges/headerBridge.js';
+import {
+  mountEquipamentosList,
+  unmountEquipamentosList,
+} from '../../features/equipamentos/bridges/listBridge.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
+configureRenderEquipPlan({ renderEquip });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
 export { getActiveQuickFilter };
 export { getEditingEquipId, getEditingSetorId };
+export { unmountEquipamentosHeader, unmountEquipamentosList };
 export { setorCardHtml } from './equipamentos/setores.js';
 export { setorContrastWithWhite };
 export {
@@ -146,118 +146,8 @@ export function syncComponenteVisibility() {
   }
 }
 
-// ── Render plan tracking ───────────────────────────────────────────────────
-// CP-C moverá estas vars para state/renderPlanState.js.
-let _renderEquipPlanToken = 0;
-let _renderEquipPlanNeedsRefresh = true;
-let _renderEquipPlanEventsBound = false;
-let _renderEquipPlanRefreshPromise = null;
-
-/** @sliceTarget controller/bridges */
-function loadEquipamentosHeaderBridge() {
-  let promise = getEquipamentosHeaderBridgePromise();
-  if (!promise) {
-    promise = import('../../react/entrypoints/equipamentosHeaderIsland.jsx').then((bridge) => {
-      setEquipamentosHeaderBridge(bridge);
-      return bridge;
-    });
-    setEquipamentosHeaderBridgePromise(promise);
-  }
-  return promise;
-}
-
-/** @sliceTarget controller/bridges */
-function loadEquipamentosListBridge() {
-  let promise = getEquipamentosListBridgePromise();
-  if (!promise) {
-    promise = import('../../react/entrypoints/equipamentosListIsland.jsx').then((bridge) => {
-      setEquipamentosListBridge(bridge);
-      return bridge;
-    });
-    setEquipamentosListBridgePromise(promise);
-  }
-  return promise;
-}
-
-/** @sliceTarget ui/unmount */
-export function unmountEquipamentosHeader() {
-  incrementEquipamentosHeaderRenderGeneration();
-  const root = document.getElementById('equip-hero');
-  if (!root?.dataset.reactEquipamentosHeaderMounted) return null;
-
-  const bridge = getEquipamentosHeaderBridge();
-  if (bridge?.unmountEquipamentosHeaderReact) {
-    bridge.unmountEquipamentosHeaderReact(root);
-    return null;
-  }
-
-  return loadEquipamentosHeaderBridge().then(({ unmountEquipamentosHeaderReact }) => {
-    unmountEquipamentosHeaderReact(root);
-    return null;
-  });
-}
-
-/** @sliceTarget ui/unmount */
-export function unmountEquipamentosList() {
-  incrementEquipamentosListRenderGeneration();
-  const root = document.getElementById('lista-equip');
-  if (!root?.dataset.reactEquipamentosListMounted) return null;
-
-  const bridge = getEquipamentosListBridge();
-  if (bridge?.unmountEquipamentosListReact) {
-    bridge.unmountEquipamentosListReact(root);
-    return null;
-  }
-
-  return loadEquipamentosListBridge().then(({ unmountEquipamentosListReact }) => {
-    unmountEquipamentosListReact(root);
-    return null;
-  });
-}
-
-/** @sliceTarget controller/eventBind */
-function _bindRenderEquipPlanInvalidationEvents() {
-  if (_renderEquipPlanEventsBound || typeof window === 'undefined') return;
-  _renderEquipPlanEventsBound = true;
-  ['cooltrack:auth-changed', 'cooltrack:profile-updated', 'cooltrack:plan-changed'].forEach(
-    (eventName) => {
-      window.addEventListener(eventName, () => {
-        _renderEquipPlanNeedsRefresh = true;
-      });
-    },
-  );
-}
-
 // _stripRenderInternalOptions extraído pra
 // src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
-
-/** @sliceTarget controller/planSync */
-function _refreshRenderEquipPlan({
-  filtro = '',
-  options = {},
-  renderToken,
-  isProAtRender = false,
-} = {}) {
-  if (_renderEquipPlanRefreshPromise) return;
-
-  _renderEquipPlanRefreshPromise = (async () => {
-    try {
-      const { fetchMyProfileBillingCached } = await import('../../core/plans/monetization.js');
-      const { profile } = await fetchMyProfileBillingCached();
-      setCachedPlan(getEffectivePlan(profile));
-      _renderEquipPlanNeedsRefresh = false;
-      const nextIsPro = hasProAccess(profile);
-      if (renderToken !== _renderEquipPlanToken) return;
-      if (nextIsPro !== isProAtRender) {
-        renderEquip(filtro, { ...options, __skipPlanRefresh: true });
-      }
-    } catch {
-      /* fallback silencioso: mantém estado atual de render */
-    } finally {
-      _renderEquipPlanRefreshPromise = null;
-    }
-  })();
-}
 
 /** @sliceTarget ui/actionButtons */
 function setEquipActionButtonVisible(button, visible) {
@@ -591,15 +481,11 @@ function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
 
 /** @sliceTarget controller/mount */
 function mountEquipamentosHeader(viewModel) {
-  const root = Utils.getEl('equip-hero');
-  if (!root) return null;
-  const filtersRoot = Utils.getEl('equip-filters');
-  const contextRoot = Utils.getEl('equip-context-chip');
-  const renderGeneration = incrementEquipamentosHeaderRenderGeneration();
-
-  return loadEquipamentosHeaderBridge().then(({ mountEquipamentosHeaderReact }) => {
-    if (renderGeneration !== getEquipamentosHeaderRenderGeneration()) return null;
-    return mountEquipamentosHeaderReact(root, { viewModel, filtersRoot, contextRoot });
+  return mountEquipamentosHeaderBridge({
+    viewModel,
+    root: Utils.getEl('equip-hero'),
+    filtersRoot: Utils.getEl('equip-filters'),
+    contextRoot: Utils.getEl('equip-context-chip'),
   });
 }
 
@@ -942,17 +828,15 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     filterClienteId,
     isPro: isCachedPlanPro(),
   });
-  const renderGeneration = incrementEquipamentosListRenderGeneration();
 
   return withSkeleton(
     el,
     { enabled: true, variant: 'equipment', count: viewModel.skeletonCount },
     () =>
-      loadEquipamentosListBridge().then(({ mountEquipamentosListReact }) => {
-        if (renderGeneration !== getEquipamentosListRenderGeneration()) return null;
-        const mounted = mountEquipamentosListReact(el, { viewModel: reactViewModel });
-        _bindEquipCardImageFallbacks(el);
-        return mounted;
+      mountEquipamentosList({
+        root: el,
+        viewModel: reactViewModel,
+        onMounted: () => _bindEquipCardImageFallbacks(el),
       }),
   );
 }
@@ -965,8 +849,8 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
  * @sliceObs god-function central — alvo prioritario de pre-split em CP-G
  */
 export async function renderEquip(filtro = '', options = {}) {
-  _bindRenderEquipPlanInvalidationEvents();
-  const renderToken = ++_renderEquipPlanToken;
+  bindRenderEquipPlanInvalidationEvents();
+  const renderToken = incrementRenderEquipPlanToken();
   const renderOptions = _stripRenderInternalOptions(options);
   const equipCtx = _resolveEquipCtx(renderOptions);
   const activeSectorId = equipCtx.sectorId;
@@ -988,8 +872,8 @@ export async function renderEquip(filtro = '', options = {}) {
       : 'Acompanhe seus equipamentos e registre serviços rápido.';
   }
   populateSetorSelect(isPro);
-  if (!options?.__skipPlanRefresh && _renderEquipPlanNeedsRefresh) {
-    _refreshRenderEquipPlan({
+  if (!options?.__skipPlanRefresh && getRenderEquipPlanNeedsRefresh()) {
+    refreshRenderEquipPlan({
       filtro,
       options: renderOptions,
       renderToken,
