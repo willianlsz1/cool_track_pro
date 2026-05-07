@@ -1482,3 +1482,312 @@ body:not(.landing-active) #app {
     color: var(--ct-desktop-text-disabled, var(--ct-text-ghost)) !important;
   }
 }
+
+/* Final visual polish — remaining dark-theme component mismatches.
+   Scope is intentionally narrow: modal headers, registro quick actions,
+   registro context banners, CTA trays and local helper text. */
+body:not(.landing-active) #app {
+  --ct-polish-surface: var(--ct-surface, #161b22);
+  --ct-polish-surface-elev: var(--ct-surface-elev, #1c2330);
+  --ct-polish-surface-hover: var(--ct-surface-hover, #222b3a);
+  --ct-polish-border: var(--ct-border, rgba(34, 211, 238, 0.16));
+  --ct-polish-border-strong: var(--ct-border-strong, rgba(34, 211, 238, 0.24));
+  --ct-polish-text: var(--ct-text, #e6edf3);
+  --ct-polish-muted: var(--ct-text-muted, #b5c2d1);
+}
+
+body:not(.landing-active) #app :is(.orcamento-modal__head, .cliente-modal__head) {
+  background: linear-gradient(
+    180deg,
+    var(--ct-polish-surface-elev) 0%,
+    var(--ct-polish-surface) 100%
+  );
+  border-bottom-color: var(--ct-polish-border-strong);
+}
+
+body:not(.landing-active)
+  #app
+  :is(.orcamento-modal__title, .cliente-modal__title, .modal-progress-header .modal__title) {
+  color: var(--ct-polish-text);
+  font-weight: 700;
+}
+
+body:not(.landing-active)
+  #app
+  :is(.orcamento-modal__sub, .cliente-modal__sub, .modal-progress-header .modal__subtitle) {
+  color: var(--ct-polish-muted) !important;
+  opacity: 1;
+}
+
+body:not(.landing-active) #app :is(.orcamento-modal__head-icon) {
+  background: var(--ct-brand-soft-strong, rgba(34, 211, 238, 0.16));
+  border: 1px solid var(--ct-brand-border, rgba(34, 211, 238, 0.18));
+  color: var(--ct-brand-light, #67e8f9);
+}
+
+body:not(.landing-active) #app :is(.orcamento-modal__close, .cliente-modal__close) {
+  background: rgba(9, 12, 16, 0.44);
+  border-color: var(--ct-polish-border);
+  color: var(--ct-polish-muted);
+}
+
+body:not(.landing-active)
+  #app
+  :is(
+    .orcamento-modal__close:hover,
+    .orcamento-modal__close:focus-visible,
+    .cliente-modal__close:hover,
+    .cliente-modal__close:focus-visible
+  ) {
+  background: var(--ct-polish-surface-hover);
+  border-color: var(--ct-polish-border-strong);
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active) #app .modal-progress-header {
+  padding: 14px;
+  border: 1px solid var(--ct-polish-border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(28, 35, 48, 0.96) 0%, rgba(22, 27, 34, 0.96) 100%);
+}
+
+body:not(.landing-active) #view-registro .registro-quick__tile,
+body:not(.landing-active) #app .registro-quick-chip {
+  background: linear-gradient(
+    180deg,
+    var(--ct-polish-surface-elev) 0%,
+    var(--ct-polish-surface) 100%
+  );
+  border-color: var(--ct-polish-border);
+  color: var(--ct-polish-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+body:not(.landing-active) #view-registro .registro-quick__tile:hover,
+body:not(.landing-active) #view-registro .registro-quick__tile:focus-visible,
+body:not(.landing-active) #app .registro-quick-chip:hover,
+body:not(.landing-active) #app .registro-quick-chip:focus-visible {
+  background: var(--ct-polish-surface-hover);
+  border-color: var(--ct-polish-border-strong);
+}
+
+body:not(.landing-active) #view-registro .registro-quick__label,
+body:not(.landing-active) #app .registro-quick-chip__label {
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active) #view-registro .registro-quick__label small {
+  color: var(--ct-polish-muted);
+  font-weight: 500;
+}
+
+body:not(.landing-active) #view-registro .registro-quick__tile.is-active,
+body:not(.landing-active) #app .registro-quick-chip.is-active {
+  background: linear-gradient(
+    180deg,
+    var(--ct-brand-soft-strong, rgba(34, 211, 238, 0.16)) 0%,
+    var(--ct-polish-surface) 100%
+  );
+  border-color: var(--ct-brand-border-hover, rgba(34, 211, 238, 0.3));
+}
+
+body:not(.landing-active) #view-registro :is(.registro-context-card, .registro-context-summary),
+body:not(.landing-active) #app :is(#eq-context-summary-banner, #eq-context-locked-summary) {
+  background: linear-gradient(180deg, rgba(28, 35, 48, 0.96) 0%, rgba(22, 27, 34, 0.96) 100%);
+  border: 1px solid var(--ct-polish-border);
+  border-radius: 12px;
+  color: var(--ct-polish-muted) !important;
+}
+
+body:not(.landing-active) #view-registro .registro-context-card__title {
+  color: var(--ct-brand-light, #67e8f9);
+}
+
+body:not(.landing-active) #view-registro .registro-context-card__line,
+body:not(.landing-active) #view-registro .registro-context-card__line strong,
+body:not(.landing-active) #view-registro .registro-context-summary strong {
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active) #app .action-tray {
+  background: linear-gradient(
+    180deg,
+    var(--ct-polish-surface-elev) 0%,
+    var(--ct-polish-surface) 100%
+  );
+  border-color: var(--ct-polish-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+body:not(.landing-active) #app .action-tray__row {
+  border-bottom-color: var(--ct-polish-border);
+}
+
+body:not(.landing-active) #app .action-tray__btn:hover,
+body:not(.landing-active) #app .action-tray__btn:focus-visible {
+  background: var(--ct-polish-surface-hover);
+}
+
+body:not(.landing-active) #app .action-tray__btn--secondary {
+  color: var(--ct-brand-light, #67e8f9);
+}
+
+body:not(.landing-active) #app .action-tray__btn--tertiary {
+  color: var(--ct-polish-muted);
+}
+
+body:not(.landing-active) #app .action-tray__btn--destructive {
+  color: #f87171;
+}
+
+body:not(.landing-active) #app .action-footer__hint,
+body:not(.landing-active)
+  #view-registro
+  :is(
+    .registro-bloco__hint,
+    .registro-field__help,
+    .registro-details__subtitle,
+    .registro-context-hint,
+    .registro-photo-quick__hint
+  ),
+body:not(.landing-active) #app :is(.cliente-modal__hint, .form-hint) {
+  color: var(--ct-polish-muted) !important;
+  opacity: 1 !important;
+}
+
+body:not(.landing-active)
+  #app
+  :is(.form-control, .cliente-modal__input, .orc-search__input)::placeholder,
+body:not(.landing-active)
+  #view-registro
+  :is(.registro-field__input, .registro-field__textarea)::placeholder {
+  color: var(--ct-polish-muted) !important;
+  opacity: 1 !important;
+}
+
+/* Registro optional service blocks — surgical dark-theme pass.
+   Covers the details cards under "Detalhes opcionais" without changing layout. */
+body:not(.landing-active) #view-registro .registro-details {
+  background: linear-gradient(
+    180deg,
+    var(--ct-polish-surface-elev) 0%,
+    var(--ct-polish-surface) 100%
+  );
+  border-color: var(--ct-polish-border);
+}
+
+body:not(.landing-active) #view-registro .registro-details[open] {
+  background: var(--ct-polish-surface);
+  border-color: var(--ct-polish-border-strong);
+}
+
+body:not(.landing-active) #view-registro .registro-details__summary {
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active) #view-registro .registro-details__summary:hover,
+body:not(.landing-active) #view-registro .registro-details__summary:focus-visible {
+  background: rgba(34, 211, 238, 0.06);
+}
+
+body:not(.landing-active) #view-registro .registro-details__title {
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active) #view-registro .registro-details__subtitle {
+  color: var(--ct-polish-muted) !important;
+}
+
+body:not(.landing-active) #view-registro .registro-details__icon {
+  background: var(--ct-polish-surface);
+  border-color: var(--ct-polish-border);
+  color: var(--ct-polish-muted);
+}
+
+body:not(.landing-active) #view-registro .registro-details[open] .registro-details__icon {
+  background: var(--ct-brand-soft-strong, rgba(34, 211, 238, 0.16));
+  border-color: var(--ct-brand-border, rgba(34, 211, 238, 0.18));
+  color: var(--ct-brand-light, #67e8f9);
+}
+
+body:not(.landing-active) #view-registro .registro-details__add {
+  background: rgba(9, 12, 16, 0.28);
+  border-color: var(--ct-polish-border);
+  color: var(--ct-polish-muted);
+}
+
+body:not(.landing-active) #view-registro .registro-details[open] .registro-details__add {
+  background: var(--ct-brand-soft, rgba(34, 211, 238, 0.08));
+  border-color: var(--ct-brand-border, rgba(34, 211, 238, 0.18));
+  color: var(--ct-brand-light, #67e8f9);
+}
+
+body:not(.landing-active) #view-registro .registro-details__body {
+  background: var(--ct-polish-surface);
+  border-top-color: var(--ct-polish-border);
+}
+
+body:not(.landing-active) #view-registro .registro-details--next[open] {
+  background: linear-gradient(
+    180deg,
+    var(--ct-brand-soft, rgba(34, 211, 238, 0.08)) 0%,
+    var(--ct-polish-surface) 72%
+  );
+  border-color: var(--ct-polish-border-strong);
+}
+
+body:not(.landing-active) #view-registro .registro-field__label {
+  color: var(--ct-polish-muted);
+}
+
+body:not(.landing-active) #view-registro .registro-field__input,
+body:not(.landing-active) #view-registro .registro-field__select,
+body:not(.landing-active) #view-registro .registro-field__textarea {
+  background-color: var(--ct-polish-surface-elev);
+  border-color: var(--ct-polish-border);
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active) #view-registro .registro-field__input:focus,
+body:not(.landing-active) #view-registro .registro-field__select:focus,
+body:not(.landing-active) #view-registro .registro-field__textarea:focus {
+  background-color: var(--ct-polish-surface-hover);
+  border-color: var(--ct-brand-border-hover, rgba(34, 211, 238, 0.3));
+}
+
+body:not(.landing-active) #view-registro .registro-field--select::after,
+body:not(.landing-active) #view-registro .registro-field__money::before {
+  color: var(--ct-polish-muted);
+  border-color: var(--ct-polish-muted);
+}
+
+body:not(.landing-active) #view-registro .registro-photo-drop {
+  background: linear-gradient(
+    180deg,
+    var(--ct-polish-surface-elev) 0%,
+    var(--ct-polish-surface) 100%
+  );
+  border-color: var(--ct-polish-border-strong);
+}
+
+body:not(.landing-active) #view-registro .registro-photo-drop:hover,
+body:not(.landing-active) #view-registro .registro-photo-drop:focus-within {
+  background: var(--ct-polish-surface-hover);
+  border-color: var(--ct-brand-border-hover, rgba(34, 211, 238, 0.3));
+}
+
+body:not(.landing-active) #view-registro .registro-photo-drop__icon {
+  background: var(--ct-brand-soft-strong, rgba(34, 211, 238, 0.16));
+  border-color: var(--ct-brand-border, rgba(34, 211, 238, 0.18));
+  color: var(--ct-brand-light, #67e8f9);
+}
+
+body:not(.landing-active) #view-registro .registro-photo-drop__title {
+  color: var(--ct-polish-text);
+}
+
+body:not(.landing-active)
+  #view-registro
+  :is(.registro-photo-drop__hint, .registro-photo-drop__meta) {
+  color: var(--ct-polish-muted);
+}
