@@ -1791,3 +1791,261 @@ body:not(.landing-active)
   :is(.registro-photo-drop__hint, .registro-photo-drop__meta) {
   color: var(--ct-polish-muted);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+ * DESKTOP DARK — match mobile reference (foto 1-8)
+ * ───────────────────────────────────────────────────────────────
+ * Mata o efeito metálico/claro causado pelas regras de "polish"
+ * (linear-gradient surface-elev → surface + box-shadow inset
+ * rgba(255,255,255,0.03)) e nivela superfícies com o dark flat
+ * que aparece no mobile. Escopado a desktop dark — mobile e tema
+ * light não são afetados.
+ * ═══════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  /* Tokens locais escopados em desktop dark. */
+  body:not(.landing-active):not([data-theme='light']) {
+    --ct-dx-bg: #0d1117;
+    --ct-dx-surface-1: #0f1419;
+    --ct-dx-surface-2: #0a0e14;
+    --ct-dx-surface-3: #131923;
+    --ct-dx-border: rgba(181, 194, 209, 0.1);
+    --ct-dx-border-strong: rgba(181, 194, 209, 0.16);
+    --ct-dx-border-brand: rgba(34, 211, 238, 0.2);
+  }
+
+  /* Reescala os tokens de "polish" para desktop dark sem mexer no
+     mobile. Toda regra que usa var(--ct-polish-*) cai naturalmente
+     em superfícies dark flat. */
+  body:not(.landing-active):not([data-theme='light']) #app {
+    --ct-polish-surface: var(--ct-dx-surface-2);
+    --ct-polish-surface-elev: var(--ct-dx-surface-1);
+    --ct-polish-surface-hover: var(--ct-dx-surface-3);
+    --ct-polish-border: var(--ct-dx-border);
+    --ct-polish-border-strong: var(--ct-dx-border-strong);
+  }
+
+  /* Mata gradients e inset highlights de uma só vez. */
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details,
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details[open],
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details__body,
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details__summary,
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details--next[open],
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-photo-drop,
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-quick__tile,
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    .registro-quick__tile.is-active,
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    :is(.registro-context-card, .registro-context-summary),
+  body:not(.landing-active):not([data-theme='light']) #app .registro-quick-chip,
+  body:not(.landing-active):not([data-theme='light']) #app .registro-quick-chip.is-active,
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray,
+  body:not(.landing-active):not([data-theme='light']) #app .modal-progress-header,
+  body:not(.landing-active):not([data-theme='light'])
+    #app
+    :is(.orcamento-modal__head, .cliente-modal__head),
+  body:not(.landing-active):not([data-theme='light'])
+    #app
+    :is(#eq-context-summary-banner, #eq-context-locked-summary) {
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  /* ─── Detalhes opcionais de Serviços ────────────────────────── */
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details[open] {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border-brand) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details__body {
+    background-color: var(--ct-dx-surface-2) !important;
+    border-top-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-details--next[open] {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border-brand) !important;
+  }
+
+  /* Dropzone de evidências */
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-photo-drop {
+    background-color: var(--ct-dx-surface-2) !important;
+    border-color: rgba(34, 211, 238, 0.22) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-photo-drop:hover,
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    .registro-photo-drop:focus-within {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-brand-border-hover, rgba(34, 211, 238, 0.3)) !important;
+  }
+
+  /* Inputs do form (custos, peças, mão de obra) */
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-field__input,
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-field__select,
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-field__textarea {
+    background-color: var(--ct-dx-surface-2) !important;
+    background-image: none !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  /* ─── Action tray (Salvar serviço / Recomeçar) ──────────────── */
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray__row {
+    background-color: transparent !important;
+    background-image: none !important;
+    border-bottom-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray__btn {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray__btn:hover,
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray__btn:focus-visible {
+    background-color: var(--ct-dx-surface-3) !important;
+  }
+
+  /* ─── Banners de contexto (ATENDIMENTO EM) ──────────────────── */
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    :is(.registro-context-card, .registro-context-summary),
+  body:not(.landing-active):not([data-theme='light'])
+    #app
+    :is(#eq-context-summary-banner, #eq-context-locked-summary) {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  /* ─── Ações rápidas (5 tiles + chips) ───────────────────────── */
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-quick__tile,
+  body:not(.landing-active):not([data-theme='light']) #app .registro-quick-chip {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-registro .registro-quick__tile:hover,
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    .registro-quick__tile:focus-visible,
+  body:not(.landing-active):not([data-theme='light']) #app .registro-quick-chip:hover,
+  body:not(.landing-active):not([data-theme='light']) #app .registro-quick-chip:focus-visible {
+    background-color: var(--ct-dx-surface-3) !important;
+    border-color: var(--ct-dx-border-strong) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    .registro-quick__tile.is-active,
+  body:not(.landing-active):not([data-theme='light']) #app .registro-quick-chip.is-active {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-brand-border-hover, rgba(34, 211, 238, 0.3)) !important;
+  }
+
+  /* ─── Modais (Novo cliente / Novo orçamento) ────────────────── */
+  body:not(.landing-active):not([data-theme='light'])
+    #app
+    :is(.orcamento-modal__head, .cliente-modal__head) {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-bottom-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #app .modal-progress-header {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  /* ─── Configurações (cards de seção e items) ────────────────── */
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__header {
+    background-color: var(--ct-dx-surface-1) !important;
+    background-image: none !important;
+    border-color: var(--ct-dx-border) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__section {
+    background-color: var(--ct-dx-surface-1) !important;
+    background-image: none !important;
+    border-color: var(--ct-dx-border) !important;
+    box-shadow: none !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__section-title {
+    color: var(--ct-desktop-text-tertiary, #adbac7) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__item {
+    background-color: var(--ct-dx-surface-2) !important;
+    background-image: none !important;
+    border-color: var(--ct-dx-border) !important;
+    color: var(--ct-desktop-text-primary, #e6edf3) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__item:hover,
+  body:not(.landing-active):not([data-theme='light'])
+    #view-configuracoes
+    .cfg-page__item:focus-visible {
+    background-color: var(--ct-dx-surface-1) !important;
+    border-color: var(--ct-dx-border-brand) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__item-label {
+    color: var(--ct-desktop-text-primary, #e6edf3) !important;
+  }
+
+  /* ─── Equipamentos: títulos dos setores em branco ───────────── */
+  body:not(.landing-active):not([data-theme='light'])
+    #view-equipamentos
+    .setor-card
+    .setor-card__nome,
+  body:not(.landing-active):not([data-theme='light']) #view-equipamentos .setor-card__nome {
+    color: var(--ct-desktop-text-primary, #e6edf3) !important;
+  }
+
+  body:not(.landing-active):not([data-theme='light'])
+    #view-equipamentos
+    .setor-card--fallback
+    .setor-card__nome {
+    color: var(--ct-desktop-text-secondary, #c8d4e3) !important;
+  }
+
+  /* ─── Histórico: títulos em branco (não cyan apagado) ───────── */
+  body:not(.landing-active):not([data-theme='light']) #view-historico .hist-title,
+  body:not(.landing-active):not([data-theme='light']) #view-historico .timeline__item__service,
+  body:not(.landing-active):not([data-theme='light']) #view-historico .timeline__item__equipment,
+  body:not(.landing-active):not([data-theme='light']) #view-historico .alert-card__title {
+    color: var(--ct-desktop-text-primary, #e6edf3) !important;
+  }
+
+  /* ─── Clientes: nomes em branco ─────────────────────────────── */
+  body:not(.landing-active):not([data-theme='light']) #view-clientes .cli-card__name,
+  body:not(.landing-active):not([data-theme='light']) #view-clientes .cliente-card__name {
+    color: var(--ct-desktop-text-primary, #e6edf3) !important;
+  }
+
+  /* Safety net final: garante que nenhum container marcado nas
+     fotos do estado-alvo herde gradient claro mesmo se uma regra
+     futura tentar reinjetar background-image. */
+  body:not(.landing-active):not([data-theme='light']) #view-registro details.registro-details,
+  body:not(.landing-active):not([data-theme='light'])
+    #view-registro
+    summary.registro-details__summary,
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__section,
+  body:not(.landing-active):not([data-theme='light']) #view-configuracoes .cfg-page__item,
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray,
+  body:not(.landing-active):not([data-theme='light']) #app .action-tray__row {
+    background-image: none !important;
+  }
+}
