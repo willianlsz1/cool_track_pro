@@ -60,3 +60,5 @@ supabase/.temp/
 # OS
 Thumbs.db
 .claude/settings.local.json
+# Worktrees locais do Claude Code (não versionar)
+.claude/worktrees/
