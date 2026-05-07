@@ -20,7 +20,11 @@ function extract(sourceCode, attr) {
 
 describe('contracts/selectors (static)', () => {
   const dashboard = source('src/ui/views/dashboard.js');
-  const equipamentos = source('src/ui/views/equipamentos.js');
+  const equipamentos = [
+    source('src/ui/views/equipamentos.js'),
+    source('src/features/equipamentos/setor/setorUI.js'),
+    source('src/ui/views/equipamentos/setores.js'),
+  ].join('\n');
   const registro = source('src/ui/views/registro.js');
   const historico = source('src/ui/views/historico.js');
   const relatorio = source('src/ui/views/relatorio.js');
@@ -38,7 +42,9 @@ describe('contracts/selectors (static)', () => {
         [
           "back-to-setores",
           "delete-equip",
+          "delete-setor",
           "edit-equip",
+          "edit-setor",
           "equip-clear-cliente-filter",
           "equip-quickfilter",
           "equip-unlock-context",
@@ -48,6 +54,7 @@ describe('contracts/selectors (static)', () => {
           "open-setor",
           "open-setor-modal",
           "toggle-eq-detail-menu",
+          "toggle-setor-menu",
         ]
       `));
     it('data-nav', () => expect(extract(equipamentos, 'data-nav')).toMatchInlineSnapshot(`[]`));

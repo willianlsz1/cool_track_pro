@@ -1,7 +1,7 @@
 # Mudança 11 — Inventário de equipamentos.js
 
 > Gerado em CP-A. Será atualizado a cada CP conforme funções saem do arquivo original.
-> Última atualização: 2026-05-07 (CP-C — render plan + React bridges extraídos).
+> Última atualização: 2026-05-07 (CP-E — setor UI/state leve extraído).
 
 ## Métricas atuais
 
@@ -12,6 +12,8 @@
 | LOC total (pós-CP-B, 7 fns extraídas)                              |                                                                                                          2613 |
 | LOC total (pós-CP-B.5, state module-level extraído)                |                                                                                                          2612 |
 | LOC total (pós-CP-C, render plan + React bridges extraídos)        |                                                                                                          2496 |
+| LOC total (pós-CP-E.0, pré-split setor in-place)                   |                                                                                                          2540 |
+| LOC total (pós-CP-E, setor UI/state leve extraído)                 |                                                                                                          2272 |
 | Funções top-level declaradas                                       |                                                                                                            54 |
 | Linhas com `@sliceTarget` simples                                  |                                                                                                            44 |
 | Linhas com `@sliceSplit` (multi-destino)                           |                                                                                                            10 |
@@ -297,7 +299,7 @@ Descobertas em CP-A que afetam a estratégia:
 | utils              | ✅ extraído (7) + reclassificado (3)    | CP-B           |         ~233 |            7 / 7 movíveis |
 | state/editingState | ✅ extraído (editing/context state)     | CP-B.5         |           ~3 |                     3 / 3 |
 | controller         | 📦 inventariado (bridge state extraído) | —              |            0 |                     0 / 7 |
-| setor              | 🚧 pré-split in-place (CP-E.0)          | —              |            0 |                     0 / 4 |
+| setor              | ✅ UI/state leve extraído               | CP-E           |         ~268 |               8 / 8 leves |
 | crud               | 📦 inventariado                         | —              |            0 |                     0 / 6 |
 | ui                 | 📦 inventariado                         | —              |            0 |                    0 / 27 |
 | nameplate          | 📦 inventariado (split-only)            | —              |            0 |  0 / 0 (fold em ui/modal) |
@@ -428,3 +430,65 @@ Sugestão de destino inicial:
 - `setor/setorUI`: `_lockedSetorBtnHtml`, `renderSetorGrid`, `_prepareSetorGridForClienteShell`, `_renderSetorGridForClienteHtml`, `_renderSetorGridForClienteEmptyHtml` e integração com `setorCardHtml`.
 - `setor/setorState`: `_buildSetorGridForClienteModel`, `setActiveSector`, contexto forçado relacionado a setor se mantido no recorte.
 - `setor/setorPersist`: somente em CP posterior ou subpasso explícito, porque `saveSetor`, `deleteSetor`, `moveEquipsToSetor` e `assignEquipToSetor` tocam state/storage/toast/render e merecem fachada cuidadosa.
+
+## Atualização CP-E — Setor UI/state leve extraído (2026-05-07)
+
+Status: **CP-E aplicado**.
+
+### Arquivos criados
+
+- `src/features/equipamentos/setor/setorState.js`
+- `src/features/equipamentos/setor/setorUI.js`
+- `src/features/equipamentos/setor/setorNavigation.js`
+- `src/features/equipamentos/__tests__/setor/setorState.test.js`
+- `src/features/equipamentos/__tests__/setor/setorUI.test.js`
+- `src/features/equipamentos/__tests__/setor/setorNavigation.test.js`
+
+### Funções movidas
+
+| Função                                | Origem                         | Destino                                              | Observação                                                                 |
+| ------------------------------------- | ------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| `_lockedSetorBtnHtml`                 | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorUI.js`         | Helper de HTML puro mantido para recorte de UI de setor.                   |
+| `renderSetorGrid`                     | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorUI.js`         | Usa dependências injetadas por `configureSetorUI`; sem import circular.    |
+| `renderSetorGridForCliente`           | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorUI.js`         | Orquestra shell + model + HTML com assinatura preservada.                  |
+| `_prepareSetorGridForClienteShell`    | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorUI.js`         | Mantém ocultação de busca/toggle e toolbar por cliente.                    |
+| `_buildSetorGridForClienteModel`      | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorState.js`      | Exportada como `buildSetorGridForClienteModel`; preserva filtro dual-path. |
+| `_renderSetorGridForClienteHtml`      | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorUI.js`         | Mantém grade, card de setor e tile `Sem setor`.                            |
+| `_renderSetorGridForClienteEmptyHtml` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorUI.js`         | Mantém estado vazio, CTA `open-setor-modal` e link `__sem_setor__`.        |
+| `setActiveSector`                     | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorNavigation.js` | Navegação simples com `getRouteEquipCtx`/`navigateEquipCtx` injetados.     |
+
+### Funções que permaneceram no adapter legado
+
+- `saveSetor`: permanece por tocar validação, `setState`, modal, toast e `renderEquip`.
+- `deleteSetor`: permanece por tocar plano Pro, `setState`, `Storage.markSetorDeleted`, navegação, toast e `renderEquip`.
+- `moveEquipsToSetor`: permanece por mutar equipamentos/setores e acoplar fluxo de vínculo/movimentação.
+- `assignEquipToSetor`: permanece por tocar `findEquip`, plano Pro, `setState`, toast e `renderEquip`.
+- `populateSetorSelect`: permanece no adapter por pertencer ao form/modal e chamar `syncContextGroupVisibility()`.
+- `clearForcedEquipContext` e `lockEquipContext`: permanecem no adapter porque manipulam selects/triggers/resumo do modal de equipamento e o estado de edição/contexto; melhor mover em CP de form/modal/context.
+- `renderEquip`, `saveEquip`, `deleteEquip`, `viewEquip`, modal/form/list/detail gerais permanecem no adapter.
+
+### LOC
+
+| Arquivo                        | Antes CP-E | Depois CP-E | Delta |
+| ------------------------------ | ---------: | ----------: | ----: |
+| `src/ui/views/equipamentos.js` |       2540 |        2272 |  -268 |
+
+### Testes adicionados/alterados
+
+- `src/features/equipamentos/__tests__/setor/setorState.test.js`: 4 testes para filtro direto por `clienteId`, fallback via equipamento, equipamentos sem setor e cliente vazio.
+- `src/features/equipamentos/__tests__/setor/setorUI.test.js`: 5 testes para empty state por cliente, CTA `open-setor-modal`, tile/link `__sem_setor__`, card de setor e empty state global.
+- `src/features/equipamentos/__tests__/setor/setorNavigation.test.js`: 2 testes para navegação para setor e retorno ao grid preservando cliente.
+- `src/__tests__/equipamentosLegacyRender.test.js`: sem alteração; mantido como caracterização do adapter legado.
+
+### Riscos e conformidade
+
+- Não foram movidas persistências pesadas de setor (`saveSetor`, `deleteSetor`, `moveEquipsToSetor`, `assignEquipToSetor`).
+- `setorUI.js` não importa `src/ui/views/equipamentos.js`; dependências legadas entram por `configureSetorUI`.
+- `setorNavigation.js` não importa `src/ui/views/equipamentos.js`; roteamento entra por `configureSetorNavigation`.
+- Não houve CSS, schema/migration, `package.json`, `package-lock.json`, dependência nova, barrel `index.js` ou `test.skip`.
+
+### Próximo CP recomendado
+
+**CP-E.1 — persistência de setor: `saveSetor`/`deleteSetor`/`moveEquipsToSetor`/`assignEquipToSetor`**.
+
+Justificativa: após a extração da UI/state leve, o próximo cluster coeso de setor é CRUD/persistência. Ele deve ser isolado em CP próprio porque toca plano Pro, `setState`, Storage/Supabase, modal, toasts e `renderEquip`.
