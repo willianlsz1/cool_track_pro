@@ -26,7 +26,6 @@ const mocks = vi.hoisted(() => ({
   applyEquipModalExperience: vi.fn(),
   loadClientes: vi.fn(),
   getState: vi.fn(),
-  toggleTheme: vi.fn(),
   applyNameplateCtaGate: vi.fn(),
   resetNameplateCtaState: vi.fn(),
   isCachedPlanPlusOrHigher: vi.fn(),
@@ -142,10 +141,6 @@ vi.mock('../ui/components/nameplateCapture.js', () => ({
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
   isCachedPlanPro: mocks.isCachedPlanPro,
-}));
-
-vi.mock('../ui/controller/helpers/themeInitHelpers.js', () => ({
-  toggleTheme: mocks.toggleTheme,
 }));
 
 vi.mock('../ui/components/pushOptInCard.js', () => ({

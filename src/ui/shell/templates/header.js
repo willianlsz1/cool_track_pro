@@ -102,9 +102,6 @@ export function renderShellHeader() {
                 <button type="button" class="header-help-menu__item" data-action="open-profile">
                   👤 Meu perfil
                 </button>
-                <button type="button" class="header-help-menu__item" data-action="toggle-theme">
-                  <span id="header-theme-label">Alternar tema</span>
-                </button>
               </section>
 
               <section class="header-help-menu__section" aria-label="Help">

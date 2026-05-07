@@ -321,34 +321,6 @@ function bindReportFilters() {
   });
 }
 
-/**
- * Aplica o tema (light/dark), persiste no storage e sincroniza o label do
- * item de menu da engrenagem. Não depende de nenhum botão dedicado no DOM.
- */
-function applyThemeMode(theme) {
-  const menuLabel = document.getElementById('header-theme-label');
-  if (theme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    if (menuLabel) menuLabel.textContent = '🌙 Tema escuro';
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    if (menuLabel) menuLabel.textContent = '☀️ Tema claro';
-  }
-  localStorage.setItem('cooltrack-theme', theme);
-}
-
-export function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  applyThemeMode(current === 'light' ? 'dark' : 'light');
-}
-
-function initTheme() {
-  const preferred =
-    localStorage.getItem('cooltrack-theme') ||
-    (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-  applyThemeMode(preferred);
-}
-
 function bindSyncStatusUpdates() {
   if (window.__cooltrackSyncStatusBound) return;
   window.__cooltrackSyncStatusBound = '1';
@@ -404,7 +376,6 @@ export function initControllerHelpers() {
   bindEquipFilters();
   bindHistFilters();
   bindReportFilters();
-  initTheme();
   bindSyncStatusUpdates();
   initOnlineStatus();
   OfflineBanner.mount();
