@@ -613,3 +613,71 @@ Isso preserva o guard Pro antes de qualquer mutação em `assignEquipToSetor` e 
 **CP-E.1b — mover `saveSetor`/`deleteSetor`/`ensureProForSetores`.**
 
 Justificativa: após isolar move/assign, o cluster restante de persistência de setor é save/delete + guard Pro, que ainda toca DOM/form, modal dynamic import, `Storage.markSetorDeleted`, toast, navegação e `renderEquip`; deve ser extraído em CP próprio com callbacks/injeção equivalentes.
+
+## Atualização CP-E.1b — Extração save/delete/guard de setor (2026-05-07)
+
+Status: **CP-E.1b aplicado**.
+
+### Escopo executado
+
+- Movidos `ensureProForSetores`, `saveSetor` e `deleteSetor` de `src/ui/views/equipamentos.js` para `src/features/equipamentos/setor/setorPersist.js`.
+- Mantidos os nomes exportados em `setorPersist.js` e os exports legados em `equipamentos.js`.
+- `moveEquipsToSetor` e `assignEquipToSetor` já estavam movidos no CP-E.1a e seguem no mesmo módulo.
+- A persistência de setor agora está concentrada em `src/features/equipamentos/setor/setorPersist.js`, sem import de `src/ui/views/equipamentos.js`.
+
+### Funções movidas
+
+| Função                | Origem                         | Destino                                           | Observação                                                                               |
+| --------------------- | ------------------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `ensureProForSetores` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorPersist.js` | Preserva fail-closed, mensagens por ação e warning antes de retornar `false`.            |
+| `saveSetor`           | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorPersist.js` | Preserva validação, payload, `setState`, close modal, clear de edição, toast e render.   |
+| `deleteSetor`         | `src/ui/views/equipamentos.js` | `src/features/equipamentos/setor/setorPersist.js` | Preserva guard, remoção local, queue best-effort, navegação condicional, toast e render. |
+
+### Dependências/injeção
+
+`configureSetorPersist` foi ampliado para receber as dependências reais do fluxo legado:
+
+- `findEquip`, `findSetor`, `setState`;
+- `Storage`, `Toast`, `renderEquip`, `escapeHtml`;
+- `Utils`, `getSetorNomeValidation`, `setSetorNomeValidationState`;
+- `getEditingSetorId`, `clearSetorEditingState`;
+- `getRouteEquipCtx`, `navigateEquipCtx`;
+- `setorNomeMax`, `setorDescLimit`, `defaultSetorColor`;
+- `closeSetorModal` opcional para testes; em produção mantém fallback com dynamic import de `core/modal.js`;
+- `fetchMyProfileBilling`/`hasProAccess` opcionais para testes; em produção mantém fallback com dynamic import dos módulos de plano.
+
+### Funções que permaneceram no adapter
+
+- `renderEquip`: permanece porque coordena renderização/listas/header/bridges React.
+- `saveEquip`: permanece porque pertence ao CRUD de equipamento, fora do escopo deste CP.
+- `viewEquip`: permanece porque coordena detail/modal de equipamento, fora do escopo deste CP.
+- `populateSetorSelect`: permanece como UI/form legado, fora do escopo deste CP.
+- `clearForcedEquipContext`: permanece no adapter/contexto legado, fora do escopo deste CP.
+- `lockEquipContext`: permanece no adapter/contexto legado, fora do escopo deste CP.
+
+### LOC
+
+| Arquivo                        | Antes CP-E.1b | Depois CP-E.1b | Delta |
+| ------------------------------ | ------------: | -------------: | ----: |
+| `src/ui/views/equipamentos.js` |          2213 |           2097 |  -116 |
+
+### Testes adicionados/alterados
+
+- Atualizado `src/features/equipamentos/__tests__/setor/setorPersist.test.js` para 24 testes cobrindo:
+  - `ensureProForSetores` permitido, bloqueado, mensagens por ação e fail-closed em erro de billing;
+  - `saveSetor` bloqueado por Pro, criação, edição, nome inválido/long, clienteId e ordem de close/clear/toast/render;
+  - `deleteSetor` bloqueado por Pro, remoção de setor, limpeza de equipamentos vinculados, `Storage.markSetorDeleted`, navegação quando ativo, toast/render quando não ativo e queue best-effort;
+  - regressões existentes de `moveEquipsToSetor` e `assignEquipToSetor`.
+
+### Riscos e conformidade
+
+- Não houve mudança intencional de comportamento.
+- Não foram movidos CRUD de equipamento, `saveEquip`, `deleteEquip`, `renderEquip`, `viewEquip`, modal/form inteiro, list/card/detail, render plan ou React bridges.
+- Não houve CSS, schema/migration, `package.json`, `package-lock.json`, dependência nova, barrel `index.js`, TypeScript ou `test.skip`.
+- `setorPersist.js` não importa `src/ui/views/equipamentos.js`, evitando import circular features → adapter legado.
+
+### Próximo CP recomendado
+
+**CP-F.0 — pré-split `saveEquip`.**
+
+Justificativa: a persistência de setor ficou isolada; o próximo cluster de maior acoplamento é `saveEquip`, que ainda mistura validação/payload, state, storage indireto, modal/toasts e renderização. Um pré-split dedicado reduz risco antes de mover CRUD de equipamento.
