@@ -104,13 +104,34 @@ import {
   mountEquipamentosList,
   unmountEquipamentosList,
 } from '../../features/equipamentos/bridges/listBridge.js';
+import {
+  configureSetorUI,
+  renderSetorGrid,
+  renderSetorGridForCliente,
+} from '../../features/equipamentos/setor/setorUI.js';
+import {
+  configureSetorNavigation,
+  setActiveSector,
+} from '../../features/equipamentos/setor/setorNavigation.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
 configureRenderEquipPlan({ renderEquip });
+configureSetorUI({
+  Utils,
+  emptyStateHtml,
+  getState,
+  setorCardHtml,
+  setToolbar: _setToolbar,
+  unmountEquipamentosList,
+});
+configureSetorNavigation({
+  getRouteEquipCtx: _getRouteEquipCtx,
+  navigateEquipCtx: _navigateEquipCtx,
+});
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
-export { getActiveQuickFilter };
+export { getActiveQuickFilter, setActiveSector };
 export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
 export { setorCardHtml } from './equipamentos/setores.js';
@@ -489,29 +510,6 @@ function mountEquipamentosHeader(viewModel) {
   });
 }
 
-/**
- * Markup do "+ Novo setor" em modo locked (plano Free/Plus).
- * Visual cinza, disabled de verdade (não dispara o handler open-setor-modal)
- * e com um cadeado + pill PRO pra deixar explícito que é feature paga.
- * Tooltip nativo via `title` explica porque está bloqueado.
- */
-/** @sliceTarget ui/setor */
-function _lockedSetorBtnHtml() {
-  return `
-    <button
-      type="button"
-      class="btn btn--outline btn--sm btn--locked"
-      disabled
-      aria-disabled="true"
-      title="Setores é uma feature do plano Pro"
-    >
-      <span aria-hidden="true">🔒</span>
-      + Novo setor
-      <span class="btn__pro-pill" aria-hidden="true">PRO</span>
-    </button>
-  `;
-}
-
 /** Popula o select de setores no modal de cadastro de equipamento. */
 /** @sliceTarget ui/form */
 export function populateSetorSelect(isPro = false) {
@@ -546,273 +544,7 @@ export function populateSetorSelect(isPro = false) {
   syncContextGroupVisibility();
 }
 
-/** Navega para dentro de um setor (ou volta ao grid se id === null).
- *  Preserva clienteId se estivermos no contexto de um cliente — assim o
- *  drill-down dentro do cliente ainda mostra o chip "Limpar cliente" e
- *  o titulo "Setor X de [Cliente Y]". */
-/** @sliceTarget setor/navigation */
-export function setActiveSector(id) {
-  const currentCtx = _getRouteEquipCtx();
-  _navigateEquipCtx({
-    sectorId: id ?? null,
-    quickFilter: null,
-    // Preserva contexto de cliente se houver. Quando id é null (back to grid),
-    // mantemos clienteId pra voltar pra grade do cliente, não a global.
-    clienteId: currentCtx.clienteId || null,
-    clienteNome: currentCtx.clienteNome || null,
-  });
-}
-
-/** Renderiza a grade de setores (vista PRO). */
-/**
- * @sliceSplit
- *   ui/setor: render dos setor cards + empty state + toolbar
- *   controller/render: orquestracao (unmount React, fetch state, set toolbar)
- */
-function renderSetorGrid() {
-  const el = Utils.getEl('lista-equip');
-  if (!el) return;
-  unmountEquipamentosList();
-
-  const { setores, equipamentos } = getState();
-  const searchBar = Utils.getEl('equip-search-bar');
-  if (searchBar) searchBar.style.display = 'none'; // grade não usa busca
-
-  _setToolbar({
-    title: 'Setores',
-    extraBtn: `<button class="btn btn--outline btn--sm" data-action="open-setor-modal">+ Novo setor</button>`,
-  });
-
-  if (!setores.length) {
-    el.innerHTML = emptyStateHtml({
-      icon: '🗂️',
-      title: 'Nenhum setor criado',
-      description: 'Crie setores para organizar seus equipamentos por local ou área de trabalho.',
-      cta: {
-        label: '+ Criar primeiro setor',
-        action: 'open-setor-modal',
-        tone: 'primary',
-        size: 'sm',
-        autoWidth: true,
-      },
-    });
-    return;
-  }
-
-  const setorCards = setores.map((s) => {
-    const eqs = equipamentos.filter((e) => e.setorId === s.id);
-    return setorCardHtml(s, eqs);
-  });
-
-  // Órfãos ("Sem setor") são surfaçados pelo tile do equip-hero; o drill-down
-  // abre via data-id="sem-setor" → __sem_setor__. Nada aqui no grid.
-  el.innerHTML = `<div class="setor-grid">${setorCards.join('')}</div>`;
-}
-
-/**
- * Renderiza grade de setores filtrada por cliente. Vinda de
- * /clientes -> "Ver equipamentos". Mostra so os setores DAQUELE cliente.
- * Empty state: "Crie o primeiro setor de [Cliente]" + CTA pre-fill clienteId.
- *
- * Inclui tile "Sem setor" se houver equipamentos do cliente sem setor
- * (compat: equipamentos antigos cadastrados antes da hierarquia).
- */
-/**
- * @sliceSplit
- *   ui/setor: render filtrado por cliente + empty state hero + toolbar customizada
- *   controller/render: orquestracao + bug fix #100 (dual-path filter)
- */
-function renderSetorGridForCliente(clienteId, clienteNome) {
-  const el = Utils.getEl('lista-equip');
-  if (!el) return;
-  unmountEquipamentosList();
-
-  const { setores, equipamentos } = getState();
-  const safeNome = clienteNome || 'cliente';
-
-  _prepareSetorGridForClienteShell({ clienteId, safeNome });
-
-  const model = _buildSetorGridForClienteModel({ setores, equipamentos, clienteId });
-  el.innerHTML = _renderSetorGridForClienteHtml({ ...model, clienteId, safeNome });
-}
-
-/**
- * @sliceTarget setor/setorUI
- * @sliceSplit controller/render: prepara chrome legado antes do mount da grade por cliente.
- */
-function _prepareSetorGridForClienteShell({ clienteId, safeNome }) {
-  // Esconde search bar + view toggle em contexto cliente (irrelevantes na
-  // grade de setores enxuta).
-  const searchBar = Utils.getEl('equip-search-bar');
-  if (searchBar) searchBar.style.display = 'none';
-  const viewToggle = document.querySelector('.equip-view-toggle');
-  if (viewToggle) viewToggle.style.display = 'none';
-
-  // Toolbar enxuto: SEM "+ Novo equipamento" (acessado via drill-down do setor).
-  // Apenas: + Novo setor (primario) + Limpar cliente (ghost discreto).
-  // O "+ Novo equipamento" default vem do _setToolbar — passamos hideDefaultCta
-  // pra suprimir.
-  _setToolbar({
-    title: `Setores de ${safeNome}`,
-    extraBtn: `
-      <button class="btn btn--primary btn--sm" data-action="open-setor-modal" data-cliente-id="${Utils.escapeAttr(clienteId)}">+ Novo setor</button>
-      <button class="btn btn--ghost btn--sm" data-action="equip-clear-cliente-filter" title="Voltar pra grade global">x Limpar cliente</button>
-    `,
-    hideDefaultCta: true,
-  });
-}
-
-/**
- * @sliceTarget setor/setorState
- * @sliceSplit setor/setorUI: modela setores/equipamentos usados pelo HTML filtrado por cliente.
- */
-function _buildSetorGridForClienteModel({ setores, equipamentos, clienteId }) {
-  // Bug fix #100: Filtra setores DUAL-PATH pra ser robusto a sync issues.
-  //
-  //   Caminho 1 (direto): setor.clienteId === clienteId
-  //     Funciona quando o setor.cliente_id chegou do Supabase OK.
-  //   Caminho 2 (derivado): setor tem equipamento.clienteId === clienteId
-  //     Funciona quando setor.cliente_id foi STRIPPED do payload (migration
-  //     setores.cliente_id pendente no remoto), mas o equipamento.clienteId
-  //     persistiu. Sem esse fallback, criar setor + equipamento dentro do
-  //     contexto de cliente "some" ao voltar pra view do cliente.
-  const equipsDoCliente = (equipamentos || []).filter((e) => e.clienteId === clienteId);
-  const setoresIdsViaEquip = new Set(equipsDoCliente.map((e) => e.setorId).filter(Boolean));
-  const setoresDoCliente = (setores || []).filter(
-    (s) => s.clienteId === clienteId || setoresIdsViaEquip.has(s.id),
-  );
-  // Equipamentos do cliente sem setor (compat backward)
-  const equipsSemSetor = equipsDoCliente.filter((e) => !e.setorId);
-
-  return {
-    setoresDoCliente,
-    equipamentos,
-    equipsDoCliente,
-    equipsSemSetor,
-  };
-}
-
-/**
- * @sliceTarget setor/setorUI
- * @sliceSplit setor/setorState: consome model filtrado e preserva markup final da grade por cliente.
- */
-function _renderSetorGridForClienteHtml({
-  setoresDoCliente,
-  equipamentos,
-  equipsSemSetor,
-  clienteId,
-  safeNome,
-}) {
-  // Hero convidativo + (opcional) banner Sem setor: mostrado quando o cliente
-  // ainda não tem nenhum setor real cadastrado. Equipamentos sem setor (compat
-  // backward) aparecem como banner discreto secundario, NÃO como card primary.
-  if (!setoresDoCliente.length) {
-    return _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId, safeNome });
-  }
-
-  // Cliente JA tem setores: mostra grade dos setores + tile "Sem setor"
-  // (compat backward) caso ainda haja equipamentos sem vínculo de setor.
-  // Bug fix #100: filtro AND (setorId === s.id) AND (clienteId match OR
-  // sem clienteId pra preservar setores compartilhados entre clientes que
-  // existiam antes do PMOC). Evita misturar equips de outros clientes
-  // que por acaso compartilhem setor (raro mas possivel).
-  const setorCards = setoresDoCliente.map((s) => {
-    const eqs = (equipamentos || []).filter(
-      (e) => e.setorId === s.id && (!e.clienteId || e.clienteId === clienteId),
-    );
-    return setorCardHtml(s, eqs);
-  });
-
-  let semSetorTile = '';
-  if (equipsSemSetor.length) {
-    semSetorTile = `
-      <article class="setor-card setor-card--sem-setor" data-action="open-setor" data-id="__sem_setor__">
-        <div class="setor-card__head">
-          <div class="setor-card__title">
-            <h3 class="setor-card__name">Sem setor</h3>
-            <p class="setor-card__sub">${equipsSemSetor.length} equipamento${equipsSemSetor.length !== 1 ? 's' : ''} sem setor vinculado</p>
-          </div>
-        </div>
-      </article>`;
-  }
-
-  return `<div class="setor-grid">${setorCards.join('')}${semSetorTile}</div>`;
-}
-
-/**
- * @sliceTarget setor/setorUI
- * @sliceSplit setor/setorState: renderiza estado vazio da grade de setores por cliente.
- */
-function _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId, safeNome }) {
-  const semSetorBanner = equipsSemSetor.length
-    ? `
-        <div class="setor-cliente-empty__sem-banner">
-          <div class="setor-cliente-empty__sem-icon" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-              <line x1="12" y1="22.08" x2="12" y2="12"/>
-            </svg>
-          </div>
-          <div class="setor-cliente-empty__sem-body">
-            <strong>${equipsSemSetor.length} equipamento${equipsSemSetor.length !== 1 ? 's' : ''} sem setor vinculado</strong>
-            <p>Apos criar o primeiro setor, você pode vincular os equipamentos existentes a ele.</p>
-          </div>
-          <button type="button" class="setor-cliente-empty__sem-link"
-            data-action="open-setor" data-id="__sem_setor__">
-            Ver equipamento${equipsSemSetor.length !== 1 ? 's' : ''}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="9 6 15 12 9 18"/>
-            </svg>
-          </button>
-        </div>`
-    : '';
-
-  return `
-      <section class="setor-cliente-empty" aria-label="Cliente sem setores ainda">
-        <div class="setor-cliente-empty__hero">
-          <div class="setor-cliente-empty__art" aria-hidden="true">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 7v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7"/>
-              <path d="M21 7H3l1.5-3a1 1 0 0 1 .9-.5h13.2a1 1 0 0 1 .9.5L21 7z"/>
-              <line x1="10" y1="12" x2="14" y2="12"/>
-            </svg>
-          </div>
-          <h2 class="setor-cliente-empty__title">Crie o primeiro setor de ${Utils.escapeHtml(safeNome)}</h2>
-          <p class="setor-cliente-empty__sub">
-            Setores agrupam equipamentos por área, andar ou bloco. Ajuda a organizar
-            grandes carteiras (matriz, filial, sala tecnica) e gerar PMOC certinho.
-          </p>
-          <button type="button" class="setor-cliente-empty__cta"
-            data-action="open-setor-modal" data-cliente-id="${Utils.escapeAttr(clienteId)}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            <span>Criar primeiro setor</span>
-          </button>
-          <div class="setor-cliente-empty__hints">
-            <div class="setor-cliente-empty__hint">
-              <span class="setor-cliente-empty__hint-num">1</span>
-              <span>Crie um setor (ex: "Sala 1", "Cozinha", "Bloco A")</span>
-            </div>
-            <div class="setor-cliente-empty__hint">
-              <span class="setor-cliente-empty__hint-num">2</span>
-              <span>Adicione equipamentos a esse setor</span>
-            </div>
-            <div class="setor-cliente-empty__hint">
-              <span class="setor-cliente-empty__hint-num">3</span>
-              <span>Registre manutenções e gere relatórios PMOC</span>
-            </div>
-          </div>
-        </div>
-        ${semSetorBanner}
-      </section>`;
-}
+// Setor UI/state leve extraído para ../../features/equipamentos/setor/ (Mudança 11 / CP-E).
 
 // EQUIP_TONE_LABELS, buildEquipamentoListCardModel, buildReactListEmptyState,
 // buildReactListViewModel extraídos pra
