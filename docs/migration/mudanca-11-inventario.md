@@ -681,3 +681,68 @@ Status: **CP-E.1b aplicado**.
 **CP-F.0 — pré-split `saveEquip`.**
 
 Justificativa: a persistência de setor ficou isolada; o próximo cluster de maior acoplamento é `saveEquip`, que ainda mistura validação/payload, state, storage indireto, modal/toasts e renderização. Um pré-split dedicado reduz risco antes de mover CRUD de equipamento.
+
+---
+
+## Atualização CP-F.0 — Pré-split in-place de `saveEquip` (2026-05-07)
+
+Status: **CP-F.0 aplicado**.
+
+### Resumo
+
+- `saveEquip` foi pré-splitado **in-place** em `src/ui/views/equipamentos.js`.
+- Nenhum CRUD de equipamento foi movido para `src/features` neste CP.
+- Assinatura pública preservada: `export async function saveEquip(options = {})`.
+- Retorno preservado: `false` nos guards de limite/validação/dados de placa; `true` após save bem-sucedido.
+- Ordem dos side effects preservada: plan gate → leitura/validação do form → dados de placa → fotos/payload → `setState` create/update → close modal → reset form/edição → dashboard/render/header → toast → post-actions.
+
+### Helpers privados criados
+
+| Helper                               | Responsabilidade                                                                               | Destino futuro      |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------- |
+| `_getSaveEquipPostActionContext`     | Normalizar `postAction` e flags `keepOpen`, `openRegistro`, `openPmoc`, `saveWithoutClient`.   | `ui/form`           |
+| `_checkSaveEquipPlanLimit`           | Guard de limite de plano para criação, telemetria, toast e navegação para pricing.             | `crud/validate`     |
+| `_validateSaveEquipPayload`          | Validar payload textual base e disparar warning no primeiro erro.                              | `crud/validate`     |
+| `_collectSaveEquipDadosPlaca`        | Coletar dados de placa e traduzir `DadosPlacaValidationError` em toast/focus.                  | `nameplate/bridge`  |
+| `_collectSaveEquipBaseFormValues`    | Coletar tipo, criticidade e prioridade antes da validação textual, preservando ordem original. | `ui/form`           |
+| `_collectSaveEquipContextFormValues` | Coletar periodicidade, setor e cliente após validação textual.                                 | `ui/form`           |
+| `_buildSaveEquipPayload`             | Montar payload comum, id e contrato de fotos preservadas em edição.                            | `crud/persist`      |
+| `_updateSaveEquipInState`            | Aplicar atualização de equipamento existente no `setState`.                                    | `crud/update`       |
+| `_createSaveEquipInState`            | Aplicar criação de equipamento novo no `setState`.                                             | `crud/create`       |
+| `_applySaveEquipToState`             | Escolher create vs update mantendo o branch por `getEditingEquipId()`.                         | `crud/persist`      |
+| `_closeSaveEquipModal`               | Fechar modal quando aplicável e preservar warning via `handleError`.                           | `ui/modal`          |
+| `_resetSaveEquipForm`                | Limpar campos, resetar defaults, visibilidade de componente e estado de edição.                | `ui/form`           |
+| `_refreshSaveEquipViews`             | Atualizar onboarding, dashboard, lista de equipamentos e header global.                        | `controller/render` |
+| `_finishSaveEquipSuccess`            | Orquestrar close/reset/render/toast de sucesso.                                                | `ui/modal`          |
+| `_runSaveEquipPostActions`           | Executar pós-ações `clone`, `register` e `pmoc`.                                               | `controller/render` |
+
+### LOC
+
+| Item                           | Antes CP-F.0 | Depois CP-F.0 | Delta |
+| ------------------------------ | -----------: | ------------: | ----: |
+| `saveEquip`                    |          234 |            37 |  -197 |
+| `src/ui/views/equipamentos.js` |         2097 |          2240 |  +143 |
+
+### Testes
+
+- Adicionado `src/__tests__/equipamentosSaveEquip.test.js` com 2 testes de caracterização:
+  - criação de equipamento preserva payload, reset de UI, refresh e toast;
+  - edição preserva equipamento existente, fotos já persistidas, bloqueio de `uid` e pula plan limit.
+- Testes/validações rodados no CP:
+  - `npm run test -- src/__tests__/equipamentosSaveEquip.test.js --reporter=dot`
+  - validações completas registradas no relatório final do CP-F.0.
+
+### Escopo preservado
+
+- `saveEquip` permanece em `src/ui/views/equipamentos.js`.
+- `deleteEquip`, `viewEquip` e `renderEquip` permanecem em `src/ui/views/equipamentos.js`.
+- Nenhum CRUD de equipamento foi movido para `src/features`.
+- Sem alteração de setor, render plan, React bridges, CSS, schema/migrations, dependências, `package.json`, `package-lock.json`, barrel ou `index.js`.
+
+### Próximo CP recomendado
+
+**CP-F.1 — extrair CRUD de equipamento por subfatias**:
+
+1. `crud/validate` + `nameplate/bridge` com testes focados em guards e dados de placa;
+2. `crud/create`/`crud/update`/`crud/persist` com contrato de fotos e edição;
+3. `ui/form`/`ui/modal`/`controller/render` como segunda extração, mantendo fachada pública em `equipamentos.js` até o final do CP-F.
