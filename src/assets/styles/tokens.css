@@ -159,35 +159,13 @@
   --secondary: var(--ct-text-faint);
 }
 
-/*
- * Hook pro tema light futuro. Não ativo agora — só documentado.
- * Quando habilitar: <html data-theme="light">.
- */
-[data-theme='light'] {
-  --ct-bg: #f7f8fb;
-  --ct-surface: #161b22;
-  --ct-surface-elev: #f1f3f8;
-  --ct-surface-hover: #e9edf3;
-  --ct-border: #e4e7ee;
-  --ct-border-strong: #c7cdd8;
-  --ct-text: #1a1d26;
-  --ct-text-muted: #5a6173;
-  --ct-text-faint: #5b6478; /* WCAG AA Body em fundo claro */
-  --ct-text-ghost: #b5bac8;
-  --ct-brand: #0891b2;
-  --ct-brand-text: #0e7490;
-  --ct-hover-soft: rgba(0, 0, 0, 0.04);
-  --ct-hover-softer: rgba(0, 0, 0, 0.02);
-  --ct-card-tint: rgba(0, 0, 0, 0.015);
-}
-
 /* Desktop dark readability scale.
    Scoped to >=1024px so mobile bottom navigation and compact layouts keep
    their current contrast/tone. The aliases intentionally lift legacy
    --text-3/--muted/--muted-light away from ghost colors because many older
    components use them for functional labels, counters and metadata. */
 @media (min-width: 1024px) {
-  body:not(.landing-active):not([data-theme='light']) {
+  body:not(.landing-active) {
     --ct-desktop-text-primary: #e6edf3;
     --ct-desktop-text-secondary: #c8d4e3;
     --ct-desktop-text-tertiary: #adbac7;

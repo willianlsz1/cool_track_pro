@@ -47,24 +47,15 @@
 
 /* Pro = dourado (alinhado ao account modal) */
 .pricing-plan-indicator--pro {
-  color: #c9912a;
+  color: #e8b94a;
   border-color: color-mix(in srgb, #e8b94a 35%, var(--border));
   background: color-mix(in srgb, #e8b94a 12%, transparent);
-}
-
-[data-theme='dark'] .pricing-plan-indicator--pro,
-:root:not([data-theme='light']) .pricing-plan-indicator--pro {
-  color: #e8b94a;
 }
 
 .pricing-plan-indicator--plus {
   color: #2a6fb8;
   border-color: color-mix(in srgb, #3a8ee6 35%, var(--border));
   background: color-mix(in srgb, #3a8ee6 10%, transparent);
-}
-
-[data-theme='light'] .pricing-plan-indicator--plus {
-  color: #1d4f8e;
 }
 
 .pricing-upgrade-reason {
@@ -112,10 +103,6 @@
   background: var(--primary);
   color: var(--black);
   font-weight: 700;
-}
-
-[data-theme='light'] .pricing-plan-tabs__btn--active {
-  color: #ffffff;
 }
 
 /* Tier accents — quando ATIVA, cada plano ganha a cor do seu tier pra reforçar
@@ -233,19 +220,10 @@
   background: color-mix(in srgb, #3a8ee6 12%, transparent);
 }
 
-[data-theme='light'] .pricing-card--plus .pricing-badge--current {
-  color: #1d4f8e;
-}
-
 .pricing-card--pro .pricing-badge--current {
   border-color: color-mix(in srgb, #e8b94a 36%, var(--border));
-  color: #c9912a;
-  background: color-mix(in srgb, #e8b94a 14%, transparent);
-}
-
-[data-theme='dark'] .pricing-card--pro .pricing-badge--current,
-:root:not([data-theme='light']) .pricing-card--pro .pricing-badge--current {
   color: #e8b94a;
+  background: color-mix(in srgb, #e8b94a 14%, transparent);
 }
 
 /* Pro badge: gold+cyan com shimmer sutil (alinhado ao account modal) */
@@ -363,10 +341,6 @@
   color: #3a8ee6;
 }
 
-[data-theme='light'] .pricing-card__price--plus {
-  color: #1d4f8e;
-}
-
 .pricing-card__price-group {
   margin-top: 10px;
 }
@@ -405,10 +379,6 @@
   background: var(--primary);
   color: var(--black);
   font-weight: 700;
-}
-
-[data-theme='light'] .pricing-billing-toggle__btn--active {
-  color: #ffffff;
 }
 
 .pricing-billing-toggle__save {
@@ -1099,10 +1069,6 @@
 
 .pricing-compare__col--plus {
   color: #3a8ee6 !important;
-}
-
-[data-theme='light'] .pricing-compare__col--plus {
-  color: #1d4f8e !important;
 }
 
 .pricing-compare__col--pro {

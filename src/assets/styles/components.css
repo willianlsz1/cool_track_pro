@@ -2026,11 +2026,6 @@ textarea.form-control {
   background: var(--primary);
   color: #07111f;
 }
-[data-theme='light'] .btn--primary {
-  /* No tema light, o --primary é teal escuro (#0096b4) — branco garante
-     AA contra o verde-azulado, evitando o navy dim que afunda no teal. */
-  color: #ffffff;
-}
 .btn--primary:hover {
   background: var(--primary-strong);
 }
@@ -2079,11 +2074,6 @@ textarea.form-control {
   background: var(--warning);
   color: #07111f;
 }
-[data-theme='light'] .btn--editing {
-  /* No tema light, --warning é ocre escuro (#9a6700) — branco tem AA. */
-  color: #ffffff;
-}
-
 .btn-group {
   margin-top: var(--space-3);
   display: flex;
@@ -8549,11 +8539,6 @@ mark,
   --acm-badge-bg: rgba(58, 142, 230, 0.14);
   --acm-badge-border: rgba(58, 142, 230, 0.32);
 }
-
-[data-theme='light'] .account-modal--plus {
-  --acm-accent: #1d4f8e;
-}
-
 .account-modal--pro {
   --acm-border: rgba(232, 185, 74, 0.2);
   --acm-divider: rgba(232, 185, 74, 0.1);
@@ -8769,16 +8754,6 @@ mark,
   border: 1.3px solid var(--acm-plus-blue);
   color: var(--acm-plus-blue);
 }
-
-[data-theme='light'] .account-modal__chip--stroke {
-  color: #1d4f8e;
-}
-
-[data-theme='light'] .account-modal__chip--stroke .account-modal__chip-icon {
-  border-color: #1d4f8e;
-  color: #1d4f8e;
-}
-
 /* ─── Usage bar (Plus/Pro) ────────────────────────────────────────────── */
 .account-modal__usage {
   position: relative;
@@ -11020,14 +10995,6 @@ mark,
   gap: 12px;
   padding: 4px 2px 24px;
 }
-
-[data-theme='light'] .dash {
-  --dsh-card-bg: rgba(0, 30, 60, 0.025);
-  --dsh-card-border: rgba(0, 30, 60, 0.08);
-  --dsh-card-border-strong: rgba(0, 30, 60, 0.16);
-  --dsh-divider: rgba(0, 30, 60, 0.06);
-}
-
 .dash[data-tier='plus'] {
   --dsh-accent: var(--dsh-blue);
   --dsh-accent-dim: rgba(58, 142, 230, 0.28);
@@ -12019,9 +11986,7 @@ mark,
 
 /* Scope local — só registro usa esses tokens estendidos. Evita bleed pra
    outras views que têm seu próprio design system. Em light theme o hero
-   fica branco com orbs sutis; como o resto do registro, base.css já provê
-   os tokens via [data-theme='light']. */
-#view-registro {
+   fica branco com orbs sutis;como o resto do registro {
   --r-surface-3: #172d45;
   --r-border-soft: rgba(255, 255, 255, 0.07);
   --r-accent-tint: rgba(0, 200, 232, 0.32);
@@ -12037,22 +12002,6 @@ mark,
   --r-shadow-hero: 0 24px 48px rgba(0, 0, 0, 0.42), 0 4px 12px rgba(0, 200, 232, 0.06);
   --r-shadow-cta: 0 12px 24px rgba(0, 200, 232, 0.25);
 }
-
-[data-theme='light'] #view-registro {
-  --r-surface-3: #dbe3ec;
-  --r-border-soft: rgba(15, 23, 42, 0.08);
-  --r-accent-tint: rgba(0, 150, 180, 0.3);
-  --r-accent-soft: rgba(0, 150, 180, 0.12);
-  --r-accent-ghost: rgba(0, 150, 180, 0.05);
-  --r-warn-soft: rgba(154, 103, 0, 0.14);
-  --r-warn-tint: rgba(154, 103, 0, 0.32);
-  --r-danger-soft: rgba(207, 34, 46, 0.12);
-  --r-danger-tint: rgba(207, 34, 46, 0.3);
-  --r-success-soft: rgba(26, 127, 55, 0.12);
-  --r-shadow-hero: 0 12px 28px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(0, 150, 180, 0.08);
-  --r-shadow-cta: 0 10px 20px rgba(0, 150, 180, 0.25);
-}
-
 /* Sprite é posicionado absoluto + tamanho zero pra não ocupar layout. */
 #view-registro .registro-sprite {
   position: absolute;
@@ -12191,11 +12140,6 @@ mark,
   border: 1px solid var(--r-border-soft);
   border-radius: 999px;
 }
-
-[data-theme='light'] #view-registro .registro-hero__meter {
-  background: rgba(15, 23, 42, 0.04);
-}
-
 #view-registro .registro-hero__seg {
   height: 8px;
   flex: 1;
@@ -12203,11 +12147,6 @@ mark,
   background: rgba(255, 255, 255, 0.05);
   transition: background 0.2s;
 }
-
-[data-theme='light'] #view-registro .registro-hero__seg {
-  background: rgba(15, 23, 42, 0.06);
-}
-
 #view-registro .registro-hero__seg.is-filled {
   background: linear-gradient(90deg, var(--primary), #5ee0ff);
   box-shadow: 0 0 10px rgba(0, 200, 232, 0.35);
@@ -12251,11 +12190,6 @@ mark,
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--r-border-soft);
 }
-
-[data-theme='light'] #view-registro .registro-hero__chip {
-  background: rgba(15, 23, 42, 0.03);
-}
-
 #view-registro .registro-hero__chip svg {
   width: 10px;
   height: 10px;
@@ -12389,11 +12323,6 @@ mark,
   --chip-bg: rgba(140, 120, 240, 0.14);
   --chip-fg: #a99cff;
 }
-
-[data-theme='light'] #view-registro .registro-quick__tile[data-color='violet'] {
-  --chip-fg: #6555d0;
-}
-
 /* ---------- Bloco obrigatório ---------- */
 #view-registro .registro-bloco.registro-bloco--required {
   position: relative;
@@ -12406,11 +12335,6 @@ mark,
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
   margin-top: 0;
 }
-
-[data-theme='light'] #view-registro .registro-bloco.registro-bloco--required {
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-}
-
 #view-registro .registro-bloco__header {
   display: flex;
   align-items: center;
@@ -15435,17 +15359,6 @@ select option {
   background: color-mix(in srgb, var(--color-primary, #2563eb) 10%, var(--surface, #0f172a));
   border-color: var(--color-primary, #2563eb);
 }
-[data-theme='light'] .eq-detail-cover-action {
-  background: #fff;
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #111;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-}
-[data-theme='light'] .eq-detail-cover-action--locked {
-  border-color: color-mix(in srgb, var(--color-primary, #2563eb) 35%, rgba(0, 0, 0, 0.12));
-  color: var(--color-primary, #2563eb);
-}
-
 /* Variante --locked: CTA Free (Desbloquear com Plus). Cor de acento primário
    no texto/borda pra marcar que é upsell, mas mantém backdrop-blur pra não
    destoar do padrão do overlay. */
@@ -15460,34 +15373,6 @@ select option {
 }
 
 /* Tema claro: placeholder com gradiente mais suave + emoji com mais contraste. */
-[data-theme='light'] .eq-detail-cover {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--color-primary, #2563eb) 8%, #f3f4f6),
-    #e5e7eb
-  );
-  border-color: rgba(15, 23, 42, 0.08);
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    0 4px 12px rgba(15, 23, 42, 0.04);
-}
-[data-theme='light'] .eq-detail-cover--empty {
-  border-color: color-mix(in srgb, var(--color-primary, #2563eb) 20%, rgba(15, 23, 42, 0.12));
-}
-[data-theme='light'] .eq-detail-cover__emoji {
-  opacity: 0.7;
-}
-[data-theme='light'] .eq-detail-cover__cta {
-  background: rgba(255, 255, 255, 0.92);
-  color: #111;
-  border-color: rgba(0, 0, 0, 0.08);
-}
-[data-theme='light'] .eq-detail-cover__cta:hover,
-[data-theme='light'] .eq-detail-cover__cta:focus-visible {
-  background: #fff;
-  border-color: var(--color-primary, #2563eb);
-}
-
 /* Mobile: cover um pouco mais baixo pra não dominar a tela. */
 @media (max-width: 540px) {
   .eq-detail-cover {
