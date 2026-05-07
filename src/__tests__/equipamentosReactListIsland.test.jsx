@@ -254,10 +254,12 @@ describe('equipamentos React flat list island', () => {
     expect(pageSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML/);
   });
 
-  it('keeps React root creation out of the legacy adapter source', () => {
+  it('keeps React entrypoint dynamic import in the list bridge, not the legacy adapter', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
+    const bridgeSource = readFileSync('src/features/equipamentos/bridges/listBridge.js', 'utf8');
 
-    expect(adapterSource).toContain('../../react/entrypoints/equipamentosListIsland.jsx');
+    expect(adapterSource).not.toContain('equipamentosListIsland.jsx');
+    expect(bridgeSource).toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
     expect(adapterSource).not.toMatch(/from ['"]react['"]/);
     expect(adapterSource).not.toMatch(/createRoot/);
   });

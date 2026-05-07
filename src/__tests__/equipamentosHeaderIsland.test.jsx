@@ -312,9 +312,12 @@ describe('equipamentos header React island', () => {
     expect(islandSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML/);
   });
 
-  it('does not import createRoot directly in equipamentos.js', () => {
-    const source = readFileSync('src/ui/views/equipamentos.js', 'utf8');
-    expect(source).toContain('../../react/entrypoints/equipamentosHeaderIsland.jsx');
-    expect(source).not.toMatch(/react-dom\/client|createRoot/);
+  it('keeps React entrypoint dynamic import in the header bridge, not the legacy adapter', () => {
+    const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
+    const bridgeSource = readFileSync('src/features/equipamentos/bridges/headerBridge.js', 'utf8');
+
+    expect(adapterSource).not.toContain('equipamentosHeaderIsland.jsx');
+    expect(bridgeSource).toContain('../../../react/entrypoints/equipamentosHeaderIsland.jsx');
+    expect(adapterSource).not.toMatch(/react-dom\/client|createRoot/);
   });
 });

@@ -1,7 +1,7 @@
 # Mudança 11 — Inventário de equipamentos.js
 
 > Gerado em CP-A. Será atualizado a cada CP conforme funções saem do arquivo original.
-> Última atualização: 2026-05-07 (CP-B.5 — extração de state module-level de edição/contexto e bridge cache).
+> Última atualização: 2026-05-07 (CP-C — render plan + React bridges extraídos).
 
 ## Métricas atuais
 
@@ -11,6 +11,7 @@
 | LOC total (pós-anotação JSDoc, fim do CP-A)                        |                                                                                                          2846 |
 | LOC total (pós-CP-B, 7 fns extraídas)                              |                                                                                                          2613 |
 | LOC total (pós-CP-B.5, state module-level extraído)                |                                                                                                          2612 |
+| LOC total (pós-CP-C, render plan + React bridges extraídos)        |                                                                                                          2496 |
 | Funções top-level declaradas                                       |                                                                                                            54 |
 | Linhas com `@sliceTarget` simples                                  |                                                                                                            44 |
 | Linhas com `@sliceSplit` (multi-destino)                           |                                                                                                            10 |
@@ -309,3 +310,57 @@ Descobertas em CP-A que afetam a estratégia:
 - 🚧 em extração — CP atual está movendo
 - ✅ extraído — todas as funções da categoria saíram do arquivo original
 - 🧹 fachada removida — call sites externos atualizados, fachada deletada
+
+## Atualização CP-C — Render plan + React bridges (2026-05-07)
+
+Status: **CP-C aplicado**.
+
+### Arquivos criados
+
+- `src/features/equipamentos/state/renderPlanState.js`
+- `src/features/equipamentos/bridges/renderPlan.js`
+- `src/features/equipamentos/bridges/headerBridge.js`
+- `src/features/equipamentos/bridges/listBridge.js`
+
+### Movimentos realizados
+
+- Vars de render plan movidas de `src/ui/views/equipamentos.js` para `state/renderPlanState.js`:
+  - `_renderEquipPlanToken`
+  - `_renderEquipPlanNeedsRefresh`
+  - `_renderEquipPlanEventsBound`
+  - `_renderEquipPlanRefreshPromise`
+- Funções de render plan movidas para `bridges/renderPlan.js`:
+  - `_bindRenderEquipPlanInvalidationEvents` → `bindRenderEquipPlanInvalidationEvents`
+  - `_refreshRenderEquipPlan` → `refreshRenderEquipPlan`
+- Bridge functions movidas para módulos dedicados:
+  - `loadEquipamentosHeaderBridge`, `mountEquipamentosHeader`, `unmountEquipamentosHeader` → `bridges/headerBridge.js`
+  - `loadEquipamentosListBridge`, `unmountEquipamentosList` e montagem React da lista → `bridges/listBridge.js`
+- Dynamic imports React saíram do adapter legado `src/ui/views/equipamentos.js` e ficaram restritos aos bridges:
+  - `../../../react/entrypoints/equipamentosHeaderIsland.jsx`
+  - `../../../react/entrypoints/equipamentosListIsland.jsx`
+- `src/ui/views/equipamentos.js` permanece como adapter legado desse cluster e continua mantendo as god-functions fora do escopo:
+  - `renderEquip`
+  - `saveEquip`
+  - `viewEquip`
+  - setor, CRUD, modal, form, detail e UI list/card legados
+
+### LOC
+
+| Arquivo                        | Antes CP-C | Depois CP-C | Delta |
+| ------------------------------ | ---------: | ----------: | ----: |
+| `src/ui/views/equipamentos.js` |       2612 |        2496 |  -116 |
+
+### Testes adicionados/alterados
+
+- Adicionados:
+  - `src/features/equipamentos/__tests__/state/renderPlanState.test.js`
+  - `src/features/equipamentos/__tests__/bridges/renderPlan.test.js`
+  - `src/features/equipamentos/__tests__/bridges/headerBridge.test.js`
+  - `src/features/equipamentos/__tests__/bridges/listBridge.test.js`
+- Alterados:
+  - `src/__tests__/equipamentosHeaderIsland.test.jsx`
+  - `src/__tests__/equipamentosReactListIsland.test.jsx`
+
+### Próximo CP recomendado
+
+**CP-E — setor**. Se `renderSetorGridForCliente` estiver misturado demais para mover com fachada pequena e segura, executar antes um **CP-E.0 pré-split** focado em separar a orquestração de render do setor sem mover CRUD, modal ou `renderEquip`.
