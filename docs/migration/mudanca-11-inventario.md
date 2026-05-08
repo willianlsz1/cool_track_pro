@@ -864,6 +864,7 @@ Recorte sugerido:
 - Mover `_updateSaveEquipInState`, `_createSaveEquipInState` e `_applySaveEquipToState` juntos.
 - Injetar `setState` e `editingId`/resolver de edição por argumento, preservando retorno `undefined`, payload, state shape e ordem de side effects.
 - Manter `saveEquip`, modal/reset/render/toast/post-actions e delete/view no adapter.
+<<<<<<< codex/mapear-mutation-do-saveequip-pixjem
 
 ## Atualização CP-F.2 — Extração de state mutation do `saveEquip` (2026-05-07)
 
@@ -917,3 +918,5 @@ Status: **CP-F.2 aplicado**.
 **CP-F.3a — mapear form/modal/render pós-save antes de mover**.
 
 Justificativa: após payload e state mutation, o restante do fluxo de `saveEquip` ainda mistura coleta de form/contexto, fechamento de modal, reset, refresh, toast e post-actions. Um mapeamento curto antes de mover reduz risco de alterar ordem de side effects.
+=======
+>>>>>>> main
