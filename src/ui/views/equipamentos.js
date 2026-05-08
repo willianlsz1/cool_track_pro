@@ -137,6 +137,7 @@ import {
   updateSaveEquipInState,
 } from '../../features/equipamentos/crud/persist.js';
 import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplate/dadosPlaca.js';
+import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -1424,16 +1425,6 @@ async function _refreshSaveEquipViews() {
 }
 
 /**
- * @sliceTarget ui/modal
- */
-async function _finishSaveEquipSuccess({ keepOpen, wasEditing }) {
-  await _closeSaveEquipModal(keepOpen);
-  _resetSaveEquipForm(keepOpen);
-  await _refreshSaveEquipViews();
-  Toast.success(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.');
-}
-
-/**
  * @sliceTarget controller/render
  */
 function _runSaveEquipPostActions({ keepOpen, openRegistro, openPmoc, equipId, clienteId }) {
@@ -1527,7 +1518,14 @@ export async function saveEquip(options = {}) {
   });
 
   const wasEditing = Boolean(getEditingEquipId());
-  await _finishSaveEquipSuccess({ keepOpen: postActionContext.keepOpen, wasEditing });
+  await finishSaveEquipSuccess({
+    keepOpen: postActionContext.keepOpen,
+    wasEditing,
+    closeModal: _closeSaveEquipModal,
+    resetForm: _resetSaveEquipForm,
+    refreshViews: _refreshSaveEquipViews,
+    toastSuccess: Toast.success,
+  });
   _runSaveEquipPostActions({
     keepOpen: postActionContext.keepOpen,
     openRegistro: postActionContext.openRegistro,
