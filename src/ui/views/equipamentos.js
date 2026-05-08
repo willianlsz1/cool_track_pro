@@ -1042,27 +1042,36 @@ export function initSetorColorPicker() {
  *   nameplate: aplica nameplate metadata + restore dados placa
  * @sliceObs depende de fetchMyProfileBillingCached (async billing) — ver CP-F
  */
-export async function openEditEquip(id, opts = {}) {
+function resolveOpenEditEquipTarget(id, opts = {}) {
   const eq = findEquip(id);
-  if (!eq) return;
-
-  setEditingEquipId(id);
   const focusField = typeof opts?.focusField === 'string' ? opts.focusField : null;
 
-  // Pre-popula os campos do modal com os dados do equipamento
+  return { eq, focusField };
+}
+
+function fillOpenEditEquipBaseForm(eq) {
   Utils.setVal('eq-nome', eq.nome || '');
   Utils.setVal('eq-local', eq.local || '');
   Utils.setVal('eq-tag', eq.tag || '');
   Utils.setVal('eq-tipo', eq.tipo || 'Split Hi-Wall');
   Utils.setVal('eq-fluido', eq.fluido || 'R-410A');
+}
+
+function syncOpenEditEquipComponentFields(eq) {
   // Componente (so faz sentido se tipo for de climatização). Sync logo apos
   // pra mostrar/esconder o wrapper. setVal é no-op se o wrapper estiver oculto.
   syncComponenteVisibility();
   if (eq.componente) Utils.setVal('eq-componente', eq.componente);
+}
+
+function fillOpenEditEquipTechnicalForm(eq) {
   Utils.setVal('eq-modelo', eq.modelo || '');
   Utils.setVal('eq-criticidade', eq.criticidade || 'media');
   Utils.setVal('eq-prioridade', eq.prioridadeOperacional || 'normal');
   Utils.setVal('eq-periodicidade', String(eq.periodicidadePreventivaDias || 90));
+}
+
+function restoreOpenEditEquipNameplate(eq) {
   restoreDadosPlaca(eq.dadosPlaca);
   // Seed review UI dos extras + metadata a partir do payload salvo. Se o
   // equipamento foi cadastrado antes desta feature, eq.dadosPlaca?.camposExtras
@@ -1077,18 +1086,24 @@ export async function openEditEquip(id, opts = {}) {
   } catch (_e) {
     /* review UI pode ainda não ter montado — ok, ficará vazia */
   }
+}
 
+function markOpenEditEquipManualPeriodicity() {
   // Marca periodicidade como manual para não ser sobrescrita pelo auto-sugestão
   const periodicidadeInput = Utils.getEl('eq-periodicidade');
   if (periodicidadeInput) periodicidadeInput.dataset.manual = '1';
+}
 
+function expandOpenEditEquipDetailsPanel() {
   // Abre o painel de detalhes direto (pula o step 1 de escolha de tipo)
   const detailsPanel = Utils.getEl('eq-step-2');
   if (detailsPanel) {
     detailsPanel.style.display = 'block';
     detailsPanel.setAttribute('aria-hidden', 'false');
   }
+}
 
+async function applyOpenEditEquipBillingGates() {
   // Popula o select de setor (apenas Pro) e aplica gate do hero CTA de placa.
   // V4: bloco de fotos saiu daqui — agora é via detail view.
   // V4.1: gate agora tem 3 estados (active / trial / locked) — pra Free,
@@ -1142,6 +1157,9 @@ export async function openEditEquip(id, opts = {}) {
       /* noop */
     }
   }
+}
+
+function syncOpenEditEquipContextFields(eq) {
   if (eq.setorId) Utils.setVal('eq-setor', eq.setorId);
   // PMOC Fase 2: pre-popula select de cliente no edit. populateClienteSelect()
   // é chamado em open-modal handler, mas aqui setamos o value após o populate.
@@ -1152,7 +1170,9 @@ export async function openEditEquip(id, opts = {}) {
       if (select) Utils.setVal('eq-cliente', eq.clienteId);
     });
   }
+}
 
+function syncOpenEditEquipActionTray() {
   // Atualiza textos do modal
   const titleEl = Utils.getEl('modal-add-eq-title');
   if (titleEl) titleEl.textContent = 'Editar equipamento';
@@ -1165,7 +1185,9 @@ export async function openEditEquip(id, opts = {}) {
   setEquipActionButtonVisible(tertiaryBtn || tertiaryRow, false);
   if (tertiaryBtn) setEquipActionTrayButtonLabel(tertiaryBtn, '');
   setEquipActionFooterHintVisible(false);
+}
 
+async function openOpenEditEquipModal(id) {
   // Fecha o modal de detalhes e abre o de edição
   try {
     const { Modal: M } = await import('../../core/modal.js');
@@ -1177,14 +1199,39 @@ export async function openEditEquip(id, opts = {}) {
       message: 'Não foi possível abrir o modal de edição.',
       context: { action: 'equipamentos.openEditEquip', id },
     });
-    return;
+    return false;
   }
 
+  return true;
+}
+
+function focusOpenEditEquipField(focusField) {
   // Foco em campo específico (focusField). Roda DEPOIS do M.open pra
   // garantir que o DOM está visível e mensurável. requestAnimationFrame
   // dá um tick pro browser pintar antes do scroll/focus — evita o
   // scroll cair em (0,0) num modal que ainda não terminou a transição.
   if (focusField) _focusEditField(focusField);
+}
+
+export async function openEditEquip(id, opts = {}) {
+  const { eq, focusField } = resolveOpenEditEquipTarget(id, opts);
+  if (!eq) return;
+
+  setEditingEquipId(id);
+  fillOpenEditEquipBaseForm(eq);
+  syncOpenEditEquipComponentFields(eq);
+  fillOpenEditEquipTechnicalForm(eq);
+  restoreOpenEditEquipNameplate(eq);
+  markOpenEditEquipManualPeriodicity();
+  expandOpenEditEquipDetailsPanel();
+  await applyOpenEditEquipBillingGates();
+  syncOpenEditEquipContextFields(eq);
+  syncOpenEditEquipActionTray();
+
+  const modalOpened = await openOpenEditEquipModal(id);
+  if (!modalOpened) return;
+
+  focusOpenEditEquipField(focusField);
 }
 
 /**

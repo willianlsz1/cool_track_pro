@@ -1826,3 +1826,56 @@ Nao criar fachada, shim, pre-split ou movimentacao neste CP. `openEditEquip` con
 **CP-H.2 - pre-split in-place de `openEditEquip`.**
 
 Justificativa: `openEditEquip` e o fluxo mais longo e acoplado ainda no adapter. Separar helpers locais antes de mover preserva comportamento, limita diff e cria uma base mais segura para extracao posterior.
+
+## Atualizacao CP-H.2 - Pre-split in-place de openEditEquip (2026-05-08)
+
+Status: **CP-H.2 aplicado**.
+
+### Escopo aplicado
+
+`openEditEquip` permaneceu exportado em `src/ui/views/equipamentos.js`, mas passou a orquestrar helpers locais menores. Nenhuma funcao foi movida para `src/features/` neste CP.
+
+Helpers locais criados:
+
+| Helper                               | Responsabilidade                                                              |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| `resolveOpenEditEquipTarget`         | Resolve equipamento e normaliza `focusField`.                                 |
+| `fillOpenEditEquipBaseForm`          | Preenche campos base do formulario.                                           |
+| `syncOpenEditEquipComponentFields`   | Preserva ordem de `syncComponenteVisibility` e componente.                    |
+| `fillOpenEditEquipTechnicalForm`     | Preenche modelo, criticidade, prioridade e periodicidade.                     |
+| `restoreOpenEditEquipNameplate`      | Restaura dados de placa, extras e metadata com fallback silencioso.           |
+| `markOpenEditEquipManualPeriodicity` | Marca periodicidade como manual.                                              |
+| `expandOpenEditEquipDetailsPanel`    | Abre o painel tecnico do modal.                                               |
+| `applyOpenEditEquipBillingGates`     | Preserva imports dinamicos, billing/usage, `populateSetorSelect` e nameplate. |
+| `syncOpenEditEquipContextFields`     | Aplica setor e cliente via `requestAnimationFrame`.                           |
+| `syncOpenEditEquipActionTray`        | Ajusta titulo, labels, CTAs e action tray do modal de edicao.                 |
+| `openOpenEditEquipModal`             | Fecha `modal-eq-det`, abre `modal-add-eq` e trata erro preservando retorno.   |
+| `focusOpenEditEquipField`            | Mantem chamada de `_focusEditField` apos abertura do modal.                   |
+
+### Ordem preservada
+
+Ordem mantida: resolver equipamento -> retorno silencioso se ausente -> `setEditingEquipId` -> campos base -> componente -> campos tecnicos -> dados de placa/nameplate -> periodicidade manual -> painel tecnico -> billing/gates -> setor/cliente -> labels/CTAs -> fechar detail -> abrir form -> foco/scroll/highlight.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1440 |   1487 |   +47 |
+
+### Validacao executada
+
+- Baseline antes do refactor: `npm run test -- src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx src/__tests__/equipamentosLegacyRender.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/__tests__/equipamentosSaveEquip.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 6 arquivos e 51 testes.
+- Apos o pre-split, o mesmo teste focado passou com 6 arquivos e 51 testes.
+
+### Conformidade
+
+- `openEditEquip` permanece no adapter.
+- `deleteEquip`, `renderEquip`, `viewEquip`, `saveEquip`, setor e CRUD nao foram movidos.
+- Sem alteracao intencional de comportamento, HTML, `data-action`, `data-id`, classes, gates de plano, dados de placa, foco ou fallbacks silenciosos.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+
+### Proximo CP recomendado
+
+**CP-H.3 - mover openEditEquip como orquestrador.**
+
+Justificativa: o pre-split isolou os blocos necessarios para extrair `openEditEquip` com DI no proximo CP, sem misturar `deleteEquip` ou helpers de modal/form mais amplos.
