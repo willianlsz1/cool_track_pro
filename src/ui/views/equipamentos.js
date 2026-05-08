@@ -1469,15 +1469,13 @@ async function _refreshSaveEquipViews() {
 // _eqDetailSubtitle, _infoRowValueOrEmpty, _riskFactorChipHtml extraídos
 // pra src/features/equipamentos/utils/detail.js (Mudança 11 / CP-B).
 
-/**
- * @sliceSplit
- *   ui/detail: ~448 LOC de HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
- *   risco: avaliacao de risk + classification + factors + suggested action
- * @sliceObs god-function de detail (#1 LOC do arquivo) — alvo prioritario de pre-split em CP-G
- */
-export async function viewEquip(id) {
-  const eq = findEquip(id);
-  if (!eq) return;
+/** @sliceTarget ui/detail */
+function _resolveViewEquipTarget(id) {
+  return findEquip(id);
+}
+
+/** @sliceSplit ui/detail-model */
+function _buildViewEquipDetailModel(id, eq) {
   const regs = regsForEquip(id).sort((a, b) => b.data.localeCompare(a.data));
   const health = evaluateEquipmentHealth(eq, regs);
   const score = health.score;
@@ -1497,26 +1495,46 @@ export async function viewEquip(id) {
   const ringC = +(2 * Math.PI * ringR).toFixed(1);
   const ringOffset = +(ringC * (1 - score / 100)).toFixed(1);
 
+  return {
+    id,
+    eq,
+    regs,
+    health,
+    score,
+    cls,
+    safeId,
+    context,
+    risk,
+    proximaPreventiva,
+    healthSummary,
+    ringR,
+    ringC,
+    ringOffset,
+  };
+}
+
+/** @sliceSplit ui/detail-setor */
+function _renderViewEquipSetorInfoRow(eq) {
   // Setor como info-row READONLY (não editável inline). Antes era um <select>
   // embutido mas quebrava o padrão visual (todos os outros campos são só
   // label + valor) e não tinha feedback de "quando salva?". Edição completa
   // vai pro modal "Editar" no footer. Clique no "Alterar" leva pra lá.
-  const setorSelectHtml = (() => {
-    const { setores: _setores } = getState();
-    const setorObj = _setores.find((s) => s.id === eq.setorId);
-    const setorNome = setorObj ? setorObj.nome : 'Sem setor';
-    const setorVisual = setorObj ? '' : 'info-row__value--muted';
-    return `<div class="info-row info-row--setor">
+  const { setores: _setores } = getState();
+  const setorObj = _setores.find((s) => s.id === eq.setorId);
+  const setorNome = setorObj ? setorObj.nome : 'Sem setor';
+  const setorVisual = setorObj ? '' : 'info-row__value--muted';
+  return `<div class="info-row info-row--setor">
       <span class="info-row__label">Setor</span>
       <span class="info-row__value ${setorVisual}">${Utils.escapeHtml(setorNome)}</span>
     </div>`;
-  })();
+}
 
+/** @sliceSplit ui/detail-services */
+function _renderViewEquipServiceTimeline(regs) {
   // Timeline de serviços
-  const svcTimeline =
-    regs.length === 0
-      ? `<div class="eq-svc-empty">Nenhum serviço registrado ainda.</div>`
-      : `<div class="eq-svc-timeline">
+  return regs.length === 0
+    ? `<div class="eq-svc-empty">Nenhum serviço registrado ainda.</div>`
+    : `<div class="eq-svc-timeline">
         ${regs
           .slice(0, 5)
           .map(
@@ -1532,7 +1550,11 @@ export async function viewEquip(id) {
           .join('')}
         ${regs.length > 5 ? `<div class="eq-svc-more">+${regs.length - 5} serviços anteriores</div>` : ''}
       </div>`;
+}
 
+/** @sliceSplit ui/detail-photos */
+function _renderViewEquipCoverBlock(model) {
+  const { eq, safeId } = model;
   // ── Cover block (V4.1) ──
   // Foto "de capa" edge-to-edge no topo do modal de detalhes. Dá identidade
   // visual imediata (o técnico reconhece o equipamento antes de ler o nome).
@@ -1634,12 +1656,18 @@ export async function viewEquip(id) {
         </button>
       </div>`
     : '';
-  const coverBlock = `
+  return {
+    html: `
     <div class="eq-detail-cover${coverHasPhotoClass}${coverLockedClass}">
       ${coverInner}
     </div>
-    ${coverActionsBlock}`;
+    ${coverActionsBlock}`,
+    firstPhotoUrl,
+  };
+}
 
+/** @sliceSplit ui/detail-nameplate */
+function _renderViewEquipDadosPlacaSections(eq) {
   // ── Seção "Dados da etiqueta" (V5) ──
   // Renderiza os 12 campos extraídos da etiqueta (via IA no cadastro ou
   // digitados manualmente). Se o equip foi cadastrado antes da feature OU
@@ -1687,10 +1715,36 @@ export async function viewEquip(id) {
       </div>`
     : '';
 
-  Utils.getEl('eq-det-corpo').innerHTML = `
+  return { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml };
+}
+
+/** @sliceSplit ui/detail-html */
+function _renderViewEquipDetailHtml(model) {
+  const {
+    eq,
+    regs,
+    score,
+    cls,
+    safeId,
+    context,
+    risk,
+    proximaPreventiva,
+    healthSummary,
+    ringR,
+    ringC,
+    ringOffset,
+  } = model;
+  const setorSelectHtml = _renderViewEquipSetorInfoRow(eq);
+  const svcTimeline = _renderViewEquipServiceTimeline(regs);
+  const coverBlock = _renderViewEquipCoverBlock(model);
+  const { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml } =
+    _renderViewEquipDadosPlacaSections(eq);
+
+  return {
+    html: `
     <div class="eq-detail-view">
 
-      ${coverBlock}
+      ${coverBlock.html}
 
       <!--
         Title block consolidado (V7 refino UX): nome em h1 + subtítulo
@@ -1874,8 +1928,18 @@ export async function viewEquip(id) {
         </div>
       </div>
 
-    </div>`;
+    </div>`,
+    firstPhotoUrl: coverBlock.firstPhotoUrl,
+  };
+}
 
+/** @sliceSplit ui/detail-modal */
+function _mountViewEquipDetail(html) {
+  Utils.getEl('eq-det-corpo').innerHTML = html;
+}
+
+/** @sliceSplit ui/detail-photos */
+function _bindViewEquipDetailCoverActions(firstPhotoUrl) {
   // Setor agora é readonly no detail view (listener inline removido).
   // `assignEquipToSetor` continua exportada pra uso programático (drag-drop).
 
@@ -1911,7 +1975,10 @@ export async function viewEquip(id) {
       Photos.openLightbox(firstPhotoUrl);
     });
   }
+}
 
+/** @sliceSplit ui/detail-modal */
+async function _openViewEquipDetailModal(id) {
   try {
     const { Modal: M } = await import('../../core/modal.js');
     M.open('modal-eq-det');
@@ -1922,6 +1989,23 @@ export async function viewEquip(id) {
       context: { action: 'equipamentos.viewEquip.openModal', id },
     });
   }
+}
+
+/**
+ * @sliceSplit
+ *   ui/detail: HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
+ *   risco: avaliacao de risk + classification + factors + suggested action
+ * @sliceObs pre-split in-place em CP-G.0; manter adapter até CP-G.1.
+ */
+export async function viewEquip(id) {
+  const eq = _resolveViewEquipTarget(id);
+  if (!eq) return;
+
+  const model = _buildViewEquipDetailModel(id, eq);
+  const detail = _renderViewEquipDetailHtml(model);
+  _mountViewEquipDetail(detail.html);
+  _bindViewEquipDetailCoverActions(detail.firstPhotoUrl);
+  await _openViewEquipDetailModal(id);
 }
 
 /** @sliceTarget crud/equip */
