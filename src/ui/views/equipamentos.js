@@ -1249,23 +1249,24 @@ function _resolveViewEquipTarget(id) {
   return findEquip(id);
 }
 
-/**
- * @sliceSplit
- *   ui/detail: HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
- *   risco: avaliacao de risk + classification + factors + suggested action
- * @sliceObs pre-split in-place em CP-G.0; manter adapter até CP-G.1.
- */
-/** @sliceTarget crud/equip */
-export async function deleteEquip(id) {
+function collectDeleteEquipRelatedRecords(id) {
   const { registros } = getState();
-  const linkedRegistros = registros.filter((r) => r.equipId === id).map((r) => r.id);
-  Storage.markEquipDeleted(id, linkedRegistros);
+  return registros.filter((r) => r.equipId === id).map((r) => r.id);
+}
 
+function persistDeleteEquipRemoval(id, linkedRegistros) {
+  Storage.markEquipDeleted(id, linkedRegistros);
+}
+
+function applyDeleteEquipStateMutation(id) {
   setState((prev) => ({
     ...prev,
     equipamentos: prev.equipamentos.filter((e) => e.id !== id),
     registros: prev.registros.filter((r) => r.equipId !== id),
   }));
+}
+
+async function closeDeleteEquipDetailModal(id) {
   try {
     const { Modal: M } = await import('../../core/modal.js');
     M.close('modal-eq-det');
@@ -1277,9 +1278,31 @@ export async function deleteEquip(id) {
       severity: 'warning',
     });
   }
+}
+
+function refreshDeleteEquipViews() {
   renderEquip();
   updateGlobalHeader();
+}
+
+function notifyDeleteEquipSuccess() {
   Toast.info('Equipamento removido.');
+}
+
+/**
+ * @sliceSplit
+ *   ui/detail: HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
+ *   risco: avaliacao de risk + classification + factors + suggested action
+ * @sliceObs pre-split in-place em CP-G.0; manter adapter até CP-G.1.
+ */
+/** @sliceTarget crud/equip */
+export async function deleteEquip(id) {
+  const linkedRegistros = collectDeleteEquipRelatedRecords(id);
+  persistDeleteEquipRemoval(id, linkedRegistros);
+  applyDeleteEquipStateMutation(id);
+  await closeDeleteEquipDetailModal(id);
+  refreshDeleteEquipViews();
+  notifyDeleteEquipSuccess();
 }
 
 /** @sliceTarget ui/form */

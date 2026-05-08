@@ -1934,3 +1934,50 @@ Ordem mantida: resolver alvo/foco -> retorno silencioso se ausente -> `setEditin
 **CP-H.4 - pre-split in-place de deleteEquip.**
 
 Justificativa: `deleteEquip` e o proximo export publico relevante ainda implementado no adapter e combina storage/state, fechamento de modal, render/header/toast e registros vinculados. Um pre-split local antes da extracao reduz risco sem misturar fachada/shim.
+
+## Atualizacao CP-H.4 - Pre-split in-place de deleteEquip (2026-05-08)
+
+Status: **CP-H.4 aplicado**.
+
+### Escopo aplicado
+
+`deleteEquip` permaneceu exportado em `src/ui/views/equipamentos.js`, mas passou a orquestrar helpers locais menores. Nenhuma funcao foi movida para `src/features/` neste CP.
+
+Helpers locais criados:
+
+| Helper                             | Responsabilidade                                                           |
+| ---------------------------------- | -------------------------------------------------------------------------- |
+| `collectDeleteEquipRelatedRecords` | Le registros do state e coleta IDs vinculados ao equipamento.              |
+| `persistDeleteEquipRemoval`        | Chama `Storage.markEquipDeleted(id, linkedRegistros)` com os mesmos dados. |
+| `applyDeleteEquipStateMutation`    | Remove equipamento e registros vinculados do state via `setState`.         |
+| `closeDeleteEquipDetailModal`      | Fecha `modal-eq-det` e preserva `handleError` em falha.                    |
+| `refreshDeleteEquipViews`          | Chama `renderEquip()` e `updateGlobalHeader()` na ordem original.          |
+| `notifyDeleteEquipSuccess`         | Emite `Toast.info('Equipamento removido.')`.                               |
+
+### Ordem preservada
+
+Ordem mantida: assinatura `deleteEquip(id)` -> coleta de registros vinculados -> `Storage.markEquipDeleted` -> `setState` removendo equipamento/registros -> tentativa de fechar `modal-eq-det` -> `renderEquip()` -> `updateGlobalHeader()` -> `Toast.info`.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1328 |   1351 |   +23 |
+
+### Validacao executada
+
+- Baseline antes do refactor: `npm run test -- src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosLegacyRender.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/__tests__/storage.integration.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 5 arquivos e 56 testes.
+- Apos o pre-split, o mesmo teste focado passou com 5 arquivos e 56 testes.
+
+### Conformidade
+
+- `deleteEquip` permanece no adapter.
+- `openEditEquip`, `renderEquip`, `viewEquip`, `saveEquip`, setor, CRUD, fotos/evidencias e `renderFlatList` nao foram movidos nem reescritos.
+- Sem alteracao intencional de comportamento, ordem de side effects, storage/state/refresh, modal, toast, HTML, `data-action`, `data-id` ou classes.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+
+### Proximo CP recomendado
+
+**CP-H.5 - mover deleteEquip como orquestrador.**
+
+Justificativa: o pre-split isolou as responsabilidades necessarias para extrair `deleteEquip` com DI no proximo CP, preservando a ordem storage -> state -> modal -> refresh -> toast.
