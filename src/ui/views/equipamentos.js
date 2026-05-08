@@ -139,6 +139,7 @@ import {
 import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplate/dadosPlaca.js';
 import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
 import { runSaveEquipPostActions } from '../../features/equipamentos/crud/postActions.js';
+import { configureSaveEquip, saveEquip } from '../../features/equipamentos/crud/saveEquip.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -154,6 +155,46 @@ configureSetorUI({
 configureSetorNavigation({
   getRouteEquipCtx: _getRouteEquipCtx,
   navigateEquipCtx: _navigateEquipCtx,
+});
+configureSaveEquip({
+  getSaveEquipPostActionContext: _getSaveEquipPostActionContext,
+  getState,
+  getEditingEquipId,
+  checkSaveEquipPlanLimit,
+  checkPlanLimit,
+  trackEvent,
+  Toast,
+  goTo,
+  collectSaveEquipBaseFormValues,
+  getValue: Utils.getVal,
+  validateSaveEquipPayload,
+  validateEquipamentoPayload,
+  collectSaveEquipContextFormValues,
+  getForcedEquipContext,
+  normalizePeriodicidadePreventivaDias,
+  collectSaveEquipExtraFormValues,
+  collectSaveEquipDadosPlaca,
+  collectDadosPlaca,
+  DadosPlacaValidationError,
+  formatDecimalHint,
+  buildSaveEquipPayload,
+  createId: Utils.uid,
+  findEquip,
+  normalizePhotoList,
+  tiposComComponente: TIPOS_COM_COMPONENTE,
+  applySaveEquipToState,
+  setState,
+  updateSaveEquipInState,
+  createSaveEquipInState,
+  finishSaveEquipSuccess,
+  closeSaveEquipModal: _closeSaveEquipModal,
+  resetSaveEquipForm: _resetSaveEquipForm,
+  refreshSaveEquipViews: _refreshSaveEquipViews,
+  toastSuccess: Toast.success,
+  runSaveEquipPostActions,
+  focusNameInput: () => Utils.getEl('eq-nome')?.focus(),
+  requestAnimationFrameRef: (callback) => requestAnimationFrame(callback),
+  documentRef: globalThis.document,
 });
 configureSetorPersist({
   findEquip,
@@ -176,7 +217,7 @@ configureSetorPersist({
 });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
-export { getActiveQuickFilter, setActiveSector };
+export { getActiveQuickFilter, saveEquip, setActiveSector };
 export { assignEquipToSetor, deleteSetor, ensureProForSetores, moveEquipsToSetor, saveSetor };
 export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
@@ -1423,95 +1464,6 @@ async function _refreshSaveEquipViews() {
   }
   renderEquip();
   updateGlobalHeader();
-}
-
-/**
- * @sliceSplit
- *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
- *   ui/modal: clearEditingState + closeModal + Toast feedback
- *   controller/post: dispatch das post-actions (clone, register, pmoc, save-without-client)
- * @sliceObs god-function de CRUD — alvo prioritario de pre-split em CP-F
- */
-export async function saveEquip(options = {}) {
-  const postActionContext = _getSaveEquipPostActionContext(options);
-  const { equipamentos } = getState();
-
-  const isPlanLimitAllowed = await checkSaveEquipPlanLimit({
-    equipamentos,
-    editingId: getEditingEquipId(),
-    checkPlanLimit,
-    trackEvent,
-    Toast,
-    goTo,
-  });
-  if (!isPlanLimitAllowed) return false;
-
-  const baseFormValues = collectSaveEquipBaseFormValues({ getValue: Utils.getVal });
-  const payloadValidation = validateSaveEquipPayload({
-    equipamentos,
-    editingId: getEditingEquipId(),
-    getValue: Utils.getVal,
-    validateEquipamentoPayload,
-    Toast,
-  });
-  if (!payloadValidation) return false;
-
-  const contextFormValues = collectSaveEquipContextFormValues({
-    baseFormValues,
-    saveWithoutClient: postActionContext.saveWithoutClient,
-    getValue: Utils.getVal,
-    getForcedEquipContext,
-    normalizePeriodicidadePreventivaDias,
-  });
-  const extraFormValues = collectSaveEquipExtraFormValues({ getValue: Utils.getVal });
-  const formValues = { ...contextFormValues, ...extraFormValues };
-  const dadosPlacaResult = collectSaveEquipDadosPlaca({
-    collectDadosPlaca,
-    DadosPlacaValidationError,
-    formatDecimalHint,
-    Toast,
-  });
-  if (!dadosPlacaResult.ok) return false;
-
-  const payload = buildSaveEquipPayload({
-    formValues,
-    payloadValidation,
-    dadosPlaca: dadosPlacaResult.dadosPlaca,
-    editingId: getEditingEquipId(),
-    createId: Utils.uid,
-    findEquip,
-    normalizePhotoList,
-    tiposComComponente: TIPOS_COM_COMPONENTE,
-  });
-  applySaveEquipToState({
-    setState,
-    editingId: getEditingEquipId(),
-    payload,
-    updateMutation: updateSaveEquipInState,
-    createMutation: createSaveEquipInState,
-  });
-
-  const wasEditing = Boolean(getEditingEquipId());
-  await finishSaveEquipSuccess({
-    keepOpen: postActionContext.keepOpen,
-    wasEditing,
-    closeModal: _closeSaveEquipModal,
-    resetForm: _resetSaveEquipForm,
-    refreshViews: _refreshSaveEquipViews,
-    toastSuccess: Toast.success,
-  });
-  runSaveEquipPostActions({
-    keepOpen: postActionContext.keepOpen,
-    openRegistro: postActionContext.openRegistro,
-    openPmoc: postActionContext.openPmoc,
-    payload,
-    focusNameInput: () => Utils.getEl('eq-nome')?.focus(),
-    goTo,
-    requestAnimationFrameRef: requestAnimationFrame,
-    documentRef: document,
-  });
-
-  return true;
 }
 
 // _eqDetailSubtitle, _infoRowValueOrEmpty, _riskFactorChipHtml extraídos

@@ -1215,3 +1215,81 @@ Permaneceram em `src/ui/views/equipamentos.js`: `saveEquip`, `_closeSaveEquipMod
 **CP-F.4 — mover saveEquip como orquestrador.**
 
 Justificativa: depois de extrair validação, payload, persistência, sucesso pós-save e post-actions, `saveEquip` já opera majoritariamente como orquestrador com dependências explícitas. O próximo recorte natural é mover o orquestrador preservando o adapter como camada de DI para DOM/router/toast/render.
+
+## Atualização CP-F.4 — Mover saveEquip como orquestrador (2026-05-08)
+
+Status: **CP-F.4 aplicado**.
+
+### Base inspecionada antes de mover
+
+`saveEquip` estava em `src/ui/views/equipamentos.js` como orquestrador já dependente dos helpers extraídos em CP-F.0–CP-F.3e. A função ainda fazia a coordenação direta entre limite de plano, coleta/validação, dados de placa, payload, mutation de estado, sucesso pós-save e post-actions.
+
+### Função movida
+
+| Função      | Origem                         | Destino                                       | Observação                                                                                   |
+| ----------- | ------------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `saveEquip` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/saveEquip.js` | Mantida como orquestrador `async`, com a mesma assinatura pública `saveEquip(options = {})`. |
+
+### Dependências injetadas
+
+`saveEquip.js` não importa `src/ui/views/equipamentos.js`. O adapter configura o orquestrador uma vez via `configureSaveEquip`, injetando:
+
+- estado/edição: `getState`, `setState`, `getEditingEquipId`, `getForcedEquipContext`;
+- limite de plano: `checkSaveEquipPlanLimit`, `checkPlanLimit`, `trackEvent`, `Toast`, `goTo`;
+- form/payload: `collectSaveEquipBaseFormValues`, `collectSaveEquipContextFormValues`, `collectSaveEquipExtraFormValues`, `validateSaveEquipPayload`, `validateEquipamentoPayload`, `buildSaveEquipPayload`, `Utils.getVal`, `Utils.uid`, `findEquip`, `normalizePhotoList`, `TIPOS_COM_COMPONENTE`, `normalizePeriodicidadePreventivaDias`;
+- dados de placa: `collectSaveEquipDadosPlaca`, `collectDadosPlaca`, `DadosPlacaValidationError`, `formatDecimalHint`;
+- persistência: `applySaveEquipToState`, `updateSaveEquipInState`, `createSaveEquipInState`;
+- UI pós-sucesso: `finishSaveEquipSuccess`, `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews`, `Toast.success`;
+- post-actions: `runSaveEquipPostActions`, foco em `eq-nome`, `goTo`, `requestAnimationFrame`, `document`;
+- contexto de post-action: `_getSaveEquipPostActionContext`.
+
+### Ordem preservada
+
+A ordem do orquestrador permanece:
+
+1. calcular contexto de post-action;
+2. ler `state.equipamentos`;
+3. checar limite de plano;
+4. coletar form base;
+5. validar payload;
+6. coletar contexto e campos extras;
+7. coletar dados de placa;
+8. montar payload;
+9. aplicar mutation de estado;
+10. capturar `wasEditing` antes do cleanup;
+11. executar `finishSaveEquipSuccess`;
+12. executar `runSaveEquipPostActions`;
+13. retornar `true`.
+
+Os retornos `false` em bloqueio de plano, falha de validação e falha de dados de placa foram mantidos.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `_getSaveEquipPostActionContext`, `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews`, `renderEquip`, `viewEquip`, `deleteEquip`, `clearEditingState`, modal/form, nameplate reset, setor, render plan, React bridges e CSS. O export público `saveEquip` foi preservado por fachada/re-export a partir do novo módulo.
+
+### Métricas do CP-F.4
+
+| Arquivo                                                      | Antes | Depois | Delta |
+| ------------------------------------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                               |  2045 |   1997 |   -48 |
+| `src/features/equipamentos/crud/saveEquip.js`                |     0 |    142 |  +142 |
+| `src/features/equipamentos/__tests__/crud/saveEquip.test.js` |     0 |    244 |  +244 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/crud/saveEquip.test.js` com cobertura focada no orquestrador.
+- Cobertura adicionada para:
+  - bloqueio por limite de plano retornando `false` sem validação/persistência;
+  - falha de validação retornando `false` sem persistência;
+  - falha de dados de placa retornando `false` sem persistência;
+  - sucesso chamando `applySaveEquipToState` e retornando `true`;
+  - captura de `wasEditing` antes de `finishSaveEquipSuccess`;
+  - ordem `applySaveEquipToState` → `finishSaveEquipSuccess` → `runSaveEquipPostActions`;
+  - repasse de opções de post-action;
+  - uso de dependências injetadas para collectors, validação e montagem de payload.
+
+### Próximo CP recomendado
+
+**CP-G — iniciar pre-split de `viewEquip`/detail.**
+
+Justificativa: após CP-F.4, o fluxo de save ficou feature-scoped e o adapter preserva apenas a fachada e helpers UI injetados. O próximo bloco de maior acoplamento/LOC em `src/ui/views/equipamentos.js` é `viewEquip`, especialmente HTML strings e montagem de detail view já marcadas como alvo de pre-split.
