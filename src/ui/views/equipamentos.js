@@ -126,6 +126,11 @@ import {
   validateSaveEquipPayload,
 } from '../../features/equipamentos/crud/validate.js';
 import { buildSaveEquipPayload } from '../../features/equipamentos/crud/payload.js';
+import {
+  applySaveEquipToState,
+  createSaveEquipInState,
+  updateSaveEquipInState,
+} from '../../features/equipamentos/crud/persist.js';
 import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplate/dadosPlaca.js';
 
 configureEquipContextState({ renderEquip });
@@ -1379,80 +1384,6 @@ function _collectSaveEquipContextFormValues({ baseFormValues, saveWithoutClient 
 }
 
 /**
- * @sliceTarget crud/update
- */
-function _updateSaveEquipInState(payload) {
-  const editingId = getEditingEquipId();
-  setState((prev) => ({
-    ...prev,
-    equipamentos: prev.equipamentos.map((e) =>
-      e.id === editingId
-        ? {
-            ...e,
-            nome: payload.nome,
-            local: payload.local,
-            tag: payload.tag,
-            tipo: payload.tipo,
-            modelo: payload.modelo,
-            fluido: payload.fluido,
-            componente: payload.componente,
-            criticidade: payload.criticidade,
-            prioridadeOperacional: payload.prioridadeOperacional,
-            periodicidadePreventivaDias: payload.periodicidadePreventivaDias,
-            setorId: payload.setorId,
-            clienteId: payload.clienteId,
-            fotos: payload.fotosPayload,
-            dadosPlaca: payload.dadosPlaca,
-          }
-        : e,
-    ),
-  }));
-}
-
-/**
- * @sliceTarget crud/create
- */
-function _createSaveEquipInState(payload) {
-  setState((prev) => ({
-    ...prev,
-    equipamentos: [
-      ...prev.equipamentos,
-      {
-        id: payload.equipId,
-        nome: payload.nome,
-        local: payload.local,
-        status: 'ok',
-        tag: payload.tag,
-        tipo: payload.tipo,
-        modelo: payload.modelo,
-        fluido: payload.fluido,
-        componente: payload.componente,
-        criticidade: payload.criticidade,
-        prioridadeOperacional: payload.prioridadeOperacional,
-        periodicidadePreventivaDias: payload.periodicidadePreventivaDias,
-        setorId: payload.setorId,
-        clienteId: payload.clienteId,
-        fotos: payload.fotosPayload,
-        dadosPlaca: payload.dadosPlaca,
-      },
-    ],
-  }));
-}
-
-/**
- * @sliceTarget crud/persist
- */
-function _applySaveEquipToState(payload) {
-  if (getEditingEquipId()) {
-    // ── UPDATE: atualiza equipamento existente ──────────────────────────────
-    _updateSaveEquipInState(payload);
-  } else {
-    // ── CREATE: novo equipamento ────────────────────────────────────────────
-    _createSaveEquipInState(payload);
-  }
-}
-
-/**
  * @sliceTarget ui/modal
  */
 async function _closeSaveEquipModal(keepOpen) {
@@ -1612,7 +1543,13 @@ export async function saveEquip(options = {}) {
     getValue: Utils.getVal,
     tiposComComponente: TIPOS_COM_COMPONENTE,
   });
-  _applySaveEquipToState(payload);
+  applySaveEquipToState({
+    setState,
+    editingId: getEditingEquipId(),
+    payload,
+    updateMutation: updateSaveEquipInState,
+    createMutation: createSaveEquipInState,
+  });
 
   const wasEditing = Boolean(getEditingEquipId());
   await _finishSaveEquipSuccess({ keepOpen: postActionContext.keepOpen, wasEditing });

@@ -808,3 +808,112 @@ Status: **CP-F.1 aplicado**.
 **CP-F.2a — mapear antes de mover state mutation**.
 
 Justificativa: após CP-F.1, o próximo bloco natural é `_applySaveEquipToState`/`_updateSaveEquipInState`/`_createSaveEquipInState`, mas ele ainda toca contrato de estado e edição. Um mapeamento curto reduz risco antes de extrair persistência/state mutation.
+
+## Atualização CP-F.2a — Mapeamento de state mutation do `saveEquip` (2026-05-07)
+
+Status: **CP-F.2a aplicado**.
+
+### Resumo
+
+- Checkpoint executado como mapeamento; não houve pré-split in-place e nenhum helper de mutation foi movido para `features`.
+- O bloco de mutation local está coeso: `_applySaveEquipToState` decide create/update e delega para `_updateSaveEquipInState` ou `_createSaveEquipInState`.
+- Os helpers de create/update só mutam `state.equipamentos` via `setState`, usando o `payload` já montado por `buildSaveEquipPayload`.
+- O bloco não chama render, modal, toast, reset, refresh nem post-actions.
+- Preservação de fotos e geração/coleta de `equipId` já ficam antes do mutation, em `buildSaveEquipPayload`.
+
+### Mapeamento de helpers
+
+| Helper                    | Linha | LOC aprox | Responsabilidade                                                                                                                      | Entradas                                              | Retorno     | Side effects                                                               | Chama                                                                     | Chamada por              | Destino futuro                                                                                                               |
+| ------------------------- | ----: | --------: | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `_updateSaveEquipInState` |  1384 |        27 | Atualizar equipamento existente no array `equipamentos`, preservando demais campos do item via spread e sobrescrevendo campos salvos. | `payload`; `editingId` via `getEditingEquipId()`      | `undefined` | Chama `setState`; altera `state.equipamentos` quando `e.id === editingId`. | `getEditingEquipId`, `setState`                                           | `_applySaveEquipToState` | `src/features/equipamentos/crud/persist.js` com `setState`/`getEditingEquipId` injetados ou `editingId` explícito.           |
+| `_createSaveEquipInState` |  1415 |        26 | Acrescentar novo equipamento ao array `equipamentos` com `status: 'ok'` e campos do payload.                                          | `payload`                                             | `undefined` | Chama `setState`; adiciona item em `state.equipamentos`.                   | `setState`                                                                | `_applySaveEquipToState` | `src/features/equipamentos/crud/persist.js` com `setState` injetado.                                                         |
+| `_applySaveEquipToState`  |  1445 |         9 | Decidir create vs update a partir de `getEditingEquipId()` e delegar a mutation local.                                                | `payload`; estado de edição via `getEditingEquipId()` | `undefined` | Indireto: dispara mutation via create/update.                              | `getEditingEquipId`, `_updateSaveEquipInState`, `_createSaveEquipInState` | `saveEquip`              | `src/features/equipamentos/crud/persist.js`, mantendo decisão por `editingId` explícito para reduzir dependência do adapter. |
+
+### Dependências observadas
+
+- `setState`: chamado por `_updateSaveEquipInState` e `_createSaveEquipInState`; `_applySaveEquipToState` apenas delega.
+- Decisão create/update: feita por `_applySaveEquipToState` via `getEditingEquipId()`.
+- Retorno: os três helpers retornam `undefined`; `saveEquip` calcula `wasEditing` separadamente e usa `payload.equipId`/`payload.clienteId` nos post-actions.
+- `getEditingEquipId`: usado por `_updateSaveEquipInState` e `_applySaveEquipToState`; também usado antes no fluxo para validação e payload.
+- `findEquip`: não usado no bloco de mutation; usado em `buildSaveEquipPayload` para preservar fotos em edição.
+- `Utils.uid`: não usado no bloco de mutation; injetado como `createId` em `buildSaveEquipPayload`.
+- `normalizePhotoList`: não usado no bloco de mutation; usado em `buildSaveEquipPayload` para normalizar fotos existentes em edição.
+- `payload`: o bloco depende do payload completo já montado por `buildSaveEquipPayload`, incluindo `equipId`, `fotosPayload`, `dadosPlaca`, `clienteId` e `setorId`.
+- UI/side effects externos: o bloco não chama render, modal, toast, reset, refresh nem post-actions.
+
+### Decisão de recorte
+
+**Opção A — mover no CP-F.2.**
+
+Justificativa: o bloco está pequeno, coeso e já separado da montagem de payload e dos side effects de UI. A extração recomendada é mover os três helpers juntos para `src/features/equipamentos/crud/persist.js`, preferencialmente recebendo `setState` e `editingId` por argumento para não importar estado de UI no módulo de feature. Não há necessidade clara de pré-split adicional neste checkpoint.
+
+### Alterações realizadas neste CP
+
+- Alteração documental apenas em `docs/migration/mudanca-11-inventario.md`.
+- Nenhum arquivo de código foi alterado.
+- Nenhum teste novo foi criado.
+- Nenhum helper novo foi criado.
+
+### Próximo CP recomendado
+
+**CP-F.2 — extrair create/update/persist state mutation.**
+
+Recorte sugerido:
+
+- Criar `src/features/equipamentos/crud/persist.js`.
+- Mover `_updateSaveEquipInState`, `_createSaveEquipInState` e `_applySaveEquipToState` juntos.
+- Injetar `setState` e `editingId`/resolver de edição por argumento, preservando retorno `undefined`, payload, state shape e ordem de side effects.
+- Manter `saveEquip`, modal/reset/render/toast/post-actions e delete/view no adapter.
+
+## Atualização CP-F.2 — Extração de state mutation do `saveEquip` (2026-05-07)
+
+Status: **CP-F.2 aplicado**.
+
+### Resumo
+
+- Extraídos os helpers de mutation/persistência local de `saveEquip` para `src/features/equipamentos/crud/persist.js`.
+- `saveEquip` permanece em `src/ui/views/equipamentos.js` como orquestrador e continua chamando a mutation no mesmo ponto do fluxo: depois de montar `payload` e antes de `wasEditing`, modal/reset/render/toast/post-actions.
+- API escolhida por argumentos explícitos: `setState`, `editingId` e `payload` são recebidos pelo módulo de feature; `persist.js` não importa `src/ui/views/equipamentos.js`, `getEditingEquipId` nem estado global.
+- Payload, state shape, retorno `undefined`, create vs update e `status: 'ok'` em criação foram preservados.
+
+### Helpers movidos
+
+| Helper original           | Novo nome                | Origem                         | Destino                                     |
+| ------------------------- | ------------------------ | ------------------------------ | ------------------------------------------- |
+| `_updateSaveEquipInState` | `updateSaveEquipInState` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/persist.js` |
+| `_createSaveEquipInState` | `createSaveEquipInState` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/persist.js` |
+| `_applySaveEquipToState`  | `applySaveEquipToState`  | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/persist.js` |
+
+### API de persistência
+
+| Função                   | Assinatura                                                           | Responsabilidade                                                                   | Retorno     |
+| ------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------- |
+| `updateSaveEquipInState` | `({ setState, editingId, payload })`                                 | Atualiza somente o equipamento alvo, preservando demais campos do item via spread. | `undefined` |
+| `createSaveEquipInState` | `({ setState, payload })`                                            | Adiciona novo equipamento em `state.equipamentos` com `status: 'ok'`.              | `undefined` |
+| `applySaveEquipToState`  | `({ setState, editingId, payload, updateMutation, createMutation })` | Decide update quando `editingId` existe; caso contrário, create.                   | `undefined` |
+
+### Funções que permaneceram no adapter
+
+- `saveEquip`.
+- `_collectSaveEquipBaseFormValues` e `_collectSaveEquipContextFormValues`.
+- `_finishSaveEquipSuccess`, `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews` e `_runSaveEquipPostActions`.
+- `deleteEquip`, `renderEquip` e `viewEquip`.
+- Fluxos de setor, render plan e React bridges.
+
+### LOC
+
+| Arquivo                                     | Antes CP-F.2 | Depois CP-F.2 | Delta |
+| ------------------------------------------- | -----------: | ------------: | ----: |
+| `src/ui/views/equipamentos.js`              |         2158 |          2095 |   -63 |
+| `src/features/equipamentos/crud/persist.js` |            0 |            69 |   +69 |
+
+### Testes adicionados/alterados
+
+- Adicionado `src/features/equipamentos/__tests__/crud/persist.test.js` com 7 testes cobrindo create, update, apply, retorno `undefined`, `status: 'ok'`, preservação por spread e não alteração de `setores`/`clientes`/`registros`.
+- Mantidos `src/__tests__/equipamentosSaveEquip.test.js` e `src/features/equipamentos/__tests__/crud/payload.test.js` como cobertura focada de integração/payload.
+
+### Próximo CP recomendado
+
+**CP-F.3a — mapear form/modal/render pós-save antes de mover**.
+
+Justificativa: após payload e state mutation, o restante do fluxo de `saveEquip` ainda mistura coleta de form/contexto, fechamento de modal, reset, refresh, toast e post-actions. Um mapeamento curto antes de mover reduz risco de alterar ordem de side effects.
