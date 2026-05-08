@@ -1386,6 +1386,182 @@ export function initRegistro(params = {}) {
 function applySignatureHint() {
   return mountRegistroSignature();
 }
+
+function getRegistroFormElements() {
+  return {
+    equipId: Utils.getEl('r-equip'),
+    data: Utils.getEl('r-data'),
+    tipo: Utils.getEl('r-tipo'),
+    tipoCustom: Utils.getEl('r-tipo-custom'),
+    obs: Utils.getEl('r-obs'),
+    tecnico: Utils.getEl('r-tecnico'),
+    status: Utils.getEl('r-status'),
+    prioridade: Utils.getEl('r-prioridade'),
+    pecas: Utils.getEl('r-pecas'),
+    proxima: Utils.getEl('r-proxima'),
+    custoPecas: Utils.getEl('r-custo-pecas'),
+    custoMaoObra: Utils.getEl('r-custo-mao-obra'),
+    clienteNome: Utils.getEl('r-cliente-nome'),
+    clienteDocumento: Utils.getEl('r-cliente-documento'),
+    localAtendimento: Utils.getEl('r-local-atendimento'),
+    clienteContato: Utils.getEl('r-cliente-contato'),
+  };
+}
+
+function readRegistroFormValues(elements = getRegistroFormElements()) {
+  const valueOf = (key, id) => elements[key]?.value ?? Utils.getVal(id);
+  return {
+    equipId: valueOf('equipId', 'r-equip'),
+    data: valueOf('data', 'r-data'),
+    tipo: valueOf('tipo', 'r-tipo'),
+    tipoCustom: valueOf('tipoCustom', 'r-tipo-custom'),
+    obs: valueOf('obs', 'r-obs'),
+    tecnico: valueOf('tecnico', 'r-tecnico'),
+    status: valueOf('status', 'r-status'),
+    prioridade: valueOf('prioridade', 'r-prioridade') || 'media',
+    pecas: valueOf('pecas', 'r-pecas'),
+    proxima: valueOf('proxima', 'r-proxima'),
+    custoPecas: valueOf('custoPecas', 'r-custo-pecas'),
+    custoMaoObra: valueOf('custoMaoObra', 'r-custo-mao-obra'),
+    clienteNome: valueOf('clienteNome', 'r-cliente-nome'),
+    clienteDocumento: valueOf('clienteDocumento', 'r-cliente-documento'),
+    localAtendimento: valueOf('localAtendimento', 'r-local-atendimento'),
+    clienteContato: valueOf('clienteContato', 'r-cliente-contato'),
+  };
+}
+
+function normalizeRegistroServiceType(values, elements = getRegistroFormElements()) {
+  if (values.tipo !== 'Outro') return { valid: true, tipo: values.tipo };
+
+  const custom = values.tipoCustom.trim();
+  if (!custom) {
+    Toast.warning('Descreva o serviço no campo "Qual serviço?" pra continuar.');
+    elements.tipoCustom?.focus();
+    return { valid: false };
+  }
+  if (custom.length > TIPO_CUSTOM_MAX) {
+    Toast.warning(`A descricao do serviço passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
+    elements.tipoCustom?.focus();
+    return { valid: false };
+  }
+  return { valid: true, tipo: `${TIPO_OUTRO_PREFIX}${custom}` };
+}
+
+function buildRegistroPayloadDraft(values, tipoForPayload) {
+  return {
+    equipId: values.equipId,
+    data: values.data,
+    tipo: tipoForPayload,
+    obs: values.obs,
+    tecnico: values.tecnico,
+    status: values.status,
+    pecas: values.pecas,
+    proxima: values.proxima,
+    custoPecas: values.custoPecas,
+    custoMaoObra: values.custoMaoObra,
+    clienteNome: values.clienteNome,
+    clienteDocumento: values.clienteDocumento,
+    localAtendimento: values.localAtendimento,
+    clienteContato: values.clienteContato,
+  };
+}
+
+function buildRegistroSaveContext({ andShare = false, forceClientFork = false } = {}) {
+  const { equipamentos } = getState();
+  return {
+    andShare,
+    forceClientFork,
+    equipamentos,
+  };
+}
+
+function validateRegistroPayloadDraft(payloadDraft, context) {
+  const payloadValidation = validateRegistroPayload(payloadDraft, {
+    existingEquipamentos: context.equipamentos,
+  });
+
+  if (!payloadValidation.valid) {
+    Toast.warning(payloadValidation.errors[0]);
+    return null;
+  }
+
+  return payloadValidation.value;
+}
+
+function validateRegistroOperationalFields({ data, status }) {
+  const validation = validateOperationalPayload({ data, status });
+  if (!validation.valid) {
+    Toast.error(validation.errors[0]);
+    return false;
+  }
+  return true;
+}
+
+function buildRegistroPersistPayload(validatedPayload, values) {
+  const {
+    equipId,
+    data,
+    tipo,
+    tecnico,
+    obs,
+    pecas,
+    proxima,
+    status,
+    custoPecas,
+    custoMaoObra,
+    clienteNome,
+    clienteDocumento,
+    localAtendimento,
+    clienteContato,
+  } = validatedPayload;
+
+  return {
+    equipId,
+    data,
+    tipo,
+    tecnico,
+    obs,
+    descricaoFinal:
+      obs && obs.length >= 10 ? obs : `Serviço de ${tipo.toLowerCase()} registrado em modo rapido.`,
+    prioridade: values.prioridade,
+    status,
+    pecas,
+    proxima,
+    custoPecas,
+    custoMaoObra,
+    clienteNome,
+    clienteDocumento,
+    localAtendimento,
+    clienteContato,
+  };
+}
+
+function warnRegistroChecklistPayloadGaps(tipo) {
+  // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
+  // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
+  // pra ele saber que esse registro NÃO entra no PMOC formal completo.
+  if (!isPreventivaTipo(tipo)) return;
+
+  const cl = getCurrentChecklist();
+  if (!cl) {
+    Toast.warning(
+      'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.',
+    );
+    return;
+  }
+
+  const validationCl = validateChecklist(cl);
+  if (!validationCl.complete && validationCl.missing?.length) {
+    const first = validationCl.missing[0];
+    const rest = validationCl.missing.length - 1;
+    const msg =
+      rest > 0
+        ? `${validationCl.missing.length} itens obrigatórios pendentes (ex: "${first}"). Salvando mesmo assim.`
+        : `1 item obrigatório pendente: "${first}". Salvando mesmo assim.`;
+    Toast.warning(msg);
+  }
+}
+
 export function applyQuickTemplate(templateId, triggerEl = null) {
   const template = QUICK_TEMPLATE_MAP[templateId];
   if (!template) return;
@@ -1457,101 +1633,37 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
   _setRegistroSaveButtonsLoading(true);
 
   try {
-    const prioridade = Utils.getVal('r-prioridade') || 'media';
-    const { equipamentos } = getState();
+    const formElements = getRegistroFormElements();
+    const formValues = readRegistroFormValues(formElements);
+    const saveContext = buildRegistroSaveContext({ andShare, forceClientFork });
+    const normalizedServiceType = normalizeRegistroServiceType(formValues, formElements);
+    if (!normalizedServiceType.valid) return false;
 
-    // Quando o tipo é "Outro", combinamos com o label livre → "Outro · {custom}".
-    // Validamos o custom ANTES de mandar pra validateRegistroPayload porque o
-    // validador trata tipo como um blob só e não sabe sobre o campo auxiliar.
-    let tipoForPayload = Utils.getVal('r-tipo');
-    if (tipoForPayload === 'Outro') {
-      const custom = Utils.getVal('r-tipo-custom').trim();
-      if (!custom) {
-        Toast.warning('Descreva o serviço no campo "Qual serviço?" pra continuar.');
-        Utils.getEl('r-tipo-custom')?.focus();
-        return false;
-      }
-      if (custom.length > TIPO_CUSTOM_MAX) {
-        Toast.warning(`A descricao do serviço passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
-        Utils.getEl('r-tipo-custom')?.focus();
-        return false;
-      }
-      tipoForPayload = `${TIPO_OUTRO_PREFIX}${custom}`;
-    }
+    const payloadDraft = buildRegistroPayloadDraft(formValues, normalizedServiceType.tipo);
+    const validatedPayload = validateRegistroPayloadDraft(payloadDraft, saveContext);
+    if (!validatedPayload) return false;
 
-    const payloadValidation = validateRegistroPayload(
-      {
-        equipId: Utils.getVal('r-equip'),
-        data: Utils.getVal('r-data'),
-        tipo: tipoForPayload,
-        obs: Utils.getVal('r-obs'),
-        tecnico: Utils.getVal('r-tecnico'),
-        status: Utils.getVal('r-status'),
-        pecas: Utils.getVal('r-pecas'),
-        proxima: Utils.getVal('r-proxima'),
-        custoPecas: Utils.getVal('r-custo-pecas'),
-        custoMaoObra: Utils.getVal('r-custo-mao-obra'),
-        clienteNome: Utils.getVal('r-cliente-nome'),
-        clienteDocumento: Utils.getVal('r-cliente-documento'),
-        localAtendimento: Utils.getVal('r-local-atendimento'),
-        clienteContato: Utils.getVal('r-cliente-contato'),
-      },
-      { existingEquipamentos: equipamentos },
-    );
-
-    if (!payloadValidation.valid) {
-      Toast.warning(payloadValidation.errors[0]);
-      return false;
-    }
+    if (!validateRegistroOperationalFields(validatedPayload)) return false;
 
     const {
       equipId,
       data,
       tipo,
       tecnico,
-      obs,
+      descricaoFinal,
+      prioridade,
+      status,
       pecas,
       proxima,
-      status,
       custoPecas,
       custoMaoObra,
       clienteNome,
       clienteDocumento,
       localAtendimento,
       clienteContato,
-    } = payloadValidation.value;
+    } = buildRegistroPersistPayload(validatedPayload, formValues);
 
-    const descricaoFinal =
-      obs && obs.length >= 10 ? obs : `Serviço de ${tipo.toLowerCase()} registrado em modo rapido.`;
-
-    const validation = validateOperationalPayload({ data, status });
-    if (!validation.valid) {
-      Toast.error(validation.errors[0]);
-      return false;
-    }
-
-    // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
-    // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
-    // pra ele saber que esse registro NÃO entra no PMOC formal completo.
-    if (isPreventivaTipo(tipo)) {
-      const cl = getCurrentChecklist();
-      if (!cl) {
-        Toast.warning(
-          'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.',
-        );
-      } else {
-        const validationCl = validateChecklist(cl);
-        if (!validationCl.complete && validationCl.missing?.length) {
-          const first = validationCl.missing[0];
-          const rest = validationCl.missing.length - 1;
-          const msg =
-            rest > 0
-              ? `${validationCl.missing.length} itens obrigatórios pendentes (ex: "${first}"). Salvando mesmo assim.`
-              : `1 item obrigatório pendente: "${first}". Salvando mesmo assim.`;
-          Toast.warning(msg);
-        }
-      }
-    }
+    warnRegistroChecklistPayloadGaps(tipo);
 
     Profile.saveLastTecnico(tecnico);
 
@@ -1801,7 +1913,7 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
     // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
     // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
     // mesmas regras de quota/validação do fluxo de relatório.
-    const eqForToast = equipamentos.find((e) => e.id === equipId) || null;
+    const eqForToast = saveContext.equipamentos.find((e) => e.id === equipId) || null;
     const toastShown = PostSaveRegistroToast.show({
       equipId,
       registroId: novoId,
