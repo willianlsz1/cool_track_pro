@@ -1450,3 +1450,59 @@ Criado `src/features/equipamentos/__tests__/ui/detailModel.test.js` com 7 testes
 **CP-G.2 — detail HTML.**
 
 Justificativa: o model puro já está isolado com dependências explícitas. O próximo recorte seguro é mover a composição HTML de detail mantendo montagem, bind de DOM, modal e fluxos de CRUD no adapter.
+
+## Atualiza��o CP-G.2 � Extrair detail HTML de viewEquip (2026-05-08)
+
+Status: **CP-G.2 aplicado**.
+
+### Escopo aplicado
+
+A composi��o HTML do detail de equipamento saiu de `src/ui/views/equipamentos.js` e passou para `src/features/equipamentos/ui/detail.js`. O novo m�dulo n�o toca DOM, `document`, modal, Photos/lightbox, `viewEquip`, `renderEquip`, save/delete ou CRUD; ele apenas recebe o model de CP-G.1 e retorna `{ html, firstPhotoUrl }`.
+
+### Helpers movidos
+
+| Helper legado                        | Export novo                         | Origem                         | Destino                                  | Depend�ncias principais                                                                            |
+| ------------------------------------ | ----------------------------------- | ------------------------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `_renderViewEquipSetorInfoRow`       | `renderViewEquipSetorInfoRow`       | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detail.js` | `Utils.escapeHtml`, `getSetores` injetado.                                                         |
+| `_renderViewEquipServiceTimeline`    | `renderViewEquipServiceTimeline`    | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detail.js` | `Utils.escapeHtml`, `Utils.formatDatetime`, `regs`.                                                |
+| `_renderViewEquipCoverBlock`         | `renderViewEquipCoverBlock`         | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detail.js` | `Utils`, `getEquipmentVisualMeta`, `isCachedPlanPlusOrHigher`, `eq.fotos`, `safeId`.               |
+| `_renderViewEquipDadosPlacaSections` | `renderViewEquipDadosPlacaSections` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detail.js` | `formatDadosPlacaRows`, `Utils.escapeHtml`, `eq.dadosPlaca`.                                       |
+| `_renderViewEquipDetailHtml`         | `renderViewEquipDetailHtml`         | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detail.js` | Model CP-G.1, helpers movidos, `_eqDetailSubtitle`, `_infoRowValueOrEmpty`, `_riskFactorChipHtml`. |
+
+### Depend�ncias
+
+`renderViewEquipDetailHtml` aceita deps opcionais. O adapter injeta apenas `getSetores: () => getState().setores`, preservando a resolu��o de setor sem importar o adapter no m�dulo feature. As demais depend�ncias t�m defaults diretos para `Utils`, `getEquipmentVisualMeta`, `isCachedPlanPlusOrHigher`, `formatDadosPlacaRows` e os helpers j� extra�dos em `features/equipamentos/utils/detail.js`.
+
+### Contratos preservados
+
+Foram preservados HTML final, classes, IDs, `data-action`, `data-id`, escapes, timeline, empty state de servi�os, cover/fallback/fotos, CTA Free/Plus, dados de placa fixos/extras, painel de risco/chips acion�veis e a��es principais de registrar, editar, menu de mais a��es, excluir e score-info.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `viewEquip`, `_resolveViewEquipTarget`, `_mountViewEquipDetail`, `_bindViewEquipDetailCoverActions`, `_openViewEquipDetailModal`, `renderEquip`, `saveEquip`, `deleteEquip`, setor, CRUD, render plan, React bridges, modal e Photos/lightbox.
+
+### M�tricas do CP-G.2
+
+| Arquivo                                                 | Antes | Depois | Delta |
+| ------------------------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                          |  2051 |   1627 |  -424 |
+| `src/features/equipamentos/ui/detail.js`                |     0 |    430 |  +430 |
+| `src/features/equipamentos/__tests__/ui/detail.test.js` |     0 |    235 |  +235 |
+
+### Testes adicionados/ajustados
+
+- Criado `src/features/equipamentos/__tests__/ui/detail.test.js` com 7 testes cobrindo setor row, timeline/empty state, cover com foto/fallback, comportamento Free/Plus, dados de placa fixos/extras, HTML completo, a��es principais, painel de risco e escape de campos maliciosos.
+- Atualizado `src/__tests__/contracts/selectors.test.js` para incluir `src/features/equipamentos/ui/detail.js` na an�lise est�tica de contratos.
+
+### Valida��o executada
+
+- `npm run test -- src/features/equipamentos/__tests__/ui/detail.test.js --reporter=dot` falhou primeiro por m�dulo inexistente, como RED esperado.
+- `npm run test -- src/features/equipamentos/__tests__/ui/detail.test.js --reporter=dot` passou: 7 testes.
+- `npm run test -- src/features/equipamentos/__tests__/ui/detail.test.js src/features/equipamentos/__tests__/ui/detailModel.test.js src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosView.hero.test.js --reporter=dot` passou: 4 arquivos, 50 testes.
+- `npm run test -- src/__tests__/contracts/selectors.test.js --reporter=dot` passou: 21 testes.
+
+### Pr�ximo CP recomendado
+
+**CP-G.3 � detail mount/bind/modal.**
+
+Justificativa: o HTML j� est� isolado; o pr�ximo recorte natural � separar montagem/bind/modal mantendo `viewEquip` como orquestrador e preservando Photos/lightbox/cover bind sem mexer em CRUD.
