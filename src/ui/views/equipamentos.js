@@ -725,7 +725,7 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
  *   ui/list: chamadas a renderFlatList/renderSetorGrid em cada branch
  * @sliceObs god-function central — alvo prioritario de pre-split em CP-G
  */
-export async function renderEquip(filtro = '', options = {}) {
+function buildRenderEquipContext(filtro = '', options = {}) {
   bindRenderEquipPlanInvalidationEvents();
   const renderToken = incrementRenderEquipPlanToken();
   const renderOptions = _stripRenderInternalOptions(options);
@@ -738,133 +738,192 @@ export async function renderEquip(filtro = '', options = {}) {
   const renderOptionsWithClient = activeClienteId
     ? { ...renderOptions, clienteId: activeClienteId, clienteNome: activeClienteNome }
     : renderOptions;
+  const isPro = isCachedPlanPro();
 
+  return {
+    filtro,
+    options,
+    renderToken,
+    renderOptions,
+    renderOptionsWithClient,
+    equipCtx,
+    activeSectorId,
+    activeQuickFilter,
+    activeClienteId,
+    activeClienteNome,
+    isPro,
+  };
+}
+
+function syncRenderEquipPlanAndSubtitle(context) {
   // Renderiza imediatamente com snapshot local do plano (não bloqueia a tela).
   // O refresh assíncrono corrige drift e evita fetch repetido em cada render.
-  const isPro = isCachedPlanPro();
   const subtitleEl = Utils.getEl('equip-page-subtitle');
   if (subtitleEl) {
-    subtitleEl.textContent = isPro
+    subtitleEl.textContent = context.isPro
       ? 'Ação rápida em todos os clientes e setores.'
       : 'Acompanhe seus equipamentos e registre serviços rápido.';
   }
-  populateSetorSelect(isPro);
-  if (!options?.__skipPlanRefresh && getRenderEquipPlanNeedsRefresh()) {
+  populateSetorSelect(context.isPro);
+  if (!context.options?.__skipPlanRefresh && getRenderEquipPlanNeedsRefresh()) {
     refreshRenderEquipPlan({
-      filtro,
-      options: renderOptions,
-      renderToken,
-      isProAtRender: isPro,
+      filtro: context.filtro,
+      options: context.renderOptions,
+      renderToken: context.renderToken,
+      isProAtRender: context.isPro,
     });
   }
+}
 
+function mountRenderEquipHeader(context) {
   const headerState = getState();
   const headerRegistros = Array.isArray(headerState.registros) ? headerState.registros : [];
   const headerPreventivaVencidaIds = getPreventivaDueEquipmentIds(headerRegistros, 0);
-  const headerRender = mountEquipamentosHeader({
+  return mountEquipamentosHeader({
     ...buildEquipamentosHeaderViewModel({
       equipamentos: headerState.equipamentos,
-      activeQuickFilter,
-      activeClienteId,
-      activeClienteNome: activeClienteNome || '',
-      activeSectorId,
+      activeQuickFilter: context.activeQuickFilter,
+      activeClienteId: context.activeClienteId,
+      activeClienteNome: context.activeClienteNome || '',
+      activeSectorId: context.activeSectorId,
       kpis: computeEquipKpis(headerState),
       preventivaVencidaIds: headerPreventivaVencidaIds,
     }),
   });
+}
 
+function renderEquipQuickFilterBranch(context, headerRender) {
   // Quick filter ativo sobrescreve o fluxo normal: vai pra flat list com
   // statusFilter correspondente. Sempre rende com a toolbar "← Todos" pra dar
   // caminho de volta claro.
-  if (activeQuickFilter) {
-    const searchBar = Utils.getEl('equip-search-bar');
-    if (searchBar) searchBar.style.display = '';
-    const titleMap = {
-      'sem-setor': 'Sem setor',
-      'em-atencao': 'Em atenção',
-      criticos: 'Críticos',
-      'preventiva-vencida': 'Preventiva vencida',
-    };
-    _setToolbar({
-      title: titleMap[activeQuickFilter] || 'Equipamentos',
-      extraBtn: `<button class="btn btn--outline btn--sm" data-action="equip-quickfilter" data-id="todos">← Todos</button>`,
-    });
+  if (!context.activeQuickFilter) return null;
 
-    if (activeQuickFilter === 'sem-setor') {
-      const listRender = renderFlatList(filtro, renderOptionsWithClient, '__sem_setor__');
-      return Promise.all([headerRender, listRender]).then(([, result]) => result);
-    }
+  const searchBar = Utils.getEl('equip-search-bar');
+  if (searchBar) searchBar.style.display = '';
+  const titleMap = {
+    'sem-setor': 'Sem setor',
+    'em-atencao': 'Em atenção',
+    criticos: 'Críticos',
+    'preventiva-vencida': 'Preventiva vencida',
+  };
+  _setToolbar({
+    title: titleMap[context.activeQuickFilter] || 'Equipamentos',
+    extraBtn: `<button class="btn btn--outline btn--sm" data-action="equip-quickfilter" data-id="todos">← Todos</button>`,
+  });
+
+  if (context.activeQuickFilter === 'sem-setor') {
     const listRender = renderFlatList(
-      filtro,
-      { ...renderOptionsWithClient, statusFilter: activeQuickFilter },
-      null,
+      context.filtro,
+      context.renderOptionsWithClient,
+      '__sem_setor__',
     );
     return Promise.all([headerRender, listRender]).then(([, result]) => result);
   }
+  const listRender = renderFlatList(
+    context.filtro,
+    { ...context.renderOptionsWithClient, statusFilter: context.activeQuickFilter },
+    null,
+  );
+  return Promise.all([headerRender, listRender]).then(([, result]) => result);
+}
 
-  const searchBar = Utils.getEl('equip-search-bar');
-
-  if (isPro && activeSectorId === null && searchBar) searchBar.style.display = '';
+function renderEquipSetorGridBranch(context, headerRender, searchBar) {
+  if (context.isPro && context.activeSectorId === null && searchBar) searchBar.style.display = '';
 
   // Vista Pro padrão: grade de setores (global ou filtrada por cliente).
   // Regressão pós-revert: esse branch tinha se perdido e caía sempre na lista
   // flat, ocultando a feature de Setores (cards, Novo setor, Ver/Editar).
-  if (isPro && activeSectorId === null) {
-    if (activeClienteId) {
-      const setorial = Promise.resolve(
-        renderSetorGridForCliente(activeClienteId, activeClienteNome),
-      );
-      return Promise.all([headerRender, setorial]).then(([, result]) => result);
-    }
-    const setorial = Promise.resolve(renderSetorGrid());
+  if (!(context.isPro && context.activeSectorId === null)) return null;
+
+  if (context.activeClienteId) {
+    const setorial = Promise.resolve(
+      renderSetorGridForCliente(context.activeClienteId, context.activeClienteNome),
+    );
     return Promise.all([headerRender, setorial]).then(([, result]) => result);
   }
+  const setorial = Promise.resolve(renderSetorGrid());
+  return Promise.all([headerRender, setorial]).then(([, result]) => result);
+}
 
+function syncRenderEquipListToolbar(context, searchBar) {
   // Vista lista (FREE ou drill-down de setor)
   if (searchBar) searchBar.style.display = '';
 
-  if (activeSectorId) {
-    // Drill-down: mostra equipamentos do setor
-    const setor =
-      activeSectorId === '__sem_setor__' ? { nome: 'Sem setor' } : findSetor(activeSectorId);
-    const nome = setor?.nome ?? 'Setor';
-    // Contexto cliente: titulo "Setor X · Cliente Y" e back vai pra grid do cliente
-    const titlePrefix = activeClienteNome
-      ? `${Utils.truncate(nome, 22)} - ${Utils.truncate(activeClienteNome, 18)}`
-      : Utils.truncate(nome, 28);
-    const backLabel = activeClienteNome ? '<- Setores do cliente' : '<- Setores';
-    // Bug fix #103: "+ Novo equipamento" precisa carregar o contexto atual.
-    // Sem isso, user navega Cliente -> Setor -> + Novo equipamento e o form
-    // abre vazio, perdendo a hierarquia que ele acabou de percorrer.
-    // data-setor-id + data-cliente-id sao lidos pelo handler open-modal pra
-    // pre-preencher os dropdowns Setor e Cliente no modal-add-eq.
-    const novoEquipBtn =
-      activeSectorId !== '__sem_setor__'
-        ? `<button class="btn btn--primary btn--sm"
-              data-action="open-modal" data-id="modal-add-eq"
-              data-setor-id="${Utils.escapeAttr(activeSectorId)}"
-              ${activeClienteId ? `data-cliente-id="${Utils.escapeAttr(activeClienteId)}"` : ''}
-              data-source="setor_drill">+ Novo equipamento</button>`
-        : '';
-    _setToolbar({
-      title: titlePrefix,
-      extraBtn: `${novoEquipBtn}<button class="btn btn--outline btn--sm" data-action="back-to-setores">${backLabel}</button>`,
-      hideDefaultCta: true,
-    });
-  } else {
-    // Vista FREE/Plus: toolbar SEM "+ Novo setor". Setores depende de
-    // Clientes (Pro-only) — sem clientes cadastrados, o botão vira ruído.
-    // O upgrade aparece naturalmente no hero/empty state quando o user
-    // já tem 5+ equipamentos sem setor (ver hero.js).
-    _setToolbar({
-      title: 'Equipamentos',
-    });
+  if (context.activeSectorId) {
+    syncRenderEquipSectorToolbar(context);
+    return;
   }
 
+  // Vista FREE/Plus: toolbar SEM "+ Novo setor". Setores depende de
+  // Clientes (Pro-only) — sem clientes cadastrados, o botão vira ruído.
+  // O upgrade aparece naturalmente no hero/empty state quando o user
+  // já tem 5+ equipamentos sem setor (ver hero.js).
+  _setToolbar({
+    title: 'Equipamentos',
+  });
+}
+
+function syncRenderEquipSectorToolbar(context) {
+  // Drill-down: mostra equipamentos do setor
+  const setor =
+    context.activeSectorId === '__sem_setor__'
+      ? { nome: 'Sem setor' }
+      : findSetor(context.activeSectorId);
+  const nome = setor?.nome ?? 'Setor';
+  // Contexto cliente: titulo "Setor X · Cliente Y" e back vai pra grid do cliente
+  const titlePrefix = context.activeClienteNome
+    ? `${Utils.truncate(nome, 22)} - ${Utils.truncate(context.activeClienteNome, 18)}`
+    : Utils.truncate(nome, 28);
+  const backLabel = context.activeClienteNome ? '<- Setores do cliente' : '<- Setores';
+  // Bug fix #103: "+ Novo equipamento" precisa carregar o contexto atual.
+  // Sem isso, user navega Cliente -> Setor -> + Novo equipamento e o form
+  // abre vazio, perdendo a hierarquia que ele acabou de percorrer.
+  // data-setor-id + data-cliente-id sao lidos pelo handler open-modal pra
+  // pre-preencher os dropdowns Setor e Cliente no modal-add-eq.
+  const novoEquipBtn =
+    context.activeSectorId !== '__sem_setor__'
+      ? `<button class="btn btn--primary btn--sm"
+              data-action="open-modal" data-id="modal-add-eq"
+              data-setor-id="${Utils.escapeAttr(context.activeSectorId)}"
+              ${
+                context.activeClienteId
+                  ? `data-cliente-id="${Utils.escapeAttr(context.activeClienteId)}"`
+                  : ''
+              }
+              data-source="setor_drill">+ Novo equipamento</button>`
+      : '';
+  _setToolbar({
+    title: titlePrefix,
+    extraBtn: `${novoEquipBtn}<button class="btn btn--outline btn--sm" data-action="back-to-setores">${backLabel}</button>`,
+    hideDefaultCta: true,
+  });
+}
+
+function renderEquipListBranch(context, headerRender) {
   // O filtro de cliente já foi tratado mais cedo via early-return — aqui
   // segue o flow normal de drill-down em setor ou lista flat default.
-  const listRender = renderFlatList(filtro, renderOptionsWithClient, activeSectorId);
+  const listRender = renderFlatList(
+    context.filtro,
+    context.renderOptionsWithClient,
+    context.activeSectorId,
+  );
   return Promise.all([headerRender, listRender]).then(([, result]) => result);
+}
+
+export async function renderEquip(filtro = '', options = {}) {
+  const context = buildRenderEquipContext(filtro, options);
+  syncRenderEquipPlanAndSubtitle(context);
+
+  const headerRender = mountRenderEquipHeader(context);
+  const quickFilterRender = renderEquipQuickFilterBranch(context, headerRender);
+  if (quickFilterRender) return quickFilterRender;
+
+  const searchBar = Utils.getEl('equip-search-bar');
+  const setorGridRender = renderEquipSetorGridBranch(context, headerRender, searchBar);
+  if (setorGridRender) return setorGridRender;
+
+  syncRenderEquipListToolbar(context, searchBar);
+  return renderEquipListBranch(context, headerRender);
 }
 
 // ── Setor modal: paleta curada, live preview, validation ─────────────────

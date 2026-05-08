@@ -1615,3 +1615,65 @@ Criado `src/features/equipamentos/__tests__/ui/viewEquip.test.js` com 5 testes c
 **CP-G.5 - renderEquip pre-split.**
 
 Justificativa: com o detail completo extraido e `viewEquip` reexportado pelo adapter, o proximo bloco de maior acoplamento no adapter e `renderEquip`; antes de mover, o recorte mais seguro e mapear/pre-splitar a orquestracao.
+
+## Atualizacao CP-G.5 - renderEquip pre-split in-place (2026-05-08)
+
+Status: **CP-G.5 aplicado**.
+
+### Escopo aplicado
+
+`renderEquip` permaneceu em `src/ui/views/equipamentos.js`, mas foi reduzido a um orquestrador curto. Os blocos internos foram separados em helpers locais no mesmo arquivo, sem mover codigo para `src/features/equipamentos/` neste CP.
+
+### Blocos mapeados
+
+| Bloco dentro de `renderEquip` | Responsabilidade atual                                                                          | Dependencias                                                                                                                                   | Risco                                                | Extracao neste CP                                             |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
+| Captura de contexto           | Bind dos eventos de render plan, token, options normalizadas, contexto de rota e plano cacheado | `bindRenderEquipPlanInvalidationEvents`, `incrementRenderEquipPlanToken`, `_stripRenderInternalOptions`, `_resolveEquipCtx`, `isCachedPlanPro` | Medio: altera ordem se for movido errado             | `buildRenderEquipContext`                                     |
+| Plano/subtitulo/select        | Atualiza subtitulo, popula select de setor e dispara refresh async do plano quando necessario   | `Utils.getEl`, `populateSetorSelect`, `getRenderEquipPlanNeedsRefresh`, `refreshRenderEquipPlan`                                               | Medio: side effects DOM e async fire-and-forget      | `syncRenderEquipPlanAndSubtitle`                              |
+| Header bridge                 | Monta view model do header e chama bridge React                                                 | `getState`, `getPreventivaDueEquipmentIds`, `computeEquipKpis`, `buildEquipamentosHeaderViewModel`, `mountEquipamentosHeader`                  | Baixo/medio: contrato DOM do header                  | `mountRenderEquipHeader`                                      |
+| Quick filter                  | Sobrescreve fluxo normal, mostra search, toolbar de retorno e renderiza lista filtrada          | `Utils.getEl`, `_setToolbar`, `renderFlatList`                                                                                                 | Alto: contratos `data-action`, `data-id` e filtros   | `renderEquipQuickFilterBranch`                                |
+| Grade Pro/setores             | Decide grid global ou grid por cliente para plano Pro sem setor ativo                           | `renderSetorGrid`, `renderSetorGridForCliente`, `Promise.all` com header                                                                       | Medio: branch Pro e cliente                          | `renderEquipSetorGridBranch`                                  |
+| Toolbar lista/drill-down      | Mostra search e define toolbar de lista Free/Plus ou setor ativo                                | `Utils.getEl`, `findSetor`, `Utils.truncate`, `Utils.escapeAttr`, `_setToolbar`                                                                | Alto: HTML/data attributes do botao novo equipamento | `syncRenderEquipListToolbar` e `syncRenderEquipSectorToolbar` |
+| Lista final                   | Renderiza flat list para Free/drill-down preservando join com header                            | `renderFlatList`, `Promise.all`                                                                                                                | Baixo: retorno async                                 | `renderEquipListBranch`                                       |
+
+### Helpers locais criados
+
+| Helper                           | Responsabilidade                                                                      | Observacao                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `buildRenderEquipContext`        | Captura estado derivado de options, route context, cliente/setor/quick filter e plano | Mantem bind/token no inicio da ordem original.          |
+| `syncRenderEquipPlanAndSubtitle` | Aplica subtitulo, select de setor e refresh async do render plan                      | Preserva fire-and-forget do refresh.                    |
+| `mountRenderEquipHeader`         | Monta header React com KPIs e preventiva vencida                                      | Usa snapshot proprio de `getState`, como antes.         |
+| `renderEquipQuickFilterBranch`   | Trata quick filters e retorna early quando aplicavel                                  | Preserva toolbar "Todos", `sem-setor` e `statusFilter`. |
+| `renderEquipSetorGridBranch`     | Trata grid Pro global/por cliente                                                     | Preserva `Promise.all([headerRender, setorial])`.       |
+| `syncRenderEquipListToolbar`     | Decide toolbar da lista default ou drill-down                                         | Separa side effects de DOM/toolbar.                     |
+| `syncRenderEquipSectorToolbar`   | Monta toolbar de setor ativo e botao "+ Novo equipamento"                             | Preserva HTML, classes e data attributes.               |
+| `renderEquipListBranch`          | Renderiza flat list final e sincroniza retorno com header                             | Mantem branch Free/drill-down.                          |
+
+### Ordem preservada
+
+Ordem mantida: bind render plan -> token -> options/contexto -> plano/subtitulo/select -> header bridge -> quick filter early return -> search/grid Pro -> toolbar lista/drill-down -> flat list final.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `renderEquip`, `renderFlatList`, setor, `saveEquip`, `deleteEquip`, `openEditEquip`, view facade, CRUD, render plan, React bridges e helpers UI relacionados.
+
+### Metricas do CP-G.5
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1567 |   1626 |   +59 |
+
+### Testes
+
+Nao foi criado teste novo porque o CP e pre-split estrutural sem mudanca funcional intencional. O baseline e a validacao focada usaram os contratos existentes de legacy render, hero, selectors e bridges.
+
+### Validacao executada
+
+- Baseline antes do edit: `npm run test -- src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosView.hero.test.js src/__tests__/contracts/selectors.test.js src/features/equipamentos/__tests__/bridges/renderPlan.test.js src/features/equipamentos/__tests__/bridges/listBridge.test.js src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/ui/viewEquip.test.js --reporter=dot` passou: 7 arquivos, 83 testes.
+- Pos-edit: o mesmo comando passou: 7 arquivos, 83 testes.
+
+### Proximo CP recomendado
+
+**CP-G.6 - mover renderEquip como orquestrador.**
+
+Justificativa: `renderEquip` agora esta menor como orquestrador e os blocos de contexto, plan/header e branches de lista/grid ja estao separados em helpers locais, reduzindo o risco da extracao feature-scoped.
