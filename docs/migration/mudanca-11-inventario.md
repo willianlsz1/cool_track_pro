@@ -1083,3 +1083,72 @@ Não foram movidos neste CP: `saveEquip`, `renderEquip`, `viewEquip`, `deleteEqu
 **CP-F.3c — modal/post-save.**
 
 Justificativa: após CP-F.3b, a coleta de form/payload restante saiu do adapter e `buildSaveEquipPayload` não lê mais DOM. O próximo acoplamento principal que mantém `saveEquip` preso ao adapter é o bloco pós-sucesso: fechamento de modal, reset de form/nameplate, refresh de dashboard/list/header, Toast de sucesso e dispatch de post-actions. O recorte deve ser feito com DI e sem alterar a ordem persistência → `wasEditing` → modal/reset/render/toast → post-actions.
+
+## Atualização CP-F.3d — Extração do controller de sucesso pós-save de equipamento (2026-05-08)
+
+Status: **CP-F.3d aplicado**.
+
+### Base inspecionada antes de mover
+
+| Função                     | Linha | Responsabilidade                                                                     | Side effects                                                                                            | Dependências                                                                                                        | Mover neste CP?                                                                 |
+| -------------------------- | ----: | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `_closeSaveEquipModal`     |  1360 | Fechar `modal-add-eq` quando `keepOpen` é falso.                                     | Import dinâmico de `Modal`, `Modal.close`, `handleError` em falha.                                      | `keepOpen`, `../../core/modal.js`, `handleError`, `ErrorCodes`.                                                     | Não; permaneceu no adapter para não puxar implementação de modal.               |
+| `_resetSaveEquipForm`      |  1379 | Limpar campos do form, dados de placa, defaults e estado de edição quando aplicável. | `Utils.clearVals`, `Utils.setVal`, `syncComponenteVisibility`, dataset `manual`, `clearEditingState`.   | `Utils`, `DADOS_PLACA_INPUT_IDS`, `getSuggestedPreventiveDays`, `syncComponenteVisibility`, `clearEditingState`.    | Não; permaneceu no adapter para evitar acoplar form/nameplate/contexto.         |
+| `_refreshSaveEquipViews`   |  1409 | Atualizar onboarding, dashboard, lista de equipamentos e header após save.           | `OnboardingBanner.remove`, import/render dashboard, `handleError`, `renderEquip`, `updateGlobalHeader`. | `OnboardingBanner`, `./dashboard.js`, `handleError`, `ErrorCodes`, `renderEquip`, `updateGlobalHeader`.             | Não; permaneceu no adapter por depender diretamente de render/dashboard/header. |
+| `_finishSaveEquipSuccess`  |  1429 | Orquestrar close → reset → refresh → toast de sucesso.                               | Efeitos indiretos dos helpers + `Toast.success`.                                                        | `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews`, `Toast.success`, `keepOpen`, `wasEditing`. | Sim; movido com dependências injetadas para `finishSaveEquipSuccess`.           |
+| `_runSaveEquipPostActions` |  1439 | Executar post-actions depois do sucesso: foco clone, navegação registro ou PMOC.     | Foco DOM, `goTo`, `requestAnimationFrame`, dataset/click PMOC.                                          | `Utils`, `goTo`, `document`, `requestAnimationFrame`, flags e payload.                                              | Não; fora do escopo deste CP.                                                   |
+
+### Helpers movidos/ajustados
+
+| Função                                               | Origem                         | Destino                                      | Observação                                                                                                                                        |
+| ---------------------------------------------------- | ------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_finishSaveEquipSuccess` → `finishSaveEquipSuccess` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/postSave.js` | Mantém a ordem: fechar modal, resetar form, atualizar views e só então emitir toast. Recebe todas as dependências por parâmetro.                  |
+| `saveEquip`                                          | `src/ui/views/equipamentos.js` | mesmo arquivo                                | Passou a chamar `finishSaveEquipSuccess` com `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews` e `Toast.success` injetados. |
+
+### Dependências e ordem preservadas
+
+`finishSaveEquipSuccess` não importa o adapter, `Toast`, `Modal`, dashboard, `renderEquip` ou header. A função recebe por parâmetro:
+
+- `keepOpen` e `wasEditing`;
+- `closeModal`, hoje `_closeSaveEquipModal` no adapter;
+- `resetForm`, hoje `_resetSaveEquipForm` no adapter;
+- `refreshViews`, hoje `_refreshSaveEquipViews` no adapter;
+- `toastSuccess`, hoje `Toast.success` no adapter.
+
+A ordem preservada é:
+
+1. `await closeModal(keepOpen)`;
+2. `resetForm(keepOpen)`;
+3. `await refreshViews()`;
+4. `toastSuccess(wasEditing ? 'Equipamento atualizado.' : 'Equipamento cadastrado.')`.
+
+`_runSaveEquipPostActions` continua no adapter e continua sendo executado depois de `finishSaveEquipSuccess` no fluxo de `saveEquip`.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `saveEquip`, `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews`, `_runSaveEquipPostActions`, `renderEquip`, `viewEquip`, `deleteEquip`, `clearEditingState`, setor, render plan e React bridges.
+
+### Métricas do CP-F.3d
+
+| Arquivo                                                     | Antes | Depois | Delta |
+| ----------------------------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                              |  2070 |   2068 |    -2 |
+| `src/features/equipamentos/crud/postSave.js`                |     0 |     13 |   +13 |
+| `src/features/equipamentos/__tests__/crud/postSave.test.js` |     0 |    143 |  +143 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/crud/postSave.test.js` com 5 testes.
+- Cobertura adicionada para:
+  - ordem close → reset → refresh → toast;
+  - mensagem de criação;
+  - mensagem de edição;
+  - propagação de `keepOpen` para close/reset;
+  - espera de promises assíncronas de close/refresh;
+  - confirmação de que post-actions não fazem parte deste módulo.
+
+### Próximo CP recomendado
+
+**CP-F.3e — post-actions.**
+
+Justificativa: após mover a orquestração de sucesso com DI, o próximo bloco coeso ainda acoplado a `saveEquip` é `_runSaveEquipPostActions`. Ele deve ser extraído separadamente para preservar a ordem pós-toast e permitir injetar navegação, foco e abertura PMOC sem puxar modal/reset/render.
