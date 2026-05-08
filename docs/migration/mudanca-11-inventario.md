@@ -1293,3 +1293,103 @@ Permaneceram em `src/ui/views/equipamentos.js`: `_getSaveEquipPostActionContext`
 **CP-G — iniciar pre-split de `viewEquip`/detail.**
 
 Justificativa: após CP-F.4, o fluxo de save ficou feature-scoped e o adapter preserva apenas a fachada e helpers UI injetados. O próximo bloco de maior acoplamento/LOC em `src/ui/views/equipamentos.js` é `viewEquip`, especialmente HTML strings e montagem de detail view já marcadas como alvo de pre-split.
+
+## Atualização CP-G.0 — Mapear e pré-splitar viewEquip/detail (2026-05-08)
+
+Status: **CP-G.0 aplicado**.
+
+### Base inspecionada
+
+CP-F.4 confirmado: `src/features/equipamentos/crud/saveEquip.js` existe e o adapter configura `configureSaveEquip` antes de exportar a fachada `saveEquip`.
+
+### Mapeamento atual de `viewEquip`
+
+| Bloco dentro de `viewEquip`/detail | Linha aprox | Responsabilidade                                                                                              | Side effects                                                                               | Depende de                                                                                     | Pode mover agora?                                            | Destino futuro                                                            |
+| ---------------------------------- | ----------: | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Busca/validação do equipamento     |  1473, 2000 | Resolver equipamento por `id` e manter retorno silencioso quando não existe.                                  | Nenhum quando ausente; evita modal/render.                                                 | `findEquip`.                                                                                   | Sim, como helper/adapter fino; não mover neste CP.           | `features/equipamentos/ui/detailModel.js` ou orquestrador DI.             |
+| Montagem de model                  |        1478 | Coletar registros ordenados, health, risco, score, classe visual, próxima preventiva e metadados do SVG ring. | Leitura de state via `regsForEquip`; cálculo de domínio.                                   | `regsForEquip`, `evaluateEquipmentHealth`, `evaluateEquipmentRisk`, `getHealthClass`, `Utils`. | Sim, próximo recorte mais seguro.                            | `features/equipamentos/ui/detailModel.js`.                                |
+| Dados de setor readonly            |        1517 | Renderizar info-row de setor dentro da ficha técnica.                                                         | Leitura de `getState().setores`.                                                           | `getState`, `Utils.escapeHtml`, `eq.setorId`.                                                  | Sim, mas como parte do HTML/detail.                          | `features/equipamentos/ui/detail.js` ou subhelper de detail.              |
+| Timeline de serviços               |        1533 | Renderizar lista vazia ou últimos 5 serviços e contador de anteriores.                                        | Nenhum além da string HTML.                                                                | `regs`, `Utils.escapeHtml`, `Utils.formatDatetime`.                                            | Sim.                                                         | `features/equipamentos/ui/detail.js`.                                     |
+| Fotos/cover                        |        1556 | Montar cover com foto/fallback, CTA Plus/Free e ação de fotos.                                                | Consulta plano cacheada para gate do CTA.                                                  | `getEquipmentVisualMeta`, `isCachedPlanPlusOrHigher`, `Utils`, `eq.fotos`.                     | Parcial; HTML pode mover, bind/lightbox deve ficar separado. | HTML em `features/equipamentos/ui/detail.js`; bind em adapter/controller. |
+| Dados de placa/etiqueta            |        1670 | Separar campos fixos/extras e renderizar seções “Dados da etiqueta” e “Outras informações”.                   | Nenhum além da string HTML.                                                                | `formatDadosPlacaRows`, `Utils.escapeHtml`, `eq.dadosPlaca`.                                   | Sim.                                                         | `features/equipamentos/ui/detail.js` ou `detailNameplate.js`.             |
+| HTML principal do detail           |        1722 | Compor detail view completo: cover, título, hero, risco, ficha técnica, histórico e footer.                   | Nenhum direto; retorna HTML e URL da primeira foto para bind posterior.                    | Helpers detail, risk, dados de placa, serviços, setor, `Utils`.                                | Sim, após model estabilizado.                                | `features/equipamentos/ui/detail.js`.                                     |
+| Risco/criticidade                  |        1800 | Renderizar painel de fatores de risco e chips acionáveis.                                                     | Nenhum direto; `data-action` nos chips aciona fluxos externos.                             | `risk`, `_riskFactorChipHtml`, `safeId`.                                                       | Sim, se isolado como subhelper visual.                       | `features/equipamentos/ui/detailRisk.js` ou dentro de `detail.js`.        |
+| Ações/botões                       |        1870 | Renderizar registrar, editar, menu mais ações e excluir com `data-action`/`data-id`.                          | Contratos externos via event delegation; não registra listener local.                      | `safeId`, `eq.nome`, handlers globais.                                                         | Sim, com teste de contrato.                                  | `features/equipamentos/ui/detail.js`.                                     |
+| Modal/render                       |  1937, 1981 | Aplicar `innerHTML` no corpo do modal e abrir `modal-eq-det`.                                                 | Mutação DOM; import dinâmico de modal; `Modal.open`; `handleError` em falha.               | `Utils.getEl`, `../../core/modal.js`, `handleError`, `ErrorCodes`.                             | Não como HTML puro; manter no adapter até DI.                | Orquestrador/controller com dependências injetadas.                       |
+| Listeners/eventos locais           |        1942 | Anexar fallback de imagem e lightbox do cover.                                                                | `addEventListener`, mutação de classes, remoção de imagem quebrada, `Photos.openLightbox`. | `document`, `HTMLImageElement`, `Photos`.                                                      | Não junto do HTML; separar depois via controller.            | `features/equipamentos/ui/detailController.js` com DI, ou adapter.        |
+| Adapter/orchestration              |        2000 | Orquestrar resolve → model → HTML → mount → bind → modal.                                                     | Preserva ordem de side effects: mount, bind cover, abrir modal.                            | Todos os helpers acima.                                                                        | Ainda não mover neste CP.                                    | `viewEquip` menor com DI em CP posterior.                                 |
+
+### Funções auxiliares relacionadas
+
+| Função auxiliar                      |   Linha | Chamada por `viewEquip`?                                            | Responsabilidade                                            | Side effects                                                 | Destino provável                                             |
+| ------------------------------------ | ------: | ------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `_resolveViewEquipTarget`            |    1473 | Sim                                                                 | Resolver equipamento alvo.                                  | Nenhum.                                                      | `detailModel.js` ou adapter/orquestrador.                    |
+| `_buildViewEquipDetailModel`         |    1478 | Sim                                                                 | Montar dados derivados de registros, health, risco e ring.  | Leitura de registros via state.                              | `features/equipamentos/ui/detailModel.js`.                   |
+| `_renderViewEquipSetorInfoRow`       |    1517 | Sim, indireta                                                       | Renderizar setor readonly na ficha técnica.                 | Leitura de setores via `getState`.                           | `detail.js` com setor pré-resolvido no model.                |
+| `_renderViewEquipServiceTimeline`    |    1533 | Sim, indireta                                                       | Renderizar histórico resumido de serviços.                  | Nenhum.                                                      | `detail.js`.                                                 |
+| `_renderViewEquipCoverBlock`         |    1556 | Sim, indireta                                                       | Renderizar cover/fallback/CTA de fotos.                     | Leitura de gate de plano cacheado.                           | `detail.js`; bind separado.                                  |
+| `_renderViewEquipDadosPlacaSections` |    1670 | Sim, indireta                                                       | Renderizar seções de dados de etiqueta.                     | Nenhum.                                                      | `detailNameplate.js` ou `detail.js`.                         |
+| `_renderViewEquipDetailHtml`         |    1722 | Sim                                                                 | Compor HTML completo do detail e repassar `firstPhotoUrl`.  | Nenhum direto.                                               | `features/equipamentos/ui/detail.js`.                        |
+| `_mountViewEquipDetail`              |    1937 | Sim                                                                 | Aplicar HTML em `#eq-det-corpo`.                            | `innerHTML`.                                                 | Adapter/controller.                                          |
+| `_bindViewEquipDetailCoverActions`   |    1942 | Sim                                                                 | Listener de load/error do cover e lightbox.                 | Eventos DOM, classes, remoção de img, `Photos.openLightbox`. | Controller com DI ou adapter.                                |
+| `_openViewEquipDetailModal`          |    1981 | Sim                                                                 | Abrir modal de detalhe e tratar falha.                      | Import dinâmico, `Modal.open`, `handleError`.                | Adapter/controller com DI.                                   |
+| `openEditEquip`                      |    1158 | Não direta; acionada por handlers via `data-action="edit-equip"`.   | Popular modal de edição, contexto, campos técnicos e fotos. | Mutação DOM, modal/form/fotos/nameplate.                     | Não mover no CP-G; futuro CP de modal/edit.                  |
+| `deleteEquip`                        |    2012 | Não direta; acionada por handlers via `data-action="delete-equip"`. | Excluir equipamento e registros vinculados.                 | Storage, state, render, toast/header.                        | Futuro CP CRUD delete.                                       |
+| `assignEquipToSetor`                 | feature | Não direta; mantida exportada para uso programático/drag-drop.      | Atribuir equipamento a setor.                               | State/storage/render conforme módulo de setor.               | Já em `features/equipamentos/setor/setorPersist.js`; manter. |
+| `_eqDetailSubtitle`                  | feature | Sim, indireta                                                       | Renderizar subtítulo local/TAG.                             | Nenhum.                                                      | Já em `features/equipamentos/utils/detail.js`.               |
+| `_infoRowValueOrEmpty`               | feature | Sim, indireta                                                       | Renderizar valor ou CTA inline para campo vazio.            | Nenhum; contratos por `data-action`.                         | Já em `features/equipamentos/utils/detail.js`.               |
+| `_riskFactorChipHtml`                | feature | Sim, indireta                                                       | Renderizar chip de fator de risco com ação contextual.      | Nenhum; contratos por `data-action`.                         | Já em `features/equipamentos/utils/detail.js`.               |
+
+### Decisão de próximo recorte
+
+**Opção B — CP-G.1 detail model.**
+
+Justificativa: depois do pré-split in-place, `viewEquip` já virou um orquestrador curto, mas o HTML ainda depende de dados calculados no adapter e de leitura de setor/plano dentro dos render helpers. O próximo recorte mais seguro é estabilizar um `detailModel` sem DOM para carregar registros, health, risco, setor resolvido, contagem/estado de fotos, dados de etiqueta e contratos necessários. Isso reduz acoplamento antes de mover HTML grande para `features/equipamentos/ui/detail.js`.
+
+### Pré-split realizado
+
+Helpers privados criados em `src/ui/views/equipamentos.js`:
+
+- `_resolveViewEquipTarget`;
+- `_buildViewEquipDetailModel`;
+- `_renderViewEquipSetorInfoRow`;
+- `_renderViewEquipServiceTimeline`;
+- `_renderViewEquipCoverBlock`;
+- `_renderViewEquipDadosPlacaSections`;
+- `_renderViewEquipDetailHtml`;
+- `_mountViewEquipDetail`;
+- `_bindViewEquipDetailCoverActions`;
+- `_openViewEquipDetailModal`.
+
+A função pública `viewEquip` foi reduzida para a sequência: resolver equipamento → montar model → renderizar HTML → montar DOM → bind de cover/lightbox → abrir modal. `viewEquip`, `renderEquip`, `deleteEquip`, `saveEquip`, setor, CRUD de save, CSS, schema/migrations, package files, React bridges e barrels não foram movidos.
+
+### Comportamento preservado
+
+Preservados os contratos de detalhe:
+
+- retorno silencioso quando o equipamento não existe;
+- HTML final com as mesmas classes/IDs principais;
+- `data-action`/`data-id` para registrar, editar, excluir, menu de detail, score-info, fotos e upgrade;
+- dados de placa/etiqueta fixos e extras;
+- painel de risco e chips acionáveis;
+- cover/fallback de fotos, `load`/`error` e lightbox;
+- ordem de side effects: escrever `innerHTML`, bindar eventos do cover e abrir `modal-eq-det`.
+
+### Testes
+
+- Reutilizados testes de caracterização existentes em `src/__tests__/equipamentosLegacyRender.test.js` para contratos do detail/modal, XSS, ações edit/delete/register e ausência de React no detail.
+- Reutilizados testes de `src/__tests__/equipamentosView.hero.test.js` para garantir que o adapter de equipamentos continua importável e sem regressões no entorno.
+- Nenhum snapshot gigante foi criado.
+
+### Métricas do CP-G.0
+
+| Arquivo                                   | Antes | Depois | Delta |
+| ----------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`            |  1997 |   2081 |   +84 |
+| `docs/migration/mudanca-11-inventario.md` |  1295 |   1385 |   +90 |
+
+### Próximo CP recomendado
+
+**CP-G.1 — detail model.**
+
+Motivo: separar primeiro o model puro/sem DOM reduz risco antes de extrair o HTML grande de detail. O recorte deve preservar a ordem atual e receber dependências explícitas para registros, health, risco, setor, plano/fotos e dados de etiqueta.
