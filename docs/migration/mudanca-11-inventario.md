@@ -864,7 +864,6 @@ Recorte sugerido:
 - Mover `_updateSaveEquipInState`, `_createSaveEquipInState` e `_applySaveEquipToState` juntos.
 - Injetar `setState` e `editingId`/resolver de edição por argumento, preservando retorno `undefined`, payload, state shape e ordem de side effects.
 - Manter `saveEquip`, modal/reset/render/toast/post-actions e delete/view no adapter.
-<<<<<<< codex/mapear-mutation-do-saveequip-pixjem
 
 ## Atualização CP-F.2 — Extração de state mutation do `saveEquip` (2026-05-07)
 
