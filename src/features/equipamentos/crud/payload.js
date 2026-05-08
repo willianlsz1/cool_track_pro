@@ -1,3 +1,44 @@
+export function collectSaveEquipBaseFormValues({ getValue }) {
+  return {
+    tipo: getValue('eq-tipo'),
+    criticidade: getValue('eq-criticidade') || 'media',
+    prioridadeOperacional: getValue('eq-prioridade') || 'normal',
+  };
+}
+
+export function collectSaveEquipContextFormValues({
+  baseFormValues,
+  saveWithoutClient,
+  getValue,
+  getForcedEquipContext,
+  normalizePeriodicidadePreventivaDias,
+}) {
+  const periodicidadePreventivaDias = normalizePeriodicidadePreventivaDias(
+    getValue('eq-periodicidade'),
+    baseFormValues.tipo,
+    baseFormValues.criticidade,
+  );
+  const setorId = getForcedEquipContext?.()?.setorId || getValue('eq-setor') || null;
+  // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
+  const clienteId = saveWithoutClient
+    ? null
+    : getForcedEquipContext?.()?.clienteId || getValue('eq-cliente') || null;
+
+  return {
+    ...baseFormValues,
+    periodicidadePreventivaDias,
+    setorId,
+    clienteId,
+  };
+}
+
+export function collectSaveEquipExtraFormValues({ getValue }) {
+  return {
+    fluido: getValue('eq-fluido'),
+    componente: getValue('eq-componente'),
+  };
+}
+
 export function buildSaveEquipPayload({
   formValues,
   payloadValidation,
@@ -6,7 +47,6 @@ export function buildSaveEquipPayload({
   createId,
   findEquip,
   normalizePhotoList,
-  getValue,
   tiposComComponente,
 }) {
   // ── Fotos do equipamento ─────────────────────────────────────────────────
@@ -25,8 +65,8 @@ export function buildSaveEquipPayload({
     local: payloadValidation.value.local,
     tag: payloadValidation.value.tag,
     modelo: payloadValidation.value.modelo,
-    fluido: getValue('eq-fluido'),
-    componente: tiposComComponente.has(formValues.tipo) ? getValue('eq-componente') || null : null,
+    fluido: formValues.fluido,
+    componente: tiposComComponente.has(formValues.tipo) ? formValues.componente || null : null,
     dadosPlaca,
   };
 }

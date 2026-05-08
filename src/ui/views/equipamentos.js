@@ -125,7 +125,12 @@ import {
   checkSaveEquipPlanLimit,
   validateSaveEquipPayload,
 } from '../../features/equipamentos/crud/validate.js';
-import { buildSaveEquipPayload } from '../../features/equipamentos/crud/payload.js';
+import {
+  buildSaveEquipPayload,
+  collectSaveEquipBaseFormValues,
+  collectSaveEquipContextFormValues,
+  collectSaveEquipExtraFormValues,
+} from '../../features/equipamentos/crud/payload.js';
 import {
   applySaveEquipToState,
   createSaveEquipInState,
@@ -1350,40 +1355,6 @@ function _getSaveEquipPostActionContext(options = {}) {
 }
 
 /**
- * @sliceTarget ui/form
- */
-function _collectSaveEquipBaseFormValues() {
-  return {
-    tipo: Utils.getVal('eq-tipo'),
-    criticidade: Utils.getVal('eq-criticidade') || 'media',
-    prioridadeOperacional: Utils.getVal('eq-prioridade') || 'normal',
-  };
-}
-
-/**
- * @sliceTarget ui/form
- */
-function _collectSaveEquipContextFormValues({ baseFormValues, saveWithoutClient }) {
-  const periodicidadePreventivaDias = normalizePeriodicidadePreventivaDias(
-    Utils.getVal('eq-periodicidade'),
-    baseFormValues.tipo,
-    baseFormValues.criticidade,
-  );
-  const setorId = getForcedEquipContext()?.setorId || Utils.getVal('eq-setor') || null;
-  // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
-  const clienteId = saveWithoutClient
-    ? null
-    : getForcedEquipContext()?.clienteId || Utils.getVal('eq-cliente') || null;
-
-  return {
-    ...baseFormValues,
-    periodicidadePreventivaDias,
-    setorId,
-    clienteId,
-  };
-}
-
-/**
  * @sliceTarget ui/modal
  */
 async function _closeSaveEquipModal(keepOpen) {
@@ -1510,7 +1481,7 @@ export async function saveEquip(options = {}) {
   });
   if (!isPlanLimitAllowed) return false;
 
-  const baseFormValues = _collectSaveEquipBaseFormValues();
+  const baseFormValues = collectSaveEquipBaseFormValues({ getValue: Utils.getVal });
   const payloadValidation = validateSaveEquipPayload({
     equipamentos,
     editingId: getEditingEquipId(),
@@ -1520,10 +1491,15 @@ export async function saveEquip(options = {}) {
   });
   if (!payloadValidation) return false;
 
-  const formValues = _collectSaveEquipContextFormValues({
+  const contextFormValues = collectSaveEquipContextFormValues({
     baseFormValues,
     saveWithoutClient: postActionContext.saveWithoutClient,
+    getValue: Utils.getVal,
+    getForcedEquipContext,
+    normalizePeriodicidadePreventivaDias,
   });
+  const extraFormValues = collectSaveEquipExtraFormValues({ getValue: Utils.getVal });
+  const formValues = { ...contextFormValues, ...extraFormValues };
   const dadosPlacaResult = collectSaveEquipDadosPlaca({
     collectDadosPlaca,
     DadosPlacaValidationError,
@@ -1540,7 +1516,6 @@ export async function saveEquip(options = {}) {
     createId: Utils.uid,
     findEquip,
     normalizePhotoList,
-    getValue: Utils.getVal,
     tiposComComponente: TIPOS_COM_COMPONENTE,
   });
   applySaveEquipToState({
