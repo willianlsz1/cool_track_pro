@@ -149,9 +149,14 @@ import {
   renderFlatList,
 } from '../../features/equipamentos/ui/renderFlatList.js';
 import { configureRenderEquip, renderEquip } from '../../features/equipamentos/ui/renderEquip.js';
+import {
+  configureToolbar,
+  setToolbar as _setToolbar,
+} from '../../features/equipamentos/ui/toolbar.js';
 import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/viewEquip.js';
 
 configureEquipContextState({ renderEquip });
+configureToolbar({ Utils });
 configureRenderFlatList({
   getState,
   Utils,
@@ -669,62 +674,6 @@ export function setActiveQuickFilter(id) {
 // Import local pra uso interno + re-export pra preservar imports externos.
 import { computeEquipKpis, renderEquipHero, renderEquipFilters } from './equipamentos/hero.js';
 export { computeEquipKpis, renderEquipHero, renderEquipFilters };
-
-/** Atualiza a toolbar da view de equipamentos.
- *  hideDefaultCta=true suprime o "+ Novo equipamento" default (usado em
- *  contexto cliente, onde adicionar equipamento é feito via drill-down
- *  de setor — não via toolbar global). */
-/** @sliceTarget ui/toolbar */
-function resolveToolbarElements() {
-  return {
-    titleEl: Utils.getEl('equip-page-title'),
-    subtitleEl: Utils.getEl('equip-page-subtitle'),
-    actionsEl: Utils.getEl('equip-toolbar-actions'),
-  };
-}
-
-function buildToolbarDefaultCtaHtml({ hideDefaultCta = false } = {}) {
-  // CTA único "+ Novo equipamento". Antes eram 2 botões ("Cadastrar com
-  // foto" primário + "Novo equipamento" outline), o que duplicava a ação
-  // na toolbar — ambos abriam o mesmo modal-add-eq.
-  return hideDefaultCta
-    ? ''
-    : `<button class="btn btn--primary btn--sm"
-          data-action="open-modal" data-id="modal-add-eq"
-          data-source="toolbar_primary"
-          data-testid="equipamentos-add-equipment"
-          aria-label="Cadastrar novo equipamento (manual ou via foto da etiqueta)">+ Novo equipamento</button>`;
-}
-
-function buildToolbarActionsHtml({ extraBtn, hideDefaultCta = false } = {}) {
-  const defaultCta = buildToolbarDefaultCtaHtml({ hideDefaultCta });
-  return `
-      ${extraBtn || ''}
-      ${defaultCta}
-    `;
-}
-
-function applyToolbarTitle(elements, title) {
-  if (elements.titleEl) elements.titleEl.textContent = title || 'Equipamentos';
-}
-
-function applyToolbarSubtitle(elements) {
-  if (elements.subtitleEl) elements.subtitleEl.textContent = '';
-}
-
-function applyToolbarActions(elements, html) {
-  if (elements.actionsEl) elements.actionsEl.innerHTML = html;
-}
-
-function _setToolbar({ title, extraBtn, hideDefaultCta = false } = {}) {
-  const elements = resolveToolbarElements();
-  applyToolbarTitle(elements, title);
-  applyToolbarSubtitle(elements);
-  if (elements.actionsEl) {
-    const actionsHtml = buildToolbarActionsHtml({ extraBtn, hideDefaultCta });
-    applyToolbarActions(elements, actionsHtml);
-  }
-}
 
 /** @sliceTarget controller/mount */
 function mountEquipamentosHeader(viewModel) {

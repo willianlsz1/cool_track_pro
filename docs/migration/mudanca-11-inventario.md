@@ -2234,3 +2234,66 @@ Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewMo
 **CP-H.10 - mover toolbar helper.**
 
 Justificativa: o pre-split local isolou resolucao DOM, HTML do CTA, composicao de actions e aplicacao de campos. O proximo corte pode mover a toolbar como helper feature-scoped via DI, mantendo header/list/render fora do escopo.
+
+## Atualizacao CP-H.10 - Mover toolbar helper (2026-05-08)
+
+Status: **CP-H.10 aplicado**.
+
+### Escopo aplicado
+
+`_setToolbar` foi movida de `src/ui/views/equipamentos.js` para `src/features/equipamentos/ui/toolbar.js`, exportada como `setToolbar` e importada no adapter com alias `setToolbar as _setToolbar` para preservar os callers atuais.
+
+Os helpers locais criados no CP-H.9 foram movidos junto por serem exclusivos da toolbar. `configureToolbar({ Utils })` injeta a dependencia de DOM uma vez no adapter.
+
+### Dependencias injetadas
+
+| Dependencia   | Entrada via DI | Observacao                                                                   |
+| ------------- | -------------- | ---------------------------------------------------------------------------- |
+| `Utils`       | `Utils`        | Usado apenas para `Utils.getEl`.                                             |
+| `Utils.getEl` | via `Utils`    | Resolve `equip-page-title`, `equip-page-subtitle` e `equip-toolbar-actions`. |
+
+### Ordem preservada
+
+Ordem mantida: assinatura/opcoes -> resolver DOM -> aplicar titulo -> aplicar subtitulo -> montar CTA default -> compor actions -> aplicar actions.
+
+### O que permaneceu no adapter
+
+- `mountEquipamentosHeader` permaneceu no adapter.
+- `mountEquipamentosList` e `unmountEquipamentosList` nao foram movidos neste CP.
+- `renderFlatList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip` permanecem reexportados/consumidos sem reescrita.
+- `saveEquip`, setor, CRUD e helpers nao relacionados permaneceram no adapter.
+
+### Usos preservados
+
+- `renderEquip` continua recebendo a toolbar via `setToolbar: _setToolbar`.
+- Setor continua recebendo a toolbar via `setToolbar: _setToolbar`.
+- `hideDefaultCta`, `extraBtn`, CTA default, titulo, subtitulo, selectors, classes e atributos `data-*` foram preservados.
+
+### Acoplamento conhecido
+
+Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewModels.js` para `src/ui/views/equipamentos/constants.js` e `src/ui/views/equipamentos/helpers.js`. Nenhuma acao foi tomada neste CP.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1294 |   1243 |   -51 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/ui/toolbar.test.js` com 6 testes de DI, titulo/subtitulo, CTA default, `hideDefaultCta`, `extraBtn`, comportamento silencioso e ausencia de import do adapter.
+- Teste focado executado: `npm run test -- src/features/equipamentos/__tests__/ui/toolbar.test.js src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosReactListIsland.test.jsx src/features/equipamentos/__tests__/ui/renderFlatList.test.js src/features/equipamentos/__tests__/ui/renderEquip.test.js src/features/equipamentos/__tests__/setor/setorUI.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 7 arquivos e 61 testes.
+
+### Conformidade
+
+- Toolbar foi movida para modulo feature-scoped.
+- `mountEquipamentosHeader`, `mountEquipamentosList`, `renderFlatList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip`, `saveEquip`, setor e CRUD nao foram movidos.
+- HTML, `data-action`, `data-id`, classes, selectors, toolbar visual, CTA, `hideDefaultCta`, `extraBtn`, titulo e subtitulo foram preservados.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+- `src/features/equipamentos/ui/toolbar.js` nao importa `src/ui/views/equipamentos.js`.
+
+### Proximo CP recomendado
+
+**CP-H.11 - mapear/mover mountEquipamentosHeader.**
+
+Justificativa: apos toolbar/list/render/detail/edit/delete, o header bridge ainda e um bloco UI pequeno no adapter e pode ser avaliado como proximo corte sem misturar modal/form/fachada.
