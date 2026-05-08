@@ -1,5 +1,6 @@
 export const REGISTRO_PUBLIC_IDS = Object.freeze({
   view: 'view-registro',
+  headerRoot: 'registro-header-root',
   hero: 'registro-hero',
   heroSub: 'registro-hero-sub',
   heroPillText: 'registro-hero-pill-text',
@@ -38,6 +39,7 @@ export const REGISTRO_PUBLIC_IDS = Object.freeze({
   inputFotos: 'input-fotos',
   inputFotosCamera: 'input-fotos-camera',
   photoPreview: 'photo-preview',
+  photosRoot: 'registro-photos-root',
   impactTitle: 'registro-impact-title',
   impactSubtitle: 'registro-impact-subtitle',
   impactHint: 'registro-impact-hint',
@@ -56,12 +58,18 @@ export const REGISTRO_PUBLIC_IDS = Object.freeze({
 export const REGISTRO_ACTIONS = Object.freeze({
   save: 'save-registro',
   saveAndShare: 'save-and-share-registro',
+  saveAndShareOther: 'save-and-share-other-registro',
   clear: 'clear-registro',
   quickTemplate: 'quick-service-template',
   checklistSet: 'r-checklist-set',
   checklistMeasure: 'r-checklist-measure',
   checklistObs: 'r-checklist-obs',
+  signatureCapture: 'registro-signature-capture',
+  signatureOpen: 'registro-signature-open',
+  signatureRemove: 'registro-signature-remove',
   signatureUpsell: 'signature-upsell-cta',
+  photoOpen: 'registro-photo-open',
+  photoRemove: 'registro-photo-remove',
 });
 
 export const REGISTRO_DATA_ATTRIBUTES = Object.freeze([
@@ -97,6 +105,32 @@ export const REGISTRO_PUBLIC_CLASSES = Object.freeze([
   'r-checklist__status',
   'r-checklist__measure-input',
   'r-checklist__obs',
+]);
+
+export const REGISTRO_REACT_ROOTS = Object.freeze({
+  header: REGISTRO_PUBLIC_IDS.headerRoot,
+  checklist: REGISTRO_PUBLIC_IDS.checklistBody,
+  photos: REGISTRO_PUBLIC_IDS.photosRoot,
+  signature: REGISTRO_PUBLIC_IDS.signatureHint,
+});
+
+export const REGISTRO_FIELD_IDS = Object.freeze([
+  REGISTRO_PUBLIC_IDS.equipSelect,
+  REGISTRO_PUBLIC_IDS.dateInput,
+  REGISTRO_PUBLIC_IDS.typeSelect,
+  REGISTRO_PUBLIC_IDS.typeCustomInput,
+  REGISTRO_PUBLIC_IDS.obs,
+  REGISTRO_PUBLIC_IDS.technicianInput,
+  REGISTRO_PUBLIC_IDS.status,
+  REGISTRO_PUBLIC_IDS.prioridade,
+  REGISTRO_PUBLIC_IDS.proxima,
+  REGISTRO_PUBLIC_IDS.pecas,
+  REGISTRO_PUBLIC_IDS.custoPecas,
+  REGISTRO_PUBLIC_IDS.custoMaoObra,
+  REGISTRO_PUBLIC_IDS.clienteNome,
+  REGISTRO_PUBLIC_IDS.clienteDocumento,
+  REGISTRO_PUBLIC_IDS.clienteContato,
+  REGISTRO_PUBLIC_IDS.localAtendimento,
 ]);
 
 export const REGISTRO_MODES = Object.freeze({

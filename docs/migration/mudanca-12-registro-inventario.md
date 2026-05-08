@@ -163,7 +163,7 @@ Mapear profundamente o fluxo de Registro antes de qualquer refatoracao, identifi
 
 Lacunas criticas:
 
-- Falta um teste de contrato unico para todos `REGISTRO_PUBLIC_IDS`, `REGISTRO_ACTIONS`, classes publicas e DOM real das ilhas React/legado.
+- CP-B cobre um teste de contrato dedicado para `REGISTRO_PUBLIC_IDS`, `REGISTRO_ACTIONS`, `REGISTRO_PUBLIC_CLASSES`, `REGISTRO_REACT_ROOTS`, atributos delegados e DOM real das ilhas React/legado.
 - `saveRegistro` ainda depende de muitos side effects em uma funcao longa; cobertura existe, mas extracao deve ser precedida por pre-split.
 - Fluxos offline de fotos/assinatura sao bem cobertos em storage, mas menos conectados ao DOM completo de Registro.
 - Relatorio/PDF tem cobertura funcional, mas nao visual; qualquer mudanca de payload deve preservar filtros e `registroId`.
@@ -197,8 +197,20 @@ Lacunas criticas:
 |     7 | CP-H - relatorio/PDF e post-save                | Mapear/extrair ponte post-save PDF/WhatsApp e contratos `registroId`                              | Relatorio/post-save apenas                                                             | Alto        | PDF/WhatsApp/relatorio tests passam                            |
 |     8 | CP-I - stability checkpoint de Registro         | Validar suite ampla, LOC, arquitetura e riscos remanescentes                                      | Docs/validacao                                                                         | Baixo       | Decisao clara para encerrar Mudanca 12 ou CP adicional         |
 
-## 10. Proximo CP recomendado
+## 10. CP-B - Contratos/selectors de Registro
 
-**CP-B - contratos/selectors de Registro.**
+Status: aplicado em 2026-05-08.
 
-Confianca: 90%+. O mapeamento mostra que a maior superficie de regressao antes de qualquer pre-split e o contrato DOM entre `registro.js`, ilhas React, handlers delegados e testes. Criar/fortalecer esse contrato primeiro reduz risco para todos os CPs seguintes, especialmente porque `src/ui/views/registro.js` tem 1997 linhas e mistura roots, `data-action`, state, storage, PDF, fotos e assinatura.
+- Contratos/selectors congelados em `src/ui/viewModels/registroContracts.js`.
+- Teste dedicado criado em `src/__tests__/contracts/registroSelectors.test.js`.
+- IDs cobertos: `view-registro`, `registro-header-root`, `r-equip`, `r-data`, `r-tipo`, `r-tipo-custom`, `r-obs`, `r-tecnico`, `photo-preview`, `input-fotos`, `registro-signature-hint`, `r-checklist-body`.
+- Actions cobertas: `save-registro`, `save-and-share-registro`, `save-and-share-other-registro`, `clear-registro`, `quick-service-template`, `r-checklist-set`, `registro-signature-capture`, `registro-signature-open`, `registro-signature-remove`.
+- Classes/atributos cobertos: `registro-hero`, `registro-quick`, `registro-field`, `registro-actions`, `registro-context-card`, `registro-photo-quick`, `registro-sig-hint`, `r-checklist__*`, `data-action`, `data-r-action`, `data-template`, `data-color`, `data-item-id`, `data-status`, `data-unit`, `data-state`.
+- Roots React cobertos: header, checklist, fotos e assinatura.
+- Lacuna registrada: `data-mode`, `data-value` e `data-field` nao apareceram como contratos reais de Registro no mapeamento estatico deste CP.
+
+## 11. Proximo CP recomendado
+
+**CP-C - pre-split payload/validacao.**
+
+Confianca: 90%+. Com os contratos publicos de DOM/actions/classes agora protegidos por teste, o proximo corte seguro e separar in-place a leitura de formulario, normalizacao de tipo, montagem de payload e validacoes dentro de `saveRegistro`, ainda sem mover o orquestrador.
