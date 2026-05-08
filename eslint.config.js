@@ -38,6 +38,7 @@ export default [
       // timestamp. Nao e codigo-fonte, nunca deve ser linted.
       'dist.stale*/**',
       'coverage/**',
+      '.claude/worktrees/**',
       // Vite gera arquivos vite.config.js.timestamp-*.mjs durante dev/build.
       // Sao cache transitorio (nao versionados) e quebravam npm run lint.
       'vite.config.js.timestamp-*.mjs',
