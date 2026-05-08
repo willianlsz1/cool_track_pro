@@ -150,6 +150,10 @@ import {
 } from '../../features/equipamentos/ui/renderFlatList.js';
 import { configureRenderEquip, renderEquip } from '../../features/equipamentos/ui/renderEquip.js';
 import {
+  configureHeaderMount,
+  mountEquipamentosHeader,
+} from '../../features/equipamentos/ui/headerMount.js';
+import {
   configureToolbar,
   setToolbar as _setToolbar,
 } from '../../features/equipamentos/ui/toolbar.js';
@@ -157,6 +161,10 @@ import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/vi
 
 configureEquipContextState({ renderEquip });
 configureToolbar({ Utils });
+configureHeaderMount({
+  Utils,
+  mountHeaderBridge: mountEquipamentosHeaderBridge,
+});
 configureRenderFlatList({
   getState,
   Utils,
@@ -674,16 +682,6 @@ export function setActiveQuickFilter(id) {
 // Import local pra uso interno + re-export pra preservar imports externos.
 import { computeEquipKpis, renderEquipHero, renderEquipFilters } from './equipamentos/hero.js';
 export { computeEquipKpis, renderEquipHero, renderEquipFilters };
-
-/** @sliceTarget controller/mount */
-function mountEquipamentosHeader(viewModel) {
-  return mountEquipamentosHeaderBridge({
-    viewModel,
-    root: Utils.getEl('equip-hero'),
-    filtersRoot: Utils.getEl('equip-filters'),
-    contextRoot: Utils.getEl('equip-context-chip'),
-  });
-}
 
 /** Popula o select de setores no modal de cadastro de equipamento. */
 /** @sliceTarget ui/form */

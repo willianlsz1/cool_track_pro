@@ -2297,3 +2297,66 @@ Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewMo
 **CP-H.11 - mapear/mover mountEquipamentosHeader.**
 
 Justificativa: apos toolbar/list/render/detail/edit/delete, o header bridge ainda e um bloco UI pequeno no adapter e pode ser avaliado como proximo corte sem misturar modal/form/fachada.
+
+## Atualizacao CP-H.11 - Mover mountEquipamentosHeader (2026-05-08)
+
+Status: **CP-H.11 aplicado**.
+
+### Escopo aplicado
+
+`mountEquipamentosHeader` foi movido de `src/ui/views/equipamentos.js` para `src/features/equipamentos/ui/headerMount.js`, preservando a funcao como ponte entre DOM legado e `headerBridge`.
+
+`configureHeaderMount({ Utils, mountHeaderBridge: mountEquipamentosHeaderBridge })` injeta a dependencia de DOM e a bridge real uma vez no adapter. O adapter continua passando `mountEquipamentosHeader` para `configureRenderEquip` como antes.
+
+### Dependencias injetadas
+
+| Dependencia                        | Entrada via DI                      | Observacao                                                                  |
+| ---------------------------------- | ----------------------------------- | --------------------------------------------------------------------------- |
+| `Utils`                            | `Utils`                             | Usado apenas para `Utils.getEl`.                                            |
+| `Utils.getEl`                      | via `Utils`                         | Resolve `equip-hero`, `equip-filters` e `equip-context-chip`.               |
+| `mountEquipamentosHeaderBridge`    | `mountHeaderBridge`                 | Preserva a chamada da bridge React e o fallback silencioso quando sem root. |
+| `buildEquipamentosHeaderViewModel` | permanece em `configureRenderEquip` | Nao foi movido neste CP.                                                    |
+| `computeEquipKpis`                 | permanece em `configureRenderEquip` | Nao foi movido neste CP.                                                    |
+| `getPreventivaDueEquipmentIds`     | permanece em `configureRenderEquip` | Nao foi movido neste CP.                                                    |
+
+### Ordem preservada
+
+Ordem mantida: assinatura/parametro `viewModel` -> resolver roots DOM (`equip-hero`, `equip-filters`, `equip-context-chip`) -> chamar a bridge com os mesmos parametros -> retornar o resultado da bridge.
+
+### O que permaneceu no adapter
+
+- Toolbar permaneceu reexportada/consumida sem reescrita via `setToolbar: _setToolbar`.
+- `mountEquipamentosList` e `unmountEquipamentosList` nao foram movidos neste CP.
+- `renderFlatList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip` permanecem reexportados/consumidos sem reescrita.
+- `saveEquip`, setor, CRUD e helpers nao relacionados permaneceram no adapter.
+- `buildEquipamentosHeaderViewModel`, `computeEquipKpis` e `getPreventivaDueEquipmentIds` permaneceram no fluxo atual de `configureRenderEquip`.
+
+### Acoplamento conhecido
+
+Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewModels.js` para `src/ui/views/equipamentos/constants.js` e `src/ui/views/equipamentos/helpers.js`. Nenhuma acao foi tomada neste CP.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1243 |   1241 |    -2 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/ui/headerMount.test.js` com 4 testes de DI, resolucao dos roots legados, chamada da bridge, fallback silencioso e ausencia de import do adapter.
+- Teste focado executado: `npm run test -- src/features/equipamentos/__tests__/ui/headerMount.test.js src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/ui/renderEquip.test.js src/features/equipamentos/__tests__/ui/renderFlatList.test.js src/features/equipamentos/__tests__/ui/toolbar.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 8 arquivos e 65 testes.
+
+### Conformidade
+
+- `mountEquipamentosHeader` foi movido para modulo feature-scoped.
+- Root DOM, bridge React, parametros e retorno foram preservados.
+- `mountEquipamentosList`, toolbar, `renderFlatList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip`, `saveEquip`, setor e CRUD nao foram movidos.
+- HTML, `data-action`, `data-id`, classes, selectors, header visual, toolbar, list branch e render plan foram preservados.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+- `src/features/equipamentos/ui/headerMount.js` nao importa `src/ui/views/equipamentos.js`.
+
+### Proximo CP recomendado
+
+**Stability checkpoint pos-Mudanca 11.**
+
+Justificativa: os principais orquestradores e helpers UI da tela ja foram extraidos em CPs pequenos. Antes de seguir para modal/form helpers ou fachada/shim, vale validar a composicao completa da Mudanca 11 com uma rodada de estabilidade para reduzir risco acumulado.
