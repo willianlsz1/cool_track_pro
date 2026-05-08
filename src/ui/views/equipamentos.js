@@ -30,7 +30,6 @@ import { buildEquipamentosHeaderViewModel } from '../viewModels/equipamentosHead
 import { validateEquipamentoPayload } from '../../core/inputValidation.js';
 import { EquipmentPhotos } from '../components/equipmentPhotos.js';
 import { resetCamposExtrasState, setCamposExtrasState } from '../components/nameplateCapture.js';
-import { Photos } from '../components/photos.js';
 import { normalizePhotoList } from '../../core/photoStorage.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
 import { SETOR_NOME_MAX } from '../../core/setorRules.js';
@@ -133,6 +132,11 @@ import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplat
 import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
 import { runSaveEquipPostActions } from '../../features/equipamentos/crud/postActions.js';
 import { configureSaveEquip, saveEquip } from '../../features/equipamentos/crud/saveEquip.js';
+import {
+  bindViewEquipDetailCoverActions,
+  mountViewEquipDetail,
+  openViewEquipDetailModal,
+} from '../../features/equipamentos/ui/detailController.js';
 import { renderViewEquipDetailHtml } from '../../features/equipamentos/ui/detail.js';
 import { buildViewEquipDetailModel } from '../../features/equipamentos/ui/detailModel.js';
 
@@ -1469,64 +1473,6 @@ function _resolveViewEquipTarget(id) {
   return findEquip(id);
 }
 
-/** @sliceSplit ui/detail-modal */
-function _mountViewEquipDetail(html) {
-  Utils.getEl('eq-det-corpo').innerHTML = html;
-}
-
-/** @sliceSplit ui/detail-photos */
-function _bindViewEquipDetailCoverActions(firstPhotoUrl) {
-  // Setor agora é readonly no detail view (listener inline removido).
-  // `assignEquipToSetor` continua exportada pra uso programático (drag-drop).
-
-  // V4: listener das fotos do hero/gallery removido — o bloco foi substituído
-  // pelo avatar CTA, que abre `modal-eq-photos`. Lightbox continua sendo
-  // útil para abrir a foto em grande a partir do editor, se necessário.
-
-  // Fallback da foto de capa quebrada: se a URL expira ou falha (offline,
-  // 404), aplica `eq-detail-cover--fallback` pra o emoji do tipo aparecer
-  // no lugar do img quebrado. Anexado via addEventListener em vez de
-  // `onerror=` inline por causa do CSP `script-src 'self'`.
-  const coverImg = document.querySelector('.eq-detail-cover__img');
-  if (coverImg instanceof HTMLImageElement) {
-    coverImg.addEventListener(
-      'load',
-      () => {
-        coverImg.closest('.eq-detail-cover')?.classList.add('eq-detail-cover--loaded');
-      },
-      { once: true },
-    );
-    coverImg.addEventListener(
-      'error',
-      () => {
-        coverImg.closest('.eq-detail-cover')?.classList.add('eq-detail-cover--fallback');
-        coverImg.remove();
-      },
-      { once: true },
-    );
-  }
-  const coverPreviewHit = document.querySelector('.eq-detail-cover__preview-hit');
-  if (coverPreviewHit && firstPhotoUrl) {
-    coverPreviewHit.addEventListener('click', () => {
-      Photos.openLightbox(firstPhotoUrl);
-    });
-  }
-}
-
-/** @sliceSplit ui/detail-modal */
-async function _openViewEquipDetailModal(id) {
-  try {
-    const { Modal: M } = await import('../../core/modal.js');
-    M.open('modal-eq-det');
-  } catch (error) {
-    handleError(error, {
-      code: ErrorCodes.NETWORK_ERROR,
-      message: 'Não foi possível abrir os detalhes do equipamento.',
-      context: { action: 'equipamentos.viewEquip.openModal', id },
-    });
-  }
-}
-
 /**
  * @sliceSplit
  *   ui/detail: HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
@@ -1549,9 +1495,9 @@ export async function viewEquip(id) {
   const detail = renderViewEquipDetailHtml(model, {
     getSetores: () => getState().setores,
   });
-  _mountViewEquipDetail(detail.html);
-  _bindViewEquipDetailCoverActions(detail.firstPhotoUrl);
-  await _openViewEquipDetailModal(id);
+  mountViewEquipDetail(detail.html);
+  bindViewEquipDetailCoverActions(detail.firstPhotoUrl);
+  await openViewEquipDetailModal(id);
 }
 
 /** @sliceTarget crud/equip */

@@ -1506,3 +1506,55 @@ Permaneceram em `src/ui/views/equipamentos.js`: `viewEquip`, `_resolveViewEquipT
 **CP-G.3 � detail mount/bind/modal.**
 
 Justificativa: o HTML j� est� isolado; o pr�ximo recorte natural � separar montagem/bind/modal mantendo `viewEquip` como orquestrador e preservando Photos/lightbox/cover bind sem mexer em CRUD.
+
+## Atualiza��o CP-G.3 � Extrair detail mount/bind/modal (2026-05-08)
+
+Status: **CP-G.3 aplicado**.
+
+### Escopo aplicado
+
+O controller da detail view de equipamento saiu de `src/ui/views/equipamentos.js` e passou para `src/features/equipamentos/ui/detailController.js`. O m�dulo novo concentra montagem do HTML, bind do cover/lightbox e abertura do modal de detalhe. `viewEquip` permanece no adapter como orquestrador.
+
+### Helpers movidos
+
+| Helper legado                      | Export novo                       | Origem                         | Destino                                            | Depend�ncias principais                                                                                             |
+| ---------------------------------- | --------------------------------- | ------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `_mountViewEquipDetail`            | `mountViewEquipDetail`            | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detailController.js` | `Utils.getEl` via default ou `getEl` injetado, root `eq-det-corpo`, `innerHTML`.                                    |
+| `_bindViewEquipDetailCoverActions` | `bindViewEquipDetailCoverActions` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detailController.js` | `document.querySelector`, `HTMLImageElement`, eventos `load`/`error`, `classList`, `remove`, `Photos.openLightbox`. |
+| `_openViewEquipDetailModal`        | `openViewEquipDetailModal`        | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/detailController.js` | import din�mico de `Modal`, `Modal.open('modal-eq-det')`, `handleError`, `ErrorCodes.NETWORK_ERROR`.                |
+
+### Depend�ncias
+
+As fun��es aceitam deps opcionais para teste e baixo acoplamento: `getEl`, `documentRef`, `HTMLImageElementCtor`, `Photos`, `importModal`, `handleError` e `ErrorCodes`. Em produ��o, os defaults preservam os m�dulos existentes: `Utils`, `Photos`, import din�mico de `core/modal.js`, `handleError` e `ErrorCodes`.
+
+### Ordem preservada
+
+`viewEquip` mant�m a ordem anterior: montar HTML em `#eq-det-corpo` ? bindar cover/lightbox/fallback ? abrir `modal-eq-det`.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `viewEquip`, `_resolveViewEquipTarget`, `renderEquip`, `saveEquip`, `deleteEquip`, setor, CRUD de save, render plan e React bridges. O model segue em `src/features/equipamentos/ui/detailModel.js`; o HTML segue em `src/features/equipamentos/ui/detail.js`.
+
+### M�tricas do CP-G.3
+
+| Arquivo                                                           | Antes | Depois | Delta |
+| ----------------------------------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                                    |  1627 |   1573 |   -54 |
+| `src/features/equipamentos/ui/detailController.js`                |     0 |     60 |   +60 |
+| `src/features/equipamentos/__tests__/ui/detailController.test.js` |     0 |    114 |  +114 |
+
+### Testes adicionados
+
+Criado `src/features/equipamentos/__tests__/ui/detailController.test.js` com 8 testes cobrindo mount no root correto, comportamento equivalente sem root, classe `eq-detail-cover--loaded`, fallback `eq-detail-cover--fallback`, remo��o da imagem quebrada, lightbox com `firstPhotoUrl`, aus�ncia de lightbox sem foto e abertura/erro do modal.
+
+### Valida��o executada
+
+- `npm run test -- src/features/equipamentos/__tests__/ui/detailController.test.js --reporter=dot` falhou primeiro por m�dulo inexistente, como RED esperado.
+- `npm run test -- src/features/equipamentos/__tests__/ui/detailController.test.js --reporter=dot` passou: 1 arquivo, 8 testes.
+- `npm run test -- src/features/equipamentos/__tests__/ui/detailController.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/features/equipamentos/__tests__/ui/detailModel.test.js src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosView.hero.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou: 6 arquivos, 79 testes.
+
+### Pr�ximo CP recomendado
+
+**CP-G.4 � mover viewEquip como orquestrador.**
+
+Justificativa: model, HTML e controller do detail j� est�o isolados em m�dulos feature-scoped. O pr�ximo recorte natural � mover `viewEquip` mantendo o adapter legado como fachada p�blica, sem tocar render/save/delete.
