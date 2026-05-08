@@ -2063,3 +2063,53 @@ Nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
 **CP-H.7 - pre-split in-place de renderFlatList.**
 
 Justificativa: separar localmente snapshot/contexto, build do view model, root, idle cluster, React view model e mount com skeleton/fallback reduz risco antes de mover a lista para feature-scoped, sem misturar toolbar/setor/header no mesmo CP.
+
+## Atualizacao CP-H.7 - Pre-split in-place de renderFlatList (2026-05-08)
+
+Status: **CP-H.7 aplicado**.
+
+### Escopo aplicado
+
+`renderFlatList` permaneceu em `src/ui/views/equipamentos.js` e foi quebrado em helpers locais pequenos, sem mover `_setToolbar`, `mountEquipamentosHeader`, `mountEquipamentosList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip`, `saveEquip`, setor ou CRUD.
+
+Nenhuma mudanca funcional intencional foi feita. A ordem original foi preservada: snapshot de state -> contexto de avaliacao -> build do `buildEquipamentosViewModel` -> root `#lista-equip` com early return silencioso -> idle cluster -> `buildReactListViewModel` -> `withSkeleton`/`mountEquipamentosList` -> fallback de imagens no `onMounted`.
+
+### Helpers locais criados
+
+| Helper                              | Responsabilidade                                                                            | Observacao                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `buildRenderFlatListStateSnapshot`  | Captura `equipamentos`, `registros`, `clientes` e `setores` via `getState`.                 | Preserva a leitura inicial de estado.                         |
+| `buildRenderFlatListContext`        | Normaliza `filtro`, `options`, `setorId`, `filterClienteId`, state e `evalCtx`.             | Mantem `_createEquipRenderEvalContext` depois do snapshot.    |
+| `buildRenderFlatListViewModel`      | Chama `buildEquipamentosViewModel` com filtros, preventivas e avaliadores.                  | Preserva regras de filtro, busca, setor e quick filter.       |
+| `resolveRenderFlatListRoot`         | Resolve `Utils.getEl('lista-equip')`.                                                       | Mantem early return silencioso quando ausente.                |
+| `resolveRenderFlatListIdleCluster`  | Calcula cluster idle/ativo.                                                                 | Preserva histerese e regra de lista so-de-idle.               |
+| `buildRenderFlatListReactViewModel` | Chama `buildReactListViewModel` com `clusterActive`, `filterClienteId` e `isCachedPlanPro`. | Preserva contrato da ilha React.                              |
+| `bindRenderFlatListImageFallbacks`  | Encapsula `_bindEquipCardImageFallbacks`.                                                   | Preserva fallback de imagens apos mount.                      |
+| `mountRenderFlatListReactIsland`    | Encapsula `withSkeleton` e `mountEquipamentosList`.                                         | Preserva skeleton/loading state e generation guard do bridge. |
+
+### Acoplamento conhecido
+
+Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewModels.js` para `src/ui/views/equipamentos/constants.js` e `src/ui/views/equipamentos/helpers.js`. Nenhuma acao foi tomada neste CP.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1321 |   1358 |   +37 |
+
+### Testes
+
+- Teste focado executado: `npm run test -- src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosReactListIsland.test.jsx src/features/equipamentos/__tests__/bridges/listBridge.test.js src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/ui/renderEquip.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 6 arquivos e 59 testes.
+
+### Conformidade
+
+- `renderFlatList` continua no adapter.
+- `_setToolbar`, `mountEquipamentosHeader`, `mountEquipamentosList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip`, `saveEquip`, setor e CRUD nao foram movidos.
+- HTML, `data-action`, `data-id`, classes, selectors, skeleton, empty state, fallback de imagem, quick filter, setor, toolbar e bridge React foram preservados.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+
+### Proximo CP recomendado
+
+**CP-H.8 - mover renderFlatList/list branch.**
+
+Justificativa: o pre-split local isolou snapshot/contexto, view model, root, idle cluster, React view model e mount/fallback. O proximo corte pode mover `renderFlatList` como orquestrador feature-scoped via DI, ainda mantendo `_setToolbar` e header fora do escopo.

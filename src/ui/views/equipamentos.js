@@ -732,20 +732,26 @@ export function populateSetorSelect(isPro = false) {
 // buildReactListViewModel extraídos pra
 // src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
 
-/** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
-/**
- * @sliceSplit
- *   ui/list: build do reactViewModel + render skeleton + mount React
- *   controller/render: orquestra fetch state, viewModel build, generation counter
- */
-function renderFlatList(filtro = '', options = {}, setorId = null) {
+function buildRenderFlatListStateSnapshot() {
   const { equipamentos, registros, clientes, setores } = getState();
+  return { equipamentos, registros, clientes, setores };
+}
+
+function buildRenderFlatListContext(filtro = '', options = {}, setorId = null) {
+  const state = buildRenderFlatListStateSnapshot();
   const evalCtx = _createEquipRenderEvalContext();
 
   // Filtro por cliente vindo da view /clientes ("Ver equipamentos"). Se
   // setado em options.clienteId, restringe a lista a equipamentos vinculados.
   const filterClienteId = options.clienteId || null;
-  const viewModel = buildEquipamentosViewModel({
+  return { evalCtx, filterClienteId, filtro, options, setorId, state };
+}
+
+function buildRenderFlatListViewModel(context) {
+  const { equipamentos, registros, clientes, setores } = context.state;
+  const { evalCtx, filterClienteId, filtro, options, setorId } = context;
+
+  return buildEquipamentosViewModel({
     equipamentos,
     clientes,
     setores,
@@ -767,10 +773,13 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
     getRisk: evalCtx.getRisk,
     isFullyIdle: evalCtx.isFullyIdle,
   });
+}
 
-  const el = Utils.getEl('lista-equip');
-  if (!el) return;
+function resolveRenderFlatListRoot() {
+  return Utils.getEl('lista-equip');
+}
 
+function resolveRenderFlatListIdleCluster(viewModel) {
   // PR4 §12.3 · Particiona idle vs ativo pra decidir sobre idle-cluster.
   //  · Cluster coleta idles quando ≥5 (histerese solta ≤2).
   //  · Posição: cluster sempre acima dos cards ativos — mas só se houver
@@ -778,25 +787,53 @@ function renderFlatList(filtro = '', options = {}, setorId = null) {
   //    perde valor (nada pra "esconder") e volta a render linear.
   const idleList = viewModel.idleItems;
   const activeList = viewModel.activeItems;
-  const clusterActive =
-    _resolveIdleClusterCollapsed(idleList.length) && idleList.length > 0 && activeList.length > 0;
-  const reactViewModel = buildReactListViewModel(viewModel, {
-    evalCtx,
+  return (
+    _resolveIdleClusterCollapsed(idleList.length) && idleList.length > 0 && activeList.length > 0
+  );
+}
+
+function buildRenderFlatListReactViewModel(context, viewModel) {
+  const clusterActive = resolveRenderFlatListIdleCluster(viewModel);
+
+  return buildReactListViewModel(viewModel, {
+    evalCtx: context.evalCtx,
     clusterActive,
-    filterClienteId,
+    filterClienteId: context.filterClienteId,
     isPro: isCachedPlanPro(),
   });
+}
 
+function bindRenderFlatListImageFallbacks(root) {
+  _bindEquipCardImageFallbacks(root);
+}
+
+function mountRenderFlatListReactIsland(root, viewModel, reactViewModel) {
   return withSkeleton(
-    el,
+    root,
     { enabled: true, variant: 'equipment', count: viewModel.skeletonCount },
     () =>
       mountEquipamentosList({
-        root: el,
+        root,
         viewModel: reactViewModel,
-        onMounted: () => _bindEquipCardImageFallbacks(el),
+        onMounted: () => bindRenderFlatListImageFallbacks(root),
       }),
   );
+}
+
+/** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
+/**
+ * @sliceSplit
+ *   ui/list: build do reactViewModel + render skeleton + mount React
+ *   controller/render: orquestra fetch state, viewModel build, generation counter
+ */
+function renderFlatList(filtro = '', options = {}, setorId = null) {
+  const context = buildRenderFlatListContext(filtro, options, setorId);
+  const viewModel = buildRenderFlatListViewModel(context);
+  const root = resolveRenderFlatListRoot();
+  if (!root) return;
+
+  const reactViewModel = buildRenderFlatListReactViewModel(context, viewModel);
+  return mountRenderFlatListReactIsland(root, viewModel, reactViewModel);
 }
 
 // ── Setor modal: paleta curada, live preview, validation ─────────────────
