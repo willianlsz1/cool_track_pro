@@ -138,6 +138,7 @@ import {
 } from '../../features/equipamentos/crud/persist.js';
 import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplate/dadosPlaca.js';
 import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
+import { runSaveEquipPostActions } from '../../features/equipamentos/crud/postActions.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -1425,33 +1426,6 @@ async function _refreshSaveEquipViews() {
 }
 
 /**
- * @sliceTarget controller/render
- */
-function _runSaveEquipPostActions({ keepOpen, openRegistro, openPmoc, equipId, clienteId }) {
-  if (keepOpen) {
-    const nomeInput = Utils.getEl('eq-nome');
-    if (nomeInput) nomeInput.focus();
-    return;
-  }
-
-  if (openRegistro && equipId) {
-    goTo('registro', { equipId });
-  }
-
-  if (openPmoc) {
-    goTo('relatorio');
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const pmocBtn = document.querySelector('[data-action="open-pmoc-modal"]');
-        if (!pmocBtn) return;
-        if (clienteId) pmocBtn.dataset.clienteId = clienteId;
-        pmocBtn.click();
-      });
-    });
-  }
-}
-
-/**
  * @sliceSplit
  *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
  *   ui/modal: clearEditingState + closeModal + Toast feedback
@@ -1526,12 +1500,15 @@ export async function saveEquip(options = {}) {
     refreshViews: _refreshSaveEquipViews,
     toastSuccess: Toast.success,
   });
-  _runSaveEquipPostActions({
+  runSaveEquipPostActions({
     keepOpen: postActionContext.keepOpen,
     openRegistro: postActionContext.openRegistro,
     openPmoc: postActionContext.openPmoc,
-    equipId: payload.equipId,
-    clienteId: payload.clienteId,
+    payload,
+    focusNameInput: () => Utils.getEl('eq-nome')?.focus(),
+    goTo,
+    requestAnimationFrameRef: requestAnimationFrame,
+    documentRef: document,
   });
 
   return true;
