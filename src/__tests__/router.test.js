@@ -27,9 +27,12 @@ function mountRouterDom() {
   });
 }
 
+let routerModule;
+
 async function loadRouterModule() {
   vi.resetModules();
   const mod = await import('../core/router.js');
+  routerModule = mod;
   // Refactor pos-PR: router nao importa mais de ui/* — quem registra os
   // blocking layers e o controller. Nos testes, simulamos isso aqui pra
   // manter cobertura do comportamento (popstate fechar signature modals).
@@ -59,6 +62,13 @@ describe('router', () => {
     closeSignatureCaptureIfOpen.mockClear();
     closeSignatureViewerIfOpen.mockClear();
     mountRouterDom();
+  });
+
+  afterEach(() => {
+    routerModule?.__resetRouterForTests();
+    routerModule = null;
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it('activates route and nav button and pushes browser history', async () => {

@@ -39,6 +39,9 @@ let _blockingLayerDepth = 0;
 let _blockingLayerSyncSuspended = false;
 let _blockingLayerObserver = null;
 let _blockingLayerHistoryCompacting = false;
+let _popstateHandler = null;
+let _backbuttonHandler = null;
+const _pendingAnimationCleanups = new Set();
 const UI_CTX_VERSION = 1;
 
 function normalizeRouteParams(params) {
@@ -76,11 +79,15 @@ function afterAnimation(element, fallbackMs, callback) {
   }
 
   let settled = false;
+  const cleanup = () => {
+    element.removeEventListener('animationend', onAnimationEnd);
+    clearTimeout(timeoutId);
+    _pendingAnimationCleanups.delete(cleanup);
+  };
   const finish = () => {
     if (settled) return;
     settled = true;
-    element.removeEventListener('animationend', onAnimationEnd);
-    clearTimeout(timeoutId);
+    cleanup();
     callback();
   };
   const onAnimationEnd = (event) => {
@@ -88,6 +95,7 @@ function afterAnimation(element, fallbackMs, callback) {
   };
   const timeoutId = setTimeout(finish, fallbackMs);
 
+  _pendingAnimationCleanups.add(cleanup);
   element.addEventListener('animationend', onAnimationEnd);
 }
 
@@ -234,6 +242,14 @@ function bindBlockingLayerHistoryObserver() {
   // pra overlays que não passam pelo módulo Modal (lightbox, signature).
   document.addEventListener('modal:opened', syncBlockingLayerHistoryDepth);
   document.addEventListener('modal:closed', syncBlockingLayerHistoryDepth);
+}
+
+function unbindBlockingLayerHistoryObserver() {
+  _blockingLayerObserver?.disconnect();
+  _blockingLayerObserver = null;
+  if (typeof document === 'undefined') return;
+  document.removeEventListener('modal:opened', syncBlockingLayerHistoryDepth);
+  document.removeEventListener('modal:closed', syncBlockingLayerHistoryDepth);
 }
 
 /**
@@ -527,7 +543,7 @@ export function initHistory() {
     }
   }
 
-  safeWindow.addEventListener('popstate', (e) => {
+  _popstateHandler = (e) => {
     if (_blockingLayerHistoryCompacting) {
       _blockingLayerHistoryCompacting = false;
       return;
@@ -551,9 +567,10 @@ export function initHistory() {
     if (_routes.has('inicio') && _current !== 'inicio') {
       goTo('inicio', {}, { fromHistory: true });
     }
-  });
+  };
+  safeWindow.addEventListener('popstate', _popstateHandler);
 
-  document.addEventListener('backbutton', (e) => {
+  _backbuttonHandler = (e) => {
     if (closeTopBlockingLayer()) {
       e.preventDefault?.();
       return;
@@ -562,7 +579,35 @@ export function initHistory() {
       e.preventDefault?.();
       safeWindow.history.back();
     }
-  });
+  };
+  document.addEventListener('backbutton', _backbuttonHandler);
 
   bindBlockingLayerHistoryObserver();
+}
+
+export function __resetRouterForTests() {
+  _pendingAnimationCleanups.forEach((cleanup) => cleanup());
+  _pendingAnimationCleanups.clear();
+
+  if (_popstateHandler && safeWindow) {
+    safeWindow.removeEventListener('popstate', _popstateHandler);
+  }
+  _popstateHandler = null;
+
+  if (_backbuttonHandler && typeof document !== 'undefined') {
+    document.removeEventListener('backbutton', _backbuttonHandler);
+  }
+  _backbuttonHandler = null;
+
+  unbindBlockingLayerHistoryObserver();
+  _blockingLayerRegistry.clear();
+  _routes.clear();
+  _current = null;
+  _currentParams = {};
+  _transitioning = false;
+  _historyBound = false;
+  _blockingLayerDepth = 0;
+  _blockingLayerSyncSuspended = false;
+  _blockingLayerHistoryCompacting = false;
+  _navGuard = null;
 }
