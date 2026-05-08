@@ -1791,3 +1791,38 @@ Nao criar fachada/shim neste CP. O adapter ainda e a fronteira de composicao ent
 **CP-H.1 - mapear deleteEquip/openEditEquip.**
 
 Justificativa: `openEditEquip` e `deleteEquip` sao os maiores exports publicos ainda implementados no adapter e combinam modal, DOM, storage, billing, dados de placa, focus, refresh global e toast. Mapear/pre-splitar esses fluxos antes de mover reduz risco para a fachada futura.
+
+## Atualizacao CP-H.1 - Mapeamento de deleteEquip e openEditEquip (2026-05-08)
+
+Status: **CP-H.1 aplicado**.
+
+### Escopo aplicado
+
+Criado `docs/migration/mudanca-11-cp-h1-edit-delete-map.md` com o mapeamento read-only dos fluxos `deleteEquip` e `openEditEquip`, helpers acoplados, testes relacionados, riscos principais e opcoes de proximo CP.
+
+### Estado analisado
+
+- Branch: `main`.
+- HEAD base: `6a4a53d6e42f52e4c1b0e72f9af6ce8a10650f7d`.
+- Adapter analisado: `src/ui/views/equipamentos.js`.
+- LOC atual do adapter: 1440.
+- `deleteEquip` localizado em `src/ui/views/equipamentos.js:1371`.
+- `openEditEquip` localizado em `src/ui/views/equipamentos.js:1045`.
+- Grep de imports de `src/features/equipamentos` para o adapter raiz `src/ui/views/equipamentos.js`: sem dependencia nova; permanecem referencias documentais e imports para submodulos `constants.js`/`helpers.js`.
+
+### Decisao
+
+Nao criar fachada, shim, pre-split ou movimentacao neste CP. `openEditEquip` concentra o maior risco remanescente por combinar form, DOM, estado de edicao, dados de placa, billing/gates, setor, modal e foco. `deleteEquip` e menor, mas tambem acopla storage/state/render/header/toast.
+
+### Arquivos alterados
+
+- `docs/migration/mudanca-11-cp-h1-edit-delete-map.md` criado.
+- `docs/migration/mudanca-11-inventario.md` atualizado.
+- Nenhum arquivo em `src/` alterado.
+- Nenhum teste alterado.
+
+### Proximo CP recomendado
+
+**CP-H.2 - pre-split in-place de `openEditEquip`.**
+
+Justificativa: `openEditEquip` e o fluxo mais longo e acoplado ainda no adapter. Separar helpers locais antes de mover preserva comportamento, limita diff e cria uma base mais segura para extracao posterior.
