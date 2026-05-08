@@ -2180,3 +2180,57 @@ Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewMo
 **CP-H.9 - separar toolbar antes de mover.**
 
 Justificativa: `_setToolbar` ainda concentra HTML/DOM de toolbar e e compartilhado entre lista, setor e branches de `renderEquip`; separar esse bloco antes de mexer em header/fachada reduz o risco de acoplar toolbar a list branch.
+
+## Atualizacao CP-H.9 - Pre-split in-place da toolbar (2026-05-08)
+
+Status: **CP-H.9 aplicado**.
+
+### Escopo aplicado
+
+`_setToolbar` permaneceu em `src/ui/views/equipamentos.js` e foi quebrado em helpers locais pequenos, sem mover `renderFlatList`, `mountEquipamentosHeader`, `mountEquipamentosList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip`, `saveEquip`, setor ou CRUD.
+
+Nenhuma mudanca funcional intencional foi feita. A ordem original foi preservada: resolver elementos DOM -> aplicar titulo -> aplicar subtitulo -> se existir root de actions, montar HTML de actions com `extraBtn` e CTA default -> aplicar `innerHTML`.
+
+### Helpers locais criados
+
+| Helper                       | Responsabilidade                                                             | Observacao                                                                     |
+| ---------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `resolveToolbarElements`     | Resolve `equip-page-title`, `equip-page-subtitle` e `equip-toolbar-actions`. | Preserva `Utils.getEl` e comportamento silencioso para ausentes.               |
+| `buildToolbarDefaultCtaHtml` | Monta o HTML do CTA default `+ Novo equipamento`.                            | Preserva classes, `data-action`, `data-id`, `data-source`, teste e aria-label. |
+| `buildToolbarActionsHtml`    | Combina `extraBtn` e CTA default respeitando `hideDefaultCta`.               | Preserva o `innerHTML` final da toolbar.                                       |
+| `applyToolbarTitle`          | Atualiza o titulo da pagina de equipamentos.                                 | Preserva fallback `Equipamentos`.                                              |
+| `applyToolbarSubtitle`       | Limpa o subtitulo.                                                           | Preserva `textContent = ''`.                                                   |
+| `applyToolbarActions`        | Aplica o HTML final no root de actions.                                      | Preserva uso de `innerHTML`.                                                   |
+
+### Usos preservados
+
+- `renderEquip` continua recebendo `_setToolbar` via `configureRenderEquip`.
+- Setor continua recebendo `_setToolbar` via `configureSetorUI`.
+- `hideDefaultCta`, `extraBtn`, CTA default, titulo, subtitulo, selectors, classes e atributos `data-*` foram preservados.
+
+### Acoplamento conhecido
+
+Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewModels.js` para `src/ui/views/equipamentos/constants.js` e `src/ui/views/equipamentos/helpers.js`. Nenhuma acao foi tomada neste CP.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1267 |   1291 |   +24 |
+
+### Testes
+
+- Teste focado executado: `npm run test -- src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosReactListIsland.test.jsx src/features/equipamentos/__tests__/ui/renderFlatList.test.js src/features/equipamentos/__tests__/ui/renderEquip.test.js src/features/equipamentos/__tests__/setor/setorUI.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 6 arquivos e 55 testes.
+
+### Conformidade
+
+- `_setToolbar` continua no adapter.
+- `renderFlatList`, `mountEquipamentosHeader`, `mountEquipamentosList`, `renderEquip`, `openEditEquip`, `deleteEquip`, `viewEquip`, `saveEquip`, setor e CRUD nao foram movidos.
+- HTML, `data-action`, `data-id`, classes, selectors, toolbar visual, CTA, `hideDefaultCta`, `extraBtn`, titulo e subtitulo foram preservados.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+
+### Proximo CP recomendado
+
+**CP-H.10 - mover toolbar helper.**
+
+Justificativa: o pre-split local isolou resolucao DOM, HTML do CTA, composicao de actions e aplicacao de campos. O proximo corte pode mover a toolbar como helper feature-scoped via DI, mantendo header/list/render fora do escopo.
