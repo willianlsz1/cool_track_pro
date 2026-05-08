@@ -140,6 +140,7 @@ import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplat
 import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
 import { runSaveEquipPostActions } from '../../features/equipamentos/crud/postActions.js';
 import { configureSaveEquip, saveEquip } from '../../features/equipamentos/crud/saveEquip.js';
+import { buildViewEquipDetailModel } from '../../features/equipamentos/ui/detailModel.js';
 
 configureEquipContextState({ renderEquip });
 configureEquipPhotos({ viewEquip });
@@ -1474,45 +1475,6 @@ function _resolveViewEquipTarget(id) {
   return findEquip(id);
 }
 
-/** @sliceSplit ui/detail-model */
-function _buildViewEquipDetailModel(id, eq) {
-  const regs = regsForEquip(id).sort((a, b) => b.data.localeCompare(a.data));
-  const health = evaluateEquipmentHealth(eq, regs);
-  const score = health.score;
-  const cls = getHealthClass(score);
-  const safeId = Utils.escapeAttr(id);
-  const context = health.context;
-  const risk = evaluateEquipmentRisk(eq, regs);
-  const proximaPreventiva = context?.proximaPreventiva
-    ? Utils.formatDate(context.proximaPreventiva)
-    : 'Sem agenda';
-  const healthSummary = health.reasons.length
-    ? Utils.escapeHtml(health.reasons.slice(0, 2).join(' | '))
-    : 'Histórico dentro da rotina prevista';
-
-  // SVG ring progress
-  const ringR = 30;
-  const ringC = +(2 * Math.PI * ringR).toFixed(1);
-  const ringOffset = +(ringC * (1 - score / 100)).toFixed(1);
-
-  return {
-    id,
-    eq,
-    regs,
-    health,
-    score,
-    cls,
-    safeId,
-    context,
-    risk,
-    proximaPreventiva,
-    healthSummary,
-    ringR,
-    ringC,
-    ringOffset,
-  };
-}
-
 /** @sliceSplit ui/detail-setor */
 function _renderViewEquipSetorInfoRow(eq) {
   // Setor como info-row READONLY (não editável inline). Antes era um <select>
@@ -2001,7 +1963,15 @@ export async function viewEquip(id) {
   const eq = _resolveViewEquipTarget(id);
   if (!eq) return;
 
-  const model = _buildViewEquipDetailModel(id, eq);
+  const model = buildViewEquipDetailModel({
+    id,
+    equip: eq,
+    regsForEquip,
+    evaluateEquipmentHealth,
+    evaluateEquipmentRisk,
+    getHealthClass,
+    utils: Utils,
+  });
   const detail = _renderViewEquipDetailHtml(model);
   _mountViewEquipDetail(detail.html);
   _bindViewEquipDetailCoverActions(detail.firstPhotoUrl);

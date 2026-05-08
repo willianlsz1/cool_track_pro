@@ -1393,3 +1393,60 @@ Preservados os contratos de detalhe:
 **CP-G.1 — detail model.**
 
 Motivo: separar primeiro o model puro/sem DOM reduz risco antes de extrair o HTML grande de detail. O recorte deve preservar a ordem atual e receber dependências explícitas para registros, health, risco, setor, plano/fotos e dados de etiqueta.
+
+## Atualização CP-G.1 — Extrair detail model de viewEquip (2026-05-08)
+
+Status: **CP-G.1 aplicado**.
+
+### Escopo aplicado
+
+`_buildViewEquipDetailModel` saiu do adapter legado e passou a ser exportado como `buildViewEquipDetailModel` em `src/features/equipamentos/ui/detailModel.js`. O módulo novo é puro: não toca DOM, modal, `document`, `innerHTML`, `renderEquip`, `viewEquip` ou CRUD.
+
+### Dependências usadas pelo detail model
+
+| Dependência                            | Origem atual                                                                 | Como é usada no detailModel                                                                         | Injeção/import                                |
+| -------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `regsForEquip`                         | `src/core/state.js`, via adapter `src/ui/views/equipamentos.js`              | Buscar registros do equipamento e ordenar por `data` decrescente.                                   | Injetada pelo adapter.                        |
+| `evaluateEquipmentHealth`              | `src/domain/maintenance.js`, via adapter                                     | Calcular `health`, `score`, `context`, razões e próxima preventiva.                                 | Injetada pelo adapter.                        |
+| `evaluateEquipmentRisk`                | `src/domain/maintenance.js`, via adapter                                     | Calcular `risk` usado pelo painel de risco do HTML atual.                                           | Injetada pelo adapter.                        |
+| `getHealthClass`                       | `src/domain/maintenance.js`, via adapter                                     | Converter `score` em `cls`.                                                                         | Injetada pelo adapter.                        |
+| `Utils.escapeAttr`                     | `src/core/utils.js`, via adapter                                             | Gerar `safeId` preservado para `data-id` e atributos.                                               | Injetada como `utils`.                        |
+| `Utils.formatDate`                     | `src/core/utils.js`, via adapter                                             | Formatar `context.proximaPreventiva`; fallback `Sem agenda`.                                        | Injetada como `utils`.                        |
+| `Utils.escapeHtml`                     | `src/core/utils.js`, via adapter                                             | Escapar `healthSummary` quando há razões de health.                                                 | Injetada como `utils`.                        |
+| Funções de risco                       | `evaluateEquipmentRisk` em `src/domain/maintenance.js`                       | Mantêm `risk.score`, `risk.classification`, `risk.factors` e demais campos retornados pelo domínio. | Injeção indireta via `evaluateEquipmentRisk`. |
+| Funções de manutenção                  | `evaluateEquipmentHealth`, `getHealthClass` em `src/domain/maintenance.js`   | Mantêm score, classe, contexto, razões e cálculo de preventiva.                                     | Injetadas pelo adapter.                       |
+| Dados de equipamento                   | Argumento `equip` vindo de `_resolveViewEquipTarget`/`findEquip`.            | Repassados como `eq` e usados como entrada dos cálculos de domínio.                                 | Argumento explícito.                          |
+| Registros                              | Retorno de `regsForEquip(id)`.                                               | Repassados como `regs` já ordenados, inclusive para timeline/render HTML.                           | Derivados por dependência injetada.           |
+| Setores/state                          | `getState().setores` no adapter.                                             | Não participa do model extraído; continua em `_renderViewEquipSetorInfoRow`.                        | Permanece no adapter.                         |
+| Plano/fotos                            | `isCachedPlanPlusOrHigher`, `getEquipmentVisualMeta`, `eq.fotos` no adapter. | Não participa do model extraído; continua em `_renderViewEquipCoverBlock`.                          | Permanece no adapter.                         |
+| Dados de placa                         | `formatDadosPlacaRows(eq.dadosPlaca)` no adapter.                            | Não participa do model extraído; continua em `_renderViewEquipDadosPlacaSections`.                  | Permanece no adapter.                         |
+| `getSuggestedPreventiveDays`           | `src/domain/maintenance.js`, usado no adapter de formulário.                 | Não era usado por `_buildViewEquipDetailModel`; sem mudança.                                        | Permanece importado/uso existente no adapter. |
+| `normalizePeriodicidadePreventivaDias` | `src/domain/maintenance.js`, usado em configuração de save.                  | Não era usado por `_buildViewEquipDetailModel`; sem mudança.                                        | Permanece no fluxo existente.                 |
+
+### Shape do model preservado
+
+Propriedades retornadas preservadas: `id`, `eq`, `regs`, `health`, `score`, `cls`, `safeId`, `context`, `risk`, `proximaPreventiva`, `healthSummary`, `ringR`, `ringC`, `ringOffset`.
+
+Foram preservados: ordenação de registros por data decrescente, fallback sem registros, cálculo de health/risk/classificação, fallback `Sem agenda`, resumo de health, constantes do ring SVG e cálculo de offset.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `viewEquip`, `_resolveViewEquipTarget`, `_renderViewEquipDetailHtml`, `_renderViewEquipSetorInfoRow`, `_renderViewEquipServiceTimeline`, `_renderViewEquipCoverBlock`, `_renderViewEquipDadosPlacaSections`, `_mountViewEquipDetail`, `_bindViewEquipDetailCoverActions`, `_openViewEquipDetailModal`, `renderEquip`, `saveEquip`, `deleteEquip`, setor, CRUD de save, render plan e React bridges.
+
+### Métricas do CP-G.1
+
+| Arquivo                                                      | Antes | Depois | Delta |
+| ------------------------------------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                               |  2081 |   2051 |   -30 |
+| `src/features/equipamentos/ui/detailModel.js`                |     0 |     50 |   +50 |
+| `src/features/equipamentos/__tests__/ui/detailModel.test.js` |     0 |    186 |  +186 |
+
+### Testes adicionados
+
+Criado `src/features/equipamentos/__tests__/ui/detailModel.test.js` com 7 testes cobrindo model sem registros, ordenação/quantidade de registros, health/risk/classificação, chamadas de dependências, próxima preventiva/dias no contexto, shape consumido pelo HTML atual, dados ausentes e escape do resumo.
+
+### Próximo CP recomendado
+
+**CP-G.2 — detail HTML.**
+
+Justificativa: o model puro já está isolado com dependências explícitas. O próximo recorte seguro é mover a composição HTML de detail mantendo montagem, bind de DOM, modal e fluxos de CRUD no adapter.
