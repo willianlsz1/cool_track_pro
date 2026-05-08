@@ -1677,3 +1677,84 @@ Nao foi criado teste novo porque o CP e pre-split estrutural sem mudanca funcion
 **CP-G.6 - mover renderEquip como orquestrador.**
 
 Justificativa: `renderEquip` agora esta menor como orquestrador e os blocos de contexto, plan/header e branches de lista/grid ja estao separados em helpers locais, reduzindo o risco da extracao feature-scoped.
+
+## Atualizacao CP-G.6 - Mover renderEquip como orquestrador (2026-05-08)
+
+Status: **CP-G.6 aplicado**.
+
+### Escopo aplicado
+
+`renderEquip` saiu de `src/ui/views/equipamentos.js` e passou para `src/features/equipamentos/ui/renderEquip.js`, mantendo a assinatura publica `async function renderEquip(filtro = '', options = {})`. O adapter legado configura as dependencias com `configureRenderEquip` e reexporta `renderEquip`, preservando os consumidores atuais.
+
+### Dependencias injetadas
+
+| Dependencia                             | Origem atual                                     | Injecao/import planejado            | Observacao                                          |
+| --------------------------------------- | ------------------------------------------------ | ----------------------------------- | --------------------------------------------------- |
+| `Utils`                                 | `core/utils.js` via adapter                      | Injetada via `configureRenderEquip` | Mantem acesso a DOM, truncamento e escapes.         |
+| `resolveEquipCtx`                       | `equipamentos/contextState.js` via adapter       | Injetada                            | Evita import do adapter e preserva filtros de rota. |
+| `stripRenderInternalOptions`            | `features/equipamentos/utils/viewModels.js`      | Injetada                            | Mantem limpeza de options internas.                 |
+| `isCachedPlanPro`                       | `core/plans/planCache.js` via adapter            | Injetada                            | Preserva branch Pro/setores.                        |
+| `bindRenderEquipPlanInvalidationEvents` | `features/equipamentos/bridges/renderPlan.js`    | Injetada                            | Mantem side effect inicial do render plan.          |
+| `incrementRenderEquipPlanToken`         | `features/equipamentos/state/renderPlanState.js` | Injetada                            | Mantem controle de staleness.                       |
+| `getRenderEquipPlanNeedsRefresh`        | `features/equipamentos/state/renderPlanState.js` | Injetada                            | Mantem refresh fire-and-forget.                     |
+| `refreshRenderEquipPlan`                | `features/equipamentos/bridges/renderPlan.js`    | Injetada                            | Preserva re-render async quando plano muda.         |
+| `populateSetorSelect`                   | Adapter legado                                   | Injetada                            | Setor nao foi movido neste CP.                      |
+| `getState`                              | `core/state.js` via adapter                      | Injetada                            | Mantem snapshot do header/lista.                    |
+| `getPreventivaDueEquipmentIds`          | `domain/alerts.js` via adapter                   | Injetada                            | Mantem KPIs do header.                              |
+| `buildEquipamentosHeaderViewModel`      | `ui/viewModels/equipamentosHeaderModel.js`       | Injetada                            | Evita acoplar o modulo novo ao adapter.             |
+| `computeEquipKpis`                      | `ui/views/equipamentos/hero.js` via adapter      | Injetada                            | API publica existente preservada.                   |
+| `mountEquipamentosHeader`               | Helper local do adapter                          | Injetada                            | Mantem bridge React e roots atuais.                 |
+| `setToolbar`                            | `_setToolbar` no adapter                         | Injetada                            | Preserva HTML/data-action/data-id da toolbar.       |
+| `renderFlatList`                        | Helper local do adapter                          | Injetada                            | Lista ainda permanece no adapter.                   |
+| `renderSetorGrid`                       | `features/equipamentos/setor/setorUI.js`         | Injetada                            | Preserva branch Pro global.                         |
+| `renderSetorGridForCliente`             | `features/equipamentos/setor/setorUI.js`         | Injetada                            | Preserva branch Pro por cliente.                    |
+| `findSetor`                             | `core/state.js` via adapter                      | Injetada                            | Preserva toolbar de setor ativo.                    |
+
+### Helpers movidos
+
+Foram movidos junto com `renderEquip` os helpers exclusivos criados no CP-G.5:
+
+| Helper                           | Origem                         | Destino                                       |
+| -------------------------------- | ------------------------------ | --------------------------------------------- |
+| `buildRenderEquipContext`        | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `syncRenderEquipPlanAndSubtitle` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `mountRenderEquipHeader`         | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `renderEquipQuickFilterBranch`   | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `renderEquipSetorGridBranch`     | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `syncRenderEquipListToolbar`     | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `syncRenderEquipSectorToolbar`   | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+| `renderEquipListBranch`          | `src/ui/views/equipamentos.js` | `src/features/equipamentos/ui/renderEquip.js` |
+
+### Ordem preservada
+
+Ordem mantida: bind render plan -> token -> options/contexto -> plano/subtitulo/select -> header bridge -> quick filter early return -> search/grid Pro -> toolbar lista/drill-down -> flat list final.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `saveEquip`, `deleteEquip`, `openEditEquip`, `viewEquip` reexportado, `renderFlatList`, `_setToolbar`, `populateSetorSelect`, setor, CRUD, helpers UI nao relacionados e bridge roots.
+
+### Metricas do CP-G.6
+
+| Arquivo                                                      | Antes | Depois | Delta |
+| ------------------------------------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                               |  1626 |   1440 |  -186 |
+| `src/features/equipamentos/ui/renderEquip.js`                |     0 |    246 |  +246 |
+| `src/features/equipamentos/__tests__/ui/renderEquip.test.js` |     0 |    222 |  +222 |
+
+### Testes adicionados/alterados
+
+Criado `src/features/equipamentos/__tests__/ui/renderEquip.test.js` com 6 testes cobrindo ordem de orquestracao, quick filter/early return, branch Pro global, branch Pro por cliente, toolbar de setor ativo e ausencia de import do adapter. O contrato estatico `src/__tests__/contracts/selectors.test.js` foi atualizado para incluir `src/features/equipamentos/ui/renderEquip.js` na varredura de `data-action`/`data-id`. O mock de `src/__tests__/equipPhotosEditor.test.js` passou a expor `isCachedPlanPro`, necessario porque o adapter agora injeta esse export no `configureRenderEquip`.
+
+### Validacao executada
+
+- Primeiro teste focado falhou apenas no contrato estatico de selectors, porque os seletores movidos passaram a existir no novo modulo.
+- Apos incluir `renderEquip.js` no contrato estatico, `npm run test -- src/features/equipamentos/__tests__/ui/renderEquip.test.js src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosView.hero.test.js src/__tests__/contracts/selectors.test.js src/features/equipamentos/__tests__/bridges/renderPlan.test.js src/features/equipamentos/__tests__/bridges/listBridge.test.js src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/ui/viewEquip.test.js --reporter=dot` passou: 8 arquivos, 89 testes.
+- `npm run check` falhou inicialmente em `src/__tests__/equipPhotosEditor.test.js` porque o mock local de `planCache.js` nao exportava `isCachedPlanPro`; o mock foi alinhado ao contrato real do modulo.
+- `npm run test -- src/__tests__/equipPhotosEditor.test.js --reporter=dot` passou: 1 arquivo, 21 testes.
+- Validacao final repetida: teste focado passou com 8 arquivos e 89 testes; `npm run format` passou; `npm run check` passou com lint em 32 warnings existentes, format check, suite Vitest completa e build.
+
+### Proximo CP recomendado
+
+**CP-H.0 - mapear limpeza/fachadas pós-extração.**
+
+Justificativa: `viewEquip` e `renderEquip` ja estao feature-scoped e o adapter segue como fachada publica; o proximo passo seguro e mapear a limpeza/fachadas antes de qualquer novo split funcional.

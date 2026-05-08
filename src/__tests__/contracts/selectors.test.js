@@ -23,6 +23,7 @@ describe('contracts/selectors (static)', () => {
   const equipamentos = [
     source('src/ui/views/equipamentos.js'),
     source('src/features/equipamentos/ui/detail.js'),
+    source('src/features/equipamentos/ui/renderEquip.js'),
     source('src/features/equipamentos/setor/setorUI.js'),
     source('src/features/equipamentos/crud/postActions.js'),
     source('src/ui/views/equipamentos/setores.js'),

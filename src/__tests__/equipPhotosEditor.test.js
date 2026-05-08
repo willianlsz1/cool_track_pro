@@ -67,8 +67,10 @@ vi.mock('../core/state.js', () => ({
 
 // planCache — controlado por teste via mockReturnValue.
 const isCachedPlanPlusOrHigher = vi.fn(() => true);
+const isCachedPlanPro = vi.fn(() => true);
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher,
+  isCachedPlanPro,
 }));
 
 // photoStorage: uploadPendingPhotos retorna estrutura esperada.
@@ -156,6 +158,7 @@ beforeEach(() => {
   photosState.pending = [];
   photosState.existing = [];
   isCachedPlanPlusOrHigher.mockReturnValue(true);
+  isCachedPlanPro.mockReturnValue(true);
   getState.mockReturnValue({ equipamentos: [], registros: [], setores: [] });
   mountEditorDom();
 });
