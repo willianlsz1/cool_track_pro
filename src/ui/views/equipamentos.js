@@ -139,6 +139,10 @@ import {
 } from '../../features/equipamentos/ui/detailController.js';
 import { renderViewEquipDetailHtml } from '../../features/equipamentos/ui/detail.js';
 import { buildViewEquipDetailModel } from '../../features/equipamentos/ui/detailModel.js';
+import {
+  configureOpenEditEquip,
+  openEditEquip,
+} from '../../features/equipamentos/ui/openEditEquip.js';
 import { configureRenderEquip, renderEquip } from '../../features/equipamentos/ui/renderEquip.js';
 import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/viewEquip.js';
 
@@ -232,6 +236,41 @@ configureSaveEquip({
   requestAnimationFrameRef: (callback) => requestAnimationFrame(callback),
   documentRef: globalThis.document,
 });
+configureOpenEditEquip({
+  findEquip,
+  Utils,
+  setEditingEquipId,
+  syncComponenteVisibility,
+  restoreDadosPlaca,
+  setCamposExtrasState,
+  setNameplateMetadata,
+  populateSetorSelect,
+  setEquipActionButtonVisible,
+  setEquipActionTrayButtonLabel,
+  setEquipActionFooterHintVisible,
+  focusEditField: _focusEditField,
+  handleError,
+  ErrorCodes,
+  loadBillingGateDeps: async () => {
+    const [monetization, plans, capture, usageLimits] = await Promise.all([
+      import('../../core/plans/monetization.js'),
+      import('../../core/plans/subscriptionPlans.js'),
+      import('../components/nameplateCapture.js'),
+      import('../../core/usageLimits.js'),
+    ]);
+    return {
+      ...monetization,
+      ...plans,
+      ...capture,
+      ...usageLimits,
+    };
+  },
+  loadSupabase: () => import('../../core/supabase.js'),
+  loadNameplateCapture: () => import('../components/nameplateCapture.js'),
+  loadModal: () => import('../../core/modal.js'),
+  documentRef: globalThis.document,
+  requestAnimationFrameRef: (callback) => requestAnimationFrame(callback),
+});
 configureSetorPersist({
   findEquip,
   findSetor,
@@ -253,7 +292,7 @@ configureSetorPersist({
 });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
-export { getActiveQuickFilter, renderEquip, saveEquip, setActiveSector, viewEquip };
+export { getActiveQuickFilter, openEditEquip, renderEquip, saveEquip, setActiveSector, viewEquip };
 export { assignEquipToSetor, deleteSetor, ensureProForSetores, moveEquipsToSetor, saveSetor };
 export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
@@ -1036,204 +1075,6 @@ export function initSetorColorPicker() {
  * @param {object} [opts]
  * @param {string} [opts.focusField] - slug do campo a focar (ex: 'tag')
  */
-/**
- * @sliceSplit
- *   ui/modal: pre-popula form fields, abre modal-add-eq, sync nameplate UI
- *   nameplate: aplica nameplate metadata + restore dados placa
- * @sliceObs depende de fetchMyProfileBillingCached (async billing) — ver CP-F
- */
-function resolveOpenEditEquipTarget(id, opts = {}) {
-  const eq = findEquip(id);
-  const focusField = typeof opts?.focusField === 'string' ? opts.focusField : null;
-
-  return { eq, focusField };
-}
-
-function fillOpenEditEquipBaseForm(eq) {
-  Utils.setVal('eq-nome', eq.nome || '');
-  Utils.setVal('eq-local', eq.local || '');
-  Utils.setVal('eq-tag', eq.tag || '');
-  Utils.setVal('eq-tipo', eq.tipo || 'Split Hi-Wall');
-  Utils.setVal('eq-fluido', eq.fluido || 'R-410A');
-}
-
-function syncOpenEditEquipComponentFields(eq) {
-  // Componente (so faz sentido se tipo for de climatização). Sync logo apos
-  // pra mostrar/esconder o wrapper. setVal é no-op se o wrapper estiver oculto.
-  syncComponenteVisibility();
-  if (eq.componente) Utils.setVal('eq-componente', eq.componente);
-}
-
-function fillOpenEditEquipTechnicalForm(eq) {
-  Utils.setVal('eq-modelo', eq.modelo || '');
-  Utils.setVal('eq-criticidade', eq.criticidade || 'media');
-  Utils.setVal('eq-prioridade', eq.prioridadeOperacional || 'normal');
-  Utils.setVal('eq-periodicidade', String(eq.periodicidadePreventivaDias || 90));
-}
-
-function restoreOpenEditEquipNameplate(eq) {
-  restoreDadosPlaca(eq.dadosPlaca);
-  // Seed review UI dos extras + metadata a partir do payload salvo. Se o
-  // equipamento foi cadastrado antes desta feature, eq.dadosPlaca?.camposExtras
-  // é undefined e a lista fica vazia — comportamento retrocompatível.
-  try {
-    const extras = Array.isArray(eq.dadosPlaca?.camposExtras) ? eq.dadosPlaca.camposExtras : [];
-    setCamposExtrasState(extras);
-    setNameplateMetadata({
-      source: eq.dadosPlaca?._source === 'ai' ? 'ai' : 'manual',
-      notas: eq.dadosPlaca?.notas || null,
-    });
-  } catch (_e) {
-    /* review UI pode ainda não ter montado — ok, ficará vazia */
-  }
-}
-
-function markOpenEditEquipManualPeriodicity() {
-  // Marca periodicidade como manual para não ser sobrescrita pelo auto-sugestão
-  const periodicidadeInput = Utils.getEl('eq-periodicidade');
-  if (periodicidadeInput) periodicidadeInput.dataset.manual = '1';
-}
-
-function expandOpenEditEquipDetailsPanel() {
-  // Abre o painel de detalhes direto (pula o step 1 de escolha de tipo)
-  const detailsPanel = Utils.getEl('eq-step-2');
-  if (detailsPanel) {
-    detailsPanel.style.display = 'block';
-    detailsPanel.setAttribute('aria-hidden', 'false');
-  }
-}
-
-async function applyOpenEditEquipBillingGates() {
-  // Popula o select de setor (apenas Pro) e aplica gate do hero CTA de placa.
-  // V4: bloco de fotos saiu daqui — agora é via detail view.
-  // V4.1: gate agora tem 3 estados (active / trial / locked) — pra Free,
-  // busca a quota mensal e passa `trialRemaining` pro state 'trial' quando
-  // o user ainda tem teste grátis disponível no mês.
-  try {
-    const [monetization, plans, capture, usageLimits] = await Promise.all([
-      import('../../core/plans/monetization.js'),
-      import('../../core/plans/subscriptionPlans.js'),
-      import('../components/nameplateCapture.js'),
-      import('../../core/usageLimits.js'),
-    ]);
-    const { fetchMyProfileBilling } = monetization;
-    const { hasProAccess, hasPlusAccess } = plans;
-    const { applyNameplateCtaGate } = capture;
-    const { getMonthlyUsageSnapshot, USAGE_RESOURCE_NAMEPLATE_ANALYSIS, getMonthlyLimitForPlan } =
-      usageLimits;
-    const { profile } = await fetchMyProfileBilling();
-    populateSetorSelect(hasProAccess(profile));
-
-    const isPlusOrPro = hasPlusAccess(profile);
-    if (isPlusOrPro) {
-      applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
-    } else {
-      try {
-        const { supabase } = await import('../../core/supabase.js');
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        let trialRemaining = null;
-        if (user?.id) {
-          const snap = await getMonthlyUsageSnapshot(user.id);
-          const used = Number(snap?.[USAGE_RESOURCE_NAMEPLATE_ANALYSIS] ?? 0) || 0;
-          const limit = getMonthlyLimitForPlan(
-            profile?.plan_code ?? 'free',
-            USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-          );
-          trialRemaining = Number.isFinite(limit) ? Math.max(0, limit - used) : 0;
-        }
-        applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining });
-      } catch (_) {
-        applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: null });
-      }
-    }
-  } catch {
-    populateSetorSelect(false);
-    try {
-      const { applyNameplateCtaGate } = await import('../components/nameplateCapture.js');
-      applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: null });
-    } catch (_) {
-      /* noop */
-    }
-  }
-}
-
-function syncOpenEditEquipContextFields(eq) {
-  if (eq.setorId) Utils.setVal('eq-setor', eq.setorId);
-  // PMOC Fase 2: pre-popula select de cliente no edit. populateClienteSelect()
-  // é chamado em open-modal handler, mas aqui setamos o value após o populate.
-  // Como populate é async, usamos requestAnimationFrame pra esperar o render.
-  if (eq.clienteId) {
-    requestAnimationFrame(() => {
-      const select = document.getElementById('eq-cliente');
-      if (select) Utils.setVal('eq-cliente', eq.clienteId);
-    });
-  }
-}
-
-function syncOpenEditEquipActionTray() {
-  // Atualiza textos do modal
-  const titleEl = Utils.getEl('modal-add-eq-title');
-  if (titleEl) titleEl.textContent = 'Editar equipamento';
-  const saveBtn = document.getElementById('eq-save-primary');
-  if (saveBtn) saveBtn.textContent = 'Salvar alterações →';
-  const secondaryBtn = document.getElementById('eq-save-secondary');
-  const tertiaryRow = document.getElementById('eq-save-tertiary-row');
-  const tertiaryBtn = document.getElementById('eq-save-tertiary');
-  setEquipActionButtonVisible(secondaryBtn, false);
-  setEquipActionButtonVisible(tertiaryBtn || tertiaryRow, false);
-  if (tertiaryBtn) setEquipActionTrayButtonLabel(tertiaryBtn, '');
-  setEquipActionFooterHintVisible(false);
-}
-
-async function openOpenEditEquipModal(id) {
-  // Fecha o modal de detalhes e abre o de edição
-  try {
-    const { Modal: M } = await import('../../core/modal.js');
-    M.close('modal-eq-det');
-    M.open('modal-add-eq');
-  } catch (error) {
-    handleError(error, {
-      code: ErrorCodes.NETWORK_ERROR,
-      message: 'Não foi possível abrir o modal de edição.',
-      context: { action: 'equipamentos.openEditEquip', id },
-    });
-    return false;
-  }
-
-  return true;
-}
-
-function focusOpenEditEquipField(focusField) {
-  // Foco em campo específico (focusField). Roda DEPOIS do M.open pra
-  // garantir que o DOM está visível e mensurável. requestAnimationFrame
-  // dá um tick pro browser pintar antes do scroll/focus — evita o
-  // scroll cair em (0,0) num modal que ainda não terminou a transição.
-  if (focusField) _focusEditField(focusField);
-}
-
-export async function openEditEquip(id, opts = {}) {
-  const { eq, focusField } = resolveOpenEditEquipTarget(id, opts);
-  if (!eq) return;
-
-  setEditingEquipId(id);
-  fillOpenEditEquipBaseForm(eq);
-  syncOpenEditEquipComponentFields(eq);
-  fillOpenEditEquipTechnicalForm(eq);
-  restoreOpenEditEquipNameplate(eq);
-  markOpenEditEquipManualPeriodicity();
-  expandOpenEditEquipDetailsPanel();
-  await applyOpenEditEquipBillingGates();
-  syncOpenEditEquipContextFields(eq);
-  syncOpenEditEquipActionTray();
-
-  const modalOpened = await openOpenEditEquipModal(id);
-  if (!modalOpened) return;
-
-  focusOpenEditEquipField(focusField);
-}
-
 /**
  * Encontra o campo no modal-add-eq pelo slug, expande accordions
  * necessários, faz scroll suave até o centro do campo, foca o input

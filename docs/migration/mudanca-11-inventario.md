@@ -1879,3 +1879,58 @@ Ordem mantida: resolver equipamento -> retorno silencioso se ausente -> `setEdit
 **CP-H.3 - mover openEditEquip como orquestrador.**
 
 Justificativa: o pre-split isolou os blocos necessarios para extrair `openEditEquip` com DI no proximo CP, sem misturar `deleteEquip` ou helpers de modal/form mais amplos.
+
+## Atualizacao CP-H.3 - Mover openEditEquip como orquestrador (2026-05-08)
+
+Status: **CP-H.3 aplicado**.
+
+### Escopo aplicado
+
+`openEditEquip` foi movido de `src/ui/views/equipamentos.js` para `src/features/equipamentos/ui/openEditEquip.js`, mantendo a assinatura publica e a funcao como orquestradora. Os helpers locais criados no CP-H.2 foram movidos junto por serem exclusivos do fluxo de edicao.
+
+`src/ui/views/equipamentos.js` passou a configurar `configureOpenEditEquip` e reexportar `openEditEquip`, preservando a API legada consumida pelos handlers.
+
+### Dependencias injetadas
+
+| Dependencia                                                                                       | Entrada via DI                                                             | Observacao                                                   |
+| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `findEquip`                                                                                       | `findEquip`                                                                | Resolve equipamento sem importar adapter.                    |
+| `Utils`                                                                                           | `Utils`                                                                    | Preserva `setVal`/`getEl`.                                   |
+| `setEditingEquipId`                                                                               | `setEditingEquipId`                                                        | Mantem estado de edicao na mesma ordem relativa.             |
+| `syncComponenteVisibility`                                                                        | `syncComponenteVisibility`                                                 | Permanece no adapter; usado sem mover setor/form.            |
+| `restoreDadosPlaca`, `setCamposExtrasState`, `setNameplateMetadata`                               | funcoes existentes                                                         | Preservam dados de placa/nameplate e fallback silencioso.    |
+| `populateSetorSelect`                                                                             | `populateSetorSelect`                                                      | Preserva gate Pro/setores.                                   |
+| `setEquipActionButtonVisible`, `setEquipActionTrayButtonLabel`, `setEquipActionFooterHintVisible` | helpers do adapter                                                         | Mantem labels/CTAs/action tray sem mover helpers de form.    |
+| `_focusEditField`                                                                                 | `focusEditField`                                                           | Preserva foco/scroll/highlight apos modal.                   |
+| `handleError`, `ErrorCodes`                                                                       | `handleError`, `ErrorCodes`                                                | Preserva tratamento de erro de modal.                        |
+| imports dinamicos de billing/nameplate/usage/supabase/modal                                       | `loadBillingGateDeps`, `loadSupabase`, `loadNameplateCapture`, `loadModal` | Mantem alvos dinamicos no adapter e evita ciclo com feature. |
+| `document`, `requestAnimationFrame`                                                               | `documentRef`, `requestAnimationFrameRef`                                  | Preserva DOM e timing do contexto cliente/setor.             |
+
+### Ordem preservada
+
+Ordem mantida: resolver alvo/foco -> retorno silencioso se ausente -> `setEditingEquipId` -> campos base -> componente -> campos tecnicos -> dados de placa/nameplate -> periodicidade manual -> painel tecnico -> billing/gates -> setor/cliente/contexto -> labels/CTAs -> fechar `modal-eq-det` -> abrir `modal-add-eq` -> foco/scroll/highlight.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1487 |   1328 |  -159 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/ui/openEditEquip.test.js` com 4 testes de orquestracao.
+- Teste focado executado: `npm run test -- src/features/equipamentos/__tests__/ui/openEditEquip.test.js src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx src/__tests__/equipamentosLegacyRender.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/__tests__/equipamentosSaveEquip.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 7 arquivos e 55 testes.
+
+### Conformidade
+
+- `openEditEquip` foi movido, mas permanece reexportado pelo adapter.
+- `deleteEquip`, `renderEquip`, `viewEquip`, `saveEquip`, setor e CRUD nao foram movidos nem reescritos.
+- Sem alteracao intencional de comportamento, HTML, `data-action`, `data-id`, classes, billing/gates, dados de placa/nameplate, modal, foco ou fallbacks silenciosos.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+- `src/features/equipamentos/ui/openEditEquip.js` nao importa `src/ui/views/equipamentos.js`.
+
+### Proximo CP recomendado
+
+**CP-H.4 - pre-split in-place de deleteEquip.**
+
+Justificativa: `deleteEquip` e o proximo export publico relevante ainda implementado no adapter e combina storage/state, fechamento de modal, render/header/toast e registros vinculados. Um pre-split local antes da extracao reduz risco sem misturar fachada/shim.
