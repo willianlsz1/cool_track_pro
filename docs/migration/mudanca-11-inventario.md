@@ -2360,3 +2360,37 @@ Permanece o acoplamento ja registrado de `src/features/equipamentos/utils/viewMo
 **Stability checkpoint pos-Mudanca 11.**
 
 Justificativa: os principais orquestradores e helpers UI da tela ja foram extraidos em CPs pequenos. Antes de seguir para modal/form helpers ou fachada/shim, vale validar a composicao completa da Mudanca 11 com uma rodada de estabilidade para reduzir risco acumulado.
+
+## Stability checkpoint pos-extrações de Equipamentos (2026-05-08)
+
+Status: **checkpoint aplicado**.
+
+### Documento criado
+
+Criado `docs/migration/mudanca-11-stability-checkpoint.md` com consolidacao do estado pos CP-H.11, blocos extraidos, itens restantes no adapter, validacao arquitetural, validacoes executadas, warnings conhecidos, riscos remanescentes e decisao final recomendada.
+
+### Estado final de Equipamentos
+
+- `src/ui/views/equipamentos.js` ficou como composition root/adapter legado de Equipamentos.
+- LOC atual do adapter: 1241.
+- Principais blocos extraidos: `renderEquip`, `renderFlatList`, `mountEquipamentosHeader`, toolbar/`setToolbar`, `viewEquip`, detail model/html/controller, `openEditEquip`, `deleteEquip`, CRUD, setor modules, bridges, states e nameplate/dadosPlaca.
+- Itens ainda no adapter: helpers de modal/form, `populateSetorSelect`, `populateEquipSelects`, `syncComponenteVisibility`, `clearEditingState`, `applyEquipModalExperience`, contexto travado, helpers de setor remanescentes, refresh/save helpers e chamadas `configure*`.
+
+### Validacoes executadas
+
+- Teste focado amplo de Equipamentos: `npm run test -- src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosReactListIsland.test.jsx src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosSaveEquip.test.js src/__tests__/equipPhotosEditor.test.js src/__tests__/storage.integration.test.js src/__tests__/contracts/selectors.test.js src/features/equipamentos/__tests__/ui/renderEquip.test.js src/features/equipamentos/__tests__/ui/renderFlatList.test.js src/features/equipamentos/__tests__/ui/headerMount.test.js src/features/equipamentos/__tests__/ui/toolbar.test.js src/features/equipamentos/__tests__/ui/openEditEquip.test.js src/features/equipamentos/__tests__/ui/deleteEquip.test.js src/features/equipamentos/__tests__/ui/viewEquip.test.js src/features/equipamentos/__tests__/ui/detailController.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/features/equipamentos/__tests__/ui/detailModel.test.js src/features/equipamentos/__tests__/bridges/renderPlan.test.js src/features/equipamentos/__tests__/bridges/listBridge.test.js src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/setor/setorUI.test.js src/features/equipamentos/__tests__/setor/setorNavigation.test.js src/features/equipamentos/__tests__/setor/setorPersist.test.js src/features/equipamentos/__tests__/setor/setorState.test.js src/features/equipamentos/__tests__/crud/saveEquip.test.js src/features/equipamentos/__tests__/crud/payload.test.js src/features/equipamentos/__tests__/crud/validate.test.js src/features/equipamentos/__tests__/crud/persist.test.js src/features/equipamentos/__tests__/crud/postSave.test.js src/features/equipamentos/__tests__/crud/postActions.test.js src/features/equipamentos/__tests__/utils/detail.test.js src/features/equipamentos/__tests__/utils/viewModels.test.js src/features/equipamentos/__tests__/state/bridgeState.test.js src/features/equipamentos/__tests__/state/editingState.test.js src/features/equipamentos/__tests__/state/renderPlanState.test.js src/features/equipamentos/__tests__/nameplate/dadosPlaca.test.js --reporter=dot` passou com 37 arquivos e 288 testes.
+- `npm run format`: passou.
+- `npm run check`: passou, mantendo 32 warnings de lint e avisos Vite de chunk/dynamic import ja conhecidos.
+
+### Riscos remanescentes
+
+- `src/features/equipamentos/utils/viewModels.js` ainda importa `src/ui/views/equipamentos/constants.js` e `src/ui/views/equipamentos/helpers.js`.
+- Helpers de modal/form e contexto ainda estao no adapter.
+- `populateSetorSelect` e `populateEquipSelects` ainda estao no adapter.
+- Chamadas `configure*` continuam concentradas no adapter como composition root.
+
+### Decisao recomendada
+
+**Encerrar Mudanca 11 e seguir para Mudanca 12 / Registro.**
+
+Justificativa: os blocos principais de Equipamentos foram extraidos e a validacao ampla passou. Os riscos restantes sao conhecidos e nao bloqueiam encerramento; devem virar mudanca tecnica futura, em vez de alongar a Mudanca 11.
