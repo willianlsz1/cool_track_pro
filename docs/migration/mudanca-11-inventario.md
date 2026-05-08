@@ -918,5 +918,3 @@ Status: **CP-F.2 aplicado**.
 **CP-F.3a — mapear form/modal/render pós-save antes de mover**.
 
 Justificativa: após payload e state mutation, o restante do fluxo de `saveEquip` ainda mistura coleta de form/contexto, fechamento de modal, reset, refresh, toast e post-actions. Um mapeamento curto antes de mover reduz risco de alterar ordem de side effects.
-=======
->>>>>>> main
