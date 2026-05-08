@@ -220,8 +220,22 @@ Status: aplicado em 2026-05-08.
 - LOC `src/ui/views/registro.js`: 1997 -> 2109.
 - Testes rodados: contratos CP-B; testes focados de save/payload/post-save/PDF/checklist; `npm run format`; `npm run check`.
 
-## 12. Proximo CP recomendado
+## 12. CP-D - Mover helpers puros de payload/validacao
 
-**CP-D - mover helpers puros de payload/validacao.**
+Status: aplicado em 2026-05-08.
 
-Confianca: 90%+. O pre-split deixou as partes de leitura, normalizacao e validacao isoladas localmente, com contratos e save tests passando. O proximo corte seguro e mover apenas helpers puros/baixo side effect de payload/validacao para modulo feature-scoped, mantendo `saveRegistro` como orquestrador legado e sem tocar fotos, assinatura, storage ou post-save.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Modulo criado: `src/features/registro/save/payload.js`.
+- Teste criado: `src/features/registro/__tests__/save/payload.test.js`.
+- Helpers puros movidos: `buildRegistroPayloadDraft`, `buildRegistroPersistPayload`.
+- Regras puras extraidas/movidas: `normalizeRegistroServiceTypeValue`, `validateRegistroPayloadDraftData`, `validateRegistroOperationalFieldsData`.
+- Helpers mantidos no adapter: `getRegistroFormElements` e `readRegistroFormValues` por DOM/`Utils`; `normalizeRegistroServiceType`, `validateRegistroPayloadDraft` e `validateRegistroOperationalFields` por Toast/focus; `buildRegistroSaveContext` por `getState`; `warnRegistroChecklistPayloadGaps` por checklist/Toast.
+- Nenhuma mudanca funcional intencional; leitura de DOM, Toast/focus, fotos/evidencias, assinatura, checklist/PMOC, storage/state, PDF/WhatsApp, handlers, React pages e contratos CP-B preservados.
+- LOC `src/ui/views/registro.js`: 1883 -> 1837.
+- Testes rodados: payload feature + contratos CP-B; suite `src/__tests__`; `npm run format`; `npm run check`.
+
+## 13. Proximo CP recomendado
+
+**CP-E - pre-split fotos/evidencias.**
+
+Confianca: 90%+. Payload e validacao ja têm modulo feature-scoped testado, enquanto fotos/evidencias ainda ficam no corpo de `saveRegistro` com `Photos.pending`, sanitizacao, upload/fallback e dados persistidos. O proximo corte seguro e separar esse bloco localmente antes de qualquer movimentacao, sem tocar assinatura, PDF/WhatsApp ou state/storage geral.

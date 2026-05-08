@@ -14,11 +14,10 @@ import { SavedHighlight } from '../components/onboarding.js';
 import { Profile } from '../../features/profile.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { uploadPendingPhotos } from '../../core/photoStorage.js';
-import { getOperationalStatus, validateOperationalPayload } from '../../core/equipmentRules.js';
+import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { reconcileEquipmentStatusesAfterRegistroEdit } from '../../domain/registroStatus.js';
 import { trackEvent } from '../../core/telemetry.js';
 import { withSkeleton } from '../components/skeleton.js';
-import { validateRegistroPayload } from '../../core/inputValidation.js';
 import * as PlanCache from '../../core/plans/planCache.js';
 import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
 import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPreventivaPrompt.js';
@@ -32,6 +31,13 @@ import {
   REGISTRO_SIGNATURE_ROOT_ID,
   isSafeRegistroSignatureSrc,
 } from '../viewModels/registroSignatureModel.js';
+import {
+  buildRegistroPayloadDraft,
+  buildRegistroPersistPayload,
+  normalizeRegistroServiceTypeValue,
+  validateRegistroOperationalFieldsData,
+  validateRegistroPayloadDraftData,
+} from '../../features/registro/save/payload.js';
 import {
   getChecklistTemplate,
   buildEmptyChecklist,
@@ -1431,39 +1437,25 @@ function readRegistroFormValues(elements = getRegistroFormElements()) {
 }
 
 function normalizeRegistroServiceType(values, elements = getRegistroFormElements()) {
-  if (values.tipo !== 'Outro') return { valid: true, tipo: values.tipo };
+  const result = normalizeRegistroServiceTypeValue(values, {
+    outroPrefix: TIPO_OUTRO_PREFIX,
+    tipoCustomMax: TIPO_CUSTOM_MAX,
+  });
+  if (result.valid) return result;
 
-  const custom = values.tipoCustom.trim();
-  if (!custom) {
+  if (result.reason === 'missing-custom') {
     Toast.warning('Descreva o serviço no campo "Qual serviço?" pra continuar.');
     elements.tipoCustom?.focus();
     return { valid: false };
   }
-  if (custom.length > TIPO_CUSTOM_MAX) {
+
+  if (result.reason === 'custom-too-long') {
     Toast.warning(`A descricao do serviço passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
     elements.tipoCustom?.focus();
     return { valid: false };
   }
-  return { valid: true, tipo: `${TIPO_OUTRO_PREFIX}${custom}` };
-}
 
-function buildRegistroPayloadDraft(values, tipoForPayload) {
-  return {
-    equipId: values.equipId,
-    data: values.data,
-    tipo: tipoForPayload,
-    obs: values.obs,
-    tecnico: values.tecnico,
-    status: values.status,
-    pecas: values.pecas,
-    proxima: values.proxima,
-    custoPecas: values.custoPecas,
-    custoMaoObra: values.custoMaoObra,
-    clienteNome: values.clienteNome,
-    clienteDocumento: values.clienteDocumento,
-    localAtendimento: values.localAtendimento,
-    clienteContato: values.clienteContato,
-  };
+  return { valid: false };
 }
 
 function buildRegistroSaveContext({ andShare = false, forceClientFork = false } = {}) {
@@ -1476,7 +1468,7 @@ function buildRegistroSaveContext({ andShare = false, forceClientFork = false } 
 }
 
 function validateRegistroPayloadDraft(payloadDraft, context) {
-  const payloadValidation = validateRegistroPayload(payloadDraft, {
+  const payloadValidation = validateRegistroPayloadDraftData(payloadDraft, {
     existingEquipamentos: context.equipamentos,
   });
 
@@ -1489,51 +1481,12 @@ function validateRegistroPayloadDraft(payloadDraft, context) {
 }
 
 function validateRegistroOperationalFields({ data, status }) {
-  const validation = validateOperationalPayload({ data, status });
+  const validation = validateRegistroOperationalFieldsData({ data, status });
   if (!validation.valid) {
     Toast.error(validation.errors[0]);
     return false;
   }
   return true;
-}
-
-function buildRegistroPersistPayload(validatedPayload, values) {
-  const {
-    equipId,
-    data,
-    tipo,
-    tecnico,
-    obs,
-    pecas,
-    proxima,
-    status,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-  } = validatedPayload;
-
-  return {
-    equipId,
-    data,
-    tipo,
-    tecnico,
-    obs,
-    descricaoFinal:
-      obs && obs.length >= 10 ? obs : `Serviço de ${tipo.toLowerCase()} registrado em modo rapido.`,
-    prioridade: values.prioridade,
-    status,
-    pecas,
-    proxima,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-  };
 }
 
 function warnRegistroChecklistPayloadGaps(tipo) {
