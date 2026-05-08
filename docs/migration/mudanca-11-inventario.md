@@ -1558,3 +1558,60 @@ Criado `src/features/equipamentos/__tests__/ui/detailController.test.js` com 8 t
 **CP-G.4 � mover viewEquip como orquestrador.**
 
 Justificativa: model, HTML e controller do detail j� est�o isolados em m�dulos feature-scoped. O pr�ximo recorte natural � mover `viewEquip` mantendo o adapter legado como fachada p�blica, sem tocar render/save/delete.
+
+## Atualizacao CP-G.4 - Mover viewEquip como orquestrador (2026-05-08)
+
+Status: **CP-G.4 aplicado**.
+
+### Escopo aplicado
+
+`viewEquip` saiu de `src/ui/views/equipamentos.js` e passou para `src/features/equipamentos/ui/viewEquip.js`, mantendo a assinatura publica `async function viewEquip(id)`. O adapter legado agora configura as dependencias com `configureViewEquip` e reexporta `viewEquip`, preservando os consumidores existentes.
+
+### Dependencias injetadas/importadas
+
+| Dependencia                                                          | Origem                                         | Injecao/import                                          | Observacao                                                                              |
+| -------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `resolveViewEquipTarget`                                             | `_resolveViewEquipTarget` no adapter           | Injetada via `configureViewEquip`                       | Mantem o fallback atual sobre `findEquip(id)` sem importar o adapter no modulo feature. |
+| `buildViewEquipDetailModel`                                          | `features/equipamentos/ui/detailModel.js`      | Injetada via `configureViewEquip` com default no modulo | Preserva o model extraido em CP-G.1.                                                    |
+| `renderViewEquipDetailHtml`                                          | `features/equipamentos/ui/detail.js`           | Injetada via `configureViewEquip` com default no modulo | Preserva o HTML extraido em CP-G.2.                                                     |
+| `mountViewEquipDetail`                                               | `features/equipamentos/ui/detailController.js` | Injetada via `configureViewEquip` com default no modulo | Preserva `innerHTML` em `#eq-det-corpo`.                                                |
+| `bindViewEquipDetailCoverActions`                                    | `features/equipamentos/ui/detailController.js` | Injetada via `configureViewEquip` com default no modulo | Preserva cover, fallback e lightbox.                                                    |
+| `openViewEquipDetailModal`                                           | `features/equipamentos/ui/detailController.js` | Injetada via `configureViewEquip` com default no modulo | Preserva abertura de `modal-eq-det` e tratamento de erro.                               |
+| `regsForEquip`                                                       | `core/state.js` via adapter                    | Injetada via `configureViewEquip`                       | Mantem leitura de historico usada pelo model.                                           |
+| `evaluateEquipmentHealth`, `evaluateEquipmentRisk`, `getHealthClass` | `domain/maintenance.js` via adapter            | Injetadas via `configureViewEquip`                      | Mantem regras de dominio sem mover CRUD/render.                                         |
+| `Utils`                                                              | `core/utils.js` via adapter                    | Injetada via `configureViewEquip`                       | Mantem escapes/formatacao usados pelo model.                                            |
+| `getSetores`                                                         | `getState().setores` via adapter               | Injetada via `configureViewEquip`                       | Mantem resolucao de setor no HTML sem import circular.                                  |
+
+### Ordem preservada
+
+`viewEquip` mantem a sequencia anterior: resolver equipamento -> montar model -> renderizar HTML -> montar HTML -> bindar cover/lightbox -> abrir modal.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `renderEquip`, `saveEquip`, `deleteEquip`, `openEditEquip`, `_resolveViewEquipTarget`, setor, CRUD de save, render plan, React bridges e helpers UI nao relacionados ao detail.
+
+### Metricas do CP-G.4
+
+| Arquivo                                                    | Antes | Depois | Delta |
+| ---------------------------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                             |  1573 |   1567 |    -6 |
+| `src/features/equipamentos/ui/viewEquip.js`                |     0 |     64 |   +64 |
+| `src/features/equipamentos/__tests__/ui/viewEquip.test.js` |     0 |    105 |  +105 |
+
+### Testes adicionados
+
+Criado `src/features/equipamentos/__tests__/ui/viewEquip.test.js` com 5 testes cobrindo retorno silencioso para equipamento inexistente, montagem do model com dependencias, renderizacao do HTML com model, ordem `mount -> bind -> open` e espera da abertura async do modal.
+
+### Validacao executada
+
+- `npm run test -- src/features/equipamentos/__tests__/ui/viewEquip.test.js --reporter=dot` falhou primeiro por modulo inexistente, como RED esperado.
+- `npm run test -- src/features/equipamentos/__tests__/ui/viewEquip.test.js --reporter=dot` passou: 1 arquivo, 5 testes.
+- `npm run test -- src/features/equipamentos/__tests__/ui/viewEquip.test.js src/features/equipamentos/__tests__/ui/detailController.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/features/equipamentos/__tests__/ui/detailModel.test.js src/__tests__/equipamentosLegacyRender.test.js src/__tests__/equipamentosView.hero.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou: 7 arquivos, 84 testes.
+- `npm run check` falhou inicialmente porque testes legados mockavam `domain/maintenance.js` sem `getHealthClass`; o adapter passou a injetar wrappers lazy para manter o mesmo acoplamento tardio da funcao original.
+- `npm run check` passou apos o ajuste: lint com 32 warnings existentes, format check, suite Vitest completa e build.
+
+### Proximo CP recomendado
+
+**CP-G.5 - renderEquip pre-split.**
+
+Justificativa: com o detail completo extraido e `viewEquip` reexportado pelo adapter, o proximo bloco de maior acoplamento no adapter e `renderEquip`; antes de mover, o recorte mais seguro e mapear/pre-splitar a orquestracao.

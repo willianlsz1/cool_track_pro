@@ -139,8 +139,23 @@ import {
 } from '../../features/equipamentos/ui/detailController.js';
 import { renderViewEquipDetailHtml } from '../../features/equipamentos/ui/detail.js';
 import { buildViewEquipDetailModel } from '../../features/equipamentos/ui/detailModel.js';
+import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/viewEquip.js';
 
 configureEquipContextState({ renderEquip });
+configureViewEquip({
+  resolveViewEquipTarget: _resolveViewEquipTarget,
+  buildViewEquipDetailModel,
+  renderViewEquipDetailHtml,
+  mountViewEquipDetail,
+  bindViewEquipDetailCoverActions,
+  openViewEquipDetailModal,
+  regsForEquip,
+  evaluateEquipmentHealth: (...args) => evaluateEquipmentHealth(...args),
+  evaluateEquipmentRisk: (...args) => evaluateEquipmentRisk(...args),
+  getHealthClass: (...args) => getHealthClass(...args),
+  Utils,
+  getSetores: () => getState().setores,
+});
 configureEquipPhotos({ viewEquip });
 configureRenderEquipPlan({ renderEquip });
 configureSetorUI({
@@ -216,7 +231,7 @@ configureSetorPersist({
 });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
-export { getActiveQuickFilter, saveEquip, setActiveSector };
+export { getActiveQuickFilter, saveEquip, setActiveSector, viewEquip };
 export { assignEquipToSetor, deleteSetor, ensureProForSetores, moveEquipsToSetor, saveSetor };
 export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
@@ -1479,27 +1494,6 @@ function _resolveViewEquipTarget(id) {
  *   risco: avaliacao de risk + classification + factors + suggested action
  * @sliceObs pre-split in-place em CP-G.0; manter adapter até CP-G.1.
  */
-export async function viewEquip(id) {
-  const eq = _resolveViewEquipTarget(id);
-  if (!eq) return;
-
-  const model = buildViewEquipDetailModel({
-    id,
-    equip: eq,
-    regsForEquip,
-    evaluateEquipmentHealth,
-    evaluateEquipmentRisk,
-    getHealthClass,
-    utils: Utils,
-  });
-  const detail = renderViewEquipDetailHtml(model, {
-    getSetores: () => getState().setores,
-  });
-  mountViewEquipDetail(detail.html);
-  bindViewEquipDetailCoverActions(detail.firstPhotoUrl);
-  await openViewEquipDetailModal(id);
-}
-
 /** @sliceTarget crud/equip */
 export async function deleteEquip(id) {
   const { registros } = getState();
