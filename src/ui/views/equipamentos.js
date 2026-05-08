@@ -139,6 +139,7 @@ import {
 } from '../../features/equipamentos/ui/detailController.js';
 import { renderViewEquipDetailHtml } from '../../features/equipamentos/ui/detail.js';
 import { buildViewEquipDetailModel } from '../../features/equipamentos/ui/detailModel.js';
+import { configureDeleteEquip, deleteEquip } from '../../features/equipamentos/ui/deleteEquip.js';
 import {
   configureOpenEditEquip,
   openEditEquip,
@@ -271,6 +272,17 @@ configureOpenEditEquip({
   documentRef: globalThis.document,
   requestAnimationFrameRef: (callback) => requestAnimationFrame(callback),
 });
+configureDeleteEquip({
+  getState,
+  setState,
+  markEquipDeleted: (id, linkedRegistros) => Storage.markEquipDeleted(id, linkedRegistros),
+  loadModal: () => import('../../core/modal.js'),
+  handleError,
+  ErrorCodes,
+  renderEquip,
+  updateGlobalHeader,
+  Toast,
+});
 configureSetorPersist({
   findEquip,
   findSetor,
@@ -292,7 +304,15 @@ configureSetorPersist({
 });
 
 export { equipCardHtml } from './equipamentos/equipmentCards.js';
-export { getActiveQuickFilter, openEditEquip, renderEquip, saveEquip, setActiveSector, viewEquip };
+export {
+  deleteEquip,
+  getActiveQuickFilter,
+  openEditEquip,
+  renderEquip,
+  saveEquip,
+  setActiveSector,
+  viewEquip,
+};
 export { assignEquipToSetor, deleteSetor, ensureProForSetores, moveEquipsToSetor, saveSetor };
 export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
@@ -1249,62 +1269,12 @@ function _resolveViewEquipTarget(id) {
   return findEquip(id);
 }
 
-function collectDeleteEquipRelatedRecords(id) {
-  const { registros } = getState();
-  return registros.filter((r) => r.equipId === id).map((r) => r.id);
-}
-
-function persistDeleteEquipRemoval(id, linkedRegistros) {
-  Storage.markEquipDeleted(id, linkedRegistros);
-}
-
-function applyDeleteEquipStateMutation(id) {
-  setState((prev) => ({
-    ...prev,
-    equipamentos: prev.equipamentos.filter((e) => e.id !== id),
-    registros: prev.registros.filter((r) => r.equipId !== id),
-  }));
-}
-
-async function closeDeleteEquipDetailModal(id) {
-  try {
-    const { Modal: M } = await import('../../core/modal.js');
-    M.close('modal-eq-det');
-  } catch (error) {
-    handleError(error, {
-      code: ErrorCodes.NETWORK_ERROR,
-      message: 'Equipamento removido, mas não foi possível fechar o modal.',
-      context: { action: 'equipamentos.deleteEquip.closeModal', id },
-      severity: 'warning',
-    });
-  }
-}
-
-function refreshDeleteEquipViews() {
-  renderEquip();
-  updateGlobalHeader();
-}
-
-function notifyDeleteEquipSuccess() {
-  Toast.info('Equipamento removido.');
-}
-
 /**
  * @sliceSplit
  *   ui/detail: HTML strings (cover, hero, risk panel, tech sheet, timeline, footer)
  *   risco: avaliacao de risk + classification + factors + suggested action
  * @sliceObs pre-split in-place em CP-G.0; manter adapter até CP-G.1.
  */
-/** @sliceTarget crud/equip */
-export async function deleteEquip(id) {
-  const linkedRegistros = collectDeleteEquipRelatedRecords(id);
-  persistDeleteEquipRemoval(id, linkedRegistros);
-  applyDeleteEquipStateMutation(id);
-  await closeDeleteEquipDetailModal(id);
-  refreshDeleteEquipViews();
-  notifyDeleteEquipSuccess();
-}
-
 /** @sliceTarget ui/form */
 export function populateEquipSelects() {
   const { equipamentos, técnicos } = getState();

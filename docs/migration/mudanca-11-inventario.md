@@ -1981,3 +1981,55 @@ Ordem mantida: assinatura `deleteEquip(id)` -> coleta de registros vinculados ->
 **CP-H.5 - mover deleteEquip como orquestrador.**
 
 Justificativa: o pre-split isolou as responsabilidades necessarias para extrair `deleteEquip` com DI no proximo CP, preservando a ordem storage -> state -> modal -> refresh -> toast.
+
+## Atualizacao CP-H.5 - Mover deleteEquip como orquestrador (2026-05-08)
+
+Status: **CP-H.5 aplicado**.
+
+### Escopo aplicado
+
+`deleteEquip` foi movido de `src/ui/views/equipamentos.js` para `src/features/equipamentos/ui/deleteEquip.js`, mantendo a assinatura publica e a funcao como orquestradora. Os helpers locais criados no CP-H.4 foram movidos junto por serem exclusivos do fluxo de remocao.
+
+`src/ui/views/equipamentos.js` passou a configurar `configureDeleteEquip` e reexportar `deleteEquip`, preservando a API legada consumida pelos handlers.
+
+### Dependencias injetadas
+
+| Dependencia                 | Entrada via DI              | Observacao                                                 |
+| --------------------------- | --------------------------- | ---------------------------------------------------------- |
+| `getState`                  | `getState`                  | Le `registros` para coletar IDs vinculados.                |
+| `setState`                  | `setState`                  | Preserva mutacao de equipamentos e registros.              |
+| `Storage.markEquipDeleted`  | `markEquipDeleted`          | Wrapper mantem os mesmos argumentos `id, linkedRegistros`. |
+| import dinamico de Modal    | `loadModal`                 | Mantem o alvo `../../core/modal.js` no adapter.            |
+| `handleError`, `ErrorCodes` | `handleError`, `ErrorCodes` | Preserva tratamento de falha ao fechar modal.              |
+| `renderEquip`               | `renderEquip`               | Preserva refresh da lista.                                 |
+| `updateGlobalHeader`        | `updateGlobalHeader`        | Preserva refresh do header global apos render.             |
+| `Toast`                     | `Toast`                     | Preserva `Toast.info('Equipamento removido.')`.            |
+
+### Ordem preservada
+
+Ordem mantida: assinatura `deleteEquip(id)` -> coleta de registros vinculados -> `Storage.markEquipDeleted` -> `setState` removendo equipamento/registros -> tentativa de fechar `modal-eq-det` -> tratamento de erro do modal com `handleError` quando necessario -> `renderEquip()` -> `updateGlobalHeader()` -> `Toast.info`.
+
+### Metricas
+
+| Arquivo                        | Antes | Depois | Delta |
+| ------------------------------ | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js` |  1351 |   1321 |   -30 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/ui/deleteEquip.test.js` com 3 testes de orquestracao.
+- Teste focado executado: `npm run test -- src/features/equipamentos/__tests__/ui/deleteEquip.test.js src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosLegacyRender.test.js src/features/equipamentos/__tests__/ui/detail.test.js src/__tests__/storage.integration.test.js src/__tests__/contracts/selectors.test.js --reporter=dot` passou com 6 arquivos e 59 testes.
+
+### Conformidade
+
+- `deleteEquip` foi movido, mas permanece reexportado pelo adapter.
+- `openEditEquip`, `renderEquip`, `viewEquip`, `saveEquip`, setor, CRUD, fotos/evidencias e `renderFlatList` nao foram movidos nem reescritos.
+- Sem alteracao intencional de comportamento, ordem de side effects, storage/state/refresh, modal, toast, HTML, `data-action`, `data-id` ou classes.
+- Sem dependencia nova, CSS, schema/migrations, package files, barrel ou `test.skip`.
+- `src/features/equipamentos/ui/deleteEquip.js` nao importa `src/ui/views/equipamentos.js`.
+
+### Proximo CP recomendado
+
+**CP-H.6 - mapear renderFlatList/list branch antes de mover.**
+
+Justificativa: `renderFlatList` e o proximo bloco visual relevante ainda no adapter; um mapeamento antes da movimentacao reduz risco por envolver lista, bridges, toolbar e contratos de seletores.
