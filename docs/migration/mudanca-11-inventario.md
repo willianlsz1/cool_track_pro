@@ -917,3 +917,169 @@ Status: **CP-F.2 aplicado**.
 **CP-F.3a — mapear form/modal/render pós-save antes de mover**.
 
 Justificativa: após payload e state mutation, o restante do fluxo de `saveEquip` ainda mistura coleta de form/contexto, fechamento de modal, reset, refresh, toast e post-actions. Um mapeamento curto antes de mover reduz risco de alterar ordem de side effects.
+
+## Atualização CP-F.3a — Mapeamento form/modal/render pós-save de `saveEquip` (2026-05-08)
+
+Status: **CP-F.3a aplicado**.
+
+### Base inspecionada
+
+- Branch local observada no pré-check: `work`.
+- HEAD inicial observado: `10701ddf413b0313e5f82c83c4ee5087912294ab`.
+- Workspace antes da edição: limpo.
+- Módulos CRUD esperados presentes: `src/features/equipamentos/crud/payload.js`, `src/features/equipamentos/crud/persist.js`, `src/features/equipamentos/crud/validate.js`.
+- Funções principais ainda no adapter: `renderEquip`, `saveEquip`, `viewEquip`, `deleteEquip`.
+- `saveEquip` não foi movido neste CP.
+- Não houve pré-split de código: o fluxo já estava separado em helpers privados suficientes para decidir o próximo recorte sem alterar comportamento.
+
+### Mapeamento atual de `saveEquip`
+
+| Bloco dentro de `saveEquip`                 |         Linha aprox | Categoria                                   | Responsabilidade                                                                                                                | Side effects                                                                                                                                                                                                      | Depende de                                                                                                         | Pode mover agora?                                                                              | Destino futuro                                                                                                          |
+| ------------------------------------------- | ------------------: | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `_getSaveEquipPostActionContext(options)`   |                1500 | post-save actions / adapter orchestration   | Normalizar `postAction` em flags (`keepOpen`, `openRegistro`, `openPmoc`, `saveWithoutClient`).                                 | Nenhum direto; define ramificações posteriores.                                                                                                                                                                   | `options.postAction`.                                                                                              | Sim, é puro o bastante.                                                                        | `crud/postSave.js` ou módulo de orquestração, mas pode ficar junto do post-save.                                        |
+| `getState()` de `equipamentos`              |                1501 | adapter/orchestration                       | Ler coleção atual para limite de plano e validação.                                                                             | Leitura de state global.                                                                                                                                                                                          | `getState`.                                                                                                        | Só via injeção.                                                                                | Orquestrador de save com dependências explícitas.                                                                       |
+| `checkSaveEquipPlanLimit(...)`              |                1503 | validation                                  | Bloquear criação quando limite do plano foi atingido; pula edição.                                                              | Pode chamar `trackEvent`, `Toast.warning` e `goTo('pricing')`; retorna `false` e interrompe fluxo.                                                                                                                | `equipamentos`, `getEditingEquipId`, `checkPlanLimit`, `trackEvent`, `Toast`, `goTo`.                              | Já movido parcialmente.                                                                        | Permanecer em `src/features/equipamentos/crud/validate.js`; no futuro receber `editingId` capturado uma vez.            |
+| `_collectSaveEquipBaseFormValues()`         |                1513 | form/payload collection                     | Coletar `tipo`, `criticidade` e `prioridadeOperacional` com defaults.                                                           | Leitura de DOM via `Utils.getVal`.                                                                                                                                                                                | IDs `eq-tipo`, `eq-criticidade`, `eq-prioridade`.                                                                  | Sim, com `getValue` injetado.                                                                  | `src/features/equipamentos/crud/formPayload.js` ou `crud/payload.js`.                                                   |
+| `validateSaveEquipPayload(...)`             |                1514 | validation                                  | Validar campos textuais obrigatórios/deduplicação antes do payload final.                                                       | Leitura de DOM via `Utils.getVal`; `Toast.warning` em erro; pode interromper fluxo.                                                                                                                               | `equipamentos`, `editingId`, `validateEquipamentoPayload`, `Toast`.                                                | Já movido parcialmente.                                                                        | Manter em `crud/validate.js`; idealmente receber valores já coletados para remover DOM do feature.                      |
+| `_collectSaveEquipContextFormValues(...)`   |                1523 | form/payload collection / setor/context     | Calcular periodicidade normalizada, `setorId` por contexto forçado ou select, e `clienteId` respeitando `saveWithoutClient`.    | Leitura de DOM e leitura de contexto forçado.                                                                                                                                                                     | `normalizePeriodicidadePreventivaDias`, `getForcedEquipContext`, IDs `eq-periodicidade`, `eq-setor`, `eq-cliente`. | Sim, com `getValue`/`getForcedContext` injetados.                                              | `crud/formPayload.js`; manter contrato sem tocar em setor.                                                              |
+| `collectSaveEquipDadosPlaca(...)`           |                1527 | nameplate/dados de placa                    | Coletar JSONB de dados de placa e traduzir erro de faixa decimal em feedback.                                                   | Leitura de inputs via `collectDadosPlaca`; `Toast.warning`; foco/select no input inválido; pode interromper fluxo.                                                                                                | `collectDadosPlaca`, `DadosPlacaValidationError`, `formatDecimalHint`, `Toast`.                                    | Já movido parcialmente para feature nameplate; adapter ainda injeta dependências de UI/domain. | `src/features/equipamentos/nameplate/dadosPlaca.js` permanece; considerar só desacoplar chamada do orquestrador depois. |
+| `buildSaveEquipPayload(...)`                |                1535 | form/payload collection                     | Montar payload final com IDs, fotos preservadas em edição, campos validados, `fluido`, `componente` condicional e `dadosPlaca`. | Leitura de DOM para `eq-fluido`/`eq-componente`; chama `Utils.uid`, `findEquip`, `normalizePhotoList`.                                                                                                            | `formValues`, `payloadValidation`, `dadosPlaca`, `editingId`, `TIPOS_COM_COMPONENTE`.                              | Já movido parcialmente, mas ainda recebe leitores do adapter.                                  | `crud/payload.js`; próximo recorte deve remover o restante de coleta DOM do adapter/payload.                            |
+| `applySaveEquipToState(...)`                |                1546 | persist/state mutation                      | Criar ou atualizar equipamento em `state.equipamentos`.                                                                         | Mutação de state via `setState`.                                                                                                                                                                                  | `setState`, `editingId`, `payload`, mutations injetadas.                                                           | Já movido.                                                                                     | `crud/persist.js`.                                                                                                      |
+| `wasEditing = Boolean(getEditingEquipId())` |                1554 | editing state cleanup / toast               | Capturar estado de edição antes do cleanup para mensagem correta.                                                               | Leitura de state de edição; ordem é crítica antes de `clearEditingState`.                                                                                                                                         | `getEditingEquipId`.                                                                                               | Sim, mas manter ordem.                                                                         | Orquestrador de save ou post-save context.                                                                              |
+| `_finishSaveEquipSuccess(...)`              |                1555 | modal close/reset / render pós-save / toast | Fechar modal quando aplicável, limpar form, atualizar dashboard/lista/header e emitir toast de sucesso.                         | `Modal.close`, `Utils.clearVals`, `Utils.setVal`, `syncComponenteVisibility`, `clearEditingState`, `OnboardingBanner.remove`, import dinâmico de dashboard, `renderEquip`, `updateGlobalHeader`, `Toast.success`. | `keepOpen`, `wasEditing`, helpers de UI, `renderEquip`.                                                            | Não como bloco único; precisa split modal/post-save com DI.                                    | `ui/modal` + `controller/postSave`; extração dedicada no CP-F.3b se escolher opção B.                                   |
+| `_runSaveEquipPostActions(...)`             |                1556 | post-save actions                           | Executar foco para clone, abrir registro, ou navegar para relatório e abrir PMOC.                                               | Foco em `eq-nome`, `goTo`, `requestAnimationFrame`, mutação de `dataset.clienteId`, clique em botão PMOC.                                                                                                         | `keepOpen`, flags de post-action, `payload.equipId`, `payload.clienteId`, DOM, router.                             | Sim, com DI, mas deve preservar ordem após toast/render.                                       | `controller/postSaveActions.js` ou helper de orquestração.                                                              |
+| `return true/false`                         | 1511/1521/1533/1564 | adapter/orchestration                       | Contrato booleano de sucesso/interrupção.                                                                                       | Nenhum direto.                                                                                                                                                                                                    | Ordem dos blocos anteriores.                                                                                       | Só junto do orquestrador.                                                                      | Orquestrador menor de `saveEquip`.                                                                                      |
+
+### Funções auxiliares relacionadas ainda no adapter
+
+| Função auxiliar                      |             Linha | Chamada por `saveEquip`?                                  | Responsabilidade                                                                                         | Side effects                                                                                                                                               | Destino provável                                                                                          |
+| ------------------------------------ | ----------------: | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `_getSaveEquipPostActionContext`     |              1341 | Sim                                                       | Converter `options.postAction` em flags de fluxo pós-save e vínculo opcional.                            | Nenhum.                                                                                                                                                    | `crud/postSave.js` ou módulo de orquestração.                                                             |
+| `_collectSaveEquipBaseFormValues`    |              1355 | Sim                                                       | Coletar campos base do form com defaults.                                                                | Leitura de DOM via `Utils.getVal`.                                                                                                                         | **Próximo recorte recomendado:** `crud/formPayload.js` ou `crud/payload.js`.                              |
+| `_collectSaveEquipContextFormValues` |              1366 | Sim                                                       | Coletar/derivar periodicidade, setor e cliente, respeitando contexto forçado e `saveWithoutClient`.      | Leitura de DOM e de estado/contexto forçado.                                                                                                               | **Próximo recorte recomendado:** `crud/formPayload.js`, com `getValue`/`getForcedEquipContext` injetados. |
+| `_closeSaveEquipModal`               |              1389 | Indireta via `_finishSaveEquipSuccess`                    | Fechar `modal-add-eq` quando não está em clone/keep-open.                                                | Import dinâmico de `Modal`, `Modal.close`, `handleError` em falha.                                                                                         | `ui/modal` ou `controller/postSave` com DI.                                                               |
+| `_resetSaveEquipForm`                |              1408 | Indireta via `_finishSaveEquipSuccess`                    | Limpar campos pós-save, resetar defaults, limpar dados de placa e estado de edição quando fecha modal.   | `Utils.clearVals`, `Utils.setVal`, `syncComponenteVisibility`, dataset manual, `clearEditingState`.                                                        | `ui/formReset`; não mover junto com payload.                                                              |
+| `_refreshSaveEquipViews`             |              1438 | Indireta via `_finishSaveEquipSuccess`                    | Atualizar onboarding, dashboard, lista de equipamentos e header após salvar.                             | `OnboardingBanner.remove`, import/render dashboard, `handleError`, `renderEquip`, `updateGlobalHeader`.                                                    | `controller/postSave` com `renderEquip` injetado.                                                         |
+| `_finishSaveEquipSuccess`            |              1458 | Sim                                                       | Agregar fechamento de modal, reset, refresh e toast de sucesso.                                          | Efeitos indiretos dos helpers + `Toast.success`.                                                                                                           | Dividir antes de mover ou mover com DI no CP-F.3b modal/post-save.                                        |
+| `_runSaveEquipPostActions`           |              1468 | Sim                                                       | Dispatch pós-save: clone mantém modal/foco, register navega para registro, pmoc abre fluxo de relatório. | Foco, `goTo`, `requestAnimationFrame`, dataset, click.                                                                                                     | `controller/postSaveActions.js` com DI.                                                                   |
+| `clearEditingState`                  |               256 | Indireta via `_resetSaveEquipForm`                        | Resetar edição, botões/títulos do modal, fotos, extras/nameplate metadata e contexto forçado.            | `setEditingEquipId(null)`, DOM text/dataset/style, `EquipmentPhotos.clear`, `resetCamposExtrasState`, `resetNameplateMetadata`, `clearForcedEquipContext`. | Permanecer em UI/modal por enquanto; extração futura exige cuidado com nameplate e contexto.              |
+| `syncComponenteVisibility`           |               196 | Indireta via `_resetSaveEquipForm`                        | Sincronizar visibilidade do select de componente conforme tipo.                                          | DOM style/value provável.                                                                                                                                  | UI/form; não mover neste CP.                                                                              |
+| `populateSetorSelect`                |               554 | Não diretamente; relevante para form/modal                | Popular select de setores no modal e sincronizar grupo de contexto.                                      | DOM, leitura de state, `syncContextGroupVisibility`.                                                                                                       | UI/form/setor; fora do recorte CP-F.3b para evitar mexer em setor.                                        |
+| `applyEquipModalExperience`          |               302 | Não diretamente no save; relevante para modal/post-action | Configurar experiência do modal por plano/contexto e botões de ação.                                     | DOM, dataset de postAction, leitura de plano e contexto.                                                                                                   | UI/modal; não mover junto de `saveEquip`.                                                                 |
+| `collectSaveEquipDadosPlaca`         | feature nameplate | Sim                                                       | Adaptar coleta de dados de placa e erro de validação decimal para resultado `{ ok, dadosPlaca }`.        | Toast/foco/select em erro; leitura indireta dos inputs.                                                                                                    | Já em `src/features/equipamentos/nameplate/dadosPlaca.js`; manter.                                        |
+| `buildSaveEquipPayload`              |      feature CRUD | Sim                                                       | Montar payload final salvo em state.                                                                     | Chama funções injetadas que leem DOM/state/id/fotos.                                                                                                       | Já em `src/features/equipamentos/crud/payload.js`; completar coleta de form no próximo recorte.           |
+| `validateSaveEquipPayload`           |      feature CRUD | Sim                                                       | Validar nome/local/tag/modelo e emitir Toast de erro.                                                    | Toast e leitura por função injetada.                                                                                                                       | Já em `src/features/equipamentos/crud/validate.js`; depois pode receber valores prontos.                  |
+| `applySaveEquipToState`              |      feature CRUD | Sim                                                       | Criar/atualizar `state.equipamentos`.                                                                    | `setState`.                                                                                                                                                | Já em `src/features/equipamentos/crud/persist.js`.                                                        |
+
+### Acoplamentos que ainda impedem mover `saveEquip` com segurança
+
+- `saveEquip` ainda lê `getEditingEquipId()` em vários pontos. Isso preserva a ordem atual, mas o orquestrador futuro deveria capturar `editingId` uma vez apenas se for comprovado por teste que não altera a mensagem/toast e o cleanup.
+- A coleta de form ainda está parcialmente no adapter (`_collectSaveEquipBaseFormValues`, `_collectSaveEquipContextFormValues`) e parcialmente no `buildSaveEquipPayload` via `getValue('eq-fluido')` e `getValue('eq-componente')`.
+- O pós-save mistura UI modal, reset de form/nameplate, refresh de dashboard/list/header, toast e dispatch de ações. Esse bloco tem ordem sensível: persistência → captura de `wasEditing` → fechar/reset/render/toast → post-actions.
+- `clearEditingState` acopla reset de edição, botões do modal, fotos, extras/nameplate metadata e contexto forçado; mover esse helper inteiro agora arriscaria alterar modal/nameplate/contexto.
+- A integração de nameplate já tem módulo dedicado para coleta/erro, mas o reset pós-save ainda depende de `DADOS_PLACA_INPUT_IDS`, `resetCamposExtrasState` e `resetNameplateMetadata` no adapter.
+
+### Decisão de próximo recorte
+
+**Opção A — CP-F.3b form/payload.**
+
+Justificativa objetiva:
+
+- Ainda há lógica clara de coleta de form no adapter (`_collectSaveEquipBaseFormValues` e `_collectSaveEquipContextFormValues`).
+- O payload final ainda depende de leituras de DOM injetadas dentro de `buildSaveEquipPayload` para `eq-fluido` e `eq-componente`.
+- Esse recorte é menor e menos arriscado do que mover modal/post-save, porque evita mexer em `renderEquip`, `Toast.success`, fechamento de modal, reset de nameplate, foco e navegação.
+- Não exige tocar em setor além de injetar `getForcedEquipContext`/`getValue` e preservar o cálculo atual de `setorId`/`clienteId`.
+
+### Próximo CP recomendado
+
+**CP-F.3b — extrair form/payload restante.**
+
+Recorte sugerido:
+
+- Criar `src/features/equipamentos/crud/formPayload.js` **ou** ampliar `crud/payload.js` sem criar barrel.
+- Mover mecanicamente a coleta base/contexto para feature com dependências injetadas (`getValue`, `getForcedEquipContext`, `normalizePeriodicidadePreventivaDias`).
+- Fazer `buildSaveEquipPayload` receber `fluido` e `componente` já coletados em `formValues`, ou criar um collector único que devolva todos os campos de form necessários.
+- Preservar payload final, ordem de validação, ordem de coleta de dados de placa e ordem do pós-save.
+- Não tocar em modal/post-save/render/nameplate reset/setor UI nesse próximo CP.
+
+### Validação do CP-F.3a
+
+Este CP alterou apenas documentação de inventário. Não houve alteração em código de runtime, testes, CSS, schema, migrations, dependências, barrels ou contratos externos.
+
+## Atualização CP-F.3b — Extração form/payload restante de `saveEquip` (2026-05-08)
+
+Status: **CP-F.3b aplicado**.
+
+### Base inspecionada antes de mover
+
+| Item                                  | Onde estava                                                                           | Responsabilidade                                                                                   | DOM?                                        | Side effects?                                   | Decisão / destino                                                                                                           |
+| ------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `_collectSaveEquipBaseFormValues`     | `src/ui/views/equipamentos.js`                                                        | Coletar `eq-tipo`, `eq-criticidade` e `eq-prioridade` com defaults.                                | Sim, via `Utils.getVal`.                    | Não; apenas leitura.                            | Movido para `collectSaveEquipBaseFormValues` em `src/features/equipamentos/crud/payload.js`.                                |
+| `_collectSaveEquipContextFormValues`  | `src/ui/views/equipamentos.js`                                                        | Derivar periodicidade, `setorId` e `clienteId` respeitando contexto forçado e `saveWithoutClient`. | Sim, via `Utils.getVal`.                    | Não; apenas leitura de DOM/contexto.            | Movido para `collectSaveEquipContextFormValues` em `src/features/equipamentos/crud/payload.js`, com dependências injetadas. |
+| coleta de `eq-fluido`/`eq-componente` | `buildSaveEquipPayload` em `src/features/equipamentos/crud/payload.js` via `getValue` | Completar payload final com fluido e componente condicional.                                       | Sim, por reader injetado.                   | Não; apenas leitura.                            | Extraída para `collectSaveEquipExtraFormValues`; `buildSaveEquipPayload` agora recebe valores explícitos em `formValues`.   |
+| `collectSaveEquipDadosPlaca`          | `src/features/equipamentos/nameplate/dadosPlaca.js`                                   | Coletar dados de placa/nameplate e adaptar erro decimal para resultado controlado.                 | Sim, indiretamente via `collectDadosPlaca`. | Pode emitir Toast e focar/select input em erro. | Já extraído; não tocado neste CP.                                                                                           |
+| `validateSaveEquipPayload`            | `src/features/equipamentos/crud/validate.js`                                          | Validar campos textuais (`nome`, `local`, `tag`, `modelo`).                                        | Sim, via `getValue` injetado.               | Toast em erro.                                  | Já extraído; não tocado neste CP.                                                                                           |
+| `applySaveEquipToState`               | `src/features/equipamentos/crud/persist.js`                                           | Aplicar create/update em `state.equipamentos`.                                                     | Não.                                        | `setState`.                                     | Já extraído; não tocado neste CP.                                                                                           |
+
+### Helpers movidos/ajustados
+
+| Função                                                                     | Origem                                      | Destino                                     | Observação                                                                                                                                                          |
+| -------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_collectSaveEquipBaseFormValues` → `collectSaveEquipBaseFormValues`       | `src/ui/views/equipamentos.js`              | `src/features/equipamentos/crud/payload.js` | Mantém os mesmos IDs e defaults: `eq-tipo`, `eq-criticidade` com default `media`, `eq-prioridade` com default `normal`.                                             |
+| `_collectSaveEquipContextFormValues` → `collectSaveEquipContextFormValues` | `src/ui/views/equipamentos.js`              | `src/features/equipamentos/crud/payload.js` | Mantém normalização de periodicidade, contexto forçado, `saveWithoutClient`, fallback para selects e `null` para vazio.                                             |
+| `collectSaveEquipExtraFormValues`                                          | novo helper                                 | `src/features/equipamentos/crud/payload.js` | Centraliza leitura explícita de `eq-fluido` e `eq-componente` antes de montar payload.                                                                              |
+| `buildSaveEquipPayload`                                                    | `src/features/equipamentos/crud/payload.js` | mesmo arquivo                               | Removeu reader DOM `getValue`; agora usa `formValues.fluido` e `formValues.componente`, preservando componente vazio como `null` somente para tipos com componente. |
+
+### Estado de `saveEquip` após CP-F.3b
+
+`saveEquip` permanece em `src/ui/views/equipamentos.js` e continua orquestrando, na mesma ordem:
+
+1. contexto de post-action;
+2. leitura de `equipamentos`;
+3. limite de plano;
+4. validação textual;
+5. coleta form/payload via helpers extraídos;
+6. coleta de dados de placa;
+7. montagem de payload;
+8. persistência em state;
+9. captura de `wasEditing`;
+10. modal/reset/render/toast via `_finishSaveEquipSuccess`;
+11. dispatch pós-save via `_runSaveEquipPostActions`.
+
+Não foram movidos neste CP: `saveEquip`, `renderEquip`, `viewEquip`, `deleteEquip`, `_finishSaveEquipSuccess`, `_runSaveEquipPostActions`, `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews`, `clearEditingState`, setor, render plan, React bridges ou CSS.
+
+### Payload/contrato preservado
+
+- Shape do payload permanece: `equipId`, `fotosPayload`, valores de form/contexto, campos validados, `fluido`, `componente`, `dadosPlaca`.
+- `fluido` continua vindo de `eq-fluido`.
+- `componente` continua vindo de `eq-componente`, mas só é mantido para tipos em `TIPOS_COM_COMPONENTE`; vazio continua virando `null`.
+- `setorId` e `clienteId` preservam contexto forçado antes dos selects e fallback `null`.
+- `saveWithoutClient` continua forçando `clienteId: null`.
+- `periodicidadePreventivaDias` continua usando `normalizePeriodicidadePreventivaDias(valor, tipo, criticidade)`.
+- Criação/edição preservam regra de ID e fotos: criação usa `Utils.uid()` e fotos vazias; edição preserva fotos normalizadas do equipamento existente.
+- `dadosPlaca` não foi alterado.
+
+### Métricas do CP-F.3b
+
+| Arquivo                                                    | Antes | Depois | Delta |
+| ---------------------------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                             |  2095 |   2070 |   -25 |
+| `src/features/equipamentos/crud/payload.js`                |    32 |     72 |   +40 |
+| `src/features/equipamentos/__tests__/crud/payload.test.js` |   121 |    244 |  +123 |
+
+### Testes
+
+- Atualizado `src/features/equipamentos/__tests__/crud/payload.test.js` de 3 para 9 testes.
+- Cobertura adicionada para:
+  - coleta base (`tipo`, `criticidade`, `prioridadeOperacional`);
+  - defaults de criticidade/prioridade;
+  - coleta contexto (`periodicidade`, `setor`, `cliente`);
+  - contexto forçado e `saveWithoutClient`;
+  - coleta explícita de `fluido`/`componente`;
+  - componente nulo quando tipo aceita componente mas valor está vazio.
+
+### Próximo CP recomendado
+
+**CP-F.3c — modal/post-save.**
+
+Justificativa: após CP-F.3b, a coleta de form/payload restante saiu do adapter e `buildSaveEquipPayload` não lê mais DOM. O próximo acoplamento principal que mantém `saveEquip` preso ao adapter é o bloco pós-sucesso: fechamento de modal, reset de form/nameplate, refresh de dashboard/list/header, Toast de sucesso e dispatch de post-actions. O recorte deve ser feito com DI e sem alterar a ordem persistência → `wasEditing` → modal/reset/render/toast → post-actions.

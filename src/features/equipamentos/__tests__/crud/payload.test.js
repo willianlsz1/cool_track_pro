@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { buildSaveEquipPayload } from '../../crud/payload.js';
+import {
+  buildSaveEquipPayload,
+  collectSaveEquipBaseFormValues,
+  collectSaveEquipContextFormValues,
+  collectSaveEquipExtraFormValues,
+} from '../../crud/payload.js';
 
 const baseFormValues = {
   tipo: 'Split Hi-Wall',
@@ -9,6 +14,8 @@ const baseFormValues = {
   periodicidadePreventivaDias: 45,
   setorId: 'setor-1',
   clienteId: 'cliente-1',
+  fluido: 'R-32',
+  componente: 'Evaporadora',
 };
 
 const payloadValidation = {
@@ -23,6 +30,12 @@ const payloadValidation = {
 function getValue(id) {
   return (
     {
+      'eq-tipo': 'Split Hi-Wall',
+      'eq-criticidade': 'alta',
+      'eq-prioridade': 'urgente',
+      'eq-periodicidade': '45',
+      'eq-setor': 'setor-1',
+      'eq-cliente': 'cliente-1',
       'eq-fluido': 'R-32',
       'eq-componente': 'Evaporadora',
     }[id] || ''
@@ -30,6 +43,99 @@ function getValue(id) {
 }
 
 describe('crud/payload', () => {
+  it('collectSaveEquipBaseFormValues coleta tipo, criticidade e prioridadeOperacional', () => {
+    expect(collectSaveEquipBaseFormValues({ getValue })).toEqual({
+      tipo: 'Split Hi-Wall',
+      criticidade: 'alta',
+      prioridadeOperacional: 'urgente',
+    });
+  });
+
+  it('collectSaveEquipBaseFormValues preserva defaults de criticidade e prioridade', () => {
+    const emptyValue = (id) => ({ 'eq-tipo': 'Câmara Fria' })[id] || '';
+
+    expect(collectSaveEquipBaseFormValues({ getValue: emptyValue })).toEqual({
+      tipo: 'Câmara Fria',
+      criticidade: 'media',
+      prioridadeOperacional: 'normal',
+    });
+  });
+
+  it('collectSaveEquipContextFormValues coleta periodicidade, setor e cliente do form', () => {
+    const normalizePeriodicidadePreventivaDias = vi.fn(() => 45);
+    const result = collectSaveEquipContextFormValues({
+      baseFormValues: {
+        tipo: 'Split Hi-Wall',
+        criticidade: 'alta',
+        prioridadeOperacional: 'urgente',
+      },
+      saveWithoutClient: false,
+      getValue,
+      getForcedEquipContext: vi.fn(() => null),
+      normalizePeriodicidadePreventivaDias,
+    });
+
+    expect(result).toEqual({
+      tipo: 'Split Hi-Wall',
+      criticidade: 'alta',
+      prioridadeOperacional: 'urgente',
+      periodicidadePreventivaDias: 45,
+      setorId: 'setor-1',
+      clienteId: 'cliente-1',
+    });
+    expect(normalizePeriodicidadePreventivaDias).toHaveBeenCalledWith(
+      '45',
+      'Split Hi-Wall',
+      'alta',
+    );
+  });
+
+  it('collectSaveEquipContextFormValues preserva contexto forçado e saveWithoutClient', () => {
+    const normalizePeriodicidadePreventivaDias = vi.fn(() => 30);
+    const forcedContext = { setorId: 'setor-forcado', clienteId: 'cliente-forcado' };
+
+    const withForcedClient = collectSaveEquipContextFormValues({
+      baseFormValues: {
+        tipo: 'Split Hi-Wall',
+        criticidade: 'media',
+        prioridadeOperacional: 'normal',
+      },
+      saveWithoutClient: false,
+      getValue,
+      getForcedEquipContext: vi.fn(() => forcedContext),
+      normalizePeriodicidadePreventivaDias,
+    });
+    const withoutClient = collectSaveEquipContextFormValues({
+      baseFormValues: {
+        tipo: 'Split Hi-Wall',
+        criticidade: 'media',
+        prioridadeOperacional: 'normal',
+      },
+      saveWithoutClient: true,
+      getValue,
+      getForcedEquipContext: vi.fn(() => forcedContext),
+      normalizePeriodicidadePreventivaDias,
+    });
+
+    expect(withForcedClient).toMatchObject({
+      periodicidadePreventivaDias: 30,
+      setorId: 'setor-forcado',
+      clienteId: 'cliente-forcado',
+    });
+    expect(withoutClient).toMatchObject({
+      periodicidadePreventivaDias: 30,
+      setorId: 'setor-forcado',
+      clienteId: null,
+    });
+  });
+
+  it('collectSaveEquipExtraFormValues coleta fluido e componente explicitamente', () => {
+    expect(collectSaveEquipExtraFormValues({ getValue })).toEqual({
+      fluido: 'R-32',
+      componente: 'Evaporadora',
+    });
+  });
+
   it('buildSaveEquipPayload em criação gera id novo e fotos vazias', () => {
     const createId = vi.fn(() => 'eq-new');
     const findEquip = vi.fn();
@@ -43,7 +149,6 @@ describe('crud/payload', () => {
       createId,
       findEquip,
       normalizePhotoList,
-      getValue,
       tiposComComponente: new Set(['Split Hi-Wall']),
     });
 
@@ -79,7 +184,6 @@ describe('crud/payload', () => {
       createId,
       findEquip,
       normalizePhotoList,
-      getValue,
       tiposComComponente: new Set(['Split Hi-Wall']),
     });
 
@@ -92,6 +196,7 @@ describe('crud/payload', () => {
       tipo: 'Split Hi-Wall',
       criticidade: 'alta',
       prioridadeOperacional: 'alta',
+      fluido: 'R-32',
       componente: 'Evaporadora',
       dadosPlaca: { corrente: '8,5' },
     });
@@ -109,16 +214,31 @@ describe('crud/payload', () => {
       createId: vi.fn(() => 'eq-new'),
       findEquip: vi.fn(),
       normalizePhotoList: vi.fn(),
-      getValue,
       tiposComComponente: new Set(['Split Hi-Wall']),
     });
 
     expect(result.componente).toBeNull();
     expect(result).toMatchObject({
+      fluido: 'R-32',
       setorId: 'setor-1',
       clienteId: 'cliente-1',
       periodicidadePreventivaDias: 45,
       dadosPlaca: {},
     });
+  });
+
+  it('buildSaveEquipPayload preserva componente nulo quando tipo aceita componente mas valor está vazio', () => {
+    const result = buildSaveEquipPayload({
+      formValues: { ...baseFormValues, componente: '' },
+      payloadValidation,
+      dadosPlaca: {},
+      editingId: null,
+      createId: vi.fn(() => 'eq-new'),
+      findEquip: vi.fn(),
+      normalizePhotoList: vi.fn(),
+      tiposComComponente: new Set(['Split Hi-Wall']),
+    });
+
+    expect(result.componente).toBeNull();
   });
 });
