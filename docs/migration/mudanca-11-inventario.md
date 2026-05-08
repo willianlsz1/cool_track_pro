@@ -2033,3 +2033,33 @@ Ordem mantida: assinatura `deleteEquip(id)` -> coleta de registros vinculados ->
 **CP-H.6 - mapear renderFlatList/list branch antes de mover.**
 
 Justificativa: `renderFlatList` e o proximo bloco visual relevante ainda no adapter; um mapeamento antes da movimentacao reduz risco por envolver lista, bridges, toolbar e contratos de seletores.
+
+## Atualizacao CP-H.6 - Mapeamento de renderFlatList/list branch (2026-05-08)
+
+Status: **CP-H.6 aplicado**.
+
+### Escopo aplicado
+
+Criado `docs/migration/mudanca-11-cp-h6-list-branch-map.md` com mapeamento read-only de `renderFlatList`, `_setToolbar`, `mountEquipamentosHeader`, roots/bridges, testes relacionados, riscos principais e opcoes de proximo CP.
+
+Nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
+
+### Estado mapeado
+
+- `renderFlatList` localizado em `src/ui/views/equipamentos.js:741`.
+- `_setToolbar` localizado em `src/ui/views/equipamentos.js:661`.
+- `mountEquipamentosHeader` localizado em `src/ui/views/equipamentos.js:686`.
+- LOC atual de `src/ui/views/equipamentos.js`: 1321.
+
+### Riscos registrados
+
+- `renderFlatList` ainda acopla state, view model, `Utils`, `withSkeleton`, `mountEquipamentosList`, fallback de imagens e root `#lista-equip`.
+- `_setToolbar` usa `innerHTML` e preserva contratos de CTA, `data-action`, `data-id`, `data-source` e `data-testid`.
+- List/header bridges ja estao em `src/features/equipamentos/bridges`, mas dependem de roots DOM e generation guards.
+- Existe acoplamento remanescente de `src/features/equipamentos/utils/viewModels.js` para `src/ui/views/equipamentos/constants.js` e `src/ui/views/equipamentos/helpers.js`, registrado como risco para extração futura.
+
+### Proximo CP recomendado
+
+**CP-H.7 - pre-split in-place de renderFlatList.**
+
+Justificativa: separar localmente snapshot/contexto, build do view model, root, idle cluster, React view model e mount com skeleton/fallback reduz risco antes de mover a lista para feature-scoped, sem misturar toolbar/setor/header no mesmo CP.
