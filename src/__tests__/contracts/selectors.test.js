@@ -23,6 +23,7 @@ describe('contracts/selectors (static)', () => {
   const equipamentos = [
     source('src/ui/views/equipamentos.js'),
     source('src/features/equipamentos/setor/setorUI.js'),
+    source('src/features/equipamentos/crud/postActions.js'),
     source('src/ui/views/equipamentos/setores.js'),
   ].join('\n');
   const registro = source('src/ui/views/registro.js');

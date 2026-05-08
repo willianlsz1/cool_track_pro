@@ -1152,3 +1152,66 @@ Permaneceram em `src/ui/views/equipamentos.js`: `saveEquip`, `_closeSaveEquipMod
 **CP-F.3e — post-actions.**
 
 Justificativa: após mover a orquestração de sucesso com DI, o próximo bloco coeso ainda acoplado a `saveEquip` é `_runSaveEquipPostActions`. Ele deve ser extraído separadamente para preservar a ordem pós-toast e permitir injetar navegação, foco e abertura PMOC sem puxar modal/reset/render.
+
+## Atualização CP-F.3e — Extração de post-actions de saveEquip (2026-05-08)
+
+Status: **CP-F.3e aplicado**.
+
+### Base inspecionada antes de mover
+
+| Fluxo                   | Condição                                             | Ações                                                                                                                                            | Side effects                                                                   | Dependências                                                                                                       |
+| ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| clone / keepOpen        | `keepOpen === true` (`postAction === 'clone'`)       | Focar `eq-nome` e retornar sem processar register/PMOC.                                                                                          | Foco no input de nome do equipamento.                                          | `Utils.getEl('eq-nome')`, DOM/focus.                                                                               |
+| register / openRegistro | `openRegistro === true` e `payload.equipId` presente | Navegar para `registro` com `{ equipId }`.                                                                                                       | Navegação via router.                                                          | `goTo`, `payload.equipId`.                                                                                         |
+| pmoc / openPmoc         | `openPmoc === true`                                  | Navegar para `relatorio`, aguardar dois `requestAnimationFrame`, localizar botão PMOC, setar `dataset.clienteId` quando houver cliente e clicar. | Navegação, agendamento de frame, mutação de dataset e `click()` no botão PMOC. | `goTo`, `requestAnimationFrame`, `document.querySelector('[data-action="open-pmoc-modal"]')`, `payload.clienteId`. |
+| sem postAction          | flags `keepOpen`, `openRegistro` e `openPmoc` falsas | Não executar foco, navegação, frames, dataset ou click.                                                                                          | Nenhum side effect de post-action.                                             | Flags e payload injetados.                                                                                         |
+
+### Helper movido/ajustado
+
+| Função                                                 | Origem                         | Destino                                         | Observação                                                                              |
+| ------------------------------------------------------ | ------------------------------ | ----------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `_runSaveEquipPostActions` → `runSaveEquipPostActions` | `src/ui/views/equipamentos.js` | `src/features/equipamentos/crud/postActions.js` | Mantém os fluxos clone, register e PMOC, agora com dependências injetadas pelo adapter. |
+
+### Dependências injetadas
+
+`runSaveEquipPostActions` não importa o adapter, router ou DOM global. A função recebe por parâmetro:
+
+- `keepOpen`, `openRegistro` e `openPmoc`;
+- `payload`, de onde lê `payload.equipId` e `payload.clienteId`;
+- `focusNameInput`, hoje `() => Utils.getEl('eq-nome')?.focus()` no adapter;
+- `goTo`, injetado pelo adapter;
+- `requestAnimationFrameRef`, injetado como `requestAnimationFrame`;
+- `documentRef`, injetado como `document`.
+
+A ordem no `saveEquip` permanece: mutation de estado → cálculo de `wasEditing` → `finishSaveEquipSuccess` → `runSaveEquipPostActions` → `return true`.
+
+### O que permaneceu no adapter
+
+Permaneceram em `src/ui/views/equipamentos.js`: `saveEquip`, `_closeSaveEquipModal`, `_resetSaveEquipForm`, `_refreshSaveEquipViews`, `renderEquip`, `viewEquip`, `deleteEquip`, `clearEditingState`, setor, render plan e React bridges.
+
+### Métricas do CP-F.3e
+
+| Arquivo                                                        | Antes | Depois | Delta |
+| -------------------------------------------------------------- | ----: | -----: | ----: |
+| `src/ui/views/equipamentos.js`                                 |  2068 |   2045 |   -23 |
+| `src/features/equipamentos/crud/postActions.js`                |     0 |     34 |   +34 |
+| `src/features/equipamentos/__tests__/crud/postActions.test.js` |     0 |    109 |  +109 |
+
+### Testes
+
+- Criado `src/features/equipamentos/__tests__/crud/postActions.test.js` com 8 testes.
+- Cobertura adicionada para:
+  - fluxo sem post-action sem foco/navegação/click indevidos;
+  - clone/keepOpen com foco em `eq-nome`;
+  - register com `goTo('registro', { equipId })`;
+  - register sem `equipId` sem navegação;
+  - PMOC com dois `requestAnimationFrame`;
+  - PMOC com `dataset.clienteId` e `click()`;
+  - PMOC sem `clienteId` preservando click;
+  - isolamento entre fluxos.
+
+### Próximo CP recomendado
+
+**CP-F.4 — mover saveEquip como orquestrador.**
+
+Justificativa: depois de extrair validação, payload, persistência, sucesso pós-save e post-actions, `saveEquip` já opera majoritariamente como orquestrador com dependências explícitas. O próximo recorte natural é mover o orquestrador preservando o adapter como camada de DI para DOM/router/toast/render.
