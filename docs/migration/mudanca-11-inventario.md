@@ -1758,3 +1758,36 @@ Criado `src/features/equipamentos/__tests__/ui/renderEquip.test.js` com 6 testes
 **CP-H.0 - mapear limpeza/fachadas pós-extração.**
 
 Justificativa: `viewEquip` e `renderEquip` ja estao feature-scoped e o adapter segue como fachada publica; o proximo passo seguro e mapear a limpeza/fachadas antes de qualquer novo split funcional.
+
+## Atualizacao CP-H.0 - Mapeamento de limpeza e fachadas (2026-05-08)
+
+Status: **CP-H.0 aplicado**.
+
+### Escopo aplicado
+
+Criado `docs/migration/mudanca-11-cp-h0-fachadas.md` com o mapeamento pos CP-G.6 de responsabilidades restantes no adapter, modulos feature ja extraidos, dependencias via DI, riscos de import circular, avaliacao de fachada/shim e sequencia recomendada de proximos CPs.
+
+### Estado analisado
+
+- Branch: `main`.
+- HEAD base: `ab707725d8473b91ed343b9fe88853e307d8e10b`.
+- Adapter analisado: `src/ui/views/equipamentos.js`.
+- LOC atual do adapter: 1440.
+- `src/features/equipamentos/ui/renderEquip.js` e `src/features/equipamentos/__tests__/ui/renderEquip.test.js` confirmados.
+- Grep de imports de `src/features/equipamentos` para `src/ui/views/equipamentos.js`: vazio.
+
+### Decisao
+
+Nao criar fachada/shim neste CP. O adapter ainda e a fronteira de composicao entre UI legada, DOM global, router, modal global e feature modules. Criar uma fachada agora tem risco de virar barrel disfarçado ou apenas mover o acoplamento sem reduzir responsabilidade real.
+
+### Arquivos alterados
+
+- `docs/migration/mudanca-11-cp-h0-fachadas.md` criado.
+- `docs/migration/mudanca-11-inventario.md` atualizado.
+- Nenhum arquivo em `src/` alterado.
+
+### Proximo CP recomendado
+
+**CP-H.1 - mapear deleteEquip/openEditEquip.**
+
+Justificativa: `openEditEquip` e `deleteEquip` sao os maiores exports publicos ainda implementados no adapter e combinam modal, DOM, storage, billing, dados de placa, focus, refresh global e toast. Mapear/pre-splitar esses fluxos antes de mover reduz risco para a fachada futura.
