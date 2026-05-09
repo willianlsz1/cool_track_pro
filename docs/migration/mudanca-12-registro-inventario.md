@@ -287,8 +287,24 @@ Status: aplicado em 2026-05-08.
 - LOC `src/ui/views/registro.js`: 1828 -> 1861.
 - Testes rodados: contratos CP-B + payload CP-D + photos CP-F; testes focados de assinatura/save/storage/PDF/historico; `npm run format`; `npm run check`.
 
-## 17. Proximo CP recomendado
+## 17. CP-I - Mover helpers de assinatura
 
-**CP-I - mover helpers de assinatura.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O fluxo de assinatura agora esta separado localmente e os helpers possuem fronteiras claras para uma extracao feature-scoped com DI explicita, mantendo `saveRegistro` como orquestrador legado e sem alterar storage, modal, PDF ou historico.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Modulo criado: `src/features/registro/save/signature.js`.
+- Teste criado: `src/features/registro/__tests__/save/signature.test.js`.
+- Helpers movidos: `getRegistroSignatureState`, `loadRegistroSignatureSaveModule`, `captureRegistroSignatureIfNeeded`, `persistRegistroSignatureForSave`, `buildRegistroSignaturePayload`, `clearRegistroSignatureAfterSave`.
+- DI explicita usada para gate de plano, loader dinamico, `SignatureModal`, `saveSignatureForRecord`, `Toast`, `handleError`, `ErrorCodes`, validador de data URL, limpeza de draft e remount do hint.
+- Nenhum helper de assinatura permaneceu no adapter; o fluxo segue orquestrado por `saveRegistro` e pelos handlers legados.
+- Comportamento real de `SignatureModal.CANCELED` preservado: save continua sem assinatura e mostra Toast informativo.
+- Ordem preservada: hint/init e handlers intactos; save create apos `photoState`; import dinamico; captura `SignatureModal`; persistencia `saveSignatureForRecord`; fotos CP-F depois da assinatura; payload `assinatura`; limpeza via `clearRegistro`.
+- Nenhuma mudanca funcional intencional; `SignatureModal`, `SignatureViewerModal`, `signatureStorage`, fila offline, React pages, handlers, fotos CP-F, payload CP-D, relatorio/PDF, historico e contratos CP-B preservados.
+- LOC `src/ui/views/registro.js`: 1861 -> 1814.
+- Testes rodados: signature feature + photos feature + payload feature + contratos CP-B; testes focados de assinatura/save/storage/PDF/historico; `npm run format`; `npm run check`.
+
+## 18. Proximo CP recomendado
+
+**CP-J - pre-split save persistencia/state.**
+
+Confianca: 90%+. Payload, fotos e assinatura ja sairam do miolo direto do save com DI e cobertura focada; o proximo risco concentrado e a mutacao `setState`/persistencia do fluxo create/edit e reconciliacao de equipamentos, ainda dentro do adapter legado.
