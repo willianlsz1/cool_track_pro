@@ -465,8 +465,19 @@ Status: aplicado em 2026-05-09.
 - Lacunas remanescentes: gate Pro/CTA segue coberto por testes legados de render, mas nao foi duplicado no contrato dedicado; matriz completa de PDF/relatorio por plano permanece fora deste CP.
 - Validacoes rodadas: contrato Checklist/PMOC; bateria feature/contratos; testes relacionados Checklist/PMOC/Registro/PDF; `npm run format`; `npm run check`.
 
-## 30. Proximo CP recomendado
+## 30. CP-V - Pre-split Checklist/PMOC in-place
 
-**CP-V - pre-split checklist/PMOC in-place.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O CP-U travou os contratos mais frageis de Checklist/PMOC sem alterar producao. O proximo corte seguro e separar localmente, ainda dentro de `src/ui/views/registro.js`, os wrappers de estado `_currentChecklist`, gate/render, setters, warning soft-required e reset/edit load antes de qualquer movimento para modulo feature.
+- Checklist/PMOC permaneceu em `src/ui/views/registro.js`; nenhum modulo feature novo foi criado.
+- Helpers locais criados/ajustados: `getRegistroChecklistState`, `setRegistroChecklistState`, `clearRegistroChecklistState`, `cloneRegistroChecklistState`, `buildRegistroChecklistViewModel`, `getRegistroChecklistElements`, `resolveRegistroChecklistTemplate`, `ensureRegistroChecklistStateForTemplate`, `getRegistroChecklistItem`, `updateRegistroChecklistStatusDom`, `applyRegistroChecklistItemStatus`, `applyRegistroChecklistItemObs`, `parseRegistroChecklistMeasure`, `applyRegistroChecklistItemMeasure`, `collectRegistroChecklistForSave`, `buildRegistroChecklistSoftRequiredWarning`, `warnRegistroChecklistSoftRequiredGaps`, `resetRegistroChecklistAfterClear` e `restoreRegistroChecklistForEdit`.
+- Responsabilidades separadas: acesso ao estado `_currentChecklist`, view model da ilha React, resolucao de template, reuse/reset de template, updates de status/obs/medicao, coleta para `saveRegistro`, warning soft-required, reset em `clearRegistro` e restore em `loadRegistroForEdit`.
+- Nenhuma mudanca funcional intencional; contratos CP-B, CP-O e CP-U preservados; warning soft-required continua nao bloqueante; persistence CP-K, payload CP-D, PDF/relatorio, historico, React pages, handlers, templates PMOC, fotos, assinatura e Equipamentos preservados.
+- LOC `src/ui/views/registro.js`: 1752 -> 1823.
+- Testes rodados: contrato Checklist/PMOC; bateria feature/contratos; testes relacionados Checklist/PMOC/Registro/PDF; `npm run format`; `npm run check`.
+
+## 31. Proximo CP recomendado
+
+**CP-W - mover helpers seguros Checklist/PMOC.**
+
+Confianca: 90%+. O CP-V isolou localmente os helpers de estado, view model, coleta, warning e reset/edit load. O proximo corte seguro e classificar e mover apenas helpers puros ou de baixo side effect para modulo feature dedicado, mantendo gate/DOM/bridge no adapter se a DI ficar ampla.

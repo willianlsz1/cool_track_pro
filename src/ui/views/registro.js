@@ -819,6 +819,23 @@ function _bindEquipChangeWarning() {
 // (template é por tipo) ou quando o registro é salvo/limpo.
 let _currentChecklist = null;
 
+function getRegistroChecklistState() {
+  return _currentChecklist;
+}
+
+function setRegistroChecklistState(nextChecklist) {
+  _currentChecklist = nextChecklist;
+  return _currentChecklist;
+}
+
+function clearRegistroChecklistState() {
+  return setRegistroChecklistState(null);
+}
+
+function cloneRegistroChecklistState(checklist) {
+  return JSON.parse(JSON.stringify(checklist));
+}
+
 function loadRegistroChecklistBridge() {
   if (_registroChecklistBridge) return Promise.resolve(_registroChecklistBridge);
   if (!_registroChecklistBridgePromise) {
@@ -835,9 +852,15 @@ function loadRegistroChecklistBridge() {
   return _registroChecklistBridgePromise;
 }
 
-function buildRegistroChecklistReactProps(template) {
-  const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
-  const snapshotMap = new Map(asArray(_currentChecklist?.items).map((item) => [item.id, item]));
+function getRegistroChecklistSnapshotItems() {
+  return asArray(getRegistroChecklistState()?.items);
+}
+
+function buildRegistroChecklistSnapshotMap() {
+  return new Map(getRegistroChecklistSnapshotItems().map((item) => [item.id, item]));
+}
+
+function buildRegistroChecklistGroups(template) {
   const groupsOrder = [];
   const groupBuckets = new Map();
 
@@ -850,27 +873,43 @@ function buildRegistroChecklistReactProps(template) {
     groupBuckets.get(group).push(item);
   });
 
+  return { groupsOrder, groupBuckets };
+}
+
+function buildRegistroChecklistItemViewModel(item, snapshotMap) {
+  const snap = snapshotMap.get(item.id) || { status: null, obs: '', measure: null };
   return {
-    checklist: {
-      label: String(template?.label || ''),
-      groups: groupsOrder.map((group) => ({
-        label: group,
-        items: groupBuckets.get(group).map((item) => {
-          const snap = snapshotMap.get(item.id) || { status: null, obs: '', measure: null };
-          return {
-            id: String(item?.id || ''),
-            label: String(item?.label || ''),
-            mandatory: Boolean(item?.mandatory),
-            measurable: Boolean(item?.measurable),
-            unit: String(item?.unit || ''),
-            status: snap.status || null,
-            obs: String(snap.obs || ''),
-            measureValue:
-              snap.measure && snap.measure.value != null ? String(snap.measure.value) : '',
-          };
-        }),
-      })),
-    },
+    id: String(item?.id || ''),
+    label: String(item?.label || ''),
+    mandatory: Boolean(item?.mandatory),
+    measurable: Boolean(item?.measurable),
+    unit: String(item?.unit || ''),
+    status: snap.status || null,
+    obs: String(snap.obs || ''),
+    measureValue: snap.measure && snap.measure.value != null ? String(snap.measure.value) : '',
+  };
+}
+
+function buildRegistroChecklistViewModel(template) {
+  const snapshotMap = buildRegistroChecklistSnapshotMap();
+  const { groupsOrder, groupBuckets } = buildRegistroChecklistGroups(template);
+
+  return {
+    label: String(template?.label || ''),
+    groups: groupsOrder.map((group) => ({
+      label: group,
+      items: groupBuckets
+        .get(group)
+        .map((item) => buildRegistroChecklistItemViewModel(item, snapshotMap)),
+    })),
+  };
+}
+
+function buildRegistroChecklistReactProps(template) {
+  const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
+
+  return {
+    checklist: buildRegistroChecklistViewModel(template),
     actions: viewModel.actions,
   };
 }
@@ -1086,11 +1125,12 @@ function _ensurePmocChecklistAccess({ redirect = false } = {}) {
 function _updateChecklistSummary() {
   const summaryEl = document.getElementById('r-checklist-summary');
   if (!summaryEl) return;
-  if (!_currentChecklist) {
+  const checklist = getRegistroChecklistState();
+  if (!checklist) {
     summaryEl.textContent = 'selecione o equipamento primeiro';
     return;
   }
-  const s = summarizeChecklist(_currentChecklist);
+  const s = summarizeChecklist(checklist);
   if (!s.total) {
     summaryEl.textContent = 'sem template para esse tipo';
     return;
@@ -1113,6 +1153,30 @@ function _refreshChecklistPriBadge() {
   pri.hidden = !isPreventiva;
 }
 
+function getRegistroChecklistElements() {
+  return {
+    wrapper: document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID),
+    body: document.getElementById(REGISTRO_CHECKLIST_ROOT_ID),
+  };
+}
+
+function resolveRegistroChecklistTemplate(equip) {
+  return getChecklistTemplate(equip.tipo);
+}
+
+function shouldReuseRegistroChecklistTemplate(template) {
+  return getRegistroChecklistState()?.tipo_template === template.tipo_template;
+}
+
+function ensureRegistroChecklistStateForTemplate(equip, template) {
+  // Preserva marcacoes se template e o mesmo (user trocou de equip do mesmo tipo)
+  if (!shouldReuseRegistroChecklistTemplate(template)) {
+    setRegistroChecklistState(buildEmptyChecklist(equip.tipo));
+  }
+
+  return getRegistroChecklistState();
+}
+
 /**
  * Renderiza o checklist baseado no equip selecionado. Chamado quando
  * r-equip muda OU quando o accordion é aberto pela primeira vez.
@@ -1122,14 +1186,13 @@ function _refreshChecklistPriBadge() {
  * ele trocar de equip e voltar. Senão, reseta para checklist vazio.
  */
 export function renderChecklist() {
-  const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
-  const body = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
+  const { wrapper, body } = getRegistroChecklistElements();
   if (!wrapper || !body) return;
 
   const equipId = Utils.getVal('r-equip');
   if (!equipId) {
     wrapper.hidden = true;
-    _currentChecklist = null;
+    clearRegistroChecklistState();
     unmountRegistroChecklist();
     _showPmocChecklistUpsell(false);
     _updateChecklistSummary();
@@ -1144,17 +1207,14 @@ export function renderChecklist() {
   }
 
   if (!_ensurePmocChecklistAccess()) {
-    _currentChecklist = null;
+    clearRegistroChecklistState();
     _updateChecklistSummary();
     return;
   }
 
-  const tpl = getChecklistTemplate(equip.tipo);
+  const tpl = resolveRegistroChecklistTemplate(equip);
   // Preserva marcações se template é o mesmo (user trocou de equip do mesmo tipo)
-  const sameTemplate = _currentChecklist && _currentChecklist.tipo_template === tpl.tipo_template;
-  if (!sameTemplate) {
-    _currentChecklist = buildEmptyChecklist(equip.tipo);
-  }
+  ensureRegistroChecklistStateForTemplate(equip, tpl);
 
   _showPmocChecklistUpsell(false);
   wrapper.hidden = false;
@@ -1166,32 +1226,50 @@ export function renderChecklist() {
 }
 
 /** Atualiza status de um item — chamado pelo handler de click. */
+function getRegistroChecklistItem(itemId) {
+  return getRegistroChecklistState()?.items?.find((item) => item.id === itemId) || null;
+}
+
+function updateRegistroChecklistStatusDom(itemId, status) {
+  const row = document.querySelector(`[data-item-id="${CSS.escape(itemId)}"]`);
+  if (!row) return;
+
+  row.querySelectorAll('.r-checklist__status').forEach((btn) => {
+    const btnStatus = btn.dataset.status;
+    const isActive = status === btnStatus;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function applyRegistroChecklistItemStatus(itemId, status) {
+  const item = getRegistroChecklistItem(itemId);
+  if (!item) return null;
+
+  item.status = item.status === status ? null : status;
+  return item;
+}
+
 export function setChecklistItemStatus(itemId, status) {
   if (!_ensurePmocChecklistAccess({ redirect: true })) return;
-  if (!_currentChecklist) return;
-  const item = _currentChecklist.items.find((i) => i.id === itemId);
+  if (!getRegistroChecklistState()) return;
+  const item = applyRegistroChecklistItemStatus(itemId, status);
   if (!item) return;
-  // Toggle: clicar no mesmo status volta pra null
-  item.status = item.status === status ? null : status;
   // Update DOM in place — não re-renderiza pra preservar foco em textarea
-  const row = document.querySelector(`[data-item-id="${CSS.escape(itemId)}"]`);
-  if (row) {
-    row.querySelectorAll('.r-checklist__status').forEach((btn) => {
-      const btnStatus = btn.dataset.status;
-      const isActive = item.status === btnStatus;
-      btn.classList.toggle('is-active', isActive);
-      btn.setAttribute('aria-pressed', String(isActive));
-    });
-  }
+  updateRegistroChecklistStatusDom(itemId, item.status);
   _updateChecklistSummary();
 }
 
 /** Atualiza obs de um item — chamado pelo handler de input do textarea. */
+function applyRegistroChecklistItemObs(itemId, obs) {
+  const item = getRegistroChecklistItem(itemId);
+  if (item) item.obs = String(obs || '');
+}
+
 export function setChecklistItemObs(itemId, obs) {
   if (!_ensurePmocChecklistAccess({ redirect: true })) return;
-  if (!_currentChecklist) return;
-  const item = _currentChecklist.items.find((i) => i.id === itemId);
-  if (item) item.obs = String(obs || '');
+  if (!getRegistroChecklistState()) return;
+  applyRegistroChecklistItemObs(itemId, obs);
 }
 
 /**
@@ -1200,36 +1278,47 @@ export function setChecklistItemObs(itemId, obs) {
  * { value, unit }. Não-numéricos são ignorados (input number já
  * filtra mas defensivo aqui também).
  */
+function parseRegistroChecklistMeasure(rawValue, unit) {
+  const trimmed = String(rawValue ?? '').trim();
+  if (trimmed === '') return null;
+
+  const num = Number(trimmed.replace(',', '.'));
+  if (!Number.isFinite(num)) return null;
+
+  return { value: num, unit: String(unit || '') };
+}
+
+function applyRegistroChecklistItemMeasure(itemId, rawValue, unit) {
+  const item = getRegistroChecklistItem(itemId);
+  if (!item) return;
+
+  item.measure = parseRegistroChecklistMeasure(rawValue, unit);
+}
+
 export function setChecklistItemMeasure(itemId, rawValue, unit) {
   if (!_ensurePmocChecklistAccess({ redirect: true })) return;
-  if (!_currentChecklist) return;
-  const item = _currentChecklist.items.find((i) => i.id === itemId);
-  if (!item) return;
-  const trimmed = String(rawValue ?? '').trim();
-  if (trimmed === '') {
-    item.measure = null;
-    return;
-  }
-  // Aceita vírgula ou ponto como separador decimal (pt-BR).
-  const num = Number(trimmed.replace(',', '.'));
-  if (!Number.isFinite(num)) {
-    item.measure = null;
-    return;
-  }
-  item.measure = { value: num, unit: String(unit || '') };
+  if (!getRegistroChecklistState()) return;
+  applyRegistroChecklistItemMeasure(itemId, rawValue, unit);
 }
 
 /** Snapshot atual do checklist — chamado por saveRegistro. */
+function hasRegistroChecklistMarks(checklist = getRegistroChecklistState()) {
+  return (checklist?.items || []).some((item) => item.status != null);
+}
+
+function collectRegistroChecklistForSave() {
+  const checklist = getRegistroChecklistState();
+  if (!checklist) return null;
+  return hasRegistroChecklistMarks(checklist) ? checklist : null;
+}
+
 export function getCurrentChecklist() {
-  if (!_currentChecklist) return null;
-  // Só retorna se pelo menos 1 item foi marcado — checklist 100% vazio = null.
-  const hasMarks = (_currentChecklist.items || []).some((i) => i.status != null);
-  return hasMarks ? _currentChecklist : null;
+  return collectRegistroChecklistForSave();
 }
 
 /** Reset — chamado por clearRegistro. */
-export function resetChecklist() {
-  _currentChecklist = null;
+function resetRegistroChecklistAfterClear() {
+  clearRegistroChecklistState();
   const body = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
   unmountRegistroChecklist();
   if (body) body.textContent = '';
@@ -1239,14 +1328,22 @@ export function resetChecklist() {
   _updateChecklistSummary();
 }
 
-/** Carrega checklist do registro existente em modo edição. */
-export function loadChecklistForEdit(checklist) {
+export function resetChecklist() {
+  resetRegistroChecklistAfterClear();
+}
+
+function restoreRegistroChecklistForEdit(checklist) {
   if (!checklist || typeof checklist !== 'object') {
-    _currentChecklist = null;
+    clearRegistroChecklistState();
     return;
   }
-  _currentChecklist = JSON.parse(JSON.stringify(checklist));
+  setRegistroChecklistState(cloneRegistroChecklistState(checklist));
   renderChecklist();
+}
+
+/** Carrega checklist do registro existente em modo edição. */
+export function loadChecklistForEdit(checklist) {
+  restoreRegistroChecklistForEdit(checklist);
 }
 
 function _bindRegistroHeaderFieldHandlers() {
@@ -1519,18 +1616,15 @@ function validateRegistroOperationalFields({ data, status }) {
   return true;
 }
 
-function warnRegistroChecklistPayloadGaps(tipo) {
+function buildRegistroChecklistSoftRequiredWarning(tipo) {
   // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
   // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
   // pra ele saber que esse registro NÃO entra no PMOC formal completo.
-  if (!isPreventivaTipo(tipo)) return;
+  if (!isPreventivaTipo(tipo)) return null;
 
   const cl = getCurrentChecklist();
   if (!cl) {
-    Toast.warning(
-      'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.',
-    );
-    return;
+    return 'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.';
   }
 
   const validationCl = validateChecklist(cl);
@@ -1541,8 +1635,19 @@ function warnRegistroChecklistPayloadGaps(tipo) {
       rest > 0
         ? `${validationCl.missing.length} itens obrigatórios pendentes (ex: "${first}"). Salvando mesmo assim.`
         : `1 item obrigatório pendente: "${first}". Salvando mesmo assim.`;
-    Toast.warning(msg);
+    return msg;
   }
+
+  return null;
+}
+
+function warnRegistroChecklistSoftRequiredGaps(tipo) {
+  const warning = buildRegistroChecklistSoftRequiredWarning(tipo);
+  if (warning) Toast.warning(warning);
+}
+
+function warnRegistroChecklistPayloadGaps(tipo) {
+  warnRegistroChecklistSoftRequiredGaps(tipo);
 }
 
 function persistRegistroTechnicianProfile(tecnico) {
