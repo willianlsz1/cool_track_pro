@@ -274,8 +274,26 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - bateria storage;
   - bateria completa `npm run test -- src/__tests__ --reporter=dot`.
 
-## 15. Proximo CP recomendado
+## 15. CP-G aplicado
 
-**CP-G - mapear chunks/dynamic import.**
+- Escopo: mapeamento read-only dos warnings Vite de dynamic/static import e chunks grandes.
+- Documento criado:
+  - `docs/migration/mudanca-16-cp-g-chunks-dynamic-import-map.md`.
+- Estado observado:
+  - `npm run check` passou;
+  - `npm run build` passou;
+  - ESLint manteve 1 warning conhecido de `no-restricted-imports` em `src/domain/pdf/shareReport.js`;
+  - Vite manteve warnings de dynamic/static import em 22 modulos;
+  - chunks/assets principais registrados: `index.*.js` 960,519 B, `vendor-pdf.*.js` 776,011 B, `index.*.css` 544,286 B e `cooling-tech.*.png` 1,941,137 B.
+- Causas mapeadas:
+  - imports estaticos e dinamicos misturados em core (`utils`, `supabase`, `storage`, `state`, `modal`, `router`, `auth`);
+  - views/rotas com imports mistos (`equipamentos`, `historico`, `clientes`, `dashboard`);
+  - PDF/share/plano/perfil espalhados entre handlers e dominio;
+  - islands React pequenas, mas entry principal ainda grande por infraestrutura compartilhada.
+- Nenhum `src/`, teste, package, config, CSS ou schema foi alterado neste CP.
 
-Justificativa: CP-F reduziu os restricted imports de 6 para 1 e manteve apenas o caso `shareReport -> onboardingChecklist`, que precisa de CP dedicado se for atacado. O maior ruido restante no `npm run check` agora vem dos warnings Vite de dynamic/static import e chunks grandes, que pedem mapeamento antes de qualquer corte.
+## 16. Proximo CP recomendado
+
+**CP-H - corrigir static+dynamic import por grupo.**
+
+Justificativa: CP-G identificou grupos claros de imports mistos. O proximo corte deve ser pequeno e reversivel, atacando um grupo seguro de static+dynamic import antes de qualquer `manualChunks` amplo ou separacao pesada de PDF/share.
