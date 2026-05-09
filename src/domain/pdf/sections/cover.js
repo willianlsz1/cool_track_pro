@@ -45,6 +45,178 @@ function listPendencias(filtered) {
   });
 }
 
+function buildCoverPeriodText(de, ate) {
+  return de || ate
+    ? `Período ${de ? Utils.formatDate(de) : 'início'} – ${ate ? Utils.formatDate(ate) : 'atual'}`
+    : '';
+}
+
+function buildCoverContext({
+  doc,
+  pageWidth,
+  pageHeight,
+  margin,
+  profile,
+  de,
+  ate,
+  filtered,
+  equipamentos,
+  context = {},
+}) {
+  return {
+    doc,
+    pageWidth,
+    pageHeight,
+    margin,
+    profile,
+    de,
+    ate,
+    filtered,
+    equipamentos,
+    context,
+    cliente: context.cliente,
+    periodoTexto: buildCoverPeriodText(de, ate),
+  };
+}
+
+function buildCoverTitleModel({ context, profile, cliente, periodoTexto }) {
+  return {
+    osNumber: context.osNumber,
+    emitido: context.emitido || new Date().toLocaleDateString('pt-BR'),
+    clienteNome: cliente?.nome ? sanitizePublicText(cliente.nome, '') : '',
+    tecnicoNome: profile?.nome?.trim() || 'Técnico',
+    periodoTexto,
+  };
+}
+
+function buildCoverInfoBlocksModel(profile, cliente) {
+  const hasPmocData =
+    !!(profile?.cnpj || profile?.inscricao_estadual || profile?.inscricao_municipal) ||
+    !!(cliente?.cnpj || cliente?.ie || cliente?.im);
+  const blockH = hasPmocData ? 42 : 30;
+  const cnpjLine = profile?.cnpj?.trim();
+  const ieLine = profile?.inscricao_estadual?.trim();
+  const imLine = profile?.inscricao_municipal?.trim();
+  const inscricoes = [ieLine && `IE ${ieLine}`, imLine && `IM ${imLine}`]
+    .filter(Boolean)
+    .join('  ·  ');
+
+  const tecnicoLines = [
+    { value: profile?.nome?.trim() || 'Técnico', bold: true, size: 11 },
+    {
+      value: profile?.razao_social?.trim() || profile?.empresa?.trim() || '',
+      size: 8.5,
+      color: C.text2,
+    },
+    { value: cnpjLine ? `CNPJ ${cnpjLine}` : '', size: 8, color: C.text3 },
+    { value: inscricoes, size: 7.5, color: C.text3 },
+    { value: profile?.telefone?.trim() || '', size: 8, color: C.text3 },
+  ];
+
+  const clienteLines = cliente
+    ? [
+        {
+          value: sanitizePublicText(cliente.nome, 'Não informado'),
+          bold: true,
+          size: 11,
+        },
+        {
+          value: sanitizePublicText(cliente.documento, 'Não informado'),
+          size: 8,
+          color: C.text3,
+        },
+        {
+          value: sanitizePublicText(cliente.local, 'Não informado'),
+          size: 8.5,
+          color: C.text2,
+        },
+        {
+          value: sanitizePublicText(cliente.contato, 'Não informado'),
+          size: 8,
+          color: C.text3,
+        },
+      ]
+    : [{ value: 'Não informado', size: 9, color: C.text3, italic: true }];
+
+  return { blockH, tecnicoLines, clienteLines };
+}
+
+function buildCoverResumoModel(filtered, equipamentos) {
+  const totalServicos = filtered.length;
+  const warn = countByStatus(filtered, 'warn');
+  const danger = countByStatus(filtered, 'danger');
+  const equipCount = listEquipamentosUnicos(filtered, equipamentos).length;
+  const statusLabel = danger
+    ? 'Fora de operação'
+    : warn
+      ? 'Requer atenção'
+      : totalServicos > 0
+        ? 'OK'
+        : '—';
+  const statusColor = danger ? C.red : warn ? C.amber : totalServicos > 0 ? C.green : C.text3;
+
+  return { totalServicos, equipCount, statusLabel, statusColor };
+}
+
+function buildCoverEquipamentosRows(filtered, equipamentos) {
+  return listEquipamentosUnicos(filtered, equipamentos).map(({ eq, lastRegistro }) => {
+    const st = STATUS_CLIENTE[lastRegistro.status] || STATUS_CLIENTE.ok;
+    const ultimo = lastRegistro.data ? Utils.formatDate(lastRegistro.data) : '—';
+    const proxima = lastRegistro.proxima ? Utils.formatDate(lastRegistro.proxima) : '—';
+    // V3 refator: nome trunca em 32 chars + "…" pra evitar wrap feio.
+    // Cliente prefere overflow controlado a duas linhas estouradas.
+    const nomeBruto = eq.nome || '—';
+    const nome = nomeBruto.length > 32 ? `${nomeBruto.slice(0, 31)}…` : nomeBruto;
+    const localBruto = eq.local || '—';
+    const local = localBruto.length > 28 ? `${localBruto.slice(0, 27)}…` : localBruto;
+    return {
+      tag: eq.codigo || eq.tag || '—',
+      nome,
+      local,
+      ultimo,
+      proxima,
+      statusLabel: st.label,
+      statusColor: st.color,
+      statusKey: lastRegistro.status || 'ok',
+    };
+  });
+}
+
+function buildCoverConclusaoModel(filtered) {
+  const ok = countByStatus(filtered, 'ok');
+  const warn = countByStatus(filtered, 'warn');
+  const danger = countByStatus(filtered, 'danger');
+
+  return { conclusion: formatStatusConclusion({ ok, warn, danger }) };
+}
+
+function buildCoverFichaTecnicaBlocks(filtered, equipamentos) {
+  return listEquipamentosUnicos(filtered, equipamentos)
+    .map(({ eq }) => {
+      const allRows = formatDadosPlacaRows(eq.dadosPlaca);
+      return {
+        eq,
+        fixedRows: allRows.filter((r) => !r.extra),
+        extraRows: allRows.filter((r) => r.extra),
+      };
+    })
+    .filter((block) => block.fixedRows.length > 0 || block.extraRows.length > 0);
+}
+
+function buildCoverPendenciasModel(filtered, equipamentos) {
+  return listPendencias(filtered).map((registro) => {
+    const equipamento = equipamentos.find((item) => item.id === registro.equipId);
+    const isUrgent = registro.status === 'danger';
+    return {
+      equipamento,
+      cor: isUrgent ? C.red : C.amber,
+      acao: isUrgent
+        ? 'Requer intervenção imediata'
+        : `Preventiva recomendada${registro.proxima ? ` até ${Utils.formatDate(registro.proxima)}` : ''}`,
+    };
+  });
+}
+
 // ------------------------------- masthead -------------------------------
 
 function drawMasthead(doc, pageWidth, margin, profile) {
@@ -88,7 +260,7 @@ function drawMasthead(doc, pageWidth, margin, profile) {
 
 // -------------------------- title & meta line --------------------------
 
-function drawTitleBlock(doc, pageWidth, margin, startY, context = {}, profile, cliente) {
+function drawTitleBlock(doc, pageWidth, margin, startY, model) {
   let y = startY;
 
   // V3 refator: titulo grande + faixa de identificadores
@@ -102,9 +274,9 @@ function drawTitleBlock(doc, pageWidth, margin, startY, context = {}, profile, c
     color: C.text,
   });
 
-  if (context.osNumber) {
+  if (model.osNumber) {
     // OS em badge destacado no canto direito
-    const osLabel = `OS ${context.osNumber}`;
+    const osLabel = `OS ${model.osNumber}`;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     const osWidth = doc.getTextWidth(osLabel) + 6;
@@ -121,10 +293,6 @@ function drawTitleBlock(doc, pageWidth, margin, startY, context = {}, profile, c
 
   // V3: Strip horizontal "DATA · CLIENTE · TÉCNICO" — tudo numa linha so,
   // pra cliente ler o quem-pra-quem-quando em um vistazo.
-  const emitido = context.emitido || new Date().toLocaleDateString('pt-BR');
-  const clienteNome = cliente?.nome ? sanitizePublicText(cliente.nome, '') : '';
-  const tecnicoNome = profile?.nome?.trim() || 'Técnico';
-
   // Constroi label inline tipo "Emitido 26/04/2026  |  Cliente: Empresa X  |  Técnico: Fulano"
   // Usa cores diferentes pra label (cinza) e value (escuro) — implementado
   // segmento por segmento pra ter controle de cor.
@@ -148,14 +316,14 @@ function drawTitleBlock(doc, pageWidth, margin, startY, context = {}, profile, c
     txt(doc, '·', cursorX - 3, y, { size: 8, color: C.text3 });
   };
 
-  drawSegment('Emitido em ', emitido);
-  if (clienteNome) drawSegment('Cliente ', clienteNome, true);
-  drawSegment('Técnico ', tecnicoNome);
+  drawSegment('Emitido em ', model.emitido);
+  if (model.clienteNome) drawSegment('Cliente ', model.clienteNome, true);
+  drawSegment('Técnico ', model.tecnicoNome);
 
   // Periodo se tiver — segunda linha discreta
-  if (context.periodoTexto) {
+  if (model.periodoTexto) {
     y += 5;
-    txt(doc, context.periodoTexto, margin, y, { size: 7, color: C.text3, style: 'italic' });
+    txt(doc, model.periodoTexto, margin, y, { size: 7, color: C.text3, style: 'italic' });
   }
 
   y += 5;
@@ -168,68 +336,17 @@ function drawTitleBlock(doc, pageWidth, margin, startY, context = {}, profile, c
 function drawInfoBlocks(doc, pageWidth, margin, startY, profile, cliente) {
   const colGap = 6;
   const blockW = (pageWidth - margin * 2 - colGap) / 2;
-  // V2 (abr/2026): altura dinâmica. Quando profile/cliente têm dados PMOC
-  // (CNPJ, IE, IM), usa 42mm pra acomodar até 5 linhas. Sem dados PMOC,
-  // mantém 30mm — não vaza espaço inutilmente em PDFs de técnico residencial.
-  const hasPmocData =
-    !!(profile?.cnpj || profile?.inscricao_estadual || profile?.inscricao_municipal) ||
-    !!(cliente?.cnpj || cliente?.ie || cliente?.im);
-  const blockH = hasPmocData ? 42 : 30;
+  const model = buildCoverInfoBlocksModel(profile, cliente);
+  const { blockH } = model;
   const leftX = margin;
   const rightX = margin + blockW + colGap;
 
   // Caixa técnico (esquerda) — expandida com dados legais PMOC quando
   // preenchidos. Linha vazia é filtrada em drawLabeledBlock.
-  const cnpjLine = profile?.cnpj?.trim();
-  const ieLine = profile?.inscricao_estadual?.trim();
-  const imLine = profile?.inscricao_municipal?.trim();
-  const inscricoes = [ieLine && `IE ${ieLine}`, imLine && `IM ${imLine}`]
-    .filter(Boolean)
-    .join('  ·  ');
-
-  drawLabeledBlock(doc, leftX, startY, blockW, blockH, 'TÉCNICO RESPONSÁVEL', [
-    { value: profile?.nome?.trim() || 'Técnico', bold: true, size: 11 },
-    {
-      value: profile?.razao_social?.trim() || profile?.empresa?.trim() || '',
-      size: 8.5,
-      color: C.text2,
-    },
-    { value: cnpjLine ? `CNPJ ${cnpjLine}` : '', size: 8, color: C.text3 },
-    { value: inscricoes, size: 7.5, color: C.text3 },
-    { value: profile?.telefone?.trim() || '', size: 8, color: C.text3 },
-  ]);
+  drawLabeledBlock(doc, leftX, startY, blockW, blockH, 'TÉCNICO RESPONSÁVEL', model.tecnicoLines);
 
   // Caixa cliente (direita) — só aparece quando extractClientBlock retorna algo
-  if (cliente) {
-    const clienteLines = [];
-    clienteLines.push({
-      value: sanitizePublicText(cliente.nome, 'Não informado'),
-      bold: true,
-      size: 11,
-    });
-    clienteLines.push({
-      value: sanitizePublicText(cliente.documento, 'Não informado'),
-      size: 8,
-      color: C.text3,
-    });
-    clienteLines.push({
-      value: sanitizePublicText(cliente.local, 'Não informado'),
-      size: 8.5,
-      color: C.text2,
-    });
-    clienteLines.push({
-      value: sanitizePublicText(cliente.contato, 'Não informado'),
-      size: 8,
-      color: C.text3,
-    });
-
-    drawLabeledBlock(doc, rightX, startY, blockW, blockH, 'CLIENTE / LOCAL', clienteLines);
-  } else {
-    // Bloco placeholder profissional para ausência de dados
-    drawLabeledBlock(doc, rightX, startY, blockW, blockH, 'CLIENTE / LOCAL', [
-      { value: 'Não informado', size: 9, color: C.text3, italic: true },
-    ]);
-  }
+  drawLabeledBlock(doc, rightX, startY, blockW, blockH, 'CLIENTE / LOCAL', model.clienteLines);
 
   return startY + blockH + 8;
 }
@@ -264,21 +381,7 @@ function drawResumoExecutivo(doc, pageWidth, margin, startY, filtered, equipamen
   // Refator V3: 3 cards visuais (Servicos / Equipamentos / Status geral)
   // em vez de bullets de prosa. Numero grande no topo, label embaixo,
   // barra colorida lateral pra identidade. Compacto, lido em 1 segundo.
-  const totalServicos = filtered.length;
-  const ok = countByStatus(filtered, 'ok');
-  const warn = countByStatus(filtered, 'warn');
-  const danger = countByStatus(filtered, 'danger');
-  const equipCount = listEquipamentosUnicos(filtered, equipamentos).length;
-
-  // Status geral consolidado: pior wins. Se ha alguma falha, vira "Atenção".
-  const statusLabel = danger
-    ? 'Fora de operação'
-    : warn
-      ? 'Requer atenção'
-      : totalServicos > 0
-        ? 'OK'
-        : '—';
-  const statusColor = danger ? C.red : warn ? C.amber : totalServicos > 0 ? C.green : C.text3;
+  const model = buildCoverResumoModel(filtered, equipamentos);
 
   let y = startY;
   txt(doc, 'RESUMO EXECUTIVO', margin, y, {
@@ -298,25 +401,25 @@ function drawResumoExecutivo(doc, pageWidth, margin, startY, filtered, equipamen
   const cards = [
     {
       x: margin,
-      value: String(totalServicos),
-      label: totalServicos === 1 ? 'Serviço realizado' : 'Serviços realizados',
+      value: String(model.totalServicos),
+      label: model.totalServicos === 1 ? 'Serviço realizado' : 'Serviços realizados',
       barColor: C.primary,
       valueColor: C.text,
     },
     {
       x: margin + cardW + gap,
-      value: String(equipCount),
-      label: equipCount === 1 ? 'Equipamento atendido' : 'Equipamentos atendidos',
+      value: String(model.equipCount),
+      label: model.equipCount === 1 ? 'Equipamento atendido' : 'Equipamentos atendidos',
       barColor: C.accent,
       valueColor: C.text,
     },
     {
       x: margin + cardW * 2 + gap * 2,
-      value: statusLabel,
+      value: model.statusLabel,
       label: 'Status geral',
-      barColor: statusColor,
-      valueColor: statusColor,
-      smallValue: statusLabel.length > 4, // "Fora de operação" / "Requer atenção" precisam fonte menor
+      barColor: model.statusColor,
+      valueColor: model.statusColor,
+      smallValue: model.statusLabel.length > 4, // "Fora de operação" / "Requer atenção" precisam fonte menor
     },
   ];
 
@@ -346,10 +449,7 @@ function drawResumoExecutivo(doc, pageWidth, margin, startY, filtered, equipamen
 }
 
 function drawConclusao(doc, pageWidth, margin, startY, filtered) {
-  const ok = countByStatus(filtered, 'ok');
-  const warn = countByStatus(filtered, 'warn');
-  const danger = countByStatus(filtered, 'danger');
-  const conclusion = formatStatusConclusion({ ok, warn, danger });
+  const { conclusion } = buildCoverConclusaoModel(filtered);
 
   let y = startY;
   txt(doc, 'CONCLUSÃO', margin, y, {
@@ -379,8 +479,8 @@ function drawConclusao(doc, pageWidth, margin, startY, filtered) {
 // ---------------------- tabela de equipamentos ----------------------
 
 function drawEquipamentosTable(doc, pageWidth, margin, startY, filtered, equipamentos) {
-  const equipamentosUnicos = listEquipamentosUnicos(filtered, equipamentos);
-  if (!equipamentosUnicos.length) return startY;
+  const rows = buildCoverEquipamentosRows(filtered, equipamentos);
+  if (!rows.length) return startY;
 
   let y = startY;
   txt(doc, 'EQUIPAMENTOS ATENDIDOS', margin, y, {
@@ -391,28 +491,6 @@ function drawEquipamentosTable(doc, pageWidth, margin, startY, filtered, equipam
   y += 2;
   accentLine(doc, margin, y + 1, pageWidth - margin, C.border);
   y += 3;
-
-  const rows = equipamentosUnicos.map(({ eq, lastRegistro }) => {
-    const st = STATUS_CLIENTE[lastRegistro.status] || STATUS_CLIENTE.ok;
-    const ultimo = lastRegistro.data ? Utils.formatDate(lastRegistro.data) : '—';
-    const proxima = lastRegistro.proxima ? Utils.formatDate(lastRegistro.proxima) : '—';
-    // V3 refator: nome trunca em 32 chars + "…" pra evitar wrap feio.
-    // Cliente prefere overflow controlado a duas linhas estouradas.
-    const nomeBruto = eq.nome || '—';
-    const nome = nomeBruto.length > 32 ? `${nomeBruto.slice(0, 31)}…` : nomeBruto;
-    const localBruto = eq.local || '—';
-    const local = localBruto.length > 28 ? `${localBruto.slice(0, 27)}…` : localBruto;
-    return {
-      tag: eq.codigo || eq.tag || '—',
-      nome,
-      local,
-      ultimo,
-      proxima,
-      statusLabel: st.label,
-      statusColor: st.color,
-      statusKey: lastRegistro.status || 'ok',
-    };
-  });
 
   autoTable(doc, {
     startY: y + 2,
@@ -487,18 +565,7 @@ function drawFichaTecnica(doc, pageWidth, pageHeight, margin, startY, filtered, 
   //   "Dados da etiqueta"         (campos fixos de FIELD_ORDER)
   //   "Outras informações da etiqueta" (camposExtras flat, com cap)
   const PDF_EXTRAS_CAP = 10; // cap global de extras por equipamento no PDF
-  const unique = listEquipamentosUnicos(filtered, equipamentos);
-
-  const blocks = unique
-    .map(({ eq }) => {
-      const allRows = formatDadosPlacaRows(eq.dadosPlaca);
-      return {
-        eq,
-        fixedRows: allRows.filter((r) => !r.extra),
-        extraRows: allRows.filter((r) => r.extra),
-      };
-    })
-    .filter((b) => b.fixedRows.length > 0 || b.extraRows.length > 0);
+  const blocks = buildCoverFichaTecnicaBlocks(filtered, equipamentos);
 
   if (!blocks.length) return startY;
 
@@ -592,7 +659,7 @@ function drawFichaTecnica(doc, pageWidth, pageHeight, margin, startY, filtered, 
 }
 
 function drawPendencias(doc, pageWidth, pageHeight, margin, startY, filtered, equipamentos) {
-  const pendentes = listPendencias(filtered);
+  const pendentes = buildCoverPendenciasModel(filtered, equipamentos);
   if (!pendentes.length) return; // Sem fallback "nada pendente" — redundante com o resumo
 
   let y = startY;
@@ -607,28 +674,30 @@ function drawPendencias(doc, pageWidth, pageHeight, margin, startY, filtered, eq
   accentLine(doc, margin, y + 1, pageWidth - margin, C.amber);
   y += 5;
 
-  pendentes.forEach((registro) => {
+  pendentes.forEach((pendencia) => {
     if (y > pageHeight - 25) return;
-    const equipamento = equipamentos.find((item) => item.id === registro.equipId);
-    const isUrgent = registro.status === 'danger';
-    const cor = isUrgent ? C.red : C.amber;
-    const acao = isUrgent
-      ? 'Requer intervenção imediata'
-      : `Preventiva recomendada${registro.proxima ? ` até ${Utils.formatDate(registro.proxima)}` : ''}`;
 
     roundRect(doc, margin, y, pageWidth - margin * 2, 14, 1.5, C.surface);
-    fillRect(doc, margin, y, 2.5, 14, cor);
-    txt(doc, equipamento?.nome || '—', margin + 6, y + 6, {
+    fillRect(doc, margin, y, 2.5, 14, pendencia.cor);
+    txt(doc, pendencia.equipamento?.nome || '—', margin + 6, y + 6, {
       size: 9.5,
       style: 'bold',
       color: C.text,
     });
-    txt(doc, acao, margin + 6, y + 11, { size: 7.5, color: C.text3 });
+    txt(doc, pendencia.acao, margin + 6, y + 11, { size: 7.5, color: C.text3 });
     y += 16;
   });
 }
 
 // ------------------------------- entry -------------------------------
+
+function renderCoverBackground({ doc, pageWidth, pageHeight }) {
+  fillPage(doc, pageWidth, pageHeight);
+}
+
+function renderCoverChecklist({ doc, pageWidth, pageHeight, margin, filtered, equipamentos }, y) {
+  return drawChecklist(doc, pageWidth, pageHeight, margin, y, filtered, equipamentos);
+}
 
 export function drawCover(
   doc,
@@ -644,34 +713,30 @@ export function drawCover(
   _drawFooter,
   context = {},
 ) {
-  fillPage(doc, pageWidth, pageHeight);
+  const coverContext = buildCoverContext({
+    doc,
+    pageWidth,
+    pageHeight,
+    margin,
+    profile,
+    de,
+    ate,
+    filtered,
+    equipamentos,
+    context,
+  });
+
+  renderCoverBackground(coverContext);
 
   drawMasthead(doc, pageWidth, margin, profile);
 
-  const periodoTexto =
-    de || ate
-      ? `Período ${de ? Utils.formatDate(de) : 'início'} – ${ate ? Utils.formatDate(ate) : 'atual'}`
-      : '';
+  let y = drawTitleBlock(doc, pageWidth, margin, 32, buildCoverTitleModel(coverContext));
 
-  let y = drawTitleBlock(
-    doc,
-    pageWidth,
-    margin,
-    32,
-    {
-      osNumber: context.osNumber,
-      emitido: context.emitido,
-      periodoTexto,
-    },
-    profile,
-    context.cliente,
-  );
-
-  y = drawInfoBlocks(doc, pageWidth, margin, y, profile, context.cliente);
+  y = drawInfoBlocks(doc, pageWidth, margin, y, profile, coverContext.cliente);
   y = drawResumoExecutivo(doc, pageWidth, margin, y, filtered, equipamentos);
   y = drawEquipamentosTable(doc, pageWidth, margin, y, filtered, equipamentos);
   y = drawConclusao(doc, pageWidth, margin, y, filtered);
   y = drawFichaTecnica(doc, pageWidth, pageHeight, margin, y, filtered, equipamentos);
-  y = drawChecklist(doc, pageWidth, pageHeight, margin, y, filtered, equipamentos);
+  y = renderCoverChecklist(coverContext, y);
   drawPendencias(doc, pageWidth, pageHeight, margin, y, filtered, equipamentos);
 }

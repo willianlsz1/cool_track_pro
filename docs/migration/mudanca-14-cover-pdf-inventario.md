@@ -169,3 +169,59 @@ Lacunas remanescentes:
 Próximo CP recomendado: **CP-C - pre-split cover.js**.
 
 Justificativa: o contrato dedicado agora protege os dados e chamadas mais sensíveis da capa. O próximo passo seguro é separar responsabilidades in-place dentro de `cover.js`, sem mover helpers ainda e sem mudar layout.
+
+## 12. CP-C - Pre-split in-place de `cover.js`
+
+- Status: aplicado.
+- Arquivo de produção alterado: `src/domain/pdf/sections/cover.js`.
+- `cover.js` permaneceu no mesmo arquivo.
+- `drawCover` permaneceu como API pública da section.
+- Mudança funcional intencional: nenhuma.
+- Contrato CP-B preservado.
+- LOC `cover.js`: 677 -> 748 (+71).
+
+| Ordem | Bloco atual drawCover               | Responsabilidade                                                               | Dependências                                       | Side effects                                        | Helper criado                               |
+| ----- | ----------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------------- | ------------------------------------------- |
+| 1     | Assinatura pública `drawCover(...)` | Receber `doc`, dimensões, profile, filtros, registros, equipamentos e contexto | `domain/pdf.js`                                    | Mantém API posicional; muta `doc` por render        | `buildCoverContext`                         |
+| 2     | Entrada/contexto                    | Consolidar dados e período sem renderizar                                      | `Utils.formatDate`, `context.cliente`              | Nenhum                                              | `buildCoverContext`, `buildCoverPeriodText` |
+| 3     | Fundo                               | Pintar fundo da página                                                         | `fillPage`                                         | Muta `doc`                                          | `renderCoverBackground`                     |
+| 4     | Masthead/branding                   | Renderizar marca CoolTrack e prestador                                         | `profile`, primitives                              | Muta `doc`                                          | Mantido em `drawMasthead`                   |
+| 5     | Título/OS/emissão                   | Montar e renderizar OS, emissão, cliente, técnico e período                    | `context`, `profile`, `sanitizePublicText`         | Muta `doc`, mede texto                              | `buildCoverTitleModel`                      |
+| 6     | Info blocks                         | Montar linhas de técnico/cliente e renderizar blocos                           | `profile`, `context.cliente`                       | Muta `doc`                                          | `buildCoverInfoBlocksModel`                 |
+| 7     | Resumo executivo                    | Montar cards de serviços/equipamentos/status e renderizar                      | `filtered`, `equipamentos`, `STATUS_CLIENTE`       | Muta `doc`                                          | `buildCoverResumoModel`                     |
+| 8     | Tabela de equipamentos              | Montar linhas e chamar `autoTable`                                             | `filtered`, `equipamentos`, `Utils.formatDate`     | `autoTable`, `doc.lastAutoTable`, círculo de status | `buildCoverEquipamentosRows`                |
+| 9     | Conclusão                           | Montar texto de conclusão e renderizar card                                    | `formatStatusConclusion`                           | Muta `doc`                                          | `buildCoverConclusaoModel`                  |
+| 10    | Ficha técnica                       | Montar blocos de dados de placa e renderizar tabelas                           | `formatDadosPlacaRows`, `autoTable`                | `autoTable`, pode chamar `doc.addPage`              | `buildCoverFichaTecnicaBlocks`              |
+| 11    | Checklist/PMOC                      | Preservar chamada atual para `drawChecklist`                                   | `sections/checklist.js`                            | Muta `doc`, retorna cursor                          | `renderCoverChecklist`                      |
+| 12    | Pendências                          | Montar ações recomendadas e renderizar cards                                   | `Utils.daysDiff`, `Utils.formatDate`, equipamentos | Muta `doc`, fallback silencioso por espaço          | `buildCoverPendenciasModel`                 |
+| 13    | Retorno final                       | Não retorna cursor explícito                                                   | N/A                                                | Estado final fica no `doc`                          | Sem alteração                               |
+
+Helpers locais criados:
+
+| Helper                         | Arquivo                            | Responsabilidade                                      | Observação                                               |
+| ------------------------------ | ---------------------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| `buildCoverPeriodText`         | `src/domain/pdf/sections/cover.js` | Monta texto visível de período a partir de `de`/`ate` | Preserva `Utils.formatDate` e fallbacks `início`/`atual` |
+| `buildCoverContext`            | `src/domain/pdf/sections/cover.js` | Consolida argumentos do `drawCover` em contexto local | Não muda API pública                                     |
+| `buildCoverTitleModel`         | `src/domain/pdf/sections/cover.js` | Monta OS, emissão, cliente, técnico e período         | Render segue em `drawTitleBlock`                         |
+| `buildCoverInfoBlocksModel`    | `src/domain/pdf/sections/cover.js` | Monta linhas de técnico/cliente e altura dos blocos   | Preserva fallback de cliente ausente                     |
+| `buildCoverResumoModel`        | `src/domain/pdf/sections/cover.js` | Monta totais, status geral e cor do resumo            | Render visual inalterado                                 |
+| `buildCoverEquipamentosRows`   | `src/domain/pdf/sections/cover.js` | Monta linhas da tabela de equipamentos                | `autoTable` permanece no mesmo arquivo                   |
+| `buildCoverConclusaoModel`     | `src/domain/pdf/sections/cover.js` | Monta conclusão textual por status                    | Usa `formatStatusConclusion` como antes                  |
+| `buildCoverFichaTecnicaBlocks` | `src/domain/pdf/sections/cover.js` | Monta blocos fixos/extras de dados de placa           | `autoTable` e paginação permanecem no render             |
+| `buildCoverPendenciasModel`    | `src/domain/pdf/sections/cover.js` | Monta ações recomendadas por status/proxima           | Render visual permanece em `drawPendencias`              |
+| `renderCoverBackground`        | `src/domain/pdf/sections/cover.js` | Encapsula `fillPage` da capa                          | Side effect mantido local                                |
+| `renderCoverChecklist`         | `src/domain/pdf/sections/cover.js` | Encapsula chamada atual de `drawChecklist`            | Argumentos preservados                                   |
+
+Validação registrada:
+
+- `npm run test -- src/__tests__/pdfCover.contract.test.js --reporter=dot`: passou, 1 arquivo / 4 testes.
+
+Lacunas remanescentes:
+
+- Helpers continuam no mesmo arquivo; extração para módulo separado deve ocorrer apenas se forem puros/baixo risco.
+- Render visual ainda depende de `doc`, `autoTable`, primitives e cursor manual.
+- Acoplamento `cover.js` -> `drawChecklist` permanece intencionalmente inalterado.
+
+Próximo CP recomendado: **CP-D - mover helpers puros de cover**.
+
+Justificativa: após o pre-split in-place, há helpers claramente puros ou de baixo risco (`buildCoverTitleModel`, `buildCoverResumoModel`, `buildCoverEquipamentosRows`, `buildCoverConclusaoModel`, `buildCoverFichaTecnicaBlocks`, `buildCoverPendenciasModel`) que podem ser avaliados para extração com contrato próprio, mantendo `drawCover` e render visual no arquivo atual.
