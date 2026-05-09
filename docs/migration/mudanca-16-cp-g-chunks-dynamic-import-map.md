@@ -152,3 +152,19 @@ Justificativa: o mapa mostra warnings em grupos bem definidos. O primeiro corte 
   - core transversal, planos/usage, Equipamentos/Historico/Dashboard, Orcamentos, signature/nameplate, `core/clientes`, ultimo restricted import em `shareReport` e chunk size > 500 kB.
 - Proximo corte sugerido:
   - continuar dynamic/static import por grupo pequeno, priorizando imports dinamicos redundantes sem side effects e com teste focado existente.
+
+## 11. Complemento CP-J
+
+- Decisao de fechamento:
+  - Mudanca 16 encerrada como base estavel operacional;
+  - nao continuar removendo warnings Vite indefinidamente nesta fase.
+- Resultado acumulado:
+  - CP-H removeu o warning de `src/ui/views/clientes.js`;
+  - CP-I removeu o warning de `src/domain/maintenance.js`;
+  - warning count Vite static+dynamic reduziu de 22 para 20 modulos.
+- Backlog tecnico controlado:
+  - os 20 warnings Vite static+dynamic remanescentes permanecem documentados;
+  - `manualChunks`, `vendor-pdf` e PDF/share exigem CP dedicado;
+  - nao otimizar bundle por palpite.
+- Proximo foco:
+  - Mudanca 17 - Security hardening / Codex Security triage.

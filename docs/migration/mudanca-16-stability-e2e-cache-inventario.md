@@ -359,8 +359,40 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - `npm run check`;
   - bateria focada de Equipamentos/manutencao.
 
-## 18. Proximo CP recomendado
+## 18. CP-J aplicado
 
-**CP-J - continuar dynamic/static import por grupo.**
+- Escopo: fechamento documental da Mudanca 16 e criacao de guardrails para agentes.
+- Decisao:
+  - encerrar a Mudanca 16 como base estavel operacional;
+  - nao continuar removendo warnings Vite indefinidamente nesta fase;
+  - tratar warnings remanescentes como backlog tecnico controlado.
+- Base de referencia:
+  - ultimo CP de codigo concluido: CP-I;
+  - HEAD de referencia antes do CP-J: `28f846f731a3d0a51b1c69e9385ecebe6486130e`;
+  - status aproximado da base: 98-99%.
+- Estado conhecido ao encerrar:
+  - `npm run build` passa;
+  - `npm run check` passa;
+  - testes focados dos CPs recentes passaram;
+  - 20 warnings Vite static+dynamic permanecem como backlog tecnico controlado;
+  - 1 warning ESLint arquitetural conhecido permanece em `src/domain/pdf/shareReport.js`.
+- Documento de governanca criado:
+  - `AGENTS.md`.
+- Guardrails registrados:
+  - regra de 99% de certeza para codigo, arquitetura, contratos publicos, seguranca, storage, permissoes, PDF/share e fluxos criticos;
+  - preservacao das camadas `core/`, `domain/`, `ui/`, `features/`, `react/` e `docs/`;
+  - contratos publicos que exigem CP dedicado;
+  - regras para warnings Vite static+dynamic;
+  - areas sensiveis que exigem CP proprio;
+  - separacao explicita de Codex Security e React Doctor.
+- Backlog controlado:
+  - 20 warnings Vite static+dynamic remanescentes;
+  - CP dedicado futuro para `src/domain/pdf/shareReport.js`;
+  - React Doctor;
+  - consolidacao visual/CSS quando aplicavel.
 
-Justificativa: CP-I reduziu outro grupo pequeno sem tocar `manualChunks`, PDF/share ou vendor. Ainda restam 20 warnings Vite, e o proximo corte deve manter o mesmo criterio: escolher um grupo coberto por testes, evitando core amplo, PDF/share e modulos com side effects ate haver mapa dedicado.
+## 19. Proximo passo recomendado
+
+**Mudanca 17 - Security hardening / Codex Security triage.**
+
+Justificativa: a base operacional esta estavel o suficiente para parar a limpeza incremental de warnings e direcionar a proxima fase para seguranca. Codex Security deve ser tratado isoladamente, com triagem por severidade, sem misturar React Doctor, redesign, PDF/share ou refatoracao ampla.
