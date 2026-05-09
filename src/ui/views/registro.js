@@ -1315,131 +1315,176 @@ function _bindRegistroHeaderFieldHandlers() {
 // API PÚBLICA
 // ═══════════════════════════════════════════════════════
 
-export function initRegistro(params = {}) {
-  const formView = Utils.getEl('view-registro');
-  if (!formView) return;
-  const effectiveEquipId = params.equipId || params.equipamentoId || '';
+function resolveRegistroInitRoot() {
+  return Utils.getEl('view-registro');
+}
 
+function resolveRegistroInitEquipId(params = {}) {
+  return params.equipId || params.equipamentoId || '';
+}
+
+function syncRegistroInitRouteContext(params, effectiveEquipId) {
   if (effectiveEquipId) Utils.setVal('r-equip', effectiveEquipId);
   _currentRouteParams = { ...params };
   _refreshRegistroContext();
+}
+
+function mountRegistroInitHeader(params) {
+  return Promise.resolve(mountRegistroHeader(params));
+}
+
+function bindRegistroInitFormOnce(formView) {
+  if (formView.dataset.bound) return;
+
+  // Smart mask no campo Telefone/contato do cliente — formata (XX) XXXXX-XXXX
+  // se o usuário digitar dígitos. Se digitar email/texto livre, deixa em paz.
+  bindSmartContactMaskInput(Utils.getEl('r-cliente-contato'));
+
+  formView.dataset.bound = '1';
+}
+
+function syncRegistroInitDetailsState(formView) {
+  _ensureProgressBar(formView);
+  _bindRegistroHeaderFieldHandlers();
+  bindRegistroInitFormOnce(formView);
+
+  // Garante o estado correto na entrada da view (inclusive vindo de edit).
+  _syncTipoCustomVisibility();
+  _bindMateriaisDetailsToggle();
+  _syncMateriaisDetailsState(_hasMateriaisValues());
+  _bindImpactDetailsToggle();
+  _syncImpactDetailsState(_hasImpactValues());
+  _updateProgressBar();
+}
+
+function renderRegistroInitHeroAndPhotos() {
+  _renderHeroSub();
+  Photos.render?.();
+}
+
+function applyRegistroInitDateDefault() {
+  // Data padrão "Hoje agora" — UX V2 audit fix
+  if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());
+}
+
+function bindRegistroInitDatetimeUX() {
+  const wrap = document.getElementById('registro-datetime-wrap');
+  if (!wrap || wrap.dataset.bound === '1') return;
+  wrap.dataset.bound = '1';
+
+  const input = document.getElementById('r-data');
+  const nowBtn = document.getElementById('r-data-now-btn');
+  const editBtn = document.getElementById('r-data-edit-btn');
+  const nowLabel = document.getElementById('r-data-now-label');
+
+  function refreshLabel() {
+    if (!input || !nowLabel) return;
+    const val = input.value;
+    if (!val) {
+      nowLabel.textContent = 'Hoje agora';
+      nowBtn?.setAttribute('aria-pressed', 'true');
+      return;
+    }
+    // Se a data é dentro de 1min do agora, é "Hoje agora"
+    const ts = new Date(val).getTime();
+    if (Math.abs(Date.now() - ts) < 60_000) {
+      nowLabel.textContent = 'Hoje agora';
+      nowBtn?.setAttribute('aria-pressed', 'true');
+    } else {
+      // Mostra "DD/MM HH:MM"
+      const d = new Date(val);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      nowLabel.textContent = `${dd}/${mm} ${hh}:${min}`;
+      nowBtn?.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  nowBtn?.addEventListener('click', () => {
+    // Reseta pra agora
+    Utils.setVal('r-data', Utils.nowDatetime());
+    refreshLabel();
+    _updateProgressBar();
+  });
+
+  editBtn?.addEventListener('click', () => {
+    // Abre o picker nativo. Browsers modernos suportam showPicker(); fallback
+    // pra focus que muitos browsers tambem abrem.
+    try {
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+      } else {
+        input.focus();
+      }
+    } catch (_e) {
+      input.focus();
+    }
+  });
+
+  input?.addEventListener('change', () => {
+    refreshLabel();
+    _updateProgressBar();
+  });
+
+  refreshLabel();
+}
+
+function applyRegistroInitTechnicianDefault() {
+  // H1: técnico padrão
+  const rTecnico = Utils.getEl('r-tecnico');
+  if (rTecnico && !rTecnico.value) {
+    const def = Profile.getDefaultTecnico();
+    if (def) rTecnico.value = def;
+  }
+}
+
+function resetRegistroInitEditingIfCreate(params) {
+  if (!params.editRegistroId) resetEditingState();
+}
+
+function applyRegistroInitPriorityDefault() {
+  const rPrioridade = Utils.getEl('r-prioridade');
+  if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
+}
+
+function applyRegistroInitSignatureHint() {
+  applySignatureHint();
+}
+
+function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }) {
+  syncRegistroInitDetailsState(formView);
+  renderRegistroInitHeroAndPhotos();
+  applyRegistroInitDateDefault();
+  bindRegistroInitDatetimeUX();
+  applyRegistroInitTechnicianDefault();
+
+  // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
+  resetRegistroInitEditingIfCreate(params);
+  syncRegistroInitRouteContext(params, effectiveEquipId);
+  _buildRegistroReadOnlyViewModel(params);
+
+  applyRegistroInitPriorityDefault();
+
+  // Hint de assinatura: Plus/Pro veem "Incluso" confirmando que a captura
+  // vai rolar no save. Free vê variante upsell clicável que leva pro
+  // /pricing?highlightPlan=plus. O elemento vem `hidden` do template pra
+  // evitar flash de conteúdo indevido enquanto o plano ainda carrega.
+  applyRegistroInitSignatureHint();
+}
+
+export function initRegistro(params = {}) {
+  const formView = resolveRegistroInitRoot();
+  if (!formView) return;
+  const effectiveEquipId = resolveRegistroInitEquipId(params);
+
+  syncRegistroInitRouteContext(params, effectiveEquipId);
 
   withSkeleton(formView, { enabled: true, variant: 'generic', count: 3 }, () =>
-    Promise.resolve(mountRegistroHeader(params)).then(() => {
-      _ensureProgressBar(formView);
-      _bindRegistroHeaderFieldHandlers();
-      if (!formView.dataset.bound) {
-        // Smart mask no campo Telefone/contato do cliente — formata (XX) XXXXX-XXXX
-        // se o usuário digitar dígitos. Se digitar email/texto livre, deixa em paz.
-        bindSmartContactMaskInput(Utils.getEl('r-cliente-contato'));
-
-        formView.dataset.bound = '1';
-      }
-      // Garante o estado correto na entrada da view (inclusive vindo de edit).
-      _syncTipoCustomVisibility();
-      _bindMateriaisDetailsToggle();
-      _syncMateriaisDetailsState(_hasMateriaisValues());
-      _bindImpactDetailsToggle();
-      _syncImpactDetailsState(_hasImpactValues());
-      _updateProgressBar();
-      _renderHeroSub();
-      Photos.render?.();
-
-      // Data padrão "Hoje agora" — UX V2 audit fix
-      if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());
-      _bindDatetimeUX();
-
-      // H1: técnico padrão
-      const rTecnico = Utils.getEl('r-tecnico');
-      if (rTecnico && !rTecnico.value) {
-        const def = Profile.getDefaultTecnico();
-        if (def) rTecnico.value = def;
-      }
-
-      // ─── Datetime UX V2 (audit fix) ──────────────────────────────────────
-      // Default eh "Hoje agora" (label do botao + value oculto). Click em
-      // "Mudar" abre o datetime-local nativo (showPicker) e tira o estado now.
-      function _bindDatetimeUX() {
-        const wrap = document.getElementById('registro-datetime-wrap');
-        if (!wrap || wrap.dataset.bound === '1') return;
-        wrap.dataset.bound = '1';
-
-        const input = document.getElementById('r-data');
-        const nowBtn = document.getElementById('r-data-now-btn');
-        const editBtn = document.getElementById('r-data-edit-btn');
-        const nowLabel = document.getElementById('r-data-now-label');
-
-        function refreshLabel() {
-          if (!input || !nowLabel) return;
-          const val = input.value;
-          if (!val) {
-            nowLabel.textContent = 'Hoje agora';
-            nowBtn?.setAttribute('aria-pressed', 'true');
-            return;
-          }
-          // Se a data eh dentro de 1min do agora, eh "Hoje agora"
-          const ts = new Date(val).getTime();
-          if (Math.abs(Date.now() - ts) < 60_000) {
-            nowLabel.textContent = 'Hoje agora';
-            nowBtn?.setAttribute('aria-pressed', 'true');
-          } else {
-            // Mostra "DD/MM HH:MM"
-            const d = new Date(val);
-            const dd = String(d.getDate()).padStart(2, '0');
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const hh = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            nowLabel.textContent = `${dd}/${mm} ${hh}:${min}`;
-            nowBtn?.setAttribute('aria-pressed', 'false');
-          }
-        }
-
-        nowBtn?.addEventListener('click', () => {
-          // Reseta pra agora
-          Utils.setVal('r-data', Utils.nowDatetime());
-          refreshLabel();
-          _updateProgressBar();
-        });
-
-        editBtn?.addEventListener('click', () => {
-          // Abre o picker nativo. Browsers modernos suportam showPicker(); fallback
-          // pra focus que muitos browsers tambem abrem.
-          try {
-            if (typeof input.showPicker === 'function') {
-              input.showPicker();
-            } else {
-              input.focus();
-            }
-          } catch (_e) {
-            input.focus();
-          }
-        });
-
-        input?.addEventListener('change', () => {
-          refreshLabel();
-          _updateProgressBar();
-        });
-
-        refreshLabel();
-      }
-
-      // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
-      if (!params.editRegistroId) resetEditingState();
-      if (effectiveEquipId) Utils.setVal('r-equip', effectiveEquipId);
-
-      _currentRouteParams = { ...params };
-      _refreshRegistroContext();
-      _buildRegistroReadOnlyViewModel(params);
-
-      const rPrioridade = Utils.getEl('r-prioridade');
-      if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
-
-      // Hint de assinatura: Plus/Pro veem "Incluso" confirmando que a captura
-      // vai rolar no save. Free vê variante upsell clicável que leva pro
-      // /pricing?highlightPlan=plus. O elemento vem `hidden` do template pra
-      // evitar flash de conteúdo indevido enquanto o plano ainda carrega.
-      applySignatureHint();
-    }),
+    mountRegistroInitHeader(params).then(() =>
+      runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }),
+    ),
   );
 }
 

@@ -545,8 +545,20 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1788 -> 1815.
 - Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados edit/lifecycle/Registro; `npm run format`; `npm run check`.
 
-## 36. Proximo CP recomendado
+## 36. CP-AB - Pre-split initRegistro
 
-**CP-AB - pre-split initRegistro.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. `clearRegistro` e `loadRegistroForEdit` ja foram separados localmente, enquanto `initRegistro` ainda concentra entrada de rota, defaults, binds, bridges React, fotos, assinatura, Checklist/PMOC e contexto. Fazer o pre-split local de `initRegistro` fecha a triade lifecycle antes de avaliar movers seguros.
+- `initRegistro` permaneceu em `src/ui/views/registro.js`; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `resolveRegistroInitRoot`, `resolveRegistroInitEquipId`, `syncRegistroInitRouteContext`, `mountRegistroInitHeader`, `bindRegistroInitFormOnce`, `syncRegistroInitDetailsState`, `renderRegistroInitHeroAndPhotos`, `applyRegistroInitDateDefault`, `bindRegistroInitDatetimeUX`, `applyRegistroInitTechnicianDefault`, `resetRegistroInitEditingIfCreate`, `applyRegistroInitPriorityDefault`, `applyRegistroInitSignatureHint` e `runRegistroInitAfterHeaderMounted`.
+- Responsabilidades separadas: root/fallback silencioso, resolucao de equipamento inicial, contexto/params de rota, mount do header React, binds idempotentes, details/progresso, hero/fotos, defaults de data/tecnico/prioridade, datetime UX, reset de edicao para create, read-only view model e hint de assinatura.
+- Nenhuma mudanca funcional intencional; contratos CP-Y, CP-B, CP-O e CP-U preservados.
+- `clearRegistro`, `loadRegistroForEdit`, `saveRegistro`, React pages, handlers, features extraidas, relatorio/PDF, historico, Equipamentos, CSS, schema e package files preservados.
+- LOC `src/ui/views/registro.js`: 1815 -> 1848.
+- Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados init/lifecycle/Registro; suite ampla `src/__tests__`; `npm run format`; `npm run check`.
+
+## 37. Proximo CP recomendado
+
+**CP-AC - mover helpers seguros de lifecycle.**
+
+Confianca: 90%+. A triade lifecycle (`initRegistro`, `clearRegistro`, `loadRegistroForEdit`) ja esta separada localmente e protegida por contrato. O proximo corte seguro e classificar e mover apenas helpers puros/baixo risco, mantendo DOM, bridges React, guards, storage e orquestradores no adapter.
