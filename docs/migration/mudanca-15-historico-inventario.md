@@ -930,3 +930,74 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-Q - mover helpers puros de filtros**.
 
 Justificativa: o pre-split separou responsabilidades locais sem alterar comportamento. O proximo passo seguro e classificar e mover somente helpers puros/baixo risco de filtros, mantendo DOM/sessionStorage/URL no adapter se houver duvida.
+
+## 27. CP-Q - Mover helpers puros de filtros
+
+- CP-Q aplicado.
+- Modulo criado: `src/features/historico/filters/filterHelpers.js`.
+- Teste criado: `src/features/historico/__tests__/filters/filterHelpers.test.js`.
+- Apenas partes puras/baixo risco do fluxo de filtros foram movidas: normalizacao de cache, merge DOM/cache a partir de valores ja lidos, parsing de `URLSearchParams` recebido por parametro e montagem de filtros atuais para VM/cache.
+- DOM, `sessionStorage`, URL real, cache local `_histFilterValues`, `_clienteFilter`, sheet mobile e side effects permaneceram em `src/ui/views/historico.js`.
+- Nenhuma mudanca funcional intencional.
+- React pages, sheet, viewModels, Registro, Relatorio/PDF e Equipamentos nao foram alterados.
+- Contrato CP-O preservado.
+- LOC `src/ui/views/historico.js`: 1634 -> 1621, delta -13.
+- LOC `src/features/historico/filters/filterHelpers.js`: criado com 45 LOC.
+
+Classificacao dos helpers CP-P:
+
+| Helper CP-P                         | Usa DOM? | Usa cache local? | Usa sessionStorage/URL? | Movido neste CP? | Estrategia                                                                               |
+| ----------------------------------- | -------- | ---------------- | ----------------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| `readHistoricoFilterDomValue`       | Sim      | Nao              | Nao                     | Nao              | Mantido no adapter por ler `document.getElementById`                                     |
+| `readHistoricoFilterDomValues`      | Sim      | Nao              | Nao                     | Nao              | Mantido no adapter por compor leitura DOM                                                |
+| `readHistoricoFilterCache`          | Nao      | Sim              | Nao                     | Nao              | Mantido no adapter por acessar `_histFilterValues`                                       |
+| `writeHistoricoFilterCache`         | Nao      | Sim              | Nao                     | Parcial          | Side effect ficou no adapter; payload puro em `normalizeHistoricoFilterCache`            |
+| `readHistoricoSessionFilters`       | Nao      | Nao              | Sim                     | Nao              | Mantido no adapter por acessar `sessionStorage` diretamente                              |
+| `writeHistoricoSessionFilter`       | Nao      | Nao              | Sim                     | Nao              | Mantido no adapter por gravar `sessionStorage`                                           |
+| `clearHistoricoSessionFilters`      | Nao      | Nao              | Sim                     | Nao              | Mantido no adapter por remover chaves de sessao                                          |
+| `buildHistoricoCurrentFilters`      | Nao      | Sim              | Sim                     | Parcial          | Orquestracao ficou no adapter; montagem pura em `buildHistoricoCurrentFiltersFromValues` |
+| `applyHistoricoUrlFiltersToDom`     | Sim      | Nao              | Nao                     | Nao              | Mantido no adapter por escrever DOM                                                      |
+| `applyHistoricoUrlFiltersToSession` | Nao      | Nao              | Sim                     | Nao              | Mantido no adapter por gravar sessao                                                     |
+| `setHistoricoDomFilterValue`        | Sim      | Nao              | Nao                     | Nao              | Mantido no adapter por escrever DOM                                                      |
+| `clearHistoricoDomFilterValue`      | Sim      | Nao              | Nao                     | Nao              | Mantido no adapter por escrever DOM                                                      |
+| `clearHistoricoMainFilterDomValues` | Sim      | Sim              | Sim                     | Nao              | Mantido no adapter por limpar DOM/cache/session via fluxo existente                      |
+
+Helpers movidos/criados:
+
+| Helper                                   | Destino                                           | Responsabilidade                                                     |
+| ---------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------- |
+| `normalizeHistoricoFilterCache`          | `src/features/historico/filters/filterHelpers.js` | Montar payload estavel para `_histFilterValues` sem acessar o cache  |
+| `mergeHistoricoDomCacheFilters`          | `src/features/historico/filters/filterHelpers.js` | Preservar DOM como source-of-truth e usar cache quando DOM falta     |
+| `parseHistoricoUrlFilters`               | `src/features/historico/filters/filterHelpers.js` | Ler params de objeto recebido, sem tocar `window/location`           |
+| `buildHistoricoCurrentFiltersFromValues` | `src/features/historico/filters/filterHelpers.js` | Montar filtros de VM e payload de cache a partir de valores ja lidos |
+
+Helpers mantidos no adapter:
+
+- DOM: `readHistoricoFilterDomValue`, `readHistoricoFilterDomValues`, `setHistoricoDomFilterValue`, `clearHistoricoDomFilterValue`, `clearHistoricoMainFilterDomValues`.
+- Cache local: `readHistoricoFilterCache`, side effect de `writeHistoricoFilterCache`.
+- Sessao/URL real: `readHistoricoSessionFilters`, `writeHistoricoSessionFilter`, `clearHistoricoSessionFilters`, `readUrlFilters`, `writeFiltersToUrl`, `applyHistoricoUrlFiltersToSession`.
+- Orquestracao: `buildHistoricoCurrentFilters`, `buildHistoricoRenderFilters`, `hydrateFiltersFromUrl`.
+
+Contratos preservados:
+
+- `#hist-busca`, `#hist-equip`, `#hist-setor`, `#hist-filters-trigger/count`.
+- `data-hist-action` `hist-filter-*` e `hist-clear-*`.
+- `setHistClienteFilter`, `_histFilterValues`, `_clienteFilter`.
+- `sessionStorage`/URL params.
+- Sheet mobile, view model/timeline e estado vazio.
+- Export/report sem perder `data-registro-id`.
+- Contrato CP-O.
+
+Testes rodados inicialmente:
+
+- `npm run test -- src/features/historico/__tests__/filters/filterHelpers.test.js src/__tests__/historicoFilters.contract.test.js --reporter=dot`: passou, 2 arquivos / 10 testes.
+
+Lacunas remanescentes:
+
+- Helpers com DOM/cache/session/URL real seguem no adapter.
+- `src/ui/views/historico.js` segue acima de 1000 LOC, apesar da reducao parcial.
+- Proximo movimento deve ser checkpoint ou mapeamento adicional antes de corte mais profundo.
+
+Proximo CP recomendado: **CP-R - stability checkpoint e encerrar Mudanca 15**.
+
+Justificativa: a Mudanca 15 ja acumulou contratos, mapeamentos e extracoes seguras para render, card actions, delete, PDF/WhatsApp e filtros. Um checkpoint reduz risco antes de qualquer pre-split mais profundo de filtros.

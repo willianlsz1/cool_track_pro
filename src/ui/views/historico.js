@@ -34,6 +34,12 @@ import {
   buildHistoricoTimelineRenderContext,
 } from '../../features/historico/render/renderHelpers.js';
 import {
+  buildHistoricoCurrentFiltersFromValues,
+  mergeHistoricoDomCacheFilters,
+  normalizeHistoricoFilterCache,
+  parseHistoricoUrlFilters,
+} from '../../features/historico/filters/filterHelpers.js';
+import {
   closeHistoricoCardMenus,
   toggleHistoricoCardMenu,
 } from '../../features/historico/actions/cardMenuHelpers.js';
@@ -173,21 +179,13 @@ function readHistoricoFilterCache() {
 }
 
 function writeHistoricoFilterCache(filters = {}) {
-  _histFilterValues = {
-    busca: filters.busca || '',
-    setor: filters.setor || '',
-    equip: filters.equip || '',
-  };
+  _histFilterValues = normalizeHistoricoFilterCache(filters);
 }
 
 function buildHistoricoDomCacheFilters() {
   const domValues = readHistoricoFilterDomValues();
   const cachedValues = readHistoricoFilterCache();
-  return {
-    busca: domValues.busca ?? cachedValues.busca ?? '',
-    setor: domValues.setor ?? cachedValues.setor ?? '',
-    equip: domValues.equip ?? cachedValues.equip ?? '',
-  };
+  return mergeHistoricoDomCacheFilters(domValues, cachedValues);
 }
 
 function setHistoricoDomFilterValue(id, value) {
@@ -253,14 +251,7 @@ export function unmountHistoricoFilters() {
 function readUrlFilters() {
   if (typeof window === 'undefined') return {};
   try {
-    const sp = new URLSearchParams(window.location.search);
-    return {
-      busca: sp.get(URL_PARAM_KEYS.busca) || '',
-      setor: sp.get(URL_PARAM_KEYS.setor) || '',
-      equip: sp.get(URL_PARAM_KEYS.equip) || '',
-      periodo: sp.get(URL_PARAM_KEYS.periodo) || '',
-      tipo: sp.get(URL_PARAM_KEYS.tipo) || '',
-    };
+    return parseHistoricoUrlFilters(new URLSearchParams(window.location.search), URL_PARAM_KEYS);
   } catch {
     return {};
   }
@@ -1228,17 +1219,13 @@ export function clearHistClienteFilter() {
 
 function buildHistoricoCurrentFilters() {
   const domCacheFilters = buildHistoricoDomCacheFilters();
-  const busca = domCacheFilters.busca.toLowerCase();
-  writeHistoricoFilterCache({ ...domCacheFilters, busca });
-  const { period, tipo } = getExtraFilters();
+  const { filters, cacheFilters } = buildHistoricoCurrentFiltersFromValues({
+    domCacheFilters,
+    sessionFilters: getExtraFilters(),
+  });
 
-  return {
-    busca,
-    filtEq: domCacheFilters.equip,
-    filtSetor: domCacheFilters.setor,
-    period,
-    tipo,
-  };
+  writeHistoricoFilterCache(cacheFilters);
+  return filters;
 }
 
 function buildHistoricoRenderFilters() {
