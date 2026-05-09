@@ -196,3 +196,36 @@ Lacunas críticas antes de pre-split:
 Próximo CP recomendado: **CP-B - contratos adicionais Histórico/card actions**.
 
 Justificativa: há mais de 90% de confiança de que o próximo corte seguro é reforçar contratos antes de qualquer pre-split. O maior risco atual não é filtro ou layout isolado, mas a malha de actions por card que cruza `HistoricoTimeline.jsx`, `CardActions.jsx`, `navigationHandlers.js`, `registroHandlers.js` e `reportExportHandlers.js`. Sem esse contrato consolidado, qualquer refatoração em `historico.js` pode quebrar edição, exclusão, PDF ou WhatsApp de forma silenciosa.
+
+## 12. CP-B - Contratos Historico/card actions
+
+- CP-B aplicado.
+- Teste criado: `src/__tests__/historicoCardActions.contract.test.js`.
+- Nenhum codigo de producao foi alterado.
+- Nenhum comportamento foi alterado.
+- Contratos travados: `edit-reg`, `delete-reg`, `export-pdf`, `whatsapp-export`, `data-id`, `data-registro-id`, `data-reg-id` e `card-actions`.
+- Lacuna reduzida: antes havia cobertura espalhada entre timeline, Registro e Relatorio/PDF; agora ha um contrato dedicado do card do Historico conectando as actions no mesmo cenario.
+
+| Contrato Historico/card action  | Origem                                      | Consumidor                                 | Lacuna antes                                                                            | Cobertura adicionada                                               |
+| ------------------------------- | ------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `data-action="edit-reg"`        | `HistoricoTimeline.jsx`                     | `navigationHandlers.js`                    | Coberto em testes de timeline, mas sem contrato dedicado junto ao card actions completo | DOM do card e consumidor fonte com `editRegistroId: el.dataset.id` |
+| `data-action="delete-reg"`      | `HistoricoTimeline.jsx`                     | `registroHandlers.js`                      | Coberto em testes de timeline, mas sem contrato dedicado junto ao card actions completo | DOM do card e consumidor fonte com `deleteReg(el.dataset.id)`      |
+| `data-action="export-pdf"`      | `CardActions.jsx`                           | `reportExportHandlers.js`                  | Coberto em relatorio, mas sem origem explicita pelo card do Historico                   | DOM do card com `data-registro-id` igual ao id renderizado         |
+| `data-action="whatsapp-export"` | `CardActions.jsx`                           | `reportExportHandlers.js`                  | Coberto em relatorio, mas sem origem explicita pelo card do Historico                   | DOM do card com `data-registro-id` igual ao id renderizado         |
+| `data-id`                       | `HistoricoTimeline.jsx`                     | Edit/delete/toggle/signature handlers      | Cobertura parcial por timeline                                                          | Contrato dedicado para edit/delete com mesmo registro do card      |
+| `data-registro-id`              | `CardActions.jsx`                           | `getReportFilters` e flows de PDF/WhatsApp | Cobertura em contratos de export; lacuna no card do Historico                           | Contrato dedicado para PDF/WhatsApp no card do Historico           |
+| Fallback sem dados opcionais    | `HistoricoTimeline.jsx` + `CardActions.jsx` | Handlers globais                           | Faltava garantir actions sem fotos/assinatura/checklist                                 | Card minimo preserva edit/delete/PDF/WhatsApp                      |
+
+Validacao inicial do CP-B:
+
+- `npm run test -- src/__tests__/historicoCardActions.contract.test.js --reporter=dot`: passou, 1 arquivo / 3 testes.
+
+Lacunas remanescentes:
+
+- Fluxo end-to-end real de delete ainda nao cobre `Storage.markRegistroDeleted`, recalculo operacional e `updateGlobalHeader` a partir do clique do card.
+- Fluxo end-to-end real de edit ainda nao cobre a navegacao completa ate o preenchimento do Registro, apenas o contrato de action/id.
+- PDF/WhatsApp seguem cobertos por contrato de atributo e handlers; nao ha E2E visual/browser do compartilhamento a partir do card.
+
+Proximo CP recomendado: **CP-C - pre-split render/timeline**.
+
+Justificativa: com o contrato dedicado de actions dos cards criado, o proximo corte seguro e reduzir o tamanho e a mistura de responsabilidades do render/timeline sem mover integracoes de Registro/PDF/WhatsApp.
