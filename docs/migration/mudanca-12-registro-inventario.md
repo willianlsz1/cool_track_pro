@@ -491,8 +491,22 @@ Status: aplicado em 2026-05-09.
 - LOC `src/features/registro/checklist/pmocChecklist.js`: criado com 83 linhas.
 - Testes rodados: checklist feature + contrato Checklist/PMOC; bateria feature/contratos; testes relacionados Checklist/PMOC/Registro/PDF; suite ampla `npm run test -- src/__tests__ --reporter=dot`; `npm run format`; `npm run check`.
 
-## 32. Proximo CP recomendado
+## 32. CP-X - Mapear lifecycle Registro
 
-**CP-X - mapear initRegistro/clearRegistro/loadRegistroForEdit.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. Depois da extracao dos helpers puros de Checklist/PMOC, os maiores riscos restantes estao nas APIs publicas de ciclo de vida do adapter, que concentram DOM, estado, bridge React, reset/edit load e efeitos transversais. O proximo corte mais seguro e mapear esses fluxos antes de mover wrappers adicionais.
+- Documento criado: `docs/migration/mudanca-12-cp-x-lifecycle-map.md`.
+- Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
+- Fluxos publicos mapeados: `initRegistro`, `clearRegistro` e `loadRegistroForEdit`.
+- `initRegistro` mapeado: entrada de rota, root DOM, params/equipamento, contexto, skeleton/header React, binds idempotentes, datetime UX, defaults, Profile, fotos, assinatura, checklist/PMOC e estado inicial.
+- `clearRegistro` mapeado: limpeza de campos DOM, reset de edicao/sessionStorage/route guard, defaults, fotos, assinatura, tipo/materiais/impacto, progress meter, quick chips, checklist/PMOC, ultimo cliente, labels e contexto.
+- `loadRegistroForEdit` mapeado: resolucao de registro, `EDITING_KEY`, dataset edit mode, route guard, preenchimento de campos, tipo `Outro`, materiais/impacto, cliente, checklist/PMOC, labels de edicao e contexto.
+- Riscos e lacunas mapeados: DOM/global roots, bridges React, reset visual, modo edicao, fotos/evidencias, assinatura, Checklist/PMOC, Profile/sessionStorage, Toast/focus, import circular e regressao silenciosa.
+- LOC atual `src/ui/views/registro.js`: 1748.
+- Validacoes previstas para este CP: diff restrito aos docs; bateria feature/contratos; `npm run check`.
+
+## 33. Proximo CP recomendado
+
+**CP-Y - contrato lifecycle init/clear/edit.**
+
+Confianca: 90%+. O lifecycle ainda concentra DOM, bridges React, Profile, sessionStorage, route guard, reset visual, fotos, assinatura e checklist. Antes de qualquer pre-split de `clearRegistro`, `loadRegistroForEdit` ou `initRegistro`, o corte mais seguro e criar um contrato dedicado que trave a ordem publica e os efeitos minimos desses tres fluxos.
