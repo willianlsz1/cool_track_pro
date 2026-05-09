@@ -29,6 +29,7 @@ import {
   USAGE_RESOURCE_PDF_EXPORT,
   USAGE_RESOURCE_WHATSAPP_SHARE,
 } from '../../../core/usageLimits.js';
+import { buildWhatsAppSuccessCopy } from '../../../features/relatorio/export/reportExportHelpers.js';
 
 export function buildReportFilters({
   equipId = '',
@@ -503,18 +504,6 @@ async function shareReportPdfWithWhatsApp({ pdfResult, prefixText, user, filters
 async function commitWhatsAppShareUsage({ user, whatsappLimit, whatsappUsed }) {
   if (!Number.isFinite(whatsappLimit)) return whatsappUsed;
   return incrementMonthlyUsage(user.id, USAGE_RESOURCE_WHATSAPP_SHARE);
-}
-
-function buildWhatsAppSuccessCopy(channel) {
-  // Copy diferente por canal — web-share foi disparado com o arquivo real,
-  // wa-link abre WhatsApp com link público, download é o fallback offline.
-  if (channel === 'web-share') {
-    return { title: 'Relatório pronto para compartilhar' };
-  }
-  if (channel === 'download') {
-    return { title: 'Relatório baixado. Envie manualmente pelo WhatsApp.' };
-  }
-  return { title: 'Relatório enviado para o WhatsApp' };
 }
 
 function showWhatsAppShareSuccess({ whatsappLimit, newUsedCount, shareResult }) {

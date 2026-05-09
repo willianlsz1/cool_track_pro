@@ -226,3 +226,26 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - Contratos CP-B preservados: `export-pdf`, `whatsapp-export`, `data-registro-id`, `filters.registroId`, quota PDF/WhatsApp, `shareReportPdf`, fallback share/upload, fotos, assinatura e checklist/PMOC.
 - LOC `src/ui/controller/handlers/reportExportHandlers.js`: 655 -> 719 (+64).
 - Proximo CP recomendado: **CP-D - mover helpers seguros de reportExportHandlers**.
+
+## 14. CP-D - Mover helpers seguros de reportExportHandlers
+
+- Status: aplicado.
+- Helper seguro movido:
+  - `buildWhatsAppSuccessCopy`: movido para `src/features/relatorio/export/reportExportHelpers.js`; helper puro de copy por canal, sem DOM, Toast, Router, quota, Auth, dynamic import, PDFGenerator, share/upload ou persistencia.
+- Teste criado: `src/features/relatorio/__tests__/export/reportExportHelpers.test.js`.
+- Helpers mantidos em `src/ui/controller/handlers/reportExportHandlers.js`:
+  - `resolvePdfExportBudget`: mantido por usar `ensureReportBudget`, Auth/billing/usage, Toast e Router indiretamente;
+  - `generateReportPdfBlob`: mantido por dynamic import e chamada direta ao `PDFGenerator`;
+  - `confirmPdfExportPreview`: mantido por preview/modal/localStorage/ObjectURL;
+  - `showPdfExportSuccess`: mantido por Toast e refresh de quota badge;
+  - `markReportPdfOnboardingStep`: mantido por onboarding/telemetry defensivo;
+  - `resolveWhatsAppShareBudget`: mantido por Auth, usage, quota, Toast e `goTo`;
+  - `confirmWhatsAppSharePreview`: mantido por preview/modal/localStorage/ObjectURL;
+  - `shareReportPdfWithWhatsApp`: mantido por dynamic import de `shareReportPdf` e fluxo de share/upload/fallback;
+  - `commitWhatsAppShareUsage`: mantido por persistir uso mensal;
+  - `showWhatsAppShareSuccess`: mantido por Toast/badge e composição de feedback visual.
+- `exportPdfFlow`, `shareWhatsAppFlow` e o adapter `reportExportHandlers.js` permaneceram como orquestradores.
+- Nenhuma mudanca funcional intencional; contratos CP-B preservados.
+- LOC `src/ui/controller/handlers/reportExportHandlers.js`: 719 -> 709 (-10).
+- LOC `src/features/relatorio/export/reportExportHelpers.js`: 9.
+- Proximo CP recomendado: **CP-E - pre-split share/WhatsApp**.
