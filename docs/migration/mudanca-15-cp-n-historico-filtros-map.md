@@ -124,3 +124,11 @@ Lacunas criticas:
 Proximo CP recomendado: **CP-O - contrato consolidado filtros Historico**.
 
 Justificativa: ha mais de 90% de confianca de que o proximo passo deve ser contrato adicional, nao pre-split. O mapa mostra que filtros combinam DOM, cache local, `sessionStorage`, URL, React island, sheet mobile e view model. Mexer nesse fluxo antes de um contrato consolidado aumentaria o risco de filtro invisivel, timeline stale ou clear incompleto.
+
+## 10. Complemento CP-O
+
+- CP-O aplicado apos este mapa.
+- Teste criado: `src/__tests__/historicoFilters.contract.test.js`.
+- Lacunas reduzidas: contrato consolidado para DOM roots, `data-hist-action`, URL params, `sessionStorage`, cache `_histFilterValues`, `setHistClienteFilter`, sheet mobile, view model/timeline, empty state e preservacao de `data-registro-id`.
+- Nenhum codigo de producao foi alterado.
+- Proximo corte ficou mais seguro: **CP-P - pre-split filtros DOM/cache**.

@@ -841,3 +841,45 @@ Riscos principais:
 Proximo CP recomendado: **CP-O - contrato consolidado filtros Historico**.
 
 Justificativa: ha mais de 90% de confianca de que o proximo passo seguro deve ser contrato adicional. O fluxo de filtros mistura DOM, cache local, `sessionStorage`, URL, React island, sheet mobile e view model; pre-split antes de contrato consolidado teria risco alto de regressao silenciosa.
+
+## 25. CP-O - Contrato consolidado filtros Historico
+
+- CP-O aplicado.
+- Teste criado: `src/__tests__/historicoFilters.contract.test.js`.
+- Contrato consolidado de filtros protegido sem alteracao de codigo de producao.
+- Caminhos cobertos: DOM publico (`#hist-busca`, `#hist-equip`, `#hist-setor`, `#hist-filters-trigger`, `#hist-filters-count`), `data-hist-action`, URL params, `sessionStorage`, cache `_histFilterValues`, `_clienteFilter` via `setHistClienteFilter`, sheet mobile, view model, timeline/cards, estado vazio e preservacao de `data-registro-id`.
+- Nenhuma mudanca funcional intencional.
+- Nenhum `src/` de producao alterado.
+- Nenhum teste existente alterado.
+- Contrato CP-L preservado: filtros ativos do Historico nao removem `data-registro-id` dos cards.
+
+Contratos adicionados/fortalecidos:
+
+| Contrato filtros Historico                      | Lacuna antes                                               | Cobertura adicionada                                                              |
+| ----------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Roots DOM `#hist-busca/#hist-equip/#hist-setor` | Cobertura espalhada em testes legacy/island                | Teste consolidado valida roots no render de filtros                               |
+| Trigger/count do sheet                          | Cobertura por componente, sem contrato consolidado         | Teste valida `#hist-filters-trigger` e `#hist-filters-count`                      |
+| `data-hist-action` filtros/clear                | Cobertura fragmentada                                      | Teste valida quick filters de periodo/tipo e clear actions                        |
+| URL params                                      | Lacuna focada de hydrate/write no contrato consolidado     | Teste hidrata `q`, `periodo`, `tipo`, `setor` e `equip` e verifica URL resultante |
+| `sessionStorage`                                | Fallback indisponivel nao estava travado no contrato unico | Teste valida periodo/tipo e fallback com storage indisponivel                     |
+| `_histFilterValues`                             | Cache de unmount/remount sem contrato dedicado consolidado | Teste preserva busca/setor/equip apos unmount/remount da ilha                     |
+| `_clienteFilter` / `setHistClienteFilter`       | Integracao externa coberta por partes                      | Teste aplica cliente externo e limpa `clear-cliente-filter` sem estado invisivel  |
+| Sheet mobile                                    | Sheet tinha testes proprios, mas nao amarrado ao contrato  | Teste aplica/reset sheet e verifica filtros/empty state                           |
+| View model/timeline                             | Filtros e timeline cobertos em arquivos distintos          | Teste verifica itens renderizados e empty state apos filtros combinados           |
+| Export/report por card                          | CP-L cobria report, mas nao dentro do contrato de filtros  | Teste confirma `data-registro-id` preservado em cards apos filtros/reset          |
+
+Testes adicionados/rodados inicialmente:
+
+- `src/__tests__/historicoFilters.contract.test.js`: 5 testes cobrindo roots DOM, actions publicas, URL/sessionStorage, cache `_histFilterValues`, fallback de storage indisponivel, `setHistClienteFilter`, sheet/reset, VM/timeline, estado vazio e preservacao de `data-registro-id`.
+- `npm run test -- src/__tests__/historicoFilters.contract.test.js --reporter=dot`: passou, 1 arquivo / 5 testes.
+
+Lacunas remanescentes:
+
+- O teste usa mocks das ilhas React para focar o contrato do adapter; layout visual/pixel nao e exercitado.
+- Navegacao real Clientes -> Historico ainda permanece fora do contrato consolidado.
+- Web Share/PDF real nao e executado aqui; CP-L cobre a ponte Historico -> PDF/WhatsApp.
+- `src/ui/views/historico.js` continua acima de 1000 LOC e concentra DOM/cache/sessionStorage/URL.
+
+Proximo CP recomendado: **CP-P - pre-split filtros DOM/cache**.
+
+Justificativa: o contrato consolidado agora protege as fontes mais sensiveis dos filtros. O proximo corte seguro e separar localmente DOM/cache/sessionStorage/URL dentro do adapter antes de qualquer movimentacao para feature modules.
