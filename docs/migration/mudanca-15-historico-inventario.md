@@ -515,3 +515,68 @@ Validacao inicial do CP-H:
 Proximo CP recomendado: **CP-I - pre-split deleteReg**.
 
 Justificativa: o fluxo Historico -> Registro edit/delete agora tem contrato focado. O maior bloco remanescente de risco dentro do adapter e `deleteReg`, que ainda concentra storage, state, recalculo de equipamento, limpeza de assinatura, render, header e Toast; com o contrato CP-H, ha base suficiente para um pre-split local e conservador antes de qualquer extracao.
+
+## 19. CP-I - Pre-split deleteReg
+
+- CP-I aplicado.
+- `deleteReg` permaneceu exportado em `src/ui/views/historico.js`.
+- Nenhum modulo novo foi criado.
+- Nenhum teste foi alterado.
+- Nenhuma mudanca funcional intencional.
+- Contrato CP-H preservado.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1758 -> 1800, delta +42.
+
+Ordem real preservada:
+
+| Ordem | Bloco atual deleteReg         | Responsabilidade                                     | Dependencias                                     | Side effects                            | Helper criado                                 |
+| ----: | ----------------------------- | ---------------------------------------------------- | ------------------------------------------------ | --------------------------------------- | --------------------------------------------- |
+|     1 | Assinatura publica            | Receber `id` e manter API `deleteReg(id)`            | Handler `delete-reg`, testes CP-H                | Nenhum novo                             | `deleteReg` mantido                           |
+|     2 | Persistencia de delete        | Marcar registro como removido no storage/sync        | `Storage.markRegistroDeleted`                    | Queue/persistencia de exclusao          | `persistHistoricoRegistroDeletion`            |
+|     3 | Localizar registro alvo       | Encontrar registro removido no state anterior        | `prev.registros`, `id`                           | Nenhum                                  | `findHistoricoDeletedRegistro`                |
+|     4 | Remover registro do state     | Montar lista de registros sem o id recebido          | `prev.registros`, `id`                           | Nenhum direto                           | `buildHistoricoRegistrosAfterDelete`          |
+|     5 | Fallback registro inexistente | Preservar retorno `{ ...prev, registros: regs }`     | State anterior                                   | Remove apenas por filtro, sem recalculo | `buildHistoricoDeleteStateMutation`           |
+|     6 | Registro restante do equip.   | Obter ultimo registro restante do equipamento        | `regs`, `reg.equipId`, ordenacao por `data`      | Nenhum                                  | `findHistoricoLastRegistroForEquipment`       |
+|     7 | Recalculo de status           | Recalcular status operacional do equipamento afetado | `getOperationalStatus`, `Utils.daysDiff`, `last` | Nenhum direto                           | `buildHistoricoEquipmentAfterDelete`          |
+|     8 | Atualizar equipamentos        | Aplicar novo status somente no equipamento afetado   | `prev.equipamentos`, `reg.equipId`, `regs`       | Nenhum direto                           | `recalculateHistoricoEquipamentosAfterDelete` |
+|     9 | Aplicar state                 | Chamar `setState` com a mutacao preservada           | `setState`, `buildHistoricoDeleteStateMutation`  | Atualiza state local                    | `applyHistoricoDeleteStateMutation`           |
+|    10 | Limpar assinatura local       | Remover `cooltrack-sig-${id}`                        | `localStorage`                                   | Remove artefato de assinatura           | `cleanupHistoricoDeleteArtifacts`             |
+|    11 | Refresh pos-delete            | Re-renderizar Historico e atualizar header global    | `renderHist`, `updateGlobalHeader`               | Atualiza DOM/React/header               | `refreshHistoricoAfterDelete`                 |
+|    12 | Feedback                      | Mostrar Toast atual de remocao                       | `Toast.warning`                                  | Exibe notificacao atual                 | `notifyHistoricoDeleteSuccess`                |
+
+Helpers locais criados:
+
+| Helper                                        | Responsabilidade                                             | Observacao                                             |
+| --------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| `persistHistoricoRegistroDeletion`            | Encapsula `Storage.markRegistroDeleted(id)`                  | Mantem ordem antes do state                            |
+| `findHistoricoDeletedRegistro`                | Localiza o registro alvo no state anterior                   | Preserva busca por igualdade de `id`                   |
+| `buildHistoricoRegistrosAfterDelete`          | Monta lista de registros apos remocao                        | Preserva `filter((r) => r.id !== id)`                  |
+| `findHistoricoLastRegistroForEquipment`       | Resolve ultimo registro restante do equipamento              | Preserva sort descendente por `data.localeCompare`     |
+| `buildHistoricoEquipmentAfterDelete`          | Recalcula status/descricao do equipamento afetado            | Preserva fallback `unknown` para status anterior ou ok |
+| `recalculateHistoricoEquipamentosAfterDelete` | Aplica recalculo somente no equipamento do registro removido | Mantem demais equipamentos intactos                    |
+| `buildHistoricoDeleteStateMutation`           | Monta o proximo state para `setState`                        | Preserva fallback de registro inexistente              |
+| `applyHistoricoDeleteStateMutation`           | Aplica mutacao via `setState`                                | Mantem side effect no adapter                          |
+| `cleanupHistoricoDeleteArtifacts`             | Remove assinatura local vinculada ao id                      | Preserva chave `cooltrack-sig-${id}`                   |
+| `refreshHistoricoAfterDelete`                 | Executa `renderHist` e `updateGlobalHeader`                  | Mantem ordem pos-delete                                |
+| `notifyHistoricoDeleteSuccess`                | Exibe Toast de sucesso/remocao                               | Texto preservado                                       |
+
+Contratos preservados:
+
+- `deleteReg`, `delete-reg`, `data-id`, state/storage, recalculo de equipamento/status, re-render pos-delete, header/global refresh e Toast.
+- Fallback atual para id ausente e registro inexistente.
+- Contrato CP-H de Historico -> Registro.
+- Contrato CP-B de card actions.
+
+Validacao inicial do CP-I:
+
+- `npm run test -- src/__tests__/historicoRegistroIntegration.contract.test.js --reporter=dot`: passou, 1 arquivo / 5 testes.
+
+Lacunas remanescentes:
+
+- `deleteReg` ainda permanece no adapter e ainda executa side effects locais, por escopo deste CP.
+- Helpers de delete ainda nao foram classificados para extracao segura.
+- Fluxo Historico -> PDF/WhatsApp por card ainda precisa de mapeamento dedicado.
+
+Proximo CP recomendado: **CP-J - mover helpers seguros de deleteReg**.
+
+Justificativa: o pre-split local deixou as responsabilidades do delete separadas e protegidas pelo contrato CP-H. O proximo corte seguro e classificar quais helpers de modelagem/state podem sair sem levar `Storage`, `setState`, `localStorage`, render, header ou Toast para fora do adapter.
