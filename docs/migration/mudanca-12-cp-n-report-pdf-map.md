@@ -94,22 +94,22 @@ Mapear o fluxo real de relatório/PDF/WhatsApp ligado ao Registro antes de qualq
 
 ## 7. Testes existentes e lacunas
 
-| Teste                                                      | O que cobre                                                                              | O que não cobre                                 | Importância | Observação                             |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------- | ----------- | -------------------------------------- |
-| `src/features/registro/__tests__/save/postSave.test.js`    | DI de post-save, CTA/fallback PDF/WhatsApp                                               | Integração real com quota/PDF                   | Alta        | Criado no CP-M                         |
-| `src/__tests__/registroPdfWhatsappLegacyContracts.test.js` | Registro salva e compartilha com payload/filters                                         | Todos canais de share                           | Alta        | Teste central para CPs                 |
-| `src/__tests__/registroPostSaveLegacyFlow.test.js`         | Toast pós-save e fallback                                                                | Quota completa                                  | Alta        | Cobre fluxo legado                     |
-| `src/__tests__/pdfGenerator.registroId.test.js`            | PDF com filtro por `registroId`                                                          | UI/handlers                                     | Alta        | Contrato crítico                       |
-| `src/__tests__/reportModel.registroId.test.js`             | `filterRegistrosForReport`                                                               | PDF render                                      | Alta        | Baixo custo, alta proteção             |
-| `src/__tests__/reportExportHandlers.test.js`               | Handlers export/share defensivos                                                         | Todos planos reais                              | Alta        | Tem stderr jsdom baseline              |
-| `src/__tests__/shareReport.test.js`                        | Web Share/upload/fallback download                                                       | Integração Supabase real                        | Alta        | Cobre domínio share                    |
-| `src/__tests__/whatsappExport.test.js`                     | Texto WhatsApp                                                                           | PDF blob/upload                                 | Média       | Complementar                           |
-| `src/__tests__/postSaveRegistroToast.test.js`              | Toast rico e callbacks                                                                   | Integração com save                             | Média/alta  | Componente isolado                     |
-| `src/__tests__/relatorio*.test.*`                          | View/controls/cards/handlers relatório                                                   | Fluxo save completo                             | Alta        | Vários contratos DOM                   |
-| `src/__tests__/historico*.test.*`                          | Histórico/cards/timeline                                                                 | Export real completo                            | Média       | Importante para `CardActions`          |
-| `src/__tests__/signature*.test.js`                         | Resolver/storage/flush assinatura                                                        | PDF visual completo                             | Média/alta  | Necessário para PDF assinatura         |
-| Lacuna                                                     | Contrato dedicado de rota fallback `goTo('relatorio', { registroId })` em todos caminhos | Pode perder `registroId` sem falhar visualmente | Alta        | Candidato a CP-O                       |
-| Lacuna                                                     | Quota/gating por PDF vs WhatsApp em todos planos                                         | Consumo incorreto pode passar parcial           | Alta        | Candidato a contrato antes de extração |
+| Teste                                                          | O que cobre                                                                                | O que não cobre                       | Importância | Observação                             |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------- | ----------- | -------------------------------------- |
+| `src/features/registro/__tests__/save/postSave.test.js`        | DI de post-save, CTA/fallback PDF/WhatsApp                                                 | Integração real com quota/PDF         | Alta        | Criado no CP-M                         |
+| `src/__tests__/registroPdfWhatsappLegacyContracts.test.js`     | Registro salva e compartilha com payload/filters                                           | Todos canais de share                 | Alta        | Teste central para CPs                 |
+| `src/__tests__/registroPostSaveLegacyFlow.test.js`             | Toast pós-save e fallback                                                                  | Quota completa                        | Alta        | Cobre fluxo legado                     |
+| `src/__tests__/pdfGenerator.registroId.test.js`                | PDF com filtro por `registroId`                                                            | UI/handlers                           | Alta        | Contrato crítico                       |
+| `src/__tests__/reportModel.registroId.test.js`                 | `filterRegistrosForReport`                                                                 | PDF render                            | Alta        | Baixo custo, alta proteção             |
+| `src/__tests__/reportExportHandlers.test.js`                   | Handlers export/share defensivos                                                           | Todos planos reais                    | Alta        | Tem stderr jsdom baseline              |
+| `src/__tests__/shareReport.test.js`                            | Web Share/upload/fallback download                                                         | Integração Supabase real              | Alta        | Cobre domínio share                    |
+| `src/__tests__/whatsappExport.test.js`                         | Texto WhatsApp                                                                             | PDF blob/upload                       | Média       | Complementar                           |
+| `src/__tests__/postSaveRegistroToast.test.js`                  | Toast rico e callbacks                                                                     | Integração com save                   | Média/alta  | Componente isolado                     |
+| `src/__tests__/relatorio*.test.*`                              | View/controls/cards/handlers relatório                                                     | Fluxo save completo                   | Alta        | Vários contratos DOM                   |
+| `src/__tests__/historico*.test.*`                              | Histórico/cards/timeline                                                                   | Export real completo                  | Média       | Importante para `CardActions`          |
+| `src/__tests__/signature*.test.js`                             | Resolver/storage/flush assinatura                                                          | PDF visual completo                   | Média/alta  | Necessário para PDF assinatura         |
+| `src/__tests__/registroPdfWhatsappRegistroId.contract.test.js` | Contrato dedicado de `registroId` em save-and-share, CTAs, fallback, filtros e DOM actions | Matriz completa de quota por plano    | Alta        | Criado no CP-O                         |
+| Lacuna                                                         | Quota/gating por PDF vs WhatsApp em todos planos                                           | Consumo incorreto pode passar parcial | Alta        | Candidato a contrato antes de extração |
 
 ## 8. Riscos principais
 
@@ -138,6 +138,8 @@ Mapear o fluxo real de relatório/PDF/WhatsApp ligado ao Registro antes de qualq
 
 ## 10. Recomendação final
 
-**CP-O - teste/contrato específico de `registroId` em PDF/WhatsApp.**
+**CP-O - teste/contrato específico de `registroId` em PDF/WhatsApp.** Aplicado em 2026-05-09 via `src/__tests__/registroPdfWhatsappRegistroId.contract.test.js`.
 
 Confiança: 90%+. Antes de qualquer pre-split em relatório/PDF, o contrato de `registroId` precisa ficar ainda mais explícito cobrindo post-save, `CardActions`, `buildReportFilters`, `exportPdfFlow`/`shareWhatsAppFlow` e fallback para rota relatório. Esse é o corte de menor risco com maior proteção contra regressão silenciosa.
+
+Complemento CP-O: com o contrato dedicado criado, o próximo corte seguro passa a ser **CP-P - pre-split relatorio/PDF em Registro**, mantendo efeitos no adapter e sem alterar comportamento.

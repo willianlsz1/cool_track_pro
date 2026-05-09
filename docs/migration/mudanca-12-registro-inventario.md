@@ -371,8 +371,19 @@ Status: aplicado em 2026-05-09.
 - Reconciliação de LOC: CP-L registrou `1773 -> 1800`; CP-M registrou `2040 -> 1983`; LOC real medido no CP-N para `src/ui/views/registro.js`: 1983.
 - Validações rodadas: postSave feature + persistence feature + signature feature + photos feature + payload feature + contratos CP-B; `npm run check`.
 
-## 23. Proximo CP recomendado
+## 23. CP-O - Contrato registroId em PDF/WhatsApp
 
-**CP-O - teste/contrato específico de `registroId` em PDF/WhatsApp.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O contrato de `registroId` e o ponto de maior risco para regressao silenciosa entre Registro, Historico, Relatorio, PDF e WhatsApp; fortalecer esse contrato antes de pre-split reduz o risco de exportar dados errados.
+- Teste criado: `src/__tests__/registroPdfWhatsappRegistroId.contract.test.js`.
+- Contrato protegido: `registroId` preservado do Registro para PDF/WhatsApp nos caminhos de save-and-share direto, CTAs do toast pos-save, fallback para `goTo('relatorio', ...)`, `buildReportFilters` e `filterRegistrosForReport`.
+- Actions/DOM congelados por contrato: `save-and-share-registro`, `save-and-share-other-registro`, `export-pdf`, `whatsapp-export` e `data-registro-id`.
+- Nenhuma mudanca funcional intencional; nenhum arquivo de producao em `src/` foi alterado.
+- Lacunas remanescentes: quota/gating PDF vs WhatsApp por plano continua coberta por testes relacionados, mas ainda nao tem um contrato unico dedicado por matriz de planos.
+- Validacoes rodadas: contrato `registroId`; postSave feature + persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes relacionados de Registro/relatorio/PDF/WhatsApp/historico; `npm run format`; `npm run check`.
+
+## 24. Proximo CP recomendado
+
+**CP-P - pre-split relatorio/PDF em Registro.**
+
+Confianca: 90%+. O contrato de `registroId` agora esta protegido explicitamente; o proximo corte seguro e separar localmente a ponte Registro -> relatorio/PDF/WhatsApp sem mover efeitos nem alterar comportamento.
