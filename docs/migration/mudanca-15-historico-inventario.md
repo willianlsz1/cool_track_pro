@@ -652,3 +652,56 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-K - mapear Historico -> PDF/WhatsApp**.
 
 Justificativa: os helpers seguros de delete ja foram extraidos e o contrato Historico -> Registro permanece protegido. O maior acoplamento funcional ainda sem mapa dedicado na Mudanca 15 e o caminho de exportacao por card para PDF/WhatsApp, que cruza atributos publicos, handlers e contratos do Relatorio/PDF.
+
+## 21. CP-K - Mapear Historico -> PDF/WhatsApp
+
+- CP-K aplicado.
+- Documento criado: `docs/migration/mudanca-15-cp-k-historico-pdf-whatsapp-map.md`.
+- Nenhum `src/` alterado.
+- Nenhum teste alterado.
+- Integracao Historico -> PDF/WhatsApp mapeada em modo read-only.
+- Fluxos mapeados: `export-pdf`, `whatsapp-export`, `data-registro-id`, `CardActions`, `reportExportHandlers`, `buildReportFilters`, `filters.registroId`, `PDFGenerator`, `shareReportPdf`, Web Share/upload/fallback e contratos da Mudanca 13.
+- LOC principais no CP-K:
+  - `src/ui/views/historico.js`: 1586
+  - `src/react/pages/HistoricoTimeline.jsx`: 453
+  - `src/react/components/CardActions.jsx`: 68
+  - `src/ui/controller/handlers/reportExportHandlers.js`: 727
+  - `src/domain/pdf/reportModel.js`: 76
+  - `src/domain/pdf.js`: 177
+  - `src/domain/pdf/shareReport.js`: 319
+
+Resumo do fluxo `export-pdf`:
+
+| Etapa          | Estado atual                                                                                        | Risco                                               |
+| -------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Card Historico | `HistoricoTimeline.jsx` passa `item.id` para `<CardActions registroId={item.id} />`                 | Card sem id perde export por registro               |
+| Action PDF     | `CardActions.jsx` renderiza `data-action="export-pdf"` e `data-registro-id={registroId}`            | Sem `data-registro-id`, handler usa filtros globais |
+| Handler global | `reportExportHandlers.js` registra `on('export-pdf')` e chama `exportPdfFlow`                       | Handler e compartilhado com Relatorio               |
+| Filtros        | `getReportFilters` le `triggerEl?.dataset?.registroId`; `buildReportFilters` normaliza `registroId` | `registroId` nao pode ser sobrescrito por filtros   |
+| Dominio PDF    | `filterRegistrosForReport` prioriza `registroId`; `PDFGenerator` gera Blob/download                 | PDF errado se prioridade mudar                      |
+
+Resumo do fluxo `whatsapp-export`:
+
+| Etapa          | Estado atual                                                                                       | Risco                                        |
+| -------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Card Historico | Mesmo `CardActions` renderiza `data-action="whatsapp-export"` e `data-registro-id={registroId}`    | Share pode mirar registro errado             |
+| Handler global | `on('whatsapp-export')` chama `shareWhatsAppFlow` com filtros vindos do trigger                    | Handler mistura quota, PDF, share e feedback |
+| PDF para share | `shareWhatsAppFlow` gera PDF Blob via `PDFGenerator.generateMaintenanceReport({ asBlob: true })`   | Divergencia entre PDF download e PDF share   |
+| Texto/metadata | `WhatsAppExport.generateText(filters)` e `shareReportPdf` recebem `registroId` em filtros/metadata | Texto, PDF e metadata podem divergir         |
+| Fallback share | `shareReportPdf` tenta Web Share, upload + `wa.me` e fallback download local se upload falhar      | Comportamento sensivel ao ambiente/navegador |
+
+Riscos/lacunas mapeados:
+
+- Falta contrato integrado Historico -> PDF/WhatsApp partindo de card real ate `generateMaintenanceReport`/`shareReportPdf`.
+- Falta caso explicito de filtros globais ativos coexistindo com `data-registro-id` vindo do Historico.
+- `reportExportHandlers.js` segue acima de 700 LOC e mistura DOM, quota, PDF, share, Toast, router e telemetria.
+- `CardActions` e compartilhado por Historico e Relatorio; alteracao local pode quebrar ambos.
+- Fallback Web Share/upload/download depende de ambiente e continua sensivel.
+
+Validacao inicial do CP-K:
+
+- Documental/read-only ate a criacao dos docs; testes e `npm run check` devem ser registrados no relatorio final do CP.
+
+Proximo CP recomendado: **CP-L - contrato integrado Historico -> PDF/WhatsApp**.
+
+Justificativa: ha mais de 90% de confianca de que o proximo passo seguro deve ser contrato, nao refatoracao. Os contratos atuais cobrem partes do fluxo, mas ainda falta a ponte integrada card Historico -> handler global -> `filters.registroId` -> PDF/WhatsApp com filtros globais ativos.
