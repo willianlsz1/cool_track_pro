@@ -508,3 +508,26 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - `PDFGenerator`, `domain/pdf.js`, `services.js`, `checklist.js`, `cover.js`, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
 - LOC `src/domain/pdf/sections/signatures.js`: 242 -> 332 (+90).
 - Proximo CP recomendado: **CP-P - mover helpers seguros de signatures.js**.
+
+## 26. CP-P - Mover helpers seguros de signatures.js
+
+- Status: aplicado.
+- Helper seguro movido para `src/domain/pdf/sections/signatureHelpers.js`:
+  - `buildSignatureRecordModel`: modelagem de registro assinado, cliente, documento, equipamento, status, data e payload de assinatura; dependencias recebidas por parametro.
+- Teste criado: `src/__tests__/pdfSignature.helpers.test.js`.
+- Helpers mantidos em `src/domain/pdf/sections/signatures.js`:
+  - `renderSignaturePageStart`: mantido por chamar `doc.addPage`, `fillPage` e header;
+  - `renderSignatureTitleBlock`: mantido por renderizar texto e linha no PDF;
+  - `renderSignatureDescriptionBox`: mantido por usar `doc.splitTextToSize`, `doc.rect` e texto;
+  - `renderSignatureConsentClause`: mantido por renderizar texto legal no PDF;
+  - `renderSignatureBox`: mantido por chamar `drawSignatureImage` e mutar `doc`;
+  - `renderSignatureCustomerMetadata`: mantido por renderizar textos no PDF;
+  - `renderSignatureRecord`: mantido por orquestrar render, cursor e paginacao.
+- `drawSignaturePages` permaneceu no modulo atual e como orquestrador da section.
+- Nenhuma mudanca funcional intencional; layout, textos legais, clausula de aceite, formatos de assinatura, fallback ausente/invalido, paginacao e ordem visual preservados.
+- Contratos CP-H preservados: `registro.assinatura`, formatos atuais, fallback silencioso e acoplamento `domain/pdf` -> UI signature como baseline.
+- Contratos CP-B preservados: fluxo PDF/WhatsApp via handlers e contratos de export/share.
+- `PDFGenerator`, `domain/pdf.js`, outras sections, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf/sections/signatures.js`: 296 -> 277 (-19).
+- LOC `src/domain/pdf/sections/signatureHelpers.js`: 34.
+- Proximo CP recomendado: **CP-Q - mapear/desacoplar signature UI import**.

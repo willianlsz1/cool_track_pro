@@ -2,6 +2,7 @@ import { Utils } from '../../../core/utils.js';
 import { PDF_COLORS as C, PDF_TYPO as T, STATUS_CLIENTE } from '../constants.js';
 import { sanitizeObservation, sanitizePublicText } from '../sanitizers.js';
 import { accentLine, fillPage, fillRect, getSignatureImagePayload, txt } from '../primitives.js';
+import { buildSignatureRecordModel } from './signatureHelpers.js';
 
 function getSignedRecords(filtered, getSignatureForRecord) {
   return filtered.filter((registro) => registro.assinatura || !!getSignatureForRecord(registro.id));
@@ -115,35 +116,6 @@ function ensureSignatureBlockPage(doc, pageWidth, pageHeight, margin, y, context
   fillPage(doc, pageWidth, pageHeight);
   drawSignaturePageHeader(doc, pageWidth, margin, context);
   return 22;
-}
-
-function buildSignatureRecordModel(registro, equipamentos, getSignatureForRecord) {
-  const signatureData = getSignatureForRecord(registro.id);
-  const signaturePayload = getSignatureImagePayload(signatureData);
-  const signatureDate = registro.data
-    ? Utils.formatDatetime(registro.data)
-    : Utils.formatDatetime(new Date().toISOString());
-  const clienteNome = sanitizePublicText(
-    registro.clienteNome?.trim() || registro.cliente?.trim() || '',
-    'Não informado',
-  );
-  const clienteDoc =
-    registro.clienteDocumento?.trim() ||
-    registro.clienteCnpj?.trim() ||
-    registro.clienteCpf?.trim() ||
-    '';
-  const equipamento = equipamentos.find((item) => item.id === registro.equipId);
-  const statusInfo = STATUS_CLIENTE[registro.status] || STATUS_CLIENTE.ok;
-
-  return {
-    clienteDoc,
-    clienteNome,
-    equipamento,
-    registro,
-    signatureDate,
-    signaturePayload,
-    statusInfo,
-  };
 }
 
 function renderSignaturePageStart(doc, pageWidth, pageHeight, margin, context) {
@@ -320,7 +292,14 @@ export function drawSignaturePages(
   if (!signedRecords.length) return;
 
   signedRecords.forEach((registro) => {
-    const model = buildSignatureRecordModel(registro, equipamentos, getSignatureForRecord);
+    const model = buildSignatureRecordModel(registro, equipamentos, {
+      fallbackStatusInfo: STATUS_CLIENTE.ok,
+      formatDatetime: Utils.formatDatetime,
+      getSignatureForRecord,
+      getSignatureImagePayload,
+      sanitizePublicText,
+      statusByCode: STATUS_CLIENTE,
+    });
     renderSignatureRecord(doc, pageWidth, pageHeight, margin, profile, context, model);
   });
 }
