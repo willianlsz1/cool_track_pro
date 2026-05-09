@@ -17,6 +17,7 @@ import {
   renderClientes,
   confirmDeleteCliente,
   openClienteModalForId,
+  populateClienteSelect,
 } from '../../views/clientes.js';
 
 let _openMenuId = null;
@@ -100,7 +101,6 @@ export function bindClienteHandlers() {
 
     const handleSavedForEqModal = async (cliente) => {
       // Re-popula o select #eq-cliente com a lista atualizada
-      const { populateClienteSelect } = await import('../../views/clientes.js');
       await populateClienteSelect();
       // Seleciona o novo cliente
       const select = document.getElementById('eq-cliente');

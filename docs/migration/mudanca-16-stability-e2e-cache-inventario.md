@@ -292,8 +292,43 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - islands React pequenas, mas entry principal ainda grande por infraestrutura compartilhada.
 - Nenhum `src/`, teste, package, config, CSS ou schema foi alterado neste CP.
 
-## 16. Proximo CP recomendado
+## 16. CP-H aplicado
 
-**CP-H - corrigir static+dynamic import por grupo.**
+- Escopo: correcao pequena e reversivel de warning Vite de static+dynamic import.
+- Grupo escolhido: Clientes / `populateClienteSelect`.
+- Arquivos alterados:
+  - `src/ui/controller/handlers/clienteHandlers.js`;
+  - `src/ui/controller/handlers/equipmentHandlers.js`;
+  - `src/ui/controller/handlers/navigationHandlers.js`.
+- Mudanca realizada:
+  - removidos tres `import('../../views/clientes.js')` usados apenas para obter `populateClienteSelect`;
+  - `populateClienteSelect` passou a vir de import estatico, porque `views/clientes.js` ja era importado estaticamente pelo bootstrap de rotas/handlers.
+- Warning corrigido:
+  - `src/ui/views/clientes.js` deixou de aparecer como modulo importado dinamica e estaticamente no build.
+- Warning count Vite static+dynamic:
+  - antes: 22 modulos;
+  - depois: 21 modulos;
+  - delta: -1 modulo.
+- Chunks/top assets apos ajuste:
+  - `index.*.js` 959,903 B;
+  - `vendor-pdf.*.js` 776,011 B;
+  - `index.*.css` 544,286 B;
+  - `cooling-tech.*.png` 1,941,137 B.
+- Warnings mantidos:
+  - core transversal (`utils`, `supabase`, `storage`, `state`, `modal`, `router`, `auth`);
+  - planos/usage (`subscriptionPlans`, `planCache`, `monetization`, `usageLimits`);
+  - views/fluxos maiores (`equipamentos`, `historico`, `dashboard`, `orcamentoHandlers`, `signature`, `nameplateCapture`, `contextState`, `core/clientes`);
+  - chunk size > 500 kB.
+- Validacoes rodadas:
+  - `npm run build`;
+  - `npm run format`;
+  - `npm run check`;
+  - bateria base de estabilidade;
+  - bateria focada de Clientes/Equipamentos;
+  - bateria completa `npm run test -- src/__tests__ --reporter=dot`.
 
-Justificativa: CP-G identificou grupos claros de imports mistos. O proximo corte deve ser pequeno e reversivel, atacando um grupo seguro de static+dynamic import antes de qualquer `manualChunks` amplo ou separacao pesada de PDF/share.
+## 17. Proximo CP recomendado
+
+**CP-I - continuar dynamic/static import por grupo.**
+
+Justificativa: CP-H reduziu um grupo pequeno sem tocar `manualChunks` nem PDF/vendor. Ainda restam 21 warnings Vite, e o proximo corte deve manter o mesmo criterio: escolher outro grupo coberto por testes, evitando core amplo, PDF/share e modules com side effects ate haver mapa dedicado.

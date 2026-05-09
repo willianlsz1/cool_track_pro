@@ -116,3 +116,22 @@ Mapear, sem alterar codigo, os warnings Vite de modulos importados dinamica e es
 Recomendo **CP-H - corrigir static+dynamic import por grupo**.
 
 Justificativa: o mapa mostra warnings em grupos bem definidos. O primeiro corte deve atacar um grupo pequeno e reversivel, provavelmente imports redundantes de core/view com contrato existente, antes de mexer em `manualChunks` ou PDF/share. Alterar `manualChunks` agora trataria o sintoma, mas nao o acoplamento que esta anulando lazy loading.
+
+## 9. Complemento CP-H
+
+- Grupo tratado: Clientes / `populateClienteSelect`.
+- Arquivos ajustados:
+  - `src/ui/controller/handlers/clienteHandlers.js`;
+  - `src/ui/controller/handlers/equipmentHandlers.js`;
+  - `src/ui/controller/handlers/navigationHandlers.js`.
+- Resultado:
+  - removidos imports dinamicos redundantes de `src/ui/views/clientes.js`;
+  - `populateClienteSelect` passou a usar import estatico ja presente no grafo de bootstrap;
+  - warning de `src/ui/views/clientes.js` removido.
+- Warning count Vite static+dynamic:
+  - antes do CP-H: 22 modulos;
+  - depois do CP-H: 21 modulos.
+- Warnings remanescentes:
+  - core transversal, planos/usage, Equipamentos/Historico/Dashboard, Orcamentos, signature/nameplate e chunk size > 500 kB.
+- Proximo corte sugerido:
+  - continuar dynamic/static import por grupo pequeno, somente onde o modulo ja for inevitavelmente estatico e o import dinamico nao trouxer ganho real.

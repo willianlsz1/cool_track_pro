@@ -15,6 +15,7 @@ import {
   clearEquipPhotosEditingState,
   lockEquipContext,
 } from '../../views/equipamentos.js';
+import { populateClienteSelect } from '../../views/clientes.js';
 import {
   applyNameplateCtaGate,
   resetNameplateCtaState,
@@ -124,8 +125,7 @@ export function bindNavigationHandlers() {
       // PMOC Fase 2: popula select de clientes (lazy hydrate). Fire-and-forget;
       // se falhar, o wrapper fica hidden (default) e o campo simplesmente
       // não aparece — não quebra o cadastro.
-      import('../../views/clientes.js')
-        .then((m) => m.populateClienteSelect?.())
+      Promise.resolve(populateClienteSelect())
         .then(() => {
           // Bug fix #103: pre-preenche Setor + Cliente quando o "+ Novo
           // equipamento" foi clicado dentro do drill-down de um setor.

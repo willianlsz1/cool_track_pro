@@ -21,6 +21,7 @@ import {
   clearForcedEquipContext,
   applyEquipModalExperience,
 } from '../../views/equipamentos.js';
+import { populateClienteSelect } from '../../views/clientes.js';
 import { runAsyncAction } from '../../components/actionFeedback.js';
 
 /**
@@ -291,9 +292,8 @@ export function bindEquipmentHandlers() {
 
   on('eq-add-for-cliente', async (el) => {
     const clienteId = el?.dataset?.id || '';
-    const [{ Modal }, { populateClienteSelect }, { Utils }] = await Promise.all([
+    const [{ Modal }, { Utils }] = await Promise.all([
       import('../../../core/modal.js'),
-      import('../../views/clientes.js'),
       import('../../../core/utils.js'),
     ]);
     Modal.open('modal-add-eq');
