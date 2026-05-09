@@ -33,7 +33,7 @@ import { goTo } from '../../core/router.js';
 import { Modal } from '../../core/modal.js';
 import { trackEvent } from '../../core/telemetry.js';
 import { Toast } from '../../core/toast.js';
-import { setNameplateMetadata } from '../views/equipamentos/placaData.js';
+import { setNameplateMetadata } from './nameplateMetadata.js';
 import {
   analyzeNameplate,
   NameplateAnalysisError,

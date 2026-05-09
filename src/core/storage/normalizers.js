@@ -12,7 +12,7 @@ import {
   normalizeCriticidade,
   normalizePrioridadeOperacional,
   normalizePeriodicidadePreventivaDias,
-} from '../../domain/maintenance.js';
+} from '../maintenanceNormalization.js';
 import { sanitizePersistedEquipamento, sanitizePersistedRegistro } from '../inputValidation.js';
 
 export function normalizeEquip(e) {

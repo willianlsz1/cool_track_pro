@@ -12,7 +12,7 @@ import {
   normalizeCriticidade,
   normalizePrioridadeOperacional,
   normalizePeriodicidadePreventivaDias,
-} from '../../domain/maintenance.js';
+} from '../maintenanceNormalization.js';
 import { isLegacyEquipmentSchemaError, mapEquipamentoRow } from './normalizers.js';
 import { parseDeletionQueue, saveDeletionQueue } from './syncState.js';
 

@@ -5,7 +5,7 @@ import {
   normalizeCriticidade,
   normalizePeriodicidadePreventivaDias,
   normalizePrioridadeOperacional,
-} from '../../domain/maintenance.js';
+} from '../maintenanceNormalization.js';
 import { sanitizePersistedSetor } from '../inputValidation.js';
 import {
   mapClienteRow,

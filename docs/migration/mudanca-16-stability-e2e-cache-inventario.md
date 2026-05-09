@@ -239,8 +239,43 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - bateria focada de contratos recentes;
   - `npm run test -- src/__tests__ --reporter=dot`.
 
-## 14. Proximo CP recomendado
+## 14. CP-F aplicado
 
-**CP-F - continuar limpeza de warnings.**
+- Escopo: limpeza de `no-restricted-imports` por grupo pequeno, sem mudanca funcional.
+- Warnings analisados:
+  - 4 imports de `src/core/storage/*` para `src/domain/maintenance.js`;
+  - 1 import de `src/ui/components/nameplateCapture.js` para `src/ui/views/equipamentos/placaData.js`;
+  - 1 import de `src/domain/pdf/shareReport.js` para `src/ui/components/onboarding/onboardingChecklist.js`.
+- Warnings corrigidos:
+  - storage passou a consumir normalizacao pura em `src/core/maintenanceNormalization.js`;
+  - `src/domain/maintenance.js` reexporta os helpers para preservar API publica;
+  - metadata do nameplate foi isolada em `src/ui/components/nameplateMetadata.js`, removendo o import de component para view.
+- Warning mantido:
+  - `src/domain/pdf/shareReport.js -> src/ui/components/onboarding/onboardingChecklist.js`;
+  - motivo: corrigir com seguranca exige inverter o hook explicito de onboarding do fallback de download/share PDF; manter para CP dedicado evita mudar efeito colateral de PDF/WhatsApp neste corte.
+- Warning count:
+  - antes: 6 warnings, 0 erros;
+  - depois: 1 warning, 0 erros;
+  - delta: -5 warnings.
+- Arquivos alterados:
+  - `src/core/maintenanceNormalization.js`;
+  - `src/core/storage/normalizers.js`;
+  - `src/core/storage/remote.js`;
+  - `src/core/storage/storageNormalizers.js`;
+  - `src/core/storage/storageRemoteSync.js`;
+  - `src/domain/maintenance.js`;
+  - `src/ui/components/nameplateCapture.js`;
+  - `src/ui/components/nameplateMetadata.js`;
+  - `src/ui/views/equipamentos/placaData.js`.
+- Validacoes rodadas:
+  - `npm run check`;
+  - `npm run format`;
+  - bateria base de estabilidade;
+  - bateria storage;
+  - bateria completa `npm run test -- src/__tests__ --reporter=dot`.
 
-Justificativa: CP-E reduziu o baseline de lint de 30 para 6 warnings sem mudanca funcional. Os warnings restantes sao todos arquiteturais (`no-restricted-imports`) e devem ser tratados em grupos pequenos, com mapeamento e testes por area, antes do corte de chunks/dynamic import.
+## 15. Proximo CP recomendado
+
+**CP-G - mapear chunks/dynamic import.**
+
+Justificativa: CP-F reduziu os restricted imports de 6 para 1 e manteve apenas o caso `shareReport -> onboardingChecklist`, que precisa de CP dedicado se for atacado. O maior ruido restante no `npm run check` agora vem dos warnings Vite de dynamic/static import e chunks grandes, que pedem mapeamento antes de qualquer corte.

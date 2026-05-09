@@ -1,6 +1,11 @@
 import { Utils } from '../../../core/utils.js';
 import { parseDadosPlacaFloat } from '../../../domain/dadosPlacaValidation.js';
 import { getCamposExtrasSnapshot } from '../../components/nameplateCapture.js';
+import {
+  getNameplateMetadata,
+  resetNameplateMetadata as resetNameplateMetadataState,
+  setNameplateMetadata as setNameplateMetadataState,
+} from '../../components/nameplateMetadata.js';
 
 // Metadata do payload `dados_placa` — fontes além do form fixo.
 // - `_camposExtrasManual` é preenchido pelo review UI de extras (nameplate
@@ -9,17 +14,12 @@ import { getCamposExtrasSnapshot } from '../../components/nameplateCapture.js';
 // - `_notas` vem do pass de IA (analyze-nameplate). Salvos em `dados_placa.notas`.
 // - `_source` marca origem: 'ai' se a captura passou por applyFieldsToForm,
 //   'manual' caso contrário. Salvos em `dados_placa._source`.
-let _notas = null;
-let _source = 'manual';
-
 export function setNameplateMetadata({ notas = null, source = null } = {}) {
-  if (notas != null) _notas = String(notas);
-  if (source === 'ai' || source === 'manual') _source = source;
+  setNameplateMetadataState({ notas, source });
 }
 
 export function resetNameplateMetadata() {
-  _notas = null;
-  _source = 'manual';
+  resetNameplateMetadataState();
 }
 
 /**
@@ -119,8 +119,9 @@ export function collectDadosPlaca() {
   // Metadata: preserva origem (ai/manual) e notas da IA. Chaves `_*` são
   // tratadas como metadata pelo display/PDF e omitidas do render; ficam
   // auditáveis no DB.
-  result._source = _source || 'manual';
-  if (_notas) result.notas = _notas;
+  const metadata = getNameplateMetadata();
+  result._source = metadata.source || 'manual';
+  if (metadata.notas) result.notas = metadata.notas;
 
   return result;
 }
