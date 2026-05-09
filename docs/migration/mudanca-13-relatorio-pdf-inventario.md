@@ -284,3 +284,34 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - LOC `src/domain/pdf/shareReport.js`: 330 -> 319 (-11).
 - LOC `src/domain/pdf/shareReportHelpers.js`: 20.
 - Proximo CP recomendado: **CP-G - mapear/pre-split domain/pdf**.
+
+## 17. CP-G - Mapear domain/pdf
+
+- Status: aplicado.
+- Documento criado: `docs/migration/mudanca-13-cp-g-domain-pdf-map.md`.
+- CP documental/read-only: nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
+- Domain PDF mapeado:
+  - `src/domain/pdf.js` como orquestrador de `PDFGenerator.generateMaintenanceReport`;
+  - `src/domain/pdf/reportModel.js` como modelo/filtro e OS/localStorage;
+  - `src/domain/pdf/sections/services.js` como render de servicos e fotos/evidencias;
+  - `src/domain/pdf/sections/signatures.js` como render de comprovantes/assinaturas;
+  - `src/domain/pdf/sections/checklist.js` e `src/domain/pdf/pmoc/*` como consumo PMOC/checklist;
+  - `src/domain/pdf/shareReport.js` e `src/domain/pdf/shareReportHelpers.js` como fluxo share/WhatsApp/fallback.
+- Acoplamentos registrados:
+  - `domain/pdf.js` importa `ui/components/signature.js`;
+  - sections de PDF dependem de storage/resolvers e dados legados de Registro;
+  - `shareReport.js` ainda mistura Supabase, Web Share, DOM/download, onboarding e erro;
+  - `reportExportHandlers.js` permanece como composition root para quota, preview, PDF e share.
+- Riscos mapeados: fotos/evidencias, assinatura, checklist/PMOC, `filters.registroId`, layout visual, dados ausentes, import circular por inversao de camada e dynamic imports/chunks.
+- LOC principais medidos:
+  - `src/domain/pdf.js`: 138;
+  - `src/domain/pdf/reportModel.js`: 76;
+  - `src/domain/pdf/sections/services.js`: 461;
+  - `src/domain/pdf/sections/checklist.js`: 174;
+  - `src/domain/pdf/sections/cover.js`: 597;
+  - `src/domain/pdf/sections/signatures.js`: 242;
+  - `src/domain/pdf/shareReport.js`: 319;
+  - `src/domain/pdf/shareReportHelpers.js`: 20;
+  - `src/domain/pdf/pmoc/pmocReport.js`: 181;
+  - `src/ui/controller/handlers/reportExportHandlers.js`: 709.
+- Proximo CP recomendado: **CP-H - contrato adicional para domain/pdf consumo de fotos/assinatura/checklist**.
