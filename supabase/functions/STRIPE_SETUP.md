@@ -120,20 +120,25 @@ https://<project>.supabase.co/functions/v1/stripe-webhook
 
 Eventos que a função processa:
 
-- `checkout.session.completed` — grava plan_code + stripe_subscription_id em profiles
-- `customer.subscription.updated` — refaz plan_code/status quando o usuário
-  troca de tier pelo portal (upgrade Plus → Pro, etc.)
-- `customer.subscription.deleted` — volta para Free + status 'canceled'
-- `invoice.paid` — reafirma status 'active'
-- `invoice.payment_failed` — marca status 'past_due'
+- `checkout.session.completed` — vincula `stripe_customer_id` e
+  `stripe_subscription_id` ao usuário em estado `pending`; não libera plano pago
+  ativo sozinho.
+- `invoice.paid` — promove o plano pago para `active` após resolver
+  subscription/customer/user e validar metadata ou price_id conhecido.
+- `invoice.payment_failed` — marca status `past_due` sem apagar dados de billing.
+- `customer.subscription.updated` — refaz plan_code/status a partir do estado
+  live da subscription; `active` pode manter/promover plano conhecido e
+  `trialing` fica como `pending`.
+- `customer.subscription.deleted` — volta para Free + status `canceled`.
 
 O webhook determina o `plan_code` em ordem de precedência:
 
-1. `session.metadata.resolved_plan` (gravado pela `create-checkout-session`)
-2. `session.metadata.requested_plan`
+1. `subscription.metadata.resolved_plan` (gravado pela `create-checkout-session`)
+2. `subscription.metadata.requested_plan`
 3. price*id dos items da subscription (map construído a partir dos envs
    `STRIPE_PRICE*\*`)
-4. fallback defensivo: `'pro'`
+
+Se o plano não puder ser resolvido, o webhook não promove entitlement pago.
 
 ### Event ordering
 

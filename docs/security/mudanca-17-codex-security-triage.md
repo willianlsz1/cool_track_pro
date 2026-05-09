@@ -72,7 +72,7 @@ Campos relevantes usados:
 | ------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | Client-only signature paywall permits free Storage use | provavel real                       | `src/core/signatureStorage.js`, `src/ui/views/registro.js`, `supabase/migrations/20260420130000_enforce_photo_plan_gate.sql` |
 | Users can self-modify billing profile fields           | provavel real                       | `supabase/migrations/20260411000001_security_subscription_usage.sql`, `supabase/functions/stripe-webhook/index.ts`           |
-| Stripe webhook grants Pro before payment is confirmed  | provavel real                       | `supabase/functions/stripe-webhook/index.ts`, `supabase/functions/create-checkout-session/index.ts`                          |
+| Stripe webhook grants Pro before payment is confirmed  | provavel real; tratado no CP-C      | `supabase/functions/stripe-webhook/index.ts`, `supabase/functions/create-checkout-session/index.ts`                          |
 | Frontend build can expose privileged Supabase key      | precisa de investigacao operacional | `src/core/supabase.js`, `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`                                              |
 
 ### Medium
@@ -259,8 +259,8 @@ plano se alterar nomes/contratos sem migracao controlada.
 
 Risco remanescente apos CP-B:
 
-- O estado de entitlement Stripe ainda pode ser promovido cedo demais em
-  `checkout.session.completed`; isso permanece para CP-C.
+- O estado de entitlement Stripe promovido cedo demais em
+  `checkout.session.completed` foi tratado no CP-C.
 - O modelo ainda mistura campos comuns e monetarios em `profiles`; o CP-B
   protege a escrita direta sem reestruturar a tabela.
 - Validacao pgTAP local nao foi executada nesta maquina por ausencia de Docker
@@ -275,49 +275,55 @@ Validacoes necessarias:
 
 ### H3 - Stripe webhook grants Pro before payment is confirmed
 
-Classificacao: provavel real.
+Classificacao: provavel real; tratado no CP-C.
 
-Evidencia no codigo:
+Evidencia antes do CP-C:
 
-- `supabase/functions/create-checkout-session/index.ts:151` cria Checkout em
-  modo `subscription`.
-- `supabase/functions/stripe-webhook/index.ts:404` processa
-  `checkout.session.completed`.
-- `supabase/functions/stripe-webhook/index.ts:451` grava `plan_code`.
-- `supabase/functions/stripe-webhook/index.ts:454` grava
+- `supabase/functions/create-checkout-session/index.ts` cria Checkout em modo
+  `subscription` e grava metadata de usuario/plano.
+- `supabase/functions/stripe-webhook/index.ts` processava
+  `checkout.session.completed` e gravava `plan_code`, `plan` e
   `subscription_status: 'active'`.
-- `supabase/functions/stripe-webhook/index.ts:546` tambem processa
-  `invoice.paid`, mas ali apenas marca status como ativo.
+- `invoice.paid` existia, mas apenas reafirmava `subscription_status: 'active'`
+  por `stripe_subscription_id`.
 
-Risco:
+Risco antes:
 
 Para metodos de pagamento assincronos ou falhos, `checkout.session.completed`
-pode ocorrer antes de pagamento confirmado. O app pode liberar plano pago antes
-do primeiro pagamento efetivo. O handler ja busca itens da subscription para
-resolver plano, mas nao usa essa etapa para exigir pagamento confirmado antes da
-promocao.
+pode ocorrer antes de pagamento confirmado. O app podia liberar plano pago antes
+do primeiro pagamento efetivo.
 
-Correcao segura sugerida:
+Mitigacao aplicada no CP-C:
 
-- Criar CP dedicado para webhook Stripe.
-- Em `checkout.session.completed`, salvar apenas IDs de customer/subscription e
-  estado pendente, salvo quando `session.payment_status` e estado da subscription
-  forem explicitamente confirmados.
-- Promover entitlement em `invoice.paid` ou em subscription refetch com status
-  confirmado e price conhecido.
-- Garantir idempotencia antes da mudanca funcional.
+- `checkout.session.completed` passou a vincular `stripe_customer_id` e
+  `stripe_subscription_id` em estado `pending`, sem gravar `plan` ou `plan_code`.
+- `checkout.session.completed` nao rebaixa um perfil que ja esteja `active`,
+  evitando sobrescrita por evento atrasado.
+- `invoice.paid` passou a buscar a subscription, resolver o usuario por metadata
+  ou por `stripe_subscription_id`, validar metadata/price_id conhecido e so entao
+  promover `plan`, `plan_code` e `subscription_status: 'active'`.
+- Price desconhecido ou metadata insuficiente falha fechado e nao promove
+  entitlement pago.
+- `invoice.payment_failed` marca `past_due` e tambem tenta resolver usuario pela
+  metadata da subscription quando possivel.
+- `customer.subscription.updated` continua usando refetch da subscription live;
+  `active` pode refletir entitlement confirmado com plano conhecido e `trialing`
+  passou a ficar `pending`.
+- Idempotencia existente em `stripe_webhook_events` foi preservada.
 
-Risco da correcao:
+Risco remanescente:
 
-Alto. Pode bloquear conversoes legitimas, downgrades/upgrades e reativacoes se
-os eventos Stripe forem tratados fora de ordem.
+- Nao foi criado teste de integracao Deno com assinatura real do Stripe; a regra
+  de entitlement foi coberta por testes unitarios focados e a validacao de
+  idempotencia permanece em testes SQL existentes.
+- `customer.subscription.updated` com status live `active` ainda e aceito como
+  sinal Stripe valido para refletir plano conhecido; o caminho primario de
+  promocao apos pagamento agora e `invoice.paid`.
 
-Validacoes necessarias:
+Validacoes do CP-C:
 
-- Testes unitarios/integrais do webhook para:
-  `checkout.session.completed` pendente, `invoice.paid`, `invoice.payment_failed`,
-  `customer.subscription.updated` e `customer.subscription.deleted`.
-- Teste de price mensal/anual resolvido.
+- Teste focado `src/__tests__/stripeWebhookEntitlement.test.js`.
+- Testes focados existentes de monetizacao/plans/webhook.
 - `npm run format`, `npm run build`, `npm run check`.
 
 ### H4 - Frontend build can expose privileged Supabase key
@@ -465,19 +471,25 @@ Resultado:
 
 ### CP-C - Corrigir entitlement Stripe apos pagamento confirmado
 
+Status: executado neste CP.
+
 Escopo:
 
-- Ajustar webhook para nao liberar plano pago antes de pagamento confirmado.
-- Preservar idempotencia e ordem de eventos.
-- Cobrir eventos `checkout.session.completed`, `invoice.paid`,
-  `invoice.payment_failed`, `customer.subscription.updated` e deleted.
+- Webhook ajustado para nao liberar plano pago em
+  `checkout.session.completed`.
+- Promocao paga movida para `invoice.paid` com subscription refetch, usuario
+  resolvido e plano validado por metadata/price_id conhecido.
+- `invoice.payment_failed`, `customer.subscription.updated` e
+  `customer.subscription.deleted` revisados para manter estado seguro.
+- Idempotencia existente preservada.
 
-Arquivos provaveis:
+Arquivos alterados:
 
 - `supabase/functions/stripe-webhook/index.ts`
-- `supabase/functions/stripe-webhook/idempotency.ts`
-- `supabase/functions/create-checkout-session/index.ts`
-- testes do webhook, se existentes ou criados no CP.
+- `supabase/functions/stripe-webhook/entitlement.ts`
+- `src/__tests__/stripeWebhookEntitlement.test.js`
+- `supabase/functions/STRIPE_SETUP.md`
+- `docs/security/mudanca-17-codex-security-triage.md`
 
 Validacoes:
 
@@ -485,6 +497,14 @@ Validacoes:
 - `npm run format`
 - `npm run build`
 - `npm run check`
+
+Resultado:
+
+- `checkout.session.completed` sozinho nao libera plano pago ativo.
+- `invoice.paid` e o caminho principal de promocao segura.
+- Price_id desconhecido falha fechado.
+- Eventos duplicados continuam protegidos pela camada de idempotencia existente.
+- Proximo CP recomendado passa a ser CP-D.
 
 ### CP-D - Hardening da chave Supabase no frontend
 
@@ -667,13 +687,14 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-B: CP-C - Corrigir entitlement Stripe apos
-pagamento confirmado.
+Proximo CP recomendado apos CP-C: CP-D - Hardening da chave Supabase no
+frontend.
 
 Justificativa:
 
 - CP-B reduziu a manipulacao direta de billing/quota.
-- O proximo risco high na cadeia de monetizacao e a promocao de plano em
-  `checkout.session.completed` antes de confirmacao inequivoca de pagamento.
-- CP-C deve tratar apenas webhook/entitlement Stripe, sem misturar env frontend,
-  PDF/share, Vite warnings ou gates de assinatura.
+- CP-C corrigiu a promocao antecipada de entitlement Stripe.
+- O proximo risco high documentado e a possibilidade de exposicao/uso incorreto
+  de chave Supabase privilegiada no bundle frontend.
+- CP-D deve tratar apenas contrato de env Supabase frontend, sem misturar
+  PDF/share, Vite warnings genericos, assinatura digital ou React Doctor.

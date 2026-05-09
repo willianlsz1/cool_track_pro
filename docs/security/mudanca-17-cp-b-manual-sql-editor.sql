@@ -9,8 +9,6 @@
 --   - RPC increment_monthly_usage continua sendo o caminho permitido.
 -- ============================================================
 
-\echo '1..1'
-
 begin;
 
 do $$
@@ -185,4 +183,4 @@ end $$;
 
 rollback;
 
-\echo 'ok 1 - billing profile + usage_monthly hardening'
+select 'ok - billing profile + usage_monthly hardening' as result;

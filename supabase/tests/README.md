@@ -31,6 +31,10 @@ Uma dessas opções:
 
 ## Como rodar
 
+Os arquivos `supabase/tests/*.test.sql` sao a versao oficial para
+`supabase test db` / `pg_prove`. Eles podem usar metacomandos do `psql`, como
+`\echo`, para emitir plano e resultado TAP.
+
 ```bash
 # Suite completa (recomendado em pre-release)
 for f in supabase/tests/*.test.sql; do
@@ -42,6 +46,19 @@ echo "All passed."
 
 Cada arquivo usa `RAISE EXCEPTION` quando uma asserção falha. Saída `0`
 significa sucesso, qualquer outro código indica falha.
+
+### Supabase SQL Editor
+
+O SQL Editor do Supabase nao aceita metacomandos `psql`, incluindo `\echo`.
+Arquivos manuais para SQL Editor devem ficar fora de `supabase/tests/` e usar
+`select 'ok - ...' as result;` no final.
+
+O teste `09_billing_profile_usage_hardening.test.sql` possui duas versoes:
+
+- `supabase/tests/09_billing_profile_usage_hardening.test.sql` — versao oficial
+  TAP para `supabase test db` / `pg_prove`.
+- `docs/security/mudanca-17-cp-b-manual-sql-editor.sql` — versao manual para
+  Supabase SQL Editor, sem `\echo`.
 
 ## Padrão de teste
 

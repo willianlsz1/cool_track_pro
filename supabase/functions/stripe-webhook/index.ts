@@ -1,6 +1,13 @@
 // @ts-nocheck
 import Stripe from 'https://esm.sh/stripe@14?target=denonext';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import {
+  buildCheckoutPendingPatch,
+  buildInvoicePaidEntitlementPatch,
+  resolveInvoicePaidTarget,
+  resolvePlanFromEvent,
+  shouldKeepActiveStatusOnCheckout,
+} from './entitlement.ts';
 import { isClaimStuck, STUCK_THRESHOLD_MS } from './idempotency.ts';
 
 function getRequiredEnv(name: string) {
@@ -33,18 +40,6 @@ function logWebhook(eventType: string, payload: Record<string, unknown>) {
 // 'free' | 'plus' | 'pro'. As variantes mensal/anual vivem só no Stripe —
 // aqui a gente colapsa pra base.
 
-const PLAN_VARIANTS: Record<string, 'plus' | 'pro'> = {
-  plus: 'plus',
-  plus_annual: 'plus',
-  pro: 'pro',
-  pro_annual: 'pro',
-};
-
-function normalizeMetadataPlan(raw: unknown): 'plus' | 'pro' | null {
-  const lower = String(raw || '').toLowerCase();
-  return PLAN_VARIANTS[lower] ?? null;
-}
-
 /**
  * Monta um mapa "price_id do Stripe → plano canônico".
  * Usa as mesmas envs que o create-checkout-session lê para emitir os checkouts.
@@ -62,32 +57,6 @@ function buildPriceIdMap(): Map<string, 'plus' | 'pro'> {
   if (plusAnnual) map.set(plusAnnual, 'plus');
 
   return map;
-}
-
-/**
- * Tenta extrair o plano canônico dos metadados (preferido) ou, em fallback,
- * dos price IDs presentes nos items da subscription. Retorna null se não der
- * pra determinar — aí o chamador decide se mantém o plano atual ou usa default.
- */
-function resolvePlanFromEvent(params: {
-  metadata: Stripe.Metadata | null | undefined;
-  subscriptionItems?: Stripe.SubscriptionItem[] | null;
-  priceIdMap: Map<string, 'plus' | 'pro'>;
-}): 'plus' | 'pro' | null {
-  const fromMeta =
-    normalizeMetadataPlan(params.metadata?.resolved_plan) ??
-    normalizeMetadataPlan(params.metadata?.requested_plan);
-  if (fromMeta) return fromMeta;
-
-  // Fallback: inspeciona os items da subscription para achar um price conhecido.
-  for (const item of params.subscriptionItems ?? []) {
-    const priceId = item?.price?.id;
-    if (priceId && params.priceIdMap.has(priceId)) {
-      return params.priceIdMap.get(priceId) ?? null;
-    }
-  }
-
-  return null;
 }
 
 async function updateProfileByUserId(
@@ -117,6 +86,20 @@ async function updateProfileByUserId(
   }
 
   return result;
+}
+
+async function getProfileSubscriptionStatusByUserId(supabase: any, userId: string) {
+  const result = await supabase
+    .from('profiles')
+    .select('id,subscription_status')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (result.error) {
+    throw new Error(`PROFILE_LOOKUP_FAILED:${userId}:${result.error.message}`);
+  }
+
+  return result.data?.subscription_status ?? null;
 }
 
 async function updateProfileBySubscriptionId(
@@ -425,37 +408,24 @@ Deno.serve(async (req) => {
           break;
         }
 
-        // Se o metadata não for conclusivo, busca a subscription para ler o price_id.
-        let subscriptionItems: Stripe.SubscriptionItem[] | null = null;
-        if (subscriptionId) {
-          try {
-            const sub = await stripe.subscriptions.retrieve(subscriptionId);
-            subscriptionItems = sub.items?.data ?? null;
-          } catch (err) {
-            logWebhook('subscription_fetch_failed', {
-              subscriptionId,
-              error: err instanceof Error ? err.message : String(err),
-            });
-          }
+        const currentStatus = await getProfileSubscriptionStatusByUserId(supabase, userId);
+        if (shouldKeepActiveStatusOnCheckout(currentStatus)) {
+          logWebhook(event.type, {
+            userId,
+            skipped: true,
+            reason: 'profile_already_active',
+          });
+          break;
         }
 
-        const resolvedPlan = resolvePlanFromEvent({
-          metadata: session.metadata,
-          subscriptionItems,
-          priceIdMap,
-        });
-        if (!resolvedPlan) {
-          throw new Error(`UNRESOLVED_CHECKOUT_PLAN:${session.id}`);
-        }
-
-        await updateProfileByUserId(supabase, userId, {
-          plan_code: resolvedPlan,
-          plan: resolvedPlan,
-          subscription_status: 'active',
-          billing_provider: 'stripe',
-          stripe_customer_id: customerId,
-          stripe_subscription_id: subscriptionId,
-        });
+        await updateProfileByUserId(
+          supabase,
+          userId,
+          buildCheckoutPendingPatch({
+            customerId,
+            subscriptionId,
+          }),
+        );
 
         break;
       }
@@ -511,8 +481,10 @@ Deno.serve(async (req) => {
 
         // Mapeia status do Stripe → status usado no app (subscription_status).
         let appStatus: string;
-        if (status === 'active' || status === 'trialing') {
+        if (status === 'active') {
           appStatus = 'active';
+        } else if (status === 'trialing') {
+          appStatus = 'pending';
         } else if (status === 'past_due' || status === 'unpaid') {
           appStatus = 'past_due';
         } else if (status === 'canceled' || status === 'incomplete_expired') {
@@ -556,9 +528,28 @@ Deno.serve(async (req) => {
 
         if (!subscriptionId) break;
 
-        await updateProfileBySubscriptionId(supabase, subscriptionId, {
-          subscription_status: 'active',
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const target = resolveInvoicePaidTarget({
+          subscriptionId,
+          subscriptionMetadata: subscription.metadata,
         });
+        if (target.kind === 'user_id') {
+          ledgerMeta.user_id = target.value;
+        }
+
+        const patch = buildInvoicePaidEntitlementPatch({
+          metadata: subscription.metadata,
+          subscriptionItems: subscription.items?.data ?? null,
+          priceIdMap,
+          customerId,
+          subscriptionId,
+        });
+
+        if (target.kind === 'user_id') {
+          await updateProfileByUserId(supabase, target.value, patch);
+        } else {
+          await updateProfileBySubscriptionId(supabase, target.value, patch);
+        }
 
         break;
       }
@@ -576,9 +567,32 @@ Deno.serve(async (req) => {
 
         if (!subscriptionId) break;
 
-        await updateProfileBySubscriptionId(supabase, subscriptionId, {
-          subscription_status: 'past_due',
-        });
+        let target: { kind: 'user_id' | 'subscription_id'; value: string } = {
+          kind: 'subscription_id',
+          value: subscriptionId,
+        };
+        try {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          target = resolveInvoicePaidTarget({
+            subscriptionId,
+            subscriptionMetadata: subscription.metadata,
+          });
+          if (target.kind === 'user_id') {
+            ledgerMeta.user_id = target.value;
+          }
+        } catch (err) {
+          logWebhook('subscription_fetch_failed', {
+            subscriptionId,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+
+        const patch = { subscription_status: 'past_due' };
+        if (target.kind === 'user_id') {
+          await updateProfileByUserId(supabase, target.value, patch);
+        } else {
+          await updateProfileBySubscriptionId(supabase, target.value, patch);
+        }
 
         break;
       }
