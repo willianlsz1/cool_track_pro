@@ -1412,6 +1412,80 @@ export function renderHist() {
 // Handlers (re-attach em cada render)
 // ──────────────────────────────────────────────────────────────────────
 
+function closeHistoricoCardMenus(container) {
+  container.querySelectorAll('.hist-item-actions__menu').forEach((menu) => {
+    menu.hidden = true;
+  });
+  container.querySelectorAll('[data-hist-action="toggle-card-menu"]').forEach((toggle) => {
+    toggle.setAttribute('aria-expanded', 'false');
+  });
+}
+
+function toggleHistoricoCardMenu(container, toggle) {
+  const menu = toggle.parentElement?.querySelector('.hist-item-actions__menu');
+  const isOpen = menu && !menu.hidden;
+  closeHistoricoCardMenus(container);
+  if (!isOpen && menu) {
+    menu.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function handleHistoricoCardMenuClick(container, event) {
+  const toggle = event.target.closest('[data-hist-action="toggle-card-menu"]');
+  if (toggle) {
+    event.preventDefault();
+    toggleHistoricoCardMenu(container, toggle);
+    return;
+  }
+  if (!event.target.closest('.hist-item-actions__menu')) {
+    closeHistoricoCardMenus(container);
+  }
+}
+
+function handleHistoricoCardMenuKeydown(container, event) {
+  if (event.key !== 'Escape') return;
+  const open = container.querySelector('.hist-item-actions__menu:not([hidden])');
+  if (!open) return;
+  open.hidden = true;
+  const toggle = open.parentElement?.querySelector('[data-hist-action="toggle-card-menu"]');
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.focus();
+  }
+}
+
+function bindHistoricoCardMenuDelegation(container) {
+  if (container.dataset.histBound) return;
+  container.dataset.histBound = '1';
+  container.addEventListener('click', (event) => {
+    handleHistoricoCardMenuClick(container, event);
+  });
+  container.addEventListener('keydown', (event) => {
+    handleHistoricoCardMenuKeydown(container, event);
+  });
+}
+
+function bindHistoricoCardLocalActions({ each, registros, equipamentos }) {
+  each('[data-hist-action="hist-open-photo"]', (btn) =>
+    btn.addEventListener('click', () => {
+      const url = btn.dataset.photoUrl;
+      if (url) Photos.openLightbox(url);
+    }),
+  );
+
+  each('[data-hist-action="hist-view-signature"]', (btn) =>
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      if (!id) return;
+      const registro = registros.find((r) => r.id === id);
+      if (!registro) return;
+      const eq = equipamentos.find((e) => e.id === registro.equipId);
+      SignatureViewerModal.open(registro, { equipNome: eq?.nome || '—' });
+    }),
+  );
+}
+
 function attachFilterHandlers(container) {
   // Toggle do card de Insights (collapsed/expanded). Persiste a escolha em
   // sessionStorage para a sessão. Re-renderiza pra trocar o estado visual.
@@ -1479,50 +1553,7 @@ function attachFilterHandlers(container) {
   // Gate dataset.histBound: container (#timeline) persiste entre renders;
   // sem o gate, addEventListener seria chamado N vezes apos N renders e
   // geraria cascata de cliques (=> congelamento ao clicar em algo).
-  if (!container.dataset.histBound) {
-    container.dataset.histBound = '1';
-    container.addEventListener('click', (e) => {
-      const kebab = e.target.closest('[data-hist-action="toggle-card-menu"]');
-      if (kebab) {
-        e.preventDefault();
-        const menu = kebab.parentElement?.querySelector('.hist-item-actions__menu');
-        const isOpen = menu && !menu.hidden;
-        container.querySelectorAll('.hist-item-actions__menu').forEach((m) => {
-          m.hidden = true;
-        });
-        container.querySelectorAll('[data-hist-action="toggle-card-menu"]').forEach((k) => {
-          k.setAttribute('aria-expanded', 'false');
-        });
-        if (!isOpen && menu) {
-          menu.hidden = false;
-          kebab.setAttribute('aria-expanded', 'true');
-        }
-        return;
-      }
-      if (!e.target.closest('.hist-item-actions__menu')) {
-        container.querySelectorAll('.hist-item-actions__menu').forEach((m) => {
-          m.hidden = true;
-        });
-        container.querySelectorAll('[data-hist-action="toggle-card-menu"]').forEach((k) => {
-          k.setAttribute('aria-expanded', 'false');
-        });
-      }
-    });
-
-    container.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const open = container.querySelector('.hist-item-actions__menu:not([hidden])');
-        if (open) {
-          open.hidden = true;
-          const kebab = open.parentElement?.querySelector('[data-hist-action="toggle-card-menu"]');
-          if (kebab) {
-            kebab.setAttribute('aria-expanded', 'false');
-            kebab.focus();
-          }
-        }
-      }
-    });
-  }
+  bindHistoricoCardMenuDelegation(container);
 
   // Handler do botao Filtros — mesmo gate (filtersTrigger persiste no DOM).
   if (filtersTrigger && !filtersTrigger.dataset.histBound) {
@@ -1702,23 +1733,7 @@ function attachFilterHandlers(container) {
     }),
   );
 
-  each('[data-hist-action="hist-open-photo"]', (btn) =>
-    btn.addEventListener('click', () => {
-      const url = btn.dataset.photoUrl;
-      if (url) Photos.openLightbox(url);
-    }),
-  );
-
-  each('[data-hist-action="hist-view-signature"]', (btn) =>
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      if (!id) return;
-      const registro = registros.find((r) => r.id === id);
-      if (!registro) return;
-      const eq = equipamentos.find((e) => e.id === registro.equipId);
-      SignatureViewerModal.open(registro, { equipNome: eq?.nome || '—' });
-    }),
-  );
+  bindHistoricoCardLocalActions({ each, registros, equipamentos });
 }
 
 // ──────────────────────────────────────────────────────────────────────

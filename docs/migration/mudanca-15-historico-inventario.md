@@ -319,3 +319,55 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-E - pre-split card actions**.
 
 Justificativa: apos mover os helpers puros de render/VM, o maior acoplamento restante com risco direto ao usuario esta em actions por card e delegation no adapter. O contrato CP-B ja protege os atributos publicos, entao o proximo corte seguro e separar localmente essa responsabilidade sem mover handlers globais.
+
+## 15. CP-E - Pre-split card actions
+
+- CP-E aplicado.
+- Card actions permaneceram em `src/ui/views/historico.js`.
+- `deleteReg`, `renderHist`, `setHistClienteFilter` e `clearHistClienteFilter` permaneceram no adapter.
+- Nenhum React page, handler global, viewModel, Registro, Relatorio/PDF, WhatsApp/share, Equipamentos, CSS ou schema foi alterado.
+- Nenhuma mudanca funcional intencional.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1758 -> 1773, delta +15.
+
+| Ordem | Bloco card actions                  | Responsabilidade                                                                  | Dependencias                                             | Side effects                                       | Helper local                      |
+| ----: | ----------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------- | --------------------------------- |
+|     1 | Evento click/keydown no `#timeline` | Delegar menu kebab dos cards com gate `dataset.histBound`                         | DOM do card, `data-hist-action="toggle-card-menu"`       | Abre/fecha menu e altera `aria-expanded`           | `bindHistoricoCardMenuDelegation` |
+|     2 | Fechar menus                        | Centralizar fechamento dos menus de card                                          | `.hist-item-actions__menu`, toggles                      | Muta `hidden` e `aria-expanded`                    | `closeHistoricoCardMenus`         |
+|     3 | Toggle menu                         | Alternar o menu do card clicado e fechar os demais                                | Toggle, menu pai                                         | Muta DOM visual do menu                            | `toggleHistoricoCardMenu`         |
+|     4 | Click de menu                       | Resolver target do click e tratar click fora do menu                              | `event.target.closest`                                   | `preventDefault` no toggle e fechamento de menus   | `handleHistoricoCardMenuClick`    |
+|     5 | Escape                              | Fechar menu aberto e devolver foco ao toggle                                      | `keydown`, menu aberto                                   | Muta DOM e foco                                    | `handleHistoricoCardMenuKeydown`  |
+|     6 | Foto/assinatura locais              | Isolar actions locais `hist-open-photo` e `hist-view-signature`                   | `Photos`, `SignatureViewerModal`, registros/equipamentos | Abre lightbox/viewer                               | `bindHistoricoCardLocalActions`   |
+|     7 | Actions globais                     | Preservar `edit-reg`, `delete-reg`, `export-pdf`, `whatsapp-export` por atributos | Handlers globais, `data-id`, `data-registro-id`          | Navegacao, delete, PDF/WhatsApp fora deste adapter | Nao alterado                      |
+
+Helpers locais criados/ajustados:
+
+| Helper                            | Responsabilidade                                                 | Observacao                                           |
+| --------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------- |
+| `closeHistoricoCardMenus`         | Fecha todos os menus de card e reseta `aria-expanded`            | Extrai duplicacao do click fora/toggle               |
+| `toggleHistoricoCardMenu`         | Alterna o menu do card clicado preservando fechamento dos demais | Mantem ordem visual existente                        |
+| `handleHistoricoCardMenuClick`    | Resolve click no toggle ou fora do menu                          | Mantem `preventDefault` apenas no toggle             |
+| `handleHistoricoCardMenuKeydown`  | Trata `Escape` no menu aberto                                    | Preserva foco de retorno no toggle                   |
+| `bindHistoricoCardMenuDelegation` | Registra listeners delegados no container uma unica vez          | Preserva gate `dataset.histBound`                    |
+| `bindHistoricoCardLocalActions`   | Agrupa actions locais de foto e assinatura                       | Nao toca actions globais de edit/delete/PDF/WhatsApp |
+
+Contratos preservados:
+
+- `edit-reg`, `delete-reg`, `export-pdf`, `whatsapp-export`, `data-id`, `data-registro-id` e `data-hist-action`.
+- `deleteReg`, `renderHist`, `setHistClienteFilter` e `clearHistClienteFilter`.
+- Vinculo com Registro, Relatorio/PDF e WhatsApp/share via handlers globais.
+- Contrato CP-B de card actions.
+
+Validacao inicial do CP-E:
+
+- `npm run test -- src/__tests__/historicoCardActions.contract.test.js --reporter=dot`: passou, 1 arquivo / 3 testes.
+
+Lacunas remanescentes:
+
+- `historico.js` segue acima de 1000 LOC e ainda concentra filtros DOM, bridges React, delete e side effects.
+- Actions globais continuam acopladas por atributos DOM e handlers externos; este CP apenas separou a delegacao local.
+- Fluxos completos Historico -> Registro e Historico -> PDF/WhatsApp ainda merecem mapeamento dedicado antes de mover responsabilidades.
+
+Proximo CP recomendado: **CP-F - mover helpers seguros de card actions**.
+
+Justificativa: os helpers locais criados no CP-E separam responsabilidades sem mudar comportamento. O proximo corte seguro e classificar quais desses helpers sao apenas DOM/menu local e podem sair para modulo scoped, mantendo `deleteReg` e handlers globais no adapter.
