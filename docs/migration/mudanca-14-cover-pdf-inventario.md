@@ -387,3 +387,46 @@ Validação registrada:
 Próximo CP recomendado: **CP-H - stability checkpoint e encerrar Mudança 14**.
 
 Justificativa: a capa já tem inventário, contrato próprio, pre-split, extração de helpers puros, mapeamento do acoplamento checklist, contrato de cursor e adapter local. O próximo passo de menor risco é consolidar validações e registrar riscos remanescentes antes de decidir uma nova mudança técnica.
+
+## 17. CP-H - Stability checkpoint e encerramento
+
+- Status: aplicado.
+- Documento criado: `docs/migration/mudanca-14-stability-checkpoint.md`.
+- Arquivos de produção alterados: nenhum.
+- Testes alterados: nenhum.
+- Estado final consolidado:
+  - `drawCover` permaneceu em `src/domain/pdf/sections/cover.js`.
+  - Helpers puros permaneceram em `src/domain/pdf/sections/coverHelpers.js`.
+  - Adapter local cover -> checklist permaneceu em `cover.js`.
+  - `drawChecklist` permaneceu em `src/domain/pdf/sections/checklist.js`.
+  - `PDFGenerator`, `domain/pdf.js`, `reportExportHandlers`, Registro, Equipamentos, CSS, schema e package permaneceram inalterados.
+- LOC atuais:
+  - `src/domain/pdf/sections/cover.js`: 581.
+  - `src/domain/pdf/sections/coverHelpers.js`: 199.
+  - `src/domain/pdf/sections/checklist.js`: 191.
+  - `src/domain/pdf/sections/checklistHelpers.js`: 38.
+  - `src/domain/pdf.js`: 208.
+- Riscos remanescentes:
+  - render visual sem teste pixel-perfect;
+  - `autoTable`/`doc.lastAutoTable`;
+  - paginação/cursor;
+  - acoplamento cover -> checklist ainda existente via adapter local;
+  - ficha técnica e pendências sensíveis a layout;
+  - PMOC/checklist dentro da capa;
+  - fallbacks cobertos por contrato, mas dependentes de payload real.
+
+Validação registrada:
+
+- `npm run test -- src/__tests__/pdfCover.contract.test.js src/__tests__/pdfCover.helpers.test.js src/__tests__/pdfCoverChecklistCursor.contract.test.js --reporter=dot`: passou, 3 arquivos / 16 testes.
+- `npm run test -- src/__tests__/pdfGenerator.mediaChecklist.contract.test.js src/__tests__/pdfGenerator.registroId.test.js src/__tests__/pdfGenerator.helpers.test.js src/__tests__/registroChecklistPmoc.contract.test.js src/__tests__/pmocReport.test.js src/__tests__/pdfSanitizers.test.js src/__tests__/reportExportContracts.test.js src/__tests__/pdfChecklist.helpers.test.js --reporter=dot`: passou, 8 arquivos / 32 testes.
+- `npm run test -- src/__tests__ --reporter=dot`: passou.
+- `npm run format`: passou.
+- `npm run check`: passou com 30 warnings de lint baseline e warnings Vite/dynamic import/chunk baseline.
+- `npm run size`: não executável no ambiente; `size-limit` não reconhecido.
+- `npx playwright test -c e2e/playwright.config.js --reporter=list`: passou, 15 testes / 9 skipped.
+
+Decisão final: **Encerrar Mudança 14**.
+
+Próxima mudança técnica recomendada: **Mudança 15 - Histórico**.
+
+Justificativa: a Cover PDF atingiu o objetivo da Mudança 14 com inventário, contratos, pre-split, helpers puros, mapeamento cover -> checklist, contrato de cursor e adapter local. O próximo ganho técnico maior está fora da capa, no fluxo de Histórico.
