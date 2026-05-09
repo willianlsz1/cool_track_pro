@@ -180,3 +180,26 @@ Lacunas criticas antes de pre-split:
 Recomendado: **CP-B - contratos adicionais relatorio/PDF**.
 
 Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `reportExportHandlers.js` concentra os riscos mais altos e ainda nao ha contrato dedicado suficiente para separar budget PDF, budget WhatsApp, preview opt-in, fallback de share/upload e paridade de filtros PDF/WhatsApp em uma matriz unica. Fortalecer contratos antes do pre-split reduz o risco de regressao em quota, `registroId`, download/share e consumo de assinatura/fotos/checklist.
+
+## 12. CP-B - Contratos adicionais Relatorio/PDF
+
+- Status: aplicado.
+- Teste criado: `src/__tests__/reportExportContracts.test.js`.
+- Cobertura adicionada:
+  - actions publicas `data-action="export-pdf"` e `data-action="whatsapp-export"`;
+  - `data-registro-id` como fonte de filtro por registro;
+  - paridade entre `filterRegistrosForReport` e `WhatsAppExport.generateText` para `filters.registroId`;
+  - prioridade de `filters.registroId` sobre filtros amplos de equipamento/periodo;
+  - `exportPdfFlow` mantendo quota/gating com recurso `pdf_export`;
+  - `shareWhatsAppFlow` mantendo quota/gating com recurso `whatsapp_share`;
+  - `shareReportPdf` recebendo `metadata.userId` e `metadata.registroId`;
+  - fallback share/upload documentado por contrato estatico em `shareReport.js` e `shareReport.test.js`;
+  - consumo PDF de `registro.fotos`, `registro.assinatura` e `registro.checklist.tipo_template/items`;
+  - acoplamento conhecido `domain/pdf.js` -> `ui/components/signature.js` registrado como baseline de risco.
+- Lacunas remanescentes:
+  - validacao visual completa do PDF sem snapshot gigante;
+  - integracao real Web Share/Supabase/browser;
+  - cobertura de todos os caminhos de erro de preview/PMOC;
+  - desacoplamento arquitetural de `domain/pdf.js` e `domain/pdf/shareReport.js` ainda pendente.
+- Nenhum comportamento foi alterado; CP-B ficou restrito a teste e inventario.
+- Proximo CP recomendado: **CP-C - pre-split reportExportHandlers**.
