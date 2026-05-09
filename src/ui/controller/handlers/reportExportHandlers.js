@@ -318,57 +318,84 @@ function _isPreviewEnabled() {
   }
 }
 
-async function executePdfExport(filters) {
-  const budget = await ensureReportBudget({
+function resolvePdfExportBudget() {
+  return ensureReportBudget({
     attemptedEvent: 'pdf_export_attempted',
     blockedEvent: 'pdf_export_blocked',
   });
+}
+
+async function generateReportPdfBlob(filters, planCode) {
+  const { PDFGenerator } = await import('../../../domain/pdf.js');
+  return PDFGenerator.generateMaintenanceReport({ ...filters, asBlob: true }, { planCode });
+}
+
+async function confirmPdfExportPreview({ blob, fileName, planCode }) {
+  if (!_isPreviewEnabled()) return true;
+
+  const decision = await showPdfPreview({
+    blob,
+    fileName,
+    primaryLabel: 'Baixar PDF',
+    subtitle: 'Confira antes de baixar',
+  });
+  if (decision !== 'confirm') {
+    trackEvent('pdf_export_cancelled', { plan: planCode, stage: 'preview' });
+    return false;
+  }
+  return true;
+}
+
+function showPdfExportSuccess({ pdfLimit, newUsedCount, fileName }) {
+  PdfSuccessToast.show(
+    Number.isFinite(pdfLimit) ? { used: newUsedCount, limit: pdfLimit, fileName } : { fileName },
+  );
+  PdfQuotaBadge.refresh();
+}
+
+function markReportPdfOnboardingStep() {
+  try {
+    OnboardingChecklist.markStep('pdf');
+  } catch (_) {
+    /* nunca quebra o flow */
+  }
+}
+
+async function executePdfExport(filters) {
+  const budget = await resolvePdfExportBudget();
   if (!budget.ok) return false;
 
   const { planCode, pdfLimit } = budget;
 
   // SEM confirmacao inicial — clicar no botao Baixar PDF JA significa intencao.
   // Se preview opt-in estiver ligado, mostra preview antes do download.
-  const { PDFGenerator } = await import('../../../domain/pdf.js');
-  const result = await PDFGenerator.generateMaintenanceReport(
-    { ...filters, asBlob: true },
-    { planCode },
-  );
+  const result = await generateReportPdfBlob(filters, planCode);
   if (!result || !result.blob) {
     Toast.error('Erro ao gerar PDF.');
     return false;
   }
 
   // Preview opt-in (default OFF): se ligado, mostra preview antes de baixar.
-  if (_isPreviewEnabled()) {
-    const decision = await showPdfPreview({
-      blob: result.blob,
-      fileName: result.fileName,
-      primaryLabel: 'Baixar PDF',
-      subtitle: 'Confira antes de baixar',
-    });
-    if (decision !== 'confirm') {
-      trackEvent('pdf_export_cancelled', { plan: planCode, stage: 'preview' });
-      return false;
-    }
+  const previewConfirmed = await confirmPdfExportPreview({
+    blob: result.blob,
+    fileName: result.fileName,
+    planCode,
+  });
+  if (!previewConfirmed) {
+    return false;
   }
 
   // Dispara o download e commita o uso.
   triggerBlobDownload(result.blob, result.fileName);
   const newUsedCount = await budget.commit();
 
-  PdfSuccessToast.show(
-    Number.isFinite(pdfLimit)
-      ? { used: newUsedCount, limit: pdfLimit, fileName: result.fileName }
-      : { fileName: result.fileName },
-  );
-  PdfQuotaBadge.refresh();
+  showPdfExportSuccess({
+    pdfLimit,
+    newUsedCount,
+    fileName: result.fileName,
+  });
   // Onboarding: marca passo "PDF gerado" — caminho do relatório (Baixar PDF).
-  try {
-    OnboardingChecklist.markStep('pdf');
-  } catch (_) {
-    /* nunca quebra o flow */
-  }
+  markReportPdfOnboardingStep();
   return true;
 }
 
@@ -401,7 +428,13 @@ function bindWhatsAppExport() {
   });
 }
 
-async function executeWhatsAppShare(filters) {
+function buildWhatsAppLimitMessage(planCode, whatsappLimit) {
+  return planCode === 'plus'
+    ? `Você atingiu ${whatsappLimit} compartilhamentos este mês no Plus. O Pro tem envios ilimitados.`
+    : `Você atingiu ${whatsappLimit} compartilhamentos este mês. Faça upgrade para Plus ou Pro.`;
+}
+
+async function resolveWhatsAppShareBudget() {
   const user = await Auth.getUser();
   trackEvent('whatsapp_share_attempted', {});
 
@@ -424,14 +457,78 @@ async function executeWhatsAppShare(filters) {
     })
   ) {
     trackEvent('whatsapp_share_blocked', { reason: 'limit_reached', plan: planCode });
-    const upgradeMessage =
-      planCode === 'plus'
-        ? `Você atingiu ${whatsappLimit} compartilhamentos este mês no Plus. O Pro tem envios ilimitados.`
-        : `Você atingiu ${whatsappLimit} compartilhamentos este mês. Faça upgrade para Plus ou Pro.`;
-    Toast.warning(upgradeMessage);
+    Toast.warning(buildWhatsAppLimitMessage(planCode, whatsappLimit));
     goTo('pricing');
     return false;
   }
+
+  return {
+    ok: true,
+    user,
+    planCode,
+    whatsappUsed,
+    whatsappLimit,
+  };
+}
+
+async function confirmWhatsAppSharePreview({ pdfResult, whatsappLimit, whatsappUsed, planCode }) {
+  if (!_isPreviewEnabled()) return true;
+
+  const wasSubtitle = Number.isFinite(whatsappLimit)
+    ? `Restam ${Math.max(0, whatsappLimit - whatsappUsed)} de ${whatsappLimit} envios este mês · confira antes de enviar`
+    : 'Confira antes de compartilhar';
+  const previewDecision = await showPdfPreview({
+    blob: pdfResult.blob,
+    fileName: pdfResult.fileName,
+    primaryLabel: 'Enviar via WhatsApp',
+    subtitle: wasSubtitle,
+  });
+  if (previewDecision !== 'confirm') {
+    trackEvent('whatsapp_share_cancelled', { plan: planCode, stage: 'preview' });
+    return false;
+  }
+  return true;
+}
+
+async function shareReportPdfWithWhatsApp({ pdfResult, prefixText, user, filters }) {
+  const { shareReportPdf } = await import('../../../domain/pdf/shareReport.js');
+  return shareReportPdf({
+    pdfBlob: pdfResult.blob,
+    fileName: pdfResult.fileName,
+    whatsappText: prefixText,
+    metadata: { userId: user.id, registroId: filters?.registroId || null },
+  });
+}
+
+async function commitWhatsAppShareUsage({ user, whatsappLimit, whatsappUsed }) {
+  if (!Number.isFinite(whatsappLimit)) return whatsappUsed;
+  return incrementMonthlyUsage(user.id, USAGE_RESOURCE_WHATSAPP_SHARE);
+}
+
+function buildWhatsAppSuccessCopy(channel) {
+  // Copy diferente por canal — web-share foi disparado com o arquivo real,
+  // wa-link abre WhatsApp com link público, download é o fallback offline.
+  if (channel === 'web-share') {
+    return { title: 'Relatório pronto para compartilhar' };
+  }
+  if (channel === 'download') {
+    return { title: 'Relatório baixado. Envie manualmente pelo WhatsApp.' };
+  }
+  return { title: 'Relatório enviado para o WhatsApp' };
+}
+
+function showWhatsAppShareSuccess({ whatsappLimit, newUsedCount, shareResult }) {
+  ShareSuccessToast.show({
+    ...(Number.isFinite(whatsappLimit) ? { used: newUsedCount, limit: whatsappLimit } : {}),
+    ...buildWhatsAppSuccessCopy(shareResult.channel),
+  });
+}
+
+async function executeWhatsAppShare(filters) {
+  const budget = await resolveWhatsAppShareBudget();
+  if (!budget.ok) return false;
+
+  const { user, planCode, whatsappUsed, whatsappLimit } = budget;
 
   // Sem modal de confirmação inicial — preview do PDF antes do share funciona
   // como confirmação visual. Para Free/Plus, info de quota aparece no subtitle
@@ -440,11 +537,7 @@ async function executeWhatsAppShare(filters) {
   // Gera o PDF como Blob (sem disparar download) e deixa o shareReport
   // decidir o canal: Web Share API (mobile) ou upload+wa.me (desktop/fallback).
   Toast.info?.('Gerando relatório...');
-  const { PDFGenerator } = await import('../../../domain/pdf.js');
-  const pdfResult = await PDFGenerator.generateMaintenanceReport(
-    { ...filters, asBlob: true },
-    { planCode },
-  );
+  const pdfResult = await generateReportPdfBlob(filters, planCode);
   if (!pdfResult || !pdfResult.blob) {
     trackEvent('whatsapp_share_blocked', { reason: 'pdf_generation_failed', plan: planCode });
     Toast.warning('Nenhum registro para enviar.');
@@ -457,29 +550,22 @@ async function executeWhatsAppShare(filters) {
 
   // Preview opt-in (mesma flag do PDF). Default OFF: gera + abre share sheet
   // direto. Power user pode ligar via localStorage 'cooltrack-pdf-preview=true'.
-  if (_isPreviewEnabled()) {
-    const wasSubtitle = Number.isFinite(whatsappLimit)
-      ? `Restam ${Math.max(0, whatsappLimit - whatsappUsed)} de ${whatsappLimit} envios este mês · confira antes de enviar`
-      : 'Confira antes de compartilhar';
-    const previewDecision = await showPdfPreview({
-      blob: pdfResult.blob,
-      fileName: pdfResult.fileName,
-      primaryLabel: 'Enviar via WhatsApp',
-      subtitle: wasSubtitle,
-    });
-    if (previewDecision !== 'confirm') {
-      trackEvent('whatsapp_share_cancelled', { plan: planCode, stage: 'preview' });
-      return false;
-    }
+  const previewConfirmed = await confirmWhatsAppSharePreview({
+    pdfResult,
+    whatsappLimit,
+    whatsappUsed,
+    planCode,
+  });
+  if (!previewConfirmed) {
+    return false;
   }
 
   Toast.info?.('Preparando compartilhamento...');
-  const { shareReportPdf } = await import('../../../domain/pdf/shareReport.js');
-  const shareResult = await shareReportPdf({
-    pdfBlob: pdfResult.blob,
-    fileName: pdfResult.fileName,
-    whatsappText: prefixText,
-    metadata: { userId: user.id, registroId: filters?.registroId || null },
+  const shareResult = await shareReportPdfWithWhatsApp({
+    pdfResult,
+    prefixText,
+    user,
+    filters,
   });
 
   // Cancelamento do share sheet não conta como erro nem consome quota.
@@ -501,28 +587,21 @@ async function executeWhatsAppShare(filters) {
     return false;
   }
 
-  let newUsedCount = whatsappUsed;
-  if (Number.isFinite(whatsappLimit)) {
-    newUsedCount = await incrementMonthlyUsage(user.id, USAGE_RESOURCE_WHATSAPP_SHARE);
-  }
-
-  // Copy diferente por canal — web-share foi disparado com o arquivo real,
-  // wa-link abre WhatsApp com link público, download é o fallback offline.
-  const successCopy =
-    shareResult.channel === 'web-share'
-      ? { title: 'Relatório pronto para compartilhar' }
-      : shareResult.channel === 'download'
-        ? { title: 'Relatório baixado. Envie manualmente pelo WhatsApp.' }
-        : { title: 'Relatório enviado para o WhatsApp' };
+  const newUsedCount = await commitWhatsAppShareUsage({
+    user,
+    whatsappLimit,
+    whatsappUsed,
+  });
 
   trackEvent('whatsapp_share_completed', {
     channel: shareResult.channel,
     plan: planCode,
   });
 
-  ShareSuccessToast.show({
-    ...(Number.isFinite(whatsappLimit) ? { used: newUsedCount, limit: whatsappLimit } : {}),
-    ...successCopy,
+  showWhatsAppShareSuccess({
+    whatsappLimit,
+    newUsedCount,
+    shareResult,
   });
   return true;
 }

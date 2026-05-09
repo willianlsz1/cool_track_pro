@@ -203,3 +203,26 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
   - desacoplamento arquitetural de `domain/pdf.js` e `domain/pdf/shareReport.js` ainda pendente.
 - Nenhum comportamento foi alterado; CP-B ficou restrito a teste e inventario.
 - Proximo CP recomendado: **CP-C - pre-split reportExportHandlers**.
+
+## 13. CP-C - Pre-split reportExportHandlers
+
+- Status: aplicado.
+- Arquivo alterado: `src/ui/controller/handlers/reportExportHandlers.js`.
+- `reportExportHandlers.js` permaneceu no mesmo arquivo; nenhum fluxo foi movido para `domain`, `features` ou outro modulo.
+- Helpers locais criados/ajustados:
+  - `resolvePdfExportBudget`: encapsula a porta de quota/gating PDF preservando `ensureReportBudget`;
+  - `generateReportPdfBlob`: centraliza o dynamic import de `domain/pdf.js` e a chamada a `PDFGenerator.generateMaintenanceReport`;
+  - `confirmPdfExportPreview`: isola preview opt-in do PDF e cancelamento com telemetry;
+  - `showPdfExportSuccess`: isola toast de sucesso e refresh de quota badge;
+  - `markReportPdfOnboardingStep`: preserva o passo de onboarding sem quebrar o fluxo;
+  - `buildWhatsAppLimitMessage`: isola mensagem de limite WhatsApp;
+  - `resolveWhatsAppShareBudget`: encapsula Auth, tentativa, quota/gating e fallback pricing do WhatsApp;
+  - `confirmWhatsAppSharePreview`: isola preview opt-in do WhatsApp;
+  - `shareReportPdfWithWhatsApp`: centraliza dynamic import de `shareReportPdf` e metadata `userId`/`registroId`;
+  - `commitWhatsAppShareUsage`: preserva incremento apenas para planos com limite finito;
+  - `buildWhatsAppSuccessCopy` e `showWhatsAppShareSuccess`: isolam copy/canal e toast de sucesso.
+- Responsabilidades separadas: quota PDF, geracao PDF Blob, preview PDF, download/sucesso PDF, quota WhatsApp, preview WhatsApp, share/fallback e sucesso WhatsApp.
+- Nenhuma mudanca funcional intencional; ordem de quota, geracao, preview, download/share, commit e Toast preservada.
+- Contratos CP-B preservados: `export-pdf`, `whatsapp-export`, `data-registro-id`, `filters.registroId`, quota PDF/WhatsApp, `shareReportPdf`, fallback share/upload, fotos, assinatura e checklist/PMOC.
+- LOC `src/ui/controller/handlers/reportExportHandlers.js`: 655 -> 719 (+64).
+- Proximo CP recomendado: **CP-D - mover helpers seguros de reportExportHandlers**.
