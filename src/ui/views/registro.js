@@ -52,6 +52,12 @@ import {
   persistRegistroSignatureForSave,
 } from '../../features/registro/save/signature.js';
 import {
+  buildRegistroCreateRecord,
+  buildRegistroCreateStateMutation,
+  buildRegistroEditStateMutation,
+  resolveRegistroCreateId,
+} from '../../features/registro/save/persistence.js';
+import {
   getChecklistTemplate,
   buildEmptyChecklist,
   validateChecklist,
@@ -1551,70 +1557,13 @@ function getRegistroEditingId() {
   return sessionStorage.getItem(EDITING_KEY);
 }
 
-function buildEditedRegistro(registro, persistedPayload) {
-  const {
-    equipId,
-    data,
-    tipo,
-    tecnico,
-    descricaoFinal,
-    prioridade,
-    status,
-    pecas,
-    proxima,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-  } = persistedPayload;
-
-  return {
-    ...registro,
-    equipId,
-    data,
-    tipo,
-    obs: descricaoFinal,
-    tecnico,
-    prioridade,
-    status,
-    pecas,
-    proxima,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-    // PMOC Fase 3: preserva checklist; null se user limpou tudo.
-    checklist: getCurrentChecklist() || registro.checklist || null,
-  };
-}
-
-function buildRegistroEditStateMutation(prev, editingId, persistedPayload) {
-  const previousRegistro = prev.registros.find((r) => r.id === editingId) || null;
-  const updatedRegistros = prev.registros.map((r) =>
-    r.id === editingId ? buildEditedRegistro(r, persistedPayload) : r,
-  );
-
-  const updatedRegistro = updatedRegistros.find((r) => r.id === editingId) || null;
-  const updatedEquipamentos = reconcileEquipmentStatusesAfterRegistroEdit({
-    equipamentos: prev.equipamentos,
-    registros: updatedRegistros,
-    previousRegistro,
-    updatedRegistro,
-  });
-
-  return {
-    ...prev,
-    registros: updatedRegistros,
-    equipamentos: updatedEquipamentos,
-  };
-}
-
 function applyRegistroEditStateMutation(editingId, persistedPayload) {
-  setState((prev) => buildRegistroEditStateMutation(prev, editingId, persistedPayload));
+  setState((prev) =>
+    buildRegistroEditStateMutation(prev, editingId, persistedPayload, {
+      getCurrentChecklist,
+      reconcileEquipmentStatusesAfterRegistroEdit,
+    }),
+  );
 }
 
 function saveRegistroLastClient({
@@ -1632,82 +1581,6 @@ function runRegistroEditPostSaveEffects(persistedPayload) {
   clearRegistro();
   Toast.success('Registro atualizado.');
   goTo('historico');
-}
-
-function resolveRegistroCreateId() {
-  return Utils.uid();
-}
-
-function buildRegistroCreateRecord({
-  registroId,
-  persistedPayload,
-  photoPayload,
-  assinatura,
-  signatureReference,
-}) {
-  const {
-    equipId,
-    data,
-    tipo,
-    tecnico,
-    descricaoFinal,
-    prioridade,
-    status,
-    pecas,
-    proxima,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-  } = persistedPayload;
-
-  return {
-    id: registroId,
-    equipId,
-    data,
-    tipo,
-    obs: descricaoFinal,
-    status,
-    pecas,
-    proxima,
-    ...photoPayload,
-    tecnico,
-    prioridade,
-    custoPecas,
-    custoMaoObra,
-    clienteNome,
-    clienteDocumento,
-    localAtendimento,
-    clienteContato,
-    assinatura: buildRegistroSignaturePayload({ assinatura, signatureReference }),
-    // PMOC Fase 3: checklist NBR (null se não preenchido).
-    checklist: getCurrentChecklist(),
-  };
-}
-
-function buildRegistroCreateStateMutation(prev, { registro, persistedPayload, operationalStatus }) {
-  const currentTecs = prev.tecnicos || [];
-  const updatedTecs =
-    persistedPayload.tecnico && !currentTecs.includes(persistedPayload.tecnico)
-      ? [...currentTecs, persistedPayload.tecnico]
-      : currentTecs;
-
-  return {
-    ...prev,
-    tecnicos: updatedTecs,
-    registros: [...prev.registros, registro],
-    equipamentos: prev.equipamentos.map((e) => {
-      if (e.id !== persistedPayload.equipId) return e;
-      return {
-        ...e,
-        status:
-          operationalStatus.uiStatus === 'unknown' ? e.status || 'ok' : operationalStatus.uiStatus,
-        statusDescricao: operationalStatus.label,
-      };
-    }),
-  };
 }
 
 function applyRegistroCreateStateMutation({ registro, persistedPayload, operationalStatus }) {
@@ -1876,7 +1749,7 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
     }
 
     // Modo criação — continua fluxo normal
-    const novoId = resolveRegistroCreateId();
+    const novoId = resolveRegistroCreateId({ uid: () => Utils.uid() });
     const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
 
     // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
@@ -1942,8 +1815,8 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
       registroId: novoId,
       persistedPayload,
       photoPayload,
-      assinatura,
-      signatureReference,
+      assinaturaPayload: buildRegistroSignaturePayload({ assinatura, signatureReference }),
+      checklist: getCurrentChecklist(),
     });
 
     applyRegistroCreateStateMutation({
