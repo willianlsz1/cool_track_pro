@@ -460,3 +460,29 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - `PDFGenerator`, `domain/pdf.js`, `services.js`, `signatures.js`, `cover.js`, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
 - LOC `src/domain/pdf/sections/checklist.js`: 174 -> 194 (+20).
 - Proximo CP recomendado: **CP-N - mover helpers seguros de checklist.js**.
+
+## 24. CP-N - Mover helpers seguros de checklist.js
+
+- Status: aplicado.
+- Helpers seguros movidos para `src/domain/pdf/sections/checklistHelpers.js`:
+  - `getRegistrosWithChecklist`: filtro defensivo de registros com `checklist.items`, sem render ou dependencia de PDF;
+  - `createChecklistLayoutState`: calculo simples do cursor inicial, sem mutacao externa;
+  - `buildChecklistGroups`: agrupamento puro de itens pela ordem/labels do template PMOC, sem `doc`, `autoTable` ou render;
+  - `summarizeChecklistItems`: contagem pura de status `ok`/`fail`/`na`.
+- Teste criado: `src/__tests__/pdfChecklist.helpers.test.js`.
+- Helpers mantidos em `src/domain/pdf/sections/checklist.js`:
+  - `ensureChecklistPageSpace`: mantido por chamar `doc.addPage` e mutar cursor;
+  - `renderChecklistSectionHeader`: mantido por renderizar no `doc`;
+  - `renderChecklistRecordHeader`: mantido por renderizar texto e depender de formatacao visual;
+  - `renderChecklistEmptyItems`: mantido por renderizar fallback visual;
+  - `renderChecklistSummary`: mantido por renderizar resumo no PDF;
+  - `renderChecklistGroupTable`: mantido por usar `autoTable`, `STATUS_LABEL`, `STATUS_COLOR` e `formatMeasure`;
+  - `renderChecklistRecord`: mantido por orquestrar render, template e paginacao do registro.
+- `drawChecklist` permaneceu no modulo atual e como orquestrador da section.
+- Nenhuma mudanca funcional intencional; layout, textos, status/labels, templates PMOC, fallback para checklist ausente, itens pendentes/concluidos, paginacao e ordem visual preservados.
+- Contratos CP-H/CP-U preservados: `registro.checklist.tipo_template`, `registro.checklist.items`, PMOC, itens pendentes sem status fora do PDF e `filters.registroId` com midia/checklist.
+- Contratos CP-B preservados: fluxo PDF/WhatsApp via handlers e contratos de export/share.
+- `PDFGenerator`, `domain/pdf.js`, outras sections, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf/sections/checklist.js`: 194 -> 167 (-27).
+- LOC `src/domain/pdf/sections/checklistHelpers.js`: 33.
+- Proximo CP recomendado: **CP-O - pre-split sections/signatures.js**.

@@ -24,6 +24,12 @@ import { Utils } from '../../../core/utils.js';
 import { PDF_COLORS as C, PDF_TYPO as T } from '../constants.js';
 import { accentLine, txt } from '../primitives.js';
 import { getTemplateByKey, formatMeasure } from '../../pmoc/checklistTemplates.js';
+import {
+  buildChecklistGroups,
+  createChecklistLayoutState,
+  getRegistrosWithChecklist,
+  summarizeChecklistItems,
+} from './checklistHelpers.js';
 
 const STATUS_LABEL = {
   ok: 'Conforme',
@@ -50,16 +56,6 @@ function formatRegistroDate(data) {
 function findEquipName(equipId, equipamentos) {
   const eq = (equipamentos || []).find((e) => e.id === equipId);
   return eq?.nome || eq?.tag || '—';
-}
-
-function getRegistrosWithChecklist(filtered) {
-  return (filtered || []).filter(
-    (r) => r.checklist && typeof r.checklist === 'object' && Array.isArray(r.checklist.items),
-  );
-}
-
-function createChecklistLayoutState(startY) {
-  return { y: startY + 6 };
 }
 
 function ensureChecklistPageSpace(doc, pageHeight, margin, layout, needed) {
@@ -93,23 +89,6 @@ function renderChecklistRecordHeader(doc, margin, layout, registro, equipamentos
   layout.y += 4;
 }
 
-function buildChecklistGroups(registro, tpl) {
-  const groupsOrder = [];
-  const groupBuckets = new Map();
-
-  tpl.items.forEach((tplItem) => {
-    const filled = (registro.checklist.items || []).find((i) => i.id === tplItem.id);
-    if (!filled || filled.status == null) return;
-    if (!groupBuckets.has(tplItem.group)) {
-      groupsOrder.push(tplItem.group);
-      groupBuckets.set(tplItem.group, []);
-    }
-    groupBuckets.get(tplItem.group).push({ ...filled, label: tplItem.label });
-  });
-
-  return { groupsOrder, groupBuckets };
-}
-
 function renderChecklistEmptyItems(doc, margin, layout) {
   txt(doc, '(nenhum item marcado)', margin + 4, layout.y, {
     size: 8,
@@ -117,18 +96,6 @@ function renderChecklistEmptyItems(doc, margin, layout) {
     color: C.text3,
   });
   layout.y += 5;
-}
-
-function summarizeChecklistItems(items) {
-  return (items || []).reduce(
-    (acc, i) => {
-      if (i.status === 'ok') acc.ok += 1;
-      else if (i.status === 'fail') acc.fail += 1;
-      else if (i.status === 'na') acc.na += 1;
-      return acc;
-    },
-    { ok: 0, fail: 0, na: 0 },
-  );
 }
 
 function renderChecklistSummary(doc, margin, layout, checklistItems) {
