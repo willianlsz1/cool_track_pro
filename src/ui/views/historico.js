@@ -29,6 +29,11 @@ import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
 import { buildClientePmocDetails } from '../../core/clientePmoc.js';
 import {
+  buildHistoricoRenderState,
+  buildHistoricoRenderViewModel,
+  buildHistoricoTimelineRenderContext,
+} from '../../features/historico/render/renderHelpers.js';
+import {
   HISTORICO_ACTIONS,
   HISTORICO_PERIOD_OPTIONS,
   HISTORICO_TIPO_OPTIONS,
@@ -1152,17 +1157,6 @@ export function clearHistClienteFilter() {
   _clienteFilter = { id: null, nome: null };
 }
 
-function buildHistoricoRenderState() {
-  const state = getState() || {};
-  const registros = asArray(state.registros);
-  const equipamentos = asArray(state.equipamentos);
-  const setores = asArray(state.setores);
-  const clientes = asArray(state.clientes);
-  cleanupOrphanSignatures(registros.map((r) => r?.id).filter(Boolean));
-
-  return { registros, equipamentos, setores, clientes };
-}
-
 function buildHistoricoRenderFilters() {
   const busca = getFilterValue('hist-busca', 'busca').toLowerCase();
   const filtEq = getFilterValue('hist-equip', 'equip');
@@ -1172,35 +1166,6 @@ function buildHistoricoRenderFilters() {
 
   return { busca, filtEq, filtSetor, period, tipo };
 }
-
-function buildHistoricoRenderViewModel({
-  registros,
-  equipamentos,
-  setores,
-  clientes,
-  filters,
-  isProMode,
-}) {
-  const historicoVm = buildHistoricoViewModel({
-    registros,
-    equipamentos,
-    setores,
-    clientes,
-    filters: {
-      busca: filters.busca,
-      equipId: filters.equipId,
-      setorId: filters.setorId,
-      period: filters.period,
-      tipo: filters.tipo,
-    },
-    clienteFilter: _clienteFilter,
-    isPro: isProMode,
-    buildClientePmocDetails,
-  });
-
-  return { historicoVm, list: historicoVm.list };
-}
-
 function mountHistoricoFiltersIsland({ filtersRoot, filtersViewModel, filtersGeneration }) {
   if (!filtersRoot) return null;
 
@@ -1240,35 +1205,6 @@ function renderHistoricoFiltersIsland({ historicoVm, equipamentos, setores, filt
   });
 
   return normalizeHistoricoMountResult(filtersMountResult);
-}
-
-function buildHistoricoTimelineRenderContext({
-  registros,
-  equipamentos,
-  setores,
-  clientes,
-  filters,
-  isProMode,
-}) {
-  const setoresById = new Map(setores.map((s) => [s.id, s]));
-  const clientesById = new Map(clientes.map((c) => [c.id, c]));
-  const todaySummary = getTodaySummary(registros);
-  const attentionItems = getAttentionItems({
-    registros,
-    equipamentos,
-    clientes,
-    setores,
-    isPro: isProMode,
-  });
-  const hasFilters = Boolean(
-    filters.busca ||
-    filters.filtEq ||
-    filters.filtSetor ||
-    filters.period !== 'tudo' ||
-    filters.tipo,
-  );
-
-  return { equipamentos, setoresById, clientesById, todaySummary, attentionItems, hasFilters };
 }
 
 function syncHistoricoAfterTimelineMount({
@@ -1396,7 +1332,10 @@ export function renderHist() {
   // Suporta deep linking: ?periodo=7d&setor=xyz aplica filtros direto.
   hydrateFiltersFromUrl();
 
-  const { registros, equipamentos, setores, clientes } = buildHistoricoRenderState();
+  const { registros, equipamentos, setores, clientes } = buildHistoricoRenderState(
+    getState() || {},
+  );
+  cleanupOrphanSignatures(registros.map((r) => r?.id).filter(Boolean));
 
   syncSetorSelect();
 
@@ -1414,7 +1353,10 @@ export function renderHist() {
       period: filters.period,
       tipo: filters.tipo,
     },
+    clienteFilter: _clienteFilter,
     isProMode,
+    buildClientePmocDetails,
+    buildHistoricoViewModel,
   });
 
   // Filtros de período, tipo, cliente, setor, equipamento e busca agora ficam
@@ -1450,6 +1392,8 @@ export function renderHist() {
     clientes,
     filters,
     isProMode,
+    getTodaySummary,
+    getAttentionItems,
   });
 
   return renderHistoricoTimelineWithSkeleton({

@@ -273,3 +273,49 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-D - mover helpers puros filtros/VM**.
 
 Justificativa: apos o pre-split local, existem helpers de leitura/modelagem que podem ser classificados com mais seguranca antes de qualquer mexida em card actions ou integracao Registro/PDF.
+
+## 14. CP-D - Mover helpers puros filtros/VM
+
+- CP-D aplicado.
+- Modulo criado: `src/features/historico/render/renderHelpers.js`.
+- Teste criado: `src/features/historico/__tests__/render/renderHelpers.test.js`.
+- `renderHist`, `deleteReg`, `setHistClienteFilter` e `clearHistClienteFilter` permaneceram em `src/ui/views/historico.js`.
+- Helpers com DOM, React, skeleton, listeners, Toast, scroll, cache/sessionStorage ou URL permaneceram no adapter.
+- Nenhum React page, handler, viewModel existente, Registro, Relatorio/PDF, Equipamentos, CSS ou schema foi alterado.
+- Nenhuma mudanca funcional intencional.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1814 -> 1758, delta -56.
+- LOC `src/features/historico/render/renderHelpers.js`: criado com 78 LOC.
+
+| Helper CP-C                           | Usa DOM/React/skeleton? | Usa storage/cache/URL? | Usa Toast/scroll/listeners? | Puro/baixo risco? | Movido neste CP? | Estrategia                                                              |
+| ------------------------------------- | ----------------------- | ---------------------- | --------------------------- | ----------------- | ---------------- | ----------------------------------------------------------------------- |
+| `buildHistoricoRenderState`           | Nao                     | Nao                    | Nao                         | Sim               | Sim              | Recebe `state` por parametro; cleanup de assinatura ficou no adapter    |
+| `buildHistoricoRenderFilters`         | Sim                     | Sim                    | Nao                         | Nao               | Nao              | Mantido por ler DOM/cache local e filtros de sessao                     |
+| `buildHistoricoRenderViewModel`       | Nao                     | Nao                    | Nao                         | Sim               | Sim              | Recebe VM, clienteFilter e callback PMOC por parametros explicitos      |
+| `renderHistoricoFiltersIsland`        | Sim                     | Nao                    | Nao                         | Nao               | Nao              | Mantido por montar ilha React e bridge                                  |
+| `buildHistoricoTimelineRenderContext` | Nao                     | Nao                    | Nao                         | Sim               | Sim              | Recebe callbacks de resumo/atencao e monta mapas/flags sem side effects |
+| `renderHistoricoTimelineWithSkeleton` | Sim                     | Nao                    | Nao                         | Nao               | Nao              | Mantido por depender de `withSkeleton` e render React                   |
+| `renderHistoricoTimelineIsland`       | Sim                     | Nao                    | Sim                         | Nao               | Nao              | Mantido por bridge React e pos-render                                   |
+| `syncHistoricoAfterTimelineMount`     | Sim                     | Nao                    | Sim                         | Nao               | Nao              | Mantido por listeners, scroll, saved highlight e Toast                  |
+
+Helpers movidos:
+
+| Helper                                | Origem                      | Destino                                          | DI/parametros                                                          | Motivo de seguranca                          |
+| ------------------------------------- | --------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- | -------------------------------------------- |
+| `buildHistoricoRenderState`           | `src/ui/views/historico.js` | `src/features/historico/render/renderHelpers.js` | `state`                                                                | Apenas normaliza arrays e preserva colecoes  |
+| `buildHistoricoRenderViewModel`       | `src/ui/views/historico.js` | `src/features/historico/render/renderHelpers.js` | colecoes, filtros, `clienteFilter`, VM e callback PMOC                 | Prepara chamada ao VM sem DOM/storage/render |
+| `buildHistoricoTimelineRenderContext` | `src/ui/views/historico.js` | `src/features/historico/render/renderHelpers.js` | colecoes, filtros, `isProMode`, `getTodaySummary`, `getAttentionItems` | Monta mapas, resumos e flags sem mutar UI    |
+
+Validacao inicial do CP-D:
+
+- `npm run test -- src/features/historico/__tests__/render/renderHelpers.test.js src/__tests__/historicoCardActions.contract.test.js --reporter=dot`: passou, 2 arquivos / 7 testes.
+
+Lacunas remanescentes:
+
+- `historico.js` segue acima de 1000 LOC e ainda concentra filtros DOM, bridges React, handlers, delete e side effects.
+- `buildHistoricoRenderFilters` ainda mistura DOM/cache/sessionStorage; precisa de corte proprio se houver contrato suficiente.
+- Card actions/edit/delete/PDF/WhatsApp ainda permanecem acoplados por handlers globais e atributos DOM.
+
+Proximo CP recomendado: **CP-E - pre-split card actions**.
+
+Justificativa: apos mover os helpers puros de render/VM, o maior acoplamento restante com risco direto ao usuario esta em actions por card e delegation no adapter. O contrato CP-B ja protege os atributos publicos, entao o proximo corte seguro e separar localmente essa responsabilidade sem mover handlers globais.
