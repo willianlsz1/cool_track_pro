@@ -580,3 +580,75 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-J - mover helpers seguros de deleteReg**.
 
 Justificativa: o pre-split local deixou as responsabilidades do delete separadas e protegidas pelo contrato CP-H. O proximo corte seguro e classificar quais helpers de modelagem/state podem sair sem levar `Storage`, `setState`, `localStorage`, render, header ou Toast para fora do adapter.
+
+## 20. CP-J - Mover helpers seguros de deleteReg
+
+- CP-J aplicado.
+- Modulo criado: `src/features/historico/delete/deleteHelpers.js`.
+- Teste criado: `src/features/historico/__tests__/delete/deleteHelpers.test.js`.
+- Helpers seguros de delete movidos para modulo scoped de Historico.
+- `deleteReg`, `Storage`, `setState`, `localStorage`, `renderHist`, `updateGlobalHeader`, `Toast` e `handleError` permaneceram no adapter `src/ui/views/historico.js`.
+- Nenhuma mudanca funcional intencional.
+- Contrato CP-H preservado.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1619 -> 1586, delta -33.
+- LOC `src/features/historico/delete/deleteHelpers.js`: criado com 44 LOC.
+
+Classificacao dos helpers CP-I:
+
+| Helper CP-I                                   | Usa Storage/setState/localStorage? | Usa render/header/Toast? | Usa status/equipamento?                  | Puro/baixo risco? | Movido neste CP? | Estrategia                                                     |
+| --------------------------------------------- | ---------------------------------- | ------------------------ | ---------------------------------------- | ----------------- | ---------------- | -------------------------------------------------------------- |
+| `persistHistoricoRegistroDeletion`            | Sim, `Storage`                     | Nao                      | Nao                                      | Nao               | Nao              | Mantido no adapter por persistencia/queue de delete            |
+| `findHistoricoDeletedRegistro`                | Nao                                | Nao                      | Nao                                      | Sim               | Sim              | Movido como busca pura em array                                |
+| `buildHistoricoRegistrosAfterDelete`          | Nao                                | Nao                      | Nao                                      | Sim               | Sim              | Movido como filtro puro por id                                 |
+| `findHistoricoLastRegistroForEquipment`       | Nao                                | Nao                      | Sim, por `equipId`                       | Sim               | Sim              | Movido como selecao pura do registro mais recente              |
+| `buildHistoricoEquipmentAfterDelete`          | Nao                                | Nao                      | Sim, calcula status com callbacks        | Sim               | Sim              | Movido com DI explicita de `getOperationalStatus` e `daysDiff` |
+| `recalculateHistoricoEquipamentosAfterDelete` | Nao                                | Nao                      | Sim, recalcula equipamento afetado       | Sim               | Sim              | Movido como transformacao pura de arrays com DI                |
+| `buildHistoricoDeleteStateMutation`           | Nao                                | Nao                      | Sim, monta proximo state de equipamentos | Sim               | Sim              | Movido como builder puro de proximo state, sem `setState`      |
+| `applyHistoricoDeleteStateMutation`           | Sim, `setState`                    | Nao                      | Sim                                      | Nao               | Nao              | Mantido no adapter por aplicar mutacao no state                |
+| `cleanupHistoricoDeleteArtifacts`             | Sim, `localStorage`                | Nao                      | Nao                                      | Nao               | Nao              | Mantido no adapter por side effect de assinatura local         |
+| `refreshHistoricoAfterDelete`                 | Nao                                | Sim, render/header       | Nao                                      | Nao               | Nao              | Mantido no adapter por re-render/header                        |
+| `notifyHistoricoDeleteSuccess`                | Nao                                | Sim, `Toast`             | Nao                                      | Nao               | Nao              | Mantido no adapter por feedback visual                         |
+
+Helpers movidos:
+
+| Helper                                        | Origem                      | Destino                                          | DI/parametros                                        | Por que era seguro mover                              |
+| --------------------------------------------- | --------------------------- | ------------------------------------------------ | ---------------------------------------------------- | ----------------------------------------------------- |
+| `findHistoricoDeletedRegistro`                | `src/ui/views/historico.js` | `src/features/historico/delete/deleteHelpers.js` | `registros`, `id`                                    | Busca pura sem state/storage                          |
+| `buildHistoricoRegistrosAfterDelete`          | `src/ui/views/historico.js` | `src/features/historico/delete/deleteHelpers.js` | `registros`, `id`                                    | Filtro puro sem side effects                          |
+| `findHistoricoLastRegistroForEquipment`       | `src/ui/views/historico.js` | `src/features/historico/delete/deleteHelpers.js` | `registros`, `equipId`                               | Seleciona ultimo registro sem tocar adapter           |
+| `buildHistoricoEquipmentAfterDelete`          | `src/ui/views/historico.js` | `src/features/historico/delete/deleteHelpers.js` | `eq`, `last`, `{ getOperationalStatus, daysDiff }`   | Calculo isolado com dependencias explicitas           |
+| `recalculateHistoricoEquipamentosAfterDelete` | `src/ui/views/historico.js` | `src/features/historico/delete/deleteHelpers.js` | `equipamentos`, `registros`, `deletedRegistro`, deps | Transforma arrays e altera apenas equipamento afetado |
+| `buildHistoricoDeleteStateMutation`           | `src/ui/views/historico.js` | `src/features/historico/delete/deleteHelpers.js` | `prev`, `id`, deps                                   | Monta proximo state sem aplicar `setState`            |
+
+Helpers mantidos no adapter:
+
+| Helper                              | Motivo para manter                      | Risco se mover agora                   | Proximo tratamento sugerido                        |
+| ----------------------------------- | --------------------------------------- | -------------------------------------- | -------------------------------------------------- |
+| `persistHistoricoRegistroDeletion`  | Usa `Storage.markRegistroDeleted`       | Espalhar persistencia/queue de delete  | Manter ate haver contrato de persistencia dedicado |
+| `applyHistoricoDeleteStateMutation` | Usa `setState`                          | Alterar ordem/aplicacao de state       | Manter como ponte adapter -> helper puro           |
+| `cleanupHistoricoDeleteArtifacts`   | Usa `localStorage`                      | Quebrar limpeza de assinatura local    | Mapear assinatura/midia antes de extrair           |
+| `refreshHistoricoAfterDelete`       | Usa `renderHist` e `updateGlobalHeader` | Regressao de refresh/header pos-delete | Manter no adapter                                  |
+| `notifyHistoricoDeleteSuccess`      | Usa `Toast.warning`                     | Regressao de feedback visual           | Manter no adapter                                  |
+
+Contratos preservados:
+
+- `deleteReg`, `delete-reg`, `data-id`, state/storage, recalculo de equipamento/status, re-render pos-delete, header/global refresh e Toast.
+- Fallback atual para id ausente e registro inexistente.
+- Contrato CP-H de Historico -> Registro.
+- Contrato CP-B de card actions.
+
+Testes adicionados/rodados:
+
+- `src/features/historico/__tests__/delete/deleteHelpers.test.js`: 7 testes cobrindo busca do registro, remocao por id, ultimo registro por equipamento, recalculo de status via DI, mutacao pura de state e ausencia de imports proibidos.
+- `npm run test -- src/features/historico/__tests__/delete/deleteHelpers.test.js src/__tests__/historicoRegistroIntegration.contract.test.js --reporter=dot`: passou, 2 arquivos / 12 testes.
+
+Lacunas remanescentes:
+
+- `deleteReg` continua no adapter por concentrar side effects reais.
+- Persistencia remota/local, assinatura, render/header e Toast seguem sem extracao por escopo e risco.
+- Fluxo Historico -> PDF/WhatsApp por card ainda precisa de mapeamento dedicado.
+
+Proximo CP recomendado: **CP-K - mapear Historico -> PDF/WhatsApp**.
+
+Justificativa: os helpers seguros de delete ja foram extraidos e o contrato Historico -> Registro permanece protegido. O maior acoplamento funcional ainda sem mapa dedicado na Mudanca 15 e o caminho de exportacao por card para PDF/WhatsApp, que cruza atributos publicos, handlers e contratos do Relatorio/PDF.

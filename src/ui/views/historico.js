@@ -37,6 +37,7 @@ import {
   closeHistoricoCardMenus,
   toggleHistoricoCardMenu,
 } from '../../features/historico/actions/cardMenuHelpers.js';
+import { buildHistoricoDeleteStateMutation } from '../../features/historico/delete/deleteHelpers.js';
 import {
   HISTORICO_ACTIONS,
   HISTORICO_PERIOD_OPTIONS,
@@ -1729,53 +1730,13 @@ function persistHistoricoRegistroDeletion(id) {
   Storage.markRegistroDeleted(id);
 }
 
-function findHistoricoDeletedRegistro(registros, id) {
-  return registros.find((r) => r.id === id);
-}
-
-function buildHistoricoRegistrosAfterDelete(registros, id) {
-  return registros.filter((r) => r.id !== id);
-}
-
-function findHistoricoLastRegistroForEquipment(registros, equipId) {
-  const remainingEqRegs = registros
-    .filter((r) => r.equipId === equipId)
-    .sort((a, b) => b.data.localeCompare(a.data));
-  return remainingEqRegs[0] || null;
-}
-
-function buildHistoricoEquipmentAfterDelete(eq, last) {
-  const nextStatus = getOperationalStatus({
-    status: last?.status || '',
-    lastStatus: last?.status || '',
-    daysToNext: last?.proxima ? Utils.daysDiff(last.proxima.slice(0, 10)) : null,
-    ultimoRegistro: last,
-  });
-  return {
-    ...eq,
-    status: nextStatus.uiStatus === 'unknown' ? eq.status || 'ok' : nextStatus.uiStatus,
-    statusDescricao: nextStatus.label,
-  };
-}
-
-function recalculateHistoricoEquipamentosAfterDelete(equipamentos, registros, deletedRegistro) {
-  const last = findHistoricoLastRegistroForEquipment(registros, deletedRegistro.equipId);
-  return equipamentos.map((eq) => {
-    if (eq.id !== deletedRegistro.equipId) return eq;
-    return buildHistoricoEquipmentAfterDelete(eq, last);
-  });
-}
-
-function buildHistoricoDeleteStateMutation(prev, id) {
-  const reg = findHistoricoDeletedRegistro(prev.registros, id);
-  const regs = buildHistoricoRegistrosAfterDelete(prev.registros, id);
-  if (!reg) return { ...prev, registros: regs };
-  const equips = recalculateHistoricoEquipamentosAfterDelete(prev.equipamentos, regs, reg);
-  return { ...prev, registros: regs, equipamentos: equips };
-}
-
 function applyHistoricoDeleteStateMutation(id) {
-  setState((prev) => buildHistoricoDeleteStateMutation(prev, id));
+  setState((prev) =>
+    buildHistoricoDeleteStateMutation(prev, id, {
+      getOperationalStatus,
+      daysDiff: (date) => Utils.daysDiff(date),
+    }),
+  );
 }
 
 function cleanupHistoricoDeleteArtifacts(id) {
