@@ -1001,3 +1001,51 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-R - stability checkpoint e encerrar Mudanca 15**.
 
 Justificativa: a Mudanca 15 ja acumulou contratos, mapeamentos e extracoes seguras para render, card actions, delete, PDF/WhatsApp e filtros. Um checkpoint reduz risco antes de qualquer pre-split mais profundo de filtros.
+
+## 28. CP-R - Stability checkpoint e encerramento
+
+- CP-R aplicado em modo documentacao + validacao.
+- Documento criado: `docs/migration/mudanca-15-stability-checkpoint.md`.
+- Nenhum `src/` alterado.
+- Nenhum teste alterado.
+- Estado final da Mudanca 15 consolidado: render/timeline, card actions, Historico -> Registro, `deleteReg`, Historico -> PDF/WhatsApp e filtros.
+- Helpers feature-scoped finais confirmados:
+  - `src/features/historico/render/renderHelpers.js`
+  - `src/features/historico/actions/cardMenuHelpers.js`
+  - `src/features/historico/delete/deleteHelpers.js`
+  - `src/features/historico/filters/filterHelpers.js`
+- Contratos principais confirmados:
+  - `src/__tests__/historicoCardActions.contract.test.js`
+  - `src/__tests__/historicoRegistroIntegration.contract.test.js`
+  - `src/__tests__/historicoPdfWhatsappIntegration.contract.test.js`
+  - `src/__tests__/historicoFilters.contract.test.js`
+- LOC principais confirmados:
+  - `src/ui/views/historico.js`: 1621
+  - `src/react/pages/HistoricoTimeline.jsx`: 453
+  - `src/react/pages/HistoricoFilters.jsx`: 252
+  - `src/react/components/CardActions.jsx`: 68
+  - `src/ui/components/historicoFiltersSheet.js`: 251
+  - `src/ui/viewModels/historicoViewModel.js`: 497
+  - `src/ui/viewModels/historicoContracts.js`: 102
+  - `src/features/historico/render/renderHelpers.js`: 72
+  - `src/features/historico/actions/cardMenuHelpers.js`: 28
+  - `src/features/historico/delete/deleteHelpers.js`: 44
+  - `src/features/historico/filters/filterHelpers.js`: 45
+- Validacoes rodadas:
+  - Bateria principal Historico: passou, 8 arquivos / 36 testes.
+  - Bateria relacionada: passou, 12 arquivos / 91 testes.
+  - `npm run test -- src/__tests__ --reporter=dot`: passou.
+  - `npm run format`: passou.
+  - `npm run check`: passou.
+  - `npm run size`: falhou por ambiente, pois `size-limit` nao foi reconhecido localmente.
+  - `npx playwright test -c e2e/playwright.config.js --reporter=list`: passou, 15 testes passed / 9 skipped.
+- Riscos remanescentes documentados:
+  - `src/ui/views/historico.js` ainda acima de 1000 LOC.
+  - `renderHist`, `deleteReg` e `setHistClienteFilter` permanecem no adapter.
+  - DOM/cache/sessionStorage/URL reais permanecem no adapter.
+  - Bridges React, sheet mobile e integracoes Registro/PDF/WhatsApp seguem sensiveis a contratos.
+  - Warnings de lint/build/chunk permanecem como baseline tecnico.
+- Decisao final: **Encerrar Mudanca 15**.
+- Proxima mudanca tecnica recomendada: **Mudanca 16 - Stability geral/E2E/cache**.
+
+Justificativa: a Mudanca 15 concluiu inventario, contratos, mapeamentos, pre-splits e extracoes seguras do Historico. O proximo ganho deve ser estabilidade transversal, E2E, cache e warnings/chunks antes de novos cortes profundos.
