@@ -1,5 +1,6 @@
 import { Utils } from '../../../core/utils.js';
 import { regsForEquip } from '../../../core/state.js';
+import { evaluateEquipmentHealth } from '../../../domain/maintenance.js';
 
 const _SETOR_CORES = ['#00c8e8', '#00c853', '#ffab40', '#ff5252', '#7c4dff', '#448aff'];
 const _SETOR_DEFAULT_COLOR = '#00c8e8';
@@ -17,16 +18,6 @@ function worstStatus(eqs) {
   return 'ok';
 }
 
-// Módulo de manutenção cacheado para uso síncrono nos cards de setor.
-// Resolvido em tempo de load; acesso defensivo pra não quebrar se o import
-// falhar (offline etc) — os cards mostram fallback zerado nesse caso.
-let _maintenanceModule = null;
-import('../../../domain/maintenance.js')
-  .then((m) => {
-    _maintenanceModule = m;
-  })
-  .catch(() => {});
-
 /**
  * Agrega KPIs dinâmicos de um setor: score médio (0-100) e % em dia com
  * preventiva. "Em dia" = equipamento sem preventiva vencida (daysToNext >= 0),
@@ -35,7 +26,6 @@ import('../../../domain/maintenance.js')
  */
 function getSetorKpis(equipamentosDoSetor) {
   if (!equipamentosDoSetor.length) return null;
-  if (!_maintenanceModule) return null;
 
   let scoreSum = 0;
   let scoreCount = 0;
@@ -44,7 +34,7 @@ function getSetorKpis(equipamentosDoSetor) {
   equipamentosDoSetor.forEach((eq) => {
     try {
       const regs = regsForEquip(eq.id);
-      const health = _maintenanceModule.evaluateEquipmentHealth(eq, regs);
+      const health = evaluateEquipmentHealth(eq, regs);
       scoreSum += health.score;
       scoreCount += 1;
       const diasProx = health.context?.daysToNext;

@@ -135,3 +135,20 @@ Justificativa: o mapa mostra warnings em grupos bem definidos. O primeiro corte 
   - core transversal, planos/usage, Equipamentos/Historico/Dashboard, Orcamentos, signature/nameplate e chunk size > 500 kB.
 - Proximo corte sugerido:
   - continuar dynamic/static import por grupo pequeno, somente onde o modulo ja for inevitavelmente estatico e o import dinamico nao trouxer ganho real.
+
+## 10. Complemento CP-I
+
+- Grupo tratado: Equipamentos setores / `domain/maintenance.js`.
+- Arquivo ajustado:
+  - `src/ui/views/equipamentos/setores.js`.
+- Resultado:
+  - removido o import dinamico cacheado de `src/domain/maintenance.js` usado pelos KPIs de card de setor;
+  - `evaluateEquipmentHealth` passou a ser importado estaticamente, alinhado ao fato de `domain/maintenance.js` ja estar no grafo inicial por outros fluxos;
+  - warning de `src/domain/maintenance.js` removido.
+- Warning count Vite static+dynamic:
+  - antes do CP-I: 21 modulos;
+  - depois do CP-I: 20 modulos.
+- Warnings remanescentes:
+  - core transversal, planos/usage, Equipamentos/Historico/Dashboard, Orcamentos, signature/nameplate, `core/clientes`, ultimo restricted import em `shareReport` e chunk size > 500 kB.
+- Proximo corte sugerido:
+  - continuar dynamic/static import por grupo pequeno, priorizando imports dinamicos redundantes sem side effects e com teste focado existente.

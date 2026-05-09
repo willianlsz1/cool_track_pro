@@ -327,8 +327,40 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - bateria focada de Clientes/Equipamentos;
   - bateria completa `npm run test -- src/__tests__ --reporter=dot`.
 
-## 17. Proximo CP recomendado
+## 17. CP-I aplicado
 
-**CP-I - continuar dynamic/static import por grupo.**
+- Escopo: correcao pequena de warning Vite de static+dynamic import, sem mexer em PDF/share/vendor/manualChunks.
+- Grupo escolhido: Equipamentos setores / `domain/maintenance.js`.
+- Arquivo de codigo alterado:
+  - `src/ui/views/equipamentos/setores.js`.
+- Mudanca realizada:
+  - removido o `import('../../../domain/maintenance.js')` cacheado localmente em `setores.js`;
+  - `evaluateEquipmentHealth` passou a vir de import estatico direto, porque `domain/maintenance.js` ja era inevitavelmente estatico no grafo por dashboard/equipamentos/relatorio e dominio.
+- Warning corrigido:
+  - `src/domain/maintenance.js` deixou de aparecer como modulo importado dinamica e estaticamente no build.
+- Warning count Vite static+dynamic:
+  - antes: 21 modulos;
+  - depois: 20 modulos;
+  - delta: -1 modulo.
+- Chunks/top assets apos ajuste:
+  - `index.*.js` 954,360 B;
+  - `vendor-pdf.*.js` 775,020 B;
+  - `index.*.css` 544,270 B;
+  - `cooling-tech.*.png` 1,941,140 B.
+- Warnings mantidos:
+  - core transversal (`utils`, `supabase`, `storage`, `state`, `modal`, `router`, `auth`);
+  - planos/usage (`subscriptionPlans`, `planCache`, `monetization`, `usageLimits`);
+  - views/fluxos maiores (`equipamentos`, `historico`, `dashboard`, `orcamentoHandlers`, `signature`, `nameplateCapture`, `contextState`, `core/clientes`);
+  - chunk size > 500 kB;
+  - 1 warning ESLint conhecido em `src/domain/pdf/shareReport.js`.
+- Validacoes rodadas:
+  - `npm run format`;
+  - `npm run build`;
+  - `npm run check`;
+  - bateria focada de Equipamentos/manutencao.
 
-Justificativa: CP-H reduziu um grupo pequeno sem tocar `manualChunks` nem PDF/vendor. Ainda restam 21 warnings Vite, e o proximo corte deve manter o mesmo criterio: escolher outro grupo coberto por testes, evitando core amplo, PDF/share e modules com side effects ate haver mapa dedicado.
+## 18. Proximo CP recomendado
+
+**CP-J - continuar dynamic/static import por grupo.**
+
+Justificativa: CP-I reduziu outro grupo pequeno sem tocar `manualChunks`, PDF/share ou vendor. Ainda restam 20 warnings Vite, e o proximo corte deve manter o mesmo criterio: escolher um grupo coberto por testes, evitando core amplo, PDF/share e modulos com side effects ate haver mapa dedicado.
