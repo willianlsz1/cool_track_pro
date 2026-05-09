@@ -394,3 +394,23 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - LOC `src/domain/pdf.js`: 194 -> 176 (-18).
 - LOC `src/domain/pdf/generatorHelpers.js`: 14.
 - Proximo CP recomendado: **CP-K - pre-split sections/services.js**.
+
+## 21. CP-K - Pre-split sections/services.js
+
+- Status: aplicado.
+- Arquivo alterado: `src/domain/pdf/sections/services.js`.
+- `drawServices` permaneceu no mesmo arquivo e com a mesma assinatura publica.
+- Helpers locais criados:
+  - `drawPhotoSectionLabel`: centraliza o label "Fotos anexadas" preservando texto, fonte, posicao relativa e retorno de cursor;
+  - `advancePhotoRowY`: centraliza avanco vertical de linha de fotos preservando `PHOTO_H` e `PHOTO_ROW_GAP`;
+  - `renderServicesPageStart`: centraliza fundo, header e titulo da primeira pagina da section;
+  - `addServicesContinuationPage`: centraliza `addPage`, fundo, header e retorno para `NEXT_PAGE_CONTENT_Y`;
+  - `resolveServiceCardStartY`: separa decisao de gap/quebra antes do card;
+  - `renderServiceCard`: separa escolha entre card atomico e card paginado.
+- Responsabilidades separadas: label/avanco de fotos, pagina de continuidade, abertura da section, decisao de quebra/gap e dispatch atomico/paginado.
+- Nenhuma mudanca funcional intencional; textos, spacing, resolver de fotos, fallback "Foto indisponivel", grid 2x, limite de 4 fotos e ordem visual preservados.
+- Contratos CP-H preservados: `registro.fotos`, formatos legados/referencia, ausencia/falha de fotos, fallback visual e `filters.registroId` com midia/checklist.
+- Contratos CP-B preservados: fluxo PDF/WhatsApp via handlers e contratos de export/share.
+- `PDFGenerator`, `domain/pdf.js`, outras sections, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf/sections/services.js`: 461 -> 505 (+44).
+- Proximo CP recomendado: **CP-L - mover helpers seguros de services.js**.

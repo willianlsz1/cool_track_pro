@@ -363,6 +363,21 @@ async function drawPhotoRow(doc, margin, pageWidth, photoY, photos, rowIndex, in
   }
 }
 
+function drawPhotoSectionLabel(doc, innerX, photoY) {
+  txt(doc, 'Fotos anexadas', innerX, photoY + 3, {
+    size: 7,
+    style: 'bold',
+    color: C.text3,
+  });
+  return photoY + PHOTO_LABEL_H;
+}
+
+function advancePhotoRowY(photoY, rowIndex, photoRows) {
+  let nextY = photoY + PHOTO_H;
+  if (rowIndex < photoRows - 1) nextY += PHOTO_ROW_GAP;
+  return nextY;
+}
+
 /**
  * Desenha um card que cabe inteiramente na página atual. Assume que quem
  * chama já fez o page-break check.
@@ -376,17 +391,11 @@ async function drawServiceCardAtomic(doc, pageWidth, margin, startY, registro, p
   if (layout.photos.length) {
     const innerX = margin + CARD_INNER_PAD_X;
     let photoY = textEndY + GAP_MD;
-    txt(doc, 'Fotos anexadas', innerX, photoY + 3, {
-      size: 7,
-      style: 'bold',
-      color: C.text3,
-    });
-    photoY += PHOTO_LABEL_H;
+    photoY = drawPhotoSectionLabel(doc, innerX, photoY);
 
     for (let r = 0; r < layout.photoRows; r += 1) {
       await drawPhotoRow(doc, margin, pageWidth, photoY, layout.photos, r, layout.innerW);
-      photoY += PHOTO_H;
-      if (r < layout.photoRows - 1) photoY += PHOTO_ROW_GAP;
+      photoY = advancePhotoRowY(photoY, r, layout.photoRows);
     }
   }
 }
@@ -429,32 +438,87 @@ async function drawServiceCardPaginated(
 
   // Se não cabe nem a label, vai pra próxima página.
   if (photoY + PHOTO_LABEL_H + PHOTO_H > maxY) {
-    doc.addPage();
-    fillPage(doc, pageWidth, pageHeight);
-    redrawPageHeader();
-    photoY = NEXT_PAGE_CONTENT_Y;
+    photoY = addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader);
   }
 
-  txt(doc, 'Fotos anexadas', innerX, photoY + 3, {
-    size: 7,
-    style: 'bold',
-    color: C.text3,
-  });
-  photoY += PHOTO_LABEL_H;
+  photoY = drawPhotoSectionLabel(doc, innerX, photoY);
 
   for (let r = 0; r < layout.photoRows; r += 1) {
     if (photoY + PHOTO_H > maxY) {
-      doc.addPage();
-      fillPage(doc, pageWidth, pageHeight);
-      redrawPageHeader();
-      photoY = NEXT_PAGE_CONTENT_Y;
+      photoY = addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader);
     }
     await drawPhotoRow(doc, margin, pageWidth, photoY, layout.photos, r, layout.innerW);
-    photoY += PHOTO_H;
-    if (r < layout.photoRows - 1) photoY += PHOTO_ROW_GAP;
+    photoY = advancePhotoRowY(photoY, r, layout.photoRows);
   }
 
   return { endY: photoY + CARD_INNER_PAD_BOTTOM };
+}
+
+function renderServicesPageStart(doc, pageWidth, pageHeight, margin, profile, context, total) {
+  fillPage(doc, pageWidth, pageHeight);
+  drawServicesPageHeader(doc, pageWidth, margin, profile, context);
+  drawSectionTitle(doc, pageWidth, margin, total);
+}
+
+function addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader) {
+  doc.addPage();
+  fillPage(doc, pageWidth, pageHeight);
+  redrawPageHeader();
+  return NEXT_PAGE_CONTENT_Y;
+}
+
+function resolveServiceCardStartY({
+  doc,
+  pageWidth,
+  pageHeight,
+  y,
+  maxY,
+  needsGap,
+  requiredSpace,
+  redrawPageHeader,
+}) {
+  const pageBudget = maxY - y;
+
+  // Card não cabe no restante da página? Tenta começar em uma nova.
+  if (requiredSpace > pageBudget && y > NEXT_PAGE_CONTENT_Y + 0.1) {
+    return addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader);
+  }
+
+  return needsGap ? y + CARD_GAP : y;
+}
+
+async function renderServiceCard(
+  doc,
+  pageWidth,
+  pageHeight,
+  margin,
+  y,
+  registro,
+  profile,
+  layout,
+  redrawPageHeader,
+) {
+  const maxY = pageHeight - BOTTOM_MARGIN;
+  const fullPageBudget = maxY - NEXT_PAGE_CONTENT_Y;
+
+  if (layout.total > fullPageBudget) {
+    // Oversize: divide texto+fotos entre páginas.
+    const { endY } = await drawServiceCardPaginated(
+      doc,
+      pageWidth,
+      pageHeight,
+      margin,
+      y,
+      registro,
+      profile,
+      layout,
+      redrawPageHeader,
+    );
+    return endY;
+  }
+
+  await drawServiceCardAtomic(doc, pageWidth, margin, y, registro, profile, layout);
+  return y + layout.total;
 }
 
 // ---------- entry point ----------
@@ -474,9 +538,7 @@ export async function drawServices(
 
   // A chamada externa (pdf.js) já fez addPage antes de chamar drawServices,
   // então estamos em uma página nova. Pinta fundo + header + título.
-  fillPage(doc, pageWidth, pageHeight);
-  drawServicesPageHeader(doc, pageWidth, margin, profile, context);
-  drawSectionTitle(doc, pageWidth, margin, filtered.length);
+  renderServicesPageStart(doc, pageWidth, pageHeight, margin, profile, context, filtered.length);
 
   const redrawPageHeader = () => drawServicesPageHeader(doc, pageWidth, margin, profile, context);
 
@@ -490,37 +552,27 @@ export async function drawServices(
 
     const needsGap = i > 0;
     const requiredSpace = layout.total + (needsGap ? CARD_GAP : 0);
-    const pageBudget = maxY - y;
+    y = resolveServiceCardStartY({
+      doc,
+      pageWidth,
+      pageHeight,
+      y,
+      maxY,
+      needsGap,
+      requiredSpace,
+      redrawPageHeader,
+    });
 
-    // Card não cabe no restante da página? Tenta começar em uma nova.
-    if (requiredSpace > pageBudget && y > NEXT_PAGE_CONTENT_Y + 0.1) {
-      doc.addPage();
-      fillPage(doc, pageWidth, pageHeight);
-      redrawPageHeader();
-      y = NEXT_PAGE_CONTENT_Y;
-    } else if (needsGap) {
-      y += CARD_GAP;
-    }
-
-    const fullPageBudget = maxY - NEXT_PAGE_CONTENT_Y;
-
-    if (layout.total > fullPageBudget) {
-      // Oversize: divide texto+fotos entre páginas.
-      const { endY } = await drawServiceCardPaginated(
-        doc,
-        pageWidth,
-        pageHeight,
-        margin,
-        y,
-        registro,
-        profile,
-        layout,
-        redrawPageHeader,
-      );
-      y = endY;
-    } else {
-      await drawServiceCardAtomic(doc, pageWidth, margin, y, registro, profile, layout);
-      y += layout.total;
-    }
+    y = await renderServiceCard(
+      doc,
+      pageWidth,
+      pageHeight,
+      margin,
+      y,
+      registro,
+      profile,
+      layout,
+      redrawPageHeader,
+    );
   }
 }
