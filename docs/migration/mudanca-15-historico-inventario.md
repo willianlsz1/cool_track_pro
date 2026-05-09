@@ -431,3 +431,53 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-G - mapear Historico -> Registro**.
 
 Justificativa: o contrato de atributos e a extracao segura dos helpers de menu reduzem risco local dos cards. O proximo maior acoplamento com impacto direto no usuario esta no caminho de editar/excluir registro a partir do Historico; mapear esse fluxo antes de mexer nele da mais de 90% de confianca para o proximo corte.
+
+## 17. CP-G - Mapear Historico -> Registro
+
+- CP-G aplicado.
+- Documento criado: `docs/migration/mudanca-15-cp-g-historico-registro-map.md`.
+- Nenhum `src/` alterado.
+- Nenhum teste alterado.
+- Integracao Historico -> Registro mapeada em modo read-only.
+- Fluxos mapeados: `edit-reg`, `delete-reg`, `deleteReg`, navegacao para Registro, `editRegistroId`, `loadRegistroForEdit`, `clearRegistro`, `saveRegistro`, state/storage, confirmacao, re-render, header e Toast.
+- Riscos e lacunas mapeados.
+- LOC principais no CP-G:
+  - `src/ui/views/historico.js`: 1758
+  - `src/ui/views/registro.js`: 2099
+  - `src/ui/controller/handlers/navigationHandlers.js`: 477
+  - `src/ui/controller/handlers/registroHandlers.js`: 126
+  - `src/ui/controller/routes.js`: arquivo real usado no lugar de `src/ui/routes.js`
+
+Resumo do fluxo `edit-reg`:
+
+| Etapa          | Estado atual                                                                                     | Risco                                       |
+| -------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| Card Historico | `data-action="edit-reg"` e `data-id` saem da timeline/card                                       | Registro errado se id quebrar               |
+| Handler global | `navigationHandlers.js` chama `goTo('registro', { editRegistroId: el.dataset.id })`              | Sem id abre fluxo incorreto                 |
+| Rota Registro  | `routes.js` executa `initRegistro(params)` e depois `loadRegistroForEdit(params.editRegistroId)` | Ordem precisa ser preservada                |
+| Registro       | `loadRegistroForEdit` grava edit mode, preenche campos/checklist e ajusta actions                | Fallback silencioso se registro nao existir |
+
+Resumo do fluxo `delete-reg/deleteReg`:
+
+| Etapa          | Estado atual                                                                                                                               | Risco                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| Card Historico | `data-action="delete-reg"` e `data-id` saem da timeline/card                                                                               | Delete pode mirar registro errado           |
+| Handler global | `registroHandlers.js` abre `CustomConfirm.show` e chama `deleteReg(el.dataset.id)` se confirmado                                           | Confirmacao sem contrato dedicado           |
+| `deleteReg`    | Marca queue remota, remove registro do state, recalcula equipamento, remove assinatura local, re-renderiza, atualiza header e mostra Toast | Fluxo multi-side-effect sem contrato focado |
+| Storage/state  | `Storage.markRegistroDeleted` enfileira delete remoto; `setState` persiste snapshot local                                                  | Divergencia local/remota se alterar ordem   |
+
+Lacunas remanescentes:
+
+- Falta contrato dedicado Historico -> Registro para `edit-reg` chamando `goTo('registro', { editRegistroId })` a partir do card.
+- Falta contrato dedicado para `delete-reg` com confirmacao `true/false`.
+- Falta contrato de `deleteReg` cobrindo `Storage.markRegistroDeleted`, `setState`, recalculo de equipamento, assinatura local, `renderHist`, `updateGlobalHeader` e Toast no mesmo fluxo.
+- Falta caso com filtro ativo depois de delete.
+- Falta fallback explicito para id ausente/registro inexistente.
+
+Validacao inicial do CP-G:
+
+- Documental/read-only ate a criacao dos docs; testes e `npm run check` devem ser registrados no relatorio final do CP.
+
+Proximo CP recomendado: **CP-H - contrato Historico -> Registro edit/delete**.
+
+Justificativa: ha mais de 90% de confianca de que o proximo corte seguro deve ser contrato, nao refatoracao. O fluxo edit/delete cruza `HistoricoTimeline.jsx`, handlers globais, router, Registro adapter, `deleteReg`, state/storage, confirmacao, header e Toast. Sem um contrato focado, qualquer pre-split de `deleteReg` ou action de edicao pode quebrar registro alvo, delete remoto/local ou re-render de forma silenciosa.
