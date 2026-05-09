@@ -114,6 +114,21 @@ rollback;
 - `09_billing_profile_usage_hardening.test.sql` — CP-B da Mudanca 17:
   bloqueio de `stripe_*` em INSERT de `profiles` e escrita direta em
   `usage_monthly`.
+- `10_signature_plan_gate.test.sql` — CP-E da Mudanca 17: gate server-side de
+  `registros.assinatura` e policies restritivas para o path
+  `registro-fotos/{user_id}/registros/{registro_id}/assinatura.png`.
+
+## Versoes manuais para SQL Editor
+
+Arquivos em `docs/security/*manual-sql-editor.sql` sao versoes manuais para o
+Supabase SQL Editor. Eles nao usam `\echo`, porque `\echo` e comando
+psql/pg_prove. O sucesso manual deve aparecer como `select 'ok - ...' as
+result;`.
+
+- `docs/security/mudanca-17-cp-b-manual-sql-editor.sql` — versao manual do
+  hardening de billing profile e `usage_monthly`.
+- `docs/security/mudanca-17-cp-e-manual-sql-editor.sql` — versao manual do gate
+  server-side de assinatura digital.
 
 ## Adicionando testes
 

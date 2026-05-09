@@ -35,6 +35,20 @@ Status apos CP-B:
 - Validacao SQL/RLS foi adicionada em `supabase/tests`, mas a execucao local de
   pgTAP depende de Docker/Supabase local.
 
+Status apos CP-E:
+
+- CP-C corrigiu entitlement Stripe: `checkout.session.completed` nao promove
+  plano pago ativo sozinho; `invoice.paid` passou a ser o caminho seguro de
+  promocao.
+- CP-D endureceu o contrato de env Supabase no frontend: `VITE_SUPABASE_KEY`
+  ambiguo foi removido do caminho principal e `VITE_SUPABASE_ANON_KEY` rejeita
+  JWT com `role: "service_role"`.
+- CP-E aplicou gate server-side para assinatura digital em duas camadas:
+  trigger em `public.registros.assinatura` e policies RESTRICTIVE no Storage
+  para `registro-fotos/{user_id}/registros/{registro_id}/assinatura.png`.
+- Fotos normais de registros continuam fora do gate de assinatura; registro sem
+  assinatura continua permitido para Free.
+
 ## 2. Base analisada
 
 | Item                 | Valor                                      |
@@ -70,7 +84,7 @@ Campos relevantes usados:
 
 | Achado                                                 | Classificacao inicial          | Arquivos relevantes                                                                                                          |
 | ------------------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Client-only signature paywall permits free Storage use | provavel real                  | `src/core/signatureStorage.js`, `src/ui/views/registro.js`, `supabase/migrations/20260420130000_enforce_photo_plan_gate.sql` |
+| Client-only signature paywall permits free Storage use | provavel real; tratado no CP-E | `src/core/signatureStorage.js`, `src/ui/views/registro.js`, `supabase/migrations/20260420130000_enforce_photo_plan_gate.sql` |
 | Users can self-modify billing profile fields           | provavel real                  | `supabase/migrations/20260411000001_security_subscription_usage.sql`, `supabase/functions/stripe-webhook/index.ts`           |
 | Stripe webhook grants Pro before payment is confirmed  | provavel real; tratado no CP-C | `supabase/functions/stripe-webhook/index.ts`, `supabase/functions/create-checkout-session/index.ts`                          |
 | Frontend build can expose privileged Supabase key      | provavel real; tratado no CP-D | `src/core/supabase.js`, `src/core/supabaseConfig.js`, `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`                |
@@ -563,7 +577,83 @@ Resultado:
 
 ### CP-E - Gate server-side para assinatura digital
 
-Escopo:
+Status: executado no CP-E.
+
+Achado tratado:
+
+- `Client-only signature paywall permits free Storage use`.
+
+Risco antes:
+
+- A assinatura digital era habilitada no frontend por
+  `PlanCache.isCachedPlanPlusOrHigher()`.
+- O upload usava Storage direto em `registro-fotos`, path
+  `{user_id}/registros/{registro_id}/assinatura.png`.
+- `public.registros` tinha policy de ownership por `user_id`; sem gate
+  server-side especifico, usuario Free podia tentar persistir assinatura por API
+  direta.
+
+Regra server-side aplicada:
+
+- Assinatura digital em registro exige Plus+ (`plan_code in ('plus', 'pro')`
+  com `subscription_status in ('active', 'trialing')`) ou `is_dev`.
+- `service_role` continua com bypass para operacoes backend confiaveis.
+- Registro sem assinatura e update que nao altera assinatura continuam
+  permitidos conforme RLS existente.
+- Fotos normais em `registro-fotos/{user_id}/registros/{registro_id}/...`
+  continuam fora do gate de assinatura.
+
+Arquivos alterados:
+
+- `supabase/migrations/20260509210000_enforce_signature_plan_gate.sql`
+- `supabase/tests/10_signature_plan_gate.test.sql`
+- `docs/security/mudanca-17-cp-e-manual-sql-editor.sql`
+- `supabase/tests/README.md`
+- `docs/security/mudanca-17-codex-security-triage.md`
+
+Mitigacao aplicada:
+
+- Criada funcao `public.registro_signature_payload_requires_plan(jsonb)` para
+  detectar payload de assinatura boolean/json/text sem depender do frontend.
+- Criada trigger `public.enforce_registro_signature_plan_gate()` em
+  `public.registros` para bloquear INSERT/UPDATE de assinatura por usuario sem
+  Plus+.
+- Criados helpers de Storage para identificar path de assinatura e validar
+  ownership + Plus+.
+- Criadas policies `AS RESTRICTIVE` em `storage.objects` para INSERT/UPDATE no
+  path de assinatura. Por serem restritivas, elas adicionam o gate mesmo quando
+  existem policies permissivas de upload para fotos normais.
+
+Validacoes planejadas/adicionadas:
+
+- Teste oficial TAP/pg_prove
+  `supabase/tests/10_signature_plan_gate.test.sql`.
+- Script manual SQL Editor
+  `docs/security/mudanca-17-cp-e-manual-sql-editor.sql`.
+- O teste cobre Free bloqueado, Plus/Pro permitido, service_role preservado,
+  registro Free sem assinatura permitido, foto normal de registro preservada e
+  policies restritivas de Storage presentes.
+
+Riscos remanescentes:
+
+- `public.registros.assinatura` aparece nas migrations baseline como `boolean`,
+  enquanto o frontend tambem aceita referencia de Storage em objeto/string
+  legado. A trigger usa `to_jsonb(new.assinatura)` para cobrir o tipo real do
+  banco sem alterar schema neste CP.
+- A execucao local de `supabase test db` depende de Postgres/Supabase local em
+  `127.0.0.1:54322`. Se o ambiente local nao estiver ativo, validar o script
+  manual no SQL Editor apos aplicar a migration.
+
+Resultado:
+
+- Usuario Free nao deve conseguir persistir assinatura em
+  `public.registros.assinatura`.
+- Usuario Free nao deve conseguir escrever o objeto de assinatura no path
+  padrao de Storage.
+- Usuarios Plus/Pro e `service_role` continuam com caminho permitido.
+- Proximo CP recomendado passa a ser CP-F.
+
+Escopo original:
 
 - Definir gate Plus+ para assinatura em Storage e/ou coluna
   `registros.assinatura`.
@@ -718,14 +808,17 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-D: CP-E - Gate server-side para assinatura
-digital.
+Proximo CP recomendado apos CP-E: CP-F - Dados locais, logout e troca de
+usuario.
 
 Justificativa:
 
 - CP-B reduziu a manipulacao direta de billing/quota.
+- CP-C corrigiu a promocao indevida de plano pago antes de pagamento
+  confirmado.
 - CP-D corrigiu o contrato ambiguo da chave Supabase no frontend e adicionou
   rejeicao defensiva de `service_role`.
-- O proximo risco high documentado e o gate server-side para assinatura digital.
-- CP-E deve tratar apenas assinatura digital e gate server-side, sem misturar
-  PDF/share amplo, Vite warnings genericos, React Doctor ou billing/Stripe.
+- CP-E adicionou gate server-side para assinatura digital em banco e Storage.
+- O proximo grupo relevante envolve dados locais, caches e troca de usuario,
+  sem misturar PDF/share amplo, Vite warnings genericos, React Doctor,
+  billing/Stripe ou assinatura digital.
