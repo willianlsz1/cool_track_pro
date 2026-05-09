@@ -452,8 +452,21 @@ Status: aplicado em 2026-05-09.
 - LOC atual `src/ui/views/registro.js`: 1752.
 - Validacoes previstas para este CP: diff restrito aos docs; bateria feature/contratos; `npm run format`; `npm run check`.
 
-## 29. Proximo CP recomendado
+## 29. CP-U - Contrato Checklist/PMOC
 
-**CP-U - criar/fortalecer contrato especifico Checklist/PMOC.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O CP-T mostrou que o fluxo esta mapeado, mas antes de qualquer pre-split e mais seguro travar explicitamente o comportamento de warning soft-required nao bloqueante, shape `registro.checklist`, gate Pro/CTA, snapshot nulo quando vazio e consumo PDF de itens marcados.
+- Teste criado: `src/__tests__/registroChecklistPmoc.contract.test.js`.
+- Contratos protegidos: `#r-checklist-body`, `data-action="r-checklist-set"`, `data-action="r-checklist-obs"`, `data-action="r-checklist-measure"`, `data-item-id`, `data-status`, `data-unit`, classes `r-checklist__*`, shape `registro.checklist.tipo_template/items`, `validateChecklist`, persistence CP-K e consumo PDF de checklist.
+- Warning soft-required travado como nao bloqueante: preventiva sem checklist e preventiva com obrigatorios pendentes disparam `Toast.warning`, mas continuam salvando.
+- Persistence CP-K preservada: create e edit mantem checklist atual ou existente no formato esperado.
+- Consumo PDF/relatorio protegido em contrato focado: `drawChecklist` consome `tipo_template`, usa labels do template e inclui apenas itens marcados.
+- Nenhuma mudanca funcional intencional; nenhum arquivo de producao em `src/` foi alterado.
+- Lacunas remanescentes: gate Pro/CTA segue coberto por testes legados de render, mas nao foi duplicado no contrato dedicado; matriz completa de PDF/relatorio por plano permanece fora deste CP.
+- Validacoes rodadas: contrato Checklist/PMOC; bateria feature/contratos; testes relacionados Checklist/PMOC/Registro/PDF; `npm run format`; `npm run check`.
+
+## 30. Proximo CP recomendado
+
+**CP-V - pre-split checklist/PMOC in-place.**
+
+Confianca: 90%+. O CP-U travou os contratos mais frageis de Checklist/PMOC sem alterar producao. O proximo corte seguro e separar localmente, ainda dentro de `src/ui/views/registro.js`, os wrappers de estado `_currentChecklist`, gate/render, setters, warning soft-required e reset/edit load antes de qualquer movimento para modulo feature.

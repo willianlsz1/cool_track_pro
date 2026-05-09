@@ -142,3 +142,12 @@ Lacunas criticas:
 Recomendo exatamente **CP-U - criar/fortalecer contrato especifico Checklist/PMOC**.
 
 Justificativa: o fluxo ja esta mapeado, mas o proximo corte seguro ainda depende de proteger explicitamente os pontos que podem mudar comportamento sem quebrar testes amplos: warning soft-required nao bloqueante, shape `registro.checklist`, gate Pro/CTA, snapshot nulo quando vazio e consumo PDF de itens marcados. Esse contrato reduz risco antes de qualquer pre-split in-place.
+
+## 11. Complemento CP-U
+
+Status: contrato aplicado em `src/__tests__/registroChecklistPmoc.contract.test.js`.
+
+- Lacunas reduzidas: selectors/actions/classes, shape `registro.checklist.tipo_template/items`, `validateChecklist`, persistence CP-K, warning soft-required nao bloqueante e consumo PDF de itens marcados.
+- O contrato confirma que preventiva sem checklist e preventiva com obrigatorios pendentes emitem warning e continuam salvando.
+- O consumo PDF ficou protegido por teste focado em `drawChecklist`, mantendo uso de `tipo_template`, labels do template e omissao de itens pendentes.
+- Proximo corte ficou mais seguro: **CP-V - pre-split checklist/PMOC in-place**.
