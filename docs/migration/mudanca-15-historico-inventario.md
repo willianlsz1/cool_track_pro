@@ -705,3 +705,44 @@ Validacao inicial do CP-K:
 Proximo CP recomendado: **CP-L - contrato integrado Historico -> PDF/WhatsApp**.
 
 Justificativa: ha mais de 90% de confianca de que o proximo passo seguro deve ser contrato, nao refatoracao. Os contratos atuais cobrem partes do fluxo, mas ainda falta a ponte integrada card Historico -> handler global -> `filters.registroId` -> PDF/WhatsApp com filtros globais ativos.
+
+## 22. CP-L - Contrato integrado Historico -> PDF/WhatsApp
+
+- CP-L aplicado.
+- Teste criado: `src/__tests__/historicoPdfWhatsappIntegration.contract.test.js`.
+- Contrato integrado Historico -> PDF/WhatsApp protegido sem alteracao de codigo de producao.
+- Caminho PDF coberto: `HistoricoTimeline` -> `CardActions` -> `data-action="export-pdf"` -> handler global `reportExportHandlers` -> `buildReportFilters` -> `filters.registroId` -> `PDFGenerator.generateMaintenanceReport`.
+- Caminho WhatsApp coberto: `HistoricoTimeline` -> `CardActions` -> `data-action="whatsapp-export"` -> handler global `reportExportHandlers` -> `buildReportFilters` -> `filters.registroId` -> `PDFGenerator.generateMaintenanceReport` -> `WhatsAppExport.generateText` -> `shareReportPdf`.
+- Filtros globais ativos (`#rel-equip`, `#rel-de`, `#rel-ate`) cobertos junto com `data-registro-id` do card para garantir que `registroId` nao seja perdido.
+- Simetria PDF vs WhatsApp coberta: ambos usam o mesmo `data-registro-id` do mesmo card.
+- Fallback com dados opcionais ausentes coberto: card minimal continua renderizando `export-pdf` e `whatsapp-export` com `data-registro-id`.
+- Nenhuma mudanca funcional intencional.
+- Nenhum `src/` de producao alterado.
+- Contrato CP-B preservado.
+- Contratos da Mudanca 13 preservados.
+
+Contratos adicionados/fortalecidos:
+
+| Contrato Historico -> PDF/WhatsApp         | Lacuna antes                                           | Cobertura adicionada                                                                   |
+| ------------------------------------------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `export-pdf` por card Historico            | Atributo e handler eram cobertos em testes separados   | Botao real de `HistoricoTimeline/CardActions` passa como `triggerEl` do handler global |
+| `whatsapp-export` por card Historico       | Atributo e share eram cobertos em testes separados     | Botao real de `HistoricoTimeline/CardActions` passa como `triggerEl` do handler global |
+| `data-registro-id` -> `filters.registroId` | Nao havia ponte integrada partindo do card renderizado | Teste verifica `registroId: "reg-1"` nas chamadas PDF e WhatsApp                       |
+| Filtros ativos + registro do card          | Risco de filtros globais competirem com `registroId`   | Teste usa `#rel-equip`, `#rel-de`, `#rel-ate` ativos e preserva `registroId`           |
+| Simetria PDF vs WhatsApp                   | Paridade coberta por partes, nao pelo mesmo card       | Teste confirma mesmo id em PDF e WhatsApp                                              |
+
+Testes adicionados/rodados inicialmente:
+
+- `src/__tests__/historicoPdfWhatsappIntegration.contract.test.js`: 3 testes cobrindo card -> PDF, card -> WhatsApp e fallback de dados opcionais ausentes.
+- `npm run test -- src/__tests__/historicoPdfWhatsappIntegration.contract.test.js --reporter=dot`: passou, 1 arquivo / 3 testes.
+
+Lacunas remanescentes:
+
+- O teste usa mocks para quota/PDF/share e nao executa Web Share/upload real.
+- Fallback de ausencia de `data-registro-id` permanece coberto indiretamente por handler/filtros existentes, nao por fluxo visual do Historico.
+- `reportExportHandlers.js` segue concentrando DOM, quota, PDF, share, Toast, router e telemetria.
+- Filtros do Historico ainda nao foram mapeados como tema proprio da Mudanca 15.
+
+Proximo CP recomendado: **CP-M - pre-split export/share action no Historico**.
+
+Justificativa: o contrato integrado reduziu a lacuna mais critica do fluxo PDF/WhatsApp por card. Com a ponte card -> handler -> `filters.registroId` protegida, o proximo corte seguro e separar localmente a orquestracao de actions export/share no adapter do Historico, sem mover handlers globais nem alterar `reportExportHandlers`.

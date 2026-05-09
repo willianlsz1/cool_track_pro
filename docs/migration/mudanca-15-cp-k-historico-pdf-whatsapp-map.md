@@ -135,3 +135,11 @@ Lacunas criticas:
 Proximo CP recomendado: **CP-L - contrato integrado Historico -> PDF/WhatsApp**.
 
 Justificativa: ha mais de 90% de confianca de que o proximo passo seguro deve ser contrato, nao refatoracao. A cadeia cruza `HistoricoTimeline`, `CardActions`, eventos globais, `reportExportHandlers`, quota/gating, `PDFGenerator`, `WhatsAppExport` e `shareReportPdf`. Os testes atuais cobrem partes boas do contrato, mas ainda falta uma ponte integrada partindo do card do Historico para garantir que `data-registro-id` chega como `filters.registroId` em PDF e WhatsApp mesmo com filtros globais ativos.
+
+## 11. Complemento CP-L
+
+- Contrato criado em `src/__tests__/historicoPdfWhatsappIntegration.contract.test.js`.
+- Lacuna reduzida: card real de `HistoricoTimeline/CardActions` agora e usado como `triggerEl` do handler global para `export-pdf` e `whatsapp-export`.
+- O contrato confirma que filtros globais ativos nao removem `filters.registroId` vindo de `data-registro-id`.
+- O contrato confirma simetria entre PDF e WhatsApp para o mesmo card.
+- O proximo corte ficou mais seguro para pre-split local de export/share action no Historico, mantendo `reportExportHandlers` intacto.
