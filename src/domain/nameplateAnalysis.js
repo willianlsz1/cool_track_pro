@@ -11,6 +11,7 @@
  * handler do UI decide o que mostrar (toast, upsell, retry) baseado no code.
  */
 import { supabase } from '../core/supabase.js';
+import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
 
 // ── Erros canônicos ────────────────────────────────────────────────────────
 // Os mesmos codes vêm da função (PLAN_GATE_FREE/PLUS/PRO, AUTH_REQUIRED, etc),
@@ -379,8 +380,7 @@ export async function analyzeNameplate(file, { supabaseClient = supabase } = {})
   const mediaType = normalizeMediaType(file.type);
 
   // ── 4. Chama a edge function ────────────────────────────────────────────
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+  const { url: supabaseUrl, anonKey: supabaseKey } = getSupabaseBrowserConfig();
   const endpoint = `${supabaseUrl}/functions/v1/analyze-nameplate`;
 
   let response;

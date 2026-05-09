@@ -68,12 +68,12 @@ Campos relevantes usados:
 
 ### High
 
-| Achado                                                 | Classificacao inicial               | Arquivos relevantes                                                                                                          |
-| ------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Client-only signature paywall permits free Storage use | provavel real                       | `src/core/signatureStorage.js`, `src/ui/views/registro.js`, `supabase/migrations/20260420130000_enforce_photo_plan_gate.sql` |
-| Users can self-modify billing profile fields           | provavel real                       | `supabase/migrations/20260411000001_security_subscription_usage.sql`, `supabase/functions/stripe-webhook/index.ts`           |
-| Stripe webhook grants Pro before payment is confirmed  | provavel real; tratado no CP-C      | `supabase/functions/stripe-webhook/index.ts`, `supabase/functions/create-checkout-session/index.ts`                          |
-| Frontend build can expose privileged Supabase key      | precisa de investigacao operacional | `src/core/supabase.js`, `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`                                              |
+| Achado                                                 | Classificacao inicial          | Arquivos relevantes                                                                                                          |
+| ------------------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Client-only signature paywall permits free Storage use | provavel real                  | `src/core/signatureStorage.js`, `src/ui/views/registro.js`, `supabase/migrations/20260420130000_enforce_photo_plan_gate.sql` |
+| Users can self-modify billing profile fields           | provavel real                  | `supabase/migrations/20260411000001_security_subscription_usage.sql`, `supabase/functions/stripe-webhook/index.ts`           |
+| Stripe webhook grants Pro before payment is confirmed  | provavel real; tratado no CP-C | `supabase/functions/stripe-webhook/index.ts`, `supabase/functions/create-checkout-session/index.ts`                          |
+| Frontend build can expose privileged Supabase key      | provavel real; tratado no CP-D | `src/core/supabase.js`, `src/core/supabaseConfig.js`, `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`                |
 
 ### Medium
 
@@ -328,16 +328,16 @@ Validacoes do CP-C:
 
 ### H4 - Frontend build can expose privileged Supabase key
 
-Classificacao: precisa de investigacao operacional.
+Classificacao: provavel real; tratado no CP-D.
 
 Evidencia no codigo:
 
-- `src/core/supabase.js:3` usa acesso dinamico `import.meta.env[name]`.
-- `src/core/supabase.js:30` le `VITE_SUPABASE_KEY` no bundle frontend.
-- `.github/workflows/ci.yml:41` e `.github/workflows/ci.yml:47` injetam
-  `VITE_SUPABASE_KEY` a partir de GitHub Secrets.
-- O comentario em `src/core/supabase.js:29` afirma que a chave deve ser apenas
-  anon/publica.
+- Antes do CP-D, `src/core/supabase.js` usava acesso dinamico
+  `import.meta.env[name]` e lia `VITE_SUPABASE_KEY` no bundle frontend.
+- Antes do CP-D, `.github/workflows/ci.yml` e `.github/workflows/e2e.yml`
+  injetavam `VITE_SUPABASE_KEY` a partir de GitHub Secrets.
+- O nome antigo era ambiguo para uma variavel `VITE_*`, que sempre entra no
+  bundle publico.
 
 Risco:
 
@@ -345,26 +345,31 @@ Toda variavel `VITE_*` vai para bundle publico. Se o secret armazenado em
 `VITE_SUPABASE_KEY` for service-role ou outro JWT privilegiado, visitantes podem
 extrair a chave do JS publicado e burlar RLS.
 
-Correcao segura sugerida:
+Mitigacao aplicada no CP-D:
 
-- CP dedicado para env/frontend build.
-- Renomear para `VITE_SUPABASE_ANON_KEY` para explicitar contrato.
-- Adicionar validacao defensiva que rejeite chaves JWT com role `service_role`
-  no cliente.
-- Trocar acesso dinamico por referencias estaticas para reduzir exposicao de
-  outras variaveis `VITE_*`.
-- Auditar GitHub Secrets fora do codigo antes do deploy.
+- Contrato frontend migrado para `VITE_SUPABASE_ANON_KEY`.
+- Acesso dinamico removido do cliente Supabase; o codigo usa referencias
+  estaticas a `import.meta.env.VITE_SUPABASE_URL` e
+  `import.meta.env.VITE_SUPABASE_ANON_KEY`.
+- `src/core/supabaseConfig.js` rejeita JWT cujo payload tenha
+  `role: "service_role"` antes de inicializar chamadas frontend.
+- Workflows, `.env.example`, README, CONTRIBUTING e checklist de pre-deploy
+  foram atualizados para o novo nome.
+- `VITE_SUPABASE_KEY` nao e mais fallback aceito pelo frontend.
 
 Risco da correcao:
 
-Medio. Pode quebrar CI/deploy se nomes de secrets nao forem migrados em todos os
-workflows/ambientes.
+Baixo/medio. CI/deploy e ambientes hospedados precisam migrar o secret antigo
+`VITE_SUPABASE_KEY` para `VITE_SUPABASE_ANON_KEY`. Sem essa migracao, o app
+falha fechado por configuracao ausente.
 
-Validacoes necessarias:
+Validacoes do CP-D:
 
-- Build local com env anon.
-- Build falhando com chave service-role simulada.
-- Busca no bundle por valores inesperados de `VITE_*`.
+- Teste focado `src/__tests__/supabaseConfig.test.js` para anon/mock key,
+  ausencia de fallback antigo e rejeicao de `service_role`.
+- Testes focados existentes de Supabase/env/bootstrap/billing/nameplate.
+- Busca no codigo por `VITE_SUPABASE_KEY` fora da documentacao historica do
+  proprio CP-D.
 - Revisao manual de GitHub Secrets pelo mantenedor.
 - `npm run format`, `npm run build`, `npm run check`.
 
@@ -432,8 +437,10 @@ Confirmados por leitura de codigo neste CP:
   a migration atual documenta como sem gate de plano.
 - Webhook Stripe promove plano em `checkout.session.completed` antes de exigir
   confirmacao inequivoca de pagamento.
-- Frontend consome `VITE_SUPABASE_KEY` no bundle publico; isso e esperado para
-  anon key, mas perigoso se o secret operacional estiver incorreto.
+- Antes do CP-D, frontend consumia `VITE_SUPABASE_KEY` no bundle publico; isso e
+  esperado para anon key, mas perigoso se o secret operacional estivesse
+  incorreto. O contrato agora e `VITE_SUPABASE_ANON_KEY` e rejeita
+  `service_role`.
 
 ## 9. Plano recomendado de CPs
 
@@ -510,25 +517,49 @@ Resultado:
 
 Escopo:
 
-- Migrar contrato de `VITE_SUPABASE_KEY` para `VITE_SUPABASE_ANON_KEY`.
-- Remover acesso dinamico a `import.meta.env`.
-- Adicionar validacao defensiva contra service role no cliente.
-- Atualizar workflows e `env.example` se aplicavel, sem tocar em secrets reais.
+- Executado: contrato migrado de `VITE_SUPABASE_KEY` para
+  `VITE_SUPABASE_ANON_KEY`.
+- Executado: acesso dinamico a `import.meta.env` removido da inicializacao
+  Supabase frontend.
+- Executado: validacao defensiva contra JWT `service_role` no cliente.
+- Executado: workflows, `.env.example`, README, CONTRIBUTING e checklist de
+  pre-deploy atualizados, sem tocar em secrets reais.
 
-Arquivos provaveis:
+Arquivos alterados:
 
 - `src/core/supabase.js`
-- `.github/workflows/*.yml`
-- `env.example`
-- docs de setup, se existirem.
+- `src/core/supabaseConfig.js`
+- `src/features/userData.js`
+- `src/core/plans/monetization.js`
+- `src/domain/nameplateAnalysis.js`
+- `src/__tests__/supabaseConfig.test.js`
+- `src/__tests__/userData.test.js`
+- `.github/workflows/ci.yml`
+- `.github/workflows/e2e.yml`
+- `e2e/playwright.config.js`
+- `vite.config.js`
+- `.env.example`
+- `README.md`
+- `CONTRIBUTING.md`
+- `docs/audits/pre-deploy.md`
+- `docs/security/mudanca-17-codex-security-triage.md`
 
 Validacoes:
 
-- Build com env anon.
-- Build/teste defensivo com chave service-role simulada.
+- Teste defensivo com anon/mock key e chave service-role simulada.
+- Testes focados de Supabase/env/bootstrap/billing/nameplate.
 - `npm run format`
 - `npm run build`
 - `npm run check`
+
+Resultado:
+
+- `checkout`/portal/nameplate/export/delete continuam usando a anon key
+  explicita no header `apikey`.
+- JWT com `role: "service_role"` em `VITE_SUPABASE_ANON_KEY` e rejeitado antes
+  da inicializacao do cliente.
+- `VITE_SUPABASE_KEY` antigo nao e mais fallback aceito.
+- Proximo CP recomendado passa a ser CP-E.
 
 ### CP-E - Gate server-side para assinatura digital
 
@@ -687,14 +718,14 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-C: CP-D - Hardening da chave Supabase no
-frontend.
+Proximo CP recomendado apos CP-D: CP-E - Gate server-side para assinatura
+digital.
 
 Justificativa:
 
 - CP-B reduziu a manipulacao direta de billing/quota.
-- CP-C corrigiu a promocao antecipada de entitlement Stripe.
-- O proximo risco high documentado e a possibilidade de exposicao/uso incorreto
-  de chave Supabase privilegiada no bundle frontend.
-- CP-D deve tratar apenas contrato de env Supabase frontend, sem misturar
-  PDF/share, Vite warnings genericos, assinatura digital ou React Doctor.
+- CP-D corrigiu o contrato ambiguo da chave Supabase no frontend e adicionou
+  rejeicao defensiva de `service_role`.
+- O proximo risco high documentado e o gate server-side para assinatura digital.
+- CP-E deve tratar apenas assinatura digital e gate server-side, sem misturar
+  PDF/share amplo, Vite warnings genericos, React Doctor ou billing/Stripe.

@@ -1,4 +1,5 @@
 import { supabase } from '../supabase.js';
+import { getSupabaseBrowserConfig } from '../supabaseConfig.js';
 import {
   PLAN_CODE_FREE,
   PLAN_CODE_PLUS,
@@ -292,8 +293,7 @@ export async function startBillingPortal({ supabaseClient = supabase } = {}) {
   // ── 2. Chama a Edge Function via fetch direto ─────────────────────────────
   // Evita qualquer interferência do SDK (FunctionsClient armazena headers na
   // construção e pode enviar um token desatualizado)
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+  const { url: supabaseUrl, anonKey: supabaseKey } = getSupabaseBrowserConfig();
 
   let response;
   try {

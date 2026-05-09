@@ -18,7 +18,7 @@ git clone https://github.com/Willianlsz1/Cool_Track_Pro.git
 cd Cool_Track_Pro
 npm ci
 cp .env.example .env.local
-# preencha VITE_SUPABASE_URL e VITE_SUPABASE_KEY (anon key)
+# preencha VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (anon key)
 npm run dev
 ```
 
@@ -149,7 +149,7 @@ O merge `staging → main` é feito pelo mantenedor em janelas de release.
 
 ## Segurança
 
-- **Nunca** use a chave `service_role` do Supabase no frontend. Só a `anon` vai em `VITE_SUPABASE_KEY`.
+- **Nunca** use a chave `service_role` do Supabase no frontend. Só a `anon` vai em `VITE_SUPABASE_ANON_KEY`.
 - Credenciais ficam em `.env.local` (gitignored) em dev, e nos **GitHub Actions Secrets** em produção.
 - Reportou uma vulnerabilidade? Abra issue com label `security` **ou** mande email direto pra `willianloopes123@gmail.com` se for sensível.
 

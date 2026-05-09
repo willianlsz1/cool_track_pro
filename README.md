@@ -136,7 +136,7 @@ cp .env.example .env
 ### Obrigatórias
 
 - `VITE_SUPABASE_URL`: URL do projeto Supabase.
-- `VITE_SUPABASE_KEY`: **chave pública anon** do Supabase (uso client-side).
+- `VITE_SUPABASE_ANON_KEY`: **chave pública anon** do Supabase (uso client-side). Nunca use `service_role` em variável `VITE_*`.
 - `VITE_AUTH_REDIRECT_URL`: URL pública da aplicação para callbacks de auth (ex.: `https://seudominio.com.br`).
 
 ### Opcionais
@@ -158,7 +158,7 @@ contra `main`. O step `Build` precisa das envs do Vite pra compilar sem erro —
 então o repositório exige:
 
 - `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_KEY` (**anon public key**, nunca `service_role`)
+- `VITE_SUPABASE_ANON_KEY` (**anon public key**, nunca `service_role`)
 
 Deploy real é feito pela Cloudflare Pages (integração direta com o repo).
 As env vars precisam estar **duplicadas** no painel da Cloudflare —
@@ -211,7 +211,7 @@ Os headers de segurança e o redirect SPA ficam em `public/_headers` e `public/_
   1. Em `dash.cloudflare.com` → Workers & Pages → Create → Pages → Connect to Git.
   2. Selecionar o repositório. Framework preset: `None`.
   3. Build command: `npm run build`. Build output directory: `dist`.
-  4. Em Environment variables, definir: `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`, `VITE_AUTH_REDIRECT_URL`, e (opcional) `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY`.
+  4. Em Environment variables, definir: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_REDIRECT_URL`, e (opcional) `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_PUBLIC_KEY`.
   5. Salvar e fazer o primeiro deploy. Cloudflare lê automaticamente `_redirects` e `_headers` do `dist/`.
   6. Configurar domínio custom em Custom domains (ou usar `*.pages.dev`). Atualizar `VITE_AUTH_REDIRECT_URL` e adicionar a nova URL nas Redirect URLs do Supabase Auth.
 - **Netlify**:

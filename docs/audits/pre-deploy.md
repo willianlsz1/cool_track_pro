@@ -37,8 +37,9 @@ git log --all --full-history -- .env
 # nenhum URL/key hardcoded — saída vazia = OK
 grep -rE "supabase\.co|eyJ[A-Za-z0-9_-]{20,}" src/ --include="*.js" | grep -v "__tests__"
 
-# service_role NUNCA pode aparecer no front — saída vazia = OK
-grep -r "service_role" src/ --include="*.js" | grep -v "__tests__"
+# service_role NUNCA pode aparecer como chave/secret no front.
+# O unico hit permitido fora de testes e a validacao defensiva em supabaseConfig.js.
+grep -r "service_role" src/ --include="*.js" | grep -v "__tests__" | grep -v "supabaseConfig.js"
 ```
 
 **Equivalente PowerShell:**
@@ -52,19 +53,22 @@ Get-ChildItem -Path src -Recurse -File -Filter *.js |
   Where-Object { $_.FullName -notmatch '__tests__' } |
   Select-String -Pattern 'supabase\.co|eyJ[A-Za-z0-9_-]{20,}'
 
-# service_role NUNCA pode aparecer no front — saída vazia = OK
+# service_role NUNCA pode aparecer como chave/secret no front.
+# O unico hit permitido fora de testes e a validacao defensiva em supabaseConfig.js.
 Get-ChildItem -Path src -Recurse -File -Filter *.js |
-  Where-Object { $_.FullName -notmatch '__tests__' } |
+  Where-Object { $_.FullName -notmatch '__tests__' -and $_.Name -ne 'supabaseConfig.js' } |
   Select-String -Pattern 'service_role'
 ```
 
-> Se algum hit aparecer **fora** de `__tests__/`, é leak real e bloqueia o deploy.
-> Hits em `__tests__/` (ex: `mock.supabase.co`) são esperados — são stubs de teste, não vão para o bundle.
+> Se algum hit aparecer **fora** de `__tests__/` e fora da validação defensiva
+> `src/core/supabaseConfig.js`, é leak real e bloqueia o deploy. Hits em
+> `__tests__/` (ex: `mock.supabase.co`) são esperados — são stubs de teste, não
+> vão para o bundle.
 
 - [ ] `.env` está no `.gitignore` e nunca foi commitado
-- [ ] GitHub Actions tem `VITE_SUPABASE_URL` e `VITE_SUPABASE_KEY` configurados em Secrets
+- [ ] GitHub Actions tem `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` configurados em Secrets
 - [ ] Nenhum URL/JWT hardcoded no código
-- [ ] `service_role` não aparece em `src/`
+- [ ] `service_role` não aparece em `src/`, exceto na validação defensiva de `src/core/supabaseConfig.js`
 - [ ] Apenas `anon` key é usada no front
 - [ ] Nenhum `console.log` vazando token de sessão
 

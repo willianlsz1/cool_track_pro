@@ -15,6 +15,7 @@
  */
 
 import { supabase } from '../core/supabase.js';
+import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
 import { AppError, ErrorCodes, handleError } from '../core/errors.js';
 
 const EXPORT_FN_PATH = '/functions/v1/export-user-data';
@@ -54,17 +55,16 @@ async function getFreshAccessToken() {
 }
 
 function getSupabaseConfig() {
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_KEY;
-  if (!url || !anonKey) {
+  try {
+    return getSupabaseBrowserConfig();
+  } catch (error) {
     throw new AppError(
       'Configuração do Supabase ausente no cliente.',
       ErrorCodes.NETWORK_ERROR,
       'error',
-      { action: 'userData.getSupabaseConfig' },
+      { action: 'userData.getSupabaseConfig', cause: error },
     );
   }
-  return { url: url.replace(/\/$/, ''), anonKey };
 }
 
 /**

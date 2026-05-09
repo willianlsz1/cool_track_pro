@@ -28,7 +28,7 @@ vi.mock('../core/errors.js', () => ({
 
 // Stub import.meta.env antes de importar SUT
 vi.stubEnv('VITE_SUPABASE_URL', 'https://mock.supabase.co');
-vi.stubEnv('VITE_SUPABASE_KEY', 'anon-key');
+vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'anon-key');
 
 const { exportUserData, deleteUserAccount } = await import('../features/userData.js');
 
