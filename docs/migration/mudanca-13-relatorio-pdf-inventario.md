@@ -249,3 +249,20 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - LOC `src/ui/controller/handlers/reportExportHandlers.js`: 719 -> 709 (-10).
 - LOC `src/features/relatorio/export/reportExportHelpers.js`: 9.
 - Proximo CP recomendado: **CP-E - pre-split share/WhatsApp**.
+
+## 15. CP-E - Pre-split share/WhatsApp
+
+- Status: aplicado.
+- Arquivo alterado: `src/domain/pdf/shareReport.js`.
+- `shareReportPdf` permaneceu no mesmo arquivo e com a mesma assinatura publica.
+- Helpers locais criados:
+  - `buildShareReportContext`: normaliza `safeName`, `metadata`, `whatsappText`, `pdfBlob` e `supabaseClient` para o orquestrador;
+  - `tryNativeShareReport`: encapsula a rota Web Share API preservando sucesso, cancelamento e queda para fallback em erro real;
+  - `uploadShareReportAndOpenWhatsApp`: encapsula upload para Supabase Storage, montagem da mensagem e abertura do `wa.me`;
+  - `downloadShareReportFallback`: encapsula `handleError` silencioso e download local final.
+- Responsabilidades separadas: contexto, Web Share, upload/link WhatsApp e fallback de download.
+- Nenhuma mudanca funcional intencional; ordem Web Share -> upload/wa.me -> download fallback preservada.
+- Contratos CP-B preservados: `shareReportPdf`, metadata `userId`/`registroId`, fallback share/upload, Web Share, download fallback e `filters.registroId` via handler.
+- `reportExportHandlers.js`, `shareWhatsAppFlow`, `domain/pdf.js`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf/shareReport.js`: 299 -> 330 (+31).
+- Proximo CP recomendado: **CP-F - mover helpers seguros de shareReport**.

@@ -243,6 +243,72 @@ export function downloadPdfLocally({ pdfBlob, fileName } = {}) {
   }
 }
 
+function buildShareReportContext({ pdfBlob, fileName, whatsappText, metadata, supabaseClient }) {
+  const safeName = buildSafeReportFileName({
+    registroId: metadata.registroId,
+    fileName,
+  });
+
+  return {
+    pdfBlob,
+    safeName,
+    whatsappText,
+    metadata,
+    supabaseClient,
+  };
+}
+
+async function tryNativeShareReport({ pdfBlob, safeName, whatsappText }) {
+  if (!canSharePdfFile(pdfBlob, safeName)) return null;
+
+  const res = await sharePdfFileNative({
+    pdfBlob,
+    fileName: safeName,
+    title: safeName,
+    text: whatsappText || DEFAULT_WHATSAPP_PREFIX,
+  });
+  if (res.ok) return { ok: true, channel: 'web-share' };
+  if (res.cancelled) return { ok: false, cancelled: true, channel: 'web-share' };
+  return null;
+}
+
+async function uploadShareReportAndOpenWhatsApp({
+  pdfBlob,
+  safeName,
+  whatsappText,
+  metadata,
+  supabaseClient,
+}) {
+  const { url: pdfUrl } = await uploadReportPdf({
+    pdfBlob,
+    fileName: safeName,
+    metadata,
+    supabaseClient,
+  });
+  const message = buildWhatsAppMessage({ pdfUrl, prefix: whatsappText });
+  const opened = openWhatsAppWithPdfLink({ pdfUrl, text: message });
+  if (!opened) {
+    return { ok: false, pdfUrl, channel: 'wa-link' };
+  }
+  return { ok: true, channel: 'wa-link', pdfUrl };
+}
+
+function downloadShareReportFallback({ error, pdfBlob, safeName }) {
+  handleError(error, {
+    code: ErrorCodes.SYNC_FAILED,
+    severity: 'warning',
+    message: 'Não foi possível compartilhar o PDF online. Tente baixar o relatório.',
+    context: { action: 'shareReport.shareReportPdf.upload', fileName: safeName },
+    showToast: false,
+  });
+  const downloaded = downloadPdfLocally({ pdfBlob, fileName: safeName });
+  return {
+    ok: downloaded,
+    channel: downloaded ? 'download' : null,
+    error,
+  };
+}
+
 /**
  * Orchestrator principal — usado pelo handler do controller.
  *
@@ -269,52 +335,23 @@ export async function shareReportPdf({
   metadata = {},
   supabaseClient = supabase,
 } = {}) {
-  const safeName = buildSafeReportFileName({
-    registroId: metadata.registroId,
+  const context = buildShareReportContext({
+    pdfBlob,
     fileName,
+    whatsappText,
+    metadata,
+    supabaseClient,
   });
 
   // Rota 1: Web Share API com files (mobile moderno)
-  if (canSharePdfFile(pdfBlob, safeName)) {
-    const res = await sharePdfFileNative({
-      pdfBlob,
-      fileName: safeName,
-      title: safeName,
-      text: whatsappText || DEFAULT_WHATSAPP_PREFIX,
-    });
-    if (res.ok) return { ok: true, channel: 'web-share' };
-    if (res.cancelled) return { ok: false, cancelled: true, channel: 'web-share' };
-    // Erro não-cancel → cai pro fallback de link.
-  }
+  const nativeResult = await tryNativeShareReport(context);
+  if (nativeResult) return nativeResult;
 
   // Rota 2: upload + wa.me com link (desktop, iOS antigo, PWA sem share)
   try {
-    const { url: pdfUrl } = await uploadReportPdf({
-      pdfBlob,
-      fileName: safeName,
-      metadata,
-      supabaseClient,
-    });
-    const message = buildWhatsAppMessage({ pdfUrl, prefix: whatsappText });
-    const opened = openWhatsAppWithPdfLink({ pdfUrl, text: message });
-    if (!opened) {
-      return { ok: false, pdfUrl, channel: 'wa-link' };
-    }
-    return { ok: true, channel: 'wa-link', pdfUrl };
+    return await uploadShareReportAndOpenWhatsApp(context);
   } catch (error) {
     // Último recurso: baixar localmente pro técnico não perder o relatório.
-    handleError(error, {
-      code: ErrorCodes.SYNC_FAILED,
-      severity: 'warning',
-      message: 'Não foi possível compartilhar o PDF online. Tente baixar o relatório.',
-      context: { action: 'shareReport.shareReportPdf.upload', fileName: safeName },
-      showToast: false,
-    });
-    const downloaded = downloadPdfLocally({ pdfBlob, fileName: safeName });
-    return {
-      ok: downloaded,
-      channel: downloaded ? 'download' : null,
-      error,
-    };
+    return downloadShareReportFallback({ ...context, error });
   }
 }
