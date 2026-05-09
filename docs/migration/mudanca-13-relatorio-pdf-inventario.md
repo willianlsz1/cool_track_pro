@@ -368,3 +368,29 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
   - bateria relacionada `reportExportHandlers`, `shareReport`, `shareReportHelpers`, `whatsappExport`, `reportModel.registroId`, `registroChecklistPmoc`, `pmocReport`, `reportExportHelpers`: 8 arquivos, 57 testes, passou.
 - Warnings conhecidos observados: GoTrue/Supabase e log de assinatura indisponivel no fallback CP-H; JSDOM navigation no teste de handlers.
 - Proximo CP recomendado: **CP-J - mover helpers seguros de domain/pdf.js**.
+
+## 20. CP-J - Mover helpers seguros de domain/pdf.js
+
+- Status: aplicado.
+- Helper seguro movido:
+  - `buildPdfDocumentModel`: movido para `src/domain/pdf/generatorHelpers.js`; helper de baixo risco para modelo/filtros/OS/emissao/cliente, sem import de `pdf.js`, `jsPDF`, sections, resolver UI de assinatura, state/Profile, DOM, Toast ou Router.
+- Teste criado: `src/__tests__/pdfGenerator.helpers.test.js`.
+- Helpers mantidos em `src/domain/pdf.js`:
+  - `buildPdfGenerationContext`: mantido por usar `getState` e `Profile`;
+  - `buildPdfDocumentSurface`: mantido por instanciar `jsPDF`;
+  - `renderPdfCoverSection`: mantido por chamar section/render;
+  - `renderPdfServicesSection`: mantido por mutar o documento e chamar `drawServices`/fotos;
+  - `resolvePdfSignatureDataUrls`: mantido por usar resolver UI de assinatura;
+  - `renderPdfSignatureSection`: mantido por chamar `drawSignaturePages`;
+  - `renderPdfFreePlanBranding`: mantido por mutar documento com upsell/watermark;
+  - `renderPdfFooter`: mantido por mutar paginas/rodape;
+  - `finalizePdfDocument`: mantido por `doc.output`/`doc.save`;
+  - `handlePdfGenerationFailure`: mantido por side effect de log e retorno de fallback.
+- `PDFGenerator` e `generateMaintenanceReport` permaneceram no modulo atual e como orquestradores.
+- Nenhuma mudanca funcional intencional; `buildPdfDocumentModel(generationContext)` segue sendo chamado da mesma forma no fluxo de producao.
+- Contratos CP-H preservados: `registro.fotos`, `registro.assinatura`, `registro.checklist.tipo_template/items`, fallback de midia/assinatura e `filters.registroId`.
+- Contratos CP-B preservados: `PDFGenerator`, `filterRegistrosForReport`, share/report export, `shareReportPdf` e fluxo PDF/WhatsApp via handlers.
+- `domain/pdf/sections`, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf.js`: 194 -> 176 (-18).
+- LOC `src/domain/pdf/generatorHelpers.js`: 14.
+- Proximo CP recomendado: **CP-K - pre-split sections/services.js**.

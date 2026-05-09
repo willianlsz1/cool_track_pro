@@ -12,13 +12,9 @@ import { jsPDF } from 'jspdf';
 import { getState } from '../core/state.js';
 import { Profile } from '../features/profile.js';
 import { resolveSignatureForRecord } from '../ui/components/signature.js';
+import { buildPdfDocumentModel } from './pdf/generatorHelpers.js';
 import { drawWatermarkAllPages } from './pdf/primitives.js';
-import {
-  buildOsNumber,
-  buildReportFileName,
-  extractClientBlock,
-  filterRegistrosForReport,
-} from './pdf/reportModel.js';
+import { buildReportFileName } from './pdf/reportModel.js';
 import { drawCover } from './pdf/sections/cover.js';
 import { stampFooterTotals } from './pdf/sections/footer.js';
 import { drawServices } from './pdf/sections/services.js';
@@ -55,22 +51,6 @@ function buildPdfGenerationContext(options = {}, context = {}) {
     registroId,
     planCode,
     profile,
-  };
-}
-
-function buildPdfDocumentModel(generationContext) {
-  const { registros, registroId, filtEq, de, ate } = generationContext;
-  const filtered = filterRegistrosForReport(registros, { registroId, filtEq, de, ate });
-  const now = new Date();
-  const osNumber = buildOsNumber(now);
-  const emitido = now.toLocaleDateString('pt-BR');
-  const cliente = extractClientBlock(filtered);
-
-  return {
-    filtered,
-    osNumber,
-    emitido,
-    reportContext: { osNumber, emitido, cliente },
   };
 }
 
