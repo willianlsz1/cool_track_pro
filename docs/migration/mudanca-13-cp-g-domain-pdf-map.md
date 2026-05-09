@@ -149,3 +149,14 @@ Lacunas criticas antes de pre-split:
 Recomendado: **CP-H - contrato adicional para domain/pdf consumo de fotos/assinatura/checklist**.
 
 Confianca: 90%+. O mapeamento mostrou que os pontos de maior risco para um pre-split de `domain/pdf.js` nao sao apenas a ordem do orquestrador, mas os formatos de dados que atravessam Registro -> PDF: `registro.fotos`, `registro.assinatura` e `registro.checklist.tipo_template/items`. A cobertura atual e boa para `registroId`, quota/share e contratos estaticos, mas ainda nao trava suficientemente o consumo integrado desses dados pelo gerador. O proximo CP deve adicionar contratos pequenos e focados antes de qualquer movimentacao de codigo.
+
+## 11. Complemento CP-H
+
+- Contrato criado: `src/__tests__/pdfGenerator.mediaChecklist.contract.test.js`.
+- Lacunas reduzidas:
+  - `PDFGenerator` agora tem contrato dedicado para `registroId` junto com fotos, assinatura e checklist no mesmo registro;
+  - `drawServices` fica protegido para consumo de `registro.fotos` e fallback de foto indisponivel;
+  - `drawSignaturePages` fica protegido para fallback de assinatura indisponivel;
+  - `drawChecklist` fica protegido para `tipo_template/items` e exclusao de itens pendentes.
+- Ainda nao coberto: validacao visual/pixel do PDF, desacoplamento `domain/pdf.js` -> UI signature e DI de resolvers de foto/assinatura.
+- Proximo corte mais seguro apos CP-H: pre-split controlado de `src/domain/pdf.js`, mantendo sections e resolvers nos locais atuais.

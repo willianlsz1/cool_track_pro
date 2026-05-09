@@ -315,3 +315,27 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
   - `src/domain/pdf/pmoc/pmocReport.js`: 181;
   - `src/ui/controller/handlers/reportExportHandlers.js`: 709.
 - Proximo CP recomendado: **CP-H - contrato adicional para domain/pdf consumo de fotos/assinatura/checklist**.
+
+## 18. CP-H - Contrato domain/pdf para fotos, assinatura e checklist
+
+- Status: aplicado.
+- Teste criado: `src/__tests__/pdfGenerator.mediaChecklist.contract.test.js`.
+- Cobertura adicionada:
+  - `PDFGenerator.generateMaintenanceReport` preserva `filters.registroId` quando o registro alvo tem fotos, assinatura e checklist;
+  - `registro.fotos` com data URL e referencia legada/objeto e encaminhado para `resolvePhotoDataUrlForPdf`;
+  - falha/ausencia de foto nao derruba a geracao e preserva fallback visual "Foto indisponivel";
+  - `registro.assinatura` e encaminhado para o resolver de assinatura importado por `domain/pdf.js`;
+  - falha/ausencia de assinatura nao derruba a geracao e preserva fallback visual de assinatura ausente;
+  - `registro.checklist.tipo_template` e `registro.checklist.items` continuam aceitos pela section `drawChecklist`;
+  - itens pendentes sem status nao entram no corpo renderizado do checklist;
+  - ausencia de checklist no registro nao derruba a geracao.
+- Baseline documentado:
+  - acoplamento `domain/pdf.js` -> `ui/components/signature.js` permanece intencionalmente inalterado neste CP;
+  - caminho de fallback de assinatura emite log conhecido quando assinatura marcada fica indisponivel;
+  - suite pode emitir warning conhecido de GoTrue/Supabase em ambiente JSDOM ao carregar dependencias legadas.
+- Nenhuma mudanca funcional intencional; nenhum arquivo de producao foi alterado.
+- Lacunas remanescentes:
+  - sem snapshot visual grande de PDF;
+  - sem validacao pixel/layout real das sections;
+  - desacoplamento de assinatura UI e resolvers de foto ainda pendente.
+- Proximo CP recomendado: **CP-I - pre-split domain/pdf.js**.
