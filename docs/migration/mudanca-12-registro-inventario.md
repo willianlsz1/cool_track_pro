@@ -573,8 +573,23 @@ Status: aplicado em 2026-05-09.
 - LOC `src/features/registro/lifecycle/helpers.js`: criado com 25 linhas.
 - Validacoes previstas para este CP: lifecycle helpers + contrato lifecycle; bateria feature/contratos; testes relacionados lifecycle/Registro; suite ampla `src/__tests__`; `npm run format`; `npm run check`.
 
-## 38. Proximo CP recomendado
+## 38. CP-AD - Stability final e encerramento
 
-**CP-AD - stability final e encerrar Mudanca 12.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. A Mudanca 12 ja cobriu contratos/selectors, payload, fotos, assinatura, persistencia, post-save, report/share, Checklist/PMOC e lifecycle. Restam riscos arquiteturais maiores em relatorio/PDF domain e adapter legado, mas eles pedem nova mudanca ou mapeamento dedicado; o melhor proximo corte e consolidar estabilidade final da sequencia Registro antes de abrir outro bloco.
+- Documento final criado: `docs/migration/mudanca-12-stability-final.md`.
+- Stability final consolidou estado do adapter, modulos extraidos, contratos, validacoes, warnings conhecidos, riscos remanescentes e decisao final.
+- Estado final: `src/ui/views/registro.js` segue como composition root legado com `initRegistro`, `saveRegistro`, `clearRegistro` e `loadRegistroForEdit`.
+- Principais blocos extraidos e testados: save payload, fotos, assinatura, persistence, post-save, reportShare, Checklist/PMOC helpers e lifecycle helpers.
+- Contratos criticos preservados: selectors Registro, registroId PDF/WhatsApp, Checklist/PMOC e lifecycle init/clear/edit.
+- Validacoes rodadas: bateria feature/contratos; testes relacionados Registro/relatorio/historico/checklist/storage/lifecycle; suite ampla `src/__tests__`; `npm run format`; `npm run check`; Playwright local.
+- `npm run size` foi tentado, mas falhou por ambiente porque `size-limit` nao foi encontrado; sem correcao neste CP.
+- LOC atual `src/ui/views/registro.js`: 1828.
+- Riscos remanescentes documentados: `saveRegistro` e lifecycle ainda no adapter, wrappers DOM/state/gate, bridges React, Profile/sessionStorage, relatorio/PDF domain e historico.
+- Decisao final: encerrar Mudanca 12.
+
+## 39. Proxima mudanca recomendada
+
+**Mudanca 13 - relatorio/PDF domain.**
+
+Confianca: 90%+. Registro foi estabilizado dentro do escopo da Mudanca 12. Os maiores riscos remanescentes agora estao no dominio de relatorio/PDF, com acoplamentos entre `domain/`, `ui/`, handlers e export/WhatsApp; esse trabalho deve ser tratado como nova mudanca tecnica, nao como prolongamento da Mudanca 12.
