@@ -288,3 +288,26 @@ Lacunas remanescentes:
 Próximo CP recomendado: **CP-E - revisar acoplamento cover -> checklist**.
 
 Justificativa: os helpers puros já foram movidos e testados. O próximo risco arquitetural específico da capa é a chamada direta para `drawChecklist`, que precisa ser mapeada antes de qualquer mudança em ordem visual, cursor ou responsabilidade entre sections.
+
+## 14. CP-E - Mapear acoplamento cover -> checklist
+
+- Status: aplicado.
+- Documento criado: `docs/migration/mudanca-14-cp-e-cover-checklist-map.md`.
+- Arquivos de produção alterados: nenhum.
+- Testes alterados: nenhum.
+- `cover.js`, `coverHelpers.js`, `checklist.js` e `checklistHelpers.js` permaneceram inalterados.
+- Acoplamento `cover.js` -> `drawChecklist` mapeado em modo read-only.
+- Contrato de cursor/layout mapeado: `drawCover` envia o `y` final da ficha técnica para `drawChecklist`, recebe o `layout.y` final e usa esse retorno para `drawPendencias`.
+- Risco principal identificado: `drawChecklist` pode alterar página/cursor, e `drawPendencias` depende diretamente do retorno.
+- Lacuna principal identificada: o contrato CP-B mocka `drawChecklist` e protege argumentos, mas não trava o cursor real nem a paginação real dentro da capa.
+- Mudança funcional intencional: nenhuma.
+
+Validação registrada:
+
+- `npm run test -- src/__tests__/pdfCover.contract.test.js src/__tests__/pdfCover.helpers.test.js src/__tests__/pdfChecklist.helpers.test.js src/__tests__/pdfGenerator.mediaChecklist.contract.test.js src/__tests__/registroChecklistPmoc.contract.test.js --reporter=dot`: passou.
+- `npm run format`: passou.
+- `npm run check`: passou com warnings baseline.
+
+Próximo CP recomendado: **CP-F - criar contrato cover -> checklist/cursor**.
+
+Justificativa: antes de desacoplar ou mover `renderCoverChecklist`, é preciso travar por teste o contrato implícito de `startY`, retorno de `drawChecklist`, paginação e impacto em `drawPendencias`.
