@@ -440,8 +440,20 @@ Status: aplicado em 2026-05-09.
 - LOC atual `src/ui/views/registro.js`: 1752.
 - Validacoes previstas para este CP: diff restrito aos docs; bateria feature/contratos; `npm run format`; `npm run check`.
 
-## 28. Proximo CP recomendado
+## 28. CP-T - Mapear Checklist/PMOC de Registro
 
-**CP-T - mapear checklist/PMOC.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O CP-S mostrou que o maior risco residual imediato esta no bloco checklist/PMOC, que cruza handlers delegados, estado interno, gating de plano, warning soft-required, payload de `saveRegistro`, persistence CP-K e consumo por PDF/relatorio. Nao recomendo mover `saveRegistro` ou wrappers de state antes desse mapa dedicado.
+- Documento criado: `docs/migration/mudanca-12-cp-t-checklist-pmoc-map.md`.
+- Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
+- Checklist/PMOC mapeado: estado `_currentChecklist`, gate Pro, templates NBR 13971, ilha React, handlers delegados, snapshot para save, warning soft-required, create/edit, reset, edit load, PDF/relatorio, historico e prompt de proxima preventiva.
+- Contratos mapeados: `#r-checklist-body`, `#r-checklist-details`, `#r-checklist-summary`, `#r-checklist-upsell`, `data-action="r-checklist-set"`, `data-action="r-checklist-obs"`, `data-action="r-checklist-measure"`, `data-item-id`, `data-status`, `data-unit`, classes `r-checklist__*` e shape `registro.checklist`.
+- Riscos mapeados: vazamento de `_currentChecklist`, gate Pro, handlers delegados, warning soft-required nao bloqueante, shape salvo, persistence CP-K, PDF/relatorio, historico, selectors/classes e import circular.
+- LOC atual `src/ui/views/registro.js`: 1752.
+- Validacoes previstas para este CP: diff restrito aos docs; bateria feature/contratos; `npm run format`; `npm run check`.
+
+## 29. Proximo CP recomendado
+
+**CP-U - criar/fortalecer contrato especifico Checklist/PMOC.**
+
+Confianca: 90%+. O CP-T mostrou que o fluxo esta mapeado, mas antes de qualquer pre-split e mais seguro travar explicitamente o comportamento de warning soft-required nao bloqueante, shape `registro.checklist`, gate Pro/CTA, snapshot nulo quando vazio e consumo PDF de itens marcados.
