@@ -1528,6 +1528,255 @@ function warnRegistroChecklistPayloadGaps(tipo) {
   }
 }
 
+function persistRegistroTechnicianProfile(tecnico) {
+  Profile.saveLastTecnico(tecnico);
+
+  // UX V2 audit fix #81: auto-default tecnico no Profile apos primeiro
+  // registro. Se o user nao tem nome no perfil ainda (ex.: pulou
+  // onboarding), assumimos o nome do tecnico do registro recem-salvo como
+  // o nome dele. Salva apenas o campo .nome — outros campos (empresa,
+  // CNPJ) ficam pra ele preencher em /conta. Idempotente: nao sobrescreve
+  // perfil ja preenchido.
+  try {
+    const currentProfile = Profile.get() || {};
+    if (!currentProfile.nome && tecnico) {
+      Profile.save({ ...currentProfile, nome: tecnico });
+    }
+  } catch (_err) {
+    /* storage off — nao bloqueia o save do registro */
+  }
+}
+
+function getRegistroEditingId() {
+  return sessionStorage.getItem(EDITING_KEY);
+}
+
+function buildEditedRegistro(registro, persistedPayload) {
+  const {
+    equipId,
+    data,
+    tipo,
+    tecnico,
+    descricaoFinal,
+    prioridade,
+    status,
+    pecas,
+    proxima,
+    custoPecas,
+    custoMaoObra,
+    clienteNome,
+    clienteDocumento,
+    localAtendimento,
+    clienteContato,
+  } = persistedPayload;
+
+  return {
+    ...registro,
+    equipId,
+    data,
+    tipo,
+    obs: descricaoFinal,
+    tecnico,
+    prioridade,
+    status,
+    pecas,
+    proxima,
+    custoPecas,
+    custoMaoObra,
+    clienteNome,
+    clienteDocumento,
+    localAtendimento,
+    clienteContato,
+    // PMOC Fase 3: preserva checklist; null se user limpou tudo.
+    checklist: getCurrentChecklist() || registro.checklist || null,
+  };
+}
+
+function buildRegistroEditStateMutation(prev, editingId, persistedPayload) {
+  const previousRegistro = prev.registros.find((r) => r.id === editingId) || null;
+  const updatedRegistros = prev.registros.map((r) =>
+    r.id === editingId ? buildEditedRegistro(r, persistedPayload) : r,
+  );
+
+  const updatedRegistro = updatedRegistros.find((r) => r.id === editingId) || null;
+  const updatedEquipamentos = reconcileEquipmentStatusesAfterRegistroEdit({
+    equipamentos: prev.equipamentos,
+    registros: updatedRegistros,
+    previousRegistro,
+    updatedRegistro,
+  });
+
+  return {
+    ...prev,
+    registros: updatedRegistros,
+    equipamentos: updatedEquipamentos,
+  };
+}
+
+function applyRegistroEditStateMutation(editingId, persistedPayload) {
+  setState((prev) => buildRegistroEditStateMutation(prev, editingId, persistedPayload));
+}
+
+function saveRegistroLastClient({
+  clienteNome,
+  clienteDocumento,
+  localAtendimento,
+  clienteContato,
+}) {
+  _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
+}
+
+function runRegistroEditPostSaveEffects(persistedPayload) {
+  saveRegistroLastClient(persistedPayload);
+  resetEditingState();
+  clearRegistro();
+  Toast.success('Registro atualizado.');
+  goTo('historico');
+}
+
+function resolveRegistroCreateId() {
+  return Utils.uid();
+}
+
+function buildRegistroCreateRecord({
+  registroId,
+  persistedPayload,
+  photoPayload,
+  assinatura,
+  signatureReference,
+}) {
+  const {
+    equipId,
+    data,
+    tipo,
+    tecnico,
+    descricaoFinal,
+    prioridade,
+    status,
+    pecas,
+    proxima,
+    custoPecas,
+    custoMaoObra,
+    clienteNome,
+    clienteDocumento,
+    localAtendimento,
+    clienteContato,
+  } = persistedPayload;
+
+  return {
+    id: registroId,
+    equipId,
+    data,
+    tipo,
+    obs: descricaoFinal,
+    status,
+    pecas,
+    proxima,
+    ...photoPayload,
+    tecnico,
+    prioridade,
+    custoPecas,
+    custoMaoObra,
+    clienteNome,
+    clienteDocumento,
+    localAtendimento,
+    clienteContato,
+    assinatura: buildRegistroSignaturePayload({ assinatura, signatureReference }),
+    // PMOC Fase 3: checklist NBR (null se não preenchido).
+    checklist: getCurrentChecklist(),
+  };
+}
+
+function buildRegistroCreateStateMutation(prev, { registro, persistedPayload, operationalStatus }) {
+  const currentTecs = prev.tecnicos || [];
+  const updatedTecs =
+    persistedPayload.tecnico && !currentTecs.includes(persistedPayload.tecnico)
+      ? [...currentTecs, persistedPayload.tecnico]
+      : currentTecs;
+
+  return {
+    ...prev,
+    tecnicos: updatedTecs,
+    registros: [...prev.registros, registro],
+    equipamentos: prev.equipamentos.map((e) => {
+      if (e.id !== persistedPayload.equipId) return e;
+      return {
+        ...e,
+        status:
+          operationalStatus.uiStatus === 'unknown' ? e.status || 'ok' : operationalStatus.uiStatus,
+        statusDescricao: operationalStatus.label,
+      };
+    }),
+  };
+}
+
+function applyRegistroCreateStateMutation({ registro, persistedPayload, operationalStatus }) {
+  setState((prev) =>
+    buildRegistroCreateStateMutation(prev, { registro, persistedPayload, operationalStatus }),
+  );
+}
+
+async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, saveContext }) {
+  const { andShare } = saveContext;
+  const { equipId } = persistedPayload;
+
+  SavedHighlight.markForHighlight(registroId);
+  saveRegistroLastClient(persistedPayload);
+  clearRegistro();
+
+  // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
+  // dispara o botao primário verde, pulamos o toast com escolhas e ja
+  // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
+  if (andShare && equipId) {
+    Toast.success('Serviço salvo. Abrindo WhatsApp...');
+    try {
+      const filters = { equipId, registroId };
+      const ok = await shareWhatsAppFlow({ filters });
+      // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
+      // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
+      if (!ok) {
+        goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
+      }
+    } catch (_error) {
+      // Erro inesperado — leva pro relatorio com intent pra user retentar.
+      goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
+    }
+    void _showProximaPreventivaPrompt(registroId);
+    return true;
+  }
+
+  void _showProximaPreventivaPrompt(registroId);
+
+  // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
+  // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
+  // mesmas regras de quota/validação do fluxo de relatório.
+  const eqForToast = saveContext.equipamentos.find((e) => e.id === equipId) || null;
+  const toastShown = PostSaveRegistroToast.show({
+    equipId,
+    registroId,
+    equipName: eqForToast?.nome || null,
+    onAction: async ({ destination, equipId: targetEquipId, registroId }) => {
+      const filters = { equipId: targetEquipId, registroId };
+      if (destination === 'pdf') return exportPdfFlow({ filters });
+      return shareWhatsAppFlow({ filters });
+    },
+    onFallback: ({ destination, equipId: targetEquipId, registroId }) => {
+      goTo('relatorio', {
+        equipId: targetEquipId,
+        intent: destination,
+        ...(registroId ? { registroId } : {}),
+      });
+    },
+  });
+  // Fallback: se não tinha equipId (edge case) ou o toast recusou renderizar,
+  // volta pro feedback simples — user ainda precisa saber que salvou.
+  if (!toastShown) {
+    Toast.success('Serviço registrado com sucesso.');
+  }
+
+  return true;
+}
+
 export function applyQuickTemplate(templateId, triggerEl = null) {
   const template = QUICK_TEMPLATE_MAP[templateId];
   if (!template) return;
@@ -1611,97 +1860,23 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
 
     if (!validateRegistroOperationalFields(validatedPayload)) return false;
 
-    const {
-      equipId,
-      data,
-      tipo,
-      tecnico,
-      descricaoFinal,
-      prioridade,
-      status,
-      pecas,
-      proxima,
-      custoPecas,
-      custoMaoObra,
-      clienteNome,
-      clienteDocumento,
-      localAtendimento,
-      clienteContato,
-    } = buildRegistroPersistPayload(validatedPayload, formValues);
+    const persistedPayload = buildRegistroPersistPayload(validatedPayload, formValues);
+    const { equipId, tipo, tecnico, status } = persistedPayload;
 
     warnRegistroChecklistPayloadGaps(tipo);
 
-    Profile.saveLastTecnico(tecnico);
-
-    // UX V2 audit fix #81: auto-default tecnico no Profile apos primeiro
-    // registro. Se o user nao tem nome no perfil ainda (ex.: pulou
-    // onboarding), assumimos o nome do tecnico do registro recem-salvo como
-    // o nome dele. Salva apenas o campo .nome — outros campos (empresa,
-    // CNPJ) ficam pra ele preencher em /conta. Idempotente: nao sobrescreve
-    // perfil ja preenchido.
-    try {
-      const currentProfile = Profile.get() || {};
-      if (!currentProfile.nome && tecnico) {
-        Profile.save({ ...currentProfile, nome: tecnico });
-      }
-    } catch (_err) {
-      /* storage off — nao bloqueia o save do registro */
-    }
+    persistRegistroTechnicianProfile(tecnico);
 
     // Modo edição — atualiza registro existente
-    const editingId = sessionStorage.getItem(EDITING_KEY);
+    const editingId = getRegistroEditingId();
     if (editingId) {
-      setState((prev) => {
-        const previousRegistro = prev.registros.find((r) => r.id === editingId) || null;
-        const updatedRegistros = prev.registros.map((r) =>
-          r.id === editingId
-            ? {
-                ...r,
-                equipId,
-                data,
-                tipo,
-                obs: descricaoFinal,
-                tecnico,
-                prioridade,
-                status,
-                pecas,
-                proxima,
-                custoPecas,
-                custoMaoObra,
-                clienteNome,
-                clienteDocumento,
-                localAtendimento,
-                clienteContato,
-                // PMOC Fase 3: preserva checklist; null se user limpou tudo.
-                checklist: getCurrentChecklist() || r.checklist || null,
-              }
-            : r,
-        );
-
-        const updatedRegistro = updatedRegistros.find((r) => r.id === editingId) || null;
-        const updatedEquipamentos = reconcileEquipmentStatusesAfterRegistroEdit({
-          equipamentos: prev.equipamentos,
-          registros: updatedRegistros,
-          previousRegistro,
-          updatedRegistro,
-        });
-
-        return {
-          ...prev,
-          registros: updatedRegistros,
-          equipamentos: updatedEquipamentos,
-        };
-      });
-      _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
-      resetEditingState();
-      clearRegistro();
-      Toast.success('Registro atualizado.');
-      goTo('historico');
+      applyRegistroEditStateMutation(editingId, persistedPayload);
+      runRegistroEditPostSaveEffects(persistedPayload);
       return true;
     }
 
     // Modo criação — continua fluxo normal
-    const novoId = Utils.uid();
+    const novoId = resolveRegistroCreateId();
     const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
 
     // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
@@ -1763,107 +1938,25 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
       ultimoRegistro: { status },
     });
 
-    setState((prev) => {
-      const currentTecs = prev.tecnicos || [];
-      const updatedTecs =
-        tecnico && !currentTecs.includes(tecnico) ? [...currentTecs, tecnico] : currentTecs;
-      return {
-        ...prev,
-        tecnicos: updatedTecs,
-        registros: [
-          ...prev.registros,
-          {
-            id: novoId,
-            equipId,
-            data,
-            tipo,
-            obs: descricaoFinal,
-            status,
-            pecas,
-            proxima,
-            ...photoPayload,
-            tecnico,
-            prioridade,
-            custoPecas,
-            custoMaoObra,
-            clienteNome,
-            clienteDocumento,
-            localAtendimento,
-            clienteContato,
-            assinatura: buildRegistroSignaturePayload({ assinatura, signatureReference }),
-            // PMOC Fase 3: checklist NBR (null se não preenchido).
-            checklist: getCurrentChecklist(),
-          },
-        ],
-        equipamentos: prev.equipamentos.map((e) => {
-          if (e.id !== equipId) return e;
-          return {
-            ...e,
-            status:
-              operationalStatus.uiStatus === 'unknown'
-                ? e.status || 'ok'
-                : operationalStatus.uiStatus,
-            statusDescricao: operationalStatus.label,
-          };
-        }),
-      };
-    });
-
-    SavedHighlight.markForHighlight(novoId);
-    _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
-    clearRegistro();
-
-    // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
-    // dispara o botao primário verde, pulamos o toast com escolhas e ja
-    // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
-    if (andShare && equipId) {
-      Toast.success('Serviço salvo. Abrindo WhatsApp...');
-      try {
-        const filters = { equipId, registroId: novoId };
-        const ok = await shareWhatsAppFlow({ filters });
-        // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
-        // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
-        if (!ok) {
-          goTo('relatorio', { equipId, intent: 'whatsapp', registroId: novoId });
-        }
-      } catch (_error) {
-        // Erro inesperado — leva pro relatorio com intent pra user retentar.
-        goTo('relatorio', { equipId, intent: 'whatsapp', registroId: novoId });
-      }
-      void _showProximaPreventivaPrompt(novoId);
-      return true;
-    }
-
-    void _showProximaPreventivaPrompt(novoId);
-
-    // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
-    // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
-    // mesmas regras de quota/validação do fluxo de relatório.
-    const eqForToast = saveContext.equipamentos.find((e) => e.id === equipId) || null;
-    const toastShown = PostSaveRegistroToast.show({
-      equipId,
+    const registro = buildRegistroCreateRecord({
       registroId: novoId,
-      equipName: eqForToast?.nome || null,
-      onAction: async ({ destination, equipId: targetEquipId, registroId }) => {
-        const filters = { equipId: targetEquipId, registroId };
-        if (destination === 'pdf') return exportPdfFlow({ filters });
-        return shareWhatsAppFlow({ filters });
-      },
-      onFallback: ({ destination, equipId: targetEquipId, registroId }) => {
-        goTo('relatorio', {
-          equipId: targetEquipId,
-          intent: destination,
-          ...(registroId ? { registroId } : {}),
-        });
-      },
+      persistedPayload,
+      photoPayload,
+      assinatura,
+      signatureReference,
     });
-    // Fallback: se não tinha equipId (edge case) ou o toast recusou renderizar,
-    // volta pro feedback simples — user ainda precisa saber que salvou.
-    if (!toastShown) {
-      Toast.success('Serviço registrado com sucesso.');
-    }
 
-    return true;
+    applyRegistroCreateStateMutation({
+      registro,
+      persistedPayload,
+      operationalStatus,
+    });
+
+    return runRegistroCreatePostSaveEffects({
+      registroId: novoId,
+      persistedPayload,
+      saveContext,
+    });
   } finally {
     _isSavingRegistro = false;
     _setRegistroSaveButtonsLoading(false);

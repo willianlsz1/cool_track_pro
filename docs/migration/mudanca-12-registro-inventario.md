@@ -303,8 +303,21 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1861 -> 1814.
 - Testes rodados: signature feature + photos feature + payload feature + contratos CP-B; testes focados de assinatura/save/storage/PDF/historico; `npm run format`; `npm run check`.
 
-## 18. Proximo CP recomendado
+## 18. CP-J - Pre-split persistencia/state de saveRegistro
 
-**CP-J - pre-split save persistencia/state.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. Payload, fotos e assinatura ja sairam do miolo direto do save com DI e cobertura focada; o proximo risco concentrado e a mutacao `setState`/persistencia do fluxo create/edit e reconciliacao de equipamentos, ainda dentro do adapter legado.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Persistencia/state permaneceu no adapter legado; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `persistRegistroTechnicianProfile`, `getRegistroEditingId`, `buildEditedRegistro`, `buildRegistroEditStateMutation`, `applyRegistroEditStateMutation`, `saveRegistroLastClient`, `runRegistroEditPostSaveEffects`, `resolveRegistroCreateId`, `buildRegistroCreateRecord`, `buildRegistroCreateStateMutation`, `applyRegistroCreateStateMutation`, `runRegistroCreatePostSaveEffects`.
+- Responsabilidades separadas: persistencia do tecnico/perfil, leitura do modo edicao, mutacao de registros/equipamentos em edicao, geracao de id de criacao, record final de criacao, mutacao de `tecnicos`/`registros`/`equipamentos` e efeitos pos-save/share.
+- Nenhuma mudanca funcional intencional; contratos CP-B, payload CP-D, fotos CP-F, assinatura CP-I, storage/fila offline, React pages, handlers, relatorio/PDF, historico e Equipamentos preservados.
+- Ordem preservada: leitura/validacao/payload; profile side effect; edit branch; create id; `photoState`; assinatura CP-I; fotos CP-F; status operacional; `setState`; highlight/cliente/clear; share ou toast pos-save; prompt de preventiva.
+- LOC `src/ui/views/registro.js`: 1814 -> 1890.
+- Testes rodados: contratos CP-B + payload CP-D + photos CP-F + signature CP-I; testes focados de Registro/save/create/edit/state/storage/PDF/historico; `npm run format`; `npm run check`.
+
+## 19. Proximo CP recomendado
+
+**CP-K - mover helpers de persistencia/state.**
+
+Confianca: 90%+. O CP-J separou localmente mutacoes create/edit e pos-save sem mudar comportamento; o proximo corte seguro e classificar e mover apenas helpers puros/baixo side effect para modulo feature-scoped com DI explicita, mantendo `saveRegistro` como orquestrador.
