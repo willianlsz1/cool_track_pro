@@ -273,8 +273,22 @@ Status: aplicado em 2026-05-08.
 - Riscos registrados: comentario de `SignatureModal.CANCELED` diverge do comportamento real do `saveRegistro`, validadores de data URL duplicados, payload boolean/reference, queue offline, PDF/historico e import circular.
 - Validacoes rodadas: contratos CP-B + payload CP-D + photos CP-F; `npm run check`.
 
-## 16. Proximo CP recomendado
+## 16. CP-H - Pre-split assinatura in-place
 
-**CP-H - pre-split assinatura in-place.**
+Status: aplicado em 2026-05-08.
 
-Confianca: 90%+. A ordem real esta clara e o proximo corte seguro e separar localmente o bloco de assinatura dentro do adapter, preservando `saveRegistro` como orquestrador e sem mover `SignatureModal`, storage, PDF ou historico.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Assinatura permaneceu no adapter legado; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `getRegistroSignatureState`, `loadRegistroSignatureSaveModule`, `captureRegistroSignatureIfNeeded`, `persistRegistroSignatureForSave`, `buildRegistroSignaturePayload`, `clearRegistroSignatureAfterSave`.
+- Responsabilidades separadas: gate Plus+, import dinamico, captura via `SignatureModal`, validacao data URL, upload/fallback via `saveSignatureForRecord`, payload `assinatura` e limpeza do draft.
+- Comportamento real de `SignatureModal.CANCELED` preservado: save continua sem assinatura e mostra Toast informativo.
+- Ordem preservada: captura de `Photos.pending`; fluxo de assinatura; upload/fallback de fotos CP-F; payload `assinatura`; limpeza via `clearRegistro`.
+- Nenhuma mudanca funcional intencional; `SignatureModal`, `SignatureViewerModal`, `signatureStorage`, fila offline, React pages, handlers, fotos CP-F, payload CP-D, relatorio/PDF, historico e contratos CP-B preservados.
+- LOC `src/ui/views/registro.js`: 1828 -> 1861.
+- Testes rodados: contratos CP-B + payload CP-D + photos CP-F; testes focados de assinatura/save/storage/PDF/historico; `npm run format`; `npm run check`.
+
+## 17. Proximo CP recomendado
+
+**CP-I - mover helpers de assinatura.**
+
+Confianca: 90%+. O fluxo de assinatura agora esta separado localmente e os helpers possuem fronteiras claras para uma extracao feature-scoped com DI explicita, mantendo `saveRegistro` como orquestrador legado e sem alterar storage, modal, PDF ou historico.

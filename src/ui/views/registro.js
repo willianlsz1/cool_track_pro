@@ -191,6 +191,101 @@ function isSafeSignatureCaptureDataUrl(dataUrl) {
   return /^data:image\/(?:png|jpe?g|webp);base64,[a-z0-9+/=]+$/i.test(String(dataUrl || '').trim());
 }
 
+function getRegistroSignatureState({ registroId }) {
+  return {
+    registroId,
+    canUseSignature: PlanCache.isCachedPlanPlusOrHigher(),
+  };
+}
+
+async function loadRegistroSignatureSaveModule(signatureState) {
+  if (!signatureState.canUseSignature) return {};
+
+  try {
+    return await import('../components/signature.js');
+  } catch (error) {
+    handleError(error, {
+      code: ErrorCodes.NETWORK_ERROR,
+      severity: 'warning',
+      message: 'Não foi possível carregar o módulo de assinatura.',
+      context: { action: 'registro.saveRegistro.signatureImport' },
+    });
+    return {};
+  }
+}
+
+async function captureRegistroSignatureIfNeeded({
+  registroId,
+  equipNome,
+  canUseSignature,
+  SignatureModal,
+}) {
+  if (!canUseSignature || !SignatureModal?.request) return { assinatura: null };
+
+  try {
+    const result = await SignatureModal.request(registroId, equipNome);
+    // UX: a assinatura é opcional. Cancelar o modal (X/backdrop/Escape) não
+    // invalida mais o save — o técnico pode ter o cliente assinando depois
+    // ou o serviço foi concluído sem cliente presente. Apenas não anexa
+    // assinatura ao registro. Se aparecer um valor (data URL), usamos.
+    if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
+      return { assinatura: result };
+    }
+
+    if (result && result !== SignatureModal.CANCELED) {
+      Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
+    } else if (result === SignatureModal.CANCELED) {
+      Toast.info?.('Registro salvo sem assinatura. Você pode adicioná-la depois.');
+    }
+  } catch (error) {
+    handleError(error, {
+      code: ErrorCodes.VALIDATION_ERROR,
+      severity: 'warning',
+      message: 'Não foi possível registrar a assinatura digital.',
+      context: { action: 'registro.saveRegistro.signatureRequest', registroId },
+    });
+  }
+
+  return { assinatura: null };
+}
+
+async function persistRegistroSignatureForSave({ registroId, assinatura, saveSignatureForRecord }) {
+  if (!assinatura || !saveSignatureForRecord) return null;
+
+  try {
+    // Upload pro Storage (async). Retorna reference object ou null
+    // se offline/falha — nesse caso a captura fica na queue
+    // `cooltrack-sig-pending-upload` pra sync posterior.
+    const signatureReference = await saveSignatureForRecord(registroId, assinatura);
+    if (!signatureReference) {
+      Toast.info?.('Assinatura salva no dispositivo. Será sincronizada quando conectar.');
+    }
+    return signatureReference;
+  } catch (uploadError) {
+    // Falha inesperada — mantém flag local, queue já foi populada
+    // dentro do saveSignatureForRecord. Não bloqueia save do registro.
+    handleError(uploadError, {
+      code: ErrorCodes.SYNC_FAILED,
+      severity: 'warning',
+      message: 'Assinatura ficou salva localmente. Tentaremos sincronizar depois.',
+      context: { action: 'registro.saveRegistro.signatureUpload', registroId },
+    });
+    return null;
+  }
+}
+
+function buildRegistroSignaturePayload({ assinatura, signatureReference }) {
+  // Prefer reference do Storage (cross-device). Se upload falhou e
+  // ficou só no localStorage, grava `true` pra indicar "tem
+  // assinatura" — queue reconcile troca pelo reference depois.
+  return signatureReference || (assinatura ? true : false);
+}
+
+function clearRegistroSignatureAfterSave() {
+  _registroSignatureDraftSrc = '';
+  return mountRegistroSignature();
+}
+
 function _updateImpactCopy(context) {
   const subtitle = document.getElementById('registro-impact-subtitle');
   const hint = document.getElementById('registro-impact-hint');
@@ -1698,69 +1793,22 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
 
     // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
     // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
-    let assinatura = null;
+    const signatureState = getRegistroSignatureState({ registroId: novoId });
+    const { SignatureModal, saveSignatureForRecord } =
+      await loadRegistroSignatureSaveModule(signatureState);
+    const eq = findEquip(equipId);
+    const { assinatura } = await captureRegistroSignatureIfNeeded({
+      ...signatureState,
+      SignatureModal,
+      equipNome: eq?.nome || 'Equipamento',
+    });
     // Reference do Storage quando upload OK; null quando offline ou plano Free.
     // Shape: { version, provider, bucket, path, url, urlExpiresAt, ... }
-    let signatureReference = null;
-    const canUseSignature = PlanCache.isCachedPlanPlusOrHigher();
-    let SignatureModal;
-    let saveSignatureForRecord;
-    if (canUseSignature) {
-      try {
-        ({ SignatureModal, saveSignatureForRecord } = await import('../components/signature.js'));
-      } catch (error) {
-        handleError(error, {
-          code: ErrorCodes.NETWORK_ERROR,
-          severity: 'warning',
-          message: 'Não foi possível carregar o módulo de assinatura.',
-          context: { action: 'registro.saveRegistro.signatureImport' },
-        });
-      }
-    }
-    const eq = findEquip(equipId);
-    if (canUseSignature && SignatureModal?.request) {
-      try {
-        const result = await SignatureModal.request(novoId, eq?.nome || 'Equipamento');
-        // UX: a assinatura é opcional. Cancelar o modal (X/backdrop/Escape) não
-        // invalida mais o save — o técnico pode ter o cliente assinando depois
-        // ou o serviço foi concluído sem cliente presente. Apenas não anexa
-        // assinatura ao registro. Se aparecer um valor (data URL), usamos.
-        if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
-          assinatura = result;
-          if (saveSignatureForRecord) {
-            try {
-              // Upload pro Storage (async). Retorna reference object ou null
-              // se offline/falha — nesse caso a captura fica na queue
-              // `cooltrack-sig-pending-upload` pra sync posterior.
-              signatureReference = await saveSignatureForRecord(novoId, assinatura);
-              if (!signatureReference) {
-                Toast.info?.('Assinatura salva no dispositivo. Será sincronizada quando conectar.');
-              }
-            } catch (uploadError) {
-              // Falha inesperada — mantém flag local, queue já foi populada
-              // dentro do saveSignatureForRecord. Não bloqueia save do registro.
-              handleError(uploadError, {
-                code: ErrorCodes.SYNC_FAILED,
-                severity: 'warning',
-                message: 'Assinatura ficou salva localmente. Tentaremos sincronizar depois.',
-                context: { action: 'registro.saveRegistro.signatureUpload', registroId: novoId },
-              });
-            }
-          }
-        } else if (result && result !== SignatureModal.CANCELED) {
-          Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
-        } else if (result === SignatureModal.CANCELED) {
-          Toast.info?.('Registro salvo sem assinatura. Você pode adicioná-la depois.');
-        }
-      } catch (error) {
-        handleError(error, {
-          code: ErrorCodes.VALIDATION_ERROR,
-          severity: 'warning',
-          message: 'Não foi possível registrar a assinatura digital.',
-          context: { action: 'registro.saveRegistro.signatureRequest', registroId: novoId },
-        });
-      }
-    }
+    const signatureReference = await persistRegistroSignatureForSave({
+      registroId: novoId,
+      assinatura,
+      saveSignatureForRecord,
+    });
 
     const photoPayload = buildRegistroPhotoPayload(
       await persistRegistroPhotosForSave(photoState, {
@@ -1805,10 +1853,7 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
             clienteDocumento,
             localAtendimento,
             clienteContato,
-            // Prefer reference do Storage (cross-device). Se upload falhou e
-            // ficou só no localStorage, grava `true` pra indicar "tem
-            // assinatura" — queue reconcile troca pelo reference depois.
-            assinatura: signatureReference || (assinatura ? true : false),
+            assinatura: buildRegistroSignaturePayload({ assinatura, signatureReference }),
             // PMOC Fase 3: checklist NBR (null se não preenchido).
             checklist: getCurrentChecklist(),
           },
@@ -1911,8 +1956,7 @@ export function clearRegistro(preserveEquip = false) {
   Utils.setVal('r-prioridade', DEFAULT_REGISTRO_PRIORIDADE);
   Utils.setVal('r-data', Utils.nowDatetime());
   Photos.clear();
-  _registroSignatureDraftSrc = '';
-  mountRegistroSignature();
+  clearRegistroSignatureAfterSave();
 
   // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
   _syncTipoCustomVisibility();
