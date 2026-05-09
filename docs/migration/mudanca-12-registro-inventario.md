@@ -262,8 +262,19 @@ Status: aplicado em 2026-05-08.
 - LOC `src/ui/views/registro.js`: 1857 -> 1828.
 - Testes rodados: photos feature + payload feature + contratos CP-B; suite `src/__tests__`; `npm run format`; `npm run check`.
 
-## 15. Proximo CP recomendado
+## 15. CP-G - Mapear fluxo de assinatura
 
-**CP-G - mapear assinatura antes de mexer.**
+Status: aplicado em 2026-05-08.
 
-Confianca: 90%+. O proximo bloco de maior risco e assinatura, porque mistura gating Plus, import dinamico, modal, data URL segura, upload/fila offline, PDF/historico e varios feedbacks. Antes de pre-split ou mover, o corte mais seguro e mapear a ordem real e os contratos desse fluxo.
+- Documento criado: `docs/migration/mudanca-12-cp-g-signature-map.md`.
+- Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
+- Fluxo de assinatura mapeado: hint React, handlers legacy, `SignatureModal`, gating Plus+, data URL segura, upload/cache/fila offline, payload `assinatura`, reset, PDF/relatorio/historico.
+- Contratos mapeados: `#registro-signature-hint`, `data-action="registro-signature-capture"`, `data-action="registro-signature-open"`, `data-action="registro-signature-remove"`, `signature-upsell-cta`, `data-r-action`, classes `registro-sig-*`, cache `cooltrack-sig-*`, queue `cooltrack-sig-pending-upload`, modal capture/viewer.
+- Riscos registrados: comentario de `SignatureModal.CANCELED` diverge do comportamento real do `saveRegistro`, validadores de data URL duplicados, payload boolean/reference, queue offline, PDF/historico e import circular.
+- Validacoes rodadas: contratos CP-B + payload CP-D + photos CP-F; `npm run check`.
+
+## 16. Proximo CP recomendado
+
+**CP-H - pre-split assinatura in-place.**
+
+Confianca: 90%+. A ordem real esta clara e o proximo corte seguro e separar localmente o bloco de assinatura dentro do adapter, preservando `saveRegistro` como orquestrador e sem mover `SignatureModal`, storage, PDF ou historico.
