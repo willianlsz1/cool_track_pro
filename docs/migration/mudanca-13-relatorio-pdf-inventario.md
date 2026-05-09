@@ -414,3 +414,24 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - `PDFGenerator`, `domain/pdf.js`, outras sections, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
 - LOC `src/domain/pdf/sections/services.js`: 461 -> 505 (+44).
 - Proximo CP recomendado: **CP-L - mover helpers seguros de services.js**.
+
+## 22. CP-L - Mover helpers seguros de services.js
+
+- Status: aplicado.
+- Helpers seguros movidos para `src/domain/pdf/sections/servicesHelpers.js`:
+  - `advancePhotoRowY`: calculo puro do proximo cursor Y entre linhas de fotos, recebendo altura/gap por parametro;
+  - `resolveServiceCardStartY`: decisao pura de gap/quebra antes do card, retornando `{ startsNewPage, y }` sem mutar `doc`.
+- Teste criado: `src/__tests__/pdfServices.helpers.test.js`.
+- Helpers mantidos em `src/domain/pdf/sections/services.js`:
+  - `drawPhotoSectionLabel`: mantido por renderizar texto diretamente no `doc`;
+  - `renderServicesPageStart`: mantido por chamar `fillPage`, `drawServicesPageHeader` e `drawSectionTitle`;
+  - `addServicesContinuationPage`: mantido por chamar `doc.addPage`, `fillPage` e header;
+  - `renderServiceCard`: mantido por chamar renderizadores que mutam jsPDF e fluxo paginado.
+- `drawServices` permaneceu no modulo atual e como orquestrador da section.
+- Nenhuma mudanca funcional intencional; textos, layout, resolver de fotos, fallback "Foto indisponivel", page breaks, cursor/spacing e ordem visual preservados.
+- Contratos CP-H preservados: `registro.fotos`, formatos legados/referencia, ausencia/falha de fotos, fallback visual, paginacao e `filters.registroId` com midia/checklist.
+- Contratos CP-B preservados: fluxo PDF/WhatsApp via handlers e contratos de export/share.
+- `PDFGenerator`, `domain/pdf.js`, outras sections, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf/sections/services.js`: 505 -> 485 (-20).
+- LOC `src/domain/pdf/sections/servicesHelpers.js`: 20.
+- Proximo CP recomendado: **CP-M - pre-split sections/checklist.js**.

@@ -26,6 +26,7 @@ import { resolvePhotoDataUrlForPdf } from '../../../core/photoStorage.js';
 import { PDF_COLORS as C, PDF_TYPO as T, STATUS_CLIENTE } from '../constants.js';
 import { sanitizeObservation, sanitizePublicText } from '../sanitizers.js';
 import { accentLine, fillPage, fillRect, txt } from '../primitives.js';
+import { advancePhotoRowY, resolveServiceCardStartY } from './servicesHelpers.js';
 
 // ---------- layout constants (mm) ----------
 
@@ -372,12 +373,6 @@ function drawPhotoSectionLabel(doc, innerX, photoY) {
   return photoY + PHOTO_LABEL_H;
 }
 
-function advancePhotoRowY(photoY, rowIndex, photoRows) {
-  let nextY = photoY + PHOTO_H;
-  if (rowIndex < photoRows - 1) nextY += PHOTO_ROW_GAP;
-  return nextY;
-}
-
 /**
  * Desenha um card que cabe inteiramente na página atual. Assume que quem
  * chama já fez o page-break check.
@@ -395,7 +390,7 @@ async function drawServiceCardAtomic(doc, pageWidth, margin, startY, registro, p
 
     for (let r = 0; r < layout.photoRows; r += 1) {
       await drawPhotoRow(doc, margin, pageWidth, photoY, layout.photos, r, layout.innerW);
-      photoY = advancePhotoRowY(photoY, r, layout.photoRows);
+      photoY = advancePhotoRowY(photoY, r, layout.photoRows, PHOTO_H, PHOTO_ROW_GAP);
     }
   }
 }
@@ -448,7 +443,7 @@ async function drawServiceCardPaginated(
       photoY = addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader);
     }
     await drawPhotoRow(doc, margin, pageWidth, photoY, layout.photos, r, layout.innerW);
-    photoY = advancePhotoRowY(photoY, r, layout.photoRows);
+    photoY = advancePhotoRowY(photoY, r, layout.photoRows, PHOTO_H, PHOTO_ROW_GAP);
   }
 
   return { endY: photoY + CARD_INNER_PAD_BOTTOM };
@@ -465,26 +460,6 @@ function addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeade
   fillPage(doc, pageWidth, pageHeight);
   redrawPageHeader();
   return NEXT_PAGE_CONTENT_Y;
-}
-
-function resolveServiceCardStartY({
-  doc,
-  pageWidth,
-  pageHeight,
-  y,
-  maxY,
-  needsGap,
-  requiredSpace,
-  redrawPageHeader,
-}) {
-  const pageBudget = maxY - y;
-
-  // Card não cabe no restante da página? Tenta começar em uma nova.
-  if (requiredSpace > pageBudget && y > NEXT_PAGE_CONTENT_Y + 0.1) {
-    return addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader);
-  }
-
-  return needsGap ? y + CARD_GAP : y;
 }
 
 async function renderServiceCard(
@@ -552,16 +527,17 @@ export async function drawServices(
 
     const needsGap = i > 0;
     const requiredSpace = layout.total + (needsGap ? CARD_GAP : 0);
-    y = resolveServiceCardStartY({
-      doc,
-      pageWidth,
-      pageHeight,
+    const cardStart = resolveServiceCardStartY({
       y,
       maxY,
       needsGap,
       requiredSpace,
-      redrawPageHeader,
+      nextPageContentY: NEXT_PAGE_CONTENT_Y,
+      cardGap: CARD_GAP,
     });
+    y = cardStart.startsNewPage
+      ? addServicesContinuationPage(doc, pageWidth, pageHeight, redrawPageHeader)
+      : cardStart.y;
 
     y = await renderServiceCard(
       doc,
