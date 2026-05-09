@@ -229,3 +229,47 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-C - pre-split render/timeline**.
 
 Justificativa: com o contrato dedicado de actions dos cards criado, o proximo corte seguro e reduzir o tamanho e a mistura de responsabilidades do render/timeline sem mover integracoes de Registro/PDF/WhatsApp.
+
+## 13. CP-C - Pre-split render/timeline
+
+- CP-C aplicado.
+- `renderHist` permaneceu em `src/ui/views/historico.js`.
+- `deleteReg`, `setHistClienteFilter` e `clearHistClienteFilter` permaneceram no mesmo modulo.
+- Nenhum React page, handler, viewModel, contrato, CSS ou schema foi alterado.
+- Nenhuma mudanca funcional intencional.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1652 -> 1814, delta +162.
+
+| Bloco render/timeline | Responsabilidade separada                                                        | Helper local criado                                             |
+| --------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| State/base de render  | Le `getState`, normaliza arrays e limpa assinaturas orfas                        | `buildHistoricoRenderState`                                     |
+| Filtros atuais        | Le DOM/cache/session, normaliza `busca`, `filtEq`, `filtSetor`, `period`, `tipo` | `buildHistoricoRenderFilters`                                   |
+| View model principal  | Chama `buildHistoricoViewModel` e preserva `clienteFilter`/PMOC                  | `buildHistoricoRenderViewModel`                                 |
+| Ilha de filtros       | Prepara/monta `HistoricoFilters` com generation guard                            | `renderHistoricoFiltersIsland`, `mountHistoricoFiltersIsland`   |
+| Contexto da timeline  | Monta mapas, resumo do dia, itens de atencao e `hasFilters`                      | `buildHistoricoTimelineRenderContext`                           |
+| Pos-mount timeline    | Reanexa handlers, restaura scroll e aplica saved highlight/toast                 | `syncHistoricoAfterTimelineMount`                               |
+| Ilha timeline         | Centraliza chamada a `mountHistoricoTimelineReact` com generation guard          | `renderHistoricoTimelineIsland`, `mountHistoricoTimelineIsland` |
+| Skeleton timeline     | Mantem `withSkeleton` e contagem baseada em `list.length`                        | `renderHistoricoTimelineWithSkeleton`                           |
+
+Contratos preservados:
+
+- `renderHist`, `deleteReg`, `setHistClienteFilter` e `clearHistClienteFilter`.
+- Roots publicos `#timeline` e `#hist-filters-root`.
+- Filtros publicos `hist-busca`, `hist-setor`, `hist-equip`, periodo e tipo.
+- Timeline/cards, estados vazios e filtros ativos.
+- `edit-reg`, `delete-reg`, `export-pdf`, `whatsapp-export`, `data-id` e `data-registro-id`.
+
+Validacao inicial do CP-C:
+
+- `npm run test -- src/__tests__/historicoCardActions.contract.test.js --reporter=dot`: passou, 1 arquivo / 3 testes.
+- `npm run test -- src/__tests__/historicoCardActions.contract.test.js src/__tests__/historicoTimelineIsland.test.jsx src/__tests__/historicoTimelineLegacyRender.test.js src/__tests__/historicoView.test.js src/__tests__/historicoViewModel.test.js src/__tests__/historicoFiltersLegacyRender.test.js src/__tests__/historicoFiltersIsland.test.jsx src/__tests__/reportExportContracts.test.js src/__tests__/registroPdfWhatsappRegistroId.contract.test.js --reporter=dot`: passou, 9 arquivos / 75 testes.
+
+Lacunas remanescentes:
+
+- `historico.js` segue acima de 1000 LOC e ainda concentra handlers, filtros, delete e side effects de DOM.
+- Os helpers criados ainda estao no mesmo arquivo; proximo corte deve decidir se ha helpers puros seguros para mover.
+- Fluxos completos de edit/delete seguem cobertos por contratos parciais, nao por E2E do clique ate Registro/storage.
+
+Proximo CP recomendado: **CP-D - mover helpers puros filtros/VM**.
+
+Justificativa: apos o pre-split local, existem helpers de leitura/modelagem que podem ser classificados com mais seguranca antes de qualquer mexida em card actions ou integracao Registro/PDF.

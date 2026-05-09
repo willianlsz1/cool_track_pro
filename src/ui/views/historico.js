@@ -1152,11 +1152,7 @@ export function clearHistClienteFilter() {
   _clienteFilter = { id: null, nome: null };
 }
 
-export function renderHist() {
-  // Le filtros da URL na primeira vez que o view é renderizado por sessão.
-  // Suporta deep linking: ?periodo=7d&setor=xyz aplica filtros direto.
-  hydrateFiltersFromUrl();
-
+function buildHistoricoRenderState() {
   const state = getState() || {};
   const registros = asArray(state.registros);
   const equipamentos = asArray(state.equipamentos);
@@ -1164,79 +1160,96 @@ export function renderHist() {
   const clientes = asArray(state.clientes);
   cleanupOrphanSignatures(registros.map((r) => r?.id).filter(Boolean));
 
-  syncSetorSelect();
+  return { registros, equipamentos, setores, clientes };
+}
 
+function buildHistoricoRenderFilters() {
   const busca = getFilterValue('hist-busca', 'busca').toLowerCase();
   const filtEq = getFilterValue('hist-equip', 'equip');
   const filtSetor = getFilterValue('hist-setor', 'setor');
   _histFilterValues = { busca, setor: filtSetor, equip: filtEq };
   const { period, tipo } = getExtraFilters();
 
-  const isProMode = isCachedPlanPro();
+  return { busca, filtEq, filtSetor, period, tipo };
+}
+
+function buildHistoricoRenderViewModel({
+  registros,
+  equipamentos,
+  setores,
+  clientes,
+  filters,
+  isProMode,
+}) {
   const historicoVm = buildHistoricoViewModel({
     registros,
     equipamentos,
     setores,
     clientes,
     filters: {
-      busca,
-      equipId: filtEq,
-      setorId: filtSetor,
-      period,
-      tipo,
+      busca: filters.busca,
+      equipId: filters.equipId,
+      setorId: filters.setorId,
+      period: filters.period,
+      tipo: filters.tipo,
     },
     clienteFilter: _clienteFilter,
     isPro: isProMode,
     buildClientePmocDetails,
   });
-  const list = historicoVm.list;
 
-  // Filtros de período, tipo, cliente, setor, equipamento e busca agora ficam
-  // no view model; o adapter segue responsável por DOM, URL, handlers e render legado.
+  return { historicoVm, list: historicoVm.list };
+}
 
-  const el = Utils.getEl('timeline');
-  if (!el) return;
+function mountHistoricoFiltersIsland({ filtersRoot, filtersViewModel, filtersGeneration }) {
+  if (!filtersRoot) return null;
 
-  const scrollRoot = document.scrollingElement || document.documentElement;
-  const prevScrollTop = scrollRoot ? scrollRoot.scrollTop : window.scrollY;
+  const mountWithBridge = (bridge) => {
+    if (filtersGeneration !== _historicoFiltersRenderGeneration) return null;
+    return bridge.mountHistoricoFiltersReact(filtersRoot, { viewModel: filtersViewModel });
+  };
 
-  // Sincroniza URL apos cada render. URLSearchParams omite chaves vazias,
-  // entao ?busca=foo&periodo=7d nunca vira ?busca=&periodo=&setor=&equip=&tipo=.
-  writeFiltersToUrl({ busca, setor: filtSetor, equip: filtEq, periodo: period, tipo });
+  if (_historicoFiltersBridge?.mountHistoricoFiltersReact) {
+    return mountWithBridge(_historicoFiltersBridge);
+  }
 
+  return loadHistoricoFiltersBridge().then(mountWithBridge);
+}
+
+function normalizeHistoricoMountResult(result) {
+  return result && typeof result.then === 'function' ? result : Promise.resolve(result);
+}
+
+function renderHistoricoFiltersIsland({ historicoVm, equipamentos, setores, filters }) {
   const filtersRoot = ensureHistoricoFiltersRoot();
   const filtersViewModel = buildHistoricoFiltersReactViewModel({
     historicoVm,
     equipamentos,
     setores,
-    busca,
-    filtEq,
-    filtSetor,
-    period,
-    tipo,
+    busca: filters.busca,
+    filtEq: filters.filtEq,
+    filtSetor: filters.filtSetor,
+    period: filters.period,
+    tipo: filters.tipo,
   });
   const filtersGeneration = (_historicoFiltersRenderGeneration += 1);
+  const filtersMountResult = mountHistoricoFiltersIsland({
+    filtersRoot,
+    filtersViewModel,
+    filtersGeneration,
+  });
 
-  const mountFilters = () => {
-    if (!filtersRoot) return null;
+  return normalizeHistoricoMountResult(filtersMountResult);
+}
 
-    const mountWithBridge = (bridge) => {
-      if (filtersGeneration !== _historicoFiltersRenderGeneration) return null;
-      return bridge.mountHistoricoFiltersReact(filtersRoot, { viewModel: filtersViewModel });
-    };
-
-    if (_historicoFiltersBridge?.mountHistoricoFiltersReact) {
-      return mountWithBridge(_historicoFiltersBridge);
-    }
-
-    return loadHistoricoFiltersBridge().then(mountWithBridge);
-  };
-  const filtersMountResult = mountFilters();
-  const filtersReady =
-    filtersMountResult && typeof filtersMountResult.then === 'function'
-      ? filtersMountResult
-      : Promise.resolve(filtersMountResult);
-
+function buildHistoricoTimelineRenderContext({
+  registros,
+  equipamentos,
+  setores,
+  clientes,
+  filters,
+  isProMode,
+}) {
   const setoresById = new Map(setores.map((s) => [s.id, s]));
   const clientesById = new Map(clientes.map((c) => [c.id, c]));
   const todaySummary = getTodaySummary(registros);
@@ -1247,59 +1260,208 @@ export function renderHist() {
     setores,
     isPro: isProMode,
   });
+  const hasFilters = Boolean(
+    filters.busca ||
+    filters.filtEq ||
+    filters.filtSetor ||
+    filters.period !== 'tudo' ||
+    filters.tipo,
+  );
 
-  const hasFilters = Boolean(busca || filtEq || filtSetor || period !== 'tudo' || tipo);
-  const renderGeneration = (_historicoTimelineRenderGeneration += 1);
+  return { equipamentos, setoresById, clientesById, todaySummary, attentionItems, hasFilters };
+}
 
-  const renderTimeline = () => {
-    if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
+function syncHistoricoAfterTimelineMount({
+  filtersReady,
+  timelineRoot,
+  scrollRoot,
+  prevScrollTop,
+}) {
+  return filtersReady.then(() => {
+    attachFilterHandlers(timelineRoot);
 
-    const timelineViewModel = buildHistoricoTimelineReactViewModel({
-      list,
-      todaySummary,
-      attentionItems,
-      equipamentos,
-      setoresById,
-      clientesById,
-      isProMode,
-      currentFilterEquipId: filtEq || '',
-      hasFilters,
-    });
-
-    const afterMount = () =>
-      filtersReady.then(() => {
-        attachFilterHandlers(el);
-
-        if (prevScrollTop > 0) {
-          requestAnimationFrame(() => {
-            if (scrollRoot) scrollRoot.scrollTop = prevScrollTop;
-            else window.scrollTo(0, prevScrollTop);
-          });
-        }
-
-        if (SavedHighlight.applyIfPending()) {
-          Toast.success('Serviço registrado.');
-        }
+    if (prevScrollTop > 0) {
+      requestAnimationFrame(() => {
+        if (scrollRoot) scrollRoot.scrollTop = prevScrollTop;
+        else window.scrollTo(0, prevScrollTop);
       });
-
-    const mountWithBridge = (bridge) => {
-      if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
-      const mounted = bridge.mountHistoricoTimelineReact(el, { viewModel: timelineViewModel });
-      return afterMount().then(() => mounted);
-    };
-
-    if (_historicoTimelineBridge?.mountHistoricoTimelineReact) {
-      return mountWithBridge(_historicoTimelineBridge);
     }
 
-    return loadHistoricoTimelineBridge().then(mountWithBridge);
-  };
+    if (SavedHighlight.applyIfPending()) {
+      Toast.success('Serviço registrado.');
+    }
+  });
+}
+
+function mountHistoricoTimelineIsland({
+  bridge,
+  timelineRoot,
+  timelineViewModel,
+  renderGeneration,
+  afterMount,
+}) {
+  if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
+  const mounted = bridge.mountHistoricoTimelineReact(timelineRoot, {
+    viewModel: timelineViewModel,
+  });
+  return afterMount().then(() => mounted);
+}
+
+function renderHistoricoTimelineIsland({
+  timelineRoot,
+  list,
+  timelineContext,
+  filters,
+  filtersReady,
+  scrollRoot,
+  prevScrollTop,
+  isProMode,
+  renderGeneration,
+}) {
+  if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
+
+  const timelineViewModel = buildHistoricoTimelineReactViewModel({
+    list,
+    todaySummary: timelineContext.todaySummary,
+    attentionItems: timelineContext.attentionItems,
+    equipamentos: timelineContext.equipamentos,
+    setoresById: timelineContext.setoresById,
+    clientesById: timelineContext.clientesById,
+    isProMode,
+    currentFilterEquipId: filters.filtEq || '',
+    hasFilters: timelineContext.hasFilters,
+  });
+
+  const afterMount = () =>
+    syncHistoricoAfterTimelineMount({
+      filtersReady,
+      timelineRoot,
+      scrollRoot,
+      prevScrollTop,
+    });
+
+  if (_historicoTimelineBridge?.mountHistoricoTimelineReact) {
+    return mountHistoricoTimelineIsland({
+      bridge: _historicoTimelineBridge,
+      timelineRoot,
+      timelineViewModel,
+      renderGeneration,
+      afterMount,
+    });
+  }
+
+  return loadHistoricoTimelineBridge().then((bridge) =>
+    mountHistoricoTimelineIsland({
+      bridge,
+      timelineRoot,
+      timelineViewModel,
+      renderGeneration,
+      afterMount,
+    }),
+  );
+}
+
+function renderHistoricoTimelineWithSkeleton({
+  timelineRoot,
+  list,
+  timelineContext,
+  filters,
+  filtersReady,
+  scrollRoot,
+  prevScrollTop,
+  isProMode,
+}) {
+  const renderGeneration = (_historicoTimelineRenderGeneration += 1);
 
   return withSkeleton(
-    el,
+    timelineRoot,
     { enabled: true, variant: 'timeline', count: Math.min(Math.max(list.length, 3), 5) },
-    renderTimeline,
+    () =>
+      renderHistoricoTimelineIsland({
+        timelineRoot,
+        list,
+        timelineContext,
+        filters,
+        filtersReady,
+        scrollRoot,
+        prevScrollTop,
+        isProMode,
+        renderGeneration,
+      }),
   );
+}
+
+export function renderHist() {
+  // Le filtros da URL na primeira vez que o view é renderizado por sessão.
+  // Suporta deep linking: ?periodo=7d&setor=xyz aplica filtros direto.
+  hydrateFiltersFromUrl();
+
+  const { registros, equipamentos, setores, clientes } = buildHistoricoRenderState();
+
+  syncSetorSelect();
+
+  const filters = buildHistoricoRenderFilters();
+  const isProMode = isCachedPlanPro();
+  const { historicoVm, list } = buildHistoricoRenderViewModel({
+    registros,
+    equipamentos,
+    setores,
+    clientes,
+    filters: {
+      busca: filters.busca,
+      equipId: filters.filtEq,
+      setorId: filters.filtSetor,
+      period: filters.period,
+      tipo: filters.tipo,
+    },
+    isProMode,
+  });
+
+  // Filtros de período, tipo, cliente, setor, equipamento e busca agora ficam
+  // no view model; o adapter segue responsável por DOM, URL, handlers e render legado.
+
+  const timelineRoot = Utils.getEl('timeline');
+  if (!timelineRoot) return;
+
+  const scrollRoot = document.scrollingElement || document.documentElement;
+  const prevScrollTop = scrollRoot ? scrollRoot.scrollTop : window.scrollY;
+
+  // Sincroniza URL apos cada render. URLSearchParams omite chaves vazias,
+  // entao ?busca=foo&periodo=7d nunca vira ?busca=&periodo=&setor=&equip=&tipo=.
+  writeFiltersToUrl({
+    busca: filters.busca,
+    setor: filters.filtSetor,
+    equip: filters.filtEq,
+    periodo: filters.period,
+    tipo: filters.tipo,
+  });
+
+  const filtersReady = renderHistoricoFiltersIsland({
+    historicoVm,
+    equipamentos,
+    setores,
+    filters,
+  });
+
+  const timelineContext = buildHistoricoTimelineRenderContext({
+    registros,
+    equipamentos,
+    setores,
+    clientes,
+    filters,
+    isProMode,
+  });
+
+  return renderHistoricoTimelineWithSkeleton({
+    timelineRoot,
+    list,
+    timelineContext,
+    filters,
+    filtersReady,
+    scrollRoot,
+    prevScrollTop,
+    isProMode,
+  });
 }
 
 // ──────────────────────────────────────────────────────────────────────
