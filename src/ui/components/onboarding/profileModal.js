@@ -35,12 +35,6 @@ function getInitials(name) {
 // (src/core/phoneMask.js) — formato progressivo enquanto digita.
 
 // Ícones SVG stroke — casam com o design do accountModal (Inter 1.6–1.8 weight).
-const ICON_CLOSE = `
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <line x1="18" y1="6" x2="6" y2="18"/>
-    <line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>`;
 const ICON_CHECK = `
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -147,9 +141,6 @@ export const ProfileModal = {
     document.getElementById('modal-profile-overlay')?.remove();
 
     const profile = Profile.get() || {};
-    const initials = getInitials(profile.nome);
-    const [color, bg] = getAvatarColor(profile.nome);
-
     const overlay = document.createElement('div');
     overlay.id = 'modal-profile-overlay';
     overlay.className = 'modal-overlay is-open profile-modal-overlay';

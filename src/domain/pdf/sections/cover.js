@@ -13,22 +13,6 @@ import {
   buildCoverTitleModel,
 } from './coverHelpers.js';
 
-// -------------------------------- helpers --------------------------------
-
-function calculateTotalCost(registros) {
-  return registros.reduce(
-    (acc, registro) =>
-      acc + parseFloat(registro.custoPecas || 0) + parseFloat(registro.custoMaoObra || 0),
-    0,
-  );
-}
-
-function formatMoney(value) {
-  return `R$ ${Number(value || 0)
-    .toFixed(2)
-    .replace('.', ',')}`;
-}
-
 // ------------------------------- masthead -------------------------------
 
 function drawMasthead(doc, pageWidth, margin, profile) {

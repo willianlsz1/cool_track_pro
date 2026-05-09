@@ -1,6 +1,5 @@
 import { on } from '../../../core/events.js';
 import { Toast } from '../../../core/toast.js';
-import { CustomConfirm } from '../../../core/modal.js';
 import { ErrorCodes, handleError } from '../../../core/errors.js';
 // PDFGenerator é dynamic-imported dentro do handler pra evitar bundlar
 // jspdf + jspdf-autotable + pako (~150 KB gz) no chunk principal. Só baixa
@@ -142,42 +141,16 @@ async function ensureReportBudget({ attemptedEvent, blockedEvent }) {
 }
 
 /**
- * Mostra modal de confirmação antes de compartilhar via WhatsApp.
- * Dispara apenas quando o plano tem quota finita (Free=5/mês, Plus=60/mês) —
- * Pro (Infinity) pula o prompt. PDF não usa este helper porque e ilimitado
- * em todos os planos com quota mensal (so Pro tem a marca d'agua removida).
- *
- * @returns {Promise<boolean>} true se usuário confirmou; false se cancelou
- */
-/**
- * Confirmação antes de gerar PDF — mesmo com quota infinita (Free/Plus/Pro)
- * o usuário pode clicar por engano e gastar tempo de geração + arquivo no
- * downloads. Modal simples sem info de quota (não há limite a comunicar).
- */
-async function confirmPdfExport() {
-  return CustomConfirm.show(
-    'Gerar PDF do relatório?',
-    'O PDF será gerado e baixado em seguida. Confirme para prosseguir.',
-    {
-      confirmLabel: 'Gerar PDF',
-      cancelLabel: 'Cancelar',
-      tone: 'primary',
-    },
-  );
-}
-
-/**
  * Mostra modal de pré-visualização do PDF antes do download/share.
  * Recebe um Blob + fileName e exibe num iframe. Retorna 'confirm' se o
  * usuário clicou "Baixar/Enviar" ou 'cancel' se descartou. Sempre revoga
  * a Object URL ao fechar pra liberar memória.
  *
- * @param {{blob: Blob, fileName: string, primaryLabel?: string, subtitle?: string}} opts
+ * @param {{blob: Blob, primaryLabel?: string, subtitle?: string}} opts
  * @returns {Promise<'confirm'|'cancel'>}
  */
 function showPdfPreview({
   blob,
-  fileName,
   primaryLabel = 'Baixar PDF',
   subtitle = 'Confira antes de baixar',
 }) {
@@ -272,20 +245,6 @@ function triggerBlobDownload(blob, fileName) {
     URL.revokeObjectURL(url);
     a.remove();
   }, 100);
-}
-
-async function confirmWhatsAppConsumption({ used, limit }) {
-  if (!Number.isFinite(limit)) return true; // Pro: sem confirmação
-  const remaining = Math.max(0, limit - used);
-  return CustomConfirm.show(
-    'Compartilhar via WhatsApp?',
-    `Você já usou ${used} de ${limit} este mês. Restam ${remaining}. Esta ação consome 1 compartilhamento do seu limite mensal.`,
-    {
-      confirmLabel: 'Compartilhar',
-      cancelLabel: 'Cancelar',
-      tone: 'primary',
-    },
-  );
 }
 
 function bindPdfExport() {

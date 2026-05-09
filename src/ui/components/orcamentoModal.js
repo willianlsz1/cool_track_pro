@@ -10,7 +10,7 @@
 
 import { Utils } from '../../core/utils.js';
 import { Toast } from '../../core/toast.js';
-import { CustomConfirm, attachDialogA11y } from '../../core/modal.js';
+import { attachDialogA11y } from '../../core/modal.js';
 import {
   upsertOrcamento,
   findOrcamento,

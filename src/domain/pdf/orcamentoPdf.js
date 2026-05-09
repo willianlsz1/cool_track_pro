@@ -11,8 +11,7 @@
 
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Utils } from '../../core/utils.js';
-import { PDF_COLORS as C, PDF_TYPO as T } from './constants.js';
+import { PDF_COLORS as C } from './constants.js';
 import { fillRect, txt } from './primitives.js';
 
 function brl(n) {
@@ -213,7 +212,6 @@ function drawItemsTable(doc, pageWidth, margin, y, orcamento) {
 }
 
 function drawTotals(doc, pageWidth, margin, y, orcamento) {
-  const innerW = pageWidth - margin * 2;
   const totalsW = 70;
   const x = pageWidth - margin - totalsW;
 
@@ -291,7 +289,7 @@ function drawCondicoes(doc, pageWidth, margin, y, orcamento) {
   return y + 6;
 }
 
-function drawTermo(doc, pageWidth, pageHeight, margin, y, orcamento) {
+function drawTermo(doc, pageWidth, pageHeight, margin, y) {
   // Garante espaço pra termo + assinatura. Se não couber, força nova página.
   const needed = 70;
   if (y + needed > pageHeight - 20) {

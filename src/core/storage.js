@@ -9,7 +9,7 @@ import { Toast } from './toast.js';
 import { supabase } from './supabase.js';
 import { flushPendingSignatures } from './signatureStorage.js';
 import { flushPendingPhotos } from './photoStorage.js';
-import { AppError, ErrorCodes, handleError } from './errors.js';
+import { ErrorCodes, handleError } from './errors.js';
 import { sanitizePersistedSetor } from './inputValidation.js';
 import {
   normalizeEquip,

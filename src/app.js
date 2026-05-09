@@ -1,14 +1,13 @@
-import { getState, setState } from './core/state.js';
+import { setState } from './core/state.js';
 import { bindEvents } from './core/events.js';
 import { Modal } from './core/modal.js';
 import { goTo, initHistory } from './core/router.js';
 import { initController } from './ui/controller.js';
 import { initAppShell } from './ui/shell.js';
-import { FirstTimeExperience } from './ui/components/onboarding.js';
 import { OnboardingChecklist } from './ui/components/onboarding/onboardingChecklist.js';
 import { PushOptInCard } from './ui/components/pushOptInCard.js';
 import { setupPushNotifications } from './core/pushNotifications.js';
-import { InstallAppPrompt, captureInstallEvent } from './ui/components/installAppPrompt.js';
+import { captureInstallEvent } from './ui/components/installAppPrompt.js';
 
 // Capture beforeinstallprompt cedo — antes do user interagir.
 captureInstallEvent();
@@ -17,7 +16,6 @@ import { setCurrentUser, migrateLegacyKey } from './core/userStorage.js';
 import { AuthScreen } from './ui/components/authscreen.js';
 import { PasswordRecoveryModal } from './ui/components/passwordRecoveryModal.js';
 import { Storage } from './core/storage.js';
-import { Tour } from './ui/components/tour.js';
 import { ErrorCodes, handleError } from './core/errors.js';
 import { Toast } from './core/toast.js';
 import {

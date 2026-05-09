@@ -15,7 +15,7 @@
  */
 
 import { Utils } from '../../core/utils.js';
-import { getState, findSetor } from '../../core/state.js';
+import { getState } from '../../core/state.js';
 
 const PICKER_ID = 'registro-equip-picker';
 let _bound = false;
@@ -222,7 +222,7 @@ function _openPicker() {
   if (_isOpen) return;
   _isOpen = true;
   document.getElementById(PICKER_ID)?.remove();
-  const overlay = _renderPicker();
+  _renderPicker();
 
   const trigger = document.getElementById('r-equip-trigger');
   if (trigger) trigger.setAttribute('aria-expanded', 'true');

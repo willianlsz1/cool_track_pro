@@ -41,7 +41,6 @@ export async function expectNoSeriousViolations(container, options = {}) {
   const advisory = results.violations.filter((v) => ['moderate', 'minor'].includes(v.impact));
 
   if (advisory.length > 0) {
-    // eslint-disable-next-line no-console
     console.warn(
       `[a11y] ${advisory.length} violations moderate/minor (não bloqueantes):`,
       advisory.map((v) => `${v.id} (${v.nodes.length}x)`).join(', '),

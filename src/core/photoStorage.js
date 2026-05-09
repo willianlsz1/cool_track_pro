@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 import { AppError, ErrorCodes } from './errors.js';
-import { enqueueBlob, getBlobEntry, removeBlob, listBlobs } from './blobQueue.js';
+import { enqueueBlob, getBlobEntry, removeBlob } from './blobQueue.js';
 
 const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_PHOTOS_BUCKET || 'registro-fotos';
 const DEFAULT_SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;

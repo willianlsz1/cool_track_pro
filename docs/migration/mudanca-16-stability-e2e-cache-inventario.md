@@ -205,8 +205,42 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - `npm run format`;
   - `npm run check`.
 
-## 13. Proximo CP recomendado
+## 13. CP-E aplicado
 
-**CP-E - limpar warnings lint por grupos.**
+- Escopo: limpeza segura de warnings ESLint por grupo pequeno, sem mudanca funcional.
+- Grupo atacado:
+  - `no-unused-vars` em imports, variaveis locais, parametros privados e funcoes privadas sem uso;
+  - `eslint-disable` obsoleto em helper de teste.
+- Warning count:
+  - antes: 30 warnings, 0 erros;
+  - depois: 6 warnings, 0 erros;
+  - delta: -24 warnings.
+- Arquivos alterados:
+  - `src/app.js`;
+  - `src/core/photoStorage.js`;
+  - `src/core/storage.js`;
+  - `src/domain/pdf/orcamentoPdf.js`;
+  - `src/domain/pdf/sections/cover.js`;
+  - `src/ui/components/onboarding/profileModal.js`;
+  - `src/ui/components/orcamentoModal.js`;
+  - `src/ui/components/registroEquipPicker.js`;
+  - `src/ui/controller/handlers/reportExportHandlers.js`;
+  - `src/ui/views/historico.js`;
+  - `src/__tests__/helpers/axe.js`.
+- Warnings mantidos:
+  - 6 warnings de `no-restricted-imports` em storage/domain/UI;
+  - warnings Vite de dynamic/static import e chunks grandes no build.
+- Motivo para manter:
+  - restricted imports exigem corte arquitetural com contratos dedicados;
+  - chunks exigem mapeamento antes de mexer em imports/build.
+- Validacoes rodadas:
+  - `npm run format`;
+  - `npm run check`;
+  - bateria focada de contratos recentes;
+  - `npm run test -- src/__tests__ --reporter=dot`.
 
-Justificativa: CP-D reduziu as lacunas contratuais mais criticas de cache/offline sem alterar producao. O proximo gargalo de estabilidade e o ruido recorrente de `npm run check`: 30 warnings lint baseline podem mascarar regressao nova e devem ser reduzidos em grupos pequenos antes de mexer em chunks.
+## 14. Proximo CP recomendado
+
+**CP-F - continuar limpeza de warnings.**
+
+Justificativa: CP-E reduziu o baseline de lint de 30 para 6 warnings sem mudanca funcional. Os warnings restantes sao todos arquiteturais (`no-restricted-imports`) e devem ser tratados em grupos pequenos, com mapeamento e testes por area, antes do corte de chunks/dynamic import.

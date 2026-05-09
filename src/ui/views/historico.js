@@ -774,7 +774,7 @@ function renderRecurringAlert(recurring, equipamentos) {
   </div>`;
 }
 
-function renderSummaryCard(
+function _renderSummaryCard(
   list,
   { filtered, activeFilterCount, equipamentos = [], recurring = [] },
 ) {
