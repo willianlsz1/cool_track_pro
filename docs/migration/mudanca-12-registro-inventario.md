@@ -413,8 +413,22 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1752 -> 1752.
 - Testes rodados: reportShare feature + postSave feature + contrato `registroId`; persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes relacionados de Registro/relatorio/PDF/WhatsApp/historico; `npm run format`; `npm run check`.
 
-## 26. Proximo CP recomendado
+## 26. CP-R - Stability checkpoint intermediario de Registro
 
-**CP-R - stability checkpoint intermediario.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. A sequencia CP-D..CP-Q ja extraiu payload, fotos, assinatura, persistencia, post-save e ponte relatorio/share; antes de iniciar outro bloco, vale congelar estado, riscos e matriz de testes para reduzir regressao acumulada.
+- Documento criado: `docs/migration/mudanca-12-stability-checkpoint-intermediario.md`.
+- Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
+- Estado consolidado: contratos CP-B, contrato CP-O, payload CP-D, fotos CP-F, assinatura CP-I, persistence CP-K, postSave CP-M e reportShare CP-Q permanecem presentes e cobertos por testes proprios.
+- Arquitetura validada: `src/features/registro` nao importa o adapter principal `src/ui/views/registro.js`; `saveRegistro` continua no adapter legado; modulos save seguem com DI e sem imports diretos de DOM/React pages/handlers.
+- LOC atual `src/ui/views/registro.js`: 1752.
+- Validacoes rodadas: bateria feature/contratos; suite ampla `npm run test -- src/__tests__ --reporter=dot`; `npm run format`; `npm run check`.
+- `npm run size` foi tentado, mas falhou por ambiente porque `size-limit` nao esta disponivel no PATH local; nenhuma dependencia foi instalada.
+- Warnings remanescentes registrados: 32 warnings de lint baseline, warnings Vite de dynamic import/chunk e stderr de testes JSDOM/Supabase/React `act(...)` ja observados na suite.
+- Riscos remanescentes: `saveRegistro` ainda orquestra o fluxo central; wrappers DOM/form, Toast/focus, setState, Profile/sessionStorage, checklist/PMOC, relatorio/PDF domain, historico e bridges das ilhas React ainda exigem cortes cuidadosos.
+
+## 27. Proximo CP recomendado
+
+**CP-S - mapear/mover wrappers restantes do saveRegistro.**
+
+Confianca: 90%+. O checkpoint mostrou que os modulos extraidos estao estaveis e cobertos; o maior risco residual imediato esta nos wrappers ainda presos ao adapter (`DOM/form`, Toast/focus, Profile/sessionStorage, `setState` e orquestradores amplos ao redor de `saveRegistro`).
