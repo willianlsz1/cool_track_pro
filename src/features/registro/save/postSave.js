@@ -1,3 +1,10 @@
+import {
+  buildRegistroPostSaveToastActions,
+  notifyRegistroShareStarted,
+  runRegistroReportFallback,
+  runRegistroWhatsappShare,
+} from './reportShare.js';
+
 export function persistRegistroLastClientAfterSave(
   persistedPayload,
   { saveRegistroLastClient } = {},
@@ -31,63 +38,6 @@ export function runRegistroPreventivaPromptAfterSave(
   { showProximaPreventivaPrompt } = {},
 ) {
   void showProximaPreventivaPrompt?.(registroId);
-}
-
-function buildRegistroReportFilters({ equipId, registroId } = {}) {
-  return { equipId, registroId };
-}
-
-function buildRegistroReportRoute({
-  destination = 'whatsapp',
-  equipId,
-  registroId,
-  includeEmptyRegistroId = false,
-} = {}) {
-  return {
-    equipId,
-    intent: destination,
-    ...(registroId || includeEmptyRegistroId ? { registroId } : {}),
-  };
-}
-
-function notifyRegistroShareStarted({ Toast } = {}) {
-  Toast?.success?.('Serviço salvo. Abrindo WhatsApp...');
-}
-
-async function runRegistroWhatsappShare({ equipId, registroId } = {}, { shareWhatsAppFlow } = {}) {
-  return shareWhatsAppFlow?.({ filters: buildRegistroReportFilters({ equipId, registroId }) });
-}
-
-function runRegistroReportFallback(
-  { destination = 'whatsapp', equipId, registroId, includeEmptyRegistroId = false } = {},
-  { goTo } = {},
-) {
-  goTo?.(
-    'relatorio',
-    buildRegistroReportRoute({ destination, equipId, registroId, includeEmptyRegistroId }),
-  );
-}
-
-function runRegistroPdfAction({ equipId, registroId } = {}, { exportPdfFlow } = {}) {
-  return exportPdfFlow?.({ filters: buildRegistroReportFilters({ equipId, registroId }) });
-}
-
-function runRegistroWhatsappAction({ equipId, registroId } = {}, { shareWhatsAppFlow } = {}) {
-  return runRegistroWhatsappShare({ equipId, registroId }, { shareWhatsAppFlow });
-}
-
-function buildRegistroPostSaveToastActions({ exportPdfFlow, shareWhatsAppFlow, goTo } = {}) {
-  return {
-    onAction: async ({ destination, equipId, registroId }) => {
-      if (destination === 'pdf') {
-        return runRegistroPdfAction({ equipId, registroId }, { exportPdfFlow });
-      }
-      return runRegistroWhatsappAction({ equipId, registroId }, { shareWhatsAppFlow });
-    },
-    onFallback: ({ destination, equipId, registroId }) => {
-      runRegistroReportFallback({ destination, equipId, registroId }, { goTo });
-    },
-  };
 }
 
 export async function runRegistroDirectShareAfterSave(

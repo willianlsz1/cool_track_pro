@@ -396,8 +396,25 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1752 -> 1752.
 - Testes rodados: contrato `registroId` + postSave feature; persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes relacionados de Registro/relatorio/PDF/WhatsApp/historico; `npm run format`; `npm run check`.
 
-## 25. Proximo CP recomendado
+## 25. CP-Q - Mover helpers seguros de relatorio/PDF/WhatsApp
 
-**CP-Q - mover helpers seguros de relatorio/PDF/WhatsApp.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. A ponte Registro -> relatorio/PDF/WhatsApp agora tem helpers internos pequenos em `postSave.js`; o proximo corte seguro e mover apenas helpers puros ou de DI simples, mantendo efeitos amplos e orquestracao nos pontos atuais.
+- `postSave.js` permaneceu como orquestrador do post-save/share.
+- Modulo criado: `src/features/registro/save/reportShare.js`.
+- Teste criado: `src/features/registro/__tests__/save/reportShare.test.js`.
+- Helpers movidos: `buildRegistroReportFilters`, `buildRegistroReportRoute`, `notifyRegistroShareStarted`, `runRegistroWhatsappShare`, `runRegistroReportFallback`, `runRegistroPdfAction`, `runRegistroWhatsappAction`, `buildRegistroPostSaveToastActions`.
+- DI explicita usada para `Toast`, `shareWhatsAppFlow`, `goTo` e `exportPdfFlow`.
+- Exports/orquestradores mantidos em `postSave.js`: `runRegistroDirectShareAfterSave` e `notifyRegistroCreateSaved`, para preservar a ordem do fluxo post-save e evitar concentrar orquestracao ampla no modulo de helpers.
+- Contrato CP-O preservado: `registroId` segue nos filtros de PDF/WhatsApp, no fallback para relatorio e nos CTAs do `PostSaveRegistroToast`.
+- Nenhuma mudanca funcional intencional; `saveRegistro`, `reportExportHandlers.js`, `relatorio.js`, `historico.js`, `domain/pdf.js`, React pages, handlers, payload CP-D, fotos CP-F, assinatura CP-I, persistence CP-K e contratos CP-B preservados.
+- LOC `src/features/registro/save/postSave.js`: 121 -> 78.
+- LOC `src/features/registro/save/reportShare.js`: criado com 55 linhas.
+- LOC `src/ui/views/registro.js`: 1752 -> 1752.
+- Testes rodados: reportShare feature + postSave feature + contrato `registroId`; persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes relacionados de Registro/relatorio/PDF/WhatsApp/historico; `npm run format`; `npm run check`.
+
+## 26. Proximo CP recomendado
+
+**CP-R - stability checkpoint intermediario.**
+
+Confianca: 90%+. A sequencia CP-D..CP-Q ja extraiu payload, fotos, assinatura, persistencia, post-save e ponte relatorio/share; antes de iniciar outro bloco, vale congelar estado, riscos e matriz de testes para reduzir regressao acumulada.
