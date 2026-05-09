@@ -1825,8 +1825,8 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
   }
 }
 
-export function clearRegistro(preserveEquip = false) {
-  const toClear = [
+function getClearRegistroFieldIds(preserveEquip = false) {
+  const fieldIds = [
     'r-tipo',
     'r-tipo-custom',
     'r-pecas',
@@ -1841,49 +1841,63 @@ export function clearRegistro(preserveEquip = false) {
     'r-local-atendimento',
     'r-cliente-contato',
   ];
-  if (!preserveEquip) toClear.push('r-equip');
-  Utils.clearVals(...toClear);
-  resetEditingState();
+
+  if (!preserveEquip) fieldIds.push('r-equip');
+  return fieldIds;
+}
+
+function resetRegistroBaseFieldsAfterClear(preserveEquip = false) {
+  Utils.clearVals(...getClearRegistroFieldIds(preserveEquip));
+}
+
+function resetRegistroDefaultFieldsAfterClear() {
   Utils.setVal('r-status', DEFAULT_REGISTRO_STATUS);
   Utils.setVal('r-prioridade', DEFAULT_REGISTRO_PRIORIDADE);
   Utils.setVal('r-data', Utils.nowDatetime());
+}
+
+function resetRegistroMediaAfterClear() {
   Photos.clear();
+}
+
+function resetRegistroSignatureAfterClear() {
   clearRegistroSignatureAfterSave({
     clearDraft: () => {
       _registroSignatureDraftSrc = '';
     },
     remountSignature: mountRegistroSignature,
   });
+}
 
-  // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
+function resetRegistroDetailsAfterClear() {
   _syncTipoCustomVisibility();
   _syncMateriaisDetailsState(false);
   _syncImpactDetailsState(false);
+}
 
-  // Reseta o meter do hero pra empty sem remover o markup (ele é estático no
-  // template agora, diferente da v5 que injetava dinamicamente).
+function resetRegistroProgressAfterClear() {
   _updateProgressBar();
+}
 
-  // Reset do estado ativo dos chips de ação rápida — "Recomeçar" deve zerar
-  // a seleção visual pra não sugerir um template que já não se aplica ao
-  // novo registro em branco.
+function resetRegistroQuickTemplateChipsAfterClear() {
   document
     .querySelectorAll('.registro-quick [data-action="quick-service-template"]')
     .forEach((chip) => {
       chip.classList.remove('is-active');
       chip.setAttribute('aria-pressed', 'false');
     });
+}
 
-  // PMOC Fase 3: reset do state do checklist (impede vazar marcações
-  // de um registro pra outro quando o user clica "Recomeçar").
+function resetRegistroChecklistAfterClearClick() {
   resetChecklist();
+}
 
+function resetRegistroTechnicianDefaultAfterClear() {
   const rTecnico = Utils.getEl('r-tecnico');
   if (rTecnico) rTecnico.value = Profile.getDefaultTecnico();
+}
 
-  // Auto-prefill do último cliente — técnico que atende o mesmo cliente em
-  // sequência (ex.: manutenção de várias unidades no mesmo prédio) não precisa
-  // redigitar. O usuário pode apagar os campos se for para outro cliente.
+function restoreRegistroLastClientAfterClear() {
   const lastClient = _loadLastClient();
   if (lastClient) {
     if (lastClient.clienteNome) Utils.setVal('r-cliente-nome', lastClient.clienteNome);
@@ -1893,24 +1907,63 @@ export function clearRegistro(preserveEquip = false) {
       Utils.setVal('r-local-atendimento', lastClient.localAtendimento);
     if (lastClient.clienteContato) Utils.setVal('r-cliente-contato', lastClient.clienteContato);
   }
+}
 
+function resetRegistroSaveButtonAfterClear() {
   const saveBtn = document.querySelector('[data-action="save-registro"]');
   if (saveBtn) {
-    // Preserva o SVG do ícone (o redesign v6 colocou svg + span no botão).
-    // Alterar textContent aqui mataria o ícone — por isso só mexemos no span.
     const saveLabel = saveBtn.querySelector('span');
     if (saveLabel) saveLabel.textContent = 'Salvar serviço';
     else saveBtn.textContent = 'Salvar serviço';
     saveBtn.classList.remove('btn--editing');
   }
+}
 
-  // Hero do redesign v6: pill texto volta pra "Novo registro" quando saímos
-  // do modo edição. Mantém também o fallback pro legado .section-title.
+function resetRegistroHeroAfterClear() {
   const heroPill = document.getElementById(HERO_PILL_TEXT_ID);
   if (heroPill) heroPill.textContent = 'Novo registro';
   const title = document.querySelector('#view-registro .section-title');
   if (title) title.textContent = 'O que foi feito hoje?';
+}
+
+function finalizeClearRegistroAfterReset() {
   _refreshRegistroContext();
+}
+
+export function clearRegistro(preserveEquip = false) {
+  resetRegistroBaseFieldsAfterClear(preserveEquip);
+  resetEditingState();
+  resetRegistroDefaultFieldsAfterClear();
+  resetRegistroMediaAfterClear();
+  resetRegistroSignatureAfterClear();
+
+  // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
+  resetRegistroDetailsAfterClear();
+
+  // Reseta o meter do hero pra empty sem remover o markup (ele é estático no
+  // template agora, diferente da v5 que injetava dinamicamente).
+  resetRegistroProgressAfterClear();
+
+  // Reset do estado ativo dos chips de ação rápida — "Recomeçar" deve zerar
+  // a seleção visual pra não sugerir um template que já não se aplica ao
+  // novo registro em branco.
+  resetRegistroQuickTemplateChipsAfterClear();
+
+  // PMOC Fase 3: reset do state do checklist (impede vazar marcações
+  // de um registro pra outro quando o user clica "Recomeçar").
+  resetRegistroChecklistAfterClearClick();
+  resetRegistroTechnicianDefaultAfterClear();
+
+  // Auto-prefill do último cliente — técnico que atende o mesmo cliente em
+  // sequência (ex.: manutenção de várias unidades no mesmo prédio) não precisa
+  // redigitar. O usuário pode apagar os campos se for para outro cliente.
+  restoreRegistroLastClientAfterClear();
+  resetRegistroSaveButtonAfterClear();
+
+  // Hero do redesign v6: pill texto volta pra "Novo registro" quando saímos
+  // do modo edição. Mantém também o fallback pro legado .section-title.
+  resetRegistroHeroAfterClear();
+  finalizeClearRegistroAfterReset();
 }
 export function loadRegistroForEdit(id) {
   const { registros } = getState();

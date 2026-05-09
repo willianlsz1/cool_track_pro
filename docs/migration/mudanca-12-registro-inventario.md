@@ -521,8 +521,20 @@ Status: aplicado em 2026-05-09.
 - Lacunas remanescentes: ordem interna completa dos binds de `initRegistro`, reset visual detalhado de todos os chips/details e restauracao visual de fotos/assinatura seguem cobertos por testes legados relacionados, nao duplicados no contrato dedicado.
 - Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados lifecycle/Registro; `npm run format`; `npm run check`.
 
-## 34. Proximo CP recomendado
+## 34. CP-Z - Pre-split clearRegistro
 
-**CP-Z - pre-split clearRegistro.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O contrato lifecycle agora protege o reset publico e `clearRegistro` e o menor proximo corte util: tem fronteira clara, ja e chamado por handler e post-save, e concentra resets de DOM/edicao/fotos/assinatura/checklist que podem ser separados localmente antes de qualquer extracao.
+- `clearRegistro` permaneceu em `src/ui/views/registro.js`; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `getClearRegistroFieldIds`, `resetRegistroBaseFieldsAfterClear`, `resetRegistroDefaultFieldsAfterClear`, `resetRegistroMediaAfterClear`, `resetRegistroSignatureAfterClear`, `resetRegistroDetailsAfterClear`, `resetRegistroProgressAfterClear`, `resetRegistroQuickTemplateChipsAfterClear`, `resetRegistroChecklistAfterClearClick`, `resetRegistroTechnicianDefaultAfterClear`, `restoreRegistroLastClientAfterClear`, `resetRegistroSaveButtonAfterClear`, `resetRegistroHeroAfterClear` e `finalizeClearRegistroAfterReset`.
+- Responsabilidades separadas: campos base e `preserveEquip`, modo edicao, defaults, fotos/evidencias, assinatura, details/progresso, quick templates, Checklist/PMOC, tecnico padrao, ultimo cliente, botao de save, hero e refresh de contexto.
+- Nenhuma mudanca funcional intencional; contratos CP-Y, CP-B, CP-O e CP-U preservados.
+- `initRegistro`, `loadRegistroForEdit`, `saveRegistro`, React pages, handlers, features extraidas, relatorio/PDF, historico, Equipamentos, CSS, schema e package files preservados.
+- LOC `src/ui/views/registro.js`: 1748 -> 1788.
+- Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados clear/lifecycle/Registro; `npm run format`; `npm run check`.
+
+## 35. Proximo CP recomendado
+
+**CP-AA - pre-split loadRegistroForEdit.**
+
+Confianca: 90%+. Depois do pre-split local de `clearRegistro`, a maior fronteira lifecycle ainda acoplada e `loadRegistroForEdit`, que concentra preenchimento de campos, modo edicao, checklist, labels e contexto. Os helpers de `clearRegistro` ainda sao majoritariamente DOM/state/feature-adapter side effects, entao mover helpers agora teria baixo ganho e mais risco.
