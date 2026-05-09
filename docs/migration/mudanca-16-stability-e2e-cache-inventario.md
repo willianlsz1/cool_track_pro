@@ -158,8 +158,33 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - `npm run format`;
   - `npm run check`.
 
-## 11. Proximo CP recomendado
+## 11. CP-C aplicado
 
-**CP-C - cache/storage/offline checkpoint.**
+- Checkpoint criado em `docs/migration/mudanca-16-cache-storage-offline-checkpoint.md`.
+- Escopo: documental + validacoes existentes; nenhum teste novo foi necessario neste CP.
+- Areas mapeadas:
+  - Storage central, state, `localStorage`, `sessionStorage`;
+  - fotos/evidencias e assinatura;
+  - Registro save/edit e Historico delete/tombstone;
+  - PDF/WhatsApp fallback;
+  - plano/billing/cache;
+  - filtros Historico;
+  - filas pending/offline e Supabase fallback.
+- Lacunas principais:
+  - E2E real de save/reload com foto, assinatura e checklist;
+  - bootstrap completo com cache local legado e remoto indisponivel;
+  - inventario completo de chaves de storage;
+  - drain de fila de fotos pendentes;
+  - multiusuario/multiaba para cache owner e plano.
+- Validacoes rodadas:
+  - bateria storage/cache/offline;
+  - bateria relacionada ampla;
+  - `npm run test -- src/__tests__ --reporter=dot`;
+  - `npm run format`;
+  - `npm run check`.
 
-Justificativa: o contrato cruzado minimo ja protege a identidade do registro ate PDF/WhatsApp. O maior risco restante da Mudanca 16 agora esta em `localStorage`, `sessionStorage`, state, filas offline, fotos, assinatura, plano/cache e tombstones, antes de limpar warnings ou mexer em chunks.
+## 12. Proximo CP recomendado
+
+**CP-D - cache/offline contratos adicionais.**
+
+Justificativa: o checkpoint CP-C mostrou boa cobertura existente, mas ainda ha lacunas contratuais pequenas e de alto valor em inventario de chaves, drain de filas pendentes, bootstrap com cache legado/remoto indisponivel e cenarios multiusuario/cache owner. Fechar isso reduz risco antes de limpar warnings ou mexer em chunks.
