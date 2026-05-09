@@ -557,8 +557,24 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1815 -> 1848.
 - Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados init/lifecycle/Registro; suite ampla `src/__tests__`; `npm run format`; `npm run check`.
 
-## 37. Proximo CP recomendado
+## 37. CP-AC - Mover helpers seguros de lifecycle
 
-**CP-AC - mover helpers seguros de lifecycle.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. A triade lifecycle (`initRegistro`, `clearRegistro`, `loadRegistroForEdit`) ja esta separada localmente e protegida por contrato. O proximo corte seguro e classificar e mover apenas helpers puros/baixo risco, mantendo DOM, bridges React, guards, storage e orquestradores no adapter.
+- Modulo criado: `src/features/registro/lifecycle/helpers.js`.
+- Teste criado: `src/features/registro/__tests__/lifecycle/helpers.test.js`.
+- Helpers seguros movidos: `getClearRegistroFieldIds`, `resolveRegistroEditTarget` e `resolveRegistroInitEquipId`.
+- DI explicita usada: lista `registros` para `resolveRegistroEditTarget`; `params` para `resolveRegistroInitEquipId`; flag `preserveEquip` para `getClearRegistroFieldIds`.
+- Helpers com side effects permaneceram no adapter: root DOM, contexto/route params, header bridge, binds/listeners, datetime UX, defaults DOM, Profile, Photos, assinatura, Checklist/PMOC, sessionStorage/route guard, labels/hero e resets visuais.
+- `initRegistro`, `clearRegistro`, `loadRegistroForEdit` e `saveRegistro` permaneceram em `src/ui/views/registro.js`.
+- Nenhuma mudanca funcional intencional; contratos CP-Y, CP-B, CP-O e CP-U preservados.
+- React pages, handlers, features save/checklist, relatorio/PDF, historico, Equipamentos, CSS, schema e package files preservados.
+- LOC `src/ui/views/registro.js`: 1848 -> 1828.
+- LOC `src/features/registro/lifecycle/helpers.js`: criado com 25 linhas.
+- Validacoes previstas para este CP: lifecycle helpers + contrato lifecycle; bateria feature/contratos; testes relacionados lifecycle/Registro; suite ampla `src/__tests__`; `npm run format`; `npm run check`.
+
+## 38. Proximo CP recomendado
+
+**CP-AD - stability final e encerrar Mudanca 12.**
+
+Confianca: 90%+. A Mudanca 12 ja cobriu contratos/selectors, payload, fotos, assinatura, persistencia, post-save, report/share, Checklist/PMOC e lifecycle. Restam riscos arquiteturais maiores em relatorio/PDF domain e adapter legado, mas eles pedem nova mudanca ou mapeamento dedicado; o melhor proximo corte e consolidar estabilidade final da sequencia Registro antes de abrir outro bloco.

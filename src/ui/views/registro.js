@@ -66,6 +66,11 @@ import {
   resolveRegistroChecklistTemplate,
 } from '../../features/registro/checklist/pmocChecklist.js';
 import {
+  getClearRegistroFieldIds,
+  resolveRegistroEditTarget,
+  resolveRegistroInitEquipId,
+} from '../../features/registro/lifecycle/helpers.js';
+import {
   applyRegistroSavedHighlight,
   notifyRegistroCreateSaved,
   notifyRegistroEditSaved,
@@ -1319,10 +1324,6 @@ function resolveRegistroInitRoot() {
   return Utils.getEl('view-registro');
 }
 
-function resolveRegistroInitEquipId(params = {}) {
-  return params.equipId || params.equipamentoId || '';
-}
-
 function syncRegistroInitRouteContext(params, effectiveEquipId) {
   if (effectiveEquipId) Utils.setVal('r-equip', effectiveEquipId);
   _currentRouteParams = { ...params };
@@ -1870,27 +1871,6 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
   }
 }
 
-function getClearRegistroFieldIds(preserveEquip = false) {
-  const fieldIds = [
-    'r-tipo',
-    'r-tipo-custom',
-    'r-pecas',
-    'r-obs',
-    'r-proxima',
-    'r-tecnico',
-    'r-custo-pecas',
-    'r-custo-mao-obra',
-    'r-prioridade',
-    'r-cliente-nome',
-    'r-cliente-documento',
-    'r-local-atendimento',
-    'r-cliente-contato',
-  ];
-
-  if (!preserveEquip) fieldIds.push('r-equip');
-  return fieldIds;
-}
-
 function resetRegistroBaseFieldsAfterClear(preserveEquip = false) {
   Utils.clearVals(...getClearRegistroFieldIds(preserveEquip));
 }
@@ -2011,11 +1991,6 @@ export function clearRegistro(preserveEquip = false) {
   finalizeClearRegistroAfterReset();
 }
 
-function resolveRegistroEditTarget(id) {
-  const { registros } = getState();
-  return registros.find((r) => r.id === id);
-}
-
 function enterRegistroEditMode(id) {
   sessionStorage.setItem(EDITING_KEY, id);
   const formViewEdit = Utils.getEl('view-registro');
@@ -2096,7 +2071,8 @@ function syncRegistroEditHeroContext() {
 }
 
 export function loadRegistroForEdit(id) {
-  const r = resolveRegistroEditTarget(id);
+  const { registros } = getState();
+  const r = resolveRegistroEditTarget(registros, id);
   if (!r) return;
 
   enterRegistroEditMode(id);
