@@ -344,8 +344,23 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1773 -> 1800.
 - Testes rodados: persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes focados de Registro/save/post-save/share/PDF/historico; `npm run format`; `npm run check`.
 
-## 21. Proximo CP recomendado
+## 21. CP-M - Mover helpers seguros de post-save/share
 
-**CP-M - mover helpers de post-save/share.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O CP-L isolou os efeitos em helpers locais sem alterar ordem; o proximo corte seguro e classificar esses helpers e mover apenas os de baixo risco com DI explicita, mantendo `saveRegistro` como orquestrador legado.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Modulo criado: `src/features/registro/save/postSave.js`.
+- Teste criado: `src/features/registro/__tests__/save/postSave.test.js`.
+- Helpers movidos: `persistRegistroLastClientAfterSave`, `applyRegistroSavedHighlight`, `resetRegistroEditAfterSave`, `resetRegistroCreateAfterSave`, `notifyRegistroEditSaved`, `runRegistroEditNavigationAfterSave`, `runRegistroPreventivaPromptAfterSave`, `runRegistroDirectShareAfterSave`, `notifyRegistroCreateSaved`.
+- DI explicita usada para `saveRegistroLastClient`, `SavedHighlight`, `resetEditingState`, `clearRegistro`, `Toast`, `goTo`, `shareWhatsAppFlow`, `PostSaveRegistroToast`, `exportPdfFlow` e `_showProximaPreventivaPrompt`.
+- Nenhum helper amplo de post-save/share foi movido como fluxo completo; `runRegistroEditPostSaveEffects` e `runRegistroCreatePostSaveEffects` permaneceram no adapter como orquestradores.
+- Ordem preservada: post-save edit (`lastClient -> resetEditingState -> clearRegistro -> Toast -> historico`); post-save create (`highlight -> lastClient -> clearRegistro -> andShare direto` ou `prompt -> PostSaveRegistroToast/fallback`).
+- Nenhuma mudanca funcional intencional; contratos CP-B, payload CP-D, fotos CP-F, assinatura CP-I, persistence CP-K, storage/fila offline, React pages, handlers, relatorio/PDF, historico e Equipamentos preservados.
+- LOC `src/ui/views/registro.js`: 2040 -> 1983.
+- Testes rodados: postSave feature + persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes focados de Registro/save/post-save/share/PDF/historico; `npm run format`; `npm run check`.
+
+## 22. Proximo CP recomendado
+
+**CP-N - mapear relatório/PDF.**
+
+Confianca: 90%+. Os blocos principais de `saveRegistro` ja foram separados e os helpers seguros de post-save/share foram movidos; o proximo risco alto real e a ponte PDF/WhatsApp/relatorio consumida por pos-save e historico, que deve ser mapeada antes de qualquer nova extração.

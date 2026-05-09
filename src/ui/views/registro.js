@@ -58,6 +58,17 @@ import {
   resolveRegistroCreateId,
 } from '../../features/registro/save/persistence.js';
 import {
+  applyRegistroSavedHighlight,
+  notifyRegistroCreateSaved,
+  notifyRegistroEditSaved,
+  persistRegistroLastClientAfterSave,
+  resetRegistroCreateAfterSave,
+  resetRegistroEditAfterSave,
+  runRegistroDirectShareAfterSave,
+  runRegistroEditNavigationAfterSave,
+  runRegistroPreventivaPromptAfterSave,
+} from '../../features/registro/save/postSave.js';
+import {
   getChecklistTemplate,
   buildEmptyChecklist,
   validateChecklist,
@@ -1575,36 +1586,11 @@ function saveRegistroLastClient({
   _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
 }
 
-function persistRegistroLastClientAfterSave(persistedPayload) {
-  saveRegistroLastClient(persistedPayload);
-}
-
-function applyRegistroSavedHighlight(registroId) {
-  SavedHighlight.markForHighlight(registroId);
-}
-
-function resetRegistroEditAfterSave() {
-  resetEditingState();
-  clearRegistro();
-}
-
-function resetRegistroCreateAfterSave() {
-  clearRegistro();
-}
-
-function notifyRegistroEditSaved() {
-  Toast.success('Registro atualizado.');
-}
-
-function runRegistroEditNavigationAfterSave() {
-  goTo('historico');
-}
-
 function runRegistroEditPostSaveEffects(persistedPayload) {
-  persistRegistroLastClientAfterSave(persistedPayload);
-  resetRegistroEditAfterSave();
-  notifyRegistroEditSaved();
-  runRegistroEditNavigationAfterSave();
+  persistRegistroLastClientAfterSave(persistedPayload, { saveRegistroLastClient });
+  resetRegistroEditAfterSave({ resetEditingState, clearRegistro });
+  notifyRegistroEditSaved({ Toast });
+  runRegistroEditNavigationAfterSave({ goTo });
 }
 
 function applyRegistroCreateStateMutation({ registro, persistedPayload, operationalStatus }) {
@@ -1613,74 +1599,31 @@ function applyRegistroCreateStateMutation({ registro, persistedPayload, operatio
   );
 }
 
-function runRegistroPreventivaPromptAfterSave(registroId) {
-  void _showProximaPreventivaPrompt(registroId);
-}
-
-async function runRegistroDirectShareAfterSave({ equipId, registroId }) {
-  Toast.success('Serviço salvo. Abrindo WhatsApp...');
-  try {
-    const filters = { equipId, registroId };
-    const ok = await shareWhatsAppFlow({ filters });
-    // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
-    // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
-    if (!ok) {
-      goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
-    }
-  } catch (_error) {
-    // Erro inesperado — leva pro relatorio com intent pra user retentar.
-    goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
-  }
-  runRegistroPreventivaPromptAfterSave(registroId);
-  return true;
-}
-
-function notifyRegistroCreateSaved({ equipId, registroId, saveContext }) {
-  // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
-  // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
-  // mesmas regras de quota/validação do fluxo de relatório.
-  const eqForToast = saveContext.equipamentos.find((e) => e.id === equipId) || null;
-  const toastShown = PostSaveRegistroToast.show({
-    equipId,
-    registroId,
-    equipName: eqForToast?.nome || null,
-    onAction: async ({ destination, equipId: targetEquipId, registroId }) => {
-      const filters = { equipId: targetEquipId, registroId };
-      if (destination === 'pdf') return exportPdfFlow({ filters });
-      return shareWhatsAppFlow({ filters });
-    },
-    onFallback: ({ destination, equipId: targetEquipId, registroId }) => {
-      goTo('relatorio', {
-        equipId: targetEquipId,
-        intent: destination,
-        ...(registroId ? { registroId } : {}),
-      });
-    },
-  });
-  // Fallback: se não tinha equipId (edge case) ou o toast recusou renderizar,
-  // volta pro feedback simples — user ainda precisa saber que salvou.
-  if (!toastShown) {
-    Toast.success('Serviço registrado com sucesso.');
-  }
-}
-
 async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, saveContext }) {
   const { andShare } = saveContext;
   const { equipId } = persistedPayload;
 
-  applyRegistroSavedHighlight(registroId);
-  persistRegistroLastClientAfterSave(persistedPayload);
-  resetRegistroCreateAfterSave();
+  applyRegistroSavedHighlight(registroId, { SavedHighlight });
+  persistRegistroLastClientAfterSave(persistedPayload, { saveRegistroLastClient });
+  resetRegistroCreateAfterSave({ clearRegistro });
 
   // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
   // dispara o botao primário verde, pulamos o toast com escolhas e ja
   // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
   if (andShare && equipId) {
-    return runRegistroDirectShareAfterSave({ equipId, registroId });
+    return runRegistroDirectShareAfterSave(
+      { equipId, registroId },
+      { Toast, shareWhatsAppFlow, goTo, showProximaPreventivaPrompt: _showProximaPreventivaPrompt },
+    );
   }
 
-  runRegistroPreventivaPromptAfterSave(registroId);
-  notifyRegistroCreateSaved({ equipId, registroId, saveContext });
+  runRegistroPreventivaPromptAfterSave(registroId, {
+    showProximaPreventivaPrompt: _showProximaPreventivaPrompt,
+  });
+  notifyRegistroCreateSaved(
+    { equipId, registroId, saveContext },
+    { PostSaveRegistroToast, exportPdfFlow, shareWhatsAppFlow, goTo, Toast },
+  );
 
   return true;
 }
