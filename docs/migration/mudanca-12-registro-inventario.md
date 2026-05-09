@@ -247,8 +247,23 @@ Status: aplicado em 2026-05-08.
 - LOC `src/ui/views/registro.js`: 1837 -> 1857.
 - Testes rodados: contratos CP-B + payload CP-D; suite `src/__tests__`; `npm run format`; `npm run check`.
 
-## 14. Proximo CP recomendado
+## 14. CP-F - Mover helpers de fotos/evidencias
 
-**CP-F - mover helpers de fotos/evidencias.**
+Status: aplicado em 2026-05-08.
 
-Confianca: 90%+. O bloco de fotos agora esta separado localmente, com captura, persistencia/fallback e payload isolados no adapter. O proximo corte seguro e mover somente esses helpers para modulo feature-scoped com DI para `Photos`, `uploadPendingPhotos`, `Toast`, `handleError` e `ErrorCodes`, mantendo `saveRegistro` legado como orquestrador e sem misturar assinatura ou PDF.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Modulo criado: `src/features/registro/save/photos.js`.
+- Teste criado: `src/features/registro/__tests__/save/photos.test.js`.
+- Helpers movidos: `normalizeRegistroPhotoItems`, `getRegistroPhotoState`, `persistRegistroPhotosForSave`, `buildRegistroPhotoPayload`.
+- DI explicita usada para `Photos`, `isSafeRegistroPhotoSrc`, `uploadPendingPhotos`, `Toast`, `handleError` e `ErrorCodes`.
+- Nenhum helper de fotos/evidencias permaneceu no adapter; o fluxo segue orquestrado por `saveRegistro`.
+- Ordem preservada: captura de `Photos.pending`; assinatura na mesma posicao relativa; upload/fallback; coleta de `fotos_pendentes`; payload `fotos`/`fotos_pendentes`; limpeza via `clearRegistro`.
+- Nenhuma mudanca funcional intencional; `photoStorage`, fila offline, fallback, sanitizacao, preview, React pages, handlers, assinatura, relatorio/PDF, checklist/PMOC, contratos CP-B e payload CP-D preservados.
+- LOC `src/ui/views/registro.js`: 1857 -> 1828.
+- Testes rodados: photos feature + payload feature + contratos CP-B; suite `src/__tests__`; `npm run format`; `npm run check`.
+
+## 15. Proximo CP recomendado
+
+**CP-G - mapear assinatura antes de mexer.**
+
+Confianca: 90%+. O proximo bloco de maior risco e assinatura, porque mistura gating Plus, import dinamico, modal, data URL segura, upload/fila offline, PDF/historico e varios feedbacks. Antes de pre-split ou mover, o corte mais seguro e mapear a ordem real e os contratos desse fluxo.

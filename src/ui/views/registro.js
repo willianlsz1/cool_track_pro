@@ -39,6 +39,11 @@ import {
   validateRegistroPayloadDraftData,
 } from '../../features/registro/save/payload.js';
 import {
+  buildRegistroPhotoPayload,
+  getRegistroPhotoState,
+  persistRegistroPhotosForSave,
+} from '../../features/registro/save/photos.js';
+import {
   getChecklistTemplate,
   buildEmptyChecklist,
   validateChecklist,
@@ -1515,52 +1520,6 @@ function warnRegistroChecklistPayloadGaps(tipo) {
   }
 }
 
-function normalizeRegistroPhotoItems(rawPhotos = []) {
-  return [...rawPhotos].filter(isSafeRegistroPhotoSrc);
-}
-
-function getRegistroPhotoState() {
-  return {
-    fotosRegistro: normalizeRegistroPhotoItems(Photos.pending),
-    fotosPendentes: [],
-  };
-}
-
-async function persistRegistroPhotosForSave(photoState, { registroId }) {
-  let { fotosRegistro, fotosPendentes } = photoState;
-
-  if (fotosRegistro.length > 0) {
-    try {
-      const uploadResult = await uploadPendingPhotos(fotosRegistro, { recordId: registroId });
-      fotosRegistro = uploadResult.photos;
-      fotosPendentes = fotosRegistro
-        .filter((entry) => entry?.pending === true && typeof entry.queueKey === 'string')
-        .map((entry) => entry.queueKey);
-      if (uploadResult.failedCount > 0) {
-        Toast.warning(
-          'Algumas fotos não puderam ser enviadas para a nuvem e ficaram salvas localmente.',
-        );
-      }
-    } catch (error) {
-      handleError(error, {
-        code: ErrorCodes.SYNC_FAILED,
-        severity: 'warning',
-        message: 'Falha no upload das fotos. O registro será salvo com fallback local.',
-        context: { action: 'registro.saveRegistro.photoUpload', registroId },
-      });
-    }
-  }
-
-  return { fotosRegistro, fotosPendentes };
-}
-
-function buildRegistroPhotoPayload({ fotosRegistro, fotosPendentes }) {
-  return {
-    fotos: fotosRegistro,
-    ...(fotosPendentes.length > 0 ? { fotos_pendentes: fotosPendentes } : {}),
-  };
-}
-
 export function applyQuickTemplate(templateId, triggerEl = null) {
   const template = QUICK_TEMPLATE_MAP[templateId];
   if (!template) return;
@@ -1735,7 +1694,7 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
 
     // Modo criação — continua fluxo normal
     const novoId = Utils.uid();
-    const photoState = getRegistroPhotoState();
+    const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
 
     // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
     // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
@@ -1804,7 +1763,13 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
     }
 
     const photoPayload = buildRegistroPhotoPayload(
-      await persistRegistroPhotosForSave(photoState, { registroId: novoId }),
+      await persistRegistroPhotosForSave(photoState, {
+        registroId: novoId,
+        uploadPendingPhotos,
+        Toast,
+        handleError,
+        ErrorCodes,
+      }),
     );
 
     const operationalStatus = getOperationalStatus({
