@@ -1575,12 +1575,36 @@ function saveRegistroLastClient({
   _saveLastClient({ clienteNome, clienteDocumento, localAtendimento, clienteContato });
 }
 
-function runRegistroEditPostSaveEffects(persistedPayload) {
+function persistRegistroLastClientAfterSave(persistedPayload) {
   saveRegistroLastClient(persistedPayload);
+}
+
+function applyRegistroSavedHighlight(registroId) {
+  SavedHighlight.markForHighlight(registroId);
+}
+
+function resetRegistroEditAfterSave() {
   resetEditingState();
   clearRegistro();
+}
+
+function resetRegistroCreateAfterSave() {
+  clearRegistro();
+}
+
+function notifyRegistroEditSaved() {
   Toast.success('Registro atualizado.');
+}
+
+function runRegistroEditNavigationAfterSave() {
   goTo('historico');
+}
+
+function runRegistroEditPostSaveEffects(persistedPayload) {
+  persistRegistroLastClientAfterSave(persistedPayload);
+  resetRegistroEditAfterSave();
+  notifyRegistroEditSaved();
+  runRegistroEditNavigationAfterSave();
 }
 
 function applyRegistroCreateStateMutation({ registro, persistedPayload, operationalStatus }) {
@@ -1589,37 +1613,29 @@ function applyRegistroCreateStateMutation({ registro, persistedPayload, operatio
   );
 }
 
-async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, saveContext }) {
-  const { andShare } = saveContext;
-  const { equipId } = persistedPayload;
+function runRegistroPreventivaPromptAfterSave(registroId) {
+  void _showProximaPreventivaPrompt(registroId);
+}
 
-  SavedHighlight.markForHighlight(registroId);
-  saveRegistroLastClient(persistedPayload);
-  clearRegistro();
-
-  // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
-  // dispara o botao primário verde, pulamos o toast com escolhas e ja
-  // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
-  if (andShare && equipId) {
-    Toast.success('Serviço salvo. Abrindo WhatsApp...');
-    try {
-      const filters = { equipId, registroId };
-      const ok = await shareWhatsAppFlow({ filters });
-      // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
-      // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
-      if (!ok) {
-        goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
-      }
-    } catch (_error) {
-      // Erro inesperado — leva pro relatorio com intent pra user retentar.
+async function runRegistroDirectShareAfterSave({ equipId, registroId }) {
+  Toast.success('Serviço salvo. Abrindo WhatsApp...');
+  try {
+    const filters = { equipId, registroId };
+    const ok = await shareWhatsAppFlow({ filters });
+    // Se share falhou/cancelado, cai pro fallback indo pra /relatorio.
+    // Sem mostrar toast extra — shareWhatsAppFlow ja exibe feedback.
+    if (!ok) {
       goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
     }
-    void _showProximaPreventivaPrompt(registroId);
-    return true;
+  } catch (_error) {
+    // Erro inesperado — leva pro relatorio com intent pra user retentar.
+    goTo('relatorio', { equipId, intent: 'whatsapp', registroId });
   }
+  runRegistroPreventivaPromptAfterSave(registroId);
+  return true;
+}
 
-  void _showProximaPreventivaPrompt(registroId);
-
+function notifyRegistroCreateSaved({ equipId, registroId, saveContext }) {
   // Feedback pós-save padrão (botao "Só salvar" / fluxo legado): toast rico
   // com CTAs PDF/WhatsApp. Os CTAs executam ações diretas mantendo as
   // mesmas regras de quota/validação do fluxo de relatório.
@@ -1646,6 +1662,25 @@ async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, 
   if (!toastShown) {
     Toast.success('Serviço registrado com sucesso.');
   }
+}
+
+async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, saveContext }) {
+  const { andShare } = saveContext;
+  const { equipId } = persistedPayload;
+
+  applyRegistroSavedHighlight(registroId);
+  persistRegistroLastClientAfterSave(persistedPayload);
+  resetRegistroCreateAfterSave();
+
+  // UX V2 audit fix #80: "Salvar e enviar pro cliente" — quando o user
+  // dispara o botao primário verde, pulamos o toast com escolhas e ja
+  // disparamos o share do WhatsApp diretamente. 4 cliques → 1.
+  if (andShare && equipId) {
+    return runRegistroDirectShareAfterSave({ equipId, registroId });
+  }
+
+  runRegistroPreventivaPromptAfterSave(registroId);
+  notifyRegistroCreateSaved({ equipId, registroId, saveContext });
 
   return true;
 }

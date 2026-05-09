@@ -331,8 +331,21 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1890 -> 1773.
 - Testes rodados: persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes focados de Registro/save/create/edit/state/storage/PDF/historico; `npm run format`; `npm run check`.
 
-## 20. Proximo CP recomendado
+## 20. CP-L - Pre-split post-save/share
 
-**CP-L - pre-split post-save/share.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. Os helpers puros de persistencia/state ja foram movidos; os maiores efeitos restantes no save legado estao concentrados em highlight, cliente, clear/reset, Toast, Router, PDF/WhatsApp e prompt de preventiva. O corte mais seguro e primeiro separar localmente esse bloco antes de qualquer nova extracao.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Post-save/share permaneceu no adapter legado; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `persistRegistroLastClientAfterSave`, `applyRegistroSavedHighlight`, `resetRegistroEditAfterSave`, `resetRegistroCreateAfterSave`, `notifyRegistroEditSaved`, `runRegistroEditNavigationAfterSave`, `runRegistroPreventivaPromptAfterSave`, `runRegistroDirectShareAfterSave`, `notifyRegistroCreateSaved`.
+- Responsabilidades separadas: cliente recente, highlight, reset edit/create, Toast de edicao, navegacao de edicao, prompt preventiva, share direto WhatsApp e toast rico pos-save com CTAs PDF/WhatsApp.
+- Ordem preservada: post-save edit (`lastClient -> resetEditingState -> clearRegistro -> Toast -> historico`); post-save create (`highlight -> lastClient -> clearRegistro -> andShare direto` ou `prompt -> PostSaveRegistroToast/fallback`).
+- Nenhuma mudanca funcional intencional; contratos CP-B, payload CP-D, fotos CP-F, assinatura CP-I, persistence CP-K, storage/fila offline, React pages, handlers, relatorio/PDF, historico e Equipamentos preservados.
+- LOC `src/ui/views/registro.js`: 1773 -> 1800.
+- Testes rodados: persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes focados de Registro/save/post-save/share/PDF/historico; `npm run format`; `npm run check`.
+
+## 21. Proximo CP recomendado
+
+**CP-M - mover helpers de post-save/share.**
+
+Confianca: 90%+. O CP-L isolou os efeitos em helpers locais sem alterar ordem; o proximo corte seguro e classificar esses helpers e mover apenas os de baixo risco com DI explicita, mantendo `saveRegistro` como orquestrador legado.
