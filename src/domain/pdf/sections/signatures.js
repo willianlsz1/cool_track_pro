@@ -117,6 +117,193 @@ function ensureSignatureBlockPage(doc, pageWidth, pageHeight, margin, y, context
   return 22;
 }
 
+function buildSignatureRecordModel(registro, equipamentos, getSignatureForRecord) {
+  const signatureData = getSignatureForRecord(registro.id);
+  const signaturePayload = getSignatureImagePayload(signatureData);
+  const signatureDate = registro.data
+    ? Utils.formatDatetime(registro.data)
+    : Utils.formatDatetime(new Date().toISOString());
+  const clienteNome = sanitizePublicText(
+    registro.clienteNome?.trim() || registro.cliente?.trim() || '',
+    'Não informado',
+  );
+  const clienteDoc =
+    registro.clienteDocumento?.trim() ||
+    registro.clienteCnpj?.trim() ||
+    registro.clienteCpf?.trim() ||
+    '';
+  const equipamento = equipamentos.find((item) => item.id === registro.equipId);
+  const statusInfo = STATUS_CLIENTE[registro.status] || STATUS_CLIENTE.ok;
+
+  return {
+    clienteDoc,
+    clienteNome,
+    equipamento,
+    registro,
+    signatureDate,
+    signaturePayload,
+    statusInfo,
+  };
+}
+
+function renderSignaturePageStart(doc, pageWidth, pageHeight, margin, context) {
+  doc.addPage();
+  fillPage(doc, pageWidth, pageHeight);
+  drawSignaturePageHeader(doc, pageWidth, margin, context);
+  return 22;
+}
+
+function renderSignatureTitleBlock(doc, pageWidth, margin, y, context) {
+  // V3 refator: hero com OS + cliente em destaque pra parecer recibo
+  // formal, nao só "comprovante de servico".
+  txt(doc, 'COMPROVANTE DE SERVIÇO', margin, y, {
+    size: T.h1.size,
+    style: T.h1.style,
+    color: C.text,
+  });
+  if (context.osNumber) {
+    txt(doc, `OS ${context.osNumber}`, pageWidth - margin, y, {
+      size: 9,
+      style: 'bold',
+      color: C.primary,
+      align: 'right',
+    });
+  }
+  y += 4;
+  accentLine(doc, margin, y, pageWidth - margin, C.borderStrong);
+  return y + 7;
+}
+
+function renderSignatureDescriptionBox(doc, pageWidth, margin, y, registro) {
+  // Descrição em box destacado pra separar visualmente dos campos
+  const obsLines = doc.splitTextToSize(
+    sanitizeObservation(registro.obs),
+    pageWidth - margin * 2 - 8,
+  );
+  const descBoxH = 8 + obsLines.length * 4.5 + 4;
+  doc.setDrawColor(...C.border);
+  doc.setLineWidth(0.3);
+  doc.setFillColor(...C.bg2);
+  doc.rect(margin, y, pageWidth - margin * 2, descBoxH, 'FD');
+  fillRectAccent(doc, margin, y, 2.5, descBoxH);
+  txt(doc, 'DESCRIÇÃO DO SERVIÇO REALIZADO', margin + 6, y + 5, {
+    size: 6.5,
+    style: 'bold',
+    color: C.text3,
+  });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...C.text2);
+  doc.text(obsLines, margin + 6, y + 10);
+  return y + descBoxH + 8;
+}
+
+function renderSignatureConsentClause(doc, pageWidth, margin, y) {
+  // Cláusula de responsabilidade — fica acima da caixa de assinatura,
+  // alinhada e em italico pra ler como "termo aceito ao assinar".
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...C.text3);
+  const clauseLines = doc.splitTextToSize(
+    'Declaro que os serviços descritos neste relatório foram executados a contento, nas datas e condições registradas.',
+    pageWidth - margin * 2,
+  );
+  doc.text(clauseLines, margin, y);
+  return y + clauseLines.length * 4 + 4;
+}
+
+function renderSignatureBox(doc, pageWidth, margin, y, model) {
+  // Caixa de assinatura V3 — maior (55mm), borda mais marcada, label "X" no
+  // canto inferior esquerdo (convenção de assinatura), e linha guia no meio
+  // ao inves de embaixo. Cliente assina por cima da linha.
+  const signatureWidth = pageWidth - margin * 2;
+  const signatureHeight = 55;
+
+  doc.setDrawColor(...C.borderStrong);
+  doc.setLineWidth(0.4);
+  doc.setFillColor(...C.surface);
+  doc.rect(margin, y, signatureWidth, signatureHeight, 'FD');
+
+  // "X" indicador no canto esquerdo (convenção legal)
+  txt(doc, '×', margin + 6, y + signatureHeight / 2 + 2, {
+    size: 14,
+    color: C.text3,
+  });
+
+  // Linha de assinatura no meio vertical
+  accentLine(doc, margin + 12, y + signatureHeight / 2 + 4, margin + signatureWidth - 8, C.text3);
+
+  drawSignatureImage(
+    doc,
+    model.registro,
+    model.signaturePayload,
+    margin,
+    y,
+    signatureWidth,
+    signatureHeight,
+  );
+
+  // Label centralizado embaixo da caixa
+  txt(doc, 'ASSINATURA DO CLIENTE', margin + signatureWidth / 2, y + signatureHeight + 5, {
+    size: 7,
+    style: 'bold',
+    color: C.text3,
+    align: 'center',
+  });
+
+  return {
+    signatureWidth,
+    y: y + signatureHeight + 12,
+  };
+}
+
+function renderSignatureCustomerMetadata(doc, margin, y, signatureWidth, model) {
+  // Bloco identificacao cliente — em grid 2 colunas pra parecer recibo
+  const colW = (signatureWidth - 4) / 2;
+  txt(doc, 'NOME COMPLETO', margin, y, { size: 6.5, style: 'bold', color: C.text3 });
+  txt(doc, model.clienteNome, margin, y + 5, { size: 9.5, style: 'bold', color: C.text });
+
+  if (model.clienteDoc) {
+    txt(doc, 'DOCUMENTO', margin + colW + 4, y, {
+      size: 6.5,
+      style: 'bold',
+      color: C.text3,
+    });
+    txt(doc, model.clienteDoc, margin + colW + 4, y + 5, { size: 9, color: C.text });
+  }
+  y += 12;
+
+  txt(doc, 'DATA / HORA DA ASSINATURA', margin, y, {
+    size: 6.5,
+    style: 'bold',
+    color: C.text3,
+  });
+  txt(doc, model.signatureDate, margin, y + 5, { size: 9, color: C.text });
+  return y;
+}
+
+function renderSignatureRecord(doc, pageWidth, pageHeight, margin, profile, context, model) {
+  let y = renderSignaturePageStart(doc, pageWidth, pageHeight, margin, context);
+  y = renderSignatureTitleBlock(doc, pageWidth, margin, y, context);
+  y = drawServiceFields(
+    doc,
+    margin,
+    y,
+    model.registro,
+    model.equipamento,
+    model.statusInfo,
+    profile,
+    pageWidth,
+  );
+  y += 6;
+  y = renderSignatureDescriptionBox(doc, pageWidth, margin, y, model.registro);
+  y = ensureSignatureBlockPage(doc, pageWidth, pageHeight, margin, y, context);
+  y = renderSignatureConsentClause(doc, pageWidth, margin, y);
+
+  const signatureBox = renderSignatureBox(doc, pageWidth, margin, y, model);
+  renderSignatureCustomerMetadata(doc, margin, signatureBox.y, signatureBox.signatureWidth, model);
+}
+
 export function drawSignaturePages(
   doc,
   pageWidth,
@@ -133,139 +320,8 @@ export function drawSignaturePages(
   if (!signedRecords.length) return;
 
   signedRecords.forEach((registro) => {
-    const signatureData = getSignatureForRecord(registro.id);
-    const signaturePayload = getSignatureImagePayload(signatureData);
-    const signatureDate = registro.data
-      ? Utils.formatDatetime(registro.data)
-      : Utils.formatDatetime(new Date().toISOString());
-    const clienteNome = sanitizePublicText(
-      registro.clienteNome?.trim() || registro.cliente?.trim() || '',
-      'Não informado',
-    );
-    const clienteDoc =
-      registro.clienteDocumento?.trim() ||
-      registro.clienteCnpj?.trim() ||
-      registro.clienteCpf?.trim() ||
-      '';
-    const equipamento = equipamentos.find((item) => item.id === registro.equipId);
-    const statusInfo = STATUS_CLIENTE[registro.status] || STATUS_CLIENTE.ok;
-
-    doc.addPage();
-    fillPage(doc, pageWidth, pageHeight);
-    drawSignaturePageHeader(doc, pageWidth, margin, context);
-
-    let y = 22;
-    // V3 refator: hero com OS + cliente em destaque pra parecer recibo
-    // formal, nao só "comprovante de servico".
-    txt(doc, 'COMPROVANTE DE SERVIÇO', margin, y, {
-      size: T.h1.size,
-      style: T.h1.style,
-      color: C.text,
-    });
-    if (context.osNumber) {
-      txt(doc, `OS ${context.osNumber}`, pageWidth - margin, y, {
-        size: 9,
-        style: 'bold',
-        color: C.primary,
-        align: 'right',
-      });
-    }
-    y += 4;
-    accentLine(doc, margin, y, pageWidth - margin, C.borderStrong);
-    y += 7;
-
-    y = drawServiceFields(doc, margin, y, registro, equipamento, statusInfo, profile, pageWidth);
-    y += 6;
-
-    // Descrição em box destacado pra separar visualmente dos campos
-    const obsLines = doc.splitTextToSize(
-      sanitizeObservation(registro.obs),
-      pageWidth - margin * 2 - 8,
-    );
-    const descBoxH = 8 + obsLines.length * 4.5 + 4;
-    doc.setDrawColor(...C.border);
-    doc.setLineWidth(0.3);
-    doc.setFillColor(...C.bg2);
-    doc.rect(margin, y, pageWidth - margin * 2, descBoxH, 'FD');
-    fillRectAccent(doc, margin, y, 2.5, descBoxH);
-    txt(doc, 'DESCRIÇÃO DO SERVIÇO REALIZADO', margin + 6, y + 5, {
-      size: 6.5,
-      style: 'bold',
-      color: C.text3,
-    });
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.text2);
-    doc.text(obsLines, margin + 6, y + 10);
-    y += descBoxH + 8;
-
-    y = ensureSignatureBlockPage(doc, pageWidth, pageHeight, margin, y, context);
-
-    // Cláusula de responsabilidade — fica acima da caixa de assinatura,
-    // alinhada e em italico pra ler como "termo aceito ao assinar".
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...C.text3);
-    const clauseLines = doc.splitTextToSize(
-      'Declaro que os serviços descritos neste relatório foram executados a contento, nas datas e condições registradas.',
-      pageWidth - margin * 2,
-    );
-    doc.text(clauseLines, margin, y);
-    y += clauseLines.length * 4 + 4;
-
-    // Caixa de assinatura V3 — maior (55mm), borda mais marcada, label "X" no
-    // canto inferior esquerdo (convenção de assinatura), e linha guia no meio
-    // ao inves de embaixo. Cliente assina por cima da linha.
-    const signatureWidth = pageWidth - margin * 2;
-    const signatureHeight = 55;
-
-    doc.setDrawColor(...C.borderStrong);
-    doc.setLineWidth(0.4);
-    doc.setFillColor(...C.surface);
-    doc.rect(margin, y, signatureWidth, signatureHeight, 'FD');
-
-    // "X" indicador no canto esquerdo (convenção legal)
-    txt(doc, '×', margin + 6, y + signatureHeight / 2 + 2, {
-      size: 14,
-      color: C.text3,
-    });
-
-    // Linha de assinatura no meio vertical
-    accentLine(doc, margin + 12, y + signatureHeight / 2 + 4, margin + signatureWidth - 8, C.text3);
-
-    drawSignatureImage(doc, registro, signaturePayload, margin, y, signatureWidth, signatureHeight);
-
-    // Label centralizado embaixo da caixa
-    txt(doc, 'ASSINATURA DO CLIENTE', margin + signatureWidth / 2, y + signatureHeight + 5, {
-      size: 7,
-      style: 'bold',
-      color: C.text3,
-      align: 'center',
-    });
-
-    y += signatureHeight + 12;
-
-    // Bloco identificacao cliente — em grid 2 colunas pra parecer recibo
-    const colW = (signatureWidth - 4) / 2;
-    txt(doc, 'NOME COMPLETO', margin, y, { size: 6.5, style: 'bold', color: C.text3 });
-    txt(doc, clienteNome, margin, y + 5, { size: 9.5, style: 'bold', color: C.text });
-
-    if (clienteDoc) {
-      txt(doc, 'DOCUMENTO', margin + colW + 4, y, {
-        size: 6.5,
-        style: 'bold',
-        color: C.text3,
-      });
-      txt(doc, clienteDoc, margin + colW + 4, y + 5, { size: 9, color: C.text });
-    }
-    y += 12;
-
-    txt(doc, 'DATA / HORA DA ASSINATURA', margin, y, {
-      size: 6.5,
-      style: 'bold',
-      color: C.text3,
-    });
-    txt(doc, signatureDate, margin, y + 5, { size: 9, color: C.text });
+    const model = buildSignatureRecordModel(registro, equipamentos, getSignatureForRecord);
+    renderSignatureRecord(doc, pageWidth, pageHeight, margin, profile, context, model);
   });
 }
 
