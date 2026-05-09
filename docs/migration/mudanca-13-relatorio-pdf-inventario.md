@@ -531,3 +531,18 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - LOC `src/domain/pdf/sections/signatures.js`: 296 -> 277 (-19).
 - LOC `src/domain/pdf/sections/signatureHelpers.js`: 34.
 - Proximo CP recomendado: **CP-Q - mapear/desacoplar signature UI import**.
+
+## 27. CP-Q - Mapear/desacoplar import UI de assinatura no domain/pdf
+
+- Status: aplicado.
+- Documento criado: `docs/migration/mudanca-13-cp-q-signature-ui-import-map.md`.
+- CP documental/read-only: nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
+- Acoplamento mapeado:
+  - `src/domain/pdf.js` importa `resolveSignatureForRecord` de `../ui/components/signature.js`;
+  - `src/ui/components/signature.js` e um barrel de UI que reexporta modais e `signature-storage`;
+  - `src/ui/components/signature/signature-storage.js` resolve assinatura por dataURL legacy, Storage signed URL, cache local e migracao on-demand;
+  - `src/domain/pdf/sections/signatures.js` recebe callback sync `getSignatureForRecord` e delega modelagem pura a `signatureHelpers.js`.
+- Opcoes de desacoplamento avaliadas: manter baseline, DI/adapter em `domain/pdf.js`, mover resolver puro para domain, criar facade domain, injetar resolver via `reportExportHandlers`, desacoplar barrel UI em CP separado e adiar.
+- Riscos registrados: import circular futuro, fallback silencioso, side effects de storage/localStorage/Supabase/fetch, assinatura ausente/invalida, regressao de layout, DI excessiva e warning atual de camada domain -> UI.
+- Contratos CP-H/CP-B preservados por ausencia de alteracao funcional.
+- Proximo CP recomendado: **CP-R - desacoplar signature UI import com DI**.
