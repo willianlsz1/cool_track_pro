@@ -135,3 +135,10 @@ Lacunas criticas:
 Proximo CP recomendado: **CP-H - contrato Historico -> Registro edit/delete**.
 
 Justificativa: ha mais de 90% de confianca de que o proximo corte seguro deve ser contrato, nao refatoracao. O fluxo edit/delete cruza `HistoricoTimeline.jsx`, handlers globais, router, Registro adapter, `deleteReg`, state/storage, confirmacao, header e Toast. Sem um contrato focado, qualquer pre-split de `deleteReg` ou action de edicao pode quebrar registro alvo, delete remoto/local ou re-render de forma silenciosa.
+
+## Complemento CP-H
+
+- Contrato criado em `src/__tests__/historicoRegistroIntegration.contract.test.js`.
+- Lacunas reduzidas: `edit-reg` ate `goTo('registro', { editRegistroId })`, rota Registro com `loadRegistroForEdit`, `delete-reg` com confirmacao cancelada/confirmada e `deleteReg` cobrindo storage, state, recalculo de equipamento, assinatura local, re-render, header e Toast.
+- Nenhuma mudanca funcional foi aplicada.
+- Proximo corte ficou mais seguro para **CP-I - pre-split deleteReg**, mantendo `deleteReg` no adapter e quebrando apenas responsabilidades locais.

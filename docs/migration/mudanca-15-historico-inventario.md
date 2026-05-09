@@ -481,3 +481,37 @@ Validacao inicial do CP-G:
 Proximo CP recomendado: **CP-H - contrato Historico -> Registro edit/delete**.
 
 Justificativa: ha mais de 90% de confianca de que o proximo corte seguro deve ser contrato, nao refatoracao. O fluxo edit/delete cruza `HistoricoTimeline.jsx`, handlers globais, router, Registro adapter, `deleteReg`, state/storage, confirmacao, header e Toast. Sem um contrato focado, qualquer pre-split de `deleteReg` ou action de edicao pode quebrar registro alvo, delete remoto/local ou re-render de forma silenciosa.
+
+## 18. CP-H - Contrato Historico -> Registro edit/delete
+
+- CP-H aplicado.
+- Teste criado: `src/__tests__/historicoRegistroIntegration.contract.test.js`.
+- Nenhum codigo de producao alterado.
+- Nenhum comportamento alterado.
+- Contrato integrado Historico -> Registro criado para `edit-reg`, `delete-reg`, `data-id`, `goTo('registro', { editRegistroId })`, rota Registro, `loadRegistroForEdit`, confirmacao, `deleteReg`, state/storage, re-render, header e Toast.
+- Contrato CP-B preservado e reforcado.
+
+Contratos cobertos:
+
+| Contrato Historico -> Registro | Cobertura adicionada                                                                                        | Lacuna reduzida                |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `edit-reg`                     | Handler global navega para Registro com `editRegistroId` exatamente igual ao `data-id`                      | Ponte card/action -> Registro  |
+| Rota Registro                  | `registerAppRoutes` chama `initRegistro(params)` antes de `loadRegistroForEdit(params.editRegistroId)`      | Ordem init -> load             |
+| `delete-reg` cancelado         | `CustomConfirm.show` com labels/tone atuais e cancelamento sem `deleteReg`, state, storage ou Toast         | Gate de confirmacao            |
+| `delete-reg` confirmado        | Confirmacao chama `deleteReg` com o `data-id` correto                                                       | Ponte action -> delete         |
+| `deleteReg`                    | Cobre `Storage.markRegistroDeleted`, `setState`, recalculo de equipamento, assinatura local, render e Toast | Orquestracao multi-side-effect |
+| Fallback                       | Id ausente em `edit-reg` e cancelamento sem id em `delete-reg` nao quebram o fluxo atual                    | Fallback silencioso atual      |
+
+Lacunas remanescentes:
+
+- Caso de delete com filtro ativo ainda nao esta coberto.
+- Fallback de `deleteReg` confirmado com id ausente continua preservado como comportamento atual, mas nao foi aprofundado para evitar mudar logica neste CP.
+- Fluxo Historico -> PDF/WhatsApp por card ainda precisa de mapeamento dedicado.
+
+Validacao inicial do CP-H:
+
+- `npm run test -- src/__tests__/historicoRegistroIntegration.contract.test.js --reporter=dot`: passou, 1 arquivo / 5 testes.
+
+Proximo CP recomendado: **CP-I - pre-split deleteReg**.
+
+Justificativa: o fluxo Historico -> Registro edit/delete agora tem contrato focado. O maior bloco remanescente de risco dentro do adapter e `deleteReg`, que ainda concentra storage, state, recalculo de equipamento, limpeza de assinatura, render, header e Toast; com o contrato CP-H, ha base suficiente para um pre-split local e conservador antes de qualquer extracao.
