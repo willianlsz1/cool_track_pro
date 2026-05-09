@@ -103,6 +103,12 @@ const URL_PARAM_KEYS = {
   tipo: 'tipo',
 };
 
+const HIST_FILTER_DOM_IDS = {
+  busca: 'hist-busca',
+  setor: 'hist-setor',
+  equip: 'hist-equip',
+};
+
 let _urlFiltersHydrated = false;
 // Filtro "Cliente: X" vindo da view /clientes -> "Ver serviços". Reset toda
 // vez que o user limpa via chip, ou navega pra histórico sem clienteId nos
@@ -149,18 +155,59 @@ function loadHistoricoFiltersBridge() {
   return _historicoFiltersBridgePromise;
 }
 
-function getFilterValue(id, cachedKey) {
+function readHistoricoFilterDomValue(id) {
   const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
-  if (el) return el.value || '';
-  return _histFilterValues[cachedKey] || '';
+  return el ? el.value || '' : null;
+}
+
+function readHistoricoFilterDomValues() {
+  return {
+    busca: readHistoricoFilterDomValue(HIST_FILTER_DOM_IDS.busca),
+    setor: readHistoricoFilterDomValue(HIST_FILTER_DOM_IDS.setor),
+    equip: readHistoricoFilterDomValue(HIST_FILTER_DOM_IDS.equip),
+  };
+}
+
+function readHistoricoFilterCache() {
+  return { ..._histFilterValues };
+}
+
+function writeHistoricoFilterCache(filters = {}) {
+  _histFilterValues = {
+    busca: filters.busca || '',
+    setor: filters.setor || '',
+    equip: filters.equip || '',
+  };
+}
+
+function buildHistoricoDomCacheFilters() {
+  const domValues = readHistoricoFilterDomValues();
+  const cachedValues = readHistoricoFilterCache();
+  return {
+    busca: domValues.busca ?? cachedValues.busca ?? '',
+    setor: domValues.setor ?? cachedValues.setor ?? '',
+    equip: domValues.equip ?? cachedValues.equip ?? '',
+  };
+}
+
+function setHistoricoDomFilterValue(id, value) {
+  const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
+  if (el) el.value = value || '';
+  return el;
+}
+
+function clearHistoricoDomFilterValue(id) {
+  return setHistoricoDomFilterValue(id, '');
+}
+
+function clearHistoricoMainFilterDomValues() {
+  clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.setor);
+  clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip);
+  clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.busca);
 }
 
 function captureHistoricoFilterValues() {
-  _histFilterValues = {
-    busca: getFilterValue('hist-busca', 'busca'),
-    setor: getFilterValue('hist-setor', 'setor'),
-    equip: getFilterValue('hist-equip', 'equip'),
-  };
+  writeHistoricoFilterCache(buildHistoricoDomCacheFilters());
 }
 
 export function unmountHistoricoTimeline() {
@@ -222,23 +269,27 @@ function readUrlFilters() {
 // Aplica filtros vindos da URL nos inputs/selects/sessionStorage. So roda
 // uma vez por sessão do view (flag _urlFiltersHydrated). Apos hydrate,
 // sessionStorage e DOM viram source-of-truth e a URL é atualizada por write.
+function applyHistoricoUrlFiltersToDom(filters = {}) {
+  if (filters.busca) setHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.busca, filters.busca);
+  if (filters.setor) setHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.setor, filters.setor);
+  if (filters.equip) setHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip, filters.equip);
+}
+
+function applyHistoricoUrlFiltersToSession(filters = {}) {
+  if (filters.periodo) {
+    setExtraFilter(HIST_PERIOD_KEY, filters.periodo === 'tudo' ? '' : filters.periodo);
+  }
+  if (filters.tipo) setExtraFilter(HIST_TIPO_KEY, filters.tipo);
+}
+
 function hydrateFiltersFromUrl() {
   if (_urlFiltersHydrated) return;
   _urlFiltersHydrated = true;
   const f = readUrlFilters();
   if (!Object.values(f).some(Boolean)) return;
 
-  const buscaEl = document.getElementById('hist-busca');
-  if (buscaEl && f.busca) buscaEl.value = f.busca;
-
-  const setorEl = document.getElementById('hist-setor');
-  if (setorEl && f.setor) setorEl.value = f.setor;
-
-  const equipEl = document.getElementById('hist-equip');
-  if (equipEl && f.equip) equipEl.value = f.equip;
-
-  if (f.periodo) setExtraFilter(HIST_PERIOD_KEY, f.periodo === 'tudo' ? '' : f.periodo);
-  if (f.tipo) setExtraFilter(HIST_TIPO_KEY, f.tipo);
+  applyHistoricoUrlFiltersToDom(f);
+  applyHistoricoUrlFiltersToSession(f);
 }
 
 function writeFiltersToUrl({ busca, setor, equip, periodo, tipo }) {
@@ -332,7 +383,7 @@ function getTypePillInfo(tipo) {
   return { color: 'cyan', label: tipo };
 }
 
-function getExtraFilters() {
+function readHistoricoSessionFilters() {
   try {
     const period = sessionStorage.getItem(HIST_PERIOD_KEY) || 'tudo';
     const tipo = sessionStorage.getItem(HIST_TIPO_KEY) || '';
@@ -342,13 +393,26 @@ function getExtraFilters() {
   }
 }
 
-function setExtraFilter(key, value) {
+function getExtraFilters() {
+  return readHistoricoSessionFilters();
+}
+
+function writeHistoricoSessionFilter(key, value) {
   try {
     if (value) sessionStorage.setItem(key, value);
     else sessionStorage.removeItem(key);
   } catch (_error) {
     /* sessionStorage indisponível (iOS privacy mode) — ignora silenciosamente */
   }
+}
+
+function setExtraFilter(key, value) {
+  writeHistoricoSessionFilter(key, value);
+}
+
+function clearHistoricoSessionFilters() {
+  setExtraFilter(HIST_PERIOD_KEY, '');
+  setExtraFilter(HIST_TIPO_KEY, '');
 }
 
 function getSummaryMetrics(list) {
@@ -1162,14 +1226,23 @@ export function clearHistClienteFilter() {
   _clienteFilter = { id: null, nome: null };
 }
 
-function buildHistoricoRenderFilters() {
-  const busca = getFilterValue('hist-busca', 'busca').toLowerCase();
-  const filtEq = getFilterValue('hist-equip', 'equip');
-  const filtSetor = getFilterValue('hist-setor', 'setor');
-  _histFilterValues = { busca, setor: filtSetor, equip: filtEq };
+function buildHistoricoCurrentFilters() {
+  const domCacheFilters = buildHistoricoDomCacheFilters();
+  const busca = domCacheFilters.busca.toLowerCase();
+  writeHistoricoFilterCache({ ...domCacheFilters, busca });
   const { period, tipo } = getExtraFilters();
 
-  return { busca, filtEq, filtSetor, period, tipo };
+  return {
+    busca,
+    filtEq: domCacheFilters.equip,
+    filtSetor: domCacheFilters.setor,
+    period,
+    tipo,
+  };
+}
+
+function buildHistoricoRenderFilters() {
+  return buildHistoricoCurrentFilters();
 }
 function mountHistoricoFiltersIsland({ filtersRoot, filtersViewModel, filtersGeneration }) {
   if (!filtersRoot) return null;
@@ -1490,8 +1563,7 @@ function attachFilterHandlers(container) {
   const filtersTrigger = document.getElementById('hist-filters-trigger');
   const filtersCount = document.getElementById('hist-filters-count');
   if (filtersTrigger && filtersCount) {
-    const setor = Utils.getVal('hist-setor');
-    const equip = Utils.getVal('hist-equip');
+    const { setor, equip } = readHistoricoFilterDomValues();
     const { tipo } = getExtraFilters();
     const count = [setor, equip, tipo].filter(Boolean).length;
     if (count > 0) {
@@ -1520,8 +1592,7 @@ function attachFilterHandlers(container) {
   if (setorSelect && !setorSelect.dataset.histBound) {
     setorSelect.dataset.histBound = '1';
     setorSelect.addEventListener('change', () => {
-      const equipSel = document.getElementById('hist-equip');
-      if (equipSel) equipSel.value = '';
+      clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip);
       renderHist();
     });
   }
@@ -1556,30 +1627,27 @@ function attachFilterHandlers(container) {
         })),
         tipoOptions: TIPO_OPTIONS,
         initial: {
-          setor: Utils.getVal('hist-setor'),
-          equip: Utils.getVal('hist-equip'),
+          setor: readHistoricoFilterDomValue(HIST_FILTER_DOM_IDS.setor) || '',
+          equip: readHistoricoFilterDomValue(HIST_FILTER_DOM_IDS.equip) || '',
           tipo,
         },
         onApply: ({ setor, equip, tipo: newTipo }) => {
           // Aplica os valores nos selects ocultos (a logica existente os le).
-          const setorEl = document.getElementById('hist-setor');
-          const equipEl = document.getElementById('hist-equip');
+          const setorEl = setHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.setor, setor);
+          const equipEl = document.getElementById(HIST_FILTER_DOM_IDS.equip);
           if (setorEl) {
-            setorEl.value = setor;
             // Re-sincroniza opções de equipamento se setor mudou
             syncSetorSelect(setor);
-            if (equipEl) equipEl.value = equip;
+            setHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip, equip);
           } else if (equipEl) {
-            equipEl.value = equip;
+            setHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip, equip);
           }
           setExtraFilter(HIST_TIPO_KEY, newTipo);
           renderHist();
         },
         onReset: () => {
-          const setorEl = document.getElementById('hist-setor');
-          const equipEl = document.getElementById('hist-equip');
-          if (setorEl) setorEl.value = '';
-          if (equipEl) equipEl.value = '';
+          clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.setor);
+          clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip);
           setExtraFilter(HIST_TIPO_KEY, '');
           renderHist();
         },
@@ -1674,24 +1742,21 @@ function attachFilterHandlers(container) {
 
   each('[data-hist-action="hist-clear-setor"]', (btn) =>
     btn.addEventListener('click', () => {
-      const sel = Utils.getEl('hist-setor');
-      if (sel) sel.value = '';
+      clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.setor);
       renderHist();
     }),
   );
 
   each('[data-hist-action="hist-clear-equip"]', (btn) =>
     btn.addEventListener('click', () => {
-      const sel = Utils.getEl('hist-equip');
-      if (sel) sel.value = '';
+      clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.equip);
       renderHist();
     }),
   );
 
   each('[data-hist-action="hist-clear-busca"]', (btn) =>
     btn.addEventListener('click', () => {
-      const input = Utils.getEl('hist-busca');
-      if (input) input.value = '';
+      clearHistoricoDomFilterValue(HIST_FILTER_DOM_IDS.busca);
       renderHist();
     }),
   );
@@ -1700,21 +1765,15 @@ function attachFilterHandlers(container) {
   // Reseta o state e re-renderiza pra remover o chip.
   each('[data-hist-action="clear-cliente-filter"]', (btn) =>
     btn.addEventListener('click', () => {
-      _clienteFilter = { id: null, nome: null };
+      clearHistClienteFilter();
       renderHist();
     }),
   );
 
   each('[data-hist-action="hist-clear-all"]', (btn) =>
     btn.addEventListener('click', () => {
-      setExtraFilter(HIST_PERIOD_KEY, '');
-      setExtraFilter(HIST_TIPO_KEY, '');
-      const setorSel = Utils.getEl('hist-setor');
-      if (setorSel) setorSel.value = '';
-      const equipSel = Utils.getEl('hist-equip');
-      if (equipSel) equipSel.value = '';
-      const buscaInput = Utils.getEl('hist-busca');
-      if (buscaInput) buscaInput.value = '';
+      clearHistoricoSessionFilters();
+      clearHistoricoMainFilterDomValues();
       renderHist();
     }),
   );

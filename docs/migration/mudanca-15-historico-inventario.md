@@ -883,3 +883,50 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-P - pre-split filtros DOM/cache**.
 
 Justificativa: o contrato consolidado agora protege as fontes mais sensiveis dos filtros. O proximo corte seguro e separar localmente DOM/cache/sessionStorage/URL dentro do adapter antes de qualquer movimentacao para feature modules.
+
+## 26. CP-P - Pre-split filtros DOM/cache
+
+- CP-P aplicado.
+- Filtros DOM/cache/sessionStorage/URL permaneceram em `src/ui/views/historico.js`.
+- Helpers locais criados para separar leitura DOM, cache `_histFilterValues`, escrita DOM, hydrate URL, sessao e clears.
+- Nenhuma mudanca funcional intencional.
+- Nenhum helper foi movido para feature.
+- React pages, sheet, viewModels, Registro, Relatorio/PDF e Equipamentos nao foram alterados.
+- Contrato CP-O preservado.
+- LOC `src/ui/views/historico.js`: 1586 -> 1634, delta +48.
+
+Ordem real preservada:
+
+| Ordem | Bloco filtros DOM/cache | Responsabilidade                                                                 | Helper criado                                                                                                                     |
+| ----: | ----------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+|     1 | URL inicial             | Ler `URLSearchParams` uma vez e aplicar em DOM/sessao                            | `readUrlFilters`, `applyHistoricoUrlFiltersToDom`, `applyHistoricoUrlFiltersToSession`, `hydrateFiltersFromUrl`                   |
+|     2 | DOM/cache               | Ler `#hist-busca`, `#hist-setor`, `#hist-equip` com fallback `_histFilterValues` | `readHistoricoFilterDomValue`, `readHistoricoFilterDomValues`, `readHistoricoFilterCache`, `buildHistoricoDomCacheFilters`        |
+|     3 | Cache                   | Atualizar `_histFilterValues` no render/unmount                                  | `writeHistoricoFilterCache`, `captureHistoricoFilterValues`                                                                       |
+|     4 | Sessao                  | Ler/gravar periodo e tipo com fallback seguro                                    | `readHistoricoSessionFilters`, `writeHistoricoSessionFilter`, `getExtraFilters`, `setExtraFilter`, `clearHistoricoSessionFilters` |
+|     5 | Consolidacao            | Montar filtros atuais para VM/render                                             | `buildHistoricoCurrentFilters`, `buildHistoricoRenderFilters`                                                                     |
+|     6 | Sheet/clear handlers    | Aplicar/resetar DOM e sessionStorage sem mudar actions publicas                  | `setHistoricoDomFilterValue`, `clearHistoricoDomFilterValue`, `clearHistoricoMainFilterDomValues`                                 |
+|     7 | Cliente externo         | Limpar `_clienteFilter` via API local existente                                  | `clearHistClienteFilter`                                                                                                          |
+|     8 | VM/timeline/report      | Preservar timeline/cards e `data-registro-id`                                    | Sem alteracao de contrato                                                                                                         |
+
+Contratos preservados:
+
+- `#hist-busca`, `#hist-equip`, `#hist-setor`, `#hist-filters-trigger/count`.
+- `data-hist-action` `hist-filter-*` e `hist-clear-*`.
+- `setHistClienteFilter`, `_histFilterValues`, `_clienteFilter`.
+- `sessionStorage`/URL params.
+- Sheet mobile, view model/timeline e estado vazio.
+- Export/report sem perder `data-registro-id`.
+
+Testes rodados inicialmente:
+
+- `npm run test -- src/__tests__/historicoFilters.contract.test.js --reporter=dot`: passou, 1 arquivo / 5 testes.
+
+Lacunas remanescentes:
+
+- Helpers continuam no adapter por escopo do CP.
+- Filtros ainda dependem de DOM e `sessionStorage`; mover para feature exige classificar quais partes sao puras.
+- `src/ui/views/historico.js` segue acima de 1000 LOC.
+
+Proximo CP recomendado: **CP-Q - mover helpers puros de filtros**.
+
+Justificativa: o pre-split separou responsabilidades locais sem alterar comportamento. O proximo passo seguro e classificar e mover somente helpers puros/baixo risco de filtros, mantendo DOM/sessionStorage/URL no adapter se houver duvida.
