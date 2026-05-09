@@ -427,8 +427,21 @@ Status: aplicado em 2026-05-09.
 - Warnings remanescentes registrados: 32 warnings de lint baseline, warnings Vite de dynamic import/chunk e stderr de testes JSDOM/Supabase/React `act(...)` ja observados na suite.
 - Riscos remanescentes: `saveRegistro` ainda orquestra o fluxo central; wrappers DOM/form, Toast/focus, setState, Profile/sessionStorage, checklist/PMOC, relatorio/PDF domain, historico e bridges das ilhas React ainda exigem cortes cuidadosos.
 
-## 27. Proximo CP recomendado
+## 27. CP-S - Mapear wrappers restantes do saveRegistro
 
-**CP-S - mapear/mover wrappers restantes do saveRegistro.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O checkpoint mostrou que os modulos extraidos estao estaveis e cobertos; o maior risco residual imediato esta nos wrappers ainda presos ao adapter (`DOM/form`, Toast/focus, Profile/sessionStorage, `setState` e orquestradores amplos ao redor de `saveRegistro`).
+- Documento criado: `docs/migration/mudanca-12-cp-s-save-wrappers-map.md`.
+- Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
+- Wrappers restantes do `saveRegistro` mapeados e classificados: DOM/form, validacao/Toast/focus, Profile/sessionStorage, `setState`, post-save orquestrador e checklist/PMOC.
+- APIs publicas restantes do adapter mapeadas: `initRegistro`, `saveRegistro`, `clearRegistro`, `loadRegistroForEdit`, quick templates, handlers de assinatura/hint, handlers de checklist e unmounts das ilhas React.
+- Checklist/PMOC classificado como maior candidato residual: estado `_currentChecklist`, coleta para payload, warning soft-required, gating de plano, React island, templates, relacao com save e consumo por PDF/relatorio.
+- Arquitetura confirmada: `src/features/registro` nao importa o adapter principal; contratos CP-B e CP-O permanecem presentes; modulos feature save seguem com testes proprios; `saveRegistro` permanece no adapter.
+- LOC atual `src/ui/views/registro.js`: 1752.
+- Validacoes previstas para este CP: diff restrito aos docs; bateria feature/contratos; `npm run format`; `npm run check`.
+
+## 28. Proximo CP recomendado
+
+**CP-T - mapear checklist/PMOC.**
+
+Confianca: 90%+. O CP-S mostrou que o maior risco residual imediato esta no bloco checklist/PMOC, que cruza handlers delegados, estado interno, gating de plano, warning soft-required, payload de `saveRegistro`, persistence CP-K e consumo por PDF/relatorio. Nao recomendo mover `saveRegistro` ou wrappers de state antes desse mapa dedicado.
