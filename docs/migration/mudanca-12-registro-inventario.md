@@ -382,8 +382,22 @@ Status: aplicado em 2026-05-09.
 - Lacunas remanescentes: quota/gating PDF vs WhatsApp por plano continua coberta por testes relacionados, mas ainda nao tem um contrato unico dedicado por matriz de planos.
 - Validacoes rodadas: contrato `registroId`; postSave feature + persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes relacionados de Registro/relatorio/PDF/WhatsApp/historico; `npm run format`; `npm run check`.
 
-## 24. Proximo CP recomendado
+## 24. CP-P - Pre-split relatorio/PDF/WhatsApp em Registro
 
-**CP-P - pre-split relatorio/PDF em Registro.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O contrato de `registroId` agora esta protegido explicitamente; o proximo corte seguro e separar localmente a ponte Registro -> relatorio/PDF/WhatsApp sem mover efeitos nem alterar comportamento.
+- `saveRegistro` permaneceu inalterado em `src/ui/views/registro.js`.
+- Pre-split realizado dentro de `src/features/registro/save/postSave.js`; nenhum fluxo foi movido para novo modulo.
+- Helpers locais criados: `buildRegistroReportFilters`, `buildRegistroReportRoute`, `notifyRegistroShareStarted`, `runRegistroWhatsappShare`, `runRegistroReportFallback`, `runRegistroPdfAction`, `runRegistroWhatsappAction`, `buildRegistroPostSaveToastActions`.
+- Responsabilidades separadas: filtros `registroId`/`equipId`, rota fallback para relatorio, Toast inicial de share, chamada `shareWhatsAppFlow`, fallback `goTo('relatorio', ...)`, callback PDF, callback WhatsApp e acoes do `PostSaveRegistroToast`.
+- Contrato CP-O preservado: `registroId` segue nos filtros de PDF/WhatsApp, no fallback de relatorio e nos CTAs do toast pos-save.
+- Nenhuma mudanca funcional intencional; `reportExportHandlers.js`, `relatorio.js`, `historico.js`, `domain/pdf.js`, React pages, handlers, payload CP-D, fotos CP-F, assinatura CP-I, persistence CP-K e contratos CP-B preservados.
+- LOC `src/features/registro/save/postSave.js`: 79 -> 121.
+- LOC `src/ui/views/registro.js`: 1752 -> 1752.
+- Testes rodados: contrato `registroId` + postSave feature; persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes relacionados de Registro/relatorio/PDF/WhatsApp/historico; `npm run format`; `npm run check`.
+
+## 25. Proximo CP recomendado
+
+**CP-Q - mover helpers seguros de relatorio/PDF/WhatsApp.**
+
+Confianca: 90%+. A ponte Registro -> relatorio/PDF/WhatsApp agora tem helpers internos pequenos em `postSave.js`; o proximo corte seguro e mover apenas helpers puros ou de DI simples, mantendo efeitos amplos e orquestracao nos pontos atuais.
