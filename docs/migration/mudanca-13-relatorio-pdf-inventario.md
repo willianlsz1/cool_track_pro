@@ -564,3 +564,34 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - LOC `src/domain/pdf.js`: 176 -> 177 (+1).
 - LOC `src/ui/controller/handlers/reportExportHandlers.js`: 709 -> 727 (+18).
 - Proximo CP recomendado: **CP-S - stability checkpoint**.
+
+## 29. CP-S - Stability checkpoint Relatório/PDF
+
+- Status: aplicado.
+- Documento criado: `docs/migration/mudanca-13-stability-checkpoint.md`.
+- CP documental/read-only: nenhum arquivo em `src/`, testes, package, config, CSS ou schema foi alterado.
+- Estado atual consolidado:
+  - contratos export PDF/WhatsApp preservados e ampliados;
+  - `reportExportHandlers` pre-split e com DI de assinatura;
+  - `shareReport`, `domain/pdf.js`, `services.js`, `checklist.js` e `signatures.js` pre-split;
+  - helpers seguros extraidos para `shareReportHelpers`, `generatorHelpers`, `servicesHelpers`, `checklistHelpers` e `signatureHelpers`;
+  - `src/domain/pdf.js` segue sem import direto de `ui/components/signature.js`;
+  - `shareReport.js` ainda mantém side effects de Web Share/upload/download/onboarding como risco documentado.
+- LOC atuais principais:
+  - `src/ui/controller/handlers/reportExportHandlers.js`: 727;
+  - `src/domain/pdf.js`: 177;
+  - `src/domain/pdf/shareReport.js`: 319;
+  - `src/domain/pdf/sections/services.js`: 485;
+  - `src/domain/pdf/sections/checklist.js`: 167;
+  - `src/domain/pdf/sections/signatures.js`: 277;
+  - `src/ui/views/relatorio.js`: 751;
+  - `src/ui/views/historico.js`: 1490.
+- Validações CP-S:
+  - bateria contratos/helpers Relatório/PDF: 16 arquivos e 88 testes passaram;
+  - `npm run test -- src/__tests__ --reporter=dot`: passou com exit 0;
+  - `npm run format`: passou;
+  - `npm run check`: passou; lint manteve 31 warnings e 0 erros, com warnings Vite/dynamic import/chunk no build;
+  - `npm run size`: falhou por ausência do binário local `size-limit`; validação opcional registrada sem instalar dependências;
+  - Playwright: não rodado, opcional neste CP documental.
+- Riscos remanescentes registrados: handler ainda concentra quota/preview/PMOC, `domain/pdf.js` ainda lê state/Profile e muta jsPDF, `shareReport` ainda mistura Web Share/upload/download, sections seguem com render visual pesado, `cover.js` grande, PMOC formal, `relatorio.js`/`historico.js` grandes e warnings de chunks/dynamic import.
+- Decisao recomendada: **encerrar Mudança 13** após validações do checkpoint, com próxima mudança técnica separada para `cover` section ou PMOC formal.
