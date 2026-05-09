@@ -793,3 +793,51 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-N - mapear filtros Historico**.
 
 Justificativa: o caminho PDF/WhatsApp por card esta protegido por CP-L e nao possui logica local suficiente no adapter para novo corte seguro. O maior acoplamento restante dentro do Historico esta nos filtros DOM/cache/estado, que devem ser mapeados antes de qualquer pre-split.
+
+## 24. CP-N - Mapeamento filtros Historico
+
+- CP-N aplicado em modo read-only + documentacao.
+- Documento criado: `docs/migration/mudanca-15-cp-n-historico-filtros-map.md`.
+- Nenhum `src/` alterado.
+- Nenhum teste alterado.
+- Filtros do Historico mapeados: DOM, cache local `_histFilterValues`, `sessionStorage`, URL/query params, React filters island, filters sheet, view model, timeline, reset/clear e interacao indireta com export/report.
+- CP-M preservado: fluxo PDF/WhatsApp continua sem logica local no adapter do Historico.
+- Contratos publicos mapeados: `#hist-busca`, `#hist-equip`, `#hist-setor`, `#hist-filters-trigger`, `#hist-filters-count`, `#hist-quickfilters-slot`, `#hist-active-chips-slot`, `data-hist-action`, `setHistClienteFilter`, `HISTORICO_PERIOD_OPTIONS`, `HISTORICO_TIPO_OPTIONS` e classes publicas.
+- LOC principais confirmados:
+  - `src/ui/views/historico.js`: 1586
+  - `src/react/pages/HistoricoFilters.jsx`: 252
+  - `src/react/pages/HistoricoTimeline.jsx`: 453
+  - `src/ui/components/historicoFiltersSheet.js`: 251
+  - `src/ui/viewModels/historicoViewModel.js`: 497
+  - `src/ui/viewModels/historicoContracts.js`: 102
+
+Resumo do fluxo de filtros:
+
+| Etapa                | Responsabilidade                                                                 | Fonte real                                       | Risco principal                                    |
+| -------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| URL inicial          | Hidratar `q`, `setor`, `equip`, `periodo`, `tipo` uma vez                        | `hydrateFiltersFromUrl` / `URLSearchParams`      | Deep link stale ou sobrescrito                     |
+| DOM/cache            | Ler `#hist-busca`, `#hist-setor`, `#hist-equip` com fallback `_histFilterValues` | `getFilterValue`, `captureHistoricoFilterValues` | Cache local divergir do DOM                        |
+| `sessionStorage`     | Persistir periodo/tipo e summary collapsed por sessao                            | `getExtraFilters`, `setExtraFilter`              | Filtro invisivel se storage/cache falhar           |
+| React filters island | Renderizar header, busca, selects, quick filters e chips                         | `HistoricoFilters.jsx`                           | IDs/classes publicos quebrados                     |
+| Sheet mobile         | Aplicar/resetar setor/equip/tipo em overlay legado                               | `HistoricoFiltersSheet.open`                     | Callbacks mexem em DOM/sessionStorage fora da ilha |
+| View model           | Aplicar filtros e montar chips/lista/timeline data                               | `buildHistoricoViewModel`                        | Registro errado ou empty state indevido            |
+| Timeline             | Renderizar lista filtrada e estados vazios                                       | `HistoricoTimeline.jsx`                          | Timeline stale apos filtro                         |
+
+Testes/lacunas mapeados:
+
+- Testes existentes: `historicoFiltersLegacyRender.test.js` (8), `historicoFiltersIsland.test.jsx` (7), `historicoFiltersSheet.test.js` (6), `historicoFiltersSheetIntegration.test.js` (4), `historicoFiltersSheetModel.test.js` (5), `historicoViewModel.test.js` (8), `historicoView.test.js` (27), `renderHelpers.test.js` (4).
+- Lacunas remanescentes: contrato focado de URL/replaceState, fallback de `sessionStorage` indisponivel, contrato consolidado DOM/cache/sessionStorage/sheet/VM/timeline, navegacao real Clientes -> Historico com `setHistClienteFilter`, e filtro ativo do Historico combinado com export/report por card.
+
+Riscos principais:
+
+- Filtro errado por divergencia entre DOM/cache/view model.
+- `_histFilterValues` e `sessionStorage` mantendo filtros invisiveis.
+- `setHistClienteFilter` ficando preso apos navegacao/clear.
+- Reset/clear parcial nao limpar a fonte real do filtro.
+- URL hydrate/write sobrescrever estado do usuario.
+- Timeline stale ou empty state indevido.
+- Import circular se helpers de filtros forem movidos antes de separar DOM/cache.
+
+Proximo CP recomendado: **CP-O - contrato consolidado filtros Historico**.
+
+Justificativa: ha mais de 90% de confianca de que o proximo passo seguro deve ser contrato adicional. O fluxo de filtros mistura DOM, cache local, `sessionStorage`, URL, React island, sheet mobile e view model; pre-split antes de contrato consolidado teria risco alto de regressao silenciosa.
