@@ -34,6 +34,10 @@ import {
   buildHistoricoTimelineRenderContext,
 } from '../../features/historico/render/renderHelpers.js';
 import {
+  closeHistoricoCardMenus,
+  toggleHistoricoCardMenu,
+} from '../../features/historico/actions/cardMenuHelpers.js';
+import {
   HISTORICO_ACTIONS,
   HISTORICO_PERIOD_OPTIONS,
   HISTORICO_TIPO_OPTIONS,
@@ -1411,25 +1415,6 @@ export function renderHist() {
 // ──────────────────────────────────────────────────────────────────────
 // Handlers (re-attach em cada render)
 // ──────────────────────────────────────────────────────────────────────
-
-function closeHistoricoCardMenus(container) {
-  container.querySelectorAll('.hist-item-actions__menu').forEach((menu) => {
-    menu.hidden = true;
-  });
-  container.querySelectorAll('[data-hist-action="toggle-card-menu"]').forEach((toggle) => {
-    toggle.setAttribute('aria-expanded', 'false');
-  });
-}
-
-function toggleHistoricoCardMenu(container, toggle) {
-  const menu = toggle.parentElement?.querySelector('.hist-item-actions__menu');
-  const isOpen = menu && !menu.hidden;
-  closeHistoricoCardMenus(container);
-  if (!isOpen && menu) {
-    menu.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
-  }
-}
 
 function handleHistoricoCardMenuClick(container, event) {
   const toggle = event.target.closest('[data-hist-action="toggle-card-menu"]');

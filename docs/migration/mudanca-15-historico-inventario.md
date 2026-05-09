@@ -371,3 +371,63 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-F - mover helpers seguros de card actions**.
 
 Justificativa: os helpers locais criados no CP-E separam responsabilidades sem mudar comportamento. O proximo corte seguro e classificar quais desses helpers sao apenas DOM/menu local e podem sair para modulo scoped, mantendo `deleteReg` e handlers globais no adapter.
+
+## 16. CP-F - Mover helpers seguros de card actions
+
+- CP-F aplicado.
+- Modulo criado: `src/features/historico/actions/cardMenuHelpers.js`.
+- Teste criado: `src/features/historico/__tests__/actions/cardMenuHelpers.test.js`.
+- Helpers seguros de menu movidos: `closeHistoricoCardMenus` e `toggleHistoricoCardMenu`.
+- `deleteReg`, `renderHist`, `setHistClienteFilter` e `clearHistClienteFilter` permaneceram no adapter `src/ui/views/historico.js`.
+- Handlers com eventos/listeners/foco/modal permaneceram no adapter.
+- Nenhum React page, handler global, viewModel, Registro, Relatorio/PDF, WhatsApp/share, Equipamentos, CSS ou schema foi alterado.
+- Nenhuma mudanca funcional intencional.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1773 -> 1758, delta -15.
+- LOC `src/features/historico/actions/cardMenuHelpers.js`: criado com 35 LOC.
+
+| Helper CP-E                       | Usa DOM direto?                     | Usa listeners/event/focus? | Usa modal/Photos/Signature? | Puro/baixo risco? | Movido neste CP? | Estrategia                                                                 |
+| --------------------------------- | ----------------------------------- | -------------------------- | --------------------------- | ----------------- | ---------------- | -------------------------------------------------------------------------- |
+| `closeHistoricoCardMenus`         | Sim, via container recebido         | Nao                        | Nao                         | Sim               | Sim              | Movido com DI por container e seletores opcionais                          |
+| `toggleHistoricoCardMenu`         | Sim, via container/toggle recebidos | Nao                        | Nao                         | Sim               | Sim              | Movido mantendo fechamento previo dos demais menus e `aria-expanded`       |
+| `handleHistoricoCardMenuClick`    | Sim                                 | Sim, usa event/closest     | Nao                         | Nao               | Nao              | Mantido no adapter por lidar com evento real e `preventDefault`            |
+| `handleHistoricoCardMenuKeydown`  | Sim                                 | Sim, usa teclado/foco      | Nao                         | Nao               | Nao              | Mantido no adapter por gerenciar `Escape` e retorno de foco                |
+| `bindHistoricoCardMenuDelegation` | Sim                                 | Sim, registra listeners    | Nao                         | Nao               | Nao              | Mantido no adapter por registrar listeners delegados e `dataset.histBound` |
+| `bindHistoricoCardLocalActions`   | Sim                                 | Sim, registra listeners    | Sim                         | Nao               | Nao              | Mantido no adapter por abrir Photos/lightbox e SignatureViewerModal        |
+
+Helpers movidos:
+
+| Helper                    | Origem                      | Destino                                             | DI/parametros                              | Motivo de seguranca                                      |
+| ------------------------- | --------------------------- | --------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| `closeHistoricoCardMenus` | `src/ui/views/historico.js` | `src/features/historico/actions/cardMenuHelpers.js` | `container`, seletores opcionais           | Apenas fecha menus e reseta `aria-expanded` no container |
+| `toggleHistoricoCardMenu` | `src/ui/views/historico.js` | `src/features/historico/actions/cardMenuHelpers.js` | `container`, `toggle`, seletores opcionais | Apenas alterna estado visual de menu sem listeners       |
+
+Helpers mantidos no adapter:
+
+| Helper                            | Motivo para manter                                   | Risco                                   | Proximo tratamento sugerido                      |
+| --------------------------------- | ---------------------------------------------------- | --------------------------------------- | ------------------------------------------------ |
+| `handleHistoricoCardMenuClick`    | Depende de evento real, `closest` e `preventDefault` | Mudanca pode quebrar delegation do menu | So mover apos contrato especifico de evento/menu |
+| `handleHistoricoCardMenuKeydown`  | Depende de teclado e foco real                       | Regressao de acessibilidade do menu     | Manter ate haver teste dedicado de teclado/foco  |
+| `bindHistoricoCardMenuDelegation` | Registra listeners e usa `dataset.histBound`         | Duplicacao/perda de listeners           | Manter no adapter enquanto delegation for local  |
+| `bindHistoricoCardLocalActions`   | Abre Photos/lightbox e SignatureViewerModal          | Quebra de foto/assinatura dos cards     | Mapear fluxos locais antes de qualquer extracao  |
+
+Contratos preservados:
+
+- `edit-reg`, `delete-reg`, `export-pdf`, `whatsapp-export`, `data-id`, `data-registro-id` e `data-hist-action`.
+- Menu kebab dos cards, Photos/lightbox e modal de assinatura.
+- `deleteReg`, `renderHist`, `setHistClienteFilter` e `clearHistClienteFilter`.
+- Contrato CP-B de card actions.
+
+Validacao inicial do CP-F:
+
+- `npm run test -- src/features/historico/__tests__/actions/cardMenuHelpers.test.js src/__tests__/historicoCardActions.contract.test.js --reporter=dot`: passou, 2 arquivos / 7 testes.
+
+Lacunas remanescentes:
+
+- `historico.js` segue acima de 1000 LOC e ainda concentra filtros DOM, bridges React, delete e side effects.
+- Eventos de menu, foco, Photos/lightbox e assinatura ainda permanecem no adapter por terem side effects fortes.
+- Fluxos completos Historico -> Registro e Historico -> PDF/WhatsApp ainda merecem mapeamento dedicado antes de mover responsabilidades.
+
+Proximo CP recomendado: **CP-G - mapear Historico -> Registro**.
+
+Justificativa: o contrato de atributos e a extracao segura dos helpers de menu reduzem risco local dos cards. O proximo maior acoplamento com impacto direto no usuario esta no caminho de editar/excluir registro a partir do Historico; mapear esse fluxo antes de mexer nele da mais de 90% de confianca para o proximo corte.
