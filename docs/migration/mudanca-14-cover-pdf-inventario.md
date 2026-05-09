@@ -178,7 +178,7 @@ Justificativa: o contrato dedicado agora protege os dados e chamadas mais sensí
 - `drawCover` permaneceu como API pública da section.
 - Mudança funcional intencional: nenhuma.
 - Contrato CP-B preservado.
-- LOC `cover.js`: 677 -> 748 (+71).
+- LOC `cover.js`: 677 -> 742 (+65).
 
 | Ordem | Bloco atual drawCover               | Responsabilidade                                                               | Dependências                                       | Side effects                                        | Helper criado                               |
 | ----- | ----------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------- | --------------------------------------------------- | ------------------------------------------- |
@@ -225,3 +225,66 @@ Lacunas remanescentes:
 Próximo CP recomendado: **CP-D - mover helpers puros de cover**.
 
 Justificativa: após o pre-split in-place, há helpers claramente puros ou de baixo risco (`buildCoverTitleModel`, `buildCoverResumoModel`, `buildCoverEquipamentosRows`, `buildCoverConclusaoModel`, `buildCoverFichaTecnicaBlocks`, `buildCoverPendenciasModel`) que podem ser avaliados para extração com contrato próprio, mantendo `drawCover` e render visual no arquivo atual.
+
+## 13. CP-D - Mover helpers puros de `cover.js`
+
+- Status: aplicado.
+- Arquivos de produção alterados: `src/domain/pdf/sections/cover.js` e `src/domain/pdf/sections/coverHelpers.js`.
+- Teste criado: `src/__tests__/pdfCover.helpers.test.js`.
+- `drawCover` permaneceu em `cover.js`.
+- Render visual, `fillPage`, primitives, `autoTable`, paginação e `drawChecklist` permaneceram em `cover.js`.
+- Mudança funcional intencional: nenhuma.
+- Contrato CP-B preservado.
+- LOC `cover.js`: 742 -> 554 (-188).
+- LOC `coverHelpers.js`: criado com 199 linhas.
+
+Classificação dos helpers CP-C:
+
+| Helper CP-C                    | Usa doc/jsPDF/render? | Usa autoTable/drawChecklist? | Muta paginação/cursor? | Puro/baixo risco? | Movido neste CP? | Estratégia                                                       |
+| ------------------------------ | --------------------- | ---------------------------- | ---------------------- | ----------------- | ---------------- | ---------------------------------------------------------------- |
+| `buildCoverPeriodText`         | Não                   | Não                          | Não                    | Sim               | Sim              | Movido para helper puro com `Utils.formatDate`                   |
+| `buildCoverContext`            | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; apenas consolida argumentos e preserva `doc` por DI      |
+| `buildCoverTitleModel`         | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; monta strings/fallbacks do título                        |
+| `buildCoverInfoBlocksModel`    | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; monta linhas de técnico/cliente                          |
+| `buildCoverResumoModel`        | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; calcula totais/status/cor                                |
+| `buildCoverEquipamentosRows`   | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; monta rows e mantém `autoTable` fora                     |
+| `buildCoverConclusaoModel`     | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; delega texto para `formatStatusConclusion`               |
+| `buildCoverFichaTecnicaBlocks` | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; monta blocos de dados de placa, sem render               |
+| `buildCoverPendenciasModel`    | Não                   | Não                          | Não                    | Sim               | Sim              | Movido; monta ações recomendadas, sem render                     |
+| `renderCoverBackground`        | Sim                   | Não                          | Não                    | Não               | Não              | Mantido por chamar `fillPage` e mutar `doc`                      |
+| `renderCoverChecklist`         | Sim                   | Sim                          | Sim                    | Não               | Não              | Mantido por chamar `drawChecklist` e preservar cursor da section |
+
+Helpers movidos:
+
+| Helper                         | Origem     | Destino           | DI/parâmetros                            | Por que era seguro mover                                |
+| ------------------------------ | ---------- | ----------------- | ---------------------------------------- | ------------------------------------------------------- |
+| `buildCoverPeriodText`         | `cover.js` | `coverHelpers.js` | `de`, `ate`                              | Só formata string de período                            |
+| `buildCoverContext`            | `cover.js` | `coverHelpers.js` | Argumentos do `drawCover`                | Só consolida contexto local                             |
+| `buildCoverTitleModel`         | `cover.js` | `coverHelpers.js` | `context`, `profile`, `cliente`, período | Só monta modelo textual                                 |
+| `buildCoverInfoBlocksModel`    | `cover.js` | `coverHelpers.js` | `profile`, `cliente`                     | Só monta linhas e altura                                |
+| `buildCoverResumoModel`        | `cover.js` | `coverHelpers.js` | `filtered`, `equipamentos`               | Só calcula totais/status                                |
+| `buildCoverEquipamentosRows`   | `cover.js` | `coverHelpers.js` | `filtered`, `equipamentos`               | Só monta rows; `autoTable` ficou no render              |
+| `buildCoverConclusaoModel`     | `cover.js` | `coverHelpers.js` | `filtered`                               | Só monta conclusão textual                              |
+| `buildCoverFichaTecnicaBlocks` | `cover.js` | `coverHelpers.js` | `filtered`, `equipamentos`               | Só monta blocos de dados; paginação ficou no render     |
+| `buildCoverPendenciasModel`    | `cover.js` | `coverHelpers.js` | `filtered`, `equipamentos`               | Só monta ações/cor; cards visuais ficaram em `cover.js` |
+
+Helpers mantidos:
+
+| Helper                  | Motivo para manter                                      | Risco se movido agora                  | Próximo tratamento sugerido                      |
+| ----------------------- | ------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ |
+| `renderCoverBackground` | Chama `fillPage` e muta `doc`                           | Mover side effect visual cedo demais   | Manter até eventual pre-split de render visual   |
+| `renderCoverChecklist`  | Chama `drawChecklist` e preserva cursor/integração PMOC | Quebrar acoplamento cover -> checklist | Revisar no CP-E antes de qualquer desacoplamento |
+
+Validação registrada:
+
+- `npm run test -- src/__tests__/pdfCover.helpers.test.js src/__tests__/pdfCover.contract.test.js --reporter=dot`: passou, 2 arquivos / 12 testes.
+
+Lacunas remanescentes:
+
+- `cover.js` ainda contém render visual denso com `doc`, primitives, `autoTable`, cursor manual e paginação.
+- Acoplamento `cover.js` -> `drawChecklist` permanece intencionalmente inalterado.
+- Não há teste pixel-perfect do layout da capa.
+
+Próximo CP recomendado: **CP-E - revisar acoplamento cover -> checklist**.
+
+Justificativa: os helpers puros já foram movidos e testados. O próximo risco arquitetural específico da capa é a chamada direta para `drawChecklist`, que precisa ser mapeada antes de qualquer mudança em ordem visual, cursor ou responsabilidade entre sections.
