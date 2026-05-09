@@ -507,6 +507,22 @@ Status: aplicado em 2026-05-09.
 
 ## 33. Proximo CP recomendado
 
-**CP-Y - contrato lifecycle init/clear/edit.**
+## 33. CP-Y - Contrato lifecycle init/clear/edit
 
-Confianca: 90%+. O lifecycle ainda concentra DOM, bridges React, Profile, sessionStorage, route guard, reset visual, fotos, assinatura e checklist. Antes de qualquer pre-split de `clearRegistro`, `loadRegistroForEdit` ou `initRegistro`, o corte mais seguro e criar um contrato dedicado que trave a ordem publica e os efeitos minimos desses tres fluxos.
+Status: aplicado em 2026-05-09.
+
+- Teste criado: `src/__tests__/registroLifecycle.contract.test.js`.
+- Contratos protegidos: `initRegistro`, `clearRegistro`, `loadRegistroForEdit`, roots/ilhas principais, defaults minimos, modo edicao/sessionStorage/route guard, reset de fotos, reset de assinatura, reset de Checklist/PMOC, restauracao de edicao e fallback silencioso para registro ausente.
+- `initRegistro` coberto com root ausente sem throw e view real com roots/actions/defaults preservados.
+- `clearRegistro` coberto preservando equipamento com `preserveEquip=true`, limpando modo edicao e resetando fotos, assinatura e Checklist/PMOC.
+- `loadRegistroForEdit` coberto preenchendo campos principais, ativando edit mode, setando route guard e restaurando Checklist/PMOC.
+- Sequencia `initRegistro -> clearRegistro -> loadRegistroForEdit` coberta contra estado impossivel em roots publicos.
+- Nenhuma mudanca funcional intencional; nenhum arquivo de producao em `src/` foi alterado.
+- Lacunas remanescentes: ordem interna completa dos binds de `initRegistro`, reset visual detalhado de todos os chips/details e restauracao visual de fotos/assinatura seguem cobertos por testes legados relacionados, nao duplicados no contrato dedicado.
+- Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados lifecycle/Registro; `npm run format`; `npm run check`.
+
+## 34. Proximo CP recomendado
+
+**CP-Z - pre-split clearRegistro.**
+
+Confianca: 90%+. O contrato lifecycle agora protege o reset publico e `clearRegistro` e o menor proximo corte util: tem fronteira clara, ja e chamado por handler e post-save, e concentra resets de DOM/edicao/fotos/assinatura/checklist que podem ser separados localmente antes de qualquer extracao.

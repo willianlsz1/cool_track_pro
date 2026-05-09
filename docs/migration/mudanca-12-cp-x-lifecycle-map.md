@@ -110,6 +110,8 @@ Mapear em modo read-only os fluxos publicos de lifecycle do adapter Registro (`i
 
 Lacunas criticas antes de pre-split: contrato dedicado para `initRegistro/clearRegistro/loadRegistroForEdit` em um unico arquivo; caso de `loadRegistroForEdit` com id ausente; reset completo de fotos/assinatura/checklist em clear; ordem relativa `initRegistro -> loadRegistroForEdit`; e idempotencia de binds depois de reentradas na rota.
 
+Complemento CP-Y: `src/__tests__/registroLifecycle.contract.test.js` foi criado para reduzir a lacuna principal. O contrato cobre root ausente em `initRegistro`, defaults/roots/actions publicos, `clearRegistro(true)` preservando equipamento e limpando edit mode/sessionStorage/guard, reset de fotos/assinatura/checklist, `loadRegistroForEdit` preenchendo campos e restaurando Checklist/PMOC, fallback silencioso para registro ausente e sequencia `initRegistro -> clearRegistro -> loadRegistroForEdit`.
+
 ## 8. Riscos principais
 
 - DOM/global roots: `view-registro`, `registro-header-root`, `r-checklist-body`, signature root e query selectors publicos.
@@ -141,3 +143,5 @@ Lacunas criticas antes de pre-split: contrato dedicado para `initRegistro/clearR
 **CP-Y - contrato lifecycle init/clear/edit.**
 
 Confianca: 90%+. O lifecycle ainda concentra DOM, bridges React, Profile, sessionStorage, route guard, reset visual, fotos, assinatura e checklist. Antes de qualquer pre-split de `clearRegistro`, `loadRegistroForEdit` ou `initRegistro`, o corte mais seguro e criar um contrato dedicado que trave a ordem publica e os efeitos minimos desses tres fluxos.
+
+Atualizacao pos CP-Y: com o contrato dedicado criado, o proximo corte mais seguro passa a ser **CP-Z - pre-split clearRegistro**, mantendo tudo no adapter e preservando comportamento.
