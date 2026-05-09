@@ -339,3 +339,32 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
   - sem validacao pixel/layout real das sections;
   - desacoplamento de assinatura UI e resolvers de foto ainda pendente.
 - Proximo CP recomendado: **CP-I - pre-split domain/pdf.js**.
+
+## 19. CP-I - Pre-split domain/pdf.js
+
+- Status: aplicado.
+- Arquivo alterado: `src/domain/pdf.js`.
+- `PDFGenerator` e `generateMaintenanceReport` permaneceram no mesmo arquivo e com a mesma assinatura publica.
+- Helpers locais criados:
+  - `buildPdfGenerationContext`: normaliza `options`, filtros, state, `Profile` e `planCode`;
+  - `buildPdfDocumentModel`: aplica `filterRegistrosForReport`, monta OS, emissao, cliente e `reportContext`;
+  - `buildPdfDocumentSurface`: cria `jsPDF` e dimensoes/margem usadas pelas sections;
+  - `renderPdfCoverSection`: encapsula chamada a `drawCover` preservando argumentos;
+  - `renderPdfServicesSection`: encapsula `doc.addPage` e `drawServices` preservando ordem;
+  - `resolvePdfSignatureDataUrls`: pre-resolve assinaturas em `Map` com fallback silencioso;
+  - `renderPdfSignatureSection`: encapsula `drawSignaturePages` e getter sync de assinatura;
+  - `renderPdfFreePlanBranding`: encapsula upsell e watermark para plano Free;
+  - `renderPdfFooter`: encapsula `stampFooterTotals`;
+  - `finalizePdfDocument`: preserva retorno `{ fileName, blob }` quando `asBlob` e `doc.save` no fluxo normal;
+  - `handlePdfGenerationFailure`: preserva log `[PDF v8]` e retorno `null`.
+- Responsabilidades separadas: contexto, modelo/filtros, superficie PDF, cover, services/fotos, assinatura, free plan, footer, finalizacao e fallback.
+- Nenhuma mudanca funcional intencional; ordem de cover -> services -> signatures -> upsell/watermark -> footer -> blob/save preservada.
+- Contratos CP-H preservados: `registro.fotos`, `registro.assinatura`, `registro.checklist.tipo_template/items`, fallback de midia/assinatura e `filters.registroId`.
+- Contratos CP-B preservados: `PDFGenerator`, `filterRegistrosForReport`, share/report export, `shareReportPdf` e fluxo PDF/WhatsApp via handlers.
+- `domain/pdf/sections`, `shareReport`, `reportExportHandlers`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf.js`: 138 -> 194 (+56).
+- Testes rodados:
+  - `pdfGenerator.mediaChecklist.contract.test.js`, `pdfGenerator.registroId.test.js`, `reportExportContracts.test.js`: 3 arquivos, 9 testes, passou;
+  - bateria relacionada `reportExportHandlers`, `shareReport`, `shareReportHelpers`, `whatsappExport`, `reportModel.registroId`, `registroChecklistPmoc`, `pmocReport`, `reportExportHelpers`: 8 arquivos, 57 testes, passou.
+- Warnings conhecidos observados: GoTrue/Supabase e log de assinatura indisponivel no fallback CP-H; JSDOM navigation no teste de handlers.
+- Proximo CP recomendado: **CP-J - mover helpers seguros de domain/pdf.js**.

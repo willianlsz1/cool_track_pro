@@ -1,13 +1,13 @@
 /**
  * CoolTrack Pro - PDF Generator v8.0
- * Orquestrador de geração: filtra dados, monta contexto (OS, cliente, emissão)
- * e delega para os builders de seção. O rodapé com paginação X/Y é carimbado
- * por último, depois de todas as páginas terem sido criadas.
+ * Orquestrador de geracao: filtra dados, monta contexto (OS, cliente, emissao)
+ * e delega para os builders de secao. O rodape com paginacao X/Y e carimbado
+ * por ultimo, depois de todas as paginas terem sido criadas.
  */
 
 import { jsPDF } from 'jspdf';
-// v5 do jspdf-autotable não anexa mais `doc.autoTable` por side-effect;
-// a função é importada e chamada como autoTable(doc, options). As sections
+// v5 do jspdf-autotable nao anexa mais `doc.autoTable` por side-effect;
+// a funcao e importada e chamada como autoTable(doc, options). As sections
 // (cover, services) fazem esse import diretamente.
 import { getState } from '../core/state.js';
 import { Profile } from '../features/profile.js';
@@ -39,115 +39,186 @@ function getPdfDimensions(doc) {
   };
 }
 
+function buildPdfGenerationContext(options = {}, context = {}) {
+  const { registros, equipamentos } = getState();
+  const { filtEq = '', de = '', ate = '', registroId = '' } = options;
+  const { planCode } = context;
+  const profile = Profile.get();
+
+  return {
+    options,
+    registros,
+    equipamentos,
+    filtEq,
+    de,
+    ate,
+    registroId,
+    planCode,
+    profile,
+  };
+}
+
+function buildPdfDocumentModel(generationContext) {
+  const { registros, registroId, filtEq, de, ate } = generationContext;
+  const filtered = filterRegistrosForReport(registros, { registroId, filtEq, de, ate });
+  const now = new Date();
+  const osNumber = buildOsNumber(now);
+  const emitido = now.toLocaleDateString('pt-BR');
+  const cliente = extractClientBlock(filtered);
+
+  return {
+    filtered,
+    osNumber,
+    emitido,
+    reportContext: { osNumber, emitido, cliente },
+  };
+}
+
+function buildPdfDocumentSurface() {
+  const doc = createPdfDocument();
+  const { pageWidth, pageHeight } = getPdfDimensions(doc);
+
+  return { doc, pageWidth, pageHeight, margin: PAGE_MARGIN };
+}
+
+function renderPdfCoverSection(pdfSurface, generationContext, documentModel) {
+  const { doc, pageWidth, pageHeight, margin } = pdfSurface;
+  const { profile, filtEq, de, ate, equipamentos } = generationContext;
+  const { filtered, reportContext } = documentModel;
+
+  drawCover(
+    doc,
+    pageWidth,
+    pageHeight,
+    margin,
+    profile,
+    filtEq,
+    de,
+    ate,
+    filtered,
+    equipamentos,
+    null,
+    reportContext,
+  );
+}
+
+async function renderPdfServicesSection(pdfSurface, generationContext, documentModel) {
+  const { doc, pageWidth, pageHeight, margin } = pdfSurface;
+  const { equipamentos, profile } = generationContext;
+  const { filtered, reportContext } = documentModel;
+
+  doc.addPage();
+  await drawServices(
+    doc,
+    pageWidth,
+    pageHeight,
+    margin,
+    filtered,
+    equipamentos,
+    profile,
+    null,
+    reportContext,
+  );
+}
+
+async function resolvePdfSignatureDataUrls(filtered) {
+  // Pre-resolve todas as assinaturas (Storage -> localStorage) num Map.
+  const signatureDataUrls = new Map();
+  await Promise.all(
+    filtered.map(async (registro) => {
+      try {
+        const dataUrl = await resolveSignatureForRecord(registro);
+        if (dataUrl) signatureDataUrls.set(registro.id, dataUrl);
+      } catch (_err) {
+        /* signature falhou -> trata como ausente no PDF */
+      }
+    }),
+  );
+  return signatureDataUrls;
+}
+
+async function renderPdfSignatureSection(pdfSurface, generationContext, documentModel) {
+  const { doc, pageWidth, pageHeight, margin } = pdfSurface;
+  const { equipamentos, profile } = generationContext;
+  const { filtered, reportContext } = documentModel;
+  const signatureDataUrls = await resolvePdfSignatureDataUrls(filtered);
+  const getSignatureSync = (registroId) => signatureDataUrls.get(registroId) || null;
+
+  drawSignaturePages(
+    doc,
+    pageWidth,
+    pageHeight,
+    margin,
+    filtered,
+    equipamentos,
+    profile,
+    getSignatureSync,
+    null,
+    reportContext,
+  );
+}
+
+function renderPdfFreePlanBranding(pdfSurface, generationContext) {
+  const { doc, pageWidth, pageHeight, margin } = pdfSurface;
+  const { planCode } = generationContext;
+
+  if (planCode === PLAN_CODE_FREE) {
+    drawUpsellBlock(doc, pageWidth, pageHeight, margin);
+    drawWatermarkAllPages(doc, pageWidth, pageHeight);
+  }
+}
+
+function renderPdfFooter(pdfSurface, generationContext, documentModel) {
+  const { doc, pageWidth, pageHeight, margin } = pdfSurface;
+  const { profile } = generationContext;
+  const { osNumber, emitido } = documentModel;
+
+  stampFooterTotals(doc, pageWidth, pageHeight, margin, profile, {
+    osNumber,
+    emitido,
+  });
+}
+
+function finalizePdfDocument(pdfSurface, generationContext) {
+  const { doc } = pdfSurface;
+  const { options, profile } = generationContext;
+  const fileName = buildReportFileName(profile);
+
+  if (options.asBlob === true) {
+    const blob = doc.output('blob');
+    return { fileName, blob };
+  }
+
+  doc.save(fileName);
+  return fileName;
+}
+
+function handlePdfGenerationFailure(err) {
+  console.error('[PDF v8]', err);
+  return null;
+}
+
 export const PDFGenerator = {
   async generateMaintenanceReport(options = {}, context = {}) {
     try {
-      const { registros, equipamentos } = getState();
-      const { filtEq = '', de = '', ate = '', registroId = '' } = options;
-      const { planCode } = context;
-      const profile = Profile.get();
-      const filtered = filterRegistrosForReport(registros, { registroId, filtEq, de, ate });
+      const generationContext = buildPdfGenerationContext(options, context);
+      const documentModel = buildPdfDocumentModel(generationContext);
+      const pdfSurface = buildPdfDocumentSurface();
 
-      const now = new Date();
-      const osNumber = buildOsNumber(now);
-      const emitido = now.toLocaleDateString('pt-BR');
-      const cliente = extractClientBlock(filtered);
-      const reportContext = { osNumber, emitido, cliente };
+      renderPdfCoverSection(pdfSurface, generationContext, documentModel);
 
-      const doc = createPdfDocument();
-      const { pageWidth, pageHeight } = getPdfDimensions(doc);
-
-      drawCover(
-        doc,
-        pageWidth,
-        pageHeight,
-        PAGE_MARGIN,
-        profile,
-        filtEq,
-        de,
-        ate,
-        filtered,
-        equipamentos,
-        null,
-        reportContext,
-      );
-
-      if (filtered.length > 0) {
-        doc.addPage();
-        await drawServices(
-          doc,
-          pageWidth,
-          pageHeight,
-          PAGE_MARGIN,
-          filtered,
-          equipamentos,
-          profile,
-          null,
-          reportContext,
-        );
-
-        // Pré-resolve todas as assinaturas (Storage → localStorage) num Map
-        // <registroId, dataUrl>. Zero mudança no pipeline de signatures.js:
-        // passamos um getter sync que consulta o Map. Paralelizado via
-        // Promise.all pra não serializar latência de rede quando há
-        // múltiplas assinaturas no Storage.
-        const signatureDataUrls = new Map();
-        await Promise.all(
-          filtered.map(async (registro) => {
-            try {
-              const dataUrl = await resolveSignatureForRecord(registro);
-              if (dataUrl) signatureDataUrls.set(registro.id, dataUrl);
-            } catch (_err) {
-              /* signature falhou → trata como ausente no PDF */
-            }
-          }),
-        );
-        const getSignatureSync = (registroId) => signatureDataUrls.get(registroId) || null;
-
-        drawSignaturePages(
-          doc,
-          pageWidth,
-          pageHeight,
-          PAGE_MARGIN,
-          filtered,
-          equipamentos,
-          profile,
-          getSignatureSync,
-          null,
-          reportContext,
-        );
+      if (documentModel.filtered.length > 0) {
+        await renderPdfServicesSection(pdfSurface, generationContext, documentModel);
+        await renderPdfSignatureSection(pdfSurface, generationContext, documentModel);
       }
 
-      // Upsell discreto e marca d'água para PDFs Free. O upsell é desenhado
-      // antes da watermark para manter a marca d'água por cima, ainda diluída.
-      if (planCode === PLAN_CODE_FREE) {
-        drawUpsellBlock(doc, pageWidth, pageHeight, PAGE_MARGIN);
-        drawWatermarkAllPages(doc, pageWidth, pageHeight);
-      }
+      renderPdfFreePlanBranding(pdfSurface, generationContext);
 
-      // Rodapé final com paginação X/Y. Tem que rodar depois de todas as
-      // páginas estarem criadas (inclusive as de assinatura) pra que o total
-      // seja correto em cada folha e fique por cima de elementos próximos à base.
-      stampFooterTotals(doc, pageWidth, pageHeight, PAGE_MARGIN, profile, {
-        osNumber,
-        emitido,
-      });
+      renderPdfFooter(pdfSurface, generationContext, documentModel);
 
-      const fileName = buildReportFileName(profile);
-
-      // Novo modo pra share: retorna { fileName, blob } sem disparar o
-      // download do browser. Permite upload/Web Share API sem acionar
-      // duas ações no usuário (baixar + compartilhar).
-      if (options.asBlob === true) {
-        const blob = doc.output('blob');
-        return { fileName, blob };
-      }
-
-      doc.save(fileName);
-      return fileName;
+      return finalizePdfDocument(pdfSurface, generationContext);
     } catch (err) {
-      console.error('[PDF v8]', err);
-      return null;
+      return handlePdfGenerationFailure(err);
     }
   },
 };
