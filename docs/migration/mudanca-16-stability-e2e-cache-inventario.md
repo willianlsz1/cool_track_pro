@@ -123,19 +123,43 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
 
 ## 9. Sequencia recomendada da Mudanca 16
 
-| Ordem | CP                                             | Objetivo                                             | Escopo permitido                | Risco       | Criterio de aprovacao                                          |
-| ----: | ---------------------------------------------- | ---------------------------------------------------- | ------------------------------- | ----------- | -------------------------------------------------------------- |
-|     1 | CP-A - inventario geral                        | Mapear estabilidade, E2E, cache e warnings           | Documentacao e validacao        | Baixo       | Inventario criado, validacoes registradas, proximo CP definido |
-|     2 | CP-B - contrato/rota E2E minimo critico        | Fortalecer smoke E2E ponta a ponta principal         | Testes E2E apenas               | Medio       | Fluxo equipamento -> registro -> historico -> PDF protegido    |
-|     3 | CP-C - cache/storage/offline checkpoint        | Mapear chaves, queues, fallback e sync               | Documentacao + validacao        | Baixo/medio | Donos de cache e riscos documentados                           |
-|     4 | CP-D - contratos cache/storage criticos        | Travar chaves e fallback de storage/cache            | Testes apenas                   | Medio       | Contratos de storage/cache passam sem producao alterada        |
-|     5 | CP-E - limpar warnings lint baseline por grupo | Reduzir ruido sem comportamento novo                 | Codigo/testes por grupo pequeno | Medio       | Warnings reduzidos e `check` passa                             |
-|     6 | CP-F - mapear chunks/dynamic import            | Inventariar entradas duplicadas e chunks grandes     | Documentacao + build analysis   | Baixo/medio | Plano de chunking com riscos e alvos                           |
-|     7 | CP-G - ajuste seguro de chunks                 | Ajustar imports/manual chunks se mapeamento permitir | Build config/codigo minimo      | Medio/alto  | Build passa e sem regressao E2E smoke                          |
-|     8 | CP-H - stability final Mudanca 16              | Consolidar resultados e decidir encerramento         | Documentacao e validacao        | Baixo       | Checkpoint final com working tree limpa                        |
+| Ordem | CP                                             | Objetivo                                             | Escopo permitido                | Risco       | Criterio de aprovacao                                                |
+| ----: | ---------------------------------------------- | ---------------------------------------------------- | ------------------------------- | ----------- | -------------------------------------------------------------------- |
+|     1 | CP-A - inventario geral                        | Mapear estabilidade, E2E, cache e warnings           | Documentacao e validacao        | Baixo       | Inventario criado, validacoes registradas, proximo CP definido       |
+|     2 | CP-B - contrato/rota E2E minimo critico        | Fortalecer contrato cruzado principal                | Teste integrado Vitest + docs   | Medio       | Fluxo equipamento -> registro -> historico -> PDF/WhatsApp protegido |
+|     3 | CP-C - cache/storage/offline checkpoint        | Mapear chaves, queues, fallback e sync               | Documentacao + validacao        | Baixo/medio | Donos de cache e riscos documentados                                 |
+|     4 | CP-D - contratos cache/storage criticos        | Travar chaves e fallback de storage/cache            | Testes apenas                   | Medio       | Contratos de storage/cache passam sem producao alterada              |
+|     5 | CP-E - limpar warnings lint baseline por grupo | Reduzir ruido sem comportamento novo                 | Codigo/testes por grupo pequeno | Medio       | Warnings reduzidos e `check` passa                                   |
+|     6 | CP-F - mapear chunks/dynamic import            | Inventariar entradas duplicadas e chunks grandes     | Documentacao + build analysis   | Baixo/medio | Plano de chunking com riscos e alvos                                 |
+|     7 | CP-G - ajuste seguro de chunks                 | Ajustar imports/manual chunks se mapeamento permitir | Build config/codigo minimo      | Medio/alto  | Build passa e sem regressao E2E smoke                                |
+|     8 | CP-H - stability final Mudanca 16              | Consolidar resultados e decidir encerramento         | Documentacao e validacao        | Baixo       | Checkpoint final com working tree limpa                              |
 
-## 10. Proximo CP recomendado
+## 10. CP-B aplicado
 
-**CP-B - contrato/rota E2E minimo critico.**
+- Tipo de teste escolhido: contrato integrado Vitest em `src/__tests__/criticalFlow.contract.test.js`.
+- Justificativa: Playwright existe, mas parte da suite ainda depende de skips/dados de navegador; o contrato Vitest protege a costura critica sem login, rede real ou Supabase.
+- Fluxo coberto:
+  - fixture de equipamento `eq-critical-1` vinculada ao registro `reg-critical-1`;
+  - render real da timeline/card do Historico;
+  - preservacao de `data-id` para edit/delete;
+  - preservacao de `data-registro-id` para `export-pdf` e `whatsapp-export`;
+  - chamada de `exportPdfFlow` via handler registrado com `filters.registroId`;
+  - chamada de `shareWhatsAppFlow`/`shareReportPdf` com o mesmo `registroId`;
+  - fallback sem fotos, assinatura e checklist mantendo actions principais.
+- Lacunas remanescentes:
+  - nao exercita browser real nem CSS/layout;
+  - nao cria registro via formulario real;
+  - nao usa Supabase/cache real;
+  - nao cobre midia/assinatura/checklist com payload completo neste CP.
+- Validacoes rodadas:
+  - `npm run test -- src/__tests__/criticalFlow.contract.test.js --reporter=dot`;
+  - bateria relacionada de Historico/Registro/PDF/WhatsApp;
+  - `npm run test -- src/__tests__ --reporter=dot`;
+  - `npm run format`;
+  - `npm run check`.
 
-Justificativa: ha mais de 90% de confianca de que o maior ganho imediato e proteger um fluxo cruzado real antes de mexer em cache, warnings ou chunks. A suite Playwright ja existe e o app tem muitos contratos unitarios; o risco restante esta na costura entre Equipamentos, Registro, Historico e PDF/WhatsApp.
+## 11. Proximo CP recomendado
+
+**CP-C - cache/storage/offline checkpoint.**
+
+Justificativa: o contrato cruzado minimo ja protege a identidade do registro ate PDF/WhatsApp. O maior risco restante da Mudanca 16 agora esta em `localStorage`, `sessionStorage`, state, filas offline, fotos, assinatura, plano/cache e tombstones, antes de limpar warnings ou mexer em chunks.
