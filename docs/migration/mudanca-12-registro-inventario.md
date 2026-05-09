@@ -476,8 +476,23 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1752 -> 1823.
 - Testes rodados: contrato Checklist/PMOC; bateria feature/contratos; testes relacionados Checklist/PMOC/Registro/PDF; `npm run format`; `npm run check`.
 
-## 31. Proximo CP recomendado
+## 31. CP-W - Mover helpers seguros Checklist/PMOC
 
-**CP-W - mover helpers seguros Checklist/PMOC.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. O CP-V isolou localmente os helpers de estado, view model, coleta, warning e reset/edit load. O proximo corte seguro e classificar e mover apenas helpers puros ou de baixo side effect para modulo feature dedicado, mantendo gate/DOM/bridge no adapter se a DI ficar ampla.
+- Checklist/PMOC principal permaneceu em `src/ui/views/registro.js`; `saveRegistro`, estado `_currentChecklist`, gate Pro/PlanCache, DOM e bridge React permaneceram no adapter.
+- Modulo criado: `src/features/registro/checklist/pmocChecklist.js`.
+- Teste criado: `src/features/registro/__tests__/checklist/pmocChecklist.test.js`.
+- Helpers seguros movidos: `buildRegistroChecklistViewModel`, `resolveRegistroChecklistTemplate`, `collectRegistroChecklistForSave`, `buildRegistroChecklistSoftRequiredWarning`, `cloneRegistroChecklistForEdit` e `parseRegistroChecklistMeasure`.
+- DI explicita usada para `getChecklistTemplate`, `isPreventivaTipo`, `validateChecklist` e snapshot de checklist; o modulo nao importa adapter, DOM, React pages, handlers, Toast, PlanCache, PDF/relatorio ou historico.
+- Helpers mantidos no adapter por estado/side effects: `getRegistroChecklistState`, `setRegistroChecklistState`, `clearRegistroChecklistState`, `ensureRegistroChecklistStateForTemplate`, `applyRegistroChecklistItemStatus`, `applyRegistroChecklistItemObs`, `applyRegistroChecklistItemMeasure`, `resetRegistroChecklistAfterClear`, `restoreRegistroChecklistForEdit`, render/mount/unmount e gate Pro.
+- Nenhuma mudanca funcional intencional; contratos CP-B, CP-O e CP-U preservados; warning soft-required continua nao bloqueante; persistence CP-K, payload CP-D, PDF/relatorio, historico, React pages, handlers, templates PMOC, fotos, assinatura e Equipamentos preservados.
+- LOC `src/ui/views/registro.js`: 1823 -> 1748.
+- LOC `src/features/registro/checklist/pmocChecklist.js`: criado com 83 linhas.
+- Testes rodados: checklist feature + contrato Checklist/PMOC; bateria feature/contratos; testes relacionados Checklist/PMOC/Registro/PDF; suite ampla `npm run test -- src/__tests__ --reporter=dot`; `npm run format`; `npm run check`.
+
+## 32. Proximo CP recomendado
+
+**CP-X - mapear initRegistro/clearRegistro/loadRegistroForEdit.**
+
+Confianca: 90%+. Depois da extracao dos helpers puros de Checklist/PMOC, os maiores riscos restantes estao nas APIs publicas de ciclo de vida do adapter, que concentram DOM, estado, bridge React, reset/edit load e efeitos transversais. O proximo corte mais seguro e mapear esses fluxos antes de mover wrappers adicionais.

@@ -58,6 +58,14 @@ import {
   resolveRegistroCreateId,
 } from '../../features/registro/save/persistence.js';
 import {
+  buildRegistroChecklistSoftRequiredWarning,
+  buildRegistroChecklistViewModel,
+  cloneRegistroChecklistForEdit,
+  collectRegistroChecklistForSave,
+  parseRegistroChecklistMeasure,
+  resolveRegistroChecklistTemplate,
+} from '../../features/registro/checklist/pmocChecklist.js';
+import {
   applyRegistroSavedHighlight,
   notifyRegistroCreateSaved,
   notifyRegistroEditSaved,
@@ -832,10 +840,6 @@ function clearRegistroChecklistState() {
   return setRegistroChecklistState(null);
 }
 
-function cloneRegistroChecklistState(checklist) {
-  return JSON.parse(JSON.stringify(checklist));
-}
-
 function loadRegistroChecklistBridge() {
   if (_registroChecklistBridge) return Promise.resolve(_registroChecklistBridge);
   if (!_registroChecklistBridgePromise) {
@@ -852,64 +856,11 @@ function loadRegistroChecklistBridge() {
   return _registroChecklistBridgePromise;
 }
 
-function getRegistroChecklistSnapshotItems() {
-  return asArray(getRegistroChecklistState()?.items);
-}
-
-function buildRegistroChecklistSnapshotMap() {
-  return new Map(getRegistroChecklistSnapshotItems().map((item) => [item.id, item]));
-}
-
-function buildRegistroChecklistGroups(template) {
-  const groupsOrder = [];
-  const groupBuckets = new Map();
-
-  asArray(template?.items).forEach((item) => {
-    const group = String(item?.group || '');
-    if (!groupBuckets.has(group)) {
-      groupsOrder.push(group);
-      groupBuckets.set(group, []);
-    }
-    groupBuckets.get(group).push(item);
-  });
-
-  return { groupsOrder, groupBuckets };
-}
-
-function buildRegistroChecklistItemViewModel(item, snapshotMap) {
-  const snap = snapshotMap.get(item.id) || { status: null, obs: '', measure: null };
-  return {
-    id: String(item?.id || ''),
-    label: String(item?.label || ''),
-    mandatory: Boolean(item?.mandatory),
-    measurable: Boolean(item?.measurable),
-    unit: String(item?.unit || ''),
-    status: snap.status || null,
-    obs: String(snap.obs || ''),
-    measureValue: snap.measure && snap.measure.value != null ? String(snap.measure.value) : '',
-  };
-}
-
-function buildRegistroChecklistViewModel(template) {
-  const snapshotMap = buildRegistroChecklistSnapshotMap();
-  const { groupsOrder, groupBuckets } = buildRegistroChecklistGroups(template);
-
-  return {
-    label: String(template?.label || ''),
-    groups: groupsOrder.map((group) => ({
-      label: group,
-      items: groupBuckets
-        .get(group)
-        .map((item) => buildRegistroChecklistItemViewModel(item, snapshotMap)),
-    })),
-  };
-}
-
 function buildRegistroChecklistReactProps(template) {
   const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
 
   return {
-    checklist: buildRegistroChecklistViewModel(template),
+    checklist: buildRegistroChecklistViewModel(template, getRegistroChecklistState()),
     actions: viewModel.actions,
   };
 }
@@ -1160,10 +1111,6 @@ function getRegistroChecklistElements() {
   };
 }
 
-function resolveRegistroChecklistTemplate(equip) {
-  return getChecklistTemplate(equip.tipo);
-}
-
 function shouldReuseRegistroChecklistTemplate(template) {
   return getRegistroChecklistState()?.tipo_template === template.tipo_template;
 }
@@ -1212,7 +1159,7 @@ export function renderChecklist() {
     return;
   }
 
-  const tpl = resolveRegistroChecklistTemplate(equip);
+  const tpl = resolveRegistroChecklistTemplate(equip, { getChecklistTemplate });
   // Preserva marcações se template é o mesmo (user trocou de equip do mesmo tipo)
   ensureRegistroChecklistStateForTemplate(equip, tpl);
 
@@ -1278,16 +1225,6 @@ export function setChecklistItemObs(itemId, obs) {
  * { value, unit }. Não-numéricos são ignorados (input number já
  * filtra mas defensivo aqui também).
  */
-function parseRegistroChecklistMeasure(rawValue, unit) {
-  const trimmed = String(rawValue ?? '').trim();
-  if (trimmed === '') return null;
-
-  const num = Number(trimmed.replace(',', '.'));
-  if (!Number.isFinite(num)) return null;
-
-  return { value: num, unit: String(unit || '') };
-}
-
 function applyRegistroChecklistItemMeasure(itemId, rawValue, unit) {
   const item = getRegistroChecklistItem(itemId);
   if (!item) return;
@@ -1302,18 +1239,8 @@ export function setChecklistItemMeasure(itemId, rawValue, unit) {
 }
 
 /** Snapshot atual do checklist — chamado por saveRegistro. */
-function hasRegistroChecklistMarks(checklist = getRegistroChecklistState()) {
-  return (checklist?.items || []).some((item) => item.status != null);
-}
-
-function collectRegistroChecklistForSave() {
-  const checklist = getRegistroChecklistState();
-  if (!checklist) return null;
-  return hasRegistroChecklistMarks(checklist) ? checklist : null;
-}
-
 export function getCurrentChecklist() {
-  return collectRegistroChecklistForSave();
+  return collectRegistroChecklistForSave(getRegistroChecklistState());
 }
 
 /** Reset — chamado por clearRegistro. */
@@ -1337,7 +1264,7 @@ function restoreRegistroChecklistForEdit(checklist) {
     clearRegistroChecklistState();
     return;
   }
-  setRegistroChecklistState(cloneRegistroChecklistState(checklist));
+  setRegistroChecklistState(cloneRegistroChecklistForEdit(checklist));
   renderChecklist();
 }
 
@@ -1616,33 +1543,12 @@ function validateRegistroOperationalFields({ data, status }) {
   return true;
 }
 
-function buildRegistroChecklistSoftRequiredWarning(tipo) {
-  // PMOC Fase 3.E: warning soft-required quando preventiva sem checklist.
-  // Não bloqueia o save (técnico pode estar em campo, sem tempo); apenas avisa
-  // pra ele saber que esse registro NÃO entra no PMOC formal completo.
-  if (!isPreventivaTipo(tipo)) return null;
-
-  const cl = getCurrentChecklist();
-  if (!cl) {
-    return 'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.';
-  }
-
-  const validationCl = validateChecklist(cl);
-  if (!validationCl.complete && validationCl.missing?.length) {
-    const first = validationCl.missing[0];
-    const rest = validationCl.missing.length - 1;
-    const msg =
-      rest > 0
-        ? `${validationCl.missing.length} itens obrigatórios pendentes (ex: "${first}"). Salvando mesmo assim.`
-        : `1 item obrigatório pendente: "${first}". Salvando mesmo assim.`;
-    return msg;
-  }
-
-  return null;
-}
-
 function warnRegistroChecklistSoftRequiredGaps(tipo) {
-  const warning = buildRegistroChecklistSoftRequiredWarning(tipo);
+  const warning = buildRegistroChecklistSoftRequiredWarning(tipo, {
+    checklist: getCurrentChecklist(),
+    isPreventivaTipo,
+    validateChecklist,
+  });
   if (warning) Toast.warning(warning);
 }
 
