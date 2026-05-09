@@ -311,3 +311,34 @@ Validação registrada:
 Próximo CP recomendado: **CP-F - criar contrato cover -> checklist/cursor**.
 
 Justificativa: antes de desacoplar ou mover `renderCoverChecklist`, é preciso travar por teste o contrato implícito de `startY`, retorno de `drawChecklist`, paginação e impacto em `drawPendencias`.
+
+## 15. CP-F - Contrato cover -> checklist/cursor
+
+- Status: aplicado.
+- Teste criado: `src/__tests__/pdfCoverChecklistCursor.contract.test.js`.
+- Arquivos de produção alterados: nenhum.
+- `drawCover`, `renderCoverChecklist`, `drawChecklist`, `drawPendencias`, layout, textos, cursor real de produção e paginação permaneceram inalterados.
+- Contrato cover -> checklist/cursor protegido por teste dedicado.
+- Caminhos cobertos:
+  - `drawCover` chama `drawChecklist` via `renderCoverChecklist`.
+  - `startY` enviado ao checklist é numérico e posterior à ficha técnica/`doc.lastAutoTable`.
+  - `filtered`, `equipamentos` e `checklist.tipo_template/items` são preservados na chamada.
+  - O cursor retornado por `drawChecklist` é usado como `startY` das pendências.
+  - Fallback sem checklist preserva fluxo silencioso e não quebra pendências.
+  - `drawChecklist` pode chamar `doc.addPage` e devolver novo cursor sem quebrar a capa.
+- Lacunas remanescentes:
+  - Sem teste pixel-perfect do layout da capa.
+  - `renderCoverChecklist` ainda é acoplamento direto section-to-section.
+  - Render visual denso de `cover.js` permanece fora do escopo deste CP.
+
+Validação registrada:
+
+- `npm run test -- src/__tests__/pdfCoverChecklistCursor.contract.test.js --reporter=dot`: passou, 1 arquivo / 4 testes.
+- `npm run test -- src/__tests__/pdfCover.contract.test.js src/__tests__/pdfCover.helpers.test.js src/__tests__/pdfChecklist.helpers.test.js src/__tests__/pdfGenerator.mediaChecklist.contract.test.js src/__tests__/registroChecklistPmoc.contract.test.js src/__tests__/pmocReport.test.js src/__tests__/pdfSanitizers.test.js src/__tests__/reportExportContracts.test.js --reporter=dot`: passou.
+- `npm run test -- src/__tests__ --reporter=dot`: passou.
+- `npm run format`: passou.
+- `npm run check`: passou com warnings baseline.
+
+Próximo CP recomendado: **CP-G - desacoplar renderCoverChecklist com adapter local**.
+
+Justificativa: o contrato de cursor agora protege o ponto de maior risco. O próximo corte seguro é reduzir o acoplamento direto `cover.js` -> `drawChecklist` sem alterar `drawCover`, layout, cursor ou render visual.

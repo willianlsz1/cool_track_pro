@@ -108,3 +108,9 @@ Lacunas críticas:
 Próximo CP recomendado: **CP-F - criar contrato cover -> checklist/cursor**.
 
 Justificativa: há mais de 90% de confiança de que o risco principal restante não é a existência do import em si, mas o contrato implícito de `startY`, retorno de `drawChecklist`, paginação e uso do cursor por `drawPendencias`. Antes de desacoplar, mover ou simplificar `renderCoverChecklist`, o comportamento atual precisa estar travado por teste específico.
+
+## 9. Complemento CP-F
+
+- Contrato criado em `src/__tests__/pdfCoverChecklistCursor.contract.test.js`.
+- Lacuna reduzida: `startY`, retorno de cursor, fallback sem checklist, `doc.addPage` simulado e uso do cursor por pendências agora têm cobertura dedicada.
+- Próximo corte ficou mais seguro: desacoplar `renderCoverChecklist` com adapter local sem alterar layout nem cursor.
