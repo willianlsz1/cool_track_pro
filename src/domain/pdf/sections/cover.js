@@ -507,8 +507,35 @@ function renderCoverBackground({ doc, pageWidth, pageHeight }) {
   fillPage(doc, pageWidth, pageHeight);
 }
 
-function renderCoverChecklist({ doc, pageWidth, pageHeight, margin, filtered, equipamentos }, y) {
-  return drawChecklist(doc, pageWidth, pageHeight, margin, y, filtered, equipamentos);
+function buildCoverChecklistAdapterContext(
+  { doc, pageWidth, pageHeight, margin, filtered, equipamentos },
+  startY,
+) {
+  return {
+    doc,
+    pageWidth,
+    pageHeight,
+    margin,
+    startY,
+    filtered,
+    equipamentos,
+  };
+}
+
+function runCoverChecklistSection({
+  doc,
+  pageWidth,
+  pageHeight,
+  margin,
+  startY,
+  filtered,
+  equipamentos,
+}) {
+  return drawChecklist(doc, pageWidth, pageHeight, margin, startY, filtered, equipamentos);
+}
+
+function renderCoverChecklist(context, y) {
+  return runCoverChecklistSection(buildCoverChecklistAdapterContext(context, y));
 }
 
 export function drawCover(

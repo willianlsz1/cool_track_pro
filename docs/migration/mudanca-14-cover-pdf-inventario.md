@@ -342,3 +342,48 @@ Validação registrada:
 Próximo CP recomendado: **CP-G - desacoplar renderCoverChecklist com adapter local**.
 
 Justificativa: o contrato de cursor agora protege o ponto de maior risco. O próximo corte seguro é reduzir o acoplamento direto `cover.js` -> `drawChecklist` sem alterar `drawCover`, layout, cursor ou render visual.
+
+## 16. CP-G - Desacoplar `renderCoverChecklist` com adapter local
+
+- Status: aplicado.
+- Arquivo de produção alterado: `src/domain/pdf/sections/cover.js`.
+- Adapter local criado dentro de `cover.js`: `buildCoverChecklistAdapterContext` e `runCoverChecklistSection`.
+- `renderCoverChecklist` permaneceu em `cover.js` e passou a delegar para o adapter local.
+- `drawCover` permaneceu em `cover.js`.
+- `drawChecklist` permaneceu em `src/domain/pdf/sections/checklist.js`.
+- `coverHelpers.js`, `checklist.js`, `domain/pdf.js`, `PDFGenerator` e `reportExportHandlers` permaneceram inalterados.
+- Mudança funcional intencional: nenhuma.
+- Contrato CP-B preservado.
+- Contrato CP-F preservado.
+- LOC `cover.js`: 554 -> 581 (+27).
+
+Mapeamento aplicado:
+
+| Ordem | Bloco cover -> checklist                | Responsabilidade                                       | Dependências                                                        | Side effects                                          | Ajuste aplicado                          |
+| ----- | --------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------- |
+| 1     | `drawCover` após ficha técnica          | Receber o `y` final de `drawFichaTecnica`              | `drawFichaTecnica`, `doc.lastAutoTable`, `filtered`, `equipamentos` | Cursor visual já calculado                            | Mantido sem alteração                    |
+| 2     | `renderCoverChecklist(coverContext, y)` | Centralizar o ponto de integração cover -> checklist   | `coverContext`, `y`                                                 | Retorna cursor para pendências                        | Mantido como entrada única da integração |
+| 3     | `buildCoverChecklistAdapterContext`     | Montar argumentos explícitos para checklist            | `doc`, dimensões, `margin`, `startY`, `filtered`, `equipamentos`    | Nenhum; só modelagem local                            | Criado neste CP                          |
+| 4     | `runCoverChecklistSection`              | Chamar `drawChecklist` com contrato explícito          | `drawChecklist`                                                     | Renderiza checklist/PMOC e pode alterar página/cursor | Criado neste CP                          |
+| 5     | Retorno para `drawCover`                | Preservar `layout.y` retornado por `drawChecklist`     | Retorno de `drawChecklist`                                          | Cursor usado por `drawPendencias`                     | Mantido sem normalização                 |
+| 6     | `drawPendencias`                        | Renderizar pendências a partir do cursor pós-checklist | `y`, `filtered`, `equipamentos`                                     | Render visual e cursor local                          | Mantido sem alteração                    |
+
+Helpers criados/ajustados:
+
+| Helper                              | Arquivo                            | Responsabilidade                                                | Observação                                       |
+| ----------------------------------- | ---------------------------------- | --------------------------------------------------------------- | ------------------------------------------------ |
+| `buildCoverChecklistAdapterContext` | `src/domain/pdf/sections/cover.js` | Montar o payload local explícito para a seção checklist         | Não chama `doc`, `autoTable` nem `drawChecklist` |
+| `runCoverChecklistSection`          | `src/domain/pdf/sections/cover.js` | Encapsular a chamada atual a `drawChecklist`                    | Preserva ordem dos argumentos e retorno direto   |
+| `renderCoverChecklist`              | `src/domain/pdf/sections/cover.js` | Manter o ponto usado por `drawCover` e delegar ao adapter local | Permaneceu no módulo atual                       |
+
+Validação registrada:
+
+- `npm run test -- src/__tests__/pdfCoverChecklistCursor.contract.test.js --reporter=dot`: passou, 1 arquivo / 4 testes.
+- `npm run test -- src/__tests__/pdfCover.contract.test.js src/__tests__/pdfCover.helpers.test.js src/__tests__/pdfChecklist.helpers.test.js src/__tests__/pdfGenerator.mediaChecklist.contract.test.js src/__tests__/registroChecklistPmoc.contract.test.js src/__tests__/pmocReport.test.js src/__tests__/pdfSanitizers.test.js src/__tests__/reportExportContracts.test.js --reporter=dot`: passou, 8 arquivos / 40 testes.
+- `npm run test -- src/__tests__ --reporter=dot`: passou.
+- `npm run format`: passou.
+- `npm run check`: passou com 30 warnings de lint baseline e warnings Vite/dynamic import/chunk baseline.
+
+Próximo CP recomendado: **CP-H - stability checkpoint e encerrar Mudança 14**.
+
+Justificativa: a capa já tem inventário, contrato próprio, pre-split, extração de helpers puros, mapeamento do acoplamento checklist, contrato de cursor e adapter local. O próximo passo de menor risco é consolidar validações e registrar riscos remanescentes antes de decidir uma nova mudança técnica.
