@@ -183,8 +183,30 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
   - `npm run format`;
   - `npm run check`.
 
-## 12. Proximo CP recomendado
+## 12. CP-D aplicado
 
-**CP-D - cache/offline contratos adicionais.**
+- Contrato criado em `src/__tests__/storageCacheOffline.contract.test.js`.
+- Escopo: testes/docs; nenhum codigo de producao foi alterado.
+- Caminhos cobertos:
+  - nomes e shapes das chaves criticas `cooltrack_v3`, `cooltrack-sync-dirty-v1`, `cooltrack-sync-deletions-v1`, `cooltrack-cache-owner-v1`, `cooltrack-sig-pending-upload` e `cooltrack-cached-plan`;
+  - parsing tolerante de tombstones/deletion queue com JSON invalido;
+  - bootstrap com cache local valido e Supabase/remoto indisponivel para o mesmo owner;
+  - isolamento de cache quando o owner local difere do usuario atual;
+  - preservacao de tombstones e pending sync quando o drain remoto falha;
+  - shape de foto pendente, assinatura legacy/pendente e cache de plano/hidratacao da sessao.
+- Lacunas remanescentes:
+  - nao cobre browser real, service worker, multiaba real ou rede real;
+  - drain de fila de fotos segue coberto por helpers, sem E2E de flush completo;
+  - inventario automatico de todas as chaves storage/session ainda pode ser formalizado em CP posterior.
+- Validacoes rodadas:
+  - `npm run test -- src/__tests__/storageCacheOffline.contract.test.js --reporter=dot`;
+  - bateria relacionada storage/cache/offline;
+  - `npm run test -- src/__tests__ --reporter=dot`;
+  - `npm run format`;
+  - `npm run check`.
 
-Justificativa: o checkpoint CP-C mostrou boa cobertura existente, mas ainda ha lacunas contratuais pequenas e de alto valor em inventario de chaves, drain de filas pendentes, bootstrap com cache legado/remoto indisponivel e cenarios multiusuario/cache owner. Fechar isso reduz risco antes de limpar warnings ou mexer em chunks.
+## 13. Proximo CP recomendado
+
+**CP-E - limpar warnings lint por grupos.**
+
+Justificativa: CP-D reduziu as lacunas contratuais mais criticas de cache/offline sem alterar producao. O proximo gargalo de estabilidade e o ruido recorrente de `npm run check`: 30 warnings lint baseline podem mascarar regressao nova e devem ser reduzidos em grupos pequenos antes de mexer em chunks.

@@ -115,3 +115,18 @@ Lacunas criticas remanescentes:
 **CP-D - cache/offline contratos adicionais.**
 
 Justificativa: a bateria existente cobre bem os blocos principais, mas as lacunas de maior risco ainda sao contratuais: inventario de chaves, drain de filas pendentes, bootstrap com cache legado/remoto indisponivel e cenarios multiusuario/cache owner. E melhor fechar essas lacunas pequenas antes de limpar warnings ou mexer em chunks.
+
+## 9. Complemento CP-D
+
+- Contrato adicional criado: `src/__tests__/storageCacheOffline.contract.test.js`.
+- Lacunas reduzidas:
+  - chaves criticas de storage/cache travadas por nome e shape;
+  - cache legado preservado quando Supabase fica indisponivel para o mesmo owner;
+  - cache de outro owner nao vaza para usuario atual quando remoto falha;
+  - tombstones e dirty flag permanecem pendentes quando delete remoto falha;
+  - shape de foto pendente, assinatura legacy/pendente e `planCache` protegidos.
+- Lacunas que continuam:
+  - browser real, multiaba real e service worker;
+  - drain completo de fila de fotos em fluxo E2E;
+  - inventario automatico de todas as chaves `localStorage`/`sessionStorage`.
+- Proximo corte recomendado: **CP-E - limpar warnings lint por grupos**, porque a protecao contratual adicional ja cobre os riscos imediatos de cache/offline e os 30 warnings baseline seguem reduzindo sinal em `npm run check`.
