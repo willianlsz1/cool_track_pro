@@ -1965,11 +1965,13 @@ export function clearRegistro(preserveEquip = false) {
   resetRegistroHeroAfterClear();
   finalizeClearRegistroAfterReset();
 }
-export function loadRegistroForEdit(id) {
-  const { registros } = getState();
-  const r = registros.find((r) => r.id === id);
-  if (!r) return;
 
+function resolveRegistroEditTarget(id) {
+  const { registros } = getState();
+  return registros.find((r) => r.id === id);
+}
+
+function enterRegistroEditMode(id) {
   sessionStorage.setItem(EDITING_KEY, id);
   const formViewEdit = Utils.getEl('view-registro');
   if (formViewEdit) formViewEdit.dataset.editMode = '1';
@@ -1977,10 +1979,14 @@ export function loadRegistroForEdit(id) {
   // Instala guard que bloqueia navegacao pra outra aba sem confirmar
   // descarte. Limpado em resetEditingState (save / clear / descarte aprovado).
   setRouteGuard(_confirmLeaveEditingGuard);
+}
 
+function fillRegistroEditBaseFields(r) {
   Utils.setVal('r-equip', r.equipId);
   Utils.setVal('r-data', r.data);
+}
 
+function fillRegistroEditTypeFields(r) {
   // Se o tipo foi salvo com prefixo "Outro · ", separamos de volta em select=Outro
   // + input custom. Caso contrário, repopulamos normalmente e deixamos o wrap
   // escondido. O _syncTipoCustomVisibility no initRegistro finaliza o estado.
@@ -1992,7 +1998,9 @@ export function loadRegistroForEdit(id) {
     Utils.setVal('r-tipo-custom', '');
   }
   _syncTipoCustomVisibility();
+}
 
+function fillRegistroEditOperationalFields(r) {
   Utils.setVal('r-obs', r.obs);
   Utils.setVal('r-tecnico', r.tecnico || '');
   Utils.setVal('r-status', r.status || DEFAULT_REGISTRO_STATUS);
@@ -2002,11 +2010,16 @@ export function loadRegistroForEdit(id) {
   Utils.setVal('r-custo-pecas', r.custoPecas ?? '');
   Utils.setVal('r-custo-mao-obra', r.custoMaoObra ?? '');
   _syncMateriaisDetailsState(_hasMateriaisValues(r));
+}
+
+function fillRegistroEditClientFields(r) {
   Utils.setVal('r-cliente-nome', r.clienteNome || '');
   Utils.setVal('r-cliente-documento', r.clienteDocumento || '');
   Utils.setVal('r-local-atendimento', r.localAtendimento || '');
   Utils.setVal('r-cliente-contato', r.clienteContato || '');
+}
 
+function restoreRegistroEditChecklist(r) {
   // PMOC Fase 3: carrega checklist se existe; senão renderiza vazio
   // baseado no tipo do equip.
   if (r.checklist && typeof r.checklist === 'object') {
@@ -2014,7 +2027,9 @@ export function loadRegistroForEdit(id) {
   } else {
     renderChecklist();
   }
+}
 
+function syncRegistroEditActionState() {
   const btn = document.querySelector('[data-action="save-registro"]');
   if (btn) {
     // Mantém o SVG do ícone intocado — só troca o rótulo interno.
@@ -2023,7 +2038,9 @@ export function loadRegistroForEdit(id) {
     else btn.textContent = 'Salvar alterações';
     btn.classList.add('btn--editing');
   }
+}
 
+function syncRegistroEditHeroContext() {
   // No redesign v6 o hero tem a pill "Novo registro"; no modo edição trocamos
   // pra "Editando serviço". O .section-title legado é mantido como fallback.
   const heroPill = document.getElementById(HERO_PILL_TEXT_ID);
@@ -2031,6 +2048,20 @@ export function loadRegistroForEdit(id) {
   const title = document.querySelector('#view-registro .section-title');
   if (title) title.textContent = 'Editar serviço';
   _refreshRegistroContext();
+}
+
+export function loadRegistroForEdit(id) {
+  const r = resolveRegistroEditTarget(id);
+  if (!r) return;
+
+  enterRegistroEditMode(id);
+  fillRegistroEditBaseFields(r);
+  fillRegistroEditTypeFields(r);
+  fillRegistroEditOperationalFields(r);
+  fillRegistroEditClientFields(r);
+  restoreRegistroEditChecklist(r);
+  syncRegistroEditActionState();
+  syncRegistroEditHeroContext();
 }
 
 // Garante que estado de edição não persista entre sessoes do app.

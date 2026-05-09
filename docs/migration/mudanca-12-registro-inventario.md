@@ -533,8 +533,20 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 1748 -> 1788.
 - Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados clear/lifecycle/Registro; `npm run format`; `npm run check`.
 
-## 35. Proximo CP recomendado
+## 35. CP-AA - Pre-split loadRegistroForEdit
 
-**CP-AA - pre-split loadRegistroForEdit.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. Depois do pre-split local de `clearRegistro`, a maior fronteira lifecycle ainda acoplada e `loadRegistroForEdit`, que concentra preenchimento de campos, modo edicao, checklist, labels e contexto. Os helpers de `clearRegistro` ainda sao majoritariamente DOM/state/feature-adapter side effects, entao mover helpers agora teria baixo ganho e mais risco.
+- `loadRegistroForEdit` permaneceu em `src/ui/views/registro.js`; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `resolveRegistroEditTarget`, `enterRegistroEditMode`, `fillRegistroEditBaseFields`, `fillRegistroEditTypeFields`, `fillRegistroEditOperationalFields`, `fillRegistroEditClientFields`, `restoreRegistroEditChecklist`, `syncRegistroEditActionState` e `syncRegistroEditHeroContext`.
+- Responsabilidades separadas: resolucao/fallback silencioso, modo edicao/sessionStorage/route guard, campos equipamento/data, tipo customizado, campos operacionais, cliente, Checklist/PMOC, botao de save e hero/contexto.
+- Nenhuma mudanca funcional intencional; contratos CP-Y, CP-B, CP-O e CP-U preservados.
+- `initRegistro`, `clearRegistro`, `saveRegistro`, React pages, handlers, features extraidas, relatorio/PDF, historico, Equipamentos, CSS, schema e package files preservados.
+- LOC `src/ui/views/registro.js`: 1788 -> 1815.
+- Validacoes previstas para este CP: contrato lifecycle; bateria feature/contratos; testes relacionados edit/lifecycle/Registro; `npm run format`; `npm run check`.
+
+## 36. Proximo CP recomendado
+
+**CP-AB - pre-split initRegistro.**
+
+Confianca: 90%+. `clearRegistro` e `loadRegistroForEdit` ja foram separados localmente, enquanto `initRegistro` ainda concentra entrada de rota, defaults, binds, bridges React, fotos, assinatura, Checklist/PMOC e contexto. Fazer o pre-split local de `initRegistro` fecha a triade lifecycle antes de avaliar movers seguros.
