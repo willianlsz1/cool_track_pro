@@ -746,3 +746,50 @@ Lacunas remanescentes:
 Proximo CP recomendado: **CP-M - pre-split export/share action no Historico**.
 
 Justificativa: o contrato integrado reduziu a lacuna mais critica do fluxo PDF/WhatsApp por card. Com a ponte card -> handler -> `filters.registroId` protegida, o proximo corte seguro e separar localmente a orquestracao de actions export/share no adapter do Historico, sem mover handlers globais nem alterar `reportExportHandlers`.
+
+## 23. CP-M - Pre-split export/share action no Historico
+
+- CP-M aplicado como revisao de pre-split minimo.
+- Decisao: nenhum helper novo foi criado em `src/ui/views/historico.js`, porque nao ha logica local real de `export-pdf`/`whatsapp-export` no adapter do Historico para separar.
+- `src/ui/views/historico.js` permanece sem handlers locais para `export-pdf`, `whatsapp-export`, `data-registro-id`, `exportPdfFlow`, `shareWhatsAppFlow` ou `reportExportHandlers`.
+- Ponte preservada: `HistoricoTimeline.jsx` passa `item.id` para `<CardActions registroId={item.id} />`; `CardActions.jsx` renderiza `data-action="export-pdf"` e `data-action="whatsapp-export"` com `data-registro-id`; `reportExportHandlers.js` consome o trigger global e monta `filters.registroId`.
+- Nenhuma mudanca funcional intencional.
+- Nenhum `src/` alterado.
+- Contrato CP-L preservado.
+- Contrato CP-B preservado.
+- LOC `src/ui/views/historico.js`: 1586 -> 1586, delta 0.
+
+Ordem real revisada:
+
+| Ordem | Bloco export/share action | Responsabilidade                                            | Dependencias                                           | Side effects              | Decisao CP-M                  |
+| ----: | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ | ------------------------- | ----------------------------- |
+|     1 | Origem no card            | `HistoricoTimeline.jsx` renderiza item da timeline          | `item.id` vindo do view model                          | DOM React                 | Sem alteracao                 |
+|     2 | `CardActions`             | Renderiza CTAs `export-pdf` e `whatsapp-export`             | `registroId` prop                                      | DOM attrs                 | Sem alteracao                 |
+|     3 | `data-registro-id`        | Transporta id do registro alvo                              | `data-registro-id={registroId}`                        | Nenhum direto             | Sem alteracao                 |
+|     4 | Adapter Historico         | Nao intercepta export/share                                 | Apenas handlers locais de foto/assinatura/menu/filtros | Nenhum para PDF/WhatsApp  | Nao criar helper artificial   |
+|     5 | Handler global            | `reportExportHandlers` consome `data-action` global         | `core/events`, `triggerEl.dataset.registroId`          | Quota, PDF, share, Toast  | Fora do escopo; sem alteracao |
+|     6 | Filtros do relatorio      | `buildReportFilters` preserva `filters.registroId`          | `#rel-*`, `triggerEl`                                  | Leitura DOM               | Protegido por CP-L            |
+|     7 | PDF/WhatsApp              | `exportPdfFlow` e `shareWhatsAppFlow` usam o mesmo registro | `PDFGenerator`, `WhatsAppExport`, `shareReportPdf`     | Blob/download/share/quota | Protegido por CP-L            |
+
+Contratos preservados:
+
+- `export-pdf`, `whatsapp-export`, `data-registro-id`, `filters.registroId`, `CardActions`, `HistoricoTimeline`, `reportExportHandlers/buildReportFilters`, `exportPdfFlow` e `shareWhatsAppFlow`.
+- Filtros ativos nao sobrescrevem `registroId`.
+- Simetria PDF vs WhatsApp no mesmo card.
+- Fallback com dados opcionais ausentes.
+
+Testes rodados:
+
+- `npm run test -- src/__tests__/historicoPdfWhatsappIntegration.contract.test.js --reporter=dot`
+- `npm run test -- src/__tests__/historicoCardActions.contract.test.js src/__tests__/reportExportContracts.test.js src/__tests__/registroPdfWhatsappRegistroId.contract.test.js src/__tests__/reportExportHandlers.test.js src/__tests__/whatsappExport.test.js src/features/historico/__tests__/actions/cardMenuHelpers.test.js src/features/historico/__tests__/render/renderHelpers.test.js src/features/historico/__tests__/delete/deleteHelpers.test.js --reporter=dot`
+- `npm run test -- src/__tests__ --reporter=dot`
+
+Lacunas remanescentes:
+
+- `reportExportHandlers.js` segue concentrando quota, PDF, share, Toast, router, preview e telemetria.
+- Filtros do Historico ainda nao foram mapeados como tema proprio.
+- Como nao existe logica local de export/share em `historico.js`, qualquer proximo pre-split nessa area deve mirar filtros ou handler global, nao o adapter do Historico.
+
+Proximo CP recomendado: **CP-N - mapear filtros Historico**.
+
+Justificativa: o caminho PDF/WhatsApp por card esta protegido por CP-L e nao possui logica local suficiente no adapter para novo corte seguro. O maior acoplamento restante dentro do Historico esta nos filtros DOM/cache/estado, que devem ser mapeados antes de qualquer pre-split.
