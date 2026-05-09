@@ -11,7 +11,6 @@ import { jsPDF } from 'jspdf';
 // (cover, services) fazem esse import diretamente.
 import { getState } from '../core/state.js';
 import { Profile } from '../features/profile.js';
-import { resolveSignatureForRecord } from '../ui/components/signature.js';
 import { buildPdfDocumentModel } from './pdf/generatorHelpers.js';
 import { drawWatermarkAllPages } from './pdf/primitives.js';
 import { buildReportFileName } from './pdf/reportModel.js';
@@ -38,7 +37,7 @@ function getPdfDimensions(doc) {
 function buildPdfGenerationContext(options = {}, context = {}) {
   const { registros, equipamentos } = getState();
   const { filtEq = '', de = '', ate = '', registroId = '' } = options;
-  const { planCode } = context;
+  const { planCode, resolveSignatureForRecord } = context;
   const profile = Profile.get();
 
   return {
@@ -51,6 +50,7 @@ function buildPdfGenerationContext(options = {}, context = {}) {
     registroId,
     planCode,
     profile,
+    resolveSignatureForRecord,
   };
 }
 
@@ -101,9 +101,11 @@ async function renderPdfServicesSection(pdfSurface, generationContext, documentM
   );
 }
 
-async function resolvePdfSignatureDataUrls(filtered) {
+async function resolvePdfSignatureDataUrls(filtered, resolveSignatureForRecord) {
   // Pre-resolve todas as assinaturas (Storage -> localStorage) num Map.
   const signatureDataUrls = new Map();
+  if (typeof resolveSignatureForRecord !== 'function') return signatureDataUrls;
+
   await Promise.all(
     filtered.map(async (registro) => {
       try {
@@ -119,9 +121,9 @@ async function resolvePdfSignatureDataUrls(filtered) {
 
 async function renderPdfSignatureSection(pdfSurface, generationContext, documentModel) {
   const { doc, pageWidth, pageHeight, margin } = pdfSurface;
-  const { equipamentos, profile } = generationContext;
+  const { equipamentos, profile, resolveSignatureForRecord } = generationContext;
   const { filtered, reportContext } = documentModel;
-  const signatureDataUrls = await resolvePdfSignatureDataUrls(filtered);
+  const signatureDataUrls = await resolvePdfSignatureDataUrls(filtered, resolveSignatureForRecord);
   const getSignatureSync = (registroId) => signatureDataUrls.get(registroId) || null;
 
   drawSignaturePages(

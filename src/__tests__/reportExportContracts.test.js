@@ -31,6 +31,7 @@ const mocks = vi.hoisted(() => ({
   customConfirmShow: vi.fn(),
   goTo: vi.fn(),
   onboardingMarkStep: vi.fn(),
+  resolveSignatureForRecord: vi.fn(),
 }));
 
 vi.mock('../core/events.js', () => ({
@@ -119,6 +120,10 @@ vi.mock('../core/router.js', () => ({
 
 vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   OnboardingChecklist: { markStep: mocks.onboardingMarkStep },
+}));
+
+vi.mock('../ui/components/signature.js', () => ({
+  resolveSignatureForRecord: mocks.resolveSignatureForRecord,
 }));
 
 function source(path) {
@@ -285,7 +290,10 @@ describe('report export public contracts', () => {
         ate: '2026-04-30',
         asBlob: true,
       }),
-      expect.objectContaining({ planCode: 'free' }),
+      expect.objectContaining({
+        planCode: 'free',
+        resolveSignatureForRecord: mocks.resolveSignatureForRecord,
+      }),
     );
     expect(mocks.shareReportPdf).not.toHaveBeenCalled();
     expect(mocks.pdfToastShow).toHaveBeenCalledWith(
@@ -315,7 +323,10 @@ describe('report export public contracts', () => {
         ate: '2026-04-30',
         asBlob: true,
       }),
-      expect.objectContaining({ planCode: 'free' }),
+      expect.objectContaining({
+        planCode: 'free',
+        resolveSignatureForRecord: mocks.resolveSignatureForRecord,
+      }),
     );
     expect(mocks.shareReportPdf).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -334,6 +345,7 @@ describe('report export public contracts', () => {
     const signaturesSource = source('src/domain/pdf/sections/signatures.js');
     const checklistSource = source('src/domain/pdf/sections/checklist.js');
     const pdfSource = source('src/domain/pdf.js');
+    const reportExportHandlersSource = source('src/ui/controller/handlers/reportExportHandlers.js');
 
     expect(shareReportSource).toContain('uploadReportPdf');
     expect(shareReportSource).toContain('downloadPdfLocally');
@@ -347,6 +359,9 @@ describe('report export public contracts', () => {
     expect(checklistSource).toContain('registro.checklist.tipo_template');
     expect(checklistSource).toContain('registro.checklist.items');
 
-    expect(pdfSource).toContain('../ui/components/signature.js');
+    expect(pdfSource).not.toContain('../ui/components/signature.js');
+    expect(pdfSource).toContain('resolveSignatureForRecord');
+    expect(reportExportHandlersSource).toContain('../../components/signature.js');
+    expect(reportExportHandlersSource).toContain('resolveSignatureForRecord');
   });
 });

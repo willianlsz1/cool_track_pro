@@ -39,10 +39,6 @@ vi.mock('../core/photoStorage.js', () => ({
   resolvePhotoDataUrlForPdf: (...args) => mocks.resolvePhotoDataUrlForPdf(...args),
 }));
 
-vi.mock('../ui/components/signature.js', () => ({
-  resolveSignatureForRecord: (...args) => mocks.resolveSignatureForRecord(...args),
-}));
-
 vi.mock('../domain/pdf/sections/cover.js', () => ({
   drawCover: (...args) => mocks.drawCover(...args),
 }));
@@ -174,7 +170,7 @@ describe('PDFGenerator media/checklist contract', () => {
         ate: '2026-05-31',
         asBlob: true,
       },
-      { planCode: 'pro' },
+      { planCode: 'pro', resolveSignatureForRecord: mocks.resolveSignatureForRecord },
     );
 
     expect(result).toEqual({
@@ -235,7 +231,7 @@ describe('PDFGenerator media/checklist contract', () => {
 
     const result = await PDFGenerator.generateMaintenanceReport(
       { registroId: 'reg-target', asBlob: true },
-      { planCode: 'pro' },
+      { planCode: 'pro', resolveSignatureForRecord: mocks.resolveSignatureForRecord },
     );
 
     expect(result).toEqual({

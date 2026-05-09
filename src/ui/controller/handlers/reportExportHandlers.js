@@ -13,6 +13,7 @@ import { runAsyncAction } from '../../components/actionFeedback.js';
 import { ShareSuccessToast } from '../../components/shareSuccessToast.js';
 import { PdfSuccessToast } from '../../components/pdfSuccessToast.js';
 import { PdfQuotaBadge } from '../../components/pdfQuotaBadge.js';
+import * as SignatureComponents from '../../components/signature.js';
 import {
   getEffectivePlan,
   getPlanCodeForUserId,
@@ -328,7 +329,28 @@ function resolvePdfExportBudget() {
 
 async function generateReportPdfBlob(filters, planCode) {
   const { PDFGenerator } = await import('../../../domain/pdf.js');
-  return PDFGenerator.generateMaintenanceReport({ ...filters, asBlob: true }, { planCode });
+  return PDFGenerator.generateMaintenanceReport(
+    { ...filters, asBlob: true },
+    { planCode, resolveSignatureForRecord: getPdfSignatureResolver() },
+  );
+}
+
+function getPdfSignatureResolver() {
+  const resolveSignatureForRecord = getSignatureComponentExport('resolveSignatureForRecord');
+  if (typeof resolveSignatureForRecord === 'function') return resolveSignatureForRecord;
+
+  const getSignatureForRecord = getSignatureComponentExport('getSignatureForRecord');
+  if (typeof getSignatureForRecord !== 'function') return null;
+
+  return (registro) => getSignatureForRecord(registro?.id || registro);
+}
+
+function getSignatureComponentExport(exportName) {
+  try {
+    return SignatureComponents[exportName];
+  } catch (_err) {
+    return null;
+  }
 }
 
 async function confirmPdfExportPreview({ blob, fileName, planCode }) {

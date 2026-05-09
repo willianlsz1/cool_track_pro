@@ -546,3 +546,21 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - Riscos registrados: import circular futuro, fallback silencioso, side effects de storage/localStorage/Supabase/fetch, assinatura ausente/invalida, regressao de layout, DI excessiva e warning atual de camada domain -> UI.
 - Contratos CP-H/CP-B preservados por ausencia de alteracao funcional.
 - Proximo CP recomendado: **CP-R - desacoplar signature UI import com DI**.
+
+## 28. CP-R - Desacoplar import UI de assinatura com DI
+
+- Status: aplicado.
+- `src/domain/pdf.js` nao importa mais `../ui/components/signature.js`.
+- DI adicionada: `PDFGenerator.generateMaintenanceReport` passa a aceitar `context.resolveSignatureForRecord`, mantendo a API publica compativel.
+- `resolvePdfSignatureDataUrls` usa o resolver injetado e preserva fallback seguro: sem resolver funcional, retorna mapa vazio de assinaturas e continua a geracao.
+- `src/ui/controller/handlers/reportExportHandlers.js` passou a ser o ponto de injecao do resolver atual, importando o modulo de assinatura da camada UI e repassando `resolveSignatureForRecord` para o gerador PDF.
+- Resolver atual preservado: `src/ui/components/signature.js`, signature storage, `sections/signatures.js` e `signatureHelpers.js` nao foram alterados.
+- Contratos atualizados:
+  - `src/__tests__/reportExportContracts.test.js` valida que `domain/pdf.js` nao importa UI signature e que o handler injeta o resolver;
+  - `src/__tests__/pdfGenerator.mediaChecklist.contract.test.js` valida consumo de assinatura via DI e fallback quando o resolver retorna `null` ou falha.
+- Nenhuma mudanca funcional intencional; layout visual, textos, assinatura, fotos, checklist, `filters.registroId`, share/WhatsApp e fallback silencioso preservados.
+- Contratos CP-H preservados: assinatura via resolver, fallback ausente/invalido, `registro.fotos`, `registro.checklist` e `filters.registroId` com midia/checklist.
+- Contratos CP-B preservados: fluxo PDF/WhatsApp via handlers e contratos de export/share.
+- LOC `src/domain/pdf.js`: 176 -> 177 (+1).
+- LOC `src/ui/controller/handlers/reportExportHandlers.js`: 709 -> 727 (+18).
+- Proximo CP recomendado: **CP-S - stability checkpoint**.
