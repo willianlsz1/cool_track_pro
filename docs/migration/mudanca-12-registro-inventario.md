@@ -359,8 +359,20 @@ Status: aplicado em 2026-05-09.
 - LOC `src/ui/views/registro.js`: 2040 -> 1983.
 - Testes rodados: postSave feature + persistence feature + signature feature + photos feature + payload feature + contratos CP-B; testes focados de Registro/save/post-save/share/PDF/historico; `npm run format`; `npm run check`.
 
-## 22. Proximo CP recomendado
+## 22. CP-N - Mapear relatório/PDF/WhatsApp
 
-**CP-N - mapear relatório/PDF.**
+Status: aplicado em 2026-05-09.
 
-Confianca: 90%+. Os blocos principais de `saveRegistro` ja foram separados e os helpers seguros de post-save/share foram movidos; o proximo risco alto real e a ponte PDF/WhatsApp/relatorio consumida por pos-save e historico, que deve ser mapeada antes de qualquer nova extração.
+- Documento criado: `docs/migration/mudanca-12-cp-n-report-pdf-map.md`.
+- Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
+- Fluxo relatório/PDF/WhatsApp mapeado de ponta a ponta: `save-and-share-registro`, `save-and-share-other-registro`, `andShare`, `postSave` CP-M, `exportPdfFlow`, `shareWhatsAppFlow`, `CardActions`, view relatório, histórico, `PDFGenerator`, `filterRegistrosForReport`, fotos, assinatura e quota.
+- Contratos mapeados: `data-action="save-and-share-registro"`, `data-action="save-and-share-other-registro"`, `data-action="export-pdf"`, `data-action="whatsapp-export"`, `data-registro-id`, rota `goTo('relatorio', { equipId, intent, registroId })`, `filters.registroId`, campos de cliente, fotos e assinatura usados pelo PDF.
+- Riscos mapeados: filtro por `registroId`, acoplamento `domain/pdf.js` -> `ui/components/signature.js`, quota/gating PDF vs WhatsApp, Web Share/upload/fallback, fotos, assinatura, histórico, Toast/Router e regressão silenciosa.
+- Reconciliação de LOC: CP-L registrou `1773 -> 1800`; CP-M registrou `2040 -> 1983`; LOC real medido no CP-N para `src/ui/views/registro.js`: 1983.
+- Validações rodadas: postSave feature + persistence feature + signature feature + photos feature + payload feature + contratos CP-B; `npm run check`.
+
+## 23. Proximo CP recomendado
+
+**CP-O - teste/contrato específico de `registroId` em PDF/WhatsApp.**
+
+Confianca: 90%+. O contrato de `registroId` e o ponto de maior risco para regressao silenciosa entre Registro, Historico, Relatorio, PDF e WhatsApp; fortalecer esse contrato antes de pre-split reduz o risco de exportar dados errados.
