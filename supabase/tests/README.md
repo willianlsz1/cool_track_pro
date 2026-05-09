@@ -94,6 +94,9 @@ rollback;
 - `07_stripe_webhook_idempotency.test.sql` — `public.stripe_webhook_events`
   ledger: PK em event_id bloqueia retries, UPDATE processed_at/error_message
   funciona.
+- `09_billing_profile_usage_hardening.test.sql` — CP-B da Mudanca 17:
+  bloqueio de `stripe_*` em INSERT de `profiles` e escrita direta em
+  `usage_monthly`.
 
 ## Adicionando testes
 
