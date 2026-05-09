@@ -21,6 +21,7 @@
 import { supabase } from '../../core/supabase.js';
 import { AppError, ErrorCodes, handleError } from '../../core/errors.js';
 import { OnboardingChecklist } from '../../ui/components/onboarding/onboardingChecklist.js';
+import { buildShareReportContext } from './shareReportHelpers.js';
 
 const DEFAULT_REPORTS_BUCKET = import.meta.env?.VITE_SUPABASE_REPORTS_BUCKET || 'relatorios';
 
@@ -243,21 +244,6 @@ export function downloadPdfLocally({ pdfBlob, fileName } = {}) {
   }
 }
 
-function buildShareReportContext({ pdfBlob, fileName, whatsappText, metadata, supabaseClient }) {
-  const safeName = buildSafeReportFileName({
-    registroId: metadata.registroId,
-    fileName,
-  });
-
-  return {
-    pdfBlob,
-    safeName,
-    whatsappText,
-    metadata,
-    supabaseClient,
-  };
-}
-
 async function tryNativeShareReport({ pdfBlob, safeName, whatsappText }) {
   if (!canSharePdfFile(pdfBlob, safeName)) return null;
 
@@ -341,6 +327,7 @@ export async function shareReportPdf({
     whatsappText,
     metadata,
     supabaseClient,
+    buildFileName: buildSafeReportFileName,
   });
 
   // Rota 1: Web Share API com files (mobile moderno)

@@ -266,3 +266,21 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 - `reportExportHandlers.js`, `shareWhatsAppFlow`, `domain/pdf.js`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
 - LOC `src/domain/pdf/shareReport.js`: 299 -> 330 (+31).
 - Proximo CP recomendado: **CP-F - mover helpers seguros de shareReport**.
+
+## 16. CP-F - Mover helpers seguros de shareReport
+
+- Status: aplicado.
+- Helper seguro movido:
+  - `buildShareReportContext`: movido para `src/domain/pdf/shareReportHelpers.js`; helper puro de montagem de contexto, com DI explicita para `buildSafeReportFileName`, sem import de `shareReport.js`, handlers, Supabase/storage, Web Share, DOM, Toast ou Router.
+- Teste criado: `src/__tests__/shareReportHelpers.test.js`.
+- Helpers mantidos em `src/domain/pdf/shareReport.js`:
+  - `tryNativeShareReport`: mantido por usar Web Share API via `canSharePdfFile`/`sharePdfFileNative`;
+  - `uploadShareReportAndOpenWhatsApp`: mantido por chamar upload Supabase/storage, montar mensagem e abrir `wa.me`;
+  - `downloadShareReportFallback`: mantido por chamar `handleError` e download local com DOM/ObjectURL.
+- `shareReportPdf` permaneceu no modulo atual e com a mesma assinatura publica; fluxo completo de share/WhatsApp nao foi movido.
+- Nenhuma mudanca funcional intencional; ordem Web Share -> upload/wa.me -> download fallback preservada.
+- Contratos CP-B preservados: `shareReportPdf`, metadata `userId`/`registroId`, fallback share/upload, Web Share, download fallback e `filters.registroId` via handler.
+- `reportExportHandlers.js`, `shareWhatsAppFlow`, `exportPdfFlow`, `domain/pdf.js`, `relatorio.js`, `historico.js`, Registro e Equipamentos nao foram alterados.
+- LOC `src/domain/pdf/shareReport.js`: 330 -> 319 (-11).
+- LOC `src/domain/pdf/shareReportHelpers.js`: 20.
+- Proximo CP recomendado: **CP-G - mapear/pre-split domain/pdf**.
