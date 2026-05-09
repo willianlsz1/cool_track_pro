@@ -234,8 +234,21 @@ Status: aplicado em 2026-05-08.
 - LOC `src/ui/views/registro.js`: 1883 -> 1837.
 - Testes rodados: payload feature + contratos CP-B; suite `src/__tests__`; `npm run format`; `npm run check`.
 
-## 13. Proximo CP recomendado
+## 13. CP-E - Pre-split fotos/evidencias em saveRegistro
 
-**CP-E - pre-split fotos/evidencias.**
+Status: aplicado em 2026-05-08.
 
-Confianca: 90%+. Payload e validacao ja têm modulo feature-scoped testado, enquanto fotos/evidencias ainda ficam no corpo de `saveRegistro` com `Photos.pending`, sanitizacao, upload/fallback e dados persistidos. O proximo corte seguro e separar esse bloco localmente antes de qualquer movimentacao, sem tocar assinatura, PDF/WhatsApp ou state/storage geral.
+- `saveRegistro` permaneceu em `src/ui/views/registro.js`.
+- Fotos/evidencias permaneceram no adapter legado; nenhum modulo feature novo foi criado.
+- Helpers locais criados: `normalizeRegistroPhotoItems`, `getRegistroPhotoState`, `persistRegistroPhotosForSave`, `buildRegistroPhotoPayload`.
+- Ordem preservada: origem `Photos.pending` antes da assinatura; upload/fallback depois da assinatura; payload de `fotos`/`fotos_pendentes` antes de `setState`; limpeza via `clearRegistro`.
+- Nenhuma mudanca funcional intencional; `photoStorage`, fila offline, sanitizacao, preview, React pages, handlers, assinatura, relatorio/PDF, checklist/PMOC, contratos CP-B e payload CP-D preservados.
+- Reconciliação de LOC: CP-C registrou `1997 -> 2109`; CP-D registrou `1883 -> 1837`; LOC real antes do CP-E confirmado por pre-check: `1837`.
+- LOC `src/ui/views/registro.js`: 1837 -> 1857.
+- Testes rodados: contratos CP-B + payload CP-D; suite `src/__tests__`; `npm run format`; `npm run check`.
+
+## 14. Proximo CP recomendado
+
+**CP-F - mover helpers de fotos/evidencias.**
+
+Confianca: 90%+. O bloco de fotos agora esta separado localmente, com captura, persistencia/fallback e payload isolados no adapter. O proximo corte seguro e mover somente esses helpers para modulo feature-scoped com DI para `Photos`, `uploadPendingPhotos`, `Toast`, `handleError` e `ErrorCodes`, mantendo `saveRegistro` legado como orquestrador e sem misturar assinatura ou PDF.
