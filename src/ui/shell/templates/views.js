@@ -321,33 +321,6 @@ export function renderShellViews() {
               <p class="registro-hero__sub" id="registro-hero-sub" hidden></p>
             </section>
 
-            <!-- UX V2 audit fix #82: foto promovida a açao rapida acima do form.
-                 Tecnico em campo costuma fotografar PRIMEIRO (etiqueta, antes/
-                 depois) e preencher dados depois. Atalho rapido que abre a
-                 camera direto (capture="environment"); preview aparece embaixo
-                 no <details class="registro-details"> normal. Usa o MESMO
-                 input-fotos-camera que ja existe (sem duplicar state). -->
-            <div class="registro-kicker">Comece pela foto</div>
-            <label class="registro-photo-quick" for="input-fotos-camera">
-              <span class="registro-photo-quick__icon" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>
-                  <circle cx="12" cy="13" r="3"/>
-                </svg>
-              </span>
-              <span class="registro-photo-quick__body">
-                <span class="registro-photo-quick__title">Tirar foto da etiqueta agora</span>
-                <span class="registro-photo-quick__hint">abre a camera direto · até 5 fotos por serviço</span>
-              </span>
-              <span class="registro-photo-quick__chevron" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
-              </span>
-            </label>
-
             <!-- ============== Ações rápidas ============== -->
             <div class="registro-kicker">Ações rápidas</div>
             <div class="registro-quick" role="group" aria-label="Modelos rápidos de serviço">
@@ -597,7 +570,7 @@ export function renderShellViews() {
                 <!-- Atalho "Tirar foto agora" — só aparece em mobile (CSS esconde
                      em desktop via hover:hover). capture="environment" abre a
                      câmera direto, sem passar pelo picker de galeria. -->
-                <label class="equip-photo-shortcut" for="input-fotos-camera">
+                <label class="equip-photo-shortcut registro-photo-quick registro-photo-quick--evidence" for="input-fotos-camera">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"
                       stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />

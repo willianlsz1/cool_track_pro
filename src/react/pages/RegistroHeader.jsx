@@ -147,33 +147,6 @@ function Hero({ viewModel }) {
   );
 }
 
-function PhotoShortcut() {
-  return (
-    <>
-      <div className="registro-kicker">Comece pela foto</div>
-      <label className="registro-photo-quick" htmlFor="input-fotos-camera">
-        <span className="registro-photo-quick__icon" aria-hidden="true">
-          <InlineSvg width={20} height={20}>
-            <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" />
-            <circle cx="12" cy="13" r="3" />
-          </InlineSvg>
-        </span>
-        <span className="registro-photo-quick__body">
-          <span className="registro-photo-quick__title">Tirar foto da etiqueta agora</span>
-          <span className="registro-photo-quick__hint">
-            abre a camera direto · até 5 fotos por serviço
-          </span>
-        </span>
-        <span className="registro-photo-quick__chevron" aria-hidden="true">
-          <InlineSvg width={16} height={16} strokeWidth={2}>
-            <path d="M9 18l6-6-6-6" />
-          </InlineSvg>
-        </span>
-      </label>
-    </>
-  );
-}
-
 function QuickTemplates() {
   return (
     <>
@@ -459,14 +432,13 @@ export function RegistroHeader({ viewModel = {}, equipmentOptions = [], technici
   return (
     <>
       <Hero viewModel={viewModel} />
+      <QuickTemplates />
       <MainFields
         viewModel={viewModel}
         equipmentOptions={equipmentOptions}
         technicianOptions={technicianOptions}
       />
       <ContextCard context={viewModel?.context} />
-      <PhotoShortcut />
-      <QuickTemplates />
     </>
   );
 }

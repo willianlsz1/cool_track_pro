@@ -117,6 +117,13 @@ describe('registro header React island', () => {
 
     expect(root?.querySelectorAll('[data-action="quick-service-template"]')).toHaveLength(5);
     expect(root?.querySelector('[data-template="limpeza"]')).not.toBeNull();
+    const headerOrder = Array.from(
+      root?.querySelectorAll('.registro-quick, .registro-bloco--required') || [],
+    ).map((node) => (node.classList.contains('registro-quick') ? 'quick' : 'required'));
+    expect(headerOrder).toEqual(['quick', 'required']);
+    expect(root?.querySelector('.registro-photo-quick')).toBeNull();
+    expect(root?.textContent).not.toContain('Comece pela foto');
+    expect(root?.textContent).not.toContain('Tirar foto da etiqueta agora');
     expect(root?.querySelector('[data-r-action="open-equip-picker"]')).not.toBeNull();
     expect(document.querySelector('[data-action="save-registro"]')).not.toBeNull();
     expect(root?.querySelector('#r-checklist-body')).toBeNull();

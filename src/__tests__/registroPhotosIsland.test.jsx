@@ -86,6 +86,10 @@ describe('registro photos React island', () => {
     expect(cameraInput?.accept).toBe('image/*');
     expect(cameraInput?.getAttribute('capture')).toBe('environment');
     expect(cameraInput?.classList.contains('visually-hidden')).toBe(true);
+    const cameraShortcut = root?.querySelector('.equip-photo-shortcut');
+    expect(cameraShortcut?.classList.contains('registro-photo-quick')).toBe(true);
+    expect(cameraShortcut?.classList.contains('registro-photo-quick--evidence')).toBe(true);
+    expect(cameraShortcut?.textContent).toContain('Tirar foto agora');
     expect(preview?.classList.contains('photo-grid')).toBe(true);
     expect(preview?.getAttribute('role')).toBe('list');
     expect(preview?.children).toHaveLength(0);

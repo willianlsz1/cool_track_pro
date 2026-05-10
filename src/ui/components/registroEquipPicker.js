@@ -208,7 +208,7 @@ function _renderPicker() {
       ${
         equipamentos.length === 0
           ? `<div class="registro-equip-picker__footer">
-            <button type="button" class="registro-equip-picker__create"
+            <button type="button" class="registro-equip-picker__create btn btn--primary"
               data-action="open-modal" data-id="modal-add-eq" data-post-action="register">
               + Cadastrar primeiro equipamento
             </button>

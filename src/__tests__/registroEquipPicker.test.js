@@ -31,6 +31,8 @@ describe('registro equipment picker', () => {
     openRegistroEquipPicker();
 
     const createButton = document.querySelector('.registro-equip-picker__create');
+    expect(createButton?.classList.contains('btn')).toBe(true);
+    expect(createButton?.classList.contains('btn--primary')).toBe(true);
     expect(createButton?.dataset.action).toBe('open-modal');
     expect(createButton?.dataset.id).toBe('modal-add-eq');
     expect(createButton?.dataset.postAction).toBe('register');

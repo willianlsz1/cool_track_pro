@@ -93,7 +93,10 @@ export function RegistroPhotos({
         />
       </label>
 
-      <label className="equip-photo-shortcut" htmlFor="input-fotos-camera">
+      <label
+        className="equip-photo-shortcut registro-photo-quick registro-photo-quick--evidence"
+        htmlFor="input-fotos-camera"
+      >
         <InlineCameraIcon />
         Tirar foto agora
       </label>
