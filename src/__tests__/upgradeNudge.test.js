@@ -9,7 +9,7 @@ describe('UpgradeNudge', () => {
       expect(html).toContain('POPULAR');
       expect(html).toContain('Até 15 equipamentos cadastrados');
       expect(html).toContain('Registros e histórico ilimitados');
-      expect(html).toContain('PDFs sem marca');
+      expect(html).toContain('50 PDFs/mês sem marca');
       expect(html).toContain('assinatura do cliente');
       expect(html).toContain('60 envios de WhatsApp/mês');
       expect(html).toContain('Fazer upgrade &rarr;');
@@ -24,7 +24,8 @@ describe('UpgradeNudge', () => {
       expect(html).toContain('Quer escalar? Conheça o Pro');
       expect(html).toContain('ESCALA');
       expect(html).toContain('Equipamentos ilimitados');
-      expect(html).toContain('PDF e WhatsApp ilimitados');
+      expect(html).toContain('PDFs ilimitados');
+      expect(html).toContain('WhatsApp ilimitado');
       expect(html).toContain('Agrupamento por setores');
       expect(html).toContain('Suporte prioritário');
       expect(html).toContain('Fazer upgrade para o Pro &rarr;');

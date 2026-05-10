@@ -23,11 +23,11 @@ const NUDGE_CONFIGS = {
     bullets: [
       'Até 15 equipamentos cadastrados',
       'Registros e histórico ilimitados',
-      'PDFs sem marca d’água + assinatura do cliente',
+      '50 PDFs/mês sem marca d’água + assinatura do cliente',
       '60 envios de WhatsApp/mês',
     ],
     footer:
-      'Tem frota maior? Conheça também o <strong>Pro</strong> — equipamentos ilimitados, tudo sem limite e setores.',
+      'Tem frota maior? Conheça também o <strong>Pro</strong> — equipamentos e PDFs ilimitados, PMOC e setores.',
     ctaLabel: 'Fazer upgrade',
     highlightPlan: 'plus',
   },
@@ -38,7 +38,8 @@ const NUDGE_CONFIGS = {
     title: 'Quer escalar? Conheça o Pro',
     bullets: [
       'Equipamentos ilimitados',
-      'PDF e WhatsApp ilimitados',
+      'PDFs ilimitados',
+      'WhatsApp ilimitado',
       'Agrupamento por setores',
       'Suporte prioritário',
     ],

@@ -45,7 +45,7 @@ export const pricingPlans = [
       { text: 'Até **3 equipamentos** cadastrados' },
       { text: 'Registros de serviço ilimitados' },
       { text: 'Histórico completo do equipamento' },
-      { text: "Relatórios com marca d'água" },
+      { text: "1 PDF/mês com marca d'água" },
       { text: '**5 envios** via WhatsApp/mês' },
       { text: 'Cadastro por foto (IA): 1 análise/mês' },
       { text: 'Fotos nos registros de serviço' },
@@ -59,7 +59,7 @@ export const pricingPlans = [
   {
     id: 'plus',
     name: 'Plus',
-    tagline: 'Pro técnico autônomo sem limitação chata no dia a dia.',
+    tagline: 'Pro técnico autônomo com mais capacidade no dia a dia.',
     price: { monthly: 'R$ 29', annual: 'R$ 24' },
     period: '/mês',
     billingNote: {
@@ -69,7 +69,7 @@ export const pricingPlans = [
     featuresLabel: 'Tudo do Free, mais',
     features: [
       { text: 'Até **15 equipamentos** cadastrados' },
-      { text: "Relatórios PDF profissionais **sem marca d'água**, ilimitados" },
+      { text: "**50 PDFs/mês** sem marca d'água" },
       { text: '**60 envios** via WhatsApp/mês' },
       { text: 'Cadastro por foto (IA) — até **30 análises/mês**' },
       { text: 'Assinatura digital do cliente no PDF' },

@@ -9,6 +9,8 @@ import {
 import { Utils } from '../../core/utils.js';
 
 const PRICING_REASON_LIMIT_REACHED = 'limit_reached';
+const PRICING_REASON_PDF_QUOTA_FREE = 'pdf_quota_free';
+const PRICING_REASON_PDF_QUOTA_PLUS = 'pdf_quota_plus';
 
 function normalizeHighlightPlan(highlightPlan) {
   const lower = String(highlightPlan || '').toLowerCase();
@@ -18,9 +20,15 @@ function normalizeHighlightPlan(highlightPlan) {
 }
 
 function normalizePricingReason(reason) {
-  return String(reason || '').toLowerCase() === PRICING_REASON_LIMIT_REACHED
-    ? PRICING_REASON_LIMIT_REACHED
-    : null;
+  const lower = String(reason || '').toLowerCase();
+  if (
+    lower === PRICING_REASON_LIMIT_REACHED ||
+    lower === PRICING_REASON_PDF_QUOTA_FREE ||
+    lower === PRICING_REASON_PDF_QUOTA_PLUS
+  ) {
+    return lower;
+  }
+  return null;
 }
 
 async function resolveCurrentPlanCode() {
@@ -47,7 +55,7 @@ const ICON_X = `<svg class="pricing-features__icon pricing-features__icon--no" w
 const FREE_FEATURES = [
   'Até 3 equipamentos cadastrados',
   'Registros de serviço ilimitados',
-  "Relatórios com marca d'água",
+  "1 PDF/mês com marca d'água",
   '5 envios via WhatsApp/mês',
   'Alertas básicos de manutenção',
   'Funciona offline',
@@ -56,7 +64,7 @@ const FREE_FEATURES = [
 const PLUS_DELTA_FEATURES = [
   'Até <strong>15 equipamentos</strong> cadastrados',
   '<strong>Histórico completo</strong> do equipamento e serviços',
-  "<strong>Relatórios PDF profissionais</strong> sem marca d'água, ilimitados",
+  "<strong>50 PDFs/mês</strong> sem marca d'água",
   '<strong>60 envios</strong> via WhatsApp/mês',
   '<strong>Cadastro por foto (IA)</strong> — até 30 análises/mês',
   '<strong>Assinatura digital</strong> do cliente no PDF',
@@ -81,11 +89,25 @@ function renderFeaturesList(features) {
   return `<ul class="pricing-features" role="list">${items}</ul>`;
 }
 
+function getUpgradeReasonMessage(reason) {
+  if (reason === PRICING_REASON_PDF_QUOTA_FREE) {
+    return 'Você atingiu 1 PDF/mês no Free. O Plus libera 50 PDFs/mês e relatórios sem marca d’água.';
+  }
+  if (reason === PRICING_REASON_PDF_QUOTA_PLUS) {
+    return 'Você atingiu 50 PDFs/mês no Plus. O Pro libera PDFs sem limitação relevante.';
+  }
+  if (reason === PRICING_REASON_LIMIT_REACHED) {
+    return 'Você atingiu o limite do plano Gratuito. Faça upgrade pra Plus ou Pro pra continuar sem bloqueios.';
+  }
+  return '';
+}
+
 function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}) {
   const isPro = planCode === PLAN_CODE_PRO;
   const isPlus = planCode === PLAN_CODE_PLUS;
   const isFree = !isPro && !isPlus;
-  const showLimitMessage = reason === PRICING_REASON_LIMIT_REACHED && isFree;
+  const upgradeReasonMessage =
+    reason === PRICING_REASON_LIMIT_REACHED && !isFree ? '' : getUpgradeReasonMessage(reason);
 
   const highlight = highlightPlan || (isPro ? null : PLAN_CODE_PRO);
 
@@ -128,8 +150,8 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
           ${indicator}
         </span>
         ${
-          showLimitMessage
-            ? '<p class="pricing-upgrade-reason">⚠ Você atingiu o limite do plano Gratuito. Faça upgrade pra Plus ou Pro pra continuar sem bloqueios.</p>'
+          upgradeReasonMessage
+            ? `<p class="pricing-upgrade-reason">⚠ ${upgradeReasonMessage}</p>`
             : ''
         }
       </header>
@@ -404,8 +426,8 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
               </tr>
               <tr>
                 <th scope="row">Relatórios PDF</th>
-                <td>Com marca d'água</td>
-                <td>Sem marca d'água</td>
+                <td>1 / mês com marca d'água</td>
+                <td>50 / mês sem marca d'água</td>
                 <td>Ilimitado</td>
               </tr>
               <tr>
@@ -493,7 +515,7 @@ function getPricingMarkup(planCode, { highlightPlan = null, reason = null } = {}
           <summary>Qual a diferença entre Plus e Pro?</summary>
           <p>
             <strong>Plus</strong> é pensado pra <strong>técnico autônomo</strong>: até 15 equipamentos, relatórios sem marca d'água, assinatura digital, fotos, histórico completo e mais envios no WhatsApp.
-            <strong>Pro</strong> é pra <strong>empresa/operação com clientes</strong>: inclui tudo do Modo Técnico + clientes, setores, histórico e relatórios por cliente, PMOC formal anual e escala com suporte prioritário.
+            <strong>Pro</strong> é pra <strong>operações com muitos clientes</strong>: inclui tudo do Plus, PDFs sem limitação relevante, clientes, setores, histórico por cliente, PMOC formal anual e suporte prioritário.
           </p>
         </details>
 

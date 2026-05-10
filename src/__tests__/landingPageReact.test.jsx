@@ -206,6 +206,9 @@ describe('LandingPage (React)', () => {
     expect(text).toContain('Plus');
     expect(text).toContain('Pro');
     expect(text).toContain('Planos para cada fase');
+    expect(text).toContain("1 PDF/mês com marca d'água");
+    expect(text).toContain('50 PDFs/mês');
+    expect(text).toContain('PDFs ilimitados');
 
     // Badge "Mais popular" so no card Pro.
     const proBadge = proCard?.querySelector('[data-plan-badge]');

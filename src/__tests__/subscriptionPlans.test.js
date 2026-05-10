@@ -94,6 +94,19 @@ describe('subscriptionPlans', () => {
     });
   });
 
+  it('keeps commercial plan catalog aligned with PDF monthly quotas', async () => {
+    const { PLAN_CATALOG, PLAN_CODE_FREE, PLAN_CODE_PLUS, PLAN_CODE_PRO } =
+      await loadSubscriptionPlans();
+
+    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain('1 relatório em PDF/mês com marca d’água');
+    expect(PLAN_CATALOG[PLAN_CODE_PLUS].perks).toContain('50 relatórios PDF/mês sem marca d’água');
+    expect(PLAN_CATALOG[PLAN_CODE_PRO].perks).toContain(
+      'Relatórios PDF ilimitados e WhatsApp ilimitado',
+    );
+    expect(PLAN_CATALOG[PLAN_CODE_PLUS].accountChips).toContain('50 PDFs/mês');
+    expect(PLAN_CATALOG[PLAN_CODE_PRO].accountChips).toContain('PDFs ilimitados');
+  });
+
   it('reads user profile from Supabase and applies effective plan fallback', async () => {
     const { getPlanCodeForUserId, PLAN_CODE_FREE, PLAN_CODE_PRO, mocks } =
       await loadSubscriptionPlans({

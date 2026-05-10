@@ -87,6 +87,49 @@ describe('pricing view', () => {
     expect(html).toContain('data-action="start-checkout"');
   });
 
+  it('shows PDF quota copy and highlights Plus when Free reaches PDF quota', async () => {
+    const { renderPricing } = await loadPricingModule({
+      user: { id: 'user-1' },
+      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
+    });
+
+    await renderPricing({ highlightPlan: 'plus', reason: 'pdf_quota_free' });
+
+    const view = document.getElementById('view-pricing');
+    const html = view.innerHTML;
+    expect(html).toContain("1 PDF/mês com marca d'água");
+    expect(html).toContain("<strong>50 PDFs/mês</strong> sem marca d'água");
+    expect(html).toContain('<strong>PDFs ilimitados</strong>');
+    expect(html).toContain('atingiu 1 PDF/mês no Free');
+    expect(html).toContain('Plus libera 50 PDFs/mês');
+    expect(view.querySelector('[data-plan-card="plus"]')?.className).toContain(
+      'pricing-card--highlight',
+    );
+    expect(view.querySelector('[data-plan-tab="plus"]')?.className).toContain(
+      'pricing-plan-tabs__btn--active',
+    );
+  });
+
+  it('shows PDF quota copy and highlights Pro when Plus reaches PDF quota', async () => {
+    const { renderPricing } = await loadPricingModule({
+      user: { id: 'user-1' },
+      profile: { plan: 'plus', subscription_status: 'active', is_dev: false },
+    });
+
+    await renderPricing({ highlightPlan: 'pro', reason: 'pdf_quota_plus' });
+
+    const view = document.getElementById('view-pricing');
+    const html = view.innerHTML;
+    expect(html).toContain('atingiu 50 PDFs/mês no Plus');
+    expect(html).toContain('Pro libera PDFs sem limitação relevante');
+    expect(view.querySelector('[data-plan-card="pro"]')?.className).toContain(
+      'pricing-card--highlight',
+    );
+    expect(view.querySelector('[data-plan-tab="pro"]')?.className).toContain(
+      'pricing-plan-tabs__btn--active',
+    );
+  });
+
   it('cancel button is not shown for free plan users', async () => {
     const { renderPricing } = await loadPricingModule({
       user: { id: 'user-1' },

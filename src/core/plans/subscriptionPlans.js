@@ -67,7 +67,7 @@ export const PLAN_CATALOG = {
       'Até 3 equipamentos cadastrados',
       'Registros de serviço ilimitados',
       'Histórico completo do equipamento',
-      'Relatórios em PDF com marca d’água',
+      '1 relatório em PDF/mês com marca d’água',
       '5 envios de relatório via WhatsApp/mês',
       'Cadastro por foto (IA) com teste mensal',
     ],
@@ -87,14 +87,14 @@ export const PLAN_CATALOG = {
       'Até 15 equipamentos cadastrados',
       'Registros de serviço ilimitados',
       'Todo o histórico de manutenções',
-      'Relatórios PDF profissionais sem marca d’água',
+      '50 relatórios PDF/mês sem marca d’água',
       '60 envios via WhatsApp/mês',
       'Assinatura digital do cliente no PDF',
       'Fotos dos equipamentos (até 3 por equipamento)',
       'Cadastro por foto da etiqueta (IA) — até 30 análises/mês',
     ],
-    accountTagline: 'Plano profissional para técnico autônomo: sem limitações chatas no dia a dia.',
-    accountChips: ['Até 15 equipamentos', 'PDF profissional', 'PMOC formal (Pro)'],
+    accountTagline: 'Plano profissional para técnico autônomo: mais capacidade no dia a dia.',
+    accountChips: ['Até 15 equipamentos', '50 PDFs/mês', 'PMOC formal (Pro)'],
   },
   [PLAN_CODE_PRO]: {
     key: PLAN_CODE_PRO,
@@ -108,7 +108,7 @@ export const PLAN_CATALOG = {
       'Equipamentos ilimitados',
       'Registros de serviço ilimitados',
       'Todo o histórico de manutenções',
-      'Relatórios PDF e WhatsApp ilimitados',
+      'Relatórios PDF ilimitados e WhatsApp ilimitado',
       'PMOC formal anual (NBR 13971) com termo de RT',
       'Cadastro por foto da etiqueta (IA) — até 200 análises/mês',
       'Agrupamento por setores',
@@ -117,7 +117,7 @@ export const PLAN_CATALOG = {
       'Suporte prioritário',
     ],
     accountTagline: 'Equipamentos ilimitados, PMOC formal NBR 13971 e suporte prioritário.',
-    accountChips: ['Ilimitado em tudo', 'PMOC formal NBR 13971', 'Suporte prioritário'],
+    accountChips: ['PDFs ilimitados', 'PMOC formal NBR 13971', 'Suporte prioritário'],
   },
 };
 
@@ -194,7 +194,8 @@ export function hasFeature(profile, feature) {
 }
 
 const FEATURE_MESSAGES = Object.freeze({
-  [FEATURE_PDF_EXPORT]: 'A exportação em PDF está disponível em todos os planos.',
+  [FEATURE_PDF_EXPORT]:
+    'A exportação em PDF está disponível em todos os planos, com cota mensal por plano.',
   [FEATURE_EQUIPAMENTOS_EXTRA]: 'Mais de 3 equipamentos está disponível a partir do plano Plus.',
   [FEATURE_HISTORICO_COMPLETO]:
     'Histórico completo de manutenções está disponível a partir do plano Plus.',
@@ -233,7 +234,7 @@ export function canCreateEquipment(profile, currentEquipmentCount = 0) {
 
 // ── Legacy: assertProAccess (mantido pra código que ainda não migrou) ──────
 const PREMIUM_FEATURE_MESSAGES = Object.freeze({
-  pdf_export: 'A exportação em PDF está disponível a partir do plano Plus.',
+  pdf_export: 'A exportação em PDF está disponível em todos os planos, com cota mensal.',
   equipamentos: 'Mais de 3 equipamentos está disponível a partir do plano Plus.',
 });
 
