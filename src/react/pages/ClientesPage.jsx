@@ -856,7 +856,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--primary"
+          className="cli-card__action cli-card__action--secondary"
           data-cli-action={CLIENTES_ACTIONS.verServicos}
           data-id={clienteId}
         >
@@ -865,7 +865,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--primary"
+          className="cli-card__action cli-card__action--secondary"
           data-cli-action={CLIENTES_ACTIONS.openPmocPanel}
           data-id={clienteId}
         >
@@ -874,7 +874,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--primary"
+          className="cli-card__action cli-card__action--secondary"
           data-cli-action={CLIENTES_ACTIONS.novoOrcamento}
           data-id={clienteId}
         >
@@ -882,7 +882,7 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
         </button>
         <button
           type="button"
-          className="cli-card__action cli-card__action--primary"
+          className="cli-card__action cli-card__action--secondary"
           data-cli-action={CLIENTES_ACTIONS.novoServico}
           data-id={clienteId}
         >

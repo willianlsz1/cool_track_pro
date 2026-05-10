@@ -111,8 +111,18 @@ describe('clientes React island', () => {
       root?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.verEquipamentos}"][data-id="c1"]`),
     ).not.toBeNull();
     expect(
+      root
+        ?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.verEquipamentos}"][data-id="c1"]`)
+        ?.classList.contains('cli-card__action--primary'),
+    ).toBe(true);
+    expect(
       root?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.verServicos}"][data-id="c1"]`),
     ).not.toBeNull();
+    expect(
+      root
+        ?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.verServicos}"][data-id="c1"]`)
+        ?.classList.contains('cli-card__action--secondary'),
+    ).toBe(true);
     expect(
       root?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}"][data-id="c1"]`),
     ).not.toBeNull();
