@@ -53,6 +53,23 @@ CP-I.1 removeu do `redesign.css` apenas seletores antigos explicitamente presos 
 
 Continuam neutralizados no CSS CP-I.1, sem remocao global, os estilos compartilhados de `.form-control`, `.search-bar`, `.empty-state`, `.equip-card` e `.setor-card` que ainda sao usados fora da aba Equipamentos.
 
+## CP-I.2 - Pagina nativa e hierarquia
+
+CP-I.2 corrigiu a sensacao de painel/modal gigante na aba Equipamentos.
+
+Mudancas estruturais:
+
+- O header da pagina fica antes dos filtros e concentra titulo/subtitulo/acoes.
+- `#equip-filters`, `#equip-context-chip`, busca e toggle foram agrupados em `.equip-operational-bar`.
+- A barra operacional agrupa os controles sem desenhar uma moldura propria; busca, filtros e toggle mantem suas superficies individuais.
+- `#view-equipamentos` deixou de desenhar um fundo proprio em bloco; a superficie clara vem do workspace da rota.
+- Grids de setores e equipamentos passaram a usar `auto-fill` com `minmax(min(100%, ...), 1fr)` para suportar zoom e larguras intermediarias sem esticar um item unico como faixa larga.
+- Sombras de cards e vazios foram reduzidas para parecerem conteudo de pagina, nao janelas encaixadas.
+
+CSS antigo removido nesta etapa:
+
+- Removido o breakpoint CP-I que forçava `.lista-equip--grid` para duas colunas em `max-width: 1180px`; o grid fluido com `auto-fill` substitui essa regra com menor risco em zoom.
+
 ## Proximo CP recomendado
 
 CP-J: validar a mesma linguagem branco/azul em Clientes ou Servicos, escolhendo uma tela por vez.

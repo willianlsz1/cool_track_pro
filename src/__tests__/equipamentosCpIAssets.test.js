@@ -47,4 +47,27 @@ describe('equipamentos CP-I visual assets', () => {
       /#view-equipamentos\s+\.setor-card__nome[\s\S]*color:\s*var\(--eqi-blue-900\)\s*!important/,
     );
   });
+
+  it('organiza CP-I.2 como pagina nativa com barra operacional unica', () => {
+    const css = readFileSync('src/assets/styles/equipment-list-cp-i.css', 'utf8');
+    const views = readFileSync('src/ui/shell/templates/views.js', 'utf8');
+
+    expect(css).toContain('CP-I.2: pagina nativa');
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.equip-operational-bar[\s\S]*background:\s*transparent/,
+    );
+    expect(css).toMatch(/\.equip-operational-bar:has\(\.search-bar\[style\*='display: none'\]\)/);
+    expect(css).toMatch(/#view-equipamentos\s+\.setor-grid[\s\S]*auto-fill/);
+    expect(css).toMatch(/#view-equipamentos\s+\.lista-equip--grid[\s\S]*auto-fill/);
+
+    const toolbarIndex = views.indexOf('class="page-toolbar"');
+    const operationalIndex = views.indexOf('class="equip-operational-bar"');
+    const filtersIndex = views.indexOf('id="equip-filters"');
+    const searchIndex = views.indexOf('class="equip-search-row"');
+
+    expect(toolbarIndex).toBeGreaterThan(-1);
+    expect(operationalIndex).toBeGreaterThan(toolbarIndex);
+    expect(filtersIndex).toBeGreaterThan(operationalIndex);
+    expect(searchIndex).toBeGreaterThan(operationalIndex);
+  });
 });
