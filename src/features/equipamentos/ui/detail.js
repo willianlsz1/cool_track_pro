@@ -174,11 +174,18 @@ export function renderViewEquipDadosPlacaSections(eq, deps) {
 
 export function renderViewEquipPmocContextBlock(model, deps) {
   const { Utils } = resolveDetailDeps(deps);
-  const pmoc = model.pmocContext;
-  if (!pmoc) return '';
-
+  const pmoc = model.pmocContext ?? {
+    statusLabel: 'Sem registro',
+    statusTone: 'muted',
+    periodicidadeLabel: `${model.context?.periodicidadeDias || model.eq.periodicidadePreventivaDias} dias`,
+    ultimaPreventivaLabel: 'Sem preventiva registrada',
+    proximaPreventivaLabel: model.proximaPreventiva,
+    recommendedAction: 'Registre o próximo serviço deste equipamento.',
+    ctaLabel: 'Registrar serviço',
+  };
   const safeId = model.safeId;
   const tone = pmoc.statusTone || 'muted';
+  const ctaLabel = pmoc.ctaLabel || 'Registrar serviço';
 
   return `
       <section class="eq-pmoc-context eq-pmoc-context--${Utils.escapeAttr(tone)}" aria-label="PMOC e preventiva do equipamento">
@@ -205,8 +212,8 @@ export function renderViewEquipPmocContextBlock(model, deps) {
         </div>
         <div class="eq-pmoc-context__footer">
           <p>${Utils.escapeHtml(pmoc.recommendedAction)}</p>
-          <button type="button" class="btn btn--primary btn--sm" data-action="go-register-equip" data-id="${safeId}">
-            ${Utils.escapeHtml(pmoc.ctaLabel || 'Registrar preventiva')}
+          <button type="button" class="btn btn--primary btn--sm eq-pmoc-context__cta" data-action="go-register-equip" data-id="${safeId}">
+            ${Utils.escapeHtml(ctaLabel)}
           </button>
         </div>
       </section>`;
@@ -261,7 +268,7 @@ export function renderViewEquipDetailHtml(model, deps) {
 
   return {
     html: `
-    <div class="eq-detail-view eq-detail-view--surface">
+    <div class="eq-detail-view eq-detail-view--surface eq-detail-view--cp-h">
       <section class="eq-detail-field-panel" aria-label="Identificação e ações do equipamento">
         <aside class="eq-detail-media-panel" aria-label="Fotos do equipamento">
           ${coverBlock.html}

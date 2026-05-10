@@ -85,16 +85,18 @@ function makeModel(overrides = {}) {
       factors: ['preventiva vencida'],
     },
     proximaPreventiva: overrides.proximaPreventiva ?? '10/06/2026',
-    pmocContext: overrides.pmocContext ?? {
-      status: 'atencao',
-      statusLabel: 'Atenção',
-      statusTone: 'warn',
-      periodicidadeLabel: '60 dias',
-      ultimaPreventivaLabel: '01/04/2026',
-      proximaPreventivaLabel: '10/06/2026',
-      recommendedAction: 'Preventiva prevista para breve.',
-      ctaLabel: 'Registrar preventiva',
-    },
+    pmocContext: Object.hasOwn(overrides, 'pmocContext')
+      ? overrides.pmocContext
+      : {
+          status: 'atencao',
+          statusLabel: 'Atenção',
+          statusTone: 'warn',
+          periodicidadeLabel: '60 dias',
+          ultimaPreventivaLabel: '01/04/2026',
+          proximaPreventivaLabel: '10/06/2026',
+          recommendedAction: 'Preventiva prevista para breve.',
+          ctaLabel: 'Registrar preventiva',
+        },
     healthSummary: overrides.healthSummary ?? 'Histórico dentro da rotina prevista',
     ringR: overrides.ringR ?? 30,
     ringC: overrides.ringC ?? 188.5,
@@ -197,7 +199,7 @@ describe('detail HTML render helpers', () => {
 
     const result = renderViewEquipDetailHtml(model, deps);
 
-    expect(result.html).toContain('class="eq-detail-view eq-detail-view--surface"');
+    expect(result.html).toContain('eq-detail-view--surface');
     expect(result.html).toContain('eq-detail-work-header');
     expect(result.html).toContain('eq-detail-work-summary');
     expect(result.html).toContain('eq-detail-media-panel');
@@ -263,6 +265,76 @@ describe('detail HTML render helpers', () => {
     );
     expect(result.html.indexOf('eq-detail-basics-grid')).toBeLessThan(
       result.html.indexOf('eq-tech-sheet-wrap'),
+    );
+  });
+
+  it('preserva hierarquia CP-H com CTA rapido e CTA contextual dinâmicos', () => {
+    const deps = makeDeps({
+      getEquipmentVisualMeta: vi.fn(() => ({
+        initials: 'SL',
+        tone: 'green',
+        photoUrl: 'https://cdn.test/split.jpg',
+      })),
+    });
+    const model = makeModel({
+      regs: [{ tipo: 'Preventiva', data: '2026-05-01T10:00:00.000Z' }],
+    });
+
+    const result = renderViewEquipDetailHtml(model, deps);
+
+    expect(result.html).toContain('eq-detail-view--cp-h');
+    expect(result.html.indexOf('eq-detail-media-panel')).toBeLessThan(
+      result.html.indexOf('eq-detail-work-header'),
+    );
+    expect(result.html.indexOf('eq-pmoc-context')).toBeLessThan(
+      result.html.indexOf('eq-detail-work-summary'),
+    );
+    expect(result.html.indexOf('eq-detail-work-summary')).toBeLessThan(
+      result.html.indexOf('eq-svc-section'),
+    );
+    expect(result.html.indexOf('eq-svc-section')).toBeLessThan(
+      result.html.indexOf('eq-tech-sheet-wrap'),
+    );
+    expect(result.html).toContain('eq-modal-footer__btn--register');
+    expect(result.html).toContain('eq-pmoc-context__cta');
+    expect(result.html).toContain('data-action="go-register-equip" data-id="eq-1"');
+    expect(result.html.match(/Registrar preventiva/g)).toHaveLength(2);
+  });
+
+  it('mantem CTA contextual com texto dinamico quando nao ha contexto PMOC', () => {
+    const result = renderViewEquipDetailHtml(makeModel({ pmocContext: null }), makeDeps());
+
+    expect(result.html).toContain('eq-modal-footer__btn--register');
+    expect(result.html).toContain('eq-pmoc-context eq-pmoc-context--muted');
+    expect(result.html).toContain('eq-pmoc-context__cta');
+    expect(result.html.match(/Registrar servi/g)).toHaveLength(2);
+  });
+
+  it('mantem detalhes tecnicos recolhidos ao final com foto e sem foto', () => {
+    const depsWithPhoto = makeDeps({
+      getEquipmentVisualMeta: vi.fn(() => ({
+        initials: 'SL',
+        tone: 'green',
+        photoUrl: 'https://cdn.test/split.jpg',
+      })),
+    });
+    const withPhoto = renderViewEquipDetailHtml(
+      makeModel({ eq: { fotos: [{ url: 'https://cdn.test/split.jpg' }] } }),
+      depsWithPhoto,
+    );
+    const withoutPhoto = renderViewEquipDetailHtml(makeModel(), makeDeps());
+
+    expect(withPhoto.html).toContain('eq-detail-cover--has-photo');
+    expect(withoutPhoto.html).toContain('eq-detail-cover--empty');
+    expect(withPhoto.html).toContain('<details class="eq-tech-sheet-wrap"');
+    expect(withoutPhoto.html).toContain('<details class="eq-tech-sheet-wrap"');
+    expect(withPhoto.html).not.toContain('<details class="eq-tech-sheet-wrap" open');
+    expect(withoutPhoto.html).not.toContain('<details class="eq-tech-sheet-wrap" open');
+    expect(withPhoto.html.indexOf('eq-svc-section')).toBeLessThan(
+      withPhoto.html.indexOf('eq-tech-sheet-wrap'),
+    );
+    expect(withoutPhoto.html.indexOf('eq-svc-section')).toBeLessThan(
+      withoutPhoto.html.indexOf('eq-tech-sheet-wrap'),
     );
   });
 
