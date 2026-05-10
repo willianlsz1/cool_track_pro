@@ -11,6 +11,7 @@ import { appV2Tone } from '../styles/tokens';
 interface EquipmentDetailProps {
   equipmentId: string;
   onBack: () => void;
+  onStartService?: (equipmentId: string) => void;
 }
 
 const toneClasses: Record<EquipmentTone, string> = {
@@ -20,7 +21,7 @@ const toneClasses: Record<EquipmentTone, string> = {
   primary: appV2Tone.actionSoft,
 };
 
-export function EquipmentDetail({ equipmentId, onBack }: EquipmentDetailProps) {
+export function EquipmentDetail({ equipmentId, onBack, onStartService }: EquipmentDetailProps) {
   const detail = buildEquipmentDetailViewModel(
     {
       today: mockEquipmentToday,
@@ -78,6 +79,7 @@ export function EquipmentDetail({ equipmentId, onBack }: EquipmentDetailProps) {
         <div className="tw-mt-5 tw-flex tw-flex-col tw-gap-3">
           <button
             type="button"
+            onClick={() => onStartService?.(equipmentId)}
             className={`tw-min-h-12 tw-rounded-lg tw-border-0 tw-px-4 tw-py-3 tw-text-base tw-font-extrabold tw-shadow-[0_16px_30px_-20px_rgba(30,91,255,0.9)] ${appV2Tone.action} ${appV2Tone.focus}`}
           >
             {detail.primaryActionLabel}

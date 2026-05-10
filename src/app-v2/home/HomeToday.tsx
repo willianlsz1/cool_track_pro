@@ -20,12 +20,19 @@ const viewModel = buildHomeTodayViewModel({
 
 interface HomeTodayProps {
   onOpenEquipment?: (equipmentId: string) => void;
+  onStartService?: (equipmentId: string) => void;
 }
 
-export function HomeToday({ onOpenEquipment }: HomeTodayProps) {
+export function HomeToday({ onOpenEquipment, onStartService }: HomeTodayProps) {
   function openNextEquipment() {
     if (viewModel.nextAction.equipmentId) {
       onOpenEquipment?.(viewModel.nextAction.equipmentId);
+    }
+  }
+
+  function startNextService() {
+    if (viewModel.nextAction.equipmentId) {
+      onStartService?.(viewModel.nextAction.equipmentId);
     }
   }
 
@@ -47,7 +54,11 @@ export function HomeToday({ onOpenEquipment }: HomeTodayProps) {
         </div>
       </header>
 
-      <NextActionCard action={viewModel.nextAction} onSecondaryAction={openNextEquipment} />
+      <NextActionCard
+        action={viewModel.nextAction}
+        onPrimaryAction={startNextService}
+        onSecondaryAction={openNextEquipment}
+      />
       <ShortQueue items={viewModel.queue} onOpenItem={onOpenEquipment} />
     </main>
   );

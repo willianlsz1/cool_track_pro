@@ -4,11 +4,29 @@ import { EquipmentDetail } from '../equipment/EquipmentDetail';
 import { EquipmentList } from '../equipment/EquipmentList';
 import { HomeToday } from '../home/HomeToday';
 import { BottomNav, type AppV2Tab } from '../navigation/BottomNav';
+import { ServiceFlow } from '../service/ServiceFlow';
+import { ServicesHome } from '../service/ServicesHome';
+import {
+  mockServiceClientes,
+  mockServiceCompromissos,
+  mockServiceEquipamentos,
+  mockServiceToday,
+} from '../service/mockServiceData';
+import { createServiceDraft, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
+
+const serviceFlowInput = {
+  today: mockServiceToday,
+  clientes: mockServiceClientes,
+  equipamentos: mockServiceEquipamentos,
+  compromissos: mockServiceCompromissos,
+};
 
 export function AppV2Shell() {
   const [activeTab, setActiveTab] = useState<AppV2Tab>('hoje');
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
+  const [serviceDraft, setServiceDraft] = useState<ServiceDraft | null>(null);
+  const [isServiceFlowOpen, setIsServiceFlowOpen] = useState(false);
 
   function selectTab(tab: AppV2Tab) {
     setActiveTab(tab);
@@ -23,28 +41,57 @@ export function AppV2Shell() {
     setActiveTab('equipamento');
   }
 
+  function startServiceFromEquipment(equipmentId: string, commitmentId?: string) {
+    setServiceDraft(createServiceDraft(serviceFlowInput, equipmentId, commitmentId));
+    setIsServiceFlowOpen(true);
+    setActiveTab('servicos');
+  }
+
+  function startFallbackService() {
+    startServiceFromEquipment(mockServiceEquipamentos[0]?.id ?? 'eq-1');
+  }
+
   return (
     <div className={`tw-min-h-screen tw-font-sans ${appV2Tone.page} ${appV2Tone.text}`}>
-      {activeTab === 'hoje' ? <HomeToday onOpenEquipment={openEquipment} /> : null}
+      {activeTab === 'hoje' ? (
+        <HomeToday onOpenEquipment={openEquipment} onStartService={startServiceFromEquipment} />
+      ) : null}
+
       {activeTab === 'equipamento' && selectedEquipmentId ? (
         <EquipmentDetail
           equipmentId={selectedEquipmentId}
           onBack={() => setSelectedEquipmentId(null)}
+          onStartService={startServiceFromEquipment}
         />
       ) : null}
+
       {activeTab === 'equipamento' && !selectedEquipmentId ? (
         <EquipmentList onOpenEquipment={openEquipment} />
       ) : null}
-      {activeTab === 'servicos' ? (
-        <Placeholder
-          title="Serviços"
-          description="A etapa de serviços será ligada depois da área Equipamento."
+
+      {activeTab === 'servicos' && isServiceFlowOpen && serviceDraft ? (
+        <ServiceFlow
+          input={serviceFlowInput}
+          initialDraft={serviceDraft}
+          onBackToServices={() => setIsServiceFlowOpen(false)}
+          onDraftChange={setServiceDraft}
+          onOpenEquipment={openEquipment}
         />
       ) : null}
+
+      {activeTab === 'servicos' && (!isServiceFlowOpen || !serviceDraft) ? (
+        <ServicesHome
+          draft={serviceDraft}
+          input={serviceFlowInput}
+          onResumeService={() => setIsServiceFlowOpen(true)}
+          onStartService={startFallbackService}
+        />
+      ) : null}
+
       {activeTab === 'conta' ? (
         <Placeholder
           title="Conta"
-          description="Preferências e dados da conta ficam fora da Etapa 3."
+          description="Preferências e dados da conta ficam fora desta fundação."
         />
       ) : null}
 

@@ -16,6 +16,8 @@ Artefatos da Etapa zero:
 - Plano da Home Hoje: `docs/rewrite/etapa-2-home-hoje-plano.md`
 - Design de Equipamento: `docs/rewrite/etapa-3-equipamento-design.md`
 - Plano de Equipamento: `docs/rewrite/etapa-3-equipamento-plano.md`
+- Design de Registro de servico: `docs/rewrite/etapa-4-servico-design.md`
+- Plano de Registro de servico: `docs/rewrite/etapa-4-servico-plano.md`
 
 ## 2. Decisoes confirmadas
 
@@ -235,7 +237,6 @@ Direcao inicial:
 
 ## 11. Proximas decisoes em aberto
 
-- Modelo de registro de servico no novo app.
 - Criterios para descartar ou reaproveitar regras do app legado.
 - Criterios de adaptadores antes de conectar storage real.
 - Modelo da etapa de Servicos apos Equipamento.
