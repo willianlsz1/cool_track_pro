@@ -17,7 +17,7 @@ describe('clientesAccess', () => {
   });
 
   it('não bloqueia imediatamente quando cache é free e plano não hidratou na sessão', async () => {
-    localStorage.setItem('cooltrack-cached-plan', 'free');
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
     getCachedBillingProfileSnapshot.mockReturnValue(null);
 
     const { getClientesAccessSnapshot } = await import('../core/plans/clientesAccess.js');
@@ -29,7 +29,7 @@ describe('clientesAccess', () => {
   });
 
   it('resolve acesso pro via billing fetch e sincroniza cache', async () => {
-    localStorage.setItem('cooltrack-cached-plan', 'free');
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
     getCachedBillingProfileSnapshot.mockReturnValue(null);
     fetchMyProfileBillingCached.mockResolvedValue({
       profile: { plan_code: 'pro', subscription_status: 'active' },
@@ -41,11 +41,12 @@ describe('clientesAccess', () => {
     expect(decision.resolved).toBe(true);
     expect(decision.planCode).toBe('pro');
     expect(decision.canAccess).toBe(true);
-    expect(localStorage.getItem('cooltrack-cached-plan')).toBe('pro');
+    expect(localStorage.getItem('cooltrack-cached-plan')).toBeNull();
+    expect(localStorage.getItem('ct:anon:cooltrack-cached-plan')).toBe('pro');
   });
 
   it('não resolve como bloqueado quando refresh falha com cache free não hidratado', async () => {
-    localStorage.setItem('cooltrack-cached-plan', 'free');
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
     getCachedBillingProfileSnapshot.mockReturnValue(null);
     fetchMyProfileBillingCached.mockRejectedValue(new Error('network'));
 

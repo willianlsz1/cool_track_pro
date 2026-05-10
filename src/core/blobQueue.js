@@ -84,3 +84,17 @@ export async function listBlobs() {
   db.close();
   return rows;
 }
+
+export async function clearBlobQueue() {
+  memoryQueue.clear();
+  if (!HAS_INDEXED_DB) return;
+
+  const db = await openDb();
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error || new Error('blobQueue clear failed'));
+  });
+  db.close();
+}

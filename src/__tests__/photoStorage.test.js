@@ -35,6 +35,8 @@ const SAMPLE_DATA_URL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCE
 describe('photoStorage', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    localStorage.clear();
+    sessionStorage.clear();
   });
 
   it('normalizes string and object photo entries', async () => {
@@ -88,10 +90,33 @@ describe('photoStorage', () => {
     expect(result.failedCount).toBe(1);
     expect(result.photos[0]).toMatchObject({
       pending: true,
-      queueKey: 'photo-r-2-0',
+      queueKey: 'photo-user-1-r-2-0',
+      userId: 'user-1',
       recordId: 'r-2',
       index: 0,
     });
+  });
+
+  it('nao sincroniza fotos pendentes de outro usuario autenticado', async () => {
+    const firstLoad = await loadPhotoStorage({
+      supabase: { userId: 'user-a', uploadReject: true },
+    });
+
+    await firstLoad.uploadPendingPhotos([SAMPLE_DATA_URL], { recordId: 'r-cross' });
+
+    const pendingRefs = JSON.parse(localStorage.getItem('cooltrack-photo-pending-upload'));
+    expect(pendingRefs[0]).toMatchObject({
+      queueKey: 'photo-user-a-r-cross-0',
+      userId: 'user-a',
+      recordId: 'r-cross',
+      index: 0,
+    });
+
+    const secondLoad = await loadPhotoStorage({ supabase: { userId: 'user-b' } });
+    const result = await secondLoad.flushPendingPhotos();
+
+    expect(result).toMatchObject({ processed: 0, failed: 0, skipped: 1 });
+    expect(secondLoad.supabaseMock.upload).not.toHaveBeenCalled();
   });
 
   it('migrates legacy inline photos in registros', async () => {

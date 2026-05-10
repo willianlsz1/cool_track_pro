@@ -192,16 +192,28 @@ describe('regression: photo failure path', () => {
       new Blob(['a'], { type: 'image/jpeg' }),
       'reg-new',
       0,
+      { userId: 'user-1' },
     );
     await actualPhotoStorage.enqueuePhotoForRetry(
       new Blob(['b'], { type: 'image/jpeg' }),
       'reg-new',
       1,
+      { userId: 'user-1' },
     );
     const pending = actualPhotoStorage.listPendingPhotos();
     expect(pending).toEqual([
-      expect.objectContaining({ queueKey: 'photo-reg-new-0', recordId: 'reg-new', index: 0 }),
-      expect.objectContaining({ queueKey: 'photo-reg-new-1', recordId: 'reg-new', index: 1 }),
+      expect.objectContaining({
+        queueKey: 'photo-user-1-reg-new-0',
+        userId: 'user-1',
+        recordId: 'reg-new',
+        index: 0,
+      }),
+      expect.objectContaining({
+        queueKey: 'photo-user-1-reg-new-1',
+        userId: 'user-1',
+        recordId: 'reg-new',
+        index: 1,
+      }),
     ]);
   });
 
@@ -238,6 +250,7 @@ describe('regression: photo failure path', () => {
       new Blob(['abc'], { type: 'image/jpeg' }),
       'reg-1',
       0,
+      { userId: 'user-1' },
     );
     mocks.supabaseGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } });
     mocks.supabaseStorageUpload.mockResolvedValue({ error: null });
@@ -264,16 +277,19 @@ describe('regression: photo failure path', () => {
       new Blob(['1'], { type: 'image/jpeg' }),
       'reg-9',
       0,
+      { userId: 'user-1' },
     );
     const m2 = await actualPhotoStorage.enqueuePhotoForRetry(
       new Blob(['2'], { type: 'image/jpeg' }),
       'reg-9',
       1,
+      { userId: 'user-1' },
     );
     const m3 = await actualPhotoStorage.enqueuePhotoForRetry(
       new Blob(['3'], { type: 'image/jpeg' }),
       'reg-9',
       2,
+      { userId: 'user-1' },
     );
 
     mocks.supabaseGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } });

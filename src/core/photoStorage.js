@@ -18,8 +18,12 @@ const PHOTO_REF_VERSION = 1;
 const PENDING_PHOTO_QUEUE_PREFIX = 'photo';
 const PENDING_PHOTO_QUEUE_KEY = 'cooltrack-photo-pending-upload';
 
-function buildPhotoQueueKey(recordId, index) {
-  return `${PENDING_PHOTO_QUEUE_PREFIX}-${String(recordId)}-${Number(index)}`;
+function normalizeQueueSegment(value) {
+  return String(value || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function buildPhotoQueueKey(userId, recordId, index) {
+  return `${PENDING_PHOTO_QUEUE_PREFIX}-${normalizeQueueSegment(userId)}-${String(recordId)}-${Number(index)}`;
 }
 
 function readPendingPhotoRefs() {
@@ -47,6 +51,7 @@ function normalizePendingPhotoRef(entry) {
   if (!Number.isFinite(Number(entry.index))) return null;
   return {
     queueKey: entry.queueKey.trim(),
+    userId: isString(entry.userId) && entry.userId.trim() ? entry.userId.trim() : null,
     recordId: entry.recordId.trim(),
     index: Number(entry.index),
     queuedAt: Number(entry.queuedAt) || Date.now(),
@@ -72,21 +77,31 @@ function listPendingPhotoRefs() {
   return readPendingPhotoRefs().map(normalizePendingPhotoRef).filter(Boolean);
 }
 
-export async function enqueuePhotoForRetry(blob, recordId, index) {
+export async function enqueuePhotoForRetry(blob, recordId, index, { userId = null } = {}) {
   if (!(blob instanceof Blob) || !recordId || !Number.isFinite(Number(index))) return null;
-  const queueKey = buildPhotoQueueKey(recordId, index);
+  const ownerId = userId || (await getAuthenticatedUserId());
+  if (!ownerId) return null;
+  const queueKey = buildPhotoQueueKey(ownerId, recordId, index);
   await enqueueBlob(queueKey, blob, {
+    userId: ownerId,
     recordId: String(recordId),
     index: Number(index),
     queuedAt: Date.now(),
   });
   upsertPendingPhotoRef({
     queueKey,
+    userId: ownerId,
     recordId: String(recordId),
     index: Number(index),
     queuedAt: Date.now(),
   });
-  return { pending: true, queueKey, recordId: String(recordId), index: Number(index) };
+  return {
+    pending: true,
+    queueKey,
+    userId: ownerId,
+    recordId: String(recordId),
+    index: Number(index),
+  };
 }
 
 export function listPendingPhotos() {
@@ -194,9 +209,8 @@ export async function createSignedUrl(bucket, path, ttlSeconds = SIGNED_URL_TTL_
 }
 
 async function getAuthenticatedUserId() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const result = await supabase.auth.getUser();
+  const user = result?.data?.user;
   return user?.id || null;
 }
 
@@ -236,6 +250,7 @@ export function normalizePhotoEntry(photo) {
     return {
       pending: true,
       queueKey: photo.queueKey.trim(),
+      userId: isString(photo.userId) && photo.userId.trim() ? photo.userId.trim() : undefined,
       recordId: photo.recordId.trim(),
       index: Number(photo.index) || 0,
     };
@@ -362,7 +377,9 @@ export async function uploadPendingPhotos(
       } catch (_err) {
         try {
           const blob = await dataUrlToBlob(photo);
-          const pendingMarker = await enqueuePhotoForRetry(blob, recordId, i);
+          const pendingMarker = await enqueuePhotoForRetry(blob, recordId, i, {
+            userId: authUserId,
+          });
           if (pendingMarker) result.push(pendingMarker);
         } catch {
           // queue write falhou - perde essa foto sem quebrar save
@@ -396,6 +413,11 @@ export async function flushPendingPhotos() {
   let skipped = 0;
 
   for (const ref of pendingRefs) {
+    if (!ref.userId || ref.userId !== authUserId) {
+      skipped += 1;
+      continue;
+    }
+
     const row = await getBlobEntry(ref.queueKey);
     if (!row || !(row.blob instanceof Blob)) {
       removePendingPhotoRef(ref.queueKey);

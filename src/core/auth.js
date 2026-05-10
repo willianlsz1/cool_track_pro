@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js';
 import { Toast } from './toast.js';
 import { userStorage } from './userStorage.js';
+import { clearBlobQueue } from './blobQueue.js';
 import { AppError, ErrorCodes, handleError } from './errors.js';
 import { trackEvent } from './telemetry.js';
 
@@ -10,6 +11,7 @@ const OAUTH_PENDING_KEY = 'cooltrack-oauth-pending-v1';
 // Devem sobreviver ao logout (o usuário que fica depois provavelmente quer
 // o mesmo tema do navegador, por exemplo).
 const DEVICE_SCOPED_KEYS = new Set(['cooltrack-theme']);
+const DEVICE_SCOPED_SESSION_KEYS = new Set(['cooltrack-bundle-recovery-attempted']);
 
 /**
  * Remove do localStorage toda chave com prefixo `cooltrack` (hífen ou
@@ -35,6 +37,22 @@ function clearUserScopedStorage() {
     toRemove.forEach((key) => localStorage.removeItem(key));
   } catch (_) {
     /* ignora — storage pode estar inacessível (Safari private mode) */
+  }
+}
+
+function clearUserScopedSessionStorage() {
+  try {
+    const toRemove = [];
+    for (let i = 0; i < sessionStorage.length; i += 1) {
+      const key = sessionStorage.key(i);
+      if (!key) continue;
+      if (!key.startsWith('cooltrack-') && !key.startsWith('cooltrack_')) continue;
+      if (DEVICE_SCOPED_SESSION_KEYS.has(key)) continue;
+      toRemove.push(key);
+    }
+    toRemove.forEach((key) => sessionStorage.removeItem(key));
+  } catch (_) {
+    /* ignora - sessionStorage pode estar inacessivel */
   }
 }
 
@@ -306,6 +324,8 @@ export const Auth = {
       // dados escopados vazavam entre signOuts (audit §1.1 / 2026-04-24).
       userStorage.clearCurrent();
       clearUserScopedStorage();
+      clearUserScopedSessionStorage();
+      await clearBlobQueue();
 
       await supabase.auth.signOut();
       window.location.reload();

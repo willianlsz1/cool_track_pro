@@ -43,6 +43,7 @@ initStaleBundleRecovery();
 const POST_AUTH_REDIRECT_KEY = 'cooltrack-post-auth-redirect';
 let _appInitialized = false;
 let _authChangeBound = false;
+let _activeUserId = null;
 
 function _emitAuthChanged(user) {
   if (typeof window === 'undefined') return;
@@ -74,6 +75,7 @@ async function _enterAuthenticatedApp(user) {
   // Escopo de storage por usuário — chaves subsequentes vão pra
   // `ct:<userId>:<key>`.
   setCurrentUser(user.id);
+  _activeUserId = user.id;
   _emitAuthChanged(user);
 
   // Migração incremental (idempotente).
@@ -242,6 +244,12 @@ async function bootstrap() {
     if (!_authChangeBound) {
       _authChangeBound = true;
       Auth.onAuthChange((nextUser) => {
+        const nextUserId = nextUser?.id || null;
+        if (_appInitialized && _activeUserId && nextUserId && _activeUserId !== nextUserId) {
+          window.location.reload();
+          return;
+        }
+
         setCurrentUser(nextUser?.id || 'anon');
         _emitAuthChanged(nextUser);
         if (nextUser?.id && !_appInitialized) {

@@ -85,7 +85,7 @@ describe('shell bootstrap', () => {
   it('não renderiza Clientes no mobile para plano Free no modo Empresa e mantém CTA Pro', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
-    localStorage.setItem('cooltrack-cached-plan', 'free');
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
 
     const { initAppShell } = await import('../ui/shell.js');
     initAppShell();
@@ -100,7 +100,7 @@ describe('shell bootstrap', () => {
   it('não renderiza Clientes no mobile para plano Plus', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
-    localStorage.setItem('cooltrack-cached-plan', 'plus');
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'plus');
 
     const { initAppShell } = await import('../ui/shell.js');
     initAppShell();
@@ -111,7 +111,7 @@ describe('shell bootstrap', () => {
   it('mantém Clientes no mobile para plano Pro no modo Empresa', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
-    localStorage.setItem('cooltrack-cached-plan', 'pro');
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'pro');
 
     const { initAppShell } = await import('../ui/shell.js');
     initAppShell();

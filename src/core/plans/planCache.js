@@ -17,6 +17,7 @@ import {
   normalizePlanCode,
 } from './subscriptionPlans.js';
 import { trackEvent } from '../telemetry.js';
+import { userStorage } from '../userStorage.js';
 
 const LS_KEY = 'cooltrack-cached-plan';
 let _hydratedInSession = false;
@@ -33,8 +34,9 @@ export function setCachedPlan(planCode) {
     // Lê o valor ANTES de sobrescrever pra detectar transições.
     // setCachedPlan roda em todo boot; queremos emitir upgrade_completed
     // somente quando o plano SUBIU (free → plus/pro ou plus → pro).
-    const previous = localStorage.getItem(LS_KEY);
-    localStorage.setItem(LS_KEY, normalized);
+    const previous = userStorage.get(LS_KEY);
+    localStorage.removeItem(LS_KEY);
+    userStorage.set(LS_KEY, normalized);
 
     const wasPaid = previous ? PAID_PLANS.has(normalizePlanCode(previous)) : false;
     const isPaid = PAID_PLANS.has(normalized);
@@ -83,7 +85,7 @@ export function getCachedPlan() {
     return PLAN_CODE_PRO; // sem override definido em dev mode → Pro por padrão
   }
 
-  return normalizePlanCode(localStorage.getItem(LS_KEY) || PLAN_CODE_FREE);
+  return normalizePlanCode(userStorage.get(LS_KEY) || PLAN_CODE_FREE);
 }
 
 export function hasHydratedPlanInSession() {

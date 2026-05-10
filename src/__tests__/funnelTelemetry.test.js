@@ -130,6 +130,10 @@ describe('planCache telemetry (upgrade transitions)', () => {
     vi.restoreAllMocks();
   });
 
+  function seedCachedPlan(planCode) {
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', planCode);
+  }
+
   it('emite upgrade_completed ao subir de free pra pro', async () => {
     const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
 
@@ -145,7 +149,7 @@ describe('planCache telemetry (upgrade transitions)', () => {
   it('emite upgrade_completed ao subir de free pra plus', async () => {
     const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
 
-    localStorage.setItem('cooltrack-cached-plan', 'free');
+    seedCachedPlan('free');
     setCachedPlan('plus');
 
     expect(telemetryMock.trackEvent).toHaveBeenCalledWith('upgrade_completed', {
@@ -157,7 +161,7 @@ describe('planCache telemetry (upgrade transitions)', () => {
   it('NÃO emite upgrade_completed quando plano já era pago', async () => {
     const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
 
-    localStorage.setItem('cooltrack-cached-plan', 'pro');
+    seedCachedPlan('pro');
     setCachedPlan('pro');
 
     expect(telemetryMock.trackEvent).not.toHaveBeenCalledWith(
@@ -169,7 +173,7 @@ describe('planCache telemetry (upgrade transitions)', () => {
   it('NÃO emite nada quando plano continua free', async () => {
     const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
 
-    localStorage.setItem('cooltrack-cached-plan', 'free');
+    seedCachedPlan('free');
     setCachedPlan('free');
 
     expect(telemetryMock.trackEvent).not.toHaveBeenCalled();
@@ -178,7 +182,7 @@ describe('planCache telemetry (upgrade transitions)', () => {
   it('emite plan_changed ao trocar entre planos pagos (plus → pro)', async () => {
     const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
 
-    localStorage.setItem('cooltrack-cached-plan', 'plus');
+    seedCachedPlan('plus');
     setCachedPlan('pro');
 
     expect(telemetryMock.trackEvent).toHaveBeenCalledWith('plan_changed', {
@@ -194,7 +198,7 @@ describe('planCache telemetry (upgrade transitions)', () => {
   it('emite plan_changed também em downgrade pago (pro → plus)', async () => {
     const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
 
-    localStorage.setItem('cooltrack-cached-plan', 'pro');
+    seedCachedPlan('pro');
     setCachedPlan('plus');
 
     expect(telemetryMock.trackEvent).toHaveBeenCalledWith('plan_changed', {

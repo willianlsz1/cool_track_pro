@@ -83,8 +83,9 @@ async function loadPlanCache() {
   vi.resetModules();
   const trackEvent = vi.fn();
   vi.doMock('../core/telemetry.js', () => ({ trackEvent }));
+  const userStorage = await import('../core/userStorage.js');
   const planCache = await import('../core/plans/planCache.js');
-  return { ...planCache, trackEvent };
+  return { ...planCache, ...userStorage, trackEvent };
 }
 
 function sampleState() {
@@ -219,7 +220,7 @@ describe('storage/cache/offline cross-area contract', () => {
     });
   });
 
-  it('trava shapes de fotos pendentes, assinatura legacy/pendente e cache de plano', async () => {
+  it('trava shapes de fotos pendentes, assinatura legacy/pendente e cache de plano escopado', async () => {
     expect(
       normalizePhotoEntry({
         pending: true,
@@ -248,18 +249,31 @@ describe('storage/cache/offline cross-area contract', () => {
       }),
     ]);
 
-    const { setCachedPlan, getCachedPlan, hasHydratedPlanInSession, trackEvent } =
+    const { setCurrentUser, setCachedPlan, getCachedPlan, hasHydratedPlanInSession, trackEvent } =
       await loadPlanCache();
+
+    setCurrentUser('user-a');
     expect(getCachedPlan()).toBe('free');
 
     setCachedPlan('pro');
 
-    expect(localStorage.getItem('cooltrack-cached-plan')).toBe('pro');
+    expect(localStorage.getItem('cooltrack-cached-plan')).toBeNull();
+    expect(localStorage.getItem('ct:user-a:cooltrack-cached-plan')).toBe('pro');
     expect(getCachedPlan()).toBe('pro');
     expect(hasHydratedPlanInSession()).toBe(true);
     expect(trackEvent).toHaveBeenCalledWith('upgrade_completed', {
       from: 'unknown',
       to: 'pro',
     });
+
+    setCurrentUser('user-b');
+    expect(getCachedPlan()).toBe('free');
+
+    setCachedPlan('plus');
+    expect(localStorage.getItem('ct:user-b:cooltrack-cached-plan')).toBe('plus');
+    expect(getCachedPlan()).toBe('plus');
+
+    setCurrentUser('user-a');
+    expect(getCachedPlan()).toBe('pro');
   });
 });

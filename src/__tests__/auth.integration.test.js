@@ -27,13 +27,15 @@ async function loadAuthModule() {
   const supabaseMock = createAuthSupabaseMock();
   const toastMock = { error: vi.fn(), success: vi.fn(), warning: vi.fn(), info: vi.fn() };
   const telemetryMock = { trackEvent: vi.fn() };
+  const blobQueueMock = { clearBlobQueue: vi.fn().mockResolvedValue(undefined) };
 
   vi.doMock('../core/supabase.js', () => ({ supabase: supabaseMock }));
   vi.doMock('../core/toast.js', () => ({ Toast: toastMock }));
   vi.doMock('../core/telemetry.js', () => telemetryMock);
+  vi.doMock('../core/blobQueue.js', () => blobQueueMock);
 
   const { Auth } = await import('../core/auth.js');
-  return { Auth, supabaseMock, toastMock, telemetryMock };
+  return { Auth, supabaseMock, toastMock, telemetryMock, blobQueueMock };
 }
 
 describe('Auth integration wrapper', () => {
@@ -186,6 +188,31 @@ describe('Auth integration wrapper', () => {
 
     expect(localStorage.getItem('ct:u-1:last-tecnico')).toBeNull();
     expect(localStorage.getItem('ct:u-1:profile')).toBeNull();
+  });
+
+  it('signOut limpa caches locais sensiveis e preserva preferencias de dispositivo', async () => {
+    const { Auth, blobQueueMock } = await loadAuthModule();
+
+    localStorage.setItem('cooltrack-theme', 'dark');
+    localStorage.setItem('cooltrack-last-client', '{"clienteNome":"Cliente A"}');
+    localStorage.setItem('cooltrack-cached-plan', 'pro');
+    localStorage.setItem('cooltrack-photo-pending-upload', '[{"queueKey":"photo-a"}]');
+    localStorage.setItem('cooltrack-feedback-history', '[{"message":"pii"}]');
+    sessionStorage.setItem('cooltrack-editing-id', 'reg-a');
+    sessionStorage.setItem('cooltrack-hist-period', 'mes');
+    sessionStorage.setItem('cooltrack-bundle-recovery-attempted', '1');
+
+    await Auth.signOut();
+
+    expect(localStorage.getItem('cooltrack-theme')).toBe('dark');
+    expect(localStorage.getItem('cooltrack-last-client')).toBeNull();
+    expect(localStorage.getItem('cooltrack-cached-plan')).toBeNull();
+    expect(localStorage.getItem('cooltrack-photo-pending-upload')).toBeNull();
+    expect(localStorage.getItem('cooltrack-feedback-history')).toBeNull();
+    expect(sessionStorage.getItem('cooltrack-editing-id')).toBeNull();
+    expect(sessionStorage.getItem('cooltrack-hist-period')).toBeNull();
+    expect(sessionStorage.getItem('cooltrack-bundle-recovery-attempted')).toBe('1');
+    expect(blobQueueMock.clearBlobQueue).toHaveBeenCalledTimes(1);
   });
 
   it('handles password reset request validation and API responses', async () => {

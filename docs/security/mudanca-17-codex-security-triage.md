@@ -35,7 +35,7 @@ Status apos CP-B:
 - Validacao SQL/RLS foi adicionada em `supabase/tests`, mas a execucao local de
   pgTAP depende de Docker/Supabase local.
 
-Status apos CP-E:
+Status apos CP-F:
 
 - CP-C corrigiu entitlement Stripe: `checkout.session.completed` nao promove
   plano pago ativo sozinho; `invoice.paid` passou a ser o caminho seguro de
@@ -48,6 +48,13 @@ Status apos CP-E:
   para `registro-fotos/{user_id}/registros/{registro_id}/assinatura.png`.
 - Fotos normais de registros continuam fora do gate de assinatura; registro sem
   assinatura continua permitido para Free.
+- CP-F endureceu dados locais no navegador: logout limpa `sessionStorage`
+  sensivel e fila IndexedDB de blobs; cache de plano passou a ser escopado por
+  `user_id`; `last-client` com PII passou a usar `userStorage`; fotos pendentes
+  agora carregam owner e nao sao drenadas por outro usuario autenticado.
+- Troca de usuario autenticado em runtime agora força reload quando a aplicacao
+  ja esta inicializada para evitar exposicao temporaria de estado em memoria do
+  usuario anterior.
 
 ## 2. Base analisada
 
@@ -678,6 +685,79 @@ Validacoes:
 
 ### CP-F - Dados locais, logout e troca de usuario
 
+Status: executado no CP-F.
+
+Achados tratados:
+
+- `Pending photos persist in a global IndexedDB queue`.
+- `In-app reauth can expose prior user's cached state`.
+- `Unscoped last-client cache leaks PII between users`.
+- Mitigacao parcial/guardada para `Legacy guest data migrates into the next
+logged-in account` e `Guest cache can be migrated into authenticated cloud
+data`: o cache principal ja possui owner guard em `cooltrack-cache-owner-v1` e
+  o CP-F nao reintroduziu migracao automatica ampla de guest.
+
+Risco antes:
+
+- `cooltrack-photo-pending-upload` e IndexedDB `cooltrack-blob-queue` eram
+  globais; fotos pendentes podiam ser drenadas para o usuario autenticado atual.
+- `cooltrack-cached-plan` era global e podia influenciar gates client-side antes
+  da nova hidratacao.
+- `cooltrack-last-client` continha PII de cliente em chave global.
+- Logout limpava parte do `localStorage`, mas nao limpava `sessionStorage`
+  sensivel nem a fila de blobs.
+- Troca de usuario com app ja inicializado podia manter estado em memoria ate o
+  reload manual.
+
+Arquivos alterados:
+
+- `src/core/auth.js`
+- `src/core/blobQueue.js`
+- `src/core/photoStorage.js`
+- `src/core/plans/planCache.js`
+- `src/ui/views/registro.js`
+- `src/app.js`
+- `src/__tests__/auth.integration.test.js`
+- `src/__tests__/photoStorage.test.js`
+- `src/__tests__/storageCacheOffline.contract.test.js`
+- `src/__tests__/clientesAccess.test.js`
+- `src/__tests__/funnelTelemetry.test.js`
+- `src/__tests__/shell.test.js`
+- `docs/security/mudanca-17-codex-security-triage.md`
+
+Mitigacao aplicada:
+
+- `Auth.signOut()` agora limpa caches `cooltrack-*`/`cooltrack_*` de sessao
+  exceto preferencia segura allowlisted e chama `clearBlobQueue()`.
+- `blobQueue` ganhou limpeza central para IndexedDB e fallback em memoria.
+- Fotos pendentes passaram a gravar `userId` e `queueKey` com owner; `flush`
+  falha fechado para entradas sem owner ou de outro usuario.
+- `planCache` grava/le por `userStorage` (`ct:<userId>:cooltrack-cached-plan`)
+  e remove o legado global ao hidratar.
+- `last-client` migra uma vez para `userStorage` e deixa de gravar PII em chave
+  global.
+- `app.js` detecta troca de usuario autenticado com app inicializado e força
+  reload para limpar estado em memoria.
+
+Validacoes:
+
+- Testes focados:
+  `npm run test -- src/__tests__/clientesAccess.test.js src/__tests__/funnelTelemetry.test.js src/__tests__/shell.test.js src/__tests__/storageCacheOffline.contract.test.js src/__tests__/photoStorage.test.js src/__tests__/auth.integration.test.js`.
+- `npm run format`
+- `npm run build`
+- `npm run check`
+
+Riscos remanescentes:
+
+- Fila antiga de fotos pendentes sem `userId` nao e drenada por outro usuario;
+  pode exigir suporte/manual cleanup se houver usuarios com pendencia legacy
+  pre-CP-F.
+- O cache principal `cooltrack_v3` continua existindo para modo offline, mas
+  segue protegido por `cooltrack-cache-owner-v1`; um CP futuro pode revisar UX
+  de migracao guest com consentimento explicito.
+- Chaves globais de UI sem PII, como tema, modo de navegacao e prompts, foram
+  preservadas quando fora do caminho sensivel deste CP.
+
 Escopo:
 
 - Limpar/escopar queues IndexedDB e caches com PII por usuario.
@@ -808,8 +888,7 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-E: CP-F - Dados locais, logout e troca de
-usuario.
+Proximo CP recomendado apos CP-F: CP-G - Superficies publicas anti-abuso.
 
 Justificativa:
 
@@ -819,6 +898,9 @@ Justificativa:
 - CP-D corrigiu o contrato ambiguo da chave Supabase no frontend e adicionou
   rejeicao defensiva de `service_role`.
 - CP-E adicionou gate server-side para assinatura digital em banco e Storage.
-- O proximo grupo relevante envolve dados locais, caches e troca de usuario,
-  sem misturar PDF/share amplo, Vite warnings genericos, React Doctor,
-  billing/Stripe ou assinatura digital.
+- CP-F reduziu vazamento local entre usuarios no mesmo navegador, escopando
+  caches e filas sensiveis.
+- O proximo grupo relevante envolve superficies publicas e abusaveis
+  (`analytics`, `feedback` e upload de fotos), sem misturar PDF/share amplo,
+  Vite warnings genericos, React Doctor, billing/Stripe, env Supabase,
+  assinatura digital ou cache/logout.

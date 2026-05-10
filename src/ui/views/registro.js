@@ -5,6 +5,7 @@
 
 import { Utils } from '../../core/utils.js';
 import { getState, findEquip, setState, lastRegForEquip } from '../../core/state.js';
+import { migrateLegacyKey, userStorage } from '../../core/userStorage.js';
 import { Toast } from '../../core/toast.js';
 import { goTo, setRouteGuard, clearRouteGuard } from '../../core/router.js';
 import { CustomConfirm } from '../../core/modal.js';
@@ -208,7 +209,8 @@ let _resolvedRegistroContext = null;
 
 function _loadLastClient() {
   try {
-    return JSON.parse(localStorage.getItem(LAST_CLIENT_KEY) || 'null');
+    migrateLegacyKey(LAST_CLIENT_KEY);
+    return JSON.parse(userStorage.get(LAST_CLIENT_KEY) || 'null');
   } catch (_err) {
     return null;
   }
@@ -219,7 +221,7 @@ function _saveLastClient(cliente) {
     // Só persiste se algum campo estiver preenchido — evita sobrescrever com
     // registros salvos "no modo rápido" que não tocam os campos do cliente.
     if (!cliente || (!cliente.clienteNome && !cliente.localAtendimento)) return;
-    localStorage.setItem(LAST_CLIENT_KEY, JSON.stringify(cliente));
+    userStorage.set(LAST_CLIENT_KEY, JSON.stringify(cliente));
   } catch (_err) {
     // localStorage indisponível — ignora
   }
