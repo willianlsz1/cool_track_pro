@@ -621,9 +621,17 @@ export function renderShellModals() {
 
   <!-- MODAL: Detalhes do Equipamento -->
   <div class="modal-overlay" id="modal-eq-det" role="dialog" aria-modal="true" aria-labelledby="eq-det-title">
-    <div class="modal">
+    <div class="modal modal--eq-detail">
       <div class="modal__handle"></div>
-      <div id="eq-det-corpo"></div>
+      <header class="eq-detail-shell-head">
+        <span class="eq-detail-shell-kicker">Detalhes do equipamento</span>
+        <button type="button" class="eq-detail-shell-close" data-action="close-modal" data-id="modal-eq-det" aria-label="Fechar detalhes do equipamento">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" focusable="false">
+            <path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </header>
+      <div id="eq-det-corpo" class="modal__body modal__body--scroll eq-detail-shell-body"></div>
     </div>
   </div>
 

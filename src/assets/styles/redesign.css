@@ -2876,6 +2876,142 @@ body:not(.landing-active) .modal-overlay.is-open:not(.account-modal-overlay) .mo
   display: none;
 }
 
+/* Mudanca 21 / CP-F.1: detalhe do equipamento como overlay grande controlado.
+   O conteudo denso rola dentro do corpo, mantendo fechar e acoes acessiveis. */
+body:not(.landing-active) #modal-eq-det.is-open {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
+  display: flex;
+  width: min(1040px, calc(100vw - 32px)) !important;
+  max-height: calc(100dvh - 48px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  flex-direction: column;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 54px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  background: linear-gradient(180deg, rgba(15, 23, 36, 0.98), rgba(9, 16, 26, 0.94));
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-kicker {
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-close {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.72);
+  color: rgba(226, 232, 240, 0.92);
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-close:hover,
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-close:focus-visible {
+  border-color: rgba(103, 232, 249, 0.42);
+  background: rgba(8, 145, 178, 0.16);
+  color: #f8fafc;
+  outline: none;
+}
+
+body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-view {
+  min-height: 0;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-cover {
+  max-height: 420px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-modal-footer {
+  position: sticky;
+  z-index: 5;
+  bottom: 0;
+  margin-bottom: -2px;
+  padding-top: 12px;
+  background: linear-gradient(180deg, rgba(9, 16, 26, 0), rgba(9, 16, 26, 0.96) 28%);
+  backdrop-filter: blur(10px);
+}
+
+@media (min-width: 900px) {
+  body:not(.landing-active) #modal-eq-det.is-open {
+    padding: 32px;
+  }
+
+  body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
+    width: min(1120px, calc(100vw - 64px)) !important;
+    max-height: calc(100dvh - 64px) !important;
+  }
+
+  body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
+    padding: 20px 22px 18px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-cover {
+    height: clamp(260px, 42vh, 420px);
+    min-height: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  body:not(.landing-active) #modal-eq-det.is-open {
+    align-items: flex-end;
+    padding: 8px;
+  }
+
+  body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
+    width: 100% !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 18px 18px 10px 10px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-shell-head {
+    min-height: 50px;
+    padding: 12px 14px;
+  }
+
+  body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
+    padding: 14px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-cover {
+    height: 150px;
+    min-height: 0;
+  }
+}
+
 body:not(.landing-active) .cliente-modal-overlay .cliente-modal,
 body:not(.landing-active) .pmoc-modal-overlay .pmoc-modal,
 body:not(.landing-active) .pmoc-info-modal-overlay .pmoc-info-modal {
