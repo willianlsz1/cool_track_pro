@@ -69,7 +69,9 @@ describe('ClienteModal limite por plano', () => {
 
     await ClienteModal.openCreate();
 
-    expect(document.getElementById('cliente-modal-overlay')).toBeTruthy();
+    const overlay = document.getElementById('cliente-modal-overlay');
+    expect(overlay).toBeTruthy();
+    expect(overlay?.dataset.surface).toBe('modal');
     expect(paywallOpen).not.toHaveBeenCalled();
   });
 

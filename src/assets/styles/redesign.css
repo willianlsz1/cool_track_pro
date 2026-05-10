@@ -2824,3 +2824,201 @@ body:not(.landing-active) #view-equipamentos .setor-card__footer {
     grid-column: 1 / -1;
   }
 }
+
+/* Mudanca 21 / CP-F: overlays, paywalls e estados vazios.
+   Escopo visual: diferencia camadas temporarias de cards e empty states. */
+body:not(.landing-active) .modal-overlay.is-open:not(.account-modal-overlay) {
+  background: rgba(2, 8, 18, 0.8) !important;
+  backdrop-filter: blur(8px);
+  z-index: 9000;
+}
+
+@media (min-width: 768px) {
+  body:not(.landing-active) .modal-overlay.is-open:not(.account-modal-overlay) {
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+}
+
+body:not(.landing-active)
+  .modal-overlay.is-open:not(.account-modal-overlay)
+  > .modal:not(.setor-modal) {
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(88vh, 860px);
+  align-self: center;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(17, 27, 40, 0.98), rgba(9, 16, 26, 0.99)) !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  box-shadow: 0 34px 96px rgba(0, 0, 0, 0.58) !important;
+}
+
+body:not(.landing-active)
+  .modal-overlay.is-open:not(.account-modal-overlay)
+  > .modal:not(.setor-modal)
+  .modal__body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+body:not(.landing-active)
+  .modal-overlay.is-open:not(.account-modal-overlay)
+  > .modal:not(.setor-modal)
+  .modal__footer {
+  padding: 14px 20px 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(4, 10, 20, 0.5);
+}
+
+body:not(.landing-active) .modal-overlay.is-open:not(.account-modal-overlay) .modal__handle {
+  display: none;
+}
+
+body:not(.landing-active) .cliente-modal-overlay .cliente-modal,
+body:not(.landing-active) .pmoc-modal-overlay .pmoc-modal,
+body:not(.landing-active) .pmoc-info-modal-overlay .pmoc-info-modal {
+  width: min(720px, calc(100vw - 32px)) !important;
+  max-height: min(88vh, 860px);
+  overflow: hidden;
+}
+
+body:not(.landing-active) .cliente-modal__body,
+body:not(.landing-active) .pmoc-modal__body,
+body:not(.landing-active) .pmoc-info-modal__body {
+  max-height: calc(88vh - 128px);
+  overflow-y: auto;
+}
+
+body:not(.landing-active) .cliente-modal__section,
+body:not(.landing-active) .pmoc-info-modal__law-card,
+body:not(.landing-active) .pmoc-info-modal__compare-col {
+  background: rgba(8, 13, 22, 0.42) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) .pmoc-modal__lock,
+body:not(.landing-active) .upgrade-inline-hint,
+body:not(.landing-active) .upgrade-nudge-card {
+  background: linear-gradient(180deg, rgba(255, 182, 13, 0.11), rgba(17, 24, 39, 0.72)) !important;
+  border: 1px solid rgba(255, 182, 13, 0.28) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) .clientes-paywall-overlay {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 32px;
+}
+
+body:not(.landing-active) .clientes-paywall {
+  width: min(620px, calc(100vw - 32px));
+  max-height: min(88vh, 860px);
+  overflow-y: auto;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(20, 27, 39, 0.98), rgba(9, 15, 24, 0.99)) !important;
+  border: 1px solid rgba(255, 182, 13, 0.34) !important;
+  box-shadow: 0 34px 96px rgba(0, 0, 0, 0.58) !important;
+}
+
+body:not(.landing-active) .clientes-paywall__hero {
+  background: linear-gradient(180deg, rgba(255, 182, 13, 0.1), transparent) !important;
+  border-bottom: 1px solid rgba(255, 182, 13, 0.14);
+}
+
+body:not(.landing-active) .clientes-paywall__mockup-card,
+body:not(.landing-active) .clientes-paywall__perk,
+body:not(.landing-active) .clientes-paywall__impact {
+  background: rgba(8, 13, 22, 0.42) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) .clientes-paywall__upgrade {
+  box-shadow: 0 14px 34px rgba(255, 182, 13, 0.18) !important;
+}
+
+body:not(.landing-active) .registro-equip-picker {
+  z-index: 9200;
+}
+
+body:not(.landing-active) .registro-equip-picker__backdrop {
+  background: rgba(2, 8, 18, 0.8) !important;
+  backdrop-filter: blur(8px);
+}
+
+body:not(.landing-active) .registro-equip-picker__sheet {
+  background: linear-gradient(180deg, rgba(17, 27, 40, 0.99), rgba(9, 16, 26, 0.99)) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  box-shadow: 0 34px 96px rgba(0, 0, 0, 0.58) !important;
+}
+
+body:not(.landing-active) .registro-equip-picker__empty,
+body:not(.landing-active)
+  :is(.empty-state, .engaging-empty-state, .cli-empty, .rel-empty, .orc-empty) {
+  background: rgba(15, 23, 36, 0.5) !important;
+  border: 1px dashed rgba(148, 163, 184, 0.22) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) .registro-equip-picker__empty {
+  border-radius: 12px;
+  padding: 18px;
+  color: rgba(203, 213, 225, 0.82);
+}
+
+body:not(.landing-active)
+  :is(.empty-state, .engaging-empty-state, .cli-empty, .rel-empty, .orc-empty) {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+body:not(.landing-active)
+  :is(
+    .empty-state__icon,
+    .engaging-empty-state__icon,
+    .cli-empty__art,
+    .rel-empty__icon,
+    .orc-empty__art
+  ) {
+  background: rgba(56, 213, 239, 0.08) !important;
+  border-color: rgba(56, 213, 239, 0.18) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) :is(.cli-card__menu, .hist-item-actions__menu, .rel-export-dd__menu) {
+  background: rgba(12, 20, 32, 0.98) !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.38) !important;
+  border-radius: 12px !important;
+}
+
+body:not(.landing-active)
+  :is(.cli-card__menu-item, .hist-item-actions__menuitem, .rel-export-dd__item) {
+  color: rgba(226, 232, 240, 0.9) !important;
+}
+
+@media (max-width: 767px) {
+  body:not(.landing-active) .modal-overlay.is-open:not(.account-modal-overlay) {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  body:not(.landing-active)
+    .modal-overlay.is-open:not(.account-modal-overlay)
+    > .modal:not(.setor-modal),
+  body:not(.landing-active) .cliente-modal-overlay .cliente-modal,
+  body:not(.landing-active) .pmoc-modal-overlay .pmoc-modal,
+  body:not(.landing-active) .pmoc-info-modal-overlay .pmoc-info-modal,
+  body:not(.landing-active) .clientes-paywall {
+    width: 100% !important;
+    max-height: min(90vh, 760px);
+    border-radius: 18px 18px 12px 12px;
+  }
+
+  body:not(.landing-active) .clientes-paywall-overlay {
+    align-items: flex-end !important;
+    padding: 12px;
+  }
+}

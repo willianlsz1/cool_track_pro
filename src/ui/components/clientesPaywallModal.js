@@ -151,6 +151,7 @@ export const ClientesPaywallModal = {
     overlay.className = 'clientes-paywall-overlay modal-overlay is-open';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
+    overlay.dataset.surface = 'paywall';
     overlay.setAttribute('aria-labelledby', 'clientes-lock-title');
     overlay.innerHTML = buildMarkup(options);
 

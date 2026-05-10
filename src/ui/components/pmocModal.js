@@ -122,6 +122,7 @@ function open({ clientes, isPro, onConfirm, preselectClienteId = null }) {
   overlay.className = 'modal-overlay is-open pmoc-modal-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
+  overlay.dataset.surface = isPro ? 'modal' : 'paywall';
   overlay.setAttribute('aria-labelledby', 'pmoc-modal-title');
   overlay.innerHTML = buildOverlayHtml({ ano: anoDefault, clientes, isPro, preselectClienteId });
   document.body.appendChild(overlay);

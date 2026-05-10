@@ -175,6 +175,7 @@ function _renderPicker() {
   overlay.className = 'registro-equip-picker';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
+  overlay.dataset.surface = 'picker';
   overlay.setAttribute('aria-labelledby', 'registro-equip-picker-title');
 
   overlay.innerHTML = `

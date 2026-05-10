@@ -179,6 +179,7 @@ function open() {
   overlay.className = 'modal-overlay is-open pmoc-info-modal-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
+  overlay.dataset.surface = 'modal';
   overlay.setAttribute('aria-labelledby', 'pmoc-info-modal-title');
   overlay.innerHTML = buildHtml();
   document.body.appendChild(overlay);

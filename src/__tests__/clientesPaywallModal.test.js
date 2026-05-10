@@ -21,6 +21,7 @@ describe('ClientesPaywallModal', () => {
     const overlay = document.getElementById('clientes-paywall-overlay');
     expect(overlay).toBeTruthy();
     expect(overlay.classList.contains('clientes-paywall-overlay')).toBe(true);
+    expect(overlay.dataset.surface).toBe('paywall');
     expect(
       overlay.querySelector('.clientes-paywall__hero')?.getAttribute('aria-hidden'),
     ).toBeNull();

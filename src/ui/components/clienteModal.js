@@ -334,6 +334,7 @@ async function open(cliente, opts = {}) {
   overlay.className = 'modal-overlay is-open cliente-modal-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
+  overlay.dataset.surface = 'modal';
   overlay.setAttribute('aria-labelledby', 'cliente-modal-title');
   overlay.innerHTML = buildOverlayHtml(cliente);
   document.body.appendChild(overlay);

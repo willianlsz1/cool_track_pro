@@ -30,6 +30,7 @@ describe('registro equipment picker', () => {
 
     openRegistroEquipPicker();
 
+    expect(document.getElementById('registro-equip-picker')?.dataset.surface).toBe('picker');
     const createButton = document.querySelector('.registro-equip-picker__create');
     expect(createButton?.classList.contains('btn')).toBe(true);
     expect(createButton?.classList.contains('btn--primary')).toBe(true);
