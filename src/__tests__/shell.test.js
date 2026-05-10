@@ -82,7 +82,7 @@ describe('shell bootstrap', () => {
     navRectSpy.mockRestore();
   });
 
-  it('não renderiza Clientes no mobile para plano Free no modo Empresa e mantém CTA Pro', async () => {
+  it('nao renderiza Clientes no mobile para plano Free no modo Empresa, mas libera atalho de acesso', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
     localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
@@ -93,8 +93,8 @@ describe('shell bootstrap', () => {
     expect(document.getElementById('nav-clientes')).toBeNull();
     expect(document.getElementById('nav-inicio')?.hidden).toBe(false);
     expect(document.getElementById('nav-registro')?.hidden).toBe(false);
-    expect(document.getElementById('header-help-go-clientes')?.hidden).toBe(true);
-    expect(document.getElementById('header-help-clientes-upsell')?.hidden).toBe(false);
+    expect(document.getElementById('header-help-go-clientes')?.hidden).toBe(false);
+    expect(document.getElementById('header-help-clientes-upsell')?.hidden).toBe(true);
   });
 
   it('não renderiza Clientes no mobile para plano Plus', async () => {

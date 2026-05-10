@@ -112,15 +112,17 @@ function _applyNavigationMode() {
   if (typeof document === 'undefined') return;
   const mode = getNavigationMode();
   const layout = getNavigationLayout(mode);
-  const isPro = getClientesAccessSnapshot().canAccess;
+  const access = getClientesAccessSnapshot();
+  const isProNavigation = access.planCode === PLAN_CODE_PRO;
+  const canAccessClientesRoute = access.canAccess;
   const mobilePrimary = new Set(layout.mobilePrimary || []);
   const sidebarPrimary = new Set(layout.sidebarPrimary || []);
   const mobileSecondary = new Set(layout.mobileSecondary || []);
   const sidebarSecondary = new Set(layout.sidebarSecondary || []);
 
-  // UX: Free/Plus não exibem Clientes como item principal no mobile.
-  // Em modo Empresa, mantém descoberta de Clientes apenas em área secundária.
-  if (!isPro) {
+  // CP-B libera a rota Clientes, mas preserva a navegacao mobile legada.
+  // A nova ordem do bottom nav fica para CP-C.
+  if (!isProNavigation) {
     mobilePrimary.delete('clientes');
     mobilePrimary.add('inicio');
     mobilePrimary.add('registro');
@@ -157,9 +159,11 @@ function _applyNavigationMode() {
     el.classList.toggle('app-sidebar__nav-item--secondary', sidebarSecondary.has(route));
   });
 
-  // Menu de configurações premium: Clientes só no Pro (não depende mais de slot secundário mobile).
-  _setElementVisible(document.getElementById('header-help-go-clientes'), isPro);
-  _setElementVisible(document.getElementById('header-help-clientes-upsell'), !isPro);
+  _setElementVisible(document.getElementById('header-help-go-clientes'), canAccessClientesRoute);
+  _setElementVisible(
+    document.getElementById('header-help-clientes-upsell'),
+    !canAccessClientesRoute,
+  );
 }
 
 export function updateShellSidebar() {
@@ -211,15 +215,13 @@ export function updateShellSidebar() {
     ctaLabelEl.textContent = planCode === PLAN_CODE_FREE ? 'Conhecer planos' : 'Gerenciar plano';
   }
 
-  // Pro-gate Clientes: mostra cadeado + PRO badge se nao for Pro. O click
-  // continua disparando data-nav="clientes" mas o handler da rota intercepta
-  // e abre o paywall em vez de renderizar a view.
+  // Clientes e acessivel em todos os planos; o limite Free fica na criacao.
   const clientesItem = document.getElementById('sidenav-clientes');
   const clientesLock = document.getElementById('sidenav-clientes-lock');
-  const isPro = getClientesAccessSnapshot().canAccess;
-  if (clientesLock) clientesLock.hidden = isPro;
+  const canAccessClientesRoute = getClientesAccessSnapshot().canAccess;
+  if (clientesLock) clientesLock.hidden = canAccessClientesRoute;
   if (clientesItem) {
-    clientesItem.classList.toggle('app-sidebar__nav-item--locked', !isPro);
+    clientesItem.classList.toggle('app-sidebar__nav-item--locked', !canAccessClientesRoute);
   }
   _rerenderMobileNav(planCode);
   _applyNavigationMode();

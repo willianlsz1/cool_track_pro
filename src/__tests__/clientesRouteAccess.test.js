@@ -22,6 +22,7 @@ vi.mock('../ui/views/dashboard.js', () => ({
 vi.mock('../ui/views/equipamentos.js', () => ({
   renderEquip: vi.fn(),
   populateEquipSelects: vi.fn(),
+  unmountEquipamentosHeader: vi.fn(),
   unmountEquipamentosList: vi.fn(),
 }));
 vi.mock('../ui/views/historico.js', () => ({
@@ -46,6 +47,7 @@ vi.mock('../ui/views/registro.js', () => ({
   unmountRegistroHeader: vi.fn(),
   unmountRegistroChecklist: vi.fn(),
   unmountRegistroPhotos: vi.fn(),
+  unmountRegistroSignature: vi.fn(),
 }));
 vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
 vi.mock('../ui/views/clientes.js', () => ({
@@ -55,6 +57,7 @@ vi.mock('../ui/views/clientes.js', () => ({
 }));
 vi.mock('../ui/views/conta.js', () => ({ renderConta: vi.fn() }));
 vi.mock('../ui/views/privacidade.js', () => ({ renderPrivacidade: vi.fn() }));
+vi.mock('../ui/views/configuracoes.js', () => ({ renderConfiguracoes: vi.fn() }));
 vi.mock('../ui/components/clientesPaywallModal.js', () => ({
   ClientesPaywallModal: { open: mocks.openPaywall },
 }));
@@ -80,20 +83,12 @@ describe('clientes route access contract', () => {
     document.body.innerHTML = '<div id="view-clientes"><div class="view-content"></div></div>';
   });
 
-  it('mantem paywall Pro fora da view quando acesso e negado', async () => {
-    mocks.getClientesAccessSnapshot.mockReturnValue({ resolved: true, canAccess: false });
-
-    const { registerAppRoutes } = await import('../ui/controller/routes.js');
-    registerAppRoutes();
-    await getClientesRoute().onEnter();
-
-    expect(mocks.openPaywall).toHaveBeenCalledTimes(1);
-    expect(mocks.renderClientes).not.toHaveBeenCalled();
-    expect(mocks.updateHeader).not.toHaveBeenCalled();
-  });
-
-  it('renderiza clientes apenas quando acesso Pro esta liberado', async () => {
-    mocks.getClientesAccessSnapshot.mockReturnValue({ resolved: true, canAccess: true });
+  it('renderiza Clientes no Free quando a decisao ja esta resolvida', async () => {
+    mocks.getClientesAccessSnapshot.mockReturnValue({
+      resolved: true,
+      canAccess: true,
+      planCode: 'free',
+    });
 
     const { registerAppRoutes } = await import('../ui/controller/routes.js');
     registerAppRoutes();
@@ -104,8 +99,35 @@ describe('clientes route access contract', () => {
     expect(mocks.updateHeader).toHaveBeenCalledTimes(1);
   });
 
+  it('tenta hidratar plano pendente e renderiza Clientes mesmo se refresh falhar', async () => {
+    mocks.getClientesAccessSnapshot.mockReturnValue({
+      resolved: false,
+      canAccess: true,
+      planCode: 'free',
+    });
+    mocks.resolveClientesAccess.mockResolvedValue({
+      resolved: false,
+      canAccess: true,
+      planCode: 'free',
+      errored: true,
+    });
+
+    const { registerAppRoutes } = await import('../ui/controller/routes.js');
+    registerAppRoutes();
+    await getClientesRoute().onEnter();
+
+    expect(mocks.resolveClientesAccess).toHaveBeenCalledTimes(1);
+    expect(mocks.openPaywall).not.toHaveBeenCalled();
+    expect(mocks.renderClientes).toHaveBeenCalledTimes(1);
+    expect(mocks.updateHeader).toHaveBeenCalledTimes(1);
+  });
+
   it('desmonta a ilha React de clientes ao sair da rota', async () => {
-    mocks.getClientesAccessSnapshot.mockReturnValue({ resolved: true, canAccess: true });
+    mocks.getClientesAccessSnapshot.mockReturnValue({
+      resolved: true,
+      canAccess: true,
+      planCode: 'free',
+    });
 
     const { registerAppRoutes } = await import('../ui/controller/routes.js');
     registerAppRoutes();

@@ -43,7 +43,7 @@ function bindOnce() {
     if (action === 'pricing') {
       event.preventDefault();
       close();
-      goTo('pricing');
+      goTo('pricing', { highlightPlan: btn.dataset.highlightPlan || 'plus' });
       return;
     }
 
@@ -55,28 +55,23 @@ function bindOnce() {
   });
 }
 
-function buildMarkup() {
-  const tecnicoItems = [
-    'Registrar serviço',
-    'Gerar relatório',
-    'Enviar PDF',
-    'Organizar equipamentos',
-  ];
-  const empresaItems = [
-    'Tudo do modo técnico +',
-    'Clientes organizados',
-    'Setores por local',
-    'Histórico por cliente',
-    'Relatórios separados por cliente',
-    'Menos erro no envio',
-    'Mais profissionalismo',
-  ];
+function buildMarkup({ reason = 'client_limit', highlightPlan = 'plus', limit = 1 } = {}) {
+  const isClientLimit = reason === 'client_limit';
+  const badge = highlightPlan === 'plus' ? 'PLANO PLUS' : 'UPGRADE';
+  const title = isClientLimit ? `Seu plano Free inclui ${limit} cliente` : 'Organize clientes';
+  const subtitle = isClientLimit
+    ? 'Voce ja usou o cliente incluido no Free. Para cadastrar mais clientes, faca upgrade para o Plus.'
+    : 'Clientes ficam disponiveis em todos os planos. O upgrade libera mais capacidade para sua carteira.';
+  const context = isClientLimit
+    ? 'Cliente cadastrado no Free. Mais clientes estao disponiveis a partir do plano Plus.'
+    : 'Continue organizando clientes conforme o limite do seu plano.';
+
   return `
     <div class="clientes-paywall" role="document">
       <section class="clientes-paywall__hero">
         <span class="clientes-paywall__hero-orb clientes-paywall__hero-orb--a"></span>
         <span class="clientes-paywall__hero-orb clientes-paywall__hero-orb--b"></span>
-        <span class="clientes-paywall__badge">RECURSO PRO</span>
+        <span class="clientes-paywall__badge">${badge}</span>
 
         <div class="clientes-paywall__mockup">
           <article class="clientes-paywall__mockup-card">
@@ -96,81 +91,58 @@ function buildMarkup() {
           </article>
         </div>
 
-        <h3 class="clientes-paywall__title" id="clientes-lock-title">Organize seus clientes de verdade</h3>
-        <p class="clientes-paywall__sub">
-          Sem Clientes, tudo fica misturado: você perde tempo buscando histórico e aumenta a chance de erro.
-          Com este recurso, cada equipamento fica no cliente certo desde o primeiro toque.
-        </p>
+        <h3 class="clientes-paywall__title" id="clientes-lock-title">${title}</h3>
+        <p class="clientes-paywall__sub">${subtitle}</p>
       </section>
 
       <section class="clientes-paywall__context" aria-label="Contexto de bloqueio do recurso">
-        Você tentou acessar <strong>Clientes</strong>. Esse recurso está disponível no plano Pro.
+        ${context}
       </section>
 
-      <section class="clientes-paywall__perks" aria-label="Benefícios do recurso Clientes e setores">
+      <section class="clientes-paywall__perks" aria-label="Beneficios do recurso Clientes">
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--cyan" aria-hidden="true">${ICONS.buscaCliente}</span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Ache o cliente certo em segundos</div>
+            <div class="clientes-paywall__perk-title">Mais clientes</div>
           </div>
         </article>
 
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--amber" aria-hidden="true">${ICONS.setor}</span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Evite confusão entre locais e setores</div>
+            <div class="clientes-paywall__perk-title">Equipamentos por cliente</div>
           </div>
         </article>
 
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--teal" aria-hidden="true">${ICONS.relatorio}</span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Entregue relatórios organizados por cliente</div>
+            <div class="clientes-paywall__perk-title">Relatorios profissionais</div>
           </div>
         </article>
       </section>
 
       <section class="clientes-paywall__impact" aria-label="Impacto do recurso Clientes">
-        <p>Você economiza tempo em cada visita porque encontra tudo no lugar certo.</p>
-        <p>Você evita erros de cadastro e envio de relatório para cliente errado.</p>
-        <p>Você passa uma imagem mais profissional em cada atendimento.</p>
-      </section>
-
-      <section class="clientes-paywall__mode-compare" aria-label="Comparação entre Modo Técnico e Modo Empresa">
-        <h4 class="clientes-paywall__mode-title">Modo Técnico x Modo Empresa</h4>
-        <div class="clientes-paywall__mode-grid">
-          <article class="clientes-paywall__mode-col clientes-paywall__mode-col--tecnico" aria-label="Modo Técnico para Free e Plus">
-            <p class="clientes-paywall__mode-kicker">Free e Plus</p>
-            <p class="clientes-paywall__mode-name">Modo Técnico</p>
-            <ul class="clientes-paywall__mode-list" role="list">
-              ${tecnicoItems.map((item) => `<li>${item}</li>`).join('')}
-            </ul>
-          </article>
-          <article class="clientes-paywall__mode-col clientes-paywall__mode-col--empresa" aria-label="Modo Empresa para Pro">
-            <p class="clientes-paywall__mode-kicker">Plano Pro</p>
-            <p class="clientes-paywall__mode-name">Modo Empresa</p>
-            <ul class="clientes-paywall__mode-list" role="list">
-              ${empresaItems.map((item) => `<li>${item}</li>`).join('')}
-            </ul>
-          </article>
-        </div>
+        <p>Voce mantem cliente, equipamento e historico no mesmo contexto.</p>
+        <p>Voce evita misturar atendimentos de clientes diferentes.</p>
+        <p>Voce continua trabalhando no mesmo fluxo de campo.</p>
       </section>
 
       <footer class="clientes-paywall__actions">
         <button type="button" class="clientes-paywall__cancel" data-clientes-lock-action="continue">
-          Agora não
+          Agora nao
         </button>
-        <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing">
-          Desbloquear clientes agora
+        <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing" data-highlight-plan="${highlightPlan}">
+          Fazer upgrade para o Plus
         </button>
       </footer>
 
-      <p class="clientes-paywall__trust">Sem contrato • Cancele quando quiser</p>
+      <p class="clientes-paywall__trust">Sem contrato. Cancele quando quiser.</p>
     </div>`;
 }
 
 export const ClientesPaywallModal = {
-  open() {
+  open(options = {}) {
     close();
     bindOnce();
 
@@ -180,7 +152,7 @@ export const ClientesPaywallModal = {
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-labelledby', 'clientes-lock-title');
-    overlay.innerHTML = buildMarkup();
+    overlay.innerHTML = buildMarkup(options);
 
     overlay.addEventListener('click', (event) => {
       if (event.target === overlay) {

@@ -21,6 +21,13 @@ import {
 } from '../../core/clientes.js';
 import { attachDialogA11y, CustomConfirm } from '../../core/modal.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
+import { getState } from '../../core/state.js';
+import {
+  canCreateCliente,
+  getClientesAccessSnapshot,
+  resolveClientesAccess,
+} from '../../core/plans/clientesAccess.js';
+import { ClientesPaywallModal } from './clientesPaywallModal.js';
 
 const OVERLAY_ID = 'cliente-modal-overlay';
 let _a11yCleanup = null;
@@ -43,6 +50,37 @@ function captureFormSnapshot(overlay) {
 
 function isDirty(initial, current) {
   return Object.keys(current).some((k) => initial[k] !== current[k]);
+}
+
+async function getClienteCreateDecision(cliente) {
+  const isEditing = Boolean(cliente?.id);
+  const currentClientesCount = (getState().clientes || []).length;
+  if (isEditing) {
+    return canCreateCliente({
+      planCode: getClientesAccessSnapshot().planCode,
+      currentClientesCount,
+      isEditing: true,
+    });
+  }
+
+  let access = getClientesAccessSnapshot();
+  if (!access.resolved) {
+    access = await resolveClientesAccess();
+  }
+  return canCreateCliente({
+    planCode: access.planCode,
+    currentClientesCount,
+    isEditing,
+  });
+}
+
+function openClienteLimitPaywall(decision) {
+  ClientesPaywallModal.open({
+    reason: 'client_limit',
+    highlightPlan: decision.requiredPlan || 'plus',
+    current: decision.current,
+    limit: decision.limit,
+  });
 }
 
 function buildOverlayHtml(cliente) {
@@ -254,6 +292,12 @@ async function handleSave(overlay, cliente, onSaved, hardClose) {
     return;
   }
 
+  const limitDecision = await getClienteCreateDecision(cliente);
+  if (!limitDecision.allowed) {
+    openClienteLimitPaywall(limitDecision);
+    return;
+  }
+
   const saveBtn = overlay.querySelector('#cli-save');
   if (saveBtn) {
     saveBtn.disabled = true;
@@ -278,6 +322,12 @@ async function handleSave(overlay, cliente, onSaved, hardClose) {
 
 async function open(cliente, opts = {}) {
   document.getElementById(OVERLAY_ID)?.remove();
+
+  const limitDecision = await getClienteCreateDecision(cliente);
+  if (!limitDecision.allowed) {
+    openClienteLimitPaywall(limitDecision);
+    return;
+  }
 
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;

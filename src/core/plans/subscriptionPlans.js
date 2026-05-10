@@ -43,7 +43,7 @@ const FEATURE_MIN_PLAN = {
   [FEATURE_DIGITAL_SIGNATURE]: PLAN_CODE_PLUS,
   [FEATURE_NAMEPLATE_ANALYSIS]: PLAN_CODE_PLUS,
   [FEATURE_SETORES]: PLAN_CODE_PRO,
-  [FEATURE_CLIENTES]: PLAN_CODE_PRO,
+  [FEATURE_CLIENTES]: PLAN_CODE_FREE,
   [FEATURE_SUPORTE_PRIORITARIO]: PLAN_CODE_PRO,
 };
 
@@ -56,6 +56,7 @@ export const PLAN_CATALOG = {
     key: PLAN_CODE_FREE,
     label: 'Free',
     limits: {
+      clientes: 1,
       equipamentos: 3,
       registros: Number.POSITIVE_INFINITY,
       // Nota: `historicoDias` foi removido. Todos os planos têm histórico
@@ -78,6 +79,7 @@ export const PLAN_CATALOG = {
     key: PLAN_CODE_PLUS,
     label: 'Plus',
     limits: {
+      clientes: 50,
       equipamentos: 15,
       registros: Number.POSITIVE_INFINITY,
     },
@@ -98,6 +100,7 @@ export const PLAN_CATALOG = {
     key: PLAN_CODE_PRO,
     label: 'Pro',
     limits: {
+      clientes: Number.POSITIVE_INFINITY,
       equipamentos: Number.POSITIVE_INFINITY,
       registros: Number.POSITIVE_INFINITY,
     },
@@ -198,7 +201,7 @@ const FEATURE_MESSAGES = Object.freeze({
   [FEATURE_DIGITAL_SIGNATURE]:
     'Assinatura digital do cliente no PDF está disponível a partir do plano Plus.',
   [FEATURE_SETORES]: 'Agrupamento por setores é exclusivo do plano Pro.',
-  [FEATURE_CLIENTES]: 'Carteira de clientes é exclusiva do plano Pro.',
+  [FEATURE_CLIENTES]: 'Carteira de clientes está disponível em todos os planos.',
   [FEATURE_SUPORTE_PRIORITARIO]: 'Suporte prioritário é exclusivo do plano Pro.',
 });
 
@@ -289,6 +292,7 @@ export async function getPlanForAuthenticatedUser(userId, options) {
 }
 
 export function getLimitLabel(resource) {
+  if (resource === 'clientes') return 'clientes';
   if (resource === 'equipamentos') return 'equipamentos';
   return 'registros';
 }

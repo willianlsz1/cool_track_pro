@@ -25,7 +25,6 @@ import {
 } from '../views/registro.js';
 import { renderPricing } from '../views/pricing.js';
 import { renderClientes, unmountClientes } from '../views/clientes.js';
-import { ClientesPaywallModal } from '../components/clientesPaywallModal.js';
 import {
   getClientesAccessSnapshot,
   resolveClientesAccess,
@@ -150,21 +149,10 @@ export function registerAppRoutes() {
 
       if (!decision.resolved) {
         renderClientesPlanLoading();
-        decision = await resolveClientesAccess();
+        await resolveClientesAccess();
         if (currentRoute() !== 'clientes') return;
       }
 
-      if (!decision.resolved) {
-        // Em erro de refresh mantemos loading em vez de bloquear com paywall
-        // para evitar falso negativo de acesso (especialmente para Pro).
-        renderClientesPlanLoading();
-        return;
-      }
-
-      if (!decision.canAccess) {
-        ClientesPaywallModal.open();
-        return;
-      }
       renderClientes();
       updateHeader();
     },

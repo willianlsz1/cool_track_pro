@@ -33,6 +33,7 @@ export function countRegistrosThisMonth(registros = [], now = new Date()) {
 export function getUsageSnapshot() {
   const state = getState();
   return {
+    clientes: (state.clientes || []).length,
     equipamentos: state.equipamentos.length,
     registros: countRegistrosThisMonth(state.registros),
   };

@@ -1,9 +1,39 @@
 import { getCachedPlan, hasHydratedPlanInSession, setCachedPlan } from './planCache.js';
 import { fetchMyProfileBillingCached, getCachedBillingProfileSnapshot } from './monetization.js';
-import { getEffectivePlan, normalizePlanCode, PLAN_CODE_PRO } from './subscriptionPlans.js';
+import {
+  getEffectivePlan,
+  getPlanForUser,
+  normalizePlanCode,
+  PLAN_CODE_FREE,
+  PLAN_CODE_PLUS,
+} from './subscriptionPlans.js';
 
 export function canAccessClientes(planCode) {
-  return normalizePlanCode(planCode) === PLAN_CODE_PRO;
+  return Boolean(normalizePlanCode(planCode));
+}
+
+function normalizeClientesCount(currentClientesCount) {
+  const parsed = Number.parseInt(String(currentClientesCount || '0'), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+export function canCreateCliente({ planCode, currentClientesCount = 0, isEditing = false } = {}) {
+  const normalized = normalizePlanCode(planCode);
+  const limit = getPlanForUser({ planCode: normalized }).limits.clientes;
+  const current = normalizeClientesCount(currentClientesCount);
+
+  if (isEditing) {
+    return { allowed: true, limit, current, planCode: normalized, requiredPlan: null };
+  }
+
+  const allowed = !Number.isFinite(limit) || current < limit;
+  return {
+    allowed,
+    limit,
+    current,
+    planCode: normalized,
+    requiredPlan: allowed ? null : PLAN_CODE_PLUS,
+  };
 }
 
 function buildDecision(planCode, { resolved, source, errored = false } = {}) {
@@ -28,9 +58,8 @@ export function getClientesAccessSnapshot() {
   const cachedPlan = getCachedPlan();
   const hydrated = hasHydratedPlanInSession();
 
-  // Evita paywall prematuro: se ainda não hidratou nesta sessão e o cache diz
-  // free/plus, tratamos como "pendente" e pedimos refresh antes de bloquear.
-  if (!hydrated && !canAccessClientes(cachedPlan)) {
+  // Evita decisao de limite com cache Free stale antes da hidratacao do plano.
+  if (!hydrated && normalizePlanCode(cachedPlan) === PLAN_CODE_FREE) {
     return buildDecision(cachedPlan, { resolved: false, source: 'pending_hydration' });
   }
 
