@@ -35,9 +35,23 @@ Ele e carregado depois de `equipment-detail-cp-h.css` e fica escopado em:
 
 ## Limpeza CSS
 
-Nao foi removido CSS antigo nesta CP.
+CP-I.1 removeu do `redesign.css` apenas seletores antigos explicitamente presos a `#view-equipamentos` que forcavam tema dark na aba:
 
-Motivo: os seletores antigos de `.equip-card`, `.setor-card`, filtros e busca ainda aparecem em superficies compartilhadas ou historicas, incluindo dashboard/criticos, modos de grade e estilos globais. Sem prova suficiente de exclusividade, a CP-I neutraliza o visual antigo apenas no escopo da aba Equipamentos.
+- `body:not(.landing-active) #view-equipamentos .setor-card .setor-card__nome`
+- `body:not(.landing-active) #view-equipamentos .setor-card__nome`
+- `body:not(.landing-active) #view-equipamentos .setor-card--fallback .setor-card__nome`
+- `body:not(.landing-active) #view-equipamentos .equip-hero`
+- `body:not(.landing-active) #view-equipamentos .page-toolbar`
+- `body:not(.landing-active) #view-equipamentos .equip-search-row`
+- `body:not(.landing-active) #view-equipamentos .equip-filter`
+- `body:not(.landing-active) #view-equipamentos .equip-filter--active`
+- `body:not(.landing-active) #view-equipamentos .equip-card`
+- `body:not(.landing-active) #view-equipamentos .setor-card`
+- `body:not(.landing-active) #view-equipamentos .equip-card__primary`
+- `body:not(.landing-active) #view-equipamentos .setor-card__meta`
+- `body:not(.landing-active) #view-equipamentos .setor-card__footer`
+
+Continuam neutralizados no CSS CP-I.1, sem remocao global, os estilos compartilhados de `.form-control`, `.search-bar`, `.empty-state`, `.equip-card` e `.setor-card` que ainda sao usados fora da aba Equipamentos.
 
 ## Proximo CP recomendado
 

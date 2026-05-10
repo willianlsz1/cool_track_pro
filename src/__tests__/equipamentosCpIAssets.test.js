@@ -24,4 +24,27 @@ describe('equipamentos CP-I visual assets', () => {
     expect(css).not.toMatch(/(^|\\n)\\.sidebar\\b/);
     expect(css).not.toMatch(/(^|\\n)\\.topbar\\b/);
   });
+
+  it('normaliza vazamentos dark da aba Equipamentos dentro do escopo CP-I', () => {
+    const css = readFileSync('src/assets/styles/equipment-list-cp-i.css', 'utf8');
+
+    expect(css).toContain('CP-I.1: normalizacao visual');
+    expect(css).toMatch(/#view-equipamentos\.view/);
+    expect(css).toMatch(
+      /#view-equipamentos\s+#equip-page-title[\s\S]*color:\s*var\(--eqi-blue-900\)\s*!important/,
+    );
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.search-bar[\s\S]*background:\s*#ffffff\s*!important/,
+    );
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.search-bar__input[\s\S]*background:\s*transparent\s*!important/,
+    );
+    expect(css).toMatch(/#view-equipamentos\s+\.btn--primary[\s\S]*background:\s*linear-gradient/);
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.empty-state[\s\S]*background:\s*#ffffff\s*!important/,
+    );
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.setor-card__nome[\s\S]*color:\s*var\(--eqi-blue-900\)\s*!important/,
+    );
+  });
 });
