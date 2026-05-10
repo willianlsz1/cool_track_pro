@@ -10,6 +10,7 @@ import {
   mockServiceClientes,
   mockServiceCompromissos,
   mockServiceEquipamentos,
+  mockServiceRegistros,
   mockServiceToday,
 } from '../service/mockServiceData';
 import { createServiceDraft, type ServiceDraft } from '../service/serviceFlowViewModel';
@@ -20,6 +21,7 @@ const serviceFlowInput = {
   clientes: mockServiceClientes,
   equipamentos: mockServiceEquipamentos,
   compromissos: mockServiceCompromissos,
+  registros: mockServiceRegistros,
 };
 
 export function AppV2Shell() {

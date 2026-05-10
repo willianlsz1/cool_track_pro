@@ -18,6 +18,8 @@ Artefatos da Etapa zero:
 - Plano de Equipamento: `docs/rewrite/etapa-3-equipamento-plano.md`
 - Design de Registro de servico: `docs/rewrite/etapa-4-servico-design.md`
 - Plano de Registro de servico: `docs/rewrite/etapa-4-servico-plano.md`
+- Design da Central de Servicos: `docs/rewrite/etapa-5-servicos-design.md`
+- Plano da Central de Servicos: `docs/rewrite/etapa-5-servicos-plano.md`
 
 ## 2. Decisoes confirmadas
 
@@ -239,7 +241,7 @@ Direcao inicial:
 
 - Criterios para descartar ou reaproveitar regras do app legado.
 - Criterios de adaptadores antes de conectar storage real.
-- Modelo da etapa de Servicos apos Equipamento.
+- Modelo da etapa de Clientes apos a fundacao de Servicos.
 
 ## 12. Inventario minimo antes de implementar
 
