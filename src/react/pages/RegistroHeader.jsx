@@ -459,14 +459,14 @@ export function RegistroHeader({ viewModel = {}, equipmentOptions = [], technici
   return (
     <>
       <Hero viewModel={viewModel} />
-      <PhotoShortcut />
-      <QuickTemplates />
       <MainFields
         viewModel={viewModel}
         equipmentOptions={equipmentOptions}
         technicianOptions={technicianOptions}
       />
       <ContextCard context={viewModel?.context} />
+      <PhotoShortcut />
+      <QuickTemplates />
     </>
   );
 }
