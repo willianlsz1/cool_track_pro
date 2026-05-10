@@ -7,6 +7,7 @@ import { SupportFeedbackModal } from '../../components/supportFeedbackModal.js';
 import { Toast } from '../../../core/toast.js';
 import { Tour } from '../../components/tour.js';
 import { OnboardingChecklist } from '../../components/onboarding/onboardingChecklist.js';
+import { ContextualOnboarding } from '../../components/onboarding/contextualOnboarding.js';
 import { AuthScreen } from '../../components/authscreen.js';
 import {
   clearEditingState as clearEquipEditingState,
@@ -26,6 +27,10 @@ import { InstallAppPrompt } from '../../components/installAppPrompt.js';
 import { startServiceRegistration } from '../serviceRegistrationEntry.js';
 
 let isHelpOpen = false;
+
+function removeContextualOnboardingCard() {
+  document.querySelector('[data-contextual-onboarding]')?.remove();
+}
 
 // Memoria do parent original do menu (.header-settings) pra restaurar quando
 // fechar. Evita perder a posicao DOM-padrao quando reabrir do header (mobile).
@@ -278,6 +283,23 @@ export function bindNavigationHandlers() {
     startServiceRegistration({
       equipId: el?.dataset?.equipId || el?.dataset?.id || '',
     });
+  });
+
+  on('contextual-onboarding-register', () => {
+    ContextualOnboarding.complete('register-service');
+    removeContextualOnboardingCard();
+    startServiceRegistration();
+  });
+
+  on('contextual-onboarding-clientes', () => {
+    ContextualOnboarding.complete('organize-clients');
+    removeContextualOnboardingCard();
+    goTo('clientes');
+  });
+
+  on('contextual-onboarding-skip', () => {
+    ContextualOnboarding.skip();
+    removeContextualOnboardingCard();
   });
 
   on('go-register-equip', (el) => {

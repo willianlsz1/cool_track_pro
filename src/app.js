@@ -4,6 +4,7 @@ import { Modal } from './core/modal.js';
 import { goTo, initHistory } from './core/router.js';
 import { initController } from './ui/controller.js';
 import { initAppShell } from './ui/shell.js';
+import { ContextualOnboarding } from './ui/components/onboarding/contextualOnboarding.js';
 import { OnboardingChecklist } from './ui/components/onboarding/onboardingChecklist.js';
 import { PushOptInCard } from './ui/components/pushOptInCard.js';
 import { setupPushNotifications } from './core/pushNotifications.js';
@@ -135,6 +136,7 @@ async function _enterAuthenticatedApp(user) {
   bindEvents();
   initController();
   initHistory();
+  ContextualOnboarding.init(user?.id || null);
   goTo('inicio', {}, { replaceHistory: true });
 
   const pendingRedirectRaw = localStorage.getItem(POST_AUTH_REDIRECT_KEY);

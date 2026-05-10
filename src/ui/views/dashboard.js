@@ -17,6 +17,7 @@ import { Alerts } from '../../domain/alerts.js';
 // fora do chunk principal do Dashboard.
 import { OnboardingBanner, Profile } from '../components/onboarding.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
+import { ContextualOnboarding } from '../components/onboarding/contextualOnboarding.js';
 import { InstallAppPrompt } from '../components/installAppPrompt.js';
 import { UpgradeNudge } from '../components/upgradeNudge.js';
 import { OverflowBanner } from '../components/overflowBanner.js';
@@ -878,6 +879,7 @@ function _buildDashboardOnboardingModel({
     percent: 0,
     steps: [],
   };
+  const contextual = ContextualOnboarding.getRenderModel?.() || { visible: false };
   const overflowState =
     planContext.hasPro || planContext.planCode === PLAN_CODE_PLUS
       ? { overLimit: false }
@@ -890,6 +892,7 @@ function _buildDashboardOnboardingModel({
       state: emptyVisible ? dashboardReadModel.emptyState : null,
     },
     installPrompt: { state: installState },
+    contextual,
     checklist,
     overflow: {
       visible: Boolean(overflowState.overLimit),

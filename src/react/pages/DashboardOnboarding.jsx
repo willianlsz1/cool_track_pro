@@ -6,6 +6,7 @@ const DEFAULT_MODEL = Object.freeze({
   tier: 'free',
   empty: { visible: false, state: null },
   installPrompt: { state: 'hidden' },
+  contextual: { visible: false, title: '', description: '', actions: {} },
   checklist: { visible: false, completed: 0, total: 0, percent: 0, steps: [] },
   overflow: { visible: false, state: { overLimit: false } },
 });
@@ -359,6 +360,64 @@ function Checklist({ checklist }) {
   );
 }
 
+function ContextualStart({ contextual }) {
+  if (!contextual?.visible) return null;
+
+  const registerAction = contextual.actions?.register || {};
+  const clientsAction = contextual.actions?.clients || {};
+  const skipAction = contextual.actions?.skip || {};
+
+  return (
+    <article
+      aria-label="Onboarding contextual"
+      className="onb-card contextual-onboarding"
+      data-contextual-onboarding="true"
+      role="region"
+    >
+      <header className="onb-card__head">
+        <div className="onb-card__head-text">
+          <h3 className="onb-card__title">{text(contextual.title, 'Como voce quer comecar?')}</h3>
+          {contextual.description ? (
+            <p className="onb-card__sub">{text(contextual.description)}</p>
+          ) : null}
+        </div>
+        <button
+          aria-label="Fechar onboarding"
+          className="onb-card__close"
+          data-action={dataValue(skipAction.action)}
+          type="button"
+        >
+          <CloseIcon size={16} />
+        </button>
+      </header>
+
+      <div className="contextual-onboarding__actions">
+        <button
+          className="btn btn--primary btn--sm"
+          data-action={dataValue(registerAction.action)}
+          type="button"
+        >
+          {text(registerAction.label, 'Quero registrar um servico')}
+        </button>
+        <button
+          className="btn btn--outline btn--sm"
+          data-action={dataValue(clientsAction.action)}
+          type="button"
+        >
+          {text(clientsAction.label, 'Quero organizar meus clientes')}
+        </button>
+        <button
+          className="btn btn--ghost btn--sm"
+          data-action={dataValue(skipAction.action)}
+          type="button"
+        >
+          {text(skipAction.label, 'Pular')}
+        </button>
+      </div>
+    </article>
+  );
+}
+
 function overflowCopy(state) {
   if (state?.limitType === 'equipamentos') {
     return `Você cadastrou ${text(state.equipCount, 0)} equipamentos — o plano grátis permite ${text(state.equipLimit, 0)}.`;
@@ -421,6 +480,7 @@ export function DashboardOnboarding({
       ...DEFAULT_MODEL.installPrompt,
       ...(onboarding?.installPrompt || {}),
     },
+    contextual: { ...DEFAULT_MODEL.contextual, ...(onboarding?.contextual || {}) },
     checklist: { ...DEFAULT_MODEL.checklist, ...(onboarding?.checklist || {}) },
     overflow: { ...DEFAULT_MODEL.overflow, ...(onboarding?.overflow || {}) },
   };
@@ -431,6 +491,7 @@ export function DashboardOnboarding({
       <InstallPrompt installPrompt={model.installPrompt} />
       <div id={DASHBOARD_PUBLIC_IDS.proDraftRoot} style={{ display: 'contents' }} />
       <Checklist checklist={model.checklist} />
+      <ContextualStart contextual={model.contextual} />
       {overflowRoot ? createPortal(<Overflow overflow={model.overflow} />, overflowRoot) : null}
     </>
   );

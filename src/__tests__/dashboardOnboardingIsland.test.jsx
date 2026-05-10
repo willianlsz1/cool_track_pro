@@ -73,6 +73,25 @@ function islandModel(overrides = {}) {
       visible: false,
       state: { overLimit: false },
     },
+    contextual: {
+      visible: false,
+      title: 'Como voce quer comecar?',
+      description: 'Escolha uma primeira acao. Voce pode mudar depois.',
+      actions: {
+        register: {
+          label: 'Quero registrar um servico',
+          action: DASHBOARD_ACTIONS.contextualOnboardingRegister,
+        },
+        clients: {
+          label: 'Quero organizar meus clientes',
+          action: DASHBOARD_ACTIONS.contextualOnboardingClientes,
+        },
+        skip: {
+          label: 'Pular',
+          action: DASHBOARD_ACTIONS.contextualOnboardingSkip,
+        },
+      },
+    },
     ...overrides,
   };
 }
@@ -158,6 +177,47 @@ describe('Dashboard onboarding/empty/overflow React island', () => {
     expect(roots.onboarding.querySelector('.onb-step[data-nav="registro"]')).not.toBeNull();
     expect(roots.onboarding.querySelector('.onb-step[data-nav="relatorio"]')).not.toBeNull();
     expect(document.getElementById(DASHBOARD_PUBLIC_IDS.proDraftRoot)).not.toBeNull();
+  });
+
+  it('renders contextual onboarding as a non-blocking choice card', () => {
+    mount(
+      roots,
+      islandModel({
+        contextual: {
+          visible: true,
+          title: 'Como voce quer comecar?',
+          description: 'Escolha uma primeira acao. Voce pode mudar de caminho depois.',
+          actions: {
+            register: {
+              label: 'Quero registrar um servico',
+              action: DASHBOARD_ACTIONS.contextualOnboardingRegister,
+            },
+            clients: {
+              label: 'Quero organizar meus clientes',
+              action: DASHBOARD_ACTIONS.contextualOnboardingClientes,
+            },
+            skip: {
+              label: 'Pular',
+              action: DASHBOARD_ACTIONS.contextualOnboardingSkip,
+            },
+          },
+        },
+      }),
+    );
+
+    const card = roots.onboarding.querySelector('[data-contextual-onboarding]');
+    const actions = [...card.querySelectorAll('[data-action]')].map((el) => el.dataset.action);
+
+    expect(card).not.toBeNull();
+    expect(card.getAttribute('role')).toBe('region');
+    expect(card.getAttribute('aria-label')).toBe('Onboarding contextual');
+    expect(actions).toEqual([
+      DASHBOARD_ACTIONS.contextualOnboardingSkip,
+      DASHBOARD_ACTIONS.contextualOnboardingRegister,
+      DASHBOARD_ACTIONS.contextualOnboardingClientes,
+      DASHBOARD_ACTIONS.contextualOnboardingSkip,
+    ]);
+    assertNoInjectedHtml(card);
   });
 
   it('updates through repeated mounts without duplicate roots or duplicate cards', () => {
