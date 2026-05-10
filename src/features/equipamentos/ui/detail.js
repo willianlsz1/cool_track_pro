@@ -31,6 +31,7 @@ export function renderViewEquipSetorInfoRow(eq, deps) {
 
 export function renderViewEquipServiceTimeline(regs, deps) {
   const { Utils } = resolveDetailDeps(deps);
+  const hiddenCount = Math.max(0, regs.length - 5);
   return regs.length === 0
     ? `<div class="eq-svc-empty">Nenhum serviço registrado neste equipamento.</div>`
     : `<div class="eq-svc-timeline">
@@ -47,7 +48,11 @@ export function renderViewEquipServiceTimeline(regs, deps) {
           </div>`,
           )
           .join('')}
-        ${regs.length > 5 ? `<div class="eq-svc-more">+${regs.length - 5} serviços anteriores</div>` : ''}
+        ${
+          hiddenCount > 0
+            ? `<div class="eq-svc-more">+${hiddenCount} serviço${hiddenCount > 1 ? 's' : ''} anterior${hiddenCount > 1 ? 'es' : ''}</div>`
+            : ''
+        }
       </div>`;
 }
 
@@ -93,9 +98,6 @@ export function renderViewEquipCoverBlock(model, deps) {
     ? `<img class="eq-detail-cover__img" src="${Utils.escapeAttr(firstPhotoUrl)}" alt="Foto de ${Utils.escapeAttr(eq.nome)}" loading="lazy" />
        ${coverFallback}
        <button type="button" class="eq-detail-cover__preview-hit" aria-label="Ampliar foto de ${Utils.escapeAttr(eq.nome)}"></button>
-       <!-- Pill "ampliar" (V7): sinaliza explicitamente que clicar abre
-            a foto em fullscreen. Antes só o cursor zoom-in dava a dica;
-            usuário mobile/touch nem via cursor, então a pill resolve. -->
        <span class="eq-detail-cover__zoom-hint" aria-hidden="true">
          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
            <circle cx="11" cy="11" r="7"/><path d="M11 8v6M8 11h6M20 20l-3.5-3.5"/>
@@ -105,7 +107,7 @@ export function renderViewEquipCoverBlock(model, deps) {
     : `${coverFallback}
        <button type="button" class="eq-detail-cover__cta eq-detail-cover__cta--center${photoCtaVariantCls}"
          data-action="${photoCtaAction}" data-id="${safeId}"${photoCtaExtra}
-         aria-label="${canEditPhotos ? 'Adicionar foto' : 'Fotos bloqueadas — desbloqueie com o plano Plus'}">
+         aria-label="${canEditPhotos ? 'Adicionar foto' : 'Fotos bloqueadas - desbloqueie com o plano Plus'}">
          ${photoCtaIcon}
          <span>${photoCtaLabel}</span>
          ${photoCtaBadge}
@@ -118,7 +120,7 @@ export function renderViewEquipCoverBlock(model, deps) {
     ? `<div class="eq-detail-cover-actions">
         <button type="button" class="eq-detail-cover-action${photoCtaVariantCls}"
           data-action="${photoCtaAction}" data-id="${safeId}"${photoCtaExtra}
-          aria-label="${canEditPhotos ? 'Gerenciar fotos' : 'Fotos bloqueadas — desbloqueie com o plano Plus'}">
+          aria-label="${canEditPhotos ? 'Gerenciar fotos' : 'Fotos bloqueadas - desbloqueie com o plano Plus'}">
           ${photoCtaIcon}
           <span>${photoCtaLabel}</span>
           ${photoCtaBadge}
@@ -183,7 +185,7 @@ export function renderViewEquipPmocContextBlock(model, deps) {
         <div class="eq-pmoc-context__head">
           <div>
             <span class="eq-pmoc-context__eyebrow">PMOC / Preventiva</span>
-            <h3 class="eq-pmoc-context__title">Preventiva do equipamento</h3>
+            <h3 class="eq-pmoc-context__title">${Utils.escapeHtml(pmoc.statusLabel)}</h3>
           </div>
           <span class="eq-pmoc-context__status">${Utils.escapeHtml(pmoc.statusLabel)}</span>
         </div>
@@ -210,162 +212,152 @@ export function renderViewEquipPmocContextBlock(model, deps) {
       </section>`;
 }
 
+function renderFieldValue(value, deps) {
+  const { Utils } = resolveDetailDeps(deps);
+  const clean = value != null && String(value).trim() !== '' ? String(value).trim() : null;
+  return clean
+    ? `<b>${Utils.escapeHtml(clean)}</b>`
+    : '<b class="eq-detail-basic__value--muted">Não informado</b>';
+}
+
+export function renderViewEquipBasicFields(model, deps) {
+  const { Utils, getSetores } = resolveDetailDeps(deps);
+  const { eq, proximaPreventiva } = model;
+  const setores = getSetores();
+  const setorObj = setores.find((s) => s.id === eq.setorId);
+  const setorNome = setorObj ? setorObj.nome : 'Sem setor';
+  const field = (label, value, modifier = '') => `
+          <div class="eq-detail-basic${modifier ? ` eq-detail-basic--${modifier}` : ''}">
+            <span>${Utils.escapeHtml(label)}</span>
+            ${renderFieldValue(value, deps)}
+          </div>`;
+
+  return `
+        <div class="eq-detail-basics-grid" aria-label="Identificação básica do equipamento">
+          ${field('Local', eq.local)}
+          ${field('TAG', eq.tag)}
+          ${field('Setor', setorNome)}
+          ${field('Tipo', eq.tipo)}
+          ${field('Fluido', eq.fluido)}
+          ${field('Modelo', eq.modelo, 'modelo')}
+          ${field('Próxima preventiva', proximaPreventiva, 'proxima-preventiva')}
+        </div>`;
+}
+
 export function renderViewEquipDetailHtml(model, deps) {
   const resolvedDeps = resolveDetailDeps(deps);
   const { Utils, eqDetailSubtitle, infoRowValueOrEmpty, riskFactorChipHtml } = resolvedDeps;
-  const {
-    eq,
-    regs,
-    score,
-    cls,
-    safeId,
-    context,
-    risk,
-    proximaPreventiva,
-    healthSummary,
-    ringR,
-    ringC,
-    ringOffset,
-  } = model;
+  const { eq, regs, score, cls, safeId, context, risk, proximaPreventiva, healthSummary } = model;
   const setorSelectHtml = renderViewEquipSetorInfoRow(eq, resolvedDeps);
   const svcTimeline = renderViewEquipServiceTimeline(regs, resolvedDeps);
   const coverBlock = renderViewEquipCoverBlock(model, resolvedDeps);
+  const basicFieldsBlock = renderViewEquipBasicFields(model, resolvedDeps);
   const pmocContextBlock = renderViewEquipPmocContextBlock(model, resolvedDeps);
   const { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml } = renderViewEquipDadosPlacaSections(
     eq,
     resolvedDeps,
   );
+  const primaryCtaLabel = model.pmocContext?.ctaLabel || 'Registrar serviço';
 
   return {
     html: `
     <div class="eq-detail-view eq-detail-view--surface">
+      <section class="eq-detail-field-panel" aria-label="Identificação e ações do equipamento">
+        <aside class="eq-detail-media-panel" aria-label="Fotos do equipamento">
+          ${coverBlock.html}
+        </aside>
 
-      <!--
-        Title block consolidado (V7 refino UX): nome em h1 + subtítulo
-        muted "Local · TAG". Antes a TAG só aparecia dentro do accordion
-        e o local mostrava como info-row separado, exigindo scroll ou
-        expansão pra info que o técnico precisa de cara. Agora tudo
-        identificador essencial fica visível logo após a foto.
-      -->
-      <section class="eq-detail-work-header" aria-label="Resumo e acoes do equipamento">
-      <div class="eq-detail-title-block">
-        <div class="modal__title" id="eq-det-title">${Utils.escapeHtml(eq.nome)}</div>
-        <div class="eq-detail-title-block__sub">${eqDetailSubtitle(eq)}</div>
-      </div>
+        <div class="eq-detail-work-header" aria-label="Resumo e acoes do equipamento">
+          <div class="eq-detail-title-block">
+            <div class="modal__title" id="eq-det-title">${Utils.escapeHtml(eq.nome)}</div>
+            <div class="eq-detail-title-block__sub">${eqDetailSubtitle(eq)}</div>
+          </div>
 
-      <div class="eq-modal-footer eq-modal-footer--tri eq-modal-footer--workhead">
-        <button class="btn btn--primary btn--sm eq-modal-footer__btn eq-modal-footer__btn--primary eq-modal-footer__btn--register"
-                data-action="go-register-equip" data-id="${safeId}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          Registrar serviço
-        </button>
-        <button class="btn btn--outline btn--sm eq-modal-footer__btn eq-modal-footer__btn--edit"
-                data-action="edit-equip" data-id="${safeId}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          Editar
-        </button>
-        <div class="eq-modal-footer__more">
-          <button class="eq-modal-footer__more-btn" type="button"
-            data-action="toggle-eq-detail-menu" data-id="${safeId}"
-            aria-haspopup="menu" aria-expanded="false" aria-controls="eq-detail-menu-${safeId}"
-            aria-label="Mais ações para ${Utils.escapeAttr(eq.nome)}"
-            title="Mais ações">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-            </svg>
-          </button>
-          <div class="eq-modal-footer__menu" id="eq-detail-menu-${safeId}" role="menu" hidden>
-            <button type="button" class="eq-modal-footer__menu-item eq-modal-footer__menu-item--danger"
-              role="menuitem" data-action="delete-equip" data-id="${safeId}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          ${basicFieldsBlock}
+
+          <div class="eq-modal-footer eq-modal-footer--tri eq-modal-footer--workhead">
+            <button class="btn btn--primary btn--sm eq-modal-footer__btn eq-modal-footer__btn--primary eq-modal-footer__btn--register"
+                    data-action="go-register-equip" data-id="${safeId}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"/>
               </svg>
-              <span>Excluir equipamento</span>
+              ${Utils.escapeHtml(primaryCtaLabel)}
             </button>
+            <button class="btn btn--outline btn--sm eq-modal-footer__btn eq-modal-footer__btn--edit"
+                    data-action="edit-equip" data-id="${safeId}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Editar
+            </button>
+            <div class="eq-modal-footer__more">
+              <button class="eq-modal-footer__more-btn" type="button"
+                data-action="toggle-eq-detail-menu" data-id="${safeId}"
+                aria-haspopup="menu" aria-expanded="false" aria-controls="eq-detail-menu-${safeId}"
+                aria-label="Mais ações para ${Utils.escapeAttr(eq.nome)}"
+                title="Mais ações">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+                </svg>
+              </button>
+              <div class="eq-modal-footer__menu" id="eq-detail-menu-${safeId}" role="menu" hidden>
+                <button type="button" class="eq-modal-footer__menu-item eq-modal-footer__menu-item--danger"
+                  role="menuitem" data-action="delete-equip" data-id="${safeId}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                  </svg>
+                  <span>Excluir equipamento</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
       </section>
 
-      <!-- ── Hero: score + status. Ring usa linearGradient cyan→success
-           (V7) pra dar identidade visual ao score saudável. Tones --warn
-           e --danger continuam usando cor sólida via classe-modifier. -->
-      <section class="eq-detail-work-summary" aria-label="Resumo operacional do equipamento">
-      <div class="eq-detail-hero eq-detail-hero--${cls}">
-        <div class="eq-detail-hero__body">
-          <div class="eq-hero-score">
-            <div class="eq-score-ring-wrap">
-              <svg class="eq-score-ring" viewBox="0 0 72 72" aria-hidden="true">
-                <defs>
-                  <linearGradient id="eq-score-grad-${safeId}" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#00c8e8"/>
-                    <stop offset="100%" stop-color="#00c853"/>
-                  </linearGradient>
-                </defs>
-                <circle class="eq-score-ring__track" cx="36" cy="36" r="${ringR}"/>
-                <circle class="eq-score-ring__fill eq-score-ring__fill--${cls}" cx="36" cy="36" r="${ringR}"
-                  stroke-dasharray="${ringC}" stroke-dashoffset="${ringOffset}"
-                  ${cls === 'ok' ? `stroke="url(#eq-score-grad-${safeId})"` : ''}/>
-              </svg>
-              <div class="eq-score-ring__num eq-score-ring__num--${cls}" aria-label="Score ${score}%">${score}%</div>
-            </div>
-            <div class="eq-hero-score__info">
+      <section class="eq-detail-support-panel" aria-label="PMOC, risco e histórico recente">
+        ${pmocContextBlock}
+
+        <section class="eq-detail-work-summary" aria-label="Resumo operacional do equipamento">
+          <div class="eq-detail-hero eq-detail-hero--${cls}">
+            <div class="eq-detail-hero__body">
+              <span class="eq-detail-health-pill eq-detail-health-pill--${cls}" aria-label="Saude ${score}%">Saúde ${score}%</span>
               <div class="eq-hero-score__summary">${healthSummary}</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- V4: galeria/lightbox saíram daqui. Fotos agora são editadas via
-           modal-eq-photos aberto pelo avatar CTA. -->
-
-      <!-- ── Painel de risco (V3: sem fórmula exposta) ──
-           A fórmula do score saiu deste painel; agora existe apenas um
-           botão "?" pequeno no cabeçalho que abre o modal explicativo
-           (modal-score-info) com as faixas e fatores.
-           O resumo/explicação do risco foi removido também, ficando só:
-           label + botão ajuda + classificação+score + chip + factors. -->
-      <div class="eq-risk-panel eq-risk-panel--${risk.classification}">
-        <div class="eq-risk-panel__header">
-          <div>
-            <div class="eq-risk-panel__label-row">
-              <span class="eq-risk-panel__label">Fatores de risco</span>
-              <button type="button" class="eq-risk-panel__help" data-action="open-modal"
-                      data-id="modal-score-info" title="Como calculamos o score"
-                      aria-label="Como calculamos o score de risco">?</button>
+          <div class="eq-risk-panel eq-risk-panel--${risk.classification}">
+            <div class="eq-risk-panel__header">
+              <div>
+                <div class="eq-risk-panel__label-row">
+                  <span class="eq-risk-panel__label">Fatores de risco</span>
+                  <button type="button" class="eq-risk-panel__help" data-action="open-modal"
+                          data-id="modal-score-info" title="Como calculamos o score"
+                          aria-label="Como calculamos o score de risco">?</button>
+                </div>
+              </div>
+            </div>
+            <div class="eq-risk-panel__factors">
+              ${(risk.factors.length ? risk.factors : ['rotina estável'])
+                .map((f) => riskFactorChipHtml(f, safeId))
+                .join('')}
             </div>
           </div>
-        </div>
-        <div class="eq-risk-panel__factors">
-          ${(risk.factors.length ? risk.factors : ['rotina estável'])
-            .map((f) => riskFactorChipHtml(f, safeId))
-            .join('')}
-        </div>
-      </div>
+        </section>
 
+        <div class="eq-svc-section">
+          <div class="eq-svc-section__header">
+            <span class="eq-svc-section__title">Histórico de serviços</span>
+            <button class="btn ${regs.length === 0 ? 'btn--primary' : 'btn--outline'} btn--sm eq-svc-section__cta" data-action="go-register-equip" data-id="${safeId}">
+              + Registrar ${regs.length === 0 ? 'primeiro ' : ''}serviço
+            </button>
+          </div>
+          ${svcTimeline}
+        </div>
       </section>
 
-      <aside class="eq-detail-media-panel" aria-label="Fotos do equipamento">
-        ${coverBlock.html}
-      </aside>
-
-      ${pmocContextBlock}
-
-      <!-- ── Ficha técnica (V6: accordion colapsável) ──
-           Todos os detalhes técnicos (Identificação, Operação, Dados da
-           etiqueta) ficam dentro de um único <details> fechado por default.
-           Reduz scroll do modal em ~60% — o técnico no campo quase sempre
-           quer só ver a foto + registrar serviço, não reler a ficha toda.
-           Summary mostra preview curto dos 2 campos mais essenciais
-           (Rotina + Próxima preventiva) pra não precisar expandir em 90% dos
-           casos. Click no summary expande tudo. -->
       <details class="eq-tech-sheet-wrap" id="eq-tech-sheet-${safeId}">
         <summary class="eq-tech-sheet-wrap__summary">
           <div class="eq-tech-sheet-wrap__summary-head">
@@ -391,7 +383,7 @@ export function renderViewEquipDetailHtml(model, deps) {
               <div class="info-row"><span class="info-row__label">TAG</span>${infoRowValueOrEmpty(eq.tag, 'Adicionar TAG', safeId, 'mono', 'tag')}</div>
               <div class="info-row"><span class="info-row__label">Tipo</span><span class="info-row__value">${Utils.escapeHtml(eq.tipo)}</span></div>
               <div class="info-row"><span class="info-row__label">Fluido</span>${infoRowValueOrEmpty(eq.fluido, 'Adicionar fluido', safeId, '', 'fluido')}</div>
-              <div class="info-row"><span class="info-row__label">Modelo</span>${infoRowValueOrEmpty(eq.modelo, 'Adicionar modelo', safeId, '', 'modelo')}</div>
+              <div class="info-row info-row--model-full"><span class="info-row__label">Modelo</span>${infoRowValueOrEmpty(eq.modelo, 'Adicionar modelo', safeId, '', 'modelo')}</div>
               <div class="info-row"><span class="info-row__label">Local</span><span class="info-row__value">${Utils.escapeHtml(eq.local)}</span></div>
               ${setorSelectHtml}
             </div>
@@ -407,72 +399,6 @@ export function renderViewEquipDetailHtml(model, deps) {
           ${dadosPlacaExtrasSectionHtml}
         </div>
       </details>
-
-      <!-- ── Histórico de serviços ── -->
-      <div class="eq-svc-section">
-        <div class="eq-svc-section__header">
-          <span class="eq-svc-section__title">Histórico do equipamento</span>
-          <button class="btn ${regs.length === 0 ? 'btn--primary' : 'btn--outline'} btn--sm eq-svc-section__cta" data-action="go-register-equip" data-id="${safeId}">
-            + Registrar ${regs.length === 0 ? 'primeiro ' : ''}serviço
-          </button>
-        </div>
-        ${svcTimeline}
-      </div>
-
-      <!-- ── Footer (V3: 3-ações) ──
-           Hierarquia nova:
-           · "Registrar serviço" (primary, 60% da largura) — ação mais frequente
-           · "Editar" (outline, flex 1) — ação rotineira secundária
-           · "Excluir" (danger icon 36×36) — ação irreversível reduzida
-           Antes só tinha Editar + Excluir; a primary "Registrar" estava escondida
-           no header da seção de histórico (fora do modal). Promovê-la aqui
-           alinha a UI com o fluxo real: abrir detalhes → registrar serviço. -->
-      <div class="eq-modal-footer-legacy-bottom" hidden aria-hidden="true">
-        <button class="btn btn--primary btn--sm eq-modal-footer__btn eq-modal-footer__btn--primary eq-modal-footer__btn--register"
-                data-action="go-register-equip" data-id="${safeId}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          Registrar serviço
-        </button>
-        <button class="btn btn--outline btn--sm eq-modal-footer__btn eq-modal-footer__btn--edit"
-                data-action="edit-equip" data-id="${safeId}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          Editar
-        </button>
-        <!--
-          Kebab "Mais ações" substitui a lixeira vermelha que ficava direto
-          no footer. Risco de click acidental era real (botão destrutivo a 1
-          toque de distância da ação mais comum). Agora a exclusão fica
-          atrás de ⋯ → "Excluir" — padrão consistente com o setor-card V3.
-        -->
-        <div class="eq-modal-footer__more">
-          <button class="eq-modal-footer__more-btn" type="button"
-            data-action="toggle-eq-detail-menu" data-id="${safeId}"
-            aria-haspopup="menu" aria-expanded="false" aria-controls="eq-detail-menu-legacy-${safeId}"
-            aria-label="Mais ações para ${Utils.escapeAttr(eq.nome)}"
-            title="Mais ações">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
-            </svg>
-          </button>
-          <div class="eq-modal-footer__menu" id="eq-detail-menu-legacy-${safeId}" role="menu" hidden>
-            <button type="button" class="eq-modal-footer__menu-item eq-modal-footer__menu-item--danger"
-              role="menuitem" data-action="delete-equip" data-id="${safeId}">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-              </svg>
-              <span>Excluir equipamento</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
     </div>`,
     firstPhotoUrl: coverBlock.firstPhotoUrl,
   };

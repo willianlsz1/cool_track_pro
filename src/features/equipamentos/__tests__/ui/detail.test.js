@@ -221,6 +221,65 @@ describe('detail HTML render helpers', () => {
     expect(result.firstPhotoUrl).toBeNull();
   });
 
+  it('renderiza painel de campo com foto, basicos visiveis, PMOC decisivo, historico recente e score secundario', () => {
+    const deps = makeDeps({
+      getSetores: vi.fn(() => [{ id: 'setor-1', nome: 'Sala tecnica' }]),
+      getEquipmentVisualMeta: vi.fn(() => ({
+        initials: 'SL',
+        tone: 'green',
+        photoUrl: 'https://cdn.test/split.jpg',
+      })),
+    });
+    const model = makeModel({
+      regs: Array.from({ length: 6 }, (_, index) => ({
+        tipo: `Servico ${index + 1}`,
+        data: `2026-05-0${index + 1}T10:00:00.000Z`,
+      })),
+    });
+
+    const result = renderViewEquipDetailHtml(model, deps);
+
+    expect(result.html).toContain('eq-detail-field-panel');
+    expect(result.html).toContain('eq-detail-support-panel');
+    expect(result.html).toContain('eq-detail-basics-grid');
+    expect(result.html).toContain('eq-detail-basic--modelo');
+    expect(result.html).toContain('eq-detail-basic--proxima-preventiva');
+    expect(result.html).toContain('eq-detail-health-pill');
+    expect(result.html).toContain('Saude 88%');
+    expect(result.html).not.toContain('eq-score-ring');
+    expect(result.html).toContain('Local');
+    expect(result.html).toContain('TAG');
+    expect(result.html).toContain('Setor');
+    expect(result.html).toContain('Tipo');
+    expect(result.html).toContain('Fluido');
+    expect(result.html).toContain('Modelo');
+    expect(result.html).toContain('Próxima preventiva');
+    expect(result.html).toContain('Preventiva prevista para breve.');
+    expect(result.html).toContain('Registrar preventiva');
+    expect(result.html).toContain('eq-svc-more">+1 serviço anterior');
+    expect(result.html).not.toContain('Servico 6');
+    expect(result.html.indexOf('eq-detail-field-panel')).toBeLessThan(
+      result.html.indexOf('eq-detail-support-panel'),
+    );
+    expect(result.html.indexOf('eq-detail-basics-grid')).toBeLessThan(
+      result.html.indexOf('eq-tech-sheet-wrap'),
+    );
+  });
+
+  it('expõe modelo longo completo na ficha técnica sem depender do resumo truncado', () => {
+    const deps = makeDeps();
+    const longModel = 'LG Dual Inverter Voice Artcool UV Nano S4-W18KL31A 220V Série Técnica';
+    const model = makeModel({ eq: { modelo: longModel } });
+
+    const result = renderViewEquipDetailHtml(model, deps);
+
+    expect(result.html).toContain('info-row--model-full');
+    expect(result.html).toContain(longModel);
+    expect(result.html.indexOf('info-row--model-full')).toBeGreaterThan(
+      result.html.indexOf('eq-tech-sheet'),
+    );
+  });
+
   it('escapa campos maliciosos relevantes no HTML completo', () => {
     const deps = makeDeps();
     const model = makeModel({

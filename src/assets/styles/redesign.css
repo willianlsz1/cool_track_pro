@@ -2879,6 +2879,10 @@ body:not(.landing-active) .modal-overlay.is-open:not(.account-modal-overlay) .mo
 /* Mudanca 21 / CP-F.1: detalhe do equipamento como overlay grande controlado.
    O conteudo denso rola dentro do corpo, mantendo fechar e acoes acessiveis. */
 body:not(.landing-active) #modal-eq-det.is-open {
+  top: var(--app-header-total-height, 48px);
+  bottom: 0;
+  min-height: 0;
+  height: auto;
   align-items: center;
   justify-content: center;
   padding: 24px;
@@ -2887,7 +2891,7 @@ body:not(.landing-active) #modal-eq-det.is-open {
 body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
   display: flex;
   width: min(1040px, calc(100vw - 32px)) !important;
-  max-height: calc(100dvh - 48px) !important;
+  max-height: calc(100% - 48px) !important;
   padding: 0 !important;
   overflow: hidden !important;
   flex-direction: column;
@@ -2972,7 +2976,7 @@ body:not(.landing-active) #modal-eq-det .eq-modal-footer {
 
   body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
     width: min(1120px, calc(100vw - 64px)) !important;
-    max-height: calc(100dvh - 64px) !important;
+    max-height: calc(100% - 64px) !important;
   }
 
   body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
@@ -2993,7 +2997,7 @@ body:not(.landing-active) #modal-eq-det .eq-modal-footer {
 
   body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
     width: 100% !important;
-    max-height: calc(100dvh - 16px) !important;
+    max-height: calc(100% - 16px) !important;
     border-radius: 18px 18px 10px 10px;
   }
 
@@ -3021,7 +3025,7 @@ body:not(.landing-active) #modal-eq-det.is-open {
 
 body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
   width: min(1480px, calc(100vw - 48px)) !important;
-  max-height: calc(100dvh - 48px) !important;
+  max-height: calc(100% - 48px) !important;
   border-radius: 16px !important;
   background: #07111f !important;
   border-color: rgba(148, 163, 184, 0.18) !important;
@@ -3294,12 +3298,13 @@ body:not(.landing-active) #modal-eq-det .eq-svc-section__cta {
 @media (max-width: 767px) {
   body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
     width: 100% !important;
-    max-height: calc(100dvh - 12px) !important;
+    max-height: calc(100dvh - 8px) !important;
     border-radius: 16px 16px 8px 8px !important;
   }
 
   body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
-    padding: 12px;
+    padding: 8px;
+    overflow-x: hidden;
   }
 
   body:not(.landing-active) #modal-eq-det .eq-detail-work-header {
@@ -3326,6 +3331,358 @@ body:not(.landing-active) #modal-eq-det .eq-svc-section__cta {
 
   body:not(.landing-active) #modal-eq-det .eq-detail-media-panel .eq-detail-cover {
     height: 120px !important;
+  }
+}
+
+/* Mudanca 21 / CP-F.1: direcao aprovada "A Campo".
+   O detalhe vira painel de consulta rapida: foto/identificacao de um lado,
+   PMOC/historico do outro, ficha completa recolhida. */
+body:not(.landing-active) #modal-eq-det .eq-detail-view--surface {
+  grid-template-areas:
+    'field support'
+    'details details' !important;
+  grid-template-columns: minmax(360px, 0.92fr) minmax(420px, 1.08fr) !important;
+  gap: 16px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-field-panel {
+  display: flex;
+  grid-area: field;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-support-panel {
+  display: flex;
+  grid-area: support;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-field-panel .eq-detail-media-panel {
+  position: static;
+  grid-area: auto !important;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  overflow: hidden;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-field-panel .eq-detail-cover {
+  width: 100%;
+  box-sizing: border-box;
+  height: clamp(260px, 38vh, 420px) !important;
+  max-height: none;
+  border-radius: 14px 14px 0 0;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-work-header {
+  display: flex;
+  grid-area: auto !important;
+  flex-direction: column;
+  gap: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-basics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-basic {
+  min-width: 0;
+  min-height: 54px;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 11px;
+  background: rgba(7, 13, 24, 0.5);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-basic span {
+  display: block;
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-basic b {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-basic--modelo {
+  grid-column: span 2;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-basic__value--muted {
+  color: rgba(148, 163, 184, 0.72) !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-work-summary {
+  display: flex;
+  grid-area: auto !important;
+  flex-direction: column;
+  gap: 12px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-hero__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-health-pill {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-health-pill--warn {
+  border-color: rgba(250, 204, 21, 0.28);
+  background: rgba(250, 204, 21, 0.1);
+  color: #fde68a;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-health-pill--danger {
+  border-color: rgba(251, 113, 133, 0.32);
+  background: rgba(251, 113, 133, 0.1);
+  color: #fda4af;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-hero-score__summary {
+  min-width: 0;
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 0.86rem;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context {
+  grid-area: auto !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context--ok {
+  border-left-color: rgba(34, 197, 94, 0.62);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context--warn {
+  border-left-color: rgba(250, 204, 21, 0.62);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context--danger {
+  border-left-color: rgba(251, 113, 133, 0.72);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context--muted {
+  border-left-color: rgba(34, 211, 238, 0.54);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-svc-section {
+  grid-area: auto !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-tech-sheet-wrap {
+  grid-area: details !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body:not(.landing-active) #modal-eq-det .info-row--model-full {
+  align-items: flex-start;
+}
+
+body:not(.landing-active) #modal-eq-det .info-row--model-full .info-row__value {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-word;
+}
+
+@media (max-height: 760px) and (min-width: 900px) {
+  body:not(.landing-active) #modal-eq-det .eq-detail-field-panel .eq-detail-cover {
+    height: clamp(176px, 28vh, 230px) !important;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-basics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-header {
+    gap: 10px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 1199px) {
+  body:not(.landing-active) #modal-eq-det .eq-detail-view--surface {
+    grid-template-areas:
+      'field'
+      'support'
+      'details' !important;
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 767px) {
+  body:not(.landing-active) #modal-eq-det.is-open {
+    padding: 4px;
+  }
+
+  body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
+    max-height: calc(100% - 8px) !important;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-view--surface {
+    display: flex !important;
+    max-width: 100%;
+    flex-direction: column;
+    gap: 8px;
+    overflow-x: hidden;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-media-panel,
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-header,
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context,
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-summary,
+  body:not(.landing-active) #modal-eq-det .eq-svc-section,
+  body:not(.landing-active) #modal-eq-det .eq-tech-sheet-wrap {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-field-panel,
+  body:not(.landing-active) #modal-eq-det .eq-detail-support-panel {
+    display: contents;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-media-panel {
+    order: 1;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-header {
+    order: 2;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context {
+    order: 3;
+    padding: 10px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-summary {
+    order: 4;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-svc-section {
+    order: 5;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-tech-sheet-wrap {
+    order: 6;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-field-panel .eq-detail-cover {
+    height: clamp(92px, 14vh, 112px) !important;
+    border-radius: 12px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-field-panel .eq-detail-cover--empty {
+    height: 82px !important;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-basics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-basic {
+    min-height: 40px;
+    padding: 7px 8px;
+    border-radius: 9px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-basic span {
+    font-size: 0.66rem;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-basic b {
+    margin-top: 2px;
+    font-size: 0.78rem;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__grid {
+    margin-top: 10px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__item {
+    padding: 8px;
+    border-radius: 9px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__item:first-child {
+    grid-column: 1 / -1;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__footer {
+    margin-top: 10px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-hero__body,
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__head,
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-modal-footer--workhead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(88px, 0.58fr) 38px;
+    gap: 8px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-modal-footer--workhead .btn {
+    min-width: 0;
+    padding-inline: 10px;
+    white-space: nowrap;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-modal-footer__more-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+body:not(.landing-active) .lightbox.is-open {
+  z-index: 9500;
+}
+
+@media (min-width: 1200px) {
+  body:not(.landing-active) #modal-eq-det .eq-detail-basics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-basic--modelo,
+  body:not(.landing-active) #modal-eq-det .eq-detail-basic--proxima-preventiva {
+    grid-column: span 2;
   }
 }
 
