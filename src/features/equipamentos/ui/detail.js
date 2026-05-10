@@ -32,7 +32,7 @@ export function renderViewEquipSetorInfoRow(eq, deps) {
 export function renderViewEquipServiceTimeline(regs, deps) {
   const { Utils } = resolveDetailDeps(deps);
   return regs.length === 0
-    ? `<div class="eq-svc-empty">Nenhum serviço registrado ainda.</div>`
+    ? `<div class="eq-svc-empty">Nenhum serviço registrado neste equipamento.</div>`
     : `<div class="eq-svc-timeline">
         ${regs
           .slice(0, 5)
@@ -183,7 +183,7 @@ export function renderViewEquipPmocContextBlock(model, deps) {
         <div class="eq-pmoc-context__head">
           <div>
             <span class="eq-pmoc-context__eyebrow">PMOC / Preventiva</span>
-            <h3 class="eq-pmoc-context__title">Rotina preventiva do equipamento</h3>
+            <h3 class="eq-pmoc-context__title">Preventiva do equipamento</h3>
           </div>
           <span class="eq-pmoc-context__status">${Utils.escapeHtml(pmoc.statusLabel)}</span>
         </div>
@@ -334,7 +334,7 @@ export function renderViewEquipDetailHtml(model, deps) {
             <span class="eq-tech-sheet-wrap__summary-chip">
               Próx.: <b>${Utils.escapeHtml(proximaPreventiva)}</b>
             </span>
-            <span class="eq-tech-sheet-wrap__summary-hint">toque pra ver tudo</span>
+            <span class="eq-tech-sheet-wrap__summary-hint">toque para ver detalhes</span>
           </div>
         </summary>
         <div class="eq-tech-sheet">
@@ -364,7 +364,7 @@ export function renderViewEquipDetailHtml(model, deps) {
       <!-- ── Histórico de serviços ── -->
       <div class="eq-svc-section">
         <div class="eq-svc-section__header">
-          <span class="eq-svc-section__title">Histórico de serviços</span>
+          <span class="eq-svc-section__title">Histórico do equipamento</span>
           <button class="btn ${regs.length === 0 ? 'btn--primary' : 'btn--outline'} btn--sm eq-svc-section__cta" data-action="go-register-equip" data-id="${safeId}">
             + Registrar ${regs.length === 0 ? 'primeiro ' : ''}serviço
           </button>

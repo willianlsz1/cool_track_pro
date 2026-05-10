@@ -19,23 +19,24 @@ const NUDGE_CONFIGS = {
     targetPlan: PLAN_CODE_PLUS,
     badge: 'POPULAR',
     icon: '⚡',
-    title: 'Fazer upgrade para o CoolTrack Plus',
+    title: 'Liberar rotina de campo com Plus',
     bullets: [
       'Até 15 equipamentos cadastrados',
-      'Registros e histórico ilimitados',
-      '50 PDFs/mês sem marca d’água + assinatura do cliente',
-      '60 envios de WhatsApp/mês',
+      'Registros e histórico de serviços ilimitados',
+      '50 PDFs técnicos/mês sem marca d’água',
+      'Assinatura do cliente no relatório',
+      '60 aberturas de WhatsApp/mês',
     ],
     footer:
-      'Tem frota maior? Conheça também o <strong>Pro</strong> — equipamentos e PDFs ilimitados, PMOC e setores.',
-    ctaLabel: 'Fazer upgrade',
+      'Tem frota maior? O <strong>Pro</strong> libera equipamentos e PDFs sem limite relevante, PMOC formal e setores.',
+    ctaLabel: 'Ver plano Plus',
     highlightPlan: 'plus',
   },
   fromPlus: {
     targetPlan: PLAN_CODE_PRO,
     badge: 'ESCALA',
     icon: '🚀',
-    title: 'Quer escalar? Conheça o Pro',
+    title: 'Liberar PMOC formal com Pro',
     bullets: [
       'Equipamentos ilimitados',
       'PDFs ilimitados',
@@ -44,7 +45,7 @@ const NUDGE_CONFIGS = {
       'Suporte prioritário',
     ],
     footer: null,
-    ctaLabel: 'Fazer upgrade para o Pro',
+    ctaLabel: 'Ver plano Pro',
     highlightPlan: 'pro',
   },
 };
@@ -248,8 +249,8 @@ export const UpgradeNudge = {
           }
         </style>
 
-        <span>&#128274; ${safeFeature} disponível a partir do plano ${requiredPlan}</span>
-        <a href="#" class="upgrade-inline-hint__link" data-action="open-upgrade" data-upgrade-source="upgrade_nudge">Conhecer &rarr;</a>
+        <span>&#128274; ${safeFeature} fica disponível no plano ${requiredPlan}</span>
+        <a href="#" class="upgrade-inline-hint__link" data-action="open-upgrade" data-upgrade-source="upgrade_nudge">Ver plano &rarr;</a>
       </div>
     `;
   },

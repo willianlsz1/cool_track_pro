@@ -323,6 +323,7 @@ export function renderShellViews() {
 
             <!-- ============== Ações rápidas ============== -->
             <div class="registro-kicker">Ações rápidas</div>
+            <p class="registro-bloco__hint">Use um atalho para preencher tipo e descrição. Depois revise antes de salvar.</p>
             <div class="registro-quick" role="group" aria-label="Modelos rápidos de serviço">
               <button type="button" class="registro-quick__tile" data-action="quick-service-template"
                 data-template="limpeza" data-color="cyan" aria-pressed="false">
@@ -358,7 +359,7 @@ export function renderShellViews() {
                 <h2 class="registro-bloco__title">Dados do atendimento</h2>
                 <span class="registro-bloco__required-tag"><svg aria-hidden="true"><use href="#ri-check"/></svg> Obrigatório</span>
               </div>
-              <p class="registro-bloco__hint">Preencha os 5 campos para liberar o PDF do cliente.</p>
+              <p class="registro-bloco__hint">Preencha os campos obrigatórios para salvar e gerar o relatório técnico.</p>
 
               <!-- Equipamento: trigger card + custom picker com SEARCH (UX V2 audit fix).
                    Resolve o gargalo de tecnico com 50+ equips rolando lista nativa.
@@ -448,11 +449,11 @@ export function renderShellViews() {
               </div>
 
               <div class="registro-field">
-                <label class="registro-field__label" for="r-obs">Detalhes pro cliente</label>
+                <label class="registro-field__label" for="r-obs">O que o cliente precisa saber</label>
                 <textarea id="r-obs" class="registro-field__textarea registro-obs"
-                  placeholder="Ex.: limpei filtros e verifiquei pressão de sucção — tudo ok."
+                  placeholder="Ex.: filtros limpos, pressão conferida e equipamento operando normalmente."
                   ></textarea>
-                <p class="registro-field__help">Em poucas palavras. Esse texto vai no relatório que você envia ao cliente.</p>
+                <p class="registro-field__help">Escreva curto e claro. Esse texto aparece no relatório enviado ao cliente.</p>
               </div>
 
               <div class="registro-field">
@@ -553,9 +554,9 @@ export function renderShellViews() {
               <section class="registro-side-card" aria-labelledby="registro-side-summary-title">
                 <h3 class="registro-side-card__title" id="registro-side-summary-title">Resumo do preenchimento</h3>
                 <ul class="registro-side-card__list">
-                  <li>Campos obrigatórios liberam o PDF do cliente.</li>
-                  <li>Evidências ficam anexadas ao serviço.</li>
-                  <li>PMOC/checklist aparece quando aplicável.</li>
+                  <li>Campos obrigatórios salvam o serviço e geram o relatório técnico.</li>
+                  <li>Evidências ficam anexadas como prova do atendimento.</li>
+                  <li>Checklist PMOC aparece só quando fizer sentido para o equipamento.</li>
                 </ul>
               </section>
 
@@ -564,7 +565,7 @@ export function renderShellViews() {
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-camera"/></svg></span>
                 <div class="registro-details__titles">
                   <div class="registro-details__title">Evidências</div>
-                  <div class="registro-details__subtitle">opcional — aumenta a credibilidade</div>
+                  <div class="registro-details__subtitle">opcional — fotos e anexos do atendimento</div>
                 </div>
                 <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
                 </summary>
@@ -572,7 +573,7 @@ export function renderShellViews() {
                 <label id="photo-drop-zone" class="registro-photo-drop" for="input-fotos">
                   <span class="registro-photo-drop__icon" aria-hidden="true"><svg><use href="#ri-camera"/></svg></span>
                   <div class="registro-photo-drop__title" id="photo-drop-text">Toque para adicionar fotos</div>
-                  <p class="registro-photo-drop__hint">Antes / depois, etiqueta do equipamento, peça trocada</p>
+                  <p class="registro-photo-drop__hint">Antes/depois, etiqueta, peça trocada ou condição encontrada</p>
                   <div class="registro-photo-drop__meta">ATÉ 5 FOTOS · JPG OU PNG</div>
                   <input type="file" accept="image/*" multiple id="input-fotos" aria-label="Adicionar fotos" />
                 </label>
@@ -597,7 +598,7 @@ export function renderShellViews() {
 
               <section class="registro-side-card registro-side-card--tip" aria-labelledby="registro-side-tip-title">
                 <h3 class="registro-side-card__title" id="registro-side-tip-title">Dica rápida</h3>
-                <p class="registro-side-card__text">Use as ações rápidas para preencher tipo e descrição, depois revise os dados obrigatórios antes de salvar.</p>
+                <p class="registro-side-card__text">Use as ações rápidas para preencher tipo e descrição. Revise os campos obrigatórios antes de salvar.</p>
               </section>
             </aside>
 
@@ -684,7 +685,7 @@ export function renderShellViews() {
                   <span class="registro-sig-hint__badge registro-sig-hint__badge--pro">PRO</span>
                 </div>
                 <p class="registro-sig-hint__desc">
-                  Preencha o checklist completo conforme NBR 13971 — recurso do plano Pro.
+                  Checklist completo conforme NBR 13971. Recurso Pro para preventiva/PMOC.
                   <span id="r-checklist-upsell-context"></span>
                 </p>
               </div>
@@ -717,8 +718,7 @@ export function renderShellViews() {
                   <span class="registro-sig-hint__badge">Incluso</span>
                 </div>
                 <p class="registro-sig-hint__desc">
-                  Ao salvar, solicitamos a rubrica do cliente —
-                  fica anexada ao registro e aparece no PDF oficial do serviço.
+                  Ao salvar, solicitamos a rubrica do cliente. Ela fica anexada ao registro e aparece no relatório técnico.
                 </p>
               </div>
             </div>
@@ -733,7 +733,7 @@ export function renderShellViews() {
             <div class="action-footer registro-actions" id="tour-signature-anchor">
               <button class="btn btn--primary btn--whats action-footer__primary"
                 data-action="save-and-share-registro"
-                title="Salva o serviço e ja abre o WhatsApp pro cliente">
+                title="Salva o serviço, gera o PDF técnico e abre o WhatsApp">
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.002-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
@@ -764,7 +764,7 @@ export function renderShellViews() {
                   </button>
                 </div>
               </div>
-              <p class="action-footer__hint">💡 Ao tocar em <strong>Salvar e enviar</strong>, o PDF é gerado e o WhatsApp abre direto pro cliente.</p>
+              <p class="action-footer__hint">💡 Ao tocar em <strong>Salvar e enviar</strong>, o PDF técnico é gerado e o WhatsApp abre para você enviar ao cliente.</p>
             </div>
           </div>
         </div>

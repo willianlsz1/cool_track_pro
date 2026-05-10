@@ -8,8 +8,8 @@ export function renderEmptyState() {
       <div class="cli-empty__art" aria-hidden="true">${ICON_USERS}</div>
       <h3 class="cli-empty__title">Nenhum cliente cadastrado</h3>
       <p class="cli-empty__sub">
-        Cadastre clientes pra organizar os equipamentos por carteira e gerar
-        relatórios PMOC formais.
+        Cadastre o primeiro cliente para vincular equipamentos, registrar serviços
+        e manter o histórico organizado.
       </p>
       <button type="button" class="cli-empty__cta"
         data-action="${CLIENTES_ACTIONS.openModal}" data-mode="create">

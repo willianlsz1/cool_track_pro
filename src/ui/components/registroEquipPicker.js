@@ -61,7 +61,7 @@ export function syncRegistroEquipLabel() {
 
   const id = select.value;
   if (!id) {
-    nameEl.textContent = 'Selecione o equipamento...';
+    nameEl.textContent = 'Escolha o equipamento atendido...';
     nameEl.classList.add('registro-equip-trigger__name--placeholder');
     if (metaEl) {
       metaEl.hidden = true;
@@ -106,8 +106,8 @@ function _renderItems(equipamentos, state, currentVal) {
       <div class="registro-equip-picker__empty">
         ${
           _searchTerm
-            ? `Nenhum equipamento encontrado para "${Utils.escapeHtml(_searchTerm)}".`
-            : 'Nenhum equipamento cadastrado ainda.'
+            ? `Nenhum equipamento encontrado para "${Utils.escapeHtml(_searchTerm)}". Revise o termo ou cadastre um equipamento.`
+            : 'Cadastre um equipamento para iniciar o registro de serviço.'
         }
       </div>`;
   }
@@ -182,7 +182,7 @@ function _renderPicker() {
     <div class="registro-equip-picker__backdrop" data-r-action="close-equip-picker" aria-hidden="true"></div>
     <div class="registro-equip-picker__sheet" role="document">
       <div class="registro-equip-picker__head">
-        <h2 class="registro-equip-picker__title" id="registro-equip-picker-title">Escolher equipamento</h2>
+        <h2 class="registro-equip-picker__title" id="registro-equip-picker-title">Escolha o equipamento atendido</h2>
         <button type="button" class="registro-equip-picker__close"
           data-r-action="close-equip-picker" aria-label="Fechar">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -199,7 +199,7 @@ function _renderPicker() {
           <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
         </svg>
         <input type="search" class="registro-equip-picker__search" id="registro-equip-picker-search"
-          placeholder="Buscar por nome, TAG, setor ou cliente..."
+          placeholder="Buscar por equipamento, TAG, local ou cliente..."
           aria-label="Buscar equipamento" autocomplete="off" autofocus
           value="${Utils.escapeAttr(_searchTerm)}" />
       </div>
@@ -211,7 +211,7 @@ function _renderPicker() {
           ? `<div class="registro-equip-picker__footer">
             <button type="button" class="registro-equip-picker__create btn btn--primary"
               data-action="open-modal" data-id="modal-add-eq" data-post-action="register">
-              + Cadastrar primeiro equipamento
+              Cadastrar primeiro equipamento
             </button>
           </div>`
           : ''

@@ -48,10 +48,9 @@ function buildHtml() {
         <div class="pmoc-info-modal__tldr">
           <span class="pmoc-info-modal__tldr-icon" aria-hidden="true">📌</span>
           <p>
-            O <strong>PMOC</strong> é o documento técnico obrigatório pra
-            estabelecimentos com climatização em ambientes coletivos
-            (escritórios, escolas, hospitais, shoppings).
-            Garante a qualidade do ar conforme a legislação federal.
+            O <strong>PMOC</strong> organiza a manutenção preventiva de sistemas
+            de climatização em ambientes coletivos. No app, ele fica separado do
+            relatório técnico de cada visita.
           </p>
         </div>
 
@@ -79,7 +78,7 @@ function buildHtml() {
 
         <!-- Comparação dos 2 PDFs em cards lado a lado -->
         <section class="pmoc-info-modal__section">
-          <h3>Os 2 tipos de PDF do CoolTrack</h3>
+          <h3>Relatório técnico x PMOC formal</h3>
           <div class="pmoc-info-modal__compare">
             <article class="pmoc-info-modal__compare-col">
               <header class="pmoc-info-modal__compare-head">
@@ -91,19 +90,19 @@ function buildHtml() {
                   </svg>
                 </div>
                 <div>
-                  <strong>Relatório técnico</strong>
+                  <strong>Relatório técnico do serviço</strong>
                   <span class="pmoc-info-modal__compare-tier">Todos os planos</span>
                 </div>
               </header>
               <ul>
-                <li>Geração rápida (PDF em segundos)</li>
-                <li>Capa moderna com toolbar de status</li>
-                <li>Assinatura digital, fotos e checklist NBR</li>
-                <li>Envio direto pelo WhatsApp</li>
+                <li>Gerado a partir de um atendimento</li>
+                <li>Inclui descrição, fotos, assinatura e checklist quando houver</li>
+                <li>Serve para enviar ao cliente após a visita</li>
+                <li>WhatsApp abre para você fazer o envio</li>
               </ul>
               <div class="pmoc-info-modal__compare-use">
                 <span aria-hidden="true">💡</span>
-                Ideal pra <strong>envio ao cliente após cada visita</strong>
+                Use para <strong>fechar o atendimento do dia</strong>
               </div>
             </article>
 
@@ -118,19 +117,19 @@ function buildHtml() {
                   </svg>
                 </div>
                 <div>
-                  <strong>PMOC formal <span class="pro-badge pro-badge--inline">PRO</span></strong>
+                  <strong>PMOC formal anual <span class="pro-badge pro-badge--inline">PRO</span></strong>
                   <span class="pmoc-info-modal__compare-tier">Exclusivo Pro</span>
                 </div>
               </header>
               <ul>
-                <li>Documento anual numerado (PMOC YYYY/NN)</li>
-                <li>Capa institucional + 6 seções formais</li>
-                <li>Cadastro técnico + cronograma 12 meses</li>
-                <li>Termo de RT + assinaturas (RT + cliente)</li>
+                <li>Documento anual numerado</li>
+                <li>Cadastro técnico e cronograma 12 meses</li>
+                <li>Termo de RT e assinaturas formais</li>
+                <li>Usa o histórico já registrado no app</li>
               </ul>
               <div class="pmoc-info-modal__compare-use">
                 <span aria-hidden="true">⚖️</span>
-                Ideal pra <strong>conformidade legal e auditoria</strong>
+                Use para <strong>entrega formal e auditoria</strong>
               </div>
             </article>
           </div>
@@ -143,12 +142,12 @@ function buildHtml() {
             <div class="pmoc-info-modal__when-row">
               <span class="pmoc-info-modal__when-trigger">Visita rotineira</span>
               <span class="pmoc-info-modal__when-arrow" aria-hidden="true">→</span>
-              <span class="pmoc-info-modal__when-action">Relatório técnico rápido (WhatsApp, fecha o ciclo)</span>
+              <span class="pmoc-info-modal__when-action">Relatório técnico do serviço</span>
             </div>
             <div class="pmoc-info-modal__when-row">
               <span class="pmoc-info-modal__when-trigger">Fim do ano / contrato anual</span>
               <span class="pmoc-info-modal__when-arrow" aria-hidden="true">→</span>
-              <span class="pmoc-info-modal__when-action">PMOC formal por cliente (documento oficial)</span>
+              <span class="pmoc-info-modal__when-action">PMOC formal anual por cliente</span>
             </div>
           </div>
         </section>

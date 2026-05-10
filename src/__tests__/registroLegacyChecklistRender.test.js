@@ -302,7 +302,7 @@ describe('registro legacy checklist render adapter', () => {
     expect(upsell?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe('PRO');
     expect(upsell?.textContent).toContain('Checklist PMOC preenchível (NBR 13971)');
     expect(upsell?.textContent).toContain(
-      'Preencha o checklist completo conforme NBR 13971 — recurso do plano Pro.',
+      'Checklist completo conforme NBR 13971. Recurso Pro para preventiva/PMOC.',
     );
 
     const cta = upsell?.querySelector('[data-action="open-upgrade"][data-highlight-plan="pro"]');

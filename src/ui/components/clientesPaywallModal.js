@@ -58,12 +58,12 @@ function bindOnce() {
 function buildMarkup({ reason = 'client_limit', highlightPlan = 'plus', limit = 1 } = {}) {
   const isClientLimit = reason === 'client_limit';
   const badge = highlightPlan === 'plus' ? 'PLANO PLUS' : 'UPGRADE';
-  const title = isClientLimit ? `Seu plano Free inclui ${limit} cliente` : 'Organize clientes';
+  const title = isClientLimit ? `Free inclui ${limit} cliente` : 'Mais clientes no app';
   const subtitle = isClientLimit
-    ? 'Voce ja usou o cliente incluido no Free. Para cadastrar mais clientes, faca upgrade para o Plus.'
-    : 'Clientes ficam disponiveis em todos os planos. O upgrade libera mais capacidade para sua carteira.';
+    ? 'Você já cadastrou o cliente incluído no Free. O Plus libera mais clientes para sua rotina.'
+    : 'Clientes ficam disponíveis em todos os planos. O upgrade libera mais capacidade para sua carteira.';
   const context = isClientLimit
-    ? 'Cliente cadastrado no Free. Mais clientes estao disponiveis a partir do plano Plus.'
+    ? 'Cliente cadastrado no Free. Mais clientes ficam disponíveis a partir do plano Plus.'
     : 'Continue organizando clientes conforme o limite do seu plano.';
 
   return `
@@ -117,23 +117,23 @@ function buildMarkup({ reason = 'client_limit', highlightPlan = 'plus', limit = 
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--teal" aria-hidden="true">${ICONS.relatorio}</span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Relatorios profissionais</div>
+            <div class="clientes-paywall__perk-title">Relatórios técnicos</div>
           </div>
         </article>
       </section>
 
       <section class="clientes-paywall__impact" aria-label="Impacto do recurso Clientes">
-        <p>Voce mantem cliente, equipamento e historico no mesmo contexto.</p>
-        <p>Voce evita misturar atendimentos de clientes diferentes.</p>
-        <p>Voce continua trabalhando no mesmo fluxo de campo.</p>
+        <p>Você mantém cliente, equipamento e histórico no mesmo contexto.</p>
+        <p>Você evita misturar atendimentos de clientes diferentes.</p>
+        <p>Você continua trabalhando no mesmo fluxo de campo.</p>
       </section>
 
       <footer class="clientes-paywall__actions">
         <button type="button" class="clientes-paywall__cancel" data-clientes-lock-action="continue">
-          Agora nao
+          Agora não
         </button>
         <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing" data-highlight-plan="${highlightPlan}">
-          Fazer upgrade para o Plus
+          Ver plano Plus
         </button>
       </footer>
 

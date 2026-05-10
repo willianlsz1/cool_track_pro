@@ -25,13 +25,13 @@ describe('ClientesPaywallModal', () => {
     expect(
       overlay.querySelector('.clientes-paywall__hero')?.getAttribute('aria-hidden'),
     ).toBeNull();
-    expect(overlay.textContent).toContain('Seu plano Free inclui 1 cliente');
-    expect(overlay.textContent).toContain('Fazer upgrade para o Plus');
+    expect(overlay.textContent).toContain('Free inclui 1 cliente');
+    expect(overlay.textContent).toContain('Ver plano Plus');
     expect(overlay.textContent).toContain('Cliente cadastrado');
     expect(overlay.textContent).toContain('Mais clientes');
-    expect(overlay.textContent).toContain('Relatorios profissionais');
+    expect(overlay.textContent).toContain('Relatórios técnicos');
     expect(overlay.textContent).toContain('Sem contrato');
-    expect(overlay.textContent).toContain('Agora nao');
+    expect(overlay.textContent).toContain('Agora não');
     expect(overlay.querySelectorAll('.clientes-paywall__mockup-icon svg')).toHaveLength(3);
     expect(overlay.querySelectorAll('.clientes-paywall__perk-icon svg')).toHaveLength(3);
   });

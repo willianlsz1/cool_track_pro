@@ -94,7 +94,7 @@ function buildOverlayHtml(cliente) {
             ${isEdit ? 'Editar cliente' : 'Novo cliente'}
           </h2>
           <p class="cliente-modal__sub">
-            Dados aparecem no cabeçalho do PDF e em relatórios PMOC formais.
+            Identifica o cliente no relatório técnico e no PMOC formal quando aplicável.
           </p>
         </div>
         <button type="button" class="cliente-modal__close" id="cli-close" aria-label="Fechar">
@@ -185,9 +185,8 @@ function buildOverlayHtml(cliente) {
               placeholder="https://wa.me/5511999999999 ou portal do cliente"
               maxlength="240" autocomplete="off" />
             <div class="cliente-modal__hint">
-              Link onde o cliente abre chamado quando algo quebra — WhatsApp,
-              portal próprio, Google Form, e-mail (mailto:). Aparece clicável
-              na capa do PMOC. Exigido pela NBR 13971.
+              Canal usado pelo cliente para solicitar atendimento: WhatsApp,
+              portal, formulário ou e-mail. Aparece no PMOC formal quando preenchido.
             </div>
           </div>
 
@@ -208,7 +207,7 @@ function buildOverlayHtml(cliente) {
               <option value="Outro"${c.finalidade === 'Outro' ? ' selected' : ''}>Outro</option>
             </select>
             <div class="cliente-modal__hint">
-              Aparece em "Informações do Sistema" no PMOC formal.
+              Ajuda a classificar o ambiente no PMOC formal.
             </div>
           </div>
         </section>

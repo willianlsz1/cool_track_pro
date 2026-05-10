@@ -131,7 +131,7 @@ describe('detail HTML render helpers', () => {
     expect(html).toContain('eq-svc-timeline');
     expect(html).toContain('Preventiva &lt;ok&gt;');
     expect(html).toContain('dt:2026-05-01T10:00:00.000Z');
-    expect(empty).toContain('Nenhum serviço registrado ainda.');
+    expect(empty).toContain('Nenhum serviço registrado neste equipamento.');
   });
 
   it('renderiza cover com foto, fallback e ação de fotos para Plus', () => {

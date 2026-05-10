@@ -5,14 +5,14 @@ describe('UpgradeNudge', () => {
     it('renderiza upsell para Plus quando usuário está no Free', () => {
       const html = UpgradeNudge.renderDashboardCard({ planCode: 'free' });
 
-      expect(html).toContain('Fazer upgrade para o CoolTrack Plus');
+      expect(html).toContain('Liberar rotina de campo com Plus');
       expect(html).toContain('POPULAR');
       expect(html).toContain('Até 15 equipamentos cadastrados');
-      expect(html).toContain('Registros e histórico ilimitados');
-      expect(html).toContain('50 PDFs/mês sem marca');
-      expect(html).toContain('assinatura do cliente');
-      expect(html).toContain('60 envios de WhatsApp/mês');
-      expect(html).toContain('Fazer upgrade &rarr;');
+      expect(html).toContain('Registros e histórico de serviços ilimitados');
+      expect(html).toContain('50 PDFs técnicos/mês sem marca');
+      expect(html).toContain('Assinatura do cliente no relatório');
+      expect(html).toContain('60 aberturas de WhatsApp/mês');
+      expect(html).toContain('Ver plano Plus &rarr;');
       expect(html).toContain('data-highlight-plan="plus"');
       // Menciona Pro como caminho futuro
       expect(html).toContain('Pro');
@@ -21,14 +21,14 @@ describe('UpgradeNudge', () => {
     it('renderiza upsell para Pro quando usuário já está no Plus', () => {
       const html = UpgradeNudge.renderDashboardCard({ planCode: 'plus' });
 
-      expect(html).toContain('Quer escalar? Conheça o Pro');
+      expect(html).toContain('Liberar PMOC formal com Pro');
       expect(html).toContain('ESCALA');
       expect(html).toContain('Equipamentos ilimitados');
       expect(html).toContain('PDFs ilimitados');
       expect(html).toContain('WhatsApp ilimitado');
       expect(html).toContain('Agrupamento por setores');
       expect(html).toContain('Suporte prioritário');
-      expect(html).toContain('Fazer upgrade para o Pro &rarr;');
+      expect(html).toContain('Ver plano Pro &rarr;');
       expect(html).toContain('data-highlight-plan="pro"');
     });
 
@@ -41,7 +41,7 @@ describe('UpgradeNudge', () => {
     it('default (sem planCode) trata como Free e destaca Plus', () => {
       const html = UpgradeNudge.renderDashboardCard();
 
-      expect(html).toContain('Fazer upgrade para o CoolTrack Plus');
+      expect(html).toContain('Liberar rotina de campo com Plus');
       expect(html).toContain('data-highlight-plan="plus"');
     });
   });
@@ -50,22 +50,20 @@ describe('UpgradeNudge', () => {
     it('escapa feature no hint inline', () => {
       const html = UpgradeNudge.renderInlineHint('<img src=x onerror=alert(1)>');
 
-      expect(html).toContain(
-        '&lt;img src=x onerror=alert(1)&gt; disponível a partir do plano Plus',
-      );
-      expect(html).toContain('Conhecer &rarr;');
+      expect(html).toContain('&lt;img src=x onerror=alert(1)&gt; fica disponível no plano Plus');
+      expect(html).toContain('Ver plano &rarr;');
     });
 
     it('usa plano Pro quando requiredPlan é pro', () => {
       const html = UpgradeNudge.renderInlineHint('Setores', { requiredPlan: 'pro' });
 
-      expect(html).toContain('Setores disponível a partir do plano Pro');
+      expect(html).toContain('Setores fica disponível no plano Pro');
     });
 
     it('default é plano Plus', () => {
       const html = UpgradeNudge.renderInlineHint('PDF em lote');
 
-      expect(html).toContain('PDF em lote disponível a partir do plano Plus');
+      expect(html).toContain('PDF em lote fica disponível no plano Plus');
     });
   });
 });

@@ -71,8 +71,8 @@ function syncRenderEquipPlanAndSubtitle(context) {
   const subtitleEl = Utils.getEl('equip-page-subtitle');
   if (subtitleEl) {
     subtitleEl.textContent = context.isPro
-      ? 'Ação rápida em todos os clientes e setores.'
-      : 'Acompanhe seus equipamentos e registre serviços rápido.';
+      ? 'Filtre por cliente ou setor e registre serviços sem perder o contexto.'
+      : 'Encontre o equipamento, veja o status e registre serviço em poucos toques.';
   }
   getRequiredRenderEquipDep('populateSetorSelect')(context.isPro);
   if (

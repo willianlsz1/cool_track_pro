@@ -388,8 +388,7 @@ function Header() {
       <div>
         <h1 className="cli-page__title">Meus clientes</h1>
         <p className="cli-page__sub">
-          Cadastre e gerencie seus clientes, organize equipamentos por carteira e gere relatórios
-          PMOC formais.
+          Cadastre clientes, vincule equipamentos e acompanhe serviços sem misturar atendimentos.
         </p>
       </div>
       <button
@@ -413,8 +412,8 @@ function EmptyState() {
       </div>
       <h3 className="cli-empty__title">Nenhum cliente cadastrado</h3>
       <p className="cli-empty__sub">
-        Cadastre clientes pra organizar os equipamentos por carteira e gerar relatórios PMOC
-        formais.
+        Cadastre o primeiro cliente para vincular equipamentos, registrar serviços e manter o
+        histórico organizado.
       </p>
       <button
         type="button"
@@ -581,7 +580,7 @@ function AlertStrip({ indexed }) {
           {stale} cliente{stale !== 1 ? 's' : ''} sem manutenção há mais de 60 dias
         </div>
         <div className="cli-alert__desc">
-          Mantenha a regularidade e evite falhas nos equipamentos.
+          Revise a próxima manutenção e priorize os equipamentos que pedem atenção.
         </div>
       </div>
       <button
@@ -840,7 +839,9 @@ function ClienteCard({ cliente, data, clienteAlerts, nowMs }) {
           <span>
             Próxima manutenção: {safeString(pmoc.nextMaintenanceLabel, 'Sem manutenção prevista')}
           </span>
-          <span>{safeString(pmoc.statusHelp, 'Sem cronograma ativo para este cliente.')}</span>
+          <span>
+            {safeString(pmoc.statusHelp, 'Sem cronograma preventivo ativo para este cliente.')}
+          </span>
         </div>
       </section>
 

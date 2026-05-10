@@ -41,6 +41,7 @@ describe('PMOC overlay surfaces', () => {
     expect(overlay?.dataset.surface).toBe('modal');
     expect(overlay?.getAttribute('aria-modal')).toBe('true');
     expect(overlay?.querySelector('#pmoc-generate')).toBeTruthy();
+    expect(overlay?.textContent).toContain('Não substitui o relatório técnico de cada visita');
   });
 
   it('marca bloqueio PMOC nao-Pro como paywall', async () => {
@@ -56,6 +57,7 @@ describe('PMOC overlay surfaces', () => {
     expect(overlay).toBeTruthy();
     expect(overlay?.dataset.surface).toBe('paywall');
     expect(overlay?.querySelector('#pmoc-upgrade')?.dataset.highlightPlan).toBe('pro');
+    expect(overlay?.textContent).toContain('PMOC formal anual é recurso Pro');
   });
 
   it('marca modal informativo PMOC como modal real', async () => {
@@ -67,5 +69,6 @@ describe('PMOC overlay surfaces', () => {
     expect(overlay).toBeTruthy();
     expect(overlay?.dataset.surface).toBe('modal');
     expect(overlay?.getAttribute('aria-labelledby')).toBe('pmoc-info-modal-title');
+    expect(overlay?.textContent).toContain('Relatório técnico x PMOC formal');
   });
 });

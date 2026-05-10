@@ -151,6 +151,9 @@ function QuickTemplates() {
   return (
     <>
       <div className="registro-kicker">Ações rápidas</div>
+      <p className="registro-bloco__hint">
+        Use um atalho para preencher tipo e descrição. Depois revise antes de salvar.
+      </p>
       <div className="registro-quick" role="group" aria-label="Modelos rápidos de serviço">
         {QUICK_TEMPLATES.map((template) => (
           <button
@@ -253,7 +256,9 @@ function MainFields({ viewModel, equipmentOptions, technicianOptions }) {
             <SpriteIcon id="ri-check" /> Obrigatório
           </span>
         </div>
-        <p className="registro-bloco__hint">Preencha os 5 campos para liberar o PDF do cliente.</p>
+        <p className="registro-bloco__hint">
+          Preencha os campos obrigatórios para salvar e gerar o relatório técnico.
+        </p>
 
         <EquipmentField
           form={form}
@@ -347,17 +352,17 @@ function MainFields({ viewModel, equipmentOptions, technicianOptions }) {
 
         <div className="registro-field">
           <label className="registro-field__label" htmlFor="r-obs">
-            Detalhes pro cliente
+            O que o cliente precisa saber
           </label>
           <textarea
             key={`obs-${text(form.obs)}`}
             id="r-obs"
             className="registro-field__textarea registro-obs"
-            placeholder="Ex.: limpei filtros e verifiquei pressão de sucção — tudo ok."
+            placeholder="Ex.: filtros limpos, pressão conferida e equipamento operando normalmente."
             defaultValue={text(form.obs)}
           ></textarea>
           <p className="registro-field__help">
-            Em poucas palavras. Esse texto vai no relatório que você envia ao cliente.
+            Escreva curto e claro. Esse texto aparece no relatório enviado ao cliente.
           </p>
         </div>
 

@@ -44,10 +44,10 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
             ${isPro ? '' : '<span class="pro-badge pro-badge--inline">PRO</span>'}
           </h2>
           <p class="pmoc-modal__sub">
-            Documento anual conforme NBR 13971 — capa institucional, cadastro técnico,
-            cronograma 12 meses e termo de responsabilidade técnica.
+            Documento anual conforme NBR 13971, com capa institucional, cadastro técnico,
+            cronograma e termo de responsabilidade.
           </p>
-          <p class="pmoc-modal__sub">O PMOC é montado automaticamente com os serviços registrados.</p>
+          <p class="pmoc-modal__sub">Usa clientes, equipamentos e serviços registrados. Não substitui o relatório técnico de cada visita.</p>
         </div>
         <button type="button" class="pmoc-modal__close" id="pmoc-close" aria-label="Fechar">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -64,9 +64,8 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
             : `<div class="pmoc-modal__lock">
                 <div class="pmoc-modal__lock-icon" aria-hidden="true">🔒</div>
                 <div>
-                  <strong>PMOC formal é exclusivo do plano Pro.</strong>
-                  <p>O Pro inclui geração ilimitada de documentos PMOC com
-                     numeração sequencial, layout monocromático formal,
+                  <strong>PMOC formal anual é recurso Pro.</strong>
+                  <p>Use quando precisar entregar o documento oficial com numeração,
                      termo de RT e cronograma anual.</p>
                 </div>
               </div>`
@@ -85,11 +84,11 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
           <select id="pmoc-cliente" class="form-control pmoc-modal__input" ${
             isPro ? '' : 'disabled'
           }>
-            <option value=""${preselectClienteId ? '' : ' selected'}>Sem cliente vinculado (genérico)</option>
+            <option value=""${preselectClienteId ? '' : ' selected'}>Sem cliente vinculado (geral)</option>
             ${optionsClientes}
           </select>
           <div class="pmoc-modal__hint">
-            Filtra equipamentos do cliente. Sem vínculo gera PMOC com todos seus equipamentos.
+            Filtra os equipamentos do cliente. Sem vínculo, gera um PMOC geral com todos os equipamentos cadastrados.
           </div>
         </div>
 
@@ -100,11 +99,11 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
           ${
             isPro
               ? `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-generate">
-                  Gerar PDF PMOC
+                  Gerar PMOC formal
                 </button>`
               : `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-upgrade"
                   data-action="open-upgrade" data-upgrade-source="pmoc_modal" data-highlight-plan="pro">
-                  Desbloquear com Pro →
+                  Ver plano Pro →
                 </button>`
           }
         </div>

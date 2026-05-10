@@ -141,7 +141,7 @@ function buildEmptyState({
     return {
       title: `${titleName} ainda não tem equipamentos`,
       description:
-        'Adicione o primeiro equipamento deste cliente pra começar a registrar manutenções e gerar relatórios.',
+        'Adicione o primeiro equipamento deste cliente para registrar serviços com histórico certo.',
       cta: {
         label: 'Adicionar primeiro equipamento',
         action: 'eq-add-for-cliente',
@@ -152,8 +152,8 @@ function buildEmptyState({
 
   if (setorId === '__sem_setor__') {
     return {
-      title: 'Nenhum equipamento órfão',
-      description: 'Todos os equipamentos já estão atribuídos a um setor. 👏',
+      title: 'Nenhum equipamento sem setor',
+      description: 'Todos os equipamentos já estão vinculados a um setor.',
       cta: null,
     };
   }
@@ -161,7 +161,7 @@ function buildEmptyState({
   if (setorId) {
     return {
       title: 'Nenhum equipamento neste setor',
-      description: 'Atribua equipamentos a este setor ao cadastrá-los.',
+      description: 'Cadastre ou mova equipamentos para este setor quando fizer sentido.',
       cta: null,
     };
   }
@@ -169,7 +169,7 @@ function buildEmptyState({
   if (statusFilter === 'em-atencao' || statusFilter === 'em-atenção') {
     return {
       title: 'Nenhum equipamento pedindo atenção',
-      description: 'Parque em ordem — nada pra olhar com lupa agora.',
+      description: 'Nada crítico agora. Continue acompanhando as próximas preventivas.',
       cta: null,
     };
   }
@@ -197,7 +197,7 @@ function buildEmptyState({
   if (!filtro && !hasAnyEquipamentos) {
     return {
       title: 'Nenhum equipamento ainda',
-      description: 'Cadastre o primeiro equipamento para registrar serviços e gerar relatórios.',
+      description: 'Cadastre o primeiro equipamento para registrar serviços no lugar certo.',
       cta: {
         label: '+ Novo equipamento',
         action: 'open-modal',
@@ -208,7 +208,7 @@ function buildEmptyState({
 
   return {
     title: 'Nenhum equipamento encontrado',
-    description: 'Tente outro termo ou cadastre um novo.',
+    description: 'Tente outro termo, confira filtros ou cadastre um novo equipamento.',
     cta: {
       label: '+ Novo equipamento',
       action: 'open-modal',
