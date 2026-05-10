@@ -64,6 +64,7 @@ export const DASHBOARD_PUBLIC_IDS = Object.freeze({
 
 export const DASHBOARD_ACTIONS = Object.freeze({
   openModal: 'open-modal',
+  startServiceRegistration: 'start-service-registration',
   goRegisterEquip: 'go-register-equip',
   onboardingDismiss: 'onboarding-dismiss',
   openUpgrade: 'open-upgrade',

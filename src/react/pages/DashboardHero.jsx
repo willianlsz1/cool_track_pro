@@ -6,7 +6,7 @@ const DEFAULT_HERO = Object.freeze({
   greeting: 'Olá, Técnico',
   summary: '0 equipamentos • 0 serviços no mês',
   primaryCta: {
-    nav: 'registro',
+    action: 'start-service-registration',
     label: 'Registrar serviço',
   },
   secondaryCta: {

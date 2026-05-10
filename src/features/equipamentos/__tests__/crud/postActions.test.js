@@ -18,6 +18,7 @@ function createHarness() {
     focusSpy,
     clickSpy,
     goTo: vi.fn(),
+    startServiceRegistration: vi.fn(),
     requestAnimationFrameRef: vi.fn((callback) => callback()),
     documentRef: document,
     pmocButton,
@@ -33,6 +34,7 @@ function run(overrides = {}) {
     payload: { equipId: 'eq-1', clienteId: 'cli-1' },
     focusNameInput: harness.focusNameInput,
     goTo: harness.goTo,
+    startServiceRegistration: harness.startServiceRegistration,
     requestAnimationFrameRef: harness.requestAnimationFrameRef,
     documentRef: harness.documentRef,
     ...overrides,
@@ -61,11 +63,12 @@ describe('crud/postActions', () => {
     expect(harness.clickSpy).not.toHaveBeenCalled();
   });
 
-  it('chama goTo para registro com equipId no fluxo register', () => {
+  it('chama orquestrador de registro com equipId no fluxo register', () => {
     const harness = run({ openRegistro: true });
 
-    expect(harness.goTo).toHaveBeenCalledTimes(1);
-    expect(harness.goTo).toHaveBeenCalledWith('registro', { equipId: 'eq-1' });
+    expect(harness.startServiceRegistration).toHaveBeenCalledTimes(1);
+    expect(harness.startServiceRegistration).toHaveBeenCalledWith({ equipId: 'eq-1' });
+    expect(harness.goTo).not.toHaveBeenCalled();
     expect(harness.focusNameInput).not.toHaveBeenCalled();
     expect(harness.requestAnimationFrameRef).not.toHaveBeenCalled();
     expect(harness.clickSpy).not.toHaveBeenCalled();
@@ -74,6 +77,7 @@ describe('crud/postActions', () => {
   it('não navega para registro quando equipId não existe', () => {
     const harness = run({ openRegistro: true, payload: { clienteId: 'cli-1' } });
 
+    expect(harness.startServiceRegistration).not.toHaveBeenCalled();
     expect(harness.goTo).not.toHaveBeenCalled();
     expect(harness.clickSpy).not.toHaveBeenCalled();
   });

@@ -91,8 +91,8 @@ describe('dashboard hero React island', () => {
     const cta = root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroCta}`);
     const secondaryCta = root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroSecondaryCta}`);
     expect(cta?.classList.contains('dash__hero-cta')).toBe(true);
-    expect(cta?.dataset.nav).toBe('registro');
-    expect(cta?.hasAttribute('data-action')).toBe(false);
+    expect(cta?.dataset.action).toBe('start-service-registration');
+    expect(cta?.hasAttribute('data-nav')).toBe(false);
     expect(cta?.hasAttribute('data-id')).toBe(false);
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroCtaLabel}`)?.textContent).toBe(
       'Registrar servi\u00e7o',
@@ -160,7 +160,8 @@ describe('dashboard hero React island', () => {
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroSummary}`)?.textContent).toBe(
       '1 clientes \u2022 1 equipamentos \u2022 1 servi\u00e7os no m\u00eas',
     );
-    expect(cta?.dataset.nav).toBe('registro');
+    expect(cta?.dataset.action).toBe('start-service-registration');
+    expect(cta?.hasAttribute('data-nav')).toBe(false);
     expect(secondaryCta?.dataset.nav).toBe('clientes');
     expect(secondaryCta?.hasAttribute('data-action')).toBe(false);
     expect(secondaryCta?.hasAttribute('data-id')).toBe(false);
@@ -179,7 +180,7 @@ describe('dashboard hero React island', () => {
           greeting: malicious,
           summary: malicious,
           primaryCta: {
-            nav: 'registro',
+            action: 'start-service-registration',
             label: malicious,
           },
           secondaryCta: {

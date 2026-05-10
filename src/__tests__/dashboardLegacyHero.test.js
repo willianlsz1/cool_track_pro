@@ -237,8 +237,8 @@ describe('dashboard legacy hero render adapter', () => {
       '0 equipamentos \u2022 0 servi\u00e7os no m\u00eas',
     );
     expect(cta?.classList.contains('dash__hero-cta')).toBe(true);
-    expect(cta?.dataset.nav).toBe('registro');
-    expect(cta?.hasAttribute('data-action')).toBe(false);
+    expect(cta?.dataset.action).toBe(DASHBOARD_ACTIONS.startServiceRegistration);
+    expect(cta?.hasAttribute('data-nav')).toBe(false);
     expect(cta?.hasAttribute('data-id')).toBe(false);
     expect(byId(DASHBOARD_PUBLIC_IDS.heroCtaLabel)?.textContent).toBe('Registrar servi\u00e7o');
     expect(secondaryCta?.dataset.action).toBe(DASHBOARD_ACTIONS.openModal);
@@ -278,7 +278,8 @@ describe('dashboard legacy hero render adapter', () => {
     expect(byId(DASHBOARD_PUBLIC_IDS.heroSummary)?.textContent).toBe(
       '1 clientes \u2022 1 equipamentos \u2022 1 servi\u00e7os no m\u00eas',
     );
-    expect(cta?.dataset.nav).toBe('registro');
+    expect(cta?.dataset.action).toBe(DASHBOARD_ACTIONS.startServiceRegistration);
+    expect(cta?.hasAttribute('data-nav')).toBe(false);
     expect(byId(DASHBOARD_PUBLIC_IDS.heroCtaLabel)?.textContent).toBe('Registrar servi\u00e7o');
     expect(secondaryCta?.dataset.nav).toBe('clientes');
     expect(secondaryCta?.hasAttribute('data-action')).toBe(false);
@@ -300,7 +301,9 @@ describe('dashboard legacy hero render adapter', () => {
     expect(hero?.querySelector('[onerror]')).toBeNull();
     expect(hero?.querySelector('[onclick]')).toBeNull();
     expect(hero?.innerHTML).not.toMatch(/javascript:/i);
-    expect(byId(DASHBOARD_PUBLIC_IDS.heroCta)?.dataset.nav).toBe('registro');
+    expect(byId(DASHBOARD_PUBLIC_IDS.heroCta)?.dataset.action).toBe(
+      DASHBOARD_ACTIONS.startServiceRegistration,
+    );
   });
 
   it('documents public contracts and delegates hero rendering to the React island', () => {

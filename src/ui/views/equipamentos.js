@@ -144,6 +144,7 @@ import {
   configureOpenEditEquip,
   openEditEquip,
 } from '../../features/equipamentos/ui/openEditEquip.js';
+import { startServiceRegistration } from '../controller/serviceRegistrationEntry.js';
 import {
   configureRenderFlatList,
   renderFlatList,
@@ -236,6 +237,7 @@ configureSaveEquip({
   trackEvent,
   Toast,
   goTo,
+  startServiceRegistration,
   collectSaveEquipBaseFormValues,
   getValue: Utils.getVal,
   validateSaveEquipPayload,

@@ -74,6 +74,9 @@ export function registerAppRoutes() {
       // Lazy import (carrega so quando entra em /registro).
       import('../components/registroEquipPicker.js').then((m) => {
         m.initRegistroEquipPicker?.();
+        if (params.openEquipPicker) {
+          m.openRegistroEquipPicker?.();
+        }
       });
       updateHeader();
     },

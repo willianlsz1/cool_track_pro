@@ -48,6 +48,14 @@ describe('shell bootstrap', () => {
     expect(
       document.getElementById('nav-registro')?.querySelector('.nav-btn__icon svg'),
     ).not.toBeNull();
+    expect(document.getElementById('nav-registro')?.dataset.action).toBe(
+      'start-service-registration',
+    );
+    expect(document.getElementById('nav-registro')?.hasAttribute('data-nav')).toBe(false);
+    expect(document.getElementById('dash-hero-cta')?.dataset.action).toBe(
+      'start-service-registration',
+    );
+    expect(document.getElementById('dash-hero-cta')?.hasAttribute('data-nav')).toBe(false);
   });
 
   it('syncs shell metrics into global layout variables', async () => {

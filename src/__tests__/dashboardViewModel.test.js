@@ -103,6 +103,7 @@ describe('dashboard view model', () => {
       greeting: 'Ol\u00e1, Ana',
       summary: '0 equipamentos \u2022 0 servi\u00e7os no m\u00eas',
       tone: 'ok',
+      primaryCta: { action: 'start-service-registration' },
     });
     expect(vm.kpis.ativos).toMatchObject({
       valueLabel: '\u2014',
@@ -266,6 +267,7 @@ describe('dashboard view model', () => {
     });
     expect(DASHBOARD_ACTIONS).toMatchObject({
       openModal: 'open-modal',
+      startServiceRegistration: 'start-service-registration',
       goRegisterEquip: 'go-register-equip',
       continueDraft: 'continue-draft',
       discardDraft: 'discard-draft',

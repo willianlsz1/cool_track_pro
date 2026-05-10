@@ -5,6 +5,7 @@ export function runSaveEquipPostActions({
   payload,
   focusNameInput,
   goTo,
+  startServiceRegistration,
   requestAnimationFrameRef,
   documentRef,
 }) {
@@ -17,7 +18,11 @@ export function runSaveEquipPostActions({
   }
 
   if (openRegistro && equipId) {
-    goTo('registro', { equipId });
+    if (typeof startServiceRegistration === 'function') {
+      startServiceRegistration({ equipId });
+    } else {
+      goTo('registro', { equipId });
+    }
   }
 
   if (openPmoc) {

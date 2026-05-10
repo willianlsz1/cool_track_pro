@@ -11,7 +11,7 @@ export function renderShellViews() {
                 <p class="dash__hero-datetime" id="dash-hero-period">01/01/2026 - 31/01/2026</p>
               </div>
               <div class="dash__hero-cta-wrap">
-                <button class="dash__hero-cta" id="dash-hero-cta" type="button" data-nav="registro">
+                <button class="dash__hero-cta" id="dash-hero-cta" type="button" data-action="start-service-registration">
                   <span class="dash__hero-cta-label" id="dash-hero-cta-label">Registrar serviço</span>
                 </button>
                 <button class="dash__hero-cta dash__hero-cta--secondary" id="dash-hero-cta-secondary"

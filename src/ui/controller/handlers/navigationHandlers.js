@@ -23,6 +23,7 @@ import {
 import { isCachedPlanPlusOrHigher } from '../../../core/plans/planCache.js';
 import { PushOptInCard } from '../../components/pushOptInCard.js';
 import { InstallAppPrompt } from '../../components/installAppPrompt.js';
+import { startServiceRegistration } from '../serviceRegistrationEntry.js';
 
 let isHelpOpen = false;
 
@@ -273,9 +274,15 @@ export function bindNavigationHandlers() {
     SupportFeedbackModal.open('feedback');
   });
 
+  on('start-service-registration', (el) => {
+    startServiceRegistration({
+      equipId: el?.dataset?.equipId || el?.dataset?.id || '',
+    });
+  });
+
   on('go-register-equip', (el) => {
     Modal.close('modal-eq-det');
-    goTo('registro', { equipId: el.dataset.id });
+    startServiceRegistration({ equipId: el.dataset.id });
   });
 
   on('edit-reg', (el) => {

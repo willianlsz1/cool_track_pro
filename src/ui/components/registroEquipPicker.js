@@ -92,6 +92,11 @@ export function syncRegistroEquipLabel() {
   }
 }
 
+export function openRegistroEquipPicker() {
+  initRegistroEquipPicker();
+  _openPicker();
+}
+
 /* ─────────────────── render do picker ─────────────────────────────── */
 
 function _renderItems(equipamentos, state, currentVal) {
@@ -204,7 +209,7 @@ function _renderPicker() {
         equipamentos.length === 0
           ? `<div class="registro-equip-picker__footer">
             <button type="button" class="registro-equip-picker__create"
-              data-action="open-modal" data-id="modal-add-eq">
+              data-action="open-modal" data-id="modal-add-eq" data-post-action="register">
               + Cadastrar primeiro equipamento
             </button>
           </div>`
@@ -298,6 +303,12 @@ export function initRegistroEquipPicker() {
     if (trigger) {
       event.preventDefault();
       _openPicker();
+      return;
+    }
+    // Mantem o modal de cadastro visivel quando o picker vazio oferece criacao.
+    const create = event.target.closest?.('.registro-equip-picker__create');
+    if (create) {
+      _closePicker();
       return;
     }
     // Click no botao close OU backdrop fecha

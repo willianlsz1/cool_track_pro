@@ -33,6 +33,7 @@ function createDeps(overrides = {}) {
     trackEvent: vi.fn(),
     Toast: { warning: vi.fn(), success: vi.fn() },
     goTo: vi.fn(),
+    startServiceRegistration: vi.fn(),
     collectSaveEquipBaseFormValues: vi.fn(() => {
       calls.push('collectSaveEquipBaseFormValues');
       return { tipo: 'Split Hi-Wall' };
@@ -214,6 +215,7 @@ describe('crud/saveEquip', () => {
         openRegistro: true,
         openPmoc: false,
         payload: deps.payload,
+        startServiceRegistration: deps.startServiceRegistration,
       }),
     );
   });

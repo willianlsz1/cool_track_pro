@@ -28,6 +28,7 @@ export async function saveEquip(options = {}) {
     trackEvent,
     Toast,
     goTo,
+    startServiceRegistration,
     collectSaveEquipBaseFormValues,
     getValue,
     validateSaveEquipPayload,
@@ -134,6 +135,7 @@ export async function saveEquip(options = {}) {
     payload,
     focusNameInput,
     goTo,
+    startServiceRegistration,
     requestAnimationFrameRef,
     documentRef,
   });

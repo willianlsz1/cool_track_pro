@@ -225,7 +225,7 @@ function buildHero({
       ? `${clienteCount} clientes • ${equipCount} equipamentos • ${mesCount} serviços no mês`
       : `${equipLabel} • ${mesLabel}`,
     primaryCta: {
-      nav: 'registro',
+      action: DASHBOARD_ACTIONS.startServiceRegistration,
       label: 'Registrar serviço',
     },
     secondaryCta: isEmpresaPro
