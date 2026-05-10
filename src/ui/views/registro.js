@@ -25,7 +25,7 @@ import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPr
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
-import { asArray, isPreventivaTipo } from '../helpers/registroPure.js';
+import { asArray } from '../helpers/registroPure.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
 import {
@@ -88,6 +88,7 @@ import {
   validateChecklist,
   summarizeChecklist,
 } from '../../domain/pmoc/checklistTemplates.js';
+import { isPreventivaOrPmocServiceType } from '../../domain/pmoc/serviceType.js';
 
 // O meter de progresso vive estático dentro do hero do template.
 // Apontamos pro hero + o contador numérico ao invés de injetar markup na hora.
@@ -1063,6 +1064,37 @@ function _showPmocChecklistUpsell(visible) {
   if (upsell) upsell.hidden = !visible;
 }
 
+function _getRegistroChecklistServiceType() {
+  const tipo = Utils.getVal('r-tipo');
+  if (tipo !== 'Outro') return tipo;
+  return Utils.getVal('r-tipo-custom') || tipo;
+}
+
+function _isRegistroChecklistRecommended() {
+  return (
+    Boolean(Utils.getVal('r-equip')) &&
+    isPreventivaOrPmocServiceType(_getRegistroChecklistServiceType())
+  );
+}
+
+function _applyPmocChecklistDiscoveryState() {
+  const recommended = _isRegistroChecklistRecommended();
+  const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
+  const pri = document.getElementById('r-checklist-pri');
+  const upsell = document.getElementById(REGISTRO_CHECKLIST_UPSELL_ID);
+  const upsellContext = document.getElementById('r-checklist-upsell-context');
+
+  if (wrapper) {
+    wrapper.dataset.pmocRecommended = recommended ? 'true' : 'false';
+    wrapper.open = !wrapper.hidden && recommended;
+  }
+  if (pri) pri.hidden = !recommended;
+  if (upsell) upsell.dataset.pmocRecommended = recommended ? 'true' : 'false';
+  if (upsellContext) {
+    upsellContext.textContent = recommended ? ' Recomendado para preventiva/PMOC.' : '';
+  }
+}
+
 function _redirectPmocChecklistUpsell() {
   trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
   goTo('pricing', { highlightPlan: 'pro' });
@@ -1075,6 +1107,7 @@ function _ensurePmocChecklistAccess({ redirect = false } = {}) {
   if (wrapper) wrapper.hidden = true;
   unmountRegistroChecklist();
   _showPmocChecklistUpsell(true);
+  _applyPmocChecklistDiscoveryState();
 
   if (redirect) _redirectPmocChecklistUpsell();
   return false;
@@ -1099,16 +1132,13 @@ function _updateChecklistSummary() {
     Number.isFinite(periodicidade) && periodicidade > 0
       ? `${periodicidade} dias`
       : 'periodicidade não definida';
-  const tipoServico = Utils.getVal('r-tipo') || 'Serviço';
+  const tipoServico = _getRegistroChecklistServiceType() || 'Serviço';
   const filled = s.ok + s.fail + s.na;
   summaryEl.textContent = `${tipoServico} · ${periodicidadeLabel} · ${filled}/${s.total} itens preenchidos`;
 }
 
 function _refreshChecklistPriBadge() {
-  const pri = document.getElementById('r-checklist-pri');
-  if (!pri) return;
-  const isPreventiva = isPreventivaTipo(Utils.getVal('r-tipo'));
-  pri.hidden = !isPreventiva;
+  _applyPmocChecklistDiscoveryState();
 }
 
 function getRegistroChecklistElements() {
@@ -1146,9 +1176,11 @@ export function renderChecklist() {
   const equipId = Utils.getVal('r-equip');
   if (!equipId) {
     wrapper.hidden = true;
+    delete wrapper.dataset.pmocRecommended;
     clearRegistroChecklistState();
     unmountRegistroChecklist();
     _showPmocChecklistUpsell(false);
+    _applyPmocChecklistDiscoveryState();
     _updateChecklistSummary();
     return;
   }
@@ -1157,6 +1189,7 @@ export function renderChecklist() {
     wrapper.hidden = true;
     unmountRegistroChecklist();
     _showPmocChecklistUpsell(false);
+    _applyPmocChecklistDiscoveryState();
     return;
   }
 
@@ -1314,7 +1347,11 @@ function _bindRegistroHeaderFieldHandlers() {
   const tipoCustomInput = Utils.getEl('r-tipo-custom');
   if (tipoCustomInput && tipoCustomInput.dataset.registroTipoCustomBound !== '1') {
     tipoCustomInput.dataset.registroTipoCustomBound = '1';
-    tipoCustomInput.addEventListener('input', _updateProgressBar);
+    tipoCustomInput.addEventListener('input', () => {
+      _updateProgressBar();
+      _refreshChecklistPriBadge();
+      _updateChecklistSummary();
+    });
   }
 }
 
@@ -1594,7 +1631,7 @@ function validateRegistroOperationalFields({ data, status }) {
 function warnRegistroChecklistSoftRequiredGaps(tipo) {
   const warning = buildRegistroChecklistSoftRequiredWarning(tipo, {
     checklist: getCurrentChecklist(),
-    isPreventivaTipo,
+    isPreventivaTipo: isPreventivaOrPmocServiceType,
     validateChecklist,
   });
   if (warning) Toast.warning(warning);

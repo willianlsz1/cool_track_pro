@@ -696,6 +696,7 @@ export function renderShellViews() {
                 </div>
                 <p class="registro-sig-hint__desc">
                   Preencha o checklist completo conforme NBR 13971 — recurso do plano Pro.
+                  <span id="r-checklist-upsell-context"></span>
                 </p>
               </div>
               <button

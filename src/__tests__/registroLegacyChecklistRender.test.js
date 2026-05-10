@@ -236,6 +236,7 @@ async function renderChecklistForState(
     wrapper: document.getElementById('r-checklist-details'),
     body: document.getElementById('r-checklist-body'),
     summary: document.getElementById('r-checklist-summary'),
+    pri: document.getElementById('r-checklist-pri'),
     upsell: document.getElementById('r-checklist-upsell'),
   };
 }
@@ -347,6 +348,72 @@ describe('registro legacy checklist render adapter', () => {
     });
     expect(summary.textContent).toMatch(/0\/\d+ itens preenchidos/);
     expectExternalFlowsNotExecuted();
+  });
+
+  it('destaca e abre checklist quando o tipo e PMOC/preventiva com equipamento selecionado', async () => {
+    setupDom();
+    const registro = await loadRegistroView();
+    await mountRegistroHeader(registro, { equipId: 'eq-1' });
+    document.getElementById('r-tipo').value = 'Outro';
+    document.getElementById('r-tipo-custom').value = 'Checklist PMOC';
+
+    await act(async () => {
+      registro.renderChecklist();
+      await flushAsyncWork();
+    });
+
+    const wrapper = document.getElementById('r-checklist-details');
+    const pri = document.getElementById('r-checklist-pri');
+
+    expect(wrapper?.hidden).toBe(false);
+    expect(wrapper?.open).toBe(true);
+    expect(wrapper?.dataset.pmocRecommended).toBe('true');
+    expect(pri?.hidden).toBe(false);
+    expect(pri?.textContent).toContain('Recomendado');
+    expect(document.getElementById('r-checklist-summary')?.textContent).toContain('Checklist PMOC');
+  });
+
+  it('mantem checklist discreto quando o tipo de servico nao e preventiva nem PMOC', async () => {
+    setupDom();
+    const registro = await loadRegistroView();
+    await mountRegistroHeader(registro, { equipId: 'eq-1' });
+    document.getElementById('r-tipo').value = 'Manutenção Corretiva';
+
+    await act(async () => {
+      registro.renderChecklist();
+      await flushAsyncWork();
+    });
+
+    const wrapper = document.getElementById('r-checklist-details');
+    const pri = document.getElementById('r-checklist-pri');
+
+    expect(wrapper?.hidden).toBe(false);
+    expect(wrapper?.open).toBe(false);
+    expect(wrapper?.dataset.pmocRecommended).toBe('false');
+    expect(pri?.hidden).toBe(true);
+  });
+
+  it('mostra upsell contextual no Free/Plus quando PMOC/preventiva tem equipamento', async () => {
+    setupDom();
+    const registro = await loadRegistroView();
+    await mountRegistroHeader(registro, { equipId: 'eq-1' });
+    mocks.isCachedPlanPro.mockReturnValue(false);
+    document.getElementById('r-tipo').value = 'Manutenção Preventiva';
+
+    await act(async () => {
+      registro.renderChecklist();
+      await flushAsyncWork();
+    });
+
+    const wrapper = document.getElementById('r-checklist-details');
+    const upsell = document.getElementById('r-checklist-upsell');
+
+    expect(wrapper?.hidden).toBe(true);
+    expect(upsell?.hidden).toBe(false);
+    expect(upsell?.dataset.pmocRecommended).toBe('true');
+    expect(upsell?.textContent).toContain('Recomendado para preventiva/PMOC');
+    expect(upsell?.querySelector('[data-highlight-plan="pro"]')).not.toBeNull();
+    expect(registro.getCurrentChecklist()).toBeNull();
   });
 
   it('mantem estado ausente ou invalido sem quebrar o checklist legado', async () => {
