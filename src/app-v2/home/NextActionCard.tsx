@@ -3,6 +3,8 @@ import { appV2Tone } from '../styles/tokens';
 
 interface NextActionCardProps {
   action: HomeTodayViewModel['nextAction'];
+  onPrimaryAction?: () => void;
+  onSecondaryAction?: () => void;
 }
 
 const toneClasses = {
@@ -12,7 +14,11 @@ const toneClasses = {
   calm: 'tw-border-[#D7E3F2] tw-bg-white tw-text-[#0A1328]',
 } as const;
 
-export function NextActionCard({ action }: NextActionCardProps) {
+export function NextActionCard({
+  action,
+  onPrimaryAction,
+  onSecondaryAction,
+}: NextActionCardProps) {
   return (
     <section
       className={`tw-rounded-lg tw-border tw-bg-white tw-p-5 tw-shadow-[0_18px_44px_-32px_rgba(10,19,40,0.42)] ${appV2Tone.border}`}
@@ -50,12 +56,14 @@ export function NextActionCard({ action }: NextActionCardProps) {
       <div className="tw-mt-5 tw-flex tw-flex-col tw-gap-3">
         <button
           type="button"
+          onClick={onPrimaryAction}
           className={`tw-min-h-12 tw-rounded-lg tw-border-0 tw-px-4 tw-py-3 tw-text-base tw-font-extrabold tw-shadow-[0_16px_30px_-20px_rgba(30,91,255,0.9)] ${appV2Tone.action} ${appV2Tone.focus}`}
         >
           {action.primaryCta}
         </button>
         <button
           type="button"
+          onClick={onSecondaryAction}
           className={`tw-self-center tw-border-0 tw-bg-transparent tw-px-3 tw-py-2 tw-text-sm tw-font-bold tw-text-[#1D4ED8] ${appV2Tone.focus}`}
         >
           {action.secondaryAction}

@@ -14,6 +14,8 @@ Artefatos da Etapa zero:
 - Plano da proxima etapa: `docs/rewrite/etapa-1-base-tecnica-app-v2.md`
 - Design da Home Hoje: `docs/rewrite/etapa-2-home-hoje-design.md`
 - Plano da Home Hoje: `docs/rewrite/etapa-2-home-hoje-plano.md`
+- Design de Equipamento: `docs/rewrite/etapa-3-equipamento-design.md`
+- Plano de Equipamento: `docs/rewrite/etapa-3-equipamento-plano.md`
 
 ## 2. Decisoes confirmadas
 
@@ -235,8 +237,8 @@ Direcao inicial:
 
 - Modelo de registro de servico no novo app.
 - Criterios para descartar ou reaproveitar regras do app legado.
-- Plano de validacao antes da primeira implementacao.
-- Execucao aprovada da Etapa 1 para configurar TypeScript e iniciar `src/app-v2/`.
+- Criterios de adaptadores antes de conectar storage real.
+- Modelo da etapa de Servicos apos Equipamento.
 
 ## 12. Inventario minimo antes de implementar
 

@@ -3,6 +3,7 @@ import { appV2Tone } from '../styles/tokens';
 
 interface ShortQueueProps {
   items: HomeTodayViewModel['queue'];
+  onOpenItem?: (equipmentId: string) => void;
 }
 
 const statusClasses = {
@@ -11,7 +12,7 @@ const statusClasses = {
   primary: appV2Tone.actionSoft,
 } as const;
 
-export function ShortQueue({ items }: ShortQueueProps) {
+export function ShortQueue({ items, onOpenItem }: ShortQueueProps) {
   return (
     <section className="tw-mt-5" aria-labelledby="short-queue-title">
       <div className="tw-mb-3 tw-flex tw-items-center tw-justify-between tw-gap-3">
@@ -38,6 +39,7 @@ export function ShortQueue({ items }: ShortQueueProps) {
             <button
               key={item.id}
               type="button"
+              onClick={() => onOpenItem?.(item.equipmentId)}
               className={`tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-bg-white tw-p-4 tw-text-left tw-shadow-[0_10px_26px_-24px_rgba(10,19,40,0.55)] ${appV2Tone.border} ${appV2Tone.focus}`}
             >
               <span className="tw-min-w-0">

@@ -6,8 +6,8 @@ const today = '2026-05-10';
 
 const equipamento: Equipamento = {
   id: 'eq-1',
-  nome: 'Split sala tecnica',
-  local: 'Sala tecnica',
+  nome: 'Split sala técnica',
+  local: 'Sala técnica',
   status: 'ok',
 };
 

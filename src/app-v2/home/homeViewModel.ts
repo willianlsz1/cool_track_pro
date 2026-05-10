@@ -9,6 +9,7 @@ export interface HomeTodayViewModel {
   context: string;
   nextAction: {
     title: string;
+    equipmentId?: string;
     equipmentName?: string;
     customerLine?: string;
     reason: string;
@@ -18,6 +19,7 @@ export interface HomeTodayViewModel {
   };
   queue: Array<{
     id: string;
+    equipmentId: string;
     title: string;
     detail: string;
     status: string;
@@ -87,6 +89,7 @@ function mapNextAction({
   if (action.kind === 'equipamento_sem_primeiro_servico') {
     return {
       title: 'Equipamento sem primeiro serviço',
+      equipmentId: action.equipamentoId,
       equipmentName: equipamento?.nome,
       customerLine: formatCustomerLine(equipamento, clientesById),
       reason: 'Cadastro ainda sem histórico técnico',
@@ -102,6 +105,7 @@ function mapNextAction({
 
   return {
     title: action.kind === 'compromisso_vencido' ? `${kindLabel} vencida` : `${kindLabel} hoje`,
+    equipmentId: action.equipamentoId,
     equipmentName: equipamento?.nome,
     customerLine: formatCustomerLine(equipamento, clientesById),
     reason:
@@ -137,6 +141,7 @@ function buildQueue({
 
       return {
         id: compromisso.id,
+        equipmentId: compromisso.equipamentoId,
         title: `${kindLabel} - ${equipamento?.nome ?? 'Equipamento'}`,
         detail: formatCustomerLine(equipamento, clientesById) ?? 'Sem cliente vinculado',
         status: isOverdue ? 'Vencida' : isToday ? 'Hoje' : formatDateLabel(compromisso.dataAlvo),
