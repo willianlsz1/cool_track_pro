@@ -560,14 +560,18 @@ function loadRegistroHeaderBridge() {
 
 function ensureRegistroHeaderRoot() {
   let root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
-  if (root) return root;
+  if (root) {
+    root.classList.add('registro-main-column', 'registro-main-column--header');
+    root.style.display = '';
+    return root;
+  }
 
   const hero = document.getElementById(HERO_ID);
   if (!hero?.parentNode) return null;
 
   root = document.createElement('div');
   root.id = REGISTRO_HEADER_ROOT_ID;
-  root.style.display = 'contents';
+  root.className = 'registro-main-column registro-main-column--header';
   hero.parentNode.insertBefore(root, hero);
 
   const lastNode = document.getElementById('registro-context-hint') || hero;

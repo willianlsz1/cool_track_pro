@@ -2248,6 +2248,117 @@ body:not(.landing-active) .registro-equip-picker__create.btn {
   min-height: 42px;
 }
 
+body:not(.landing-active) #view-registro .registro-main-column,
+body:not(.landing-active) #view-registro .registro-side-column {
+  min-width: 0;
+}
+
+body:not(.landing-active) #view-registro .registro-side-column {
+  display: block;
+  margin-top: 10px;
+}
+
+body:not(.landing-active) #view-registro .registro-side-card {
+  display: none;
+  padding: 14px;
+  border: 1px solid var(--ct-polish-border, rgba(148, 163, 184, 0.16));
+  border-radius: 9px;
+  background: transparent;
+  box-shadow: none;
+}
+
+body:not(.landing-active) #view-registro .registro-side-card__title {
+  margin: 0 0 8px;
+  color: var(--ct-polish-text, var(--text));
+  font-size: 13px;
+  font-weight: 650;
+}
+
+body:not(.landing-active) #view-registro .registro-side-card__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 17px;
+  color: var(--ct-polish-muted, var(--text-3));
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+body:not(.landing-active) #view-registro .registro-side-card__text {
+  margin: 0;
+  color: var(--ct-polish-muted, var(--text-3));
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+body:not(.landing-active) #view-registro .registro-details--evidence {
+  margin-top: 0;
+}
+
+@media (min-width: 1200px) {
+  body:not(.landing-active) #view-registro .card.card--registro {
+    display: grid;
+    max-width: min(1560px, 100%);
+    grid-template-columns: minmax(720px, 1fr) 360px;
+    column-gap: 28px;
+    row-gap: 0;
+    align-items: start;
+  }
+
+  body:not(.landing-active) #view-registro #storage-indicator,
+  body:not(.landing-active) #view-registro .section-title--registro {
+    grid-column: 1 / -1;
+  }
+
+  body:not(.landing-active) #view-registro .registro-main-column,
+  body:not(.landing-active) #view-registro .registro-kicker,
+  body:not(.landing-active) #view-registro #registro-cliente-details,
+  body:not(.landing-active) #view-registro #registro-materiais-details,
+  body:not(.landing-active) #view-registro #registro-impact-details,
+  body:not(.landing-active) #view-registro #r-checklist-details,
+  body:not(.landing-active) #view-registro #r-checklist-upsell,
+  body:not(.landing-active) #view-registro #registro-signature-hint,
+  body:not(.landing-active) #view-registro .registro-actions {
+    grid-column: 1;
+  }
+
+  body:not(.landing-active) #view-registro .registro-main-column--header {
+    display: block;
+  }
+
+  body:not(.landing-active) #view-registro .registro-side-column {
+    display: grid;
+    gap: 12px;
+    grid-column: 2;
+    grid-row: 1 / span 9;
+    position: sticky;
+    top: 72px;
+    margin-top: 0;
+    align-self: start;
+  }
+
+  body:not(.landing-active) #view-registro .registro-side-card {
+    display: block;
+  }
+
+  body:not(.landing-active) #view-registro .registro-hero--compact .registro-hero__progress {
+    max-width: none;
+  }
+
+  body:not(.landing-active) #view-registro .registro-quick {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  body:not(.landing-active) #view-registro .registro-quick__tile {
+    align-items: flex-start;
+    min-height: 58px;
+  }
+
+  body:not(.landing-active) #view-registro .registro-details--evidence[open] {
+    background: var(--ct-polish-surface, rgba(15, 23, 42, 0.42)) !important;
+  }
+}
+
 @media (max-width: 719.98px) {
   body:not(.landing-active) #view-registro .card.card--registro {
     max-width: 100%;

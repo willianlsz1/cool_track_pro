@@ -227,6 +227,21 @@ describe('registro legacy header/hero/main fields render adapter', () => {
     expect(view.querySelectorAll('#registro-hero-meter .registro-hero__seg')).toHaveLength(5);
     expect(view.querySelector('#form-progress-count')).not.toBeNull();
     expect(view.querySelector('#registro-hero-pill-text')?.textContent).toContain('Novo registro');
+    expect(
+      view.querySelector('#registro-header-root')?.classList.contains('registro-main-column'),
+    ).toBe(true);
+    expect(
+      view
+        .querySelector('#registro-header-root')
+        ?.classList.contains('registro-main-column--header'),
+    ).toBe(true);
+    expect(view.querySelector('.registro-side-column')).not.toBeNull();
+    expect(view.querySelector('.registro-side-card__title')?.textContent).toContain('Resumo');
+    const evidencias = view.querySelector('#registro-evidencias-details');
+    expect(evidencias?.tagName).toBe('DETAILS');
+    expect(evidencias?.classList.contains('registro-details--evidence')).toBe(true);
+    expect(view.querySelector('.registro-side-column')?.contains(evidencias)).toBe(true);
+    expect(evidencias?.querySelector('#input-fotos')).not.toBeNull();
 
     ['r-equip', 'r-data', 'r-tipo', 'r-obs', 'r-tecnico'].forEach((id) => {
       expect(view.querySelector(`#${id}`)).not.toBeNull();

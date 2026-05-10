@@ -549,16 +549,26 @@ export function renderShellViews() {
               </div>
             </details>
 
-            <details class="registro-details">
-              <summary class="registro-details__summary">
+            <aside class="registro-side-column" aria-label="Apoio do registro">
+              <section class="registro-side-card" aria-labelledby="registro-side-summary-title">
+                <h3 class="registro-side-card__title" id="registro-side-summary-title">Resumo do preenchimento</h3>
+                <ul class="registro-side-card__list">
+                  <li>Campos obrigatórios liberam o PDF do cliente.</li>
+                  <li>Evidências ficam anexadas ao serviço.</li>
+                  <li>PMOC/checklist aparece quando aplicável.</li>
+                </ul>
+              </section>
+
+              <details class="registro-details registro-details--evidence" id="registro-evidencias-details">
+                <summary class="registro-details__summary">
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-camera"/></svg></span>
                 <div class="registro-details__titles">
                   <div class="registro-details__title">Evidências</div>
                   <div class="registro-details__subtitle">opcional — aumenta a credibilidade</div>
                 </div>
                 <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
-              </summary>
-              <div class="registro-details__body">
+                </summary>
+                <div class="registro-details__body">
                 <label id="photo-drop-zone" class="registro-photo-drop" for="input-fotos">
                   <span class="registro-photo-drop__icon" aria-hidden="true"><svg><use href="#ri-camera"/></svg></span>
                   <div class="registro-photo-drop__title" id="photo-drop-text">Toque para adicionar fotos</div>
@@ -582,8 +592,14 @@ export function renderShellViews() {
                   class="visually-hidden" aria-label="Tirar foto com a câmera" />
 
                 <div class="photo-grid" id="photo-preview" role="list" aria-label="Fotos adicionadas"></div>
-              </div>
-            </details>
+                </div>
+              </details>
+
+              <section class="registro-side-card registro-side-card--tip" aria-labelledby="registro-side-tip-title">
+                <h3 class="registro-side-card__title" id="registro-side-tip-title">Dica rápida</h3>
+                <p class="registro-side-card__text">Use as ações rápidas para preencher tipo e descrição, depois revise os dados obrigatórios antes de salvar.</p>
+              </section>
+            </aside>
 
             <input id="r-proxima" type="hidden" value="" />
             <details class="registro-details registro-details--next" id="registro-impact-details">
