@@ -35,7 +35,7 @@ Status apos CP-B:
 - Validacao SQL/RLS foi adicionada em `supabase/tests`, mas a execucao local de
   pgTAP depende de Docker/Supabase local.
 
-Status apos CP-H:
+Status apos CP-I:
 
 - CP-C corrigiu entitlement Stripe: `checkout.session.completed` nao promove
   plano pago ativo sozinho; `invoice.paid` passou a ser o caminho seguro de
@@ -76,6 +76,17 @@ Status apos CP-H:
   continuam visiveis como texto, sem `doc.link`.
 - O upsell de PDF Free deixou de promover o dominio placeholder
   `cooltrack.app` e passou a exibir apenas o nome do produto.
+- CP-I endureceu o lifecycle de exclusao de conta: a limpeza de Storage agora
+  roda antes dos deletes de banco e do `admin.deleteUser`, falhas criticas
+  retornam erro seguro sem sucesso falso, e a logica destrutiva foi isolada em
+  helper testavel.
+- A Edge Function continua derivando o usuario alvo exclusivamente do JWT
+  validado por `verifyUserToken`; nao ha `user_id` client-side aceito para
+  deletar outra conta.
+- Risco remanescente do CP-I: Supabase Storage, deletes SQL sequenciais e Auth
+  delete nao formam uma transacao distribuida. Se uma tabela falhar apos
+  Storage ja ter sido limpo, a funcao falha fechado e nao deleta Auth, mas pode
+  exigir reexecucao/suporte para completar a eliminacao.
 
 ## 2. Base analisada
 
@@ -914,23 +925,76 @@ Riscos remanescentes:
 
 ### CP-I - Lifecycle de exclusao de conta
 
-Escopo:
+Status: executado no CP-I.
 
-- Garantir que falha de limpeza Storage nao deixe conta parcialmente deletada.
-- Definir ordem transacional/compensatoria segura para delete-user-account.
+Achado tratado:
 
-Arquivos provaveis:
+- `Account deletion can stop after partial data removal`.
+
+Risco antes:
+
+- A Edge Function autenticava o usuario via JWT validado e usava service role
+  internamente, mas a ordem de eliminacao removia primeiro tabelas core
+  (`registros`, `equipamentos`, `setores`, `tecnicos`) e so depois limpava
+  Storage.
+- Se `storage.list()` ou `storage.remove()` falhasse depois dos deletes SQL, a
+  funcao retornava erro, mas a conta continuava ativa com parte dos dados de
+  banco ja removida.
+- Erros de DB/Auth podiam voltar para o cliente com mensagens internas do
+  provider.
+
+Regra nova:
+
+- O usuario alvo continua vindo apenas de `verifyUserToken()`; o endpoint nao
+  aceita `user_id` enviado pelo cliente.
+- A limpeza dos buckets `registro-fotos` e `relatorios` em `{user_id}/**`
+  acontece antes dos deletes de banco e antes do `admin.deleteUser`.
+- Falha de Storage bloqueia qualquer delete de banco/Auth.
+- Falha de banco bloqueia `admin.deleteUser`.
+- Falha de Auth retorna erro explicito e nao e mascarada como sucesso.
+- Respostas publicas de erro usam `code`, `step` e mensagem generica segura,
+  sem repassar mensagens cruas de Storage/DB/Auth.
+
+Arquivos alterados:
 
 - `supabase/functions/delete-user-account/index.ts`
+- `supabase/functions/delete-user-account/lifecycle.ts`
+- `src/__tests__/deleteUserAccountLifecycle.test.js`
+- `docs/security/mudanca-17-codex-security-triage.md`
 
-Validacoes:
+Mitigacao aplicada:
 
-- Testes com falha simulada de Storage list/remove.
-- Teste de delete auth executado ou erro documentado sem estado parcial
-  silencioso.
+- Extraida a logica destrutiva para
+  `supabase/functions/delete-user-account/lifecycle.ts`, sem `Deno.serve`, para
+  permitir teste unitario com mocks de Storage/DB/Auth.
+- `deleteUserAccountLifecycle()` executa `cleanupUserStorage()` antes de
+  `deleteCoreTables()` e `deleteAuthUser()`.
+- `AccountDeletionError` padroniza `code`, `step` e mensagem publica segura.
+- O handler `index.ts` manteve a autenticacao existente, o uso interno de
+  service role e o CORS, mas deixou de retornar `userId` no payload de sucesso.
+
+Validacoes adicionadas/executadas:
+
+- Teste focado `src/__tests__/deleteUserAccountLifecycle.test.js` cobre:
+  - Storage antes de DB/Auth.
+  - falha de Storage sem delete de banco/Auth.
+  - falha de banco sem delete de Auth.
+  - falha de Auth com erro publico seguro.
+- Teste de wrapper frontend `src/__tests__/userData.test.js` preserva chamada
+  ao endpoint e `signOut({ scope: 'local' })` apenas em sucesso.
 - `npm run format`
 - `npm run build`
 - `npm run check`
+- `git diff --check`
+
+Riscos remanescentes:
+
+- Nao ha atomicidade distribuida entre Supabase Storage, SQL sequencial e Auth.
+  Se Storage for limpo com sucesso e uma tabela falhar depois, a funcao retorna
+  erro e nao deleta Auth, evitando sucesso falso, mas a conclusao pode depender
+  de reexecucao ou suporte operacional.
+- O CP-I nao alterou schema/cascades nem criou job compensatorio, para evitar
+  refatoracao ampla no fechamento da Mudanca 17.
 
 ## 10. Validacoes recomendadas para cada CP
 
@@ -969,7 +1033,7 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-H: CP-I - Lifecycle de exclusao de conta.
+Proximo CP recomendado apos CP-I: CP-J - fechamento documental da Mudanca 17.
 
 Justificativa:
 
@@ -987,5 +1051,8 @@ Justificativa:
   cache/logout.
 - CP-H reduziu XSS em dados de perfil, vazamento de tokens para observability e
   injecao de URL em links PDF sem refatorar PDF/share amplo.
-- O proximo grupo relevante e CP-I porque o ciclo de exclusao de conta ainda
-  envolve risco de limpeza parcial de Storage/Auth se uma etapa falhar.
+- CP-I reduziu o risco de exclusao parcial silenciosa, reordenando Storage
+  antes de banco/Auth e falhando fechado em etapas criticas.
+- Nao surgiu novo risco tecnico critico que justifique outro CP de codigo antes
+  do fechamento. O CP-J deve consolidar progresso, riscos remanescentes e a
+  transicao para a proxima fase, sem iniciar mudancas de fluxo ou design.
