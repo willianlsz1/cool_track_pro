@@ -51,6 +51,15 @@ function _getInitials(name) {
     .toUpperCase();
 }
 
+function _escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function _formatDateBR(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -276,6 +285,10 @@ function _renderHeroPlan({ planCode, planData, billingProfile }) {
 
 function _renderIdentity({ name, email, role, planCode, mode }) {
   const initials = _getInitials(name);
+  const safeName = _escapeHtml(name || 'Usuário');
+  const safeRole = _escapeHtml(role || 'Técnico em Refrigeração');
+  const safeEmail = _escapeHtml(email || '');
+  const safePlanCode = _escapeHtml(String(planCode || '').toUpperCase());
   const subtitle =
     mode === NAV_MODE_EMPRESA || planCode === PLAN_CODE_PRO
       ? 'Operando com clientes'
@@ -285,17 +298,17 @@ function _renderIdentity({ name, email, role, planCode, mode }) {
       <div class="conta-identity__avatar" aria-hidden="true">${initials}</div>
       <div class="conta-identity__info">
         <div class="conta-identity__name-row">
-          <span class="conta-identity__name">${name || 'Usuário'}</span>
+          <span class="conta-identity__name">${safeName}</span>
           <span class="conta-hero__plan-badge conta-hero__plan-badge--inline">
             <span class="conta-hero__plan-badge-ic" aria-hidden="true">${_planBadgeIcon(planCode)}</span>
-            ${planCode.toUpperCase()}
+            ${safePlanCode}
           </span>
         </div>
-        <div class="conta-identity__role">${role || 'Técnico em Refrigeração'}</div>
+        <div class="conta-identity__role">${safeRole}</div>
         <div class="conta-identity__sub">${subtitle}</div>
         <div class="conta-identity__email">
           <span class="conta-identity__email-ic" aria-hidden="true">${ICON_MAIL}</span>
-          <span>${email || ''}</span>
+          <span>${safeEmail}</span>
         </div>
       </div>
       <button type="button" class="conta-identity__pub" data-conta-action="edit-profile" aria-label="Editar perfil">

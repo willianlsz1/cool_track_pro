@@ -20,6 +20,23 @@ describe('conta view helpers', () => {
     expect(html).toContain('Técnico em refrigeração');
   });
 
+  it('renderiza identidade escapando dados controlados pelo usuario', () => {
+    const html = __test__._renderIdentity({
+      name: '<img src=x onerror=alert(1)>',
+      email: 'ana@example.com"><svg onload=alert(1)>',
+      role: '<script>alert(1)</script>',
+      planCode: __test__.PLAN_CODE_PLUS,
+      mode: 'rapido',
+    });
+
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).toContain('ana@example.com&quot;&gt;&lt;svg onload=alert(1)&gt;');
+    expect(html).not.toContain('<img src=x');
+    expect(html).not.toContain('<script>');
+    expect(html).not.toContain('<svg onload=');
+  });
+
   it('Pro renderiza proposta empresa sem CTA agressivo de upgrade', () => {
     const html = __test__._renderPlanCard({ planCode: __test__.PLAN_CODE_PRO });
     expect(html).toContain('CoolTrack Pro');

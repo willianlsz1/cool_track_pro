@@ -182,6 +182,64 @@ describe('observability (com DSN e Sentry SDK presente)', () => {
     expect(opts.contexts.app.userId).toBe('u1');
   });
 
+  it('captureError() redige tokens sensiveis do contexto enviado ao Sentry', async () => {
+    const sentryMock = sentryMockFactory();
+    const { initObservability, captureError } = await loadObservability({
+      dsn: 'https://fake@sentry.io/123',
+      sentryMock,
+    });
+    await initObservability();
+
+    captureError(new Error('boom'), {
+      context: {
+        access_token: 'access-secret',
+        url: 'https://app.example/auth#refresh_token=refresh-secret',
+      },
+    });
+
+    const [, opts] = sentryMock.captureException.mock.calls[0];
+    expect(JSON.stringify(opts)).not.toContain('access-secret');
+    expect(JSON.stringify(opts)).not.toContain('refresh-secret');
+    expect(opts.contexts.app.access_token).toBe('[redacted]');
+  });
+
+  it('beforeSend() redige tokens sensiveis de request url, breadcrumbs e contextos', async () => {
+    const sentryMock = sentryMockFactory();
+    const { initObservability } = await loadObservability({
+      dsn: 'https://fake@sentry.io/123',
+      sentryMock,
+    });
+    await initObservability();
+
+    const { beforeSend } = sentryMock.init.mock.calls[0][0];
+    const scrubbed = beforeSend({
+      request: {
+        url: 'https://app.example/reset?type=recovery&token_hash=hash-secret&code=code-secret#access_token=access-secret&refresh_token=refresh-secret',
+      },
+      breadcrumbs: [
+        {
+          message: 'callback access_token=access-secret',
+          data: { refresh_token: 'refresh-secret', next: '/conta' },
+        },
+      ],
+      contexts: {
+        app: {
+          callbackUrl: 'https://app.example/#access_token=access-secret',
+          nested: { token_hash: 'hash-secret' },
+        },
+      },
+    });
+
+    expect(JSON.stringify(scrubbed)).not.toContain('access-secret');
+    expect(JSON.stringify(scrubbed)).not.toContain('refresh-secret');
+    expect(JSON.stringify(scrubbed)).not.toContain('hash-secret');
+    expect(JSON.stringify(scrubbed)).not.toContain('code-secret');
+    expect(scrubbed.request.url).toContain('token_hash=%5Bredacted%5D');
+    expect(scrubbed.request.url).toContain('code=%5Bredacted%5D');
+    expect(scrubbed.breadcrumbs[0].data.refresh_token).toBe('[redacted]');
+    expect(scrubbed.contexts.app.nested.token_hash).toBe('[redacted]');
+  });
+
   it('addBreadcrumb() repassa categoria + message + data', async () => {
     const sentryMock = sentryMockFactory();
     const { initObservability, addBreadcrumb } = await loadObservability({
@@ -198,6 +256,30 @@ describe('observability (com DSN e Sentry SDK presente)', () => {
     expect(bc.message).toBe('lp_view');
     expect(bc.data.plan).toBe('free');
     expect(typeof bc.timestamp).toBe('number');
+  });
+
+  it('addBreadcrumb() redige tokens sensiveis em message e data', async () => {
+    const sentryMock = sentryMockFactory();
+    const { initObservability, addBreadcrumb } = await loadObservability({
+      dsn: 'https://fake@sentry.io/123',
+      sentryMock,
+    });
+    await initObservability();
+
+    addBreadcrumb({
+      category: 'auth',
+      message: 'callback access_token=access-secret',
+      data: {
+        token_hash: 'hash-secret',
+        url: 'https://app.example/auth?code=code-secret',
+      },
+    });
+
+    const bc = sentryMock.addBreadcrumb.mock.calls[0][0];
+    expect(JSON.stringify(bc)).not.toContain('access-secret');
+    expect(JSON.stringify(bc)).not.toContain('hash-secret');
+    expect(JSON.stringify(bc)).not.toContain('code-secret');
+    expect(bc.data.token_hash).toBe('[redacted]');
   });
 
   it('setUser() envia só o id, nunca email/nome', async () => {

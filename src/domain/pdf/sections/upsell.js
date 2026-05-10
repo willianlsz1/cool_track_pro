@@ -1,8 +1,8 @@
 import { PDF_COLORS as C } from '../constants.js';
 import { fillRect } from '../primitives.js';
 
-// URL exibida no bloco de upsell. Trocar para o domínio oficial quando adquirido.
-const UPSELL_URL = 'cooltrack.app';
+// Nome exibido no bloco de upsell. Evita publicar domínio placeholder em PDF.
+const UPSELL_LABEL = 'CoolTrack Pro';
 
 // Bloco compacto exibido na última página de PDFs gerados no plano Free.
 // Objetivo: o cliente do técnico entende que existe versão Pro sem marca d'água
@@ -47,5 +47,5 @@ export function drawUpsellBlock(doc, pageWidth, pageHeight, margin) {
   const prefixWidth = doc.getTextWidth(prefix);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...C.primary);
-  doc.text(UPSELL_URL, textStartX + prefixWidth, textY);
+  doc.text(UPSELL_LABEL, textStartX + prefixWidth, textY);
 }

@@ -34,6 +34,18 @@ let sentry = null;
 let initialized = false;
 let initPromise = null;
 
+const REDACTED = '[redacted]';
+const SENSITIVE_TOKEN_KEYS = new Set([
+  'access_token',
+  'refresh_token',
+  'token_hash',
+  'code',
+  'provider_token',
+  'provider_refresh_token',
+]);
+const SENSITIVE_TOKEN_RE =
+  /\b(access_token|refresh_token|token_hash|code|provider_token|provider_refresh_token)=([^&#\s]+)/gi;
+
 /**
  * Lê VITE_SENTRY_DSN via import.meta.env ou process.env (SSR/testes).
  * Retorna string vazia se não está setado (modo no-op).
@@ -79,6 +91,61 @@ function getRelease() {
     // no-op
   }
   return undefined;
+}
+
+function isSensitiveTokenKey(key) {
+  return SENSITIVE_TOKEN_KEYS.has(String(key || '').toLowerCase());
+}
+
+function redactSearchParams(params) {
+  let changed = false;
+  for (const key of [...params.keys()]) {
+    if (isSensitiveTokenKey(key)) {
+      params.set(key, REDACTED);
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+function redactHash(hash) {
+  const rawHash = String(hash || '');
+  if (!rawHash) return rawHash;
+  const body = rawHash.startsWith('#') ? rawHash.slice(1) : rawHash;
+  if (!body.includes('=')) return rawHash.replace(SENSITIVE_TOKEN_RE, `$1=${REDACTED}`);
+  const params = new URLSearchParams(body);
+  const changed = redactSearchParams(params);
+  return changed ? `#${params.toString()}` : rawHash.replace(SENSITIVE_TOKEN_RE, `$1=${REDACTED}`);
+}
+
+function redactSensitiveString(value) {
+  const raw = String(value);
+  const redactedByRegex = raw.replace(SENSITIVE_TOKEN_RE, `$1=${REDACTED}`);
+  try {
+    const url = new URL(redactedByRegex, 'https://cooltrack.local');
+    const hadAbsoluteUrl = /^[a-z][a-z0-9+.-]*:/i.test(redactedByRegex);
+    const hadPathUrl = /^[/?#]/.test(redactedByRegex);
+    if (!hadAbsoluteUrl && !hadPathUrl) return redactedByRegex;
+    redactSearchParams(url.searchParams);
+    url.hash = redactHash(url.hash);
+    return hadAbsoluteUrl ? url.toString() : `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return redactedByRegex;
+  }
+}
+
+function sanitizeForObservability(value, depth = 0) {
+  if (depth > 5) return '[max-depth]';
+  if (typeof value === 'string') return redactSensitiveString(value);
+  if (!value || typeof value !== 'object') return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => sanitizeForObservability(item, depth + 1));
+  }
+  const clean = {};
+  for (const [key, item] of Object.entries(value)) {
+    clean[key] = isSensitiveTokenKey(key) ? REDACTED : sanitizeForObservability(item, depth + 1);
+  }
+  return clean;
 }
 
 /**
@@ -178,10 +245,11 @@ export async function initObservability(config = {}) {
         maxBreadcrumbs: 50,
         // Scrub de PII via beforeSend (defensivo, sobre o sendDefaultPii).
         beforeSend(event) {
-          if (event.request?.cookies) delete event.request.cookies;
-          if (event.user?.email) delete event.user.email;
-          if (event.user?.ip_address) delete event.user.ip_address;
-          return event;
+          const cleanEvent = sanitizeForObservability(event);
+          if (cleanEvent.request?.cookies) delete cleanEvent.request.cookies;
+          if (cleanEvent.user?.email) delete cleanEvent.user.email;
+          if (cleanEvent.user?.ip_address) delete cleanEvent.user.ip_address;
+          return cleanEvent;
         },
       });
 
@@ -217,7 +285,10 @@ export function captureError(error, options = {}) {
         code: options.code || error?.code || 'unknown',
       },
       contexts: {
-        app: options.context && typeof options.context === 'object' ? options.context : {},
+        app:
+          options.context && typeof options.context === 'object'
+            ? sanitizeForObservability(options.context)
+            : {},
       },
     });
   } catch {
@@ -233,7 +304,7 @@ export function captureMessage(message, options = {}) {
   try {
     sentry.captureMessage(String(message), {
       level: mapSeverity(options.severity) || 'info',
-      tags: options.tags || {},
+      tags: sanitizeForObservability(options.tags || {}),
     });
   } catch {
     // no-op
@@ -252,8 +323,11 @@ export function addBreadcrumb(breadcrumb) {
   try {
     sentry.addBreadcrumb({
       category: String(breadcrumb.category || 'app'),
-      message: String(breadcrumb.message || ''),
-      data: breadcrumb.data && typeof breadcrumb.data === 'object' ? breadcrumb.data : undefined,
+      message: redactSensitiveString(breadcrumb.message || ''),
+      data:
+        breadcrumb.data && typeof breadcrumb.data === 'object'
+          ? sanitizeForObservability(breadcrumb.data)
+          : undefined,
       level: breadcrumb.level || 'info',
       timestamp: Date.now() / 1000,
     });
@@ -310,4 +384,5 @@ export function __resetObservability() {
 export const __internal = {
   isInitialized: () => initialized,
   getSentry: () => sentry,
+  sanitizeForObservability,
 };

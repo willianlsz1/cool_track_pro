@@ -35,7 +35,7 @@ Status apos CP-B:
 - Validacao SQL/RLS foi adicionada em `supabase/tests`, mas a execucao local de
   pgTAP depende de Docker/Supabase local.
 
-Status apos CP-G:
+Status apos CP-H:
 
 - CP-C corrigiu entitlement Stripe: `checkout.session.completed` nao promove
   plano pago ativo sozinho; `invoice.paid` passou a ser o caminho seguro de
@@ -64,6 +64,18 @@ Status apos CP-G:
 - Risco remanescente do CP-G: RLS/check constraints nao implementam rate limit
   real por IP/sessao. Se houver abuso volumetrico, o controle deve ir para
   edge/WAF ou endpoint backend especifico.
+- CP-H endureceu XSS, tokens e links PDF: a pagina `/conta` passou a escapar
+  nome, cargo e email antes de interpolar HTML; o modal de conta foi analisado
+  e ja usava `textContent` para dados de perfil, portanto o achado especifico
+  do modal foi tratado como falso positivo para aquele componente.
+- Observability/Sentry passou a redigir `access_token`, `refresh_token`,
+  `token_hash`, `code` e tokens de provider em URLs, contexts e breadcrumbs
+  antes de enviar eventos.
+- Links de `urlChamados` no PDF PMOC agora so viram area clicavel quando a URL
+  absoluta usa `http:` ou `https:`. Protocolos perigosos e URLs invalidas
+  continuam visiveis como texto, sem `doc.link`.
+- O upsell de PDF Free deixou de promover o dominio placeholder
+  `cooltrack.app` e passou a exibir apenas o nome do produto.
 
 ## 2. Base analisada
 
@@ -853,29 +865,52 @@ Riscos remanescentes:
 
 ### CP-H - XSS, tokens e links PDF
 
-Escopo:
+Status: executado no CP-H.
 
-- Corrigir XSS em nome de perfil no modal de conta.
-- Redigir hashes/tokens em Sentry.
-- Validar URL antes de `doc.link` no PMOC PDF.
-- Tratar dominio placeholder de PDF sem redesenhar PDF/share.
+Achados tratados:
 
-Arquivos provaveis:
+- `Stored profile name XSS in account modal`: o componente
+  `accountModal.js` ja renderizava nome/email com `textContent`, mas a pagina
+  `/conta` tinha interpolacao HTML equivalente em nome, cargo e email.
+  O CP-H corrigiu essa superficie com escaping defensivo.
+- `Sentry CSP enablement can leak recovery tokens`: contexts, breadcrumbs e
+  URLs em eventos Sentry agora passam por redaction de tokens sensiveis.
+- `Unvalidated PMOC PDF link URL injection`: `doc.link` no PMOC agora recebe
+  apenas URLs `http:`/`https:` validas.
+- `Free PDFs promote a placeholder domain`: o bloco de upsell Free nao exibe
+  mais `cooltrack.app`.
 
-- `src/ui/controller.js`
-- `src/features/profile.js`
+Arquivos alterados:
+
+- `src/ui/views/conta.js`
 - `src/core/observability.js`
-- `src/app.js`
+- `src/domain/pdf/safeLinks.js`
 - `src/domain/pdf/pmoc/sections/cover.js`
 - `src/domain/pdf/sections/upsell.js`
+- `src/__tests__/contaView.test.js`
+- `src/__tests__/observability.test.js`
+- `src/__tests__/pmocPdfLinks.security.test.js`
+- `docs/security/mudanca-17-codex-security-triage.md`
 
 Validacoes:
 
-- Testes de escaping/sanitizacao.
-- Teste de URL allowlist para PDF.
+- Testes focados de escaping/sanitizacao e URL allowlist:
+  `src/__tests__/contaView.test.js`,
+  `src/__tests__/observability.test.js` e
+  `src/__tests__/pmocPdfLinks.security.test.js`.
 - `npm run format`
 - `npm run build`
 - `npm run check`
+- `git diff --check`
+
+Riscos remanescentes:
+
+- CP-H nao reescreveu PDF/share nem alterou quotas comerciais de
+  PDF/WhatsApp. O achado `PDF/WhatsApp limits enforced only with localStorage`
+  permanece como risco de produto/billing para CP futuro especifico.
+- A sanitizacao de observability reduz vazamento em eventos enviados pelo
+  wrapper local; nao altera o fluxo de auth/recovery nem limpa a URL do browser,
+  para evitar regressao no callback Supabase.
 
 ### CP-I - Lifecycle de exclusao de conta
 
@@ -934,7 +969,7 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-G: CP-H - XSS, tokens e links PDF.
+Proximo CP recomendado apos CP-H: CP-I - Lifecycle de exclusao de conta.
 
 Justificativa:
 
@@ -950,6 +985,7 @@ Justificativa:
   upload de fotos) sem misturar PDF/share amplo, Vite warnings genericos,
   React Doctor, billing/Stripe, env Supabase, assinatura digital ou
   cache/logout.
-- O proximo grupo relevante e CP-H porque ainda restam achados de XSS,
-  vazamento de tokens/hashes em observabilidade e links PDF, todos com area
-  sensivel propria.
+- CP-H reduziu XSS em dados de perfil, vazamento de tokens para observability e
+  injecao de URL em links PDF sem refatorar PDF/share amplo.
+- O proximo grupo relevante e CP-I porque o ciclo de exclusao de conta ainda
+  envolve risco de limpeza parcial de Storage/Auth se uma etapa falhar.

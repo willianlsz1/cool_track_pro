@@ -39,6 +39,7 @@ import {
   badgeBox,
 } from '../primitives.js';
 import { PMOC_COLORS as PC, PMOC_TYPO as PT } from '../constants.js';
+import { normalizeSafePdfUrl } from '../../safeLinks.js';
 
 function buildBrandLine(profile) {
   const parts = [];
@@ -115,20 +116,22 @@ function drawInfoBlock(doc, x, y, width, lines) {
   const lineH = 5.4;
   let ly = y;
   for (const { label, value, isLink } of lines) {
+    const safeUrl = isLink ? normalizeSafePdfUrl(value) : '';
+    const linkEnabled = Boolean(safeUrl);
     txt(doc, label, x, ly, { typo: PT.bodyBold, color: PC.text2 });
     // Pinta o valor — links em cor mais "ativa" (azul) e sublinhado pra
     // afford clicavel mesmo em PDFs impressos (sublinhado e o sinal universal).
     txt(doc, value, valueX, ly, {
       typo: PT.body,
-      color: isLink ? PC.primary : PC.text,
+      color: linkEnabled ? PC.primary : PC.text,
       maxWidth: width - labelW,
     });
-    if (isLink) {
+    if (linkEnabled) {
       // Calcula altura da linha (jsPDF: getTextWidth + lineHeight) e cria
       // area clicavel. Em PDFs digitais, click abre URL em browser.
       const textW = Math.min(doc.getTextWidth(value), width - labelW);
       try {
-        doc.link(valueX, ly - 4, textW, 5, { url: value });
+        doc.link(valueX, ly - 4, textW, 5, { url: safeUrl });
       } catch (_e) {
         /* alguns ambientes (jsPDF mockado em test) podem nao ter doc.link */
       }
