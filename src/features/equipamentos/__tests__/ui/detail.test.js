@@ -85,6 +85,16 @@ function makeModel(overrides = {}) {
       factors: ['preventiva vencida'],
     },
     proximaPreventiva: overrides.proximaPreventiva ?? '10/06/2026',
+    pmocContext: overrides.pmocContext ?? {
+      status: 'atencao',
+      statusLabel: 'Atenção',
+      statusTone: 'warn',
+      periodicidadeLabel: '60 dias',
+      ultimaPreventivaLabel: '01/04/2026',
+      proximaPreventivaLabel: '10/06/2026',
+      recommendedAction: 'Preventiva prevista para breve.',
+      ctaLabel: 'Registrar preventiva',
+    },
     healthSummary: overrides.healthSummary ?? 'Histórico dentro da rotina prevista',
     ringR: overrides.ringR ?? 30,
     ringC: overrides.ringC ?? 188.5,
@@ -192,6 +202,12 @@ describe('detail HTML render helpers', () => {
     expect(deps.eqDetailSubtitle).toHaveBeenCalledWith(model.eq);
     expect(result.html).toContain('eq-detail-hero eq-detail-hero--ok');
     expect(result.html).toContain('eq-risk-panel eq-risk-panel--alto');
+    expect(result.html).toContain('eq-pmoc-context eq-pmoc-context--warn');
+    expect(result.html).toContain('PMOC / Preventiva');
+    expect(result.html).toContain('Atenção');
+    expect(result.html).toContain('01/04/2026');
+    expect(result.html).toContain('10/06/2026');
+    expect(result.html).toContain('Registrar preventiva');
     expect(deps.riskFactorChipHtml).toHaveBeenCalledWith('preventiva vencida', 'eq-1');
     expect(result.html).toContain('Histórico de serviços');
     expect(result.html).toContain('data-action="go-register-equip" data-id="eq-1"');

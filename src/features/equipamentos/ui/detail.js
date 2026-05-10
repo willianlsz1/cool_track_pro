@@ -170,6 +170,46 @@ export function renderViewEquipDadosPlacaSections(eq, deps) {
   return { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml };
 }
 
+export function renderViewEquipPmocContextBlock(model, deps) {
+  const { Utils } = resolveDetailDeps(deps);
+  const pmoc = model.pmocContext;
+  if (!pmoc) return '';
+
+  const safeId = model.safeId;
+  const tone = pmoc.statusTone || 'muted';
+
+  return `
+      <section class="eq-pmoc-context eq-pmoc-context--${Utils.escapeAttr(tone)}" aria-label="PMOC e preventiva do equipamento">
+        <div class="eq-pmoc-context__head">
+          <div>
+            <span class="eq-pmoc-context__eyebrow">PMOC / Preventiva</span>
+            <h3 class="eq-pmoc-context__title">Rotina preventiva do equipamento</h3>
+          </div>
+          <span class="eq-pmoc-context__status">${Utils.escapeHtml(pmoc.statusLabel)}</span>
+        </div>
+        <div class="eq-pmoc-context__grid">
+          <div class="eq-pmoc-context__item">
+            <span>Periodicidade</span>
+            <b>${Utils.escapeHtml(pmoc.periodicidadeLabel)}</b>
+          </div>
+          <div class="eq-pmoc-context__item">
+            <span>Última preventiva</span>
+            <b>${Utils.escapeHtml(pmoc.ultimaPreventivaLabel)}</b>
+          </div>
+          <div class="eq-pmoc-context__item">
+            <span>Próxima preventiva</span>
+            <b>${Utils.escapeHtml(pmoc.proximaPreventivaLabel)}</b>
+          </div>
+        </div>
+        <div class="eq-pmoc-context__footer">
+          <p>${Utils.escapeHtml(pmoc.recommendedAction)}</p>
+          <button type="button" class="btn btn--primary btn--sm" data-action="go-register-equip" data-id="${safeId}">
+            ${Utils.escapeHtml(pmoc.ctaLabel || 'Registrar preventiva')}
+          </button>
+        </div>
+      </section>`;
+}
+
 export function renderViewEquipDetailHtml(model, deps) {
   const resolvedDeps = resolveDetailDeps(deps);
   const { Utils, eqDetailSubtitle, infoRowValueOrEmpty, riskFactorChipHtml } = resolvedDeps;
@@ -190,6 +230,7 @@ export function renderViewEquipDetailHtml(model, deps) {
   const setorSelectHtml = renderViewEquipSetorInfoRow(eq, resolvedDeps);
   const svcTimeline = renderViewEquipServiceTimeline(regs, resolvedDeps);
   const coverBlock = renderViewEquipCoverBlock(model, resolvedDeps);
+  const pmocContextBlock = renderViewEquipPmocContextBlock(model, resolvedDeps);
   const { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml } = renderViewEquipDadosPlacaSections(
     eq,
     resolvedDeps,
@@ -267,6 +308,8 @@ export function renderViewEquipDetailHtml(model, deps) {
             .join('')}
         </div>
       </div>
+
+      ${pmocContextBlock}
 
       <!-- ── Ficha técnica (V6: accordion colapsável) ──
            Todos os detalhes técnicos (Identificação, Operação, Dados da

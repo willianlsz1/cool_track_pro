@@ -7,6 +7,15 @@ function makeUtils() {
     escapeAttr: vi.fn((value) => `attr:${String(value)}`),
     escapeHtml: vi.fn((value) => `html:${String(value)}`),
     formatDate: vi.fn((value) => `date:${String(value)}`),
+    daysDiff: vi.fn((value) => {
+      const byDate = {
+        '2026-01-01': -4,
+        '2026-05-20': 8,
+        '2026-05-25': 20,
+        '2026-07-15': 68,
+      };
+      return byDate[value] ?? null;
+    }),
   };
 }
 
@@ -144,6 +153,7 @@ describe('buildViewEquipDetailModel', () => {
       'context',
       'risk',
       'proximaPreventiva',
+      'pmocContext',
       'healthSummary',
       'ringR',
       'ringC',
@@ -182,5 +192,116 @@ describe('buildViewEquipDetailModel', () => {
       '<script>risco</script> | preventiva vencida',
     );
     expect(model.healthSummary).toBe('html:<script>risco</script> | preventiva vencida');
+  });
+
+  it('marca PMOC como sem_cronograma quando nao ha periodicidade nem agenda', () => {
+    const model = buildViewEquipDetailModel(
+      makeDeps({
+        equip: { id: 'eq-1', nome: 'Split 01' },
+        health: { score: 90, context: {}, reasons: [] },
+      }),
+    );
+
+    expect(model.pmocContext).toMatchObject({
+      status: 'sem_cronograma',
+      statusLabel: 'Sem cronograma',
+      periodicidadeLabel: 'Sem periodicidade definida',
+      ultimaPreventivaLabel: 'Sem preventiva registrada',
+      proximaPreventivaLabel: 'Sem próxima preventiva',
+      recommendedAction: 'Defina a periodicidade ou registre a primeira preventiva.',
+    });
+  });
+
+  it('marca PMOC como sem_registro quando ha periodicidade mas nenhuma preventiva', () => {
+    const model = buildViewEquipDetailModel(
+      makeDeps({
+        equip: { id: 'eq-1', nome: 'Split 01', periodicidadePreventivaDias: 90 },
+        regsForEquip: vi.fn(() => [{ id: 'r1', data: '2026-01-01', tipo: 'Corretiva' }]),
+        health: {
+          score: 90,
+          context: { periodicidadeDias: 90 },
+          reasons: [],
+        },
+      }),
+    );
+
+    expect(model.pmocContext).toMatchObject({
+      status: 'sem_registro',
+      statusLabel: 'Sem registro',
+      periodicidadeLabel: '90 dias',
+      ultimaPreventivaLabel: 'Sem preventiva registrada',
+      recommendedAction: 'Registre a primeira preventiva deste equipamento.',
+    });
+  });
+
+  it('marca PMOC como em_dia quando a proxima preventiva esta fora da janela de atencao', () => {
+    const model = buildViewEquipDetailModel(
+      makeDeps({
+        regsForEquip: vi.fn(() => [{ id: 'r1', data: '2026-04-01', tipo: 'Preventiva' }]),
+        health: {
+          score: 90,
+          context: {
+            periodicidadeDias: 90,
+            proximaPreventiva: '2026-05-25',
+            daysToNext: 20,
+            leadAlertDays: 15,
+          },
+          reasons: [],
+        },
+      }),
+    );
+
+    expect(model.pmocContext).toMatchObject({
+      status: 'em_dia',
+      statusLabel: 'Em dia',
+      ultimaPreventivaLabel: 'date:2026-04-01',
+      proximaPreventivaLabel: 'date:2026-05-25',
+      recommendedAction: 'Preventiva dentro do prazo.',
+    });
+  });
+
+  it('marca PMOC como atencao quando a preventiva esta proxima de vencer', () => {
+    const model = buildViewEquipDetailModel(
+      makeDeps({
+        regsForEquip: vi.fn(() => [{ id: 'r1', data: '2026-04-01', tipo: 'PMOC' }]),
+        health: {
+          score: 90,
+          context: {
+            periodicidadeDias: 90,
+            proximaPreventiva: '2026-05-20',
+            daysToNext: 8,
+            leadAlertDays: 15,
+          },
+          reasons: [],
+        },
+      }),
+    );
+
+    expect(model.pmocContext.status).toBe('atencao');
+    expect(model.pmocContext.statusLabel).toBe('Atenção');
+  });
+
+  it('marca PMOC como vencido quando a proxima preventiva passou', () => {
+    const model = buildViewEquipDetailModel(
+      makeDeps({
+        regsForEquip: vi.fn(() => [{ id: 'r1', data: '2025-10-01', tipo: 'Higienizacao' }]),
+        health: {
+          score: 70,
+          context: {
+            periodicidadeDias: 90,
+            proximaPreventiva: '2026-01-01',
+            daysToNext: -4,
+            leadAlertDays: 15,
+          },
+          reasons: [],
+        },
+      }),
+    );
+
+    expect(model.pmocContext).toMatchObject({
+      status: 'vencido',
+      statusLabel: 'Vencido',
+      recommendedAction: 'Preventiva vencida. Registre a execução agora.',
+    });
   });
 });
