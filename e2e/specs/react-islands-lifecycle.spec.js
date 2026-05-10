@@ -158,7 +158,11 @@ test.describe('React islands lifecycle', () => {
     await expect(page.locator('#dash-hero-greeting')).toHaveCount(1);
     await expect(page.locator('#dash-hero-summary')).toHaveCount(1);
     await expect(page.locator('#dash-hero-cta')).toHaveCount(1);
-    await expect(page.locator('#dash-hero-cta')).toHaveAttribute('data-nav', 'registro');
+    await expect(page.locator('#dash-hero-cta')).toHaveAttribute(
+      'data-action',
+      'start-service-registration',
+    );
+    await expect(page.locator('#dash-hero-cta')).not.toHaveAttribute('data-nav', /.+/);
     await expect(page.locator('#dash-hero-cta-secondary')).toHaveCount(1);
     await expect(hero.locator('.dash__hero-body')).toHaveCount(1);
     await expect(hero.locator('.dash__hero-cta-wrap')).toHaveCount(1);
