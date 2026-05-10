@@ -71,12 +71,22 @@ async function resolvePlanAndUsage(userId) {
 
 function buildPdfLimitMessage(planCode, pdfLimit) {
   if (planCode === PLAN_CODE_FREE) {
-    return `Você atingiu ${pdfLimit} PDF este mês no plano Free. Faça upgrade para Plus para mais PDFs e relatórios sem marca d'água.`;
+    return `Você atingiu o limite Free de ${pdfLimit} PDF/mês. Faça upgrade para Plus para mais PDFs e relatórios sem marca d'água. O WhatsApp usa uma cota separada.`;
   }
   if (planCode === PLAN_CODE_PLUS) {
-    return `Você atingiu ${pdfLimit} PDFs este mês no plano Plus. O plano Pro tem PDFs ilimitados.`;
+    return `Você atingiu o limite Plus de ${pdfLimit} PDFs/mês. O plano Pro libera PDFs sem limitação relevante.`;
   }
   return `Você atingiu o limite mensal de ${pdfLimit} PDFs.`;
+}
+
+function buildPdfLimitUpgradeParams(planCode) {
+  if (planCode === PLAN_CODE_FREE) {
+    return { highlightPlan: 'plus', reason: 'pdf_quota_free' };
+  }
+  if (planCode === PLAN_CODE_PLUS) {
+    return { highlightPlan: 'pro', reason: 'pdf_quota_plus' };
+  }
+  return { reason: 'pdf_quota' };
 }
 
 /**
@@ -121,7 +131,7 @@ async function ensureReportBudget({ attemptedEvent, blockedEvent }) {
   ) {
     trackEvent(blockedEvent, { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildPdfLimitMessage(planCode, pdfLimit));
-    goTo('pricing');
+    goTo('pricing', buildPdfLimitUpgradeParams(planCode));
     return { ok: false };
   }
 

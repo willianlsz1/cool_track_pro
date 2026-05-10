@@ -247,7 +247,12 @@ describe('reportExportHandlers', () => {
     expect(warning).toHaveBeenCalled();
     const toastMsg = warning.mock.calls[warning.mock.calls.length - 1][0];
     expect(toastMsg).toMatch(/Plus/);
-    expect(goTo).toHaveBeenCalledWith('pricing');
+    expect(toastMsg).toMatch(/1 PDF\/mês/);
+    expect(toastMsg).toMatch(/WhatsApp/i);
+    expect(goTo).toHaveBeenCalledWith('pricing', {
+      highlightPlan: 'plus',
+      reason: 'pdf_quota_free',
+    });
   });
 
   it('allows Plus users under the monthly PDF quota and increments usage', async () => {
@@ -296,7 +301,13 @@ describe('reportExportHandlers', () => {
     expect(generateMaintenanceReport).not.toHaveBeenCalled();
     expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
     expect(warning).toHaveBeenCalled();
-    expect(goTo).toHaveBeenCalledWith('pricing');
+    const toastMsg = warning.mock.calls[warning.mock.calls.length - 1][0];
+    expect(toastMsg).toMatch(/50 PDFs\/mês/);
+    expect(toastMsg).toMatch(/Pro/);
+    expect(goTo).toHaveBeenCalledWith('pricing', {
+      highlightPlan: 'pro',
+      reason: 'pdf_quota_plus',
+    });
   });
 
   it('does not increment PDF usage when generation fails before export', async () => {
