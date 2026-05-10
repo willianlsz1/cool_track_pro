@@ -54,6 +54,26 @@ describe('usageLimits', () => {
     ).toBe(true);
   });
 
+  it('exposes the planned PDF quota contract without activating export blocking yet', async () => {
+    const {
+      getPdfExportMonthlyQuotaForPlan,
+      hasFinitePdfExportMonthlyQuota,
+      isPdfExportMonthlyQuotaUnlimited,
+    } = await loadUsageLimits();
+
+    expect(getPdfExportMonthlyQuotaForPlan('free')).toBe(1);
+    expect(getPdfExportMonthlyQuotaForPlan('plus')).toBe(50);
+    expect(getPdfExportMonthlyQuotaForPlan('pro')).toBe(Number.POSITIVE_INFINITY);
+
+    expect(hasFinitePdfExportMonthlyQuota('free')).toBe(true);
+    expect(hasFinitePdfExportMonthlyQuota('plus')).toBe(true);
+    expect(hasFinitePdfExportMonthlyQuota('pro')).toBe(false);
+
+    expect(isPdfExportMonthlyQuotaUnlimited('free')).toBe(false);
+    expect(isPdfExportMonthlyQuotaUnlimited('plus')).toBe(false);
+    expect(isPdfExportMonthlyQuotaUnlimited('pro')).toBe(true);
+  });
+
   it('aplica limites dimensionados por plano pra nameplate_analysis', async () => {
     // Motivação: Plus e Pro não podem ser "ilimitado" porque o custo da
     // análise é em USD (cauda longa vira sangria de margem). 30/mês no Plus

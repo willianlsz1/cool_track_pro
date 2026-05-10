@@ -16,6 +16,12 @@ const VALID_RESOURCES = new Set([
   USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
 ]);
 
+const PDF_EXPORT_MONTHLY_QUOTA_CONTRACT = Object.freeze({
+  [PLAN_CODE_FREE]: 1,
+  [PLAN_CODE_PLUS]: 50,
+  [PLAN_CODE_PRO]: Number.POSITIVE_INFINITY,
+});
+
 // ── Limites mensais por plano ──────────────────────────────────────────────
 // Free: PDF liberado com marca d'água (sem bloqueio rígido no loop principal),
 //       WhatsApp ainda com teto mensal pra preservar incentivo de upgrade.
@@ -76,6 +82,19 @@ export function getMonthlyLimitForPlan(planCode, resource) {
   assertValidResource(resource);
   const normalizedPlan = normalizePlanCode(planCode);
   return MONTHLY_LIMITS[normalizedPlan][resource];
+}
+
+export function getPdfExportMonthlyQuotaForPlan(planCode) {
+  const normalizedPlan = normalizePlanCode(planCode);
+  return PDF_EXPORT_MONTHLY_QUOTA_CONTRACT[normalizedPlan];
+}
+
+export function isPdfExportMonthlyQuotaUnlimited(planCode) {
+  return !Number.isFinite(getPdfExportMonthlyQuotaForPlan(planCode));
+}
+
+export function hasFinitePdfExportMonthlyQuota(planCode) {
+  return Number.isFinite(getPdfExportMonthlyQuotaForPlan(planCode));
 }
 
 export function hasReachedMonthlyLimit({ planCode, resource, usedCount }) {
