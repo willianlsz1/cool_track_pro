@@ -7,12 +7,7 @@ import { Profile } from '../features/profile.js';
 import { PLAN_CODE_PLUS, PLAN_CODE_PRO, PLAN_CODE_FREE } from '../core/plans/subscriptionPlans.js';
 import { getCachedPlan } from '../core/plans/planCache.js';
 import { getClientesAccessSnapshot } from '../core/plans/clientesAccess.js';
-import {
-  ensureNavigationModePreference,
-  getNavigationLayout,
-  getNavigationMode,
-  NAV_MODE_EMPRESA,
-} from './shell/navigationMode.js';
+import { ensureNavigationModePreference, getNavigationLayout } from './shell/navigationMode.js';
 
 const HEADER_TOTAL_HEIGHT_VAR = '--app-header-total-height';
 const HEADER_HEIGHT_ALIAS_VAR = '--app-header-height';
@@ -110,26 +105,12 @@ function _setElementVisible(el, visible) {
 
 function _applyNavigationMode() {
   if (typeof document === 'undefined') return;
-  const mode = getNavigationMode();
-  const layout = getNavigationLayout(mode);
+  const layout = getNavigationLayout();
   const access = getClientesAccessSnapshot();
-  const isProNavigation = access.planCode === PLAN_CODE_PRO;
   const canAccessClientesRoute = access.canAccess;
   const mobilePrimary = new Set(layout.mobilePrimary || []);
   const sidebarPrimary = new Set(layout.sidebarPrimary || []);
-  const mobileSecondary = new Set(layout.mobileSecondary || []);
   const sidebarSecondary = new Set(layout.sidebarSecondary || []);
-
-  // CP-B libera a rota Clientes, mas preserva a navegacao mobile legada.
-  // A nova ordem do bottom nav fica para CP-C.
-  if (!isProNavigation) {
-    mobilePrimary.delete('clientes');
-    mobilePrimary.add('inicio');
-    mobilePrimary.add('registro');
-    sidebarPrimary.delete('clientes');
-    sidebarSecondary.add('clientes');
-    if (mode === NAV_MODE_EMPRESA) mobileSecondary.add('clientes');
-  }
 
   const mobileAll = ['inicio', 'clientes', 'equipamentos', 'registro', 'historico', 'relatorio'];
   mobileAll.forEach((route) => {
@@ -150,11 +131,7 @@ function _applyNavigationMode() {
   sidebarAll.forEach((route) => {
     const el = document.getElementById(`sidenav-${route}`);
     if (!el) return;
-    const visible =
-      sidebarPrimary.has(route) ||
-      sidebarSecondary.has(route) ||
-      route === 'orcamentos' ||
-      route === 'alertas';
+    const visible = sidebarPrimary.has(route) || sidebarSecondary.has(route);
     _setElementVisible(el, visible);
     el.classList.toggle('app-sidebar__nav-item--secondary', sidebarSecondary.has(route));
   });
@@ -217,11 +194,8 @@ export function updateShellSidebar() {
 
   // Clientes e acessivel em todos os planos; o limite Free fica na criacao.
   const clientesItem = document.getElementById('sidenav-clientes');
-  const clientesLock = document.getElementById('sidenav-clientes-lock');
-  const canAccessClientesRoute = getClientesAccessSnapshot().canAccess;
-  if (clientesLock) clientesLock.hidden = canAccessClientesRoute;
   if (clientesItem) {
-    clientesItem.classList.toggle('app-sidebar__nav-item--locked', !canAccessClientesRoute);
+    clientesItem.classList.remove('app-sidebar__nav-item--locked');
   }
   _rerenderMobileNav(planCode);
   _applyNavigationMode();

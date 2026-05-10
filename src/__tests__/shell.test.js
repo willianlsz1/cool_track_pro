@@ -24,7 +24,10 @@ describe('shell bootstrap', () => {
     expect(document.body.querySelectorAll('.app-header')).toHaveLength(1);
     expect(document.getElementById('header-help-btn')).not.toBeNull();
     expect(document.getElementById('tour-help-btn')).toBeNull();
-    expect(document.body.querySelectorAll('.app-nav .nav-btn')).toHaveLength(4);
+    const bottomNavLabels = Array.from(document.body.querySelectorAll('.app-nav .nav-btn')).map(
+      (button) => button.textContent?.replace(/\s+/g, ' ').trim(),
+    );
+    expect(bottomNavLabels).toEqual(['Painel', 'Clientes', 'Registrar', 'Equip.', 'Serviços']);
     expect(document.getElementById('nav-relatorio')).toBeNull();
     expect(document.getElementById('dash-hero-cta-label')?.textContent).toContain(
       'Registrar serviço',
@@ -82,7 +85,7 @@ describe('shell bootstrap', () => {
     navRectSpy.mockRestore();
   });
 
-  it('nao renderiza Clientes no mobile para plano Free no modo Empresa, mas libera atalho de acesso', async () => {
+  it('renderiza Clientes no mobile para plano Free mesmo com preferencia legada Empresa', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
     localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
@@ -90,14 +93,14 @@ describe('shell bootstrap', () => {
     const { initAppShell } = await import('../ui/shell.js');
     initAppShell();
 
-    expect(document.getElementById('nav-clientes')).toBeNull();
+    expect(document.getElementById('nav-clientes')?.hidden).toBe(false);
     expect(document.getElementById('nav-inicio')?.hidden).toBe(false);
     expect(document.getElementById('nav-registro')?.hidden).toBe(false);
     expect(document.getElementById('header-help-go-clientes')?.hidden).toBe(false);
     expect(document.getElementById('header-help-clientes-upsell')?.hidden).toBe(true);
   });
 
-  it('não renderiza Clientes no mobile para plano Plus', async () => {
+  it('renderiza Clientes no mobile para plano Plus', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
     localStorage.setItem('ct:anon:cooltrack-cached-plan', 'plus');
@@ -105,10 +108,10 @@ describe('shell bootstrap', () => {
     const { initAppShell } = await import('../ui/shell.js');
     initAppShell();
 
-    expect(document.getElementById('nav-clientes')).toBeNull();
+    expect(document.getElementById('nav-clientes')?.hidden).toBe(false);
   });
 
-  it('mantém Clientes no mobile para plano Pro no modo Empresa', async () => {
+  it('mantém Clientes no mobile para plano Pro', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     localStorage.setItem('cooltrack_nav_mode', 'empresa');
     localStorage.setItem('ct:anon:cooltrack-cached-plan', 'pro');
@@ -121,5 +124,24 @@ describe('shell bootstrap', () => {
     expect(document.body.querySelectorAll('.app-nav .nav-btn')).toHaveLength(5);
     expect(document.getElementById('header-help-go-clientes')?.hidden).toBe(false);
     expect(document.getElementById('header-help-clientes-upsell')?.hidden).toBe(true);
+  });
+
+  it('agrupa a sidebar por intencao sem rotulo Gestao', async () => {
+    document.body.innerHTML = '<div id="app"></div>';
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
+
+    const { initAppShell } = await import('../ui/shell.js');
+    initAppShell();
+
+    const sectionLabels = Array.from(
+      document.body.querySelectorAll('.app-sidebar__section-kicker'),
+    ).map((section) => section.textContent?.trim());
+
+    expect(sectionLabels).toEqual(['Principal', 'Organização', 'Histórico', 'Sistema']);
+    expect(document.body.textContent).not.toContain('GESTÃO');
+    expect(document.getElementById('sidenav-clientes')?.classList.contains('is-locked')).toBe(
+      false,
+    );
+    expect(document.getElementById('sidenav-clientes-lock')).toBeNull();
   });
 });

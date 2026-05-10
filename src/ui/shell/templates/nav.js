@@ -1,9 +1,8 @@
-export function shouldShowClientesInMobileNav(planCode) {
-  return String(planCode || '').toLowerCase() === 'pro';
+export function shouldShowClientesInMobileNav() {
+  return true;
 }
 
-export function renderShellNav(planCode) {
-  const showClientes = shouldShowClientesInMobileNav(planCode);
+export function renderShellNav() {
   return String.raw`
 <!-- NAV -->
       <nav class="app-nav" aria-label="Navegação principal">
@@ -20,14 +19,7 @@ export function renderShellNav(planCode) {
           </span>
           Painel
         </button>
-<!--
-          Botão "Clientes" no bottom nav (mobile). Mantido com Pro-gate:
-          não-Pro abre pelo CTA do header/paywall existente; no Pro fica junto
-          dos destinos de navegação antes de Equipamentos.
-        -->
-        ${
-          showClientes
-            ? `<button class="nav-btn" id="nav-clientes" data-nav="clientes" aria-label="Clientes">
+        <button class="nav-btn" id="nav-clientes" data-nav="clientes" aria-label="Clientes">
           <span class="nav-btn__icon" aria-hidden="true">
             <svg class="nav-btn__svg nav-btn__svg--outline" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -41,9 +33,6 @@ export function renderShellNav(planCode) {
           </span>
           Clientes
         </button>
-        `
-            : ''
-        }
         <button class="nav-btn" id="nav-registro" data-nav="registro" aria-label="Registrar serviço">
           <span class="nav-btn__icon" aria-hidden="true">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">

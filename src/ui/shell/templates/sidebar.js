@@ -1,14 +1,3 @@
-/**
- * Desktop sidebar (>=1024px) — substitui o bottom nav em viewports largos.
- * V3 redesign abr/2026:
- *   - 3 seções com kicker labels (OPERAÇÃO / GESTÃO / SISTEMA)
- *   - Reorder pra fluxo logico (Painel -> Registrar -> Serviços | Equipamentos +
- *     Clientes | Relatórios + Alertas)
- *   - Pill "Atalho: R" no Registrar serviço
- *   - Plan card com calendar icon + data inline + chevron CTA
- *   - Item Configurações no rodape (abre o menu de help/settings do header)
- */
-
 const ICON_HOME = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
   stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
   <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H15v-7h-6v7H4.5A1.5 1.5 0 0 1 3 20v-9.5Z"/>
@@ -81,13 +70,17 @@ const ICON_GEAR = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
 </svg>`;
 
+const ICON_FILE_TEXT = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+  <polyline points="14 2 14 8 20 8"/>
+  <line x1="9" y1="13" x2="15" y2="13"/>
+  <line x1="9" y1="17" x2="15" y2="17"/>
+</svg>`;
+
 export function renderShellSidebar() {
   return String.raw`
-<!-- SIDEBAR (desktop >=1024px) - V3 abr/2026
-     Estrutura: brand + 3 seções (OPERAÇÃO/GESTÃO/SISTEMA) + plan card +
-     divider + user chip + Configurações row. Active state controlado pelo
-     router via .is-active. -->
-<aside class="app-sidebar" aria-label="Navegacao principal (desktop)">
+<aside class="app-sidebar" aria-label="Navegação principal (desktop)">
   <div class="app-sidebar__brand">
     <div class="app-sidebar__brand-icon" aria-hidden="true">
       <img class="app-sidebar__brand-mark" src="/brand/favicon.svg" alt="" loading="eager" decoding="async" />
@@ -99,10 +92,8 @@ export function renderShellSidebar() {
   </div>
 
   <nav class="app-sidebar__nav" aria-label="Menu principal">
-
-    <!-- ── Seção OPERAÇÃO ── -->
     <div class="app-sidebar__section">
-      <div class="app-sidebar__section-kicker">OPERAÇÃO</div>
+      <div class="app-sidebar__section-kicker">Principal</div>
       <button type="button" class="app-sidebar__nav-item is-active"
         id="sidenav-inicio" data-nav="inicio">
         ${ICON_HOME}<span>Painel</span>
@@ -112,66 +103,47 @@ export function renderShellSidebar() {
         ${ICON_PLUS_CIRCLE}<span>Registrar serviço</span>
         <span class="app-sidebar__shortcut" aria-hidden="true">Atalho: R</span>
       </button>
-      <button type="button" class="app-sidebar__nav-item"
-        id="sidenav-historico" data-nav="historico">
-        ${ICON_CLOCK}<span>Serviços</span>
-      </button>
     </div>
 
-    <!-- ── Seção GESTÃO ── -->
     <div class="app-sidebar__section">
-      <div class="app-sidebar__section-kicker">GESTÃO</div>
+      <div class="app-sidebar__section-kicker">Organização</div>
+      <button type="button" class="app-sidebar__nav-item"
+        id="sidenav-clientes" data-nav="clientes">
+        ${ICON_USERS}<span>Clientes</span>
+      </button>
       <button type="button" class="app-sidebar__nav-item"
         id="sidenav-equipamentos" data-nav="equipamentos">
         ${ICON_WRENCH}<span>Equipamentos</span>
       </button>
-      <button type="button" class="app-sidebar__nav-item"
-        id="sidenav-clientes" data-nav="clientes">
-        ${ICON_USERS}<span>Clientes</span>
-        <span class="app-sidebar__nav-lock" id="sidenav-clientes-lock" hidden aria-hidden="true">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="11" width="16" height="10" rx="2"/>
-            <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-          </svg>
-          <span class="app-sidebar__nav-lock-label">PRO</span>
-        </span>
-      </button>
-      <!-- V3 Instalação: Orçamentos disponivel pra todos os planos
-           (Free: 1/mês como porta de entrada). -->
-      <button type="button" class="app-sidebar__nav-item"
-        id="sidenav-orcamentos" data-nav="orcamentos">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="9" y1="13" x2="15" y2="13"/>
-          <line x1="9" y1="17" x2="15" y2="17"/>
-        </svg>
-        <span>Orçamentos</span>
-      </button>
     </div>
 
-    <!-- ── Seção SISTEMA ── -->
     <div class="app-sidebar__section">
-      <div class="app-sidebar__section-kicker">SISTEMA</div>
+      <div class="app-sidebar__section-kicker">Histórico</div>
+      <button type="button" class="app-sidebar__nav-item"
+        id="sidenav-historico" data-nav="historico">
+        ${ICON_CLOCK}<span>Serviços</span>
+      </button>
       <button type="button" class="app-sidebar__nav-item"
         id="sidenav-relatorio" data-nav="relatorio">
         ${ICON_FILE}<span>Relatórios</span>
       </button>
+    </div>
+
+    <div class="app-sidebar__section">
+      <div class="app-sidebar__section-kicker">Sistema</div>
       <button type="button" class="app-sidebar__nav-item"
         id="sidenav-alertas" data-nav="alertas">
         ${ICON_BELL}<span>Alertas</span>
         <span class="app-sidebar__nav-badge" id="sidenav-alerta-badge" hidden>0</span>
       </button>
+      <button type="button" class="app-sidebar__nav-item"
+        id="sidenav-orcamentos" data-nav="orcamentos">
+        ${ICON_FILE_TEXT}<span>Orçamentos</span>
+      </button>
     </div>
-
   </nav>
 
   <div class="app-sidebar__footer">
-    <!-- Sync status pill: aparece quando ha sincronizacao em curso ou
-         pendente. Atualizado pelo updateHeader() em dashboard.js que
-         já roda em todo route change. Hidden por default. -->
     <div class="app-sidebar__sync" id="sidenav-sync-status" hidden>
       <span class="app-sidebar__sync-dot" aria-hidden="true"></span>
       <svg class="app-sidebar__sync-icon" width="13" height="13" viewBox="0 0 24 24"
@@ -184,9 +156,6 @@ export function renderShellSidebar() {
       <span class="app-sidebar__sync-text" id="sidenav-sync-status-txt">Sincronizando...</span>
     </div>
 
-    <!-- Card do plano: nome + status + data + Gerenciar. Conteudo
-         populado em runtime por updateShellSidebar() apos profile carregar.
-         Default visual = "Plano Free" pra evitar flash. -->
     <div class="app-sidebar__plan-card" id="sidenav-plan-card" data-plan="free">
       <div class="app-sidebar__plan-card-head">
         <span class="app-sidebar__plan-card-icon" aria-hidden="true">${ICON_CROWN}</span>
@@ -208,7 +177,6 @@ export function renderShellSidebar() {
 
     <div class="app-sidebar__divider" aria-hidden="true"></div>
 
-    <!-- User chip: avatar + nome + role. Click navega pra /conta. -->
     <button type="button" class="app-sidebar__user-chip" id="sidenav-user-chip"
       data-nav="conta" aria-label="Abrir minha conta">
       <span class="app-sidebar__user-avatar" id="sidenav-user-avatar">U</span>
@@ -219,7 +187,6 @@ export function renderShellSidebar() {
       <span class="app-sidebar__user-chev" aria-hidden="true">${ICON_CHEV_DOWN}</span>
     </button>
 
-    <!-- Configurações: abre o menu existente do header (toggle-help-menu). -->
     <button type="button" class="app-sidebar__settings"
       id="sidenav-settings" data-nav="configuracoes"
       aria-label="Configurações e ajuda" title="Configurações e ajuda">

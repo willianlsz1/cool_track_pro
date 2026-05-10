@@ -4,19 +4,25 @@ export const NAV_MODE_EMPRESA = 'empresa';
 
 const VALID_MODES = new Set([NAV_MODE_RAPIDO, NAV_MODE_EMPRESA]);
 
+const PRIMARY_NAV_LAYOUT = {
+  mobilePrimary: ['inicio', 'clientes', 'registro', 'equipamentos', 'historico'],
+  mobileSecondary: [],
+  sidebarPrimary: [
+    'inicio',
+    'registro',
+    'clientes',
+    'equipamentos',
+    'historico',
+    'relatorio',
+    'alertas',
+    'orcamentos',
+  ],
+  sidebarSecondary: [],
+};
+
 export const NAV_LAYOUT_BY_MODE = {
-  [NAV_MODE_RAPIDO]: {
-    mobilePrimary: ['inicio', 'equipamentos', 'registro', 'historico', 'relatorio'],
-    mobileSecondary: ['clientes'],
-    sidebarPrimary: ['equipamentos', 'registro', 'historico', 'relatorio'],
-    sidebarSecondary: ['clientes'],
-  },
-  [NAV_MODE_EMPRESA]: {
-    mobilePrimary: ['clientes', 'equipamentos', 'registro', 'historico', 'relatorio'],
-    mobileSecondary: [],
-    sidebarPrimary: ['clientes', 'equipamentos', 'registro', 'historico', 'relatorio'],
-    sidebarSecondary: [],
-  },
+  [NAV_MODE_RAPIDO]: PRIMARY_NAV_LAYOUT,
+  [NAV_MODE_EMPRESA]: PRIMARY_NAV_LAYOUT,
 };
 
 function normalizeMode(raw) {

@@ -36,9 +36,27 @@ describe('navigationMode', () => {
     expect(getNavigationMode()).toBe(NAV_MODE_RAPIDO);
   });
 
-  it('retorna layout centralizado por modo', () => {
-    expect(getNavigationLayout(NAV_MODE_RAPIDO)).toEqual(NAV_LAYOUT_BY_MODE[NAV_MODE_RAPIDO]);
-    expect(getNavigationLayout(NAV_MODE_EMPRESA)).toEqual(NAV_LAYOUT_BY_MODE[NAV_MODE_EMPRESA]);
+  it('mantem layout principal unico para preferencias legadas', () => {
+    const expectedLayout = {
+      mobilePrimary: ['inicio', 'clientes', 'registro', 'equipamentos', 'historico'],
+      mobileSecondary: [],
+      sidebarPrimary: [
+        'inicio',
+        'registro',
+        'clientes',
+        'equipamentos',
+        'historico',
+        'relatorio',
+        'alertas',
+        'orcamentos',
+      ],
+      sidebarSecondary: [],
+    };
+
+    expect(NAV_LAYOUT_BY_MODE[NAV_MODE_RAPIDO]).toEqual(expectedLayout);
+    expect(NAV_LAYOUT_BY_MODE[NAV_MODE_EMPRESA]).toEqual(expectedLayout);
+    expect(getNavigationLayout(NAV_MODE_RAPIDO)).toEqual(expectedLayout);
+    expect(getNavigationLayout(NAV_MODE_EMPRESA)).toEqual(expectedLayout);
   });
 
   it('define modo rapido silenciosamente na primeira execução', () => {
