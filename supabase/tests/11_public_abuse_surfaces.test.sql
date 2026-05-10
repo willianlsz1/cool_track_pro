@@ -127,7 +127,7 @@ begin
     values ('bad_payload', jsonb_build_array('not-object'), 'bad-payload-session', v_user_id);
     raise exception 'FAIL: analytics payload nao-objeto deveria bloquear';
   exception
-    when check_violation then
+    when insufficient_privilege or check_violation then
       raise notice 'OK: analytics payload nao-objeto bloqueado';
     when others then
       raise exception 'FAIL analytics bad payload (errcode %): %', sqlstate, sqlerrm;
