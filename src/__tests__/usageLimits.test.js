@@ -31,20 +31,37 @@ describe('usageLimits', () => {
     const { getMonthlyLimitForPlan, hasReachedMonthlyLimit, USAGE_RESOURCE_PDF_EXPORT } =
       await loadUsageLimits();
 
-    expect(getMonthlyLimitForPlan('free', USAGE_RESOURCE_PDF_EXPORT)).toBe(
-      Number.POSITIVE_INFINITY,
-    );
-    expect(getMonthlyLimitForPlan('plus', USAGE_RESOURCE_PDF_EXPORT)).toBe(
-      Number.POSITIVE_INFINITY,
-    );
+    expect(getMonthlyLimitForPlan('free', USAGE_RESOURCE_PDF_EXPORT)).toBe(1);
+    expect(getMonthlyLimitForPlan('plus', USAGE_RESOURCE_PDF_EXPORT)).toBe(50);
     expect(getMonthlyLimitForPlan('pro', USAGE_RESOURCE_PDF_EXPORT)).toBe(Number.POSITIVE_INFINITY);
     expect(
       hasReachedMonthlyLimit({
         planCode: 'free',
         resource: 'pdf_export',
-        usedCount: 200,
+        usedCount: 0,
       }),
     ).toBe(false);
+    expect(
+      hasReachedMonthlyLimit({
+        planCode: 'free',
+        resource: 'pdf_export',
+        usedCount: 1,
+      }),
+    ).toBe(true);
+    expect(
+      hasReachedMonthlyLimit({
+        planCode: 'plus',
+        resource: 'pdf_export',
+        usedCount: 49,
+      }),
+    ).toBe(false);
+    expect(
+      hasReachedMonthlyLimit({
+        planCode: 'plus',
+        resource: 'pdf_export',
+        usedCount: 50,
+      }),
+    ).toBe(true);
     expect(
       hasReachedMonthlyLimit({
         planCode: 'free',
@@ -54,11 +71,13 @@ describe('usageLimits', () => {
     ).toBe(true);
   });
 
-  it('exposes the planned PDF quota contract without activating export blocking yet', async () => {
+  it('uses the planned PDF quota contract for runtime monthly limits', async () => {
     const {
+      getMonthlyLimitForPlan,
       getPdfExportMonthlyQuotaForPlan,
       hasFinitePdfExportMonthlyQuota,
       isPdfExportMonthlyQuotaUnlimited,
+      USAGE_RESOURCE_PDF_EXPORT,
     } = await loadUsageLimits();
 
     expect(getPdfExportMonthlyQuotaForPlan('free')).toBe(1);
@@ -72,6 +91,16 @@ describe('usageLimits', () => {
     expect(isPdfExportMonthlyQuotaUnlimited('free')).toBe(false);
     expect(isPdfExportMonthlyQuotaUnlimited('plus')).toBe(false);
     expect(isPdfExportMonthlyQuotaUnlimited('pro')).toBe(true);
+
+    expect(getMonthlyLimitForPlan('free', USAGE_RESOURCE_PDF_EXPORT)).toBe(
+      getPdfExportMonthlyQuotaForPlan('free'),
+    );
+    expect(getMonthlyLimitForPlan('plus', USAGE_RESOURCE_PDF_EXPORT)).toBe(
+      getPdfExportMonthlyQuotaForPlan('plus'),
+    );
+    expect(getMonthlyLimitForPlan('pro', USAGE_RESOURCE_PDF_EXPORT)).toBe(
+      getPdfExportMonthlyQuotaForPlan('pro'),
+    );
   });
 
   it('aplica limites dimensionados por plano pra nameplate_analysis', async () => {

@@ -38,6 +38,8 @@ const PDF_EXPORT_MONTHLY_QUOTA_CONTRACT = Object.freeze({
 //       PDFs/WhatsApp ilimitados (sao baratos — papel/mensagem). Analise de
 //       placa: 200/mes
 //       cobre rollout inicial de uma equipe média sem abrir mão da margem.
+// Nota CP-C: getMonthlyLimitForPlan resolve pdf_export pelo contrato dedicado
+// acima, ativando Free 1/mes, Plus 50/mes e Pro ilimitado no runtime.
 const MONTHLY_LIMITS = {
   [PLAN_CODE_FREE]: {
     [USAGE_RESOURCE_PDF_EXPORT]: Number.POSITIVE_INFINITY,
@@ -81,6 +83,9 @@ function normalizeUsageCount(value) {
 export function getMonthlyLimitForPlan(planCode, resource) {
   assertValidResource(resource);
   const normalizedPlan = normalizePlanCode(planCode);
+  if (resource === USAGE_RESOURCE_PDF_EXPORT) {
+    return getPdfExportMonthlyQuotaForPlan(normalizedPlan);
+  }
   return MONTHLY_LIMITS[normalizedPlan][resource];
 }
 

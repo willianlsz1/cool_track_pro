@@ -71,7 +71,7 @@ async function resolvePlanAndUsage(userId) {
 
 function buildPdfLimitMessage(planCode, pdfLimit) {
   if (planCode === PLAN_CODE_FREE) {
-    return "No plano Free os relatórios saem com marca d'água. Faça upgrade para Plus ou Pro pra PDFs sem marca d'água ilimitados.";
+    return `Você atingiu ${pdfLimit} PDF este mês no plano Free. Faça upgrade para Plus para mais PDFs e relatórios sem marca d'água.`;
   }
   if (planCode === PLAN_CODE_PLUS) {
     return `Você atingiu ${pdfLimit} PDFs este mês no plano Plus. O plano Pro tem PDFs ilimitados.`;

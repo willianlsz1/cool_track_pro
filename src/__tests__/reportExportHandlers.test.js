@@ -152,8 +152,8 @@ describe('reportExportHandlers', () => {
     });
     getMonthlyLimitForPlan.mockImplementation((planCode, resource) => {
       if (resource === 'pdf_export') {
-        if (planCode === 'free') return Number.POSITIVE_INFINITY;
-        if (planCode === 'plus') return 120;
+        if (planCode === 'free') return 1;
+        if (planCode === 'plus') return 50;
         return Number.POSITIVE_INFINITY;
       }
       if (resource === 'whatsapp_share') {
@@ -221,25 +221,92 @@ describe('reportExportHandlers', () => {
       expect.any(Object),
       expect.objectContaining({ planCode: 'free' }),
     );
-    expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
     expect(pdfToastShow).toHaveBeenCalledWith(
-      expect.objectContaining({ fileName: 'relatorio.pdf' }),
+      expect.objectContaining({ fileName: 'relatorio.pdf', used: 1, limit: 1 }),
     );
-    expect(pdfToastShow.mock.calls[0][0]).not.toHaveProperty('used');
+    expect(incrementMonthlyUsage).toHaveBeenCalledWith('u1', 'pdf_export');
     expect(pdfBadgeRefresh).toHaveBeenCalled();
   });
 
   it('blocks Free users once they hit the monthly PDF quota with Plus/Pro nudge', async () => {
     getUser.mockResolvedValueOnce({ id: 'u1' });
-    hasReachedMonthlyLimit.mockImplementation(({ resource }) => resource === 'pdf_export');
+    getMonthlyUsageSnapshot.mockResolvedValueOnce({
+      monthStart: '2026-04-01',
+      pdf_export: 1,
+      whatsapp_share: 0,
+    });
+    hasReachedMonthlyLimit.mockImplementation(
+      ({ resource, usedCount }) => resource === 'pdf_export' && usedCount >= 1,
+    );
 
     await handlers.get('export-pdf')({});
 
     expect(generateMaintenanceReport).not.toHaveBeenCalled();
+    expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
     // Sem GuestConversionModal — agora mostra Toast com nudge pra Plus/Pro
     expect(warning).toHaveBeenCalled();
     const toastMsg = warning.mock.calls[warning.mock.calls.length - 1][0];
     expect(toastMsg).toMatch(/Plus/);
+    expect(goTo).toHaveBeenCalledWith('pricing');
+  });
+
+  it('allows Plus users under the monthly PDF quota and increments usage', async () => {
+    getUser.mockResolvedValueOnce({ id: 'u1' });
+    getEffectivePlan.mockReturnValueOnce('plus');
+    fetchMyProfileBilling.mockResolvedValueOnce({
+      profile: { id: 'u1', plan: 'plus', subscription_status: 'active', is_dev: false },
+    });
+    getMonthlyUsageSnapshot.mockResolvedValueOnce({
+      monthStart: '2026-04-01',
+      pdf_export: 49,
+      whatsapp_share: 0,
+    });
+    incrementMonthlyUsage.mockResolvedValueOnce(50);
+    generateMaintenanceReport.mockResolvedValueOnce({
+      fileName: 'relatorio.pdf',
+      blob: new Blob(['pdf'], { type: 'application/pdf' }),
+    });
+
+    await handlers.get('export-pdf')({});
+
+    expect(generateMaintenanceReport).toHaveBeenCalledTimes(1);
+    expect(incrementMonthlyUsage).toHaveBeenCalledWith('u1', 'pdf_export');
+    expect(pdfToastShow).toHaveBeenCalledWith(
+      expect.objectContaining({ fileName: 'relatorio.pdf', used: 50, limit: 50 }),
+    );
+  });
+
+  it('blocks Plus users once they hit the monthly PDF quota', async () => {
+    getUser.mockResolvedValueOnce({ id: 'u1' });
+    getEffectivePlan.mockReturnValueOnce('plus');
+    fetchMyProfileBilling.mockResolvedValueOnce({
+      profile: { id: 'u1', plan: 'plus', subscription_status: 'active', is_dev: false },
+    });
+    getMonthlyUsageSnapshot.mockResolvedValueOnce({
+      monthStart: '2026-04-01',
+      pdf_export: 50,
+      whatsapp_share: 0,
+    });
+    hasReachedMonthlyLimit.mockImplementation(
+      ({ resource, usedCount }) => resource === 'pdf_export' && usedCount >= 50,
+    );
+
+    await handlers.get('export-pdf')({});
+
+    expect(generateMaintenanceReport).not.toHaveBeenCalled();
+    expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
+    expect(warning).toHaveBeenCalled();
+    expect(goTo).toHaveBeenCalledWith('pricing');
+  });
+
+  it('does not increment PDF usage when generation fails before export', async () => {
+    getUser.mockResolvedValueOnce({ id: 'u1' });
+    generateMaintenanceReport.mockResolvedValueOnce(null);
+
+    await handlers.get('export-pdf')({});
+
+    expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
+    expect(pdfToastShow).not.toHaveBeenCalled();
   });
 
   it('allows authenticated Pro users to export PDF without incrementing quota', async () => {
