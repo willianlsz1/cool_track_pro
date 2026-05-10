@@ -35,7 +35,7 @@ Status apos CP-B:
 - Validacao SQL/RLS foi adicionada em `supabase/tests`, mas a execucao local de
   pgTAP depende de Docker/Supabase local.
 
-Status apos CP-I:
+Status final apos CP-J:
 
 - CP-C corrigiu entitlement Stripe: `checkout.session.completed` nao promove
   plano pago ativo sozinho; `invoice.paid` passou a ser o caminho seguro de
@@ -87,6 +87,10 @@ Status apos CP-I:
   delete nao formam uma transacao distribuida. Se uma tabela falhar apos
   Storage ja ter sido limpo, a funcao falha fechado e nao deleta Auth, mas pode
   exigir reexecucao/suporte para completar a eliminacao.
+- CP-J criou `docs/security/mudanca-17-final-report.md`, consolidou os CPs A-I
+  e encerrou a Mudanca 17 como hardening de seguranca operacional.
+- Proximo passo recomendado apos CP-J: Mudanca 18 / CP-A - Planejamento das
+  mudancas de fluxo, inicialmente read-only.
 
 ## 2. Base analisada
 
@@ -996,6 +1000,34 @@ Riscos remanescentes:
 - O CP-I nao alterou schema/cascades nem criou job compensatorio, para evitar
   refatoracao ampla no fechamento da Mudanca 17.
 
+### CP-J - Fechamento documental da seguranca
+
+Status: executado no CP-J.
+
+Arquivo criado:
+
+- `docs/security/mudanca-17-final-report.md`
+
+Arquivo atualizado:
+
+- `docs/security/mudanca-17-codex-security-triage.md`
+
+Resultado:
+
+- Mudanca 17 consolidada documentalmente.
+- CPs A-I registrados como concluidos ou concluidos/validados conforme o
+  escopo de cada CP.
+- Achados high e principais riscos medium priorizados consolidados.
+- Riscos remanescentes aceitos separados como backlog controlado.
+- Proxima fase registrada como Mudanca 18 / CP-A - Planejamento das mudancas de
+  fluxo.
+
+Escopo preservado:
+
+- Sem alteracao em codigo de producao.
+- Sem alteracao em testes, migrations, Edge Functions, CSS/design ou package.
+- Sem inicio de mudancas de fluxo ou redesign.
+
 ## 10. Validacoes recomendadas para cada CP
 
 Base minima para todos os CPs com codigo:
@@ -1031,11 +1063,12 @@ Validacoes adicionais por area:
 - Mudanca de schema/RLS/storage sem CP especifico, testes e plano de rollback.
 - Remocao de codigo supostamente morto sem confirmar uso indireto.
 
-## 12. Proximo CP recomendado
+## 12. Proximo passo recomendado
 
-Proximo CP recomendado apos CP-I: CP-J - fechamento documental da Mudanca 17.
+Proximo passo recomendado apos CP-J: Mudanca 18 / CP-A - Planejamento das
+mudancas de fluxo.
 
-Justificativa:
+Justificativa de fechamento:
 
 - CP-B reduziu a manipulacao direta de billing/quota.
 - CP-C corrigiu a promocao indevida de plano pago antes de pagamento
@@ -1054,5 +1087,17 @@ Justificativa:
 - CP-I reduziu o risco de exclusao parcial silenciosa, reordenando Storage
   antes de banco/Auth e falhando fechado em etapas criticas.
 - Nao surgiu novo risco tecnico critico que justifique outro CP de codigo antes
-  do fechamento. O CP-J deve consolidar progresso, riscos remanescentes e a
-  transicao para a proxima fase, sem iniciar mudancas de fluxo ou design.
+  do fechamento.
+- CP-J consolidou progresso, riscos remanescentes e a transicao para a proxima
+  fase sem iniciar mudancas de fluxo ou design.
+
+Diretriz para a proxima fase:
+
+- Mudanca 18 / CP-A deve iniciar read-only, com diagnostico da base, contratos
+  e riscos antes de qualquer alteracao de codigo.
+- Nao iniciar design/redesign nesta transicao.
+
+A Mudanca 17 fica encerrada como security hardening operacionalmente concluido.
+Seguranca continua como manutencao continua, mas os achados high e os
+principais riscos medium priorizados nesta fase foram tratados, validados e
+documentados.
