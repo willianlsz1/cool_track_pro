@@ -238,9 +238,7 @@ export function renderViewEquipDetailHtml(model, deps) {
 
   return {
     html: `
-    <div class="eq-detail-view">
-
-      ${coverBlock.html}
+    <div class="eq-detail-view eq-detail-view--surface">
 
       <!--
         Title block consolidado (V7 refino UX): nome em h1 + subtítulo
@@ -249,14 +247,57 @@ export function renderViewEquipDetailHtml(model, deps) {
         expansão pra info que o técnico precisa de cara. Agora tudo
         identificador essencial fica visível logo após a foto.
       -->
+      <section class="eq-detail-work-header" aria-label="Resumo e acoes do equipamento">
       <div class="eq-detail-title-block">
         <div class="modal__title" id="eq-det-title">${Utils.escapeHtml(eq.nome)}</div>
         <div class="eq-detail-title-block__sub">${eqDetailSubtitle(eq)}</div>
       </div>
 
+      <div class="eq-modal-footer eq-modal-footer--tri eq-modal-footer--workhead">
+        <button class="btn btn--primary btn--sm eq-modal-footer__btn eq-modal-footer__btn--primary eq-modal-footer__btn--register"
+                data-action="go-register-equip" data-id="${safeId}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Registrar serviço
+        </button>
+        <button class="btn btn--outline btn--sm eq-modal-footer__btn eq-modal-footer__btn--edit"
+                data-action="edit-equip" data-id="${safeId}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Editar
+        </button>
+        <div class="eq-modal-footer__more">
+          <button class="eq-modal-footer__more-btn" type="button"
+            data-action="toggle-eq-detail-menu" data-id="${safeId}"
+            aria-haspopup="menu" aria-expanded="false" aria-controls="eq-detail-menu-${safeId}"
+            aria-label="Mais ações para ${Utils.escapeAttr(eq.nome)}"
+            title="Mais ações">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+            </svg>
+          </button>
+          <div class="eq-modal-footer__menu" id="eq-detail-menu-${safeId}" role="menu" hidden>
+            <button type="button" class="eq-modal-footer__menu-item eq-modal-footer__menu-item--danger"
+              role="menuitem" data-action="delete-equip" data-id="${safeId}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+              </svg>
+              <span>Excluir equipamento</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      </section>
+
       <!-- ── Hero: score + status. Ring usa linearGradient cyan→success
            (V7) pra dar identidade visual ao score saudável. Tones --warn
            e --danger continuam usando cor sólida via classe-modifier. -->
+      <section class="eq-detail-work-summary" aria-label="Resumo operacional do equipamento">
       <div class="eq-detail-hero eq-detail-hero--${cls}">
         <div class="eq-detail-hero__body">
           <div class="eq-hero-score">
@@ -308,6 +349,12 @@ export function renderViewEquipDetailHtml(model, deps) {
             .join('')}
         </div>
       </div>
+
+      </section>
+
+      <aside class="eq-detail-media-panel" aria-label="Fotos do equipamento">
+        ${coverBlock.html}
+      </aside>
 
       ${pmocContextBlock}
 
@@ -380,7 +427,7 @@ export function renderViewEquipDetailHtml(model, deps) {
            Antes só tinha Editar + Excluir; a primary "Registrar" estava escondida
            no header da seção de histórico (fora do modal). Promovê-la aqui
            alinha a UI com o fluxo real: abrir detalhes → registrar serviço. -->
-      <div class="eq-modal-footer eq-modal-footer--tri">
+      <div class="eq-modal-footer-legacy-bottom" hidden aria-hidden="true">
         <button class="btn btn--primary btn--sm eq-modal-footer__btn eq-modal-footer__btn--primary eq-modal-footer__btn--register"
                 data-action="go-register-equip" data-id="${safeId}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -405,14 +452,14 @@ export function renderViewEquipDetailHtml(model, deps) {
         <div class="eq-modal-footer__more">
           <button class="eq-modal-footer__more-btn" type="button"
             data-action="toggle-eq-detail-menu" data-id="${safeId}"
-            aria-haspopup="menu" aria-expanded="false" aria-controls="eq-detail-menu-${safeId}"
+            aria-haspopup="menu" aria-expanded="false" aria-controls="eq-detail-menu-legacy-${safeId}"
             aria-label="Mais ações para ${Utils.escapeAttr(eq.nome)}"
             title="Mais ações">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
             </svg>
           </button>
-          <div class="eq-modal-footer__menu" id="eq-detail-menu-${safeId}" role="menu" hidden>
+          <div class="eq-modal-footer__menu" id="eq-detail-menu-legacy-${safeId}" role="menu" hidden>
             <button type="button" class="eq-modal-footer__menu-item eq-modal-footer__menu-item--danger"
               role="menuitem" data-action="delete-equip" data-id="${safeId}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

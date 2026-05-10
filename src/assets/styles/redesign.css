@@ -3012,6 +3012,323 @@ body:not(.landing-active) #modal-eq-det .eq-modal-footer {
   }
 }
 
+/* Mudanca 21 / CP-F.2: detalhe do equipamento como superficie de trabalho.
+   Mantem o container tecnico atual, mas remove o peso de modal-pagina. */
+body:not(.landing-active) #modal-eq-det.is-open {
+  background: rgba(2, 8, 18, 0.34) !important;
+  backdrop-filter: none !important;
+}
+
+body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
+  width: min(1480px, calc(100vw - 48px)) !important;
+  max-height: calc(100dvh - 48px) !important;
+  border-radius: 16px !important;
+  background: #07111f !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.28) !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-head {
+  min-height: 48px;
+  padding: 10px 16px;
+  background: #07101d;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-close {
+  width: auto;
+  min-width: 0;
+  height: 34px;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 10px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-shell-close span {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
+  padding: 20px;
+  background: #07111f;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-view--surface {
+  display: grid !important;
+  grid-template-areas:
+    'head media'
+    'summary media'
+    'pmoc media'
+    'tech history';
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: 16px;
+  align-items: start;
+  padding: 0;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-work-header,
+body:not(.landing-active) #modal-eq-det .eq-detail-work-summary,
+body:not(.landing-active) #modal-eq-det .eq-detail-media-panel,
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context,
+body:not(.landing-active) #modal-eq-det .eq-tech-sheet-wrap,
+body:not(.landing-active) #modal-eq-det .eq-svc-section {
+  min-width: 0;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-work-header {
+  display: flex;
+  grid-area: head !important;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(13, 23, 36, 0.7), rgba(7, 17, 31, 0.9));
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-title-block {
+  margin: 0;
+  grid-column: auto !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-title-block .modal__title {
+  font-size: clamp(1.2rem, 1.35vw, 1.65rem);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-modal-footer--workhead {
+  position: relative !important;
+  bottom: auto;
+  z-index: 8;
+  width: min(520px, 100%);
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-modal-footer--workhead .eq-modal-footer__menu {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-modal-footer-legacy-bottom {
+  display: none !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-work-summary {
+  display: grid;
+  grid-area: summary !important;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(280px, 1fr);
+  gap: 16px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-hero,
+body:not(.landing-active) #modal-eq-det .eq-risk-panel,
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context,
+body:not(.landing-active) #modal-eq-det .eq-tech-sheet-wrap,
+body:not(.landing-active) #modal-eq-det .eq-svc-section,
+body:not(.landing-active) #modal-eq-det .eq-detail-media-panel {
+  border-color: rgba(31, 187, 211, 0.22);
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-hero {
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-risk-panel {
+  margin: 0;
+  border-radius: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context {
+  grid-area: pmoc !important;
+  padding: 18px;
+  border-left: 3px solid rgba(56, 213, 239, 0.58);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(13, 23, 36, 0.58), rgba(7, 17, 31, 0.82));
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__head,
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(103, 232, 249, 0.84);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__status {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__item {
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+  background: rgba(8, 15, 24, 0.42);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__item span {
+  display: block;
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__item b {
+  display: block;
+  margin-top: 4px;
+  color: #f8fafc;
+  font-size: 0.88rem;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__footer {
+  margin-top: 14px;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-pmoc-context__footer p {
+  max-width: 52ch;
+  margin: 0;
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 0.86rem;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-tech-sheet-wrap {
+  grid-area: tech !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-svc-section {
+  grid-area: history !important;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-media-panel {
+  display: flex;
+  position: sticky;
+  top: 0;
+  grid-area: media !important;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(13, 23, 36, 0.55);
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-media-panel .eq-detail-cover {
+  height: clamp(140px, 22vh, 220px) !important;
+  min-height: 0 !important;
+  max-height: 220px;
+  margin: 0;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-media-panel .eq-detail-cover-actions {
+  margin: 0;
+  justify-content: stretch;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-detail-media-panel .eq-detail-cover-action {
+  width: 100%;
+  justify-content: center;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-svc-section__header {
+  align-items: center;
+}
+
+body:not(.landing-active) #modal-eq-det .eq-svc-section__cta {
+  opacity: 0.78;
+}
+
+@media (max-width: 1199px) {
+  body:not(.landing-active) #modal-eq-det .eq-detail-view--surface {
+    grid-template-areas:
+      'head'
+      'summary'
+      'pmoc'
+      'media'
+      'tech'
+      'history';
+    grid-template-columns: 1fr;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-media-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  body:not(.landing-active) #modal-eq-det > .modal--eq-detail {
+    width: 100% !important;
+    max-height: calc(100dvh - 12px) !important;
+    border-radius: 16px 16px 8px 8px !important;
+  }
+
+  body:not(.landing-active) #modal-eq-det #eq-det-corpo.eq-detail-shell-body {
+    padding: 12px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-header {
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-modal-footer--workhead {
+    width: 100%;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-work-summary {
+    grid-template-columns: 1fr;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__head,
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__footer {
+    flex-direction: column;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-pmoc-context__grid {
+    grid-template-columns: 1fr;
+  }
+
+  body:not(.landing-active) #modal-eq-det .eq-detail-media-panel .eq-detail-cover {
+    height: 120px !important;
+  }
+}
+
 body:not(.landing-active) .cliente-modal-overlay .cliente-modal,
 body:not(.landing-active) .pmoc-modal-overlay .pmoc-modal,
 body:not(.landing-active) .pmoc-info-modal-overlay .pmoc-info-modal {

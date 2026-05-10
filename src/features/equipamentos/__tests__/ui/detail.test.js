@@ -197,7 +197,11 @@ describe('detail HTML render helpers', () => {
 
     const result = renderViewEquipDetailHtml(model, deps);
 
-    expect(result.html).toContain('class="eq-detail-view"');
+    expect(result.html).toContain('class="eq-detail-view eq-detail-view--surface"');
+    expect(result.html).toContain('eq-detail-work-header');
+    expect(result.html).toContain('eq-detail-work-summary');
+    expect(result.html).toContain('eq-detail-media-panel');
+    expect(result.html).toContain('eq-modal-footer--workhead');
     expect(result.html).toContain('id="eq-det-title">Split Sala</div>');
     expect(deps.eqDetailSubtitle).toHaveBeenCalledWith(model.eq);
     expect(result.html).toContain('eq-detail-hero eq-detail-hero--ok');

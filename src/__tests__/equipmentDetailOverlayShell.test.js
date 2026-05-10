@@ -19,5 +19,6 @@ describe('equipment detail overlay shell', () => {
     expect(body?.classList.contains('eq-detail-shell-body')).toBe(true);
     expect(close).not.toBeNull();
     expect(close?.getAttribute('aria-label')).toBe('Fechar detalhes do equipamento');
+    expect(close?.textContent).toContain('Voltar');
   });
 });

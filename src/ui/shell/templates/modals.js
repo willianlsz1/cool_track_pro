@@ -624,11 +624,12 @@ export function renderShellModals() {
     <div class="modal modal--eq-detail">
       <div class="modal__handle"></div>
       <header class="eq-detail-shell-head">
-        <span class="eq-detail-shell-kicker">Detalhes do equipamento</span>
+        <span class="eq-detail-shell-kicker">Equipamento</span>
         <button type="button" class="eq-detail-shell-close" data-action="close-modal" data-id="modal-eq-det" aria-label="Fechar detalhes do equipamento">
           <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" focusable="false">
             <path d="M18 6 6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
+          <span>Voltar</span>
         </button>
       </header>
       <div id="eq-det-corpo" class="modal__body modal__body--scroll eq-detail-shell-body"></div>
