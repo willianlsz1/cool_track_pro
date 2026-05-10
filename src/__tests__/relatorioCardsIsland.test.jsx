@@ -239,6 +239,48 @@ describe('relatorio cards React island', () => {
     expect(detailed?.querySelector('.rel-record__details')?.hasAttribute('hidden')).toBe(false);
   });
 
+  it('renderiza resumo PMOC contextual apenas quando fornecido ao card', async () => {
+    const root = setRoot();
+
+    await act(async () => {
+      mountRelatorioCardsReact(root, {
+        cards: createFilledCards({
+          records: [
+            createRecord({
+              expanded: true,
+              pmocContext: {
+                visible: true,
+                title: 'Resumo PMOC/preventivo',
+                description:
+                  'Resumo tecnico do atendimento preventivo. Nao substitui o PMOC formal.',
+                badges: ['Contexto PMOC', 'Checklist preenchido'],
+                items: [
+                  { label: 'Tipo', value: 'Checklist PMOC' },
+                  { label: 'Checklist', value: '1 conforme, 1 nao conforme' },
+                ],
+              },
+            }),
+            createRecord({
+              id: 'reg-2',
+              title: 'Corretiva',
+              expanded: true,
+              pmocContext: null,
+            }),
+          ],
+        }),
+      });
+    });
+
+    const preventive = root?.querySelector('.rel-record[data-id="reg-1"]');
+    const corrective = root?.querySelector('.rel-record[data-id="reg-2"]');
+
+    expect(preventive?.querySelector('.rel-record__pmoc')).not.toBeNull();
+    expect(preventive?.textContent).toContain('Resumo PMOC/preventivo');
+    expect(preventive?.textContent).toContain('Nao substitui o PMOC formal');
+    expect(preventive?.textContent).toContain('Checklist preenchido');
+    expect(corrective?.querySelector('.rel-record__pmoc')).toBeNull();
+  });
+
   it('preserva assinatura apenas como contrato DOM e bloqueia URLs inseguras', async () => {
     const root = setRoot();
 

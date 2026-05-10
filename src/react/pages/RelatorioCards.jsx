@@ -46,6 +46,7 @@ const COPY = Object.freeze({
   parts: 'Peças',
   labor: 'Mão de obra',
   nextMaintenance: 'Próxima manutenção',
+  pmocContext: 'PMOC/preventivo',
   notes: 'Observações',
 });
 
@@ -354,6 +355,40 @@ function EquipmentSpecs({ specs }) {
   );
 }
 
+function PmocContext({ context }) {
+  const data = context || {};
+  if (!data.visible) return null;
+
+  const badges = asArray(data.badges);
+  const items = asArray(data.items);
+
+  return (
+    <section className="rel-record__section rel-record__pmoc">
+      <div className="rel-record__section-title">{text(data.title, COPY.pmocContext)}</div>
+      {data.description ? <p className="rel-record__pmoc-desc">{text(data.description)}</p> : null}
+      {badges.length ? (
+        <div className="rel-record__pmoc-badges">
+          {badges.map((badge, index) => (
+            <span className="rel-record__pmoc-badge" key={`${text(badge)}-${index}`}>
+              {text(badge)}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {items.length ? (
+        <div className="rel-record__specs">
+          {items.map((item, index) => (
+            <div className="rel-spec" key={`${text(item?.label)}-${index}`}>
+              <div className="rel-spec__label">{text(item?.label)}</div>
+              <div className="rel-spec__value">{text(item?.value)}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function RecordCard({ record }) {
   const item = record || {};
   const expanded = Boolean(item.expanded);
@@ -484,6 +519,8 @@ function RecordCard({ record }) {
             </div>
           </section>
         ) : null}
+
+        <PmocContext context={item.pmocContext} />
 
         {item.obs ? (
           <section className="rel-record__section">

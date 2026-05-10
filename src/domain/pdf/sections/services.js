@@ -23,6 +23,7 @@
 
 import { Utils } from '../../../core/utils.js';
 import { resolvePhotoDataUrlForPdf } from '../../../core/photoStorage.js';
+import { buildContextualPmocReportSummary } from '../../pmoc/reportContext.js';
 import { PDF_COLORS as C, PDF_TYPO as T, STATUS_CLIENTE } from '../constants.js';
 import { sanitizeObservation, sanitizePublicText } from '../sanitizers.js';
 import { accentLine, fillPage, fillRect, txt } from '../primitives.js';
@@ -52,6 +53,7 @@ const LINE_META = 4; // 8pt
 const LINE_OBS = 4; // 8.5pt normal (multiline)
 const LINE_MATERIAL = 4; // 8pt
 const LINE_COST = 4.5; // 8.5pt bold
+const LINE_PMOC = 4; // 8pt resumo contextual preventivo/PMOC
 
 const PHOTO_LABEL_H = 4; // "Fotos anexadas" (7pt bold) + pequeno gap
 const PHOTO_H = 55;
@@ -111,6 +113,25 @@ function drawSectionTitle(doc, pageWidth, margin, total) {
 
 function getRecordPhotos(registro) {
   return Array.isArray(registro.fotos) ? registro.fotos.filter(Boolean).slice(0, 4) : [];
+}
+
+function buildPmocContextLines(registro, equipamento) {
+  const summary = buildContextualPmocReportSummary({
+    registro,
+    equipamento,
+    formatDate: (value) => Utils.formatDate(value),
+    formatDueRelative: (value) => Utils.fmtDueRelative(value),
+  });
+  if (!summary) return { summary: null, lines: [] };
+
+  return {
+    summary,
+    lines: [
+      summary.title,
+      summary.description,
+      ...summary.items.map((item) => `${item.label}: ${item.value}`),
+    ],
+  };
 }
 
 function getImageFormat(dataUrl) {
@@ -206,6 +227,11 @@ function computeCardLayout(doc, pageWidth, margin, registro, equipamento) {
     h += GAP_SM + LINE_COST;
   }
 
+  const pmocContext = buildPmocContextLines(registro, equipamento);
+  if (pmocContext.lines.length) {
+    h += GAP_SM + pmocContext.lines.length * LINE_PMOC;
+  }
+
   const textBlock = h;
 
   // Fotos
@@ -228,6 +254,7 @@ function computeCardLayout(doc, pageWidth, margin, registro, equipamento) {
     innerW,
     custo,
     equipamento,
+    pmocContext,
   };
 }
 
@@ -328,6 +355,18 @@ function drawCardTextBlock(doc, pageWidth, margin, startY, registro, profile, la
       color: C.text,
     });
     y += LINE_COST;
+  }
+
+  if (layout.pmocContext?.lines?.length) {
+    y += GAP_SM;
+    layout.pmocContext.lines.forEach((line, index) => {
+      txt(doc, sanitizePublicText(line), innerX, y + 3, {
+        size: index === 0 ? 8.3 : 7.8,
+        style: index === 0 ? 'bold' : 'normal',
+        color: index === 0 ? C.text : C.text3,
+      });
+      y += LINE_PMOC;
+    });
   }
 
   return y;

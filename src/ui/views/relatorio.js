@@ -4,6 +4,7 @@ import { getCachedPlan } from '../../core/plans/planCache.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { CRITICIDADE_LABEL, PRIORIDADE_OPERACIONAL_LABEL } from '../../domain/maintenance.js';
 import { formatDadosPlacaRows } from '../../domain/dadosPlacaDisplay.js';
+import { buildContextualPmocReportSummary } from '../../domain/pmoc/reportContext.js';
 import { PdfQuotaBadge } from '../components/pdfQuotaBadge.js';
 import { getSignatureForRecord, SignatureViewerModal } from '../components/signature.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
@@ -498,6 +499,12 @@ function buildRelatorioRecordReactViewModel({ r, eq, expanded, singleEquipFilter
           label: Utils.fmtDueRelative(r.proxima),
         }
       : null,
+    pmocContext: buildContextualPmocReportSummary({
+      registro: r,
+      equipamento: eq,
+      formatDate: (value) => Utils.formatDate(value),
+      formatDueRelative: (value) => Utils.fmtDueRelative(value),
+    }),
     obs: r.obs || '',
     expanded,
   };

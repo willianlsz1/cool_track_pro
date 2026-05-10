@@ -214,6 +214,18 @@ describe('PDFGenerator media/checklist contract', () => {
       expect.any(Number),
       expect.any(Number),
     );
+    expect(mocks.lastDoc.text).toHaveBeenCalledWith(
+      expect.stringContaining('Resumo PMOC/preventivo'),
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Object),
+    );
+    expect(mocks.lastDoc.text).toHaveBeenCalledWith(
+      expect.stringContaining('Nao substitui o PMOC formal'),
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Object),
+    );
   });
 
   it('mantem fallback silencioso quando foto, assinatura ou checklist estao ausentes/invalidos', async () => {
