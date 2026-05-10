@@ -2689,6 +2689,268 @@ body:not(.landing-active) #view-clientes .cli-card__action--secondary:focus-visi
   }
 }
 
+/* Mudanca 21 / CP-G: Servicos e Relatorios como paginas nativas.
+   Escopo visual: reduz superficies aninhadas e bordas cyan dominantes sem
+   alterar markup, rotas, IDs, data-actions, filtros ou exportacoes. */
+body:not(.landing-active) #view-historico,
+body:not(.landing-active) #view-relatorio {
+  max-width: min(1500px, 100%);
+  margin-inline: auto;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active):is([data-route='historico'], [data-route='relatorio'])
+  #main-content:focus-visible {
+  outline: none !important;
+}
+
+body:not(.landing-active) #view-historico .servicos-toggle,
+body:not(.landing-active) #view-relatorio .servicos-toggle {
+  background: transparent !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-historico .servicos-toggle__btn,
+body:not(.landing-active) #view-relatorio .servicos-toggle__btn {
+  color: rgba(203, 213, 225, 0.76);
+}
+
+body:not(.landing-active) #view-historico .servicos-toggle__btn--lista,
+body:not(.landing-active) #view-relatorio .servicos-toggle__btn--relatorio {
+  background: rgba(56, 213, 239, 0.09) !important;
+  border-color: rgba(56, 213, 239, 0.2) !important;
+  color: #dff7ff !important;
+}
+
+body:not(.landing-active) #view-historico .hist-sticky-header {
+  margin-bottom: 14px;
+  padding: 0 0 14px;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-historico .hist-title,
+body:not(.landing-active) #view-relatorio .rel-title {
+  font-size: clamp(1.12rem, 1.05vw, 1.35rem);
+}
+
+body:not(.landing-active) #view-historico .hist-count {
+  background: rgba(148, 163, 184, 0.06) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  color: rgba(203, 213, 225, 0.78) !important;
+}
+
+body:not(.landing-active) #view-historico .hist-search-row {
+  grid-template-columns: minmax(260px, 1fr) minmax(160px, 0.22fr) minmax(190px, 0.28fr);
+  gap: 10px;
+}
+
+body:not(.landing-active) #view-historico .hist-input,
+body:not(.landing-active) #view-historico .hist-select,
+body:not(.landing-active) #view-relatorio .rel-filters__advanced {
+  background: rgba(15, 23, 36, 0.46) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-historico .hist-quickfilter {
+  border-color: rgba(148, 163, 184, 0.08) !important;
+}
+
+body:not(.landing-active) #view-historico .hist-quickfilter.is-active {
+  background: rgba(148, 163, 184, 0.1) !important;
+  color: rgba(226, 232, 240, 0.94) !important;
+}
+
+body:not(.landing-active) #view-historico .hist-summary-card,
+body:not(.landing-active) #view-historico .hist-op-summary,
+body:not(.landing-active) #view-historico .timeline__item,
+body:not(.landing-active) #view-relatorio .rel-hero,
+body:not(.landing-active) #view-relatorio .pmoc-hero,
+body:not(.landing-active) #view-relatorio .rel-summary-card,
+body:not(.landing-active) #view-relatorio .rel-company-pmoc,
+body:not(.landing-active) #view-relatorio .rel-proximas,
+body:not(.landing-active) #view-relatorio .rel-record,
+body:not(.landing-active) #view-relatorio .rel-empty__preview {
+  background: rgba(15, 23, 36, 0.72) !important;
+  background-image: none !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-historico .hist-summary-card {
+  border-left: 3px solid rgba(56, 213, 239, 0.3) !important;
+}
+
+body:not(.landing-active) #view-historico .hist-summary-card__orbs {
+  display: none;
+}
+
+body:not(.landing-active) #view-historico .hist-summary-card__divider,
+body:not(.landing-active) #view-historico .timeline__item__divider,
+body:not(.landing-active) #view-relatorio .rel-record__divider,
+body:not(.landing-active) #view-relatorio .rel-record__details {
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+body:not(.landing-active) #view-historico .timeline::before {
+  background: linear-gradient(
+    180deg,
+    rgba(148, 163, 184, 0.22) 0%,
+    rgba(148, 163, 184, 0.1) 60%,
+    rgba(148, 163, 184, 0) 100%
+  ) !important;
+}
+
+body:not(.landing-active) #view-historico .timeline__item {
+  border-left-color: rgba(56, 213, 239, 0.24) !important;
+}
+
+body:not(.landing-active) #view-historico .timeline__item--latest {
+  border-left-color: rgba(56, 213, 239, 0.48) !important;
+}
+
+body:not(.landing-active) #view-historico .hist-attention {
+  background: rgba(232, 185, 74, 0.07) !important;
+  border-color: rgba(232, 185, 74, 0.2) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-historico .hist-attention__item {
+  background: rgba(15, 23, 36, 0.58) !important;
+  border-color: rgba(232, 185, 74, 0.16) !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-toolbar {
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+body:not(.landing-active) #view-relatorio .rel-toolbar__actions--v2 {
+  width: auto;
+  margin-bottom: 0;
+}
+
+body:not(.landing-active) #view-relatorio .rel-subtitle {
+  margin-bottom: 14px;
+}
+
+body:not(.landing-active) #view-relatorio .rel-hero {
+  border-left: 0 !important;
+  border-radius: 12px !important;
+  padding: 16px;
+}
+
+body:not(.landing-active) #view-relatorio .rel-company-pmoc {
+  border-left: 3px solid rgba(232, 185, 74, 0.42) !important;
+}
+
+body:not(.landing-active) #view-relatorio .pmoc-hero {
+  border-left: 3px solid rgba(232, 185, 74, 0.34) !important;
+}
+
+body:not(.landing-active) #view-relatorio .pmoc-hero::before {
+  display: none !important;
+}
+
+body:not(.landing-active) #view-relatorio .pmoc-hero__icon,
+body:not(.landing-active) #view-relatorio .pmoc-hero__badge,
+body:not(.landing-active) #view-relatorio .rel-summary-card__icon {
+  background: rgba(56, 213, 239, 0.1) !important;
+  color: rgba(165, 243, 252, 0.92) !important;
+}
+
+body:not(.landing-active) #view-relatorio .pmoc-hero__btn {
+  background: rgba(56, 213, 239, 0.12) !important;
+  border: 1px solid rgba(56, 213, 239, 0.22) !important;
+  box-shadow: none !important;
+  color: #dff7ff !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-filters {
+  margin-bottom: 14px;
+  padding: 0;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-chip,
+body:not(.landing-active) #view-relatorio .rel-mode-segment__item {
+  background: rgba(15, 23, 36, 0.48) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-record.is-expanded {
+  border-color: rgba(56, 213, 239, 0.2) !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-record__toggle {
+  color: #9eefff !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-record__toggle:hover {
+  background: rgba(148, 163, 184, 0.08) !important;
+}
+
+body:not(.landing-active) #view-relatorio .rel-proximas__item {
+  background: rgba(8, 13, 22, 0.32) !important;
+  border-color: rgba(148, 163, 184, 0.1) !important;
+}
+
+@media (min-width: 1024px) {
+  body:not(.landing-active) #view-historico .timeline__item,
+  body:not(.landing-active) #view-relatorio .rel-record {
+    padding: 16px;
+  }
+
+  body:not(.landing-active) #view-relatorio .rel-hero__kpis {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  body:not(.landing-active) #view-historico .servicos-toggle,
+  body:not(.landing-active) #view-relatorio .servicos-toggle {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  body:not(.landing-active) #view-historico .servicos-toggle__btn,
+  body:not(.landing-active) #view-relatorio .servicos-toggle__btn {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  body:not(.landing-active) #view-historico .hist-sticky-header {
+    padding-bottom: 12px;
+  }
+
+  body:not(.landing-active) #view-historico .hist-sticky-header__row {
+    flex-wrap: wrap;
+  }
+
+  body:not(.landing-active) #view-historico .hist-search-row {
+    grid-template-columns: 1fr;
+  }
+
+  body:not(.landing-active) #view-historico .hist-summary-card,
+  body:not(.landing-active) #view-historico .hist-op-summary,
+  body:not(.landing-active) #view-historico .timeline__item,
+  body:not(.landing-active) #view-relatorio .rel-hero,
+  body:not(.landing-active) #view-relatorio .rel-company-pmoc,
+  body:not(.landing-active) #view-relatorio .rel-proximas,
+  body:not(.landing-active) #view-relatorio .rel-record {
+    border-radius: 10px !important;
+  }
+}
+
 body:not(.landing-active) #view-equipamentos .equip-hero,
 body:not(.landing-active) #view-equipamentos .page-toolbar,
 body:not(.landing-active) #view-equipamentos .equip-search-row {
