@@ -368,7 +368,7 @@ describe('equipamentos legacy render adapter', () => {
     expect(addButton?.getAttribute('data-cliente-id')).toBe('cli-1');
   });
 
-  it('renderiza estado vazio de setores por cliente preservando ações essenciais', async () => {
+  it('renderiza lista direta para cliente sem setores preservando ações essenciais', async () => {
     stateMocks.isPro = true;
     setState({
       equipamentos: [{ ...activeEquip, id: 'eq-sem-setor', clienteId: 'cli-1', setorId: null }],
@@ -380,21 +380,15 @@ describe('equipamentos legacy render adapter', () => {
       equipCtx: { clienteId: 'cli-1', clienteNome: 'Cliente Alpha', sectorId: null },
     });
 
-    expect(document.querySelector('#lista-equip .setor-cliente-empty')).not.toBeNull();
-    expect(document.querySelector('.setor-cliente-empty__title')?.textContent).toContain(
-      'Cliente Alpha',
-    );
+    expect(document.querySelector('#lista-equip .setor-cliente-empty')).toBeNull();
+    expect(document.querySelectorAll('#lista-equip .equip-card')).toHaveLength(1);
+    expect(document.querySelector('#lista-equip .equip-card')?.dataset.id).toBe('eq-sem-setor');
+    expect(document.getElementById('equip-page-title')?.textContent).toContain('Cliente Alpha');
     expect(
       document.querySelector('[data-action="open-setor-modal"][data-cliente-id="cli-1"]'),
     ).not.toBeNull();
-    expect(
-      document.querySelector('[data-action="open-setor"][data-id="__sem_setor__"]'),
-    ).not.toBeNull();
-    expect(document.querySelector('.setor-cliente-empty__sem-body')?.textContent).toContain(
-      '1 equipamento sem setor vinculado',
-    );
-    expect(document.getElementById('equip-search-bar')?.style.display).toBe('none');
-    expect(document.querySelector('.equip-view-toggle')?.style.display).toBe('none');
+    expect(document.querySelector('[data-testid="equipamentos-add-equipment"]')).not.toBeNull();
+    expect(document.getElementById('equip-search-bar')?.style.display).toBe('');
     expect(document.querySelector('[data-action="equip-clear-cliente-filter"]')).not.toBeNull();
   });
 

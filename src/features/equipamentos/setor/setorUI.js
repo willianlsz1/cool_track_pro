@@ -187,7 +187,8 @@ export function _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId,
               <line x1="10" y1="12" x2="14" y2="12"/>
             </svg>
           </div>
-          <h2 class="setor-cliente-empty__title">Crie o primeiro setor de ${deps.Utils.escapeHtml(safeNome)}</h2>
+          <h2 class="setor-cliente-empty__title">Setores sao opcionais para ${deps.Utils.escapeHtml(safeNome)}</h2>
+          <p class="setor-cliente-empty__sub">Voce pode manter equipamentos direto no cliente e criar setores depois.</p>
           <p class="setor-cliente-empty__sub">
             Setores agrupam equipamentos por área, andar ou bloco. Ajuda a organizar
             grandes carteiras (matriz, filial, sala tecnica) e gerar PMOC certinho.
@@ -199,16 +200,16 @@ export function _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId,
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            <span>Criar primeiro setor</span>
+            <span>+ Novo setor</span>
           </button>
           <div class="setor-cliente-empty__hints">
             <div class="setor-cliente-empty__hint">
               <span class="setor-cliente-empty__hint-num">1</span>
-              <span>Crie um setor (ex: "Sala 1", "Cozinha", "Bloco A")</span>
+              <span>Cadastre equipamentos direto no cliente quando ele for simples</span>
             </div>
             <div class="setor-cliente-empty__hint">
               <span class="setor-cliente-empty__hint-num">2</span>
-              <span>Adicione equipamentos a esse setor</span>
+              <span>Use setores apenas para clientes com areas ou blocos</span>
             </div>
             <div class="setor-cliente-empty__hint">
               <span class="setor-cliente-empty__hint-num">3</span>

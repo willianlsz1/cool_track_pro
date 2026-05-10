@@ -38,14 +38,15 @@ describe('setorUI', () => {
     configure();
   });
 
-  it('renderiza empty state por cliente com CTA open-setor-modal', () => {
+  it('renderiza empty state por cliente tratando setores como opcionais', () => {
     const html = _renderSetorGridForClienteEmptyHtml({
       equipsSemSetor: [],
       clienteId: 'cliente-1',
       safeNome: 'Cliente A',
     });
 
-    expect(html).toContain('Crie o primeiro setor de Cliente A');
+    expect(html).toContain('Setores sao opcionais para Cliente A');
+    expect(html).toContain('Voce pode manter equipamentos direto no cliente');
     expect(html).toContain('data-action="open-setor-modal"');
     expect(html).toContain('data-cliente-id="cliente-1"');
   });

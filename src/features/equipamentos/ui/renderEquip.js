@@ -1,3 +1,5 @@
+import { buildSetorGridForClienteModel } from '../setor/setorState.js';
+
 const renderEquipDeps = {
   Utils: null,
   resolveEquipCtx: null,
@@ -151,6 +153,14 @@ function renderEquipSetorGridBranch(context, headerRender, searchBar) {
   if (!(context.isPro && context.activeSectorId === null)) return null;
 
   if (context.activeClienteId) {
+    const { setores = [], equipamentos = [] } = getRequiredRenderEquipDep('getState')();
+    const clienteSetorModel = buildSetorGridForClienteModel({
+      setores,
+      equipamentos,
+      clienteId: context.activeClienteId,
+    });
+    if (!clienteSetorModel.setoresDoCliente.length) return null;
+
     const setorial = Promise.resolve(
       getRequiredRenderEquipDep('renderSetorGridForCliente')(
         context.activeClienteId,
@@ -172,12 +182,30 @@ function syncRenderEquipListToolbar(context, searchBar) {
     return;
   }
 
+  if (context.activeClienteId) {
+    syncRenderEquipClienteToolbar(context);
+    return;
+  }
+
   // Vista FREE/Plus: toolbar SEM "+ Novo setor". Setores depende de
   // Clientes (Pro-only) - sem clientes cadastrados, o botao vira ruido.
   // O upgrade aparece naturalmente no hero/empty state quando o user
   // ja tem 5+ equipamentos sem setor (ver hero.js).
   getRequiredRenderEquipDep('setToolbar')({
     title: 'Equipamentos',
+  });
+}
+
+function syncRenderEquipClienteToolbar(context) {
+  const Utils = getRequiredRenderEquipDep('Utils');
+  const clienteNome = context.activeClienteNome
+    ? Utils.truncate(context.activeClienteNome, 28)
+    : 'cliente';
+  getRequiredRenderEquipDep('setToolbar')({
+    title: `Equipamentos de ${clienteNome}`,
+    extraBtn:
+      `<button class="btn btn--outline btn--sm" data-action="open-setor-modal" data-cliente-id="${Utils.escapeAttr(context.activeClienteId)}">+ Novo setor</button>` +
+      '<button class="btn btn--ghost btn--sm" data-action="equip-clear-cliente-filter" title="Voltar para todos os equipamentos">x Limpar cliente</button>',
   });
 }
 

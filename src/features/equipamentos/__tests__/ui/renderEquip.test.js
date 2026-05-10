@@ -47,7 +47,7 @@ function configureRenderEquipTestDeps(overrides = {}) {
     populateSetorSelect: vi.fn(() => calls.push('populateSetorSelect')),
     getState: vi.fn(() => {
       calls.push('getState');
-      return { equipamentos: [], registros: [] };
+      return { equipamentos: [], registros: [], setores: [] };
     }),
     getPreventivaDueEquipmentIds: vi.fn(() => {
       calls.push('preventivaDueIds');
@@ -165,6 +165,11 @@ describe('renderEquip orchestrator', () => {
   it('mantem branch Pro/setores filtrada por cliente', async () => {
     const { deps } = configureRenderEquipTestDeps({
       isCachedPlanPro: vi.fn(() => true),
+      getState: vi.fn(() => ({
+        equipamentos: [{ id: 'eq-1', clienteId: 'cli-1', setorId: 'setor-1' }],
+        registros: [],
+        setores: [{ id: 'setor-1', clienteId: 'cli-1', nome: 'Sala tecnica' }],
+      })),
       resolveEquipCtx: vi.fn(() => ({
         sectorId: null,
         quickFilter: '',
@@ -177,6 +182,41 @@ describe('renderEquip orchestrator', () => {
 
     expect(deps.renderSetorGridForCliente).toHaveBeenCalledWith('cli-1', 'Cliente A');
     expect(deps.renderFlatList).not.toHaveBeenCalled();
+  });
+
+  it('renderiza lista direta para cliente Pro sem setores', async () => {
+    const { deps } = configureRenderEquipTestDeps({
+      isCachedPlanPro: vi.fn(() => true),
+      getState: vi.fn(() => ({
+        equipamentos: [{ id: 'eq-1', clienteId: 'cli-1', setorId: null }],
+        registros: [],
+        setores: [],
+      })),
+      resolveEquipCtx: vi.fn(() => ({
+        sectorId: null,
+        quickFilter: '',
+        clienteId: 'cli-1',
+        clienteNome: 'Cliente A',
+      })),
+    });
+
+    await expect(renderEquip()).resolves.toBe('flat-list');
+
+    expect(deps.renderSetorGridForCliente).not.toHaveBeenCalled();
+    expect(deps.renderFlatList).toHaveBeenCalledWith(
+      '',
+      {
+        __skipPlanRefresh: undefined,
+        clienteId: 'cli-1',
+        clienteNome: 'Cliente A',
+      },
+      null,
+    );
+    expect(deps.setToolbar).toHaveBeenCalledWith({
+      title: 'Equipamentos de Cliente A',
+      extraBtn:
+        '<button class="btn btn--outline btn--sm" data-action="open-setor-modal" data-cliente-id="escaped:cli-1">+ Novo setor</button><button class="btn btn--ghost btn--sm" data-action="equip-clear-cliente-filter" title="Voltar para todos os equipamentos">x Limpar cliente</button>',
+    });
   });
 
   it('mantem toolbar de setor ativo e escapa atributos', async () => {
