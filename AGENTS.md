@@ -219,3 +219,26 @@ Backlogs futuros:
 - CP dedicado de PDF/share;
 - React Doctor;
 - consolidacao visual/CSS quando aplicavel.
+
+## 12. Rewrite zero / app-v2
+
+O ciclo de rewrite nao deve continuar a nomenclatura CP-I ou Mudanca 21.
+
+Antes de qualquer tarefa do rewrite, leia:
+
+- `CONTEXT.md`
+- `docs/rewrite/etapa-0-plano-mestre.md`
+- `docs/rewrite/etapa-0-inventario-fluxo-tecnico.md`
+- `docs/rewrite/etapa-0-stack-e-regras-agentes.md`
+
+Regras especificas:
+
+- O novo app planejado fica em `src/app-v2/`.
+- Stack planejada: React, TypeScript, Tailwind CSS com prefixo `tw-`, Vite.
+- TypeScript entra apenas no `app-v2` e adaptadores novos; nao converter legado.
+- Nao criar `src/app-v2/` sem etapa propria.
+- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript sem autorizacao explicita da etapa tecnica.
+- Nao importar CSS legado no app-v2.
+- Nao copiar shell, templates, componentes ou navegacao legada.
+- Reaproveitar somente regras puras, contratos mapeados e adaptadores planejados.
+- Areas sensiveis continuam exigindo etapa propria: storage, Supabase/RLS, billing, PDF/share, WhatsApp com quota, upload/storage, assinatura e PMOC.
