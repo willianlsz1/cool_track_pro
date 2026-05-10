@@ -117,6 +117,9 @@ rollback;
 - `10_signature_plan_gate.test.sql` — CP-E da Mudanca 17: gate server-side de
   `registros.assinatura` e policies restritivas para o path
   `registro-fotos/{user_id}/registros/{registro_id}/assinatura.png`.
+- `11_public_abuse_surfaces.test.sql` — CP-G da Mudanca 17: hardening de
+  `analytics_events`, `feedback` e policies canonicas do bucket
+  `registro-fotos`.
 
 ## Versoes manuais para SQL Editor
 
@@ -129,6 +132,8 @@ result;`.
   hardening de billing profile e `usage_monthly`.
 - `docs/security/mudanca-17-cp-e-manual-sql-editor.sql` — versao manual do gate
   server-side de assinatura digital.
+- `docs/security/mudanca-17-cp-g-manual-sql-editor.sql` — versao manual do
+  hardening de superficies publicas anti-abuso.
 
 ## Adicionando testes
 

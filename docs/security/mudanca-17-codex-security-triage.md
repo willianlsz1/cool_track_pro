@@ -35,7 +35,7 @@ Status apos CP-B:
 - Validacao SQL/RLS foi adicionada em `supabase/tests`, mas a execucao local de
   pgTAP depende de Docker/Supabase local.
 
-Status apos CP-F:
+Status apos CP-G:
 
 - CP-C corrigiu entitlement Stripe: `checkout.session.completed` nao promove
   plano pago ativo sozinho; `invoice.paid` passou a ser o caminho seguro de
@@ -55,6 +55,15 @@ Status apos CP-F:
 - Troca de usuario autenticado em runtime agora força reload quando a aplicacao
   ja esta inicializada para evitar exposicao temporaria de estado em memoria do
   usuario anterior.
+- CP-G endureceu superficies publicas anti-abuso: `analytics_events` e
+  `feedback` continuam aceitando INSERT legitimo de anon/authenticated, mas nao
+  aceitam `user_id` forjado; `analytics_events.payload` passou a exigir JSON
+  object; `feedback.user_email` ganhou formato/tamanho server-side; o bucket
+  `registro-fotos` passou a ter limite versionado de 10 MB, privado, e policies
+  canonicas de ownership por path.
+- Risco remanescente do CP-G: RLS/check constraints nao implementam rate limit
+  real por IP/sessao. Se houver abuso volumetrico, o controle deve ir para
+  edge/WAF ou endpoint backend especifico.
 
 ## 2. Base analisada
 
@@ -783,27 +792,64 @@ Validacoes:
 
 ### CP-G - Superficies publicas anti-abuso
 
-Escopo:
+Status: executado no CP-G.
 
-- Analytics anonimo.
-- Feedback publico.
-- Uploads de fotos sem limite server-side.
+Achados tratados:
 
-Arquivos provaveis:
+- `Anonymous analytics inserts can be forged and spammed`.
+- `Unauthenticated feedback inserts enable storage and email abuse`.
+- `Unbounded client-driven photo uploads to Supabase Storage`.
 
-- `supabase/migrations/20260419120000_analytics_events.sql`
-- `supabase/migrations/20260414_feedback.sql`
-- `src/core/telemetrySink.js`
-- `src/ui/components/supportFeedbackModal.js`
-- `src/core/photoStorage.js`
+Risco antes:
+
+- `analytics_events_insert_any` usava `with check (true)`; anon/authenticated
+  podiam inserir `user_id` arbitrario se conhecessem um UUID existente.
+- `feedback_insert_any` tambem usava `with check (true)`; feedback publico
+  podia forjar ownership e dependia apenas de limites parciais.
+- `registro-fotos` nao tinha bucket/policies canonicas versionadas para
+  ownership geral e limite de tamanho; parte do estado dependia de configuracao
+  historica do projeto Supabase.
+
+Regra nova:
+
+- INSERT publico em `analytics_events` e `feedback` aceita `user_id = null` ou
+  `user_id = auth.uid()`; anon nao consegue associar evento/feedback a outro
+  usuario.
+- `analytics_events.payload` precisa ser JSON object e continua limitado a 4
+  KB pela constraint existente.
+- `feedback.user_email` precisa respeitar tamanho maximo e formato basico de
+  email quando informado.
+- `registro-fotos` e privado, tem `file_size_limit <= 10 MB`, e writes passam
+  pelo helper `public.can_write_registro_fotos_storage_object()`.
+- Fotos normais de registros continuam permitidas para o dono; fotos de
+  equipamentos continuam exigindo Plus+; assinatura digital continua usando o
+  gate do CP-E.
+
+Arquivos alterados:
+
+- `supabase/migrations/20260509230000_harden_public_abuse_surfaces.sql`
+- `supabase/tests/11_public_abuse_surfaces.test.sql`
+- `docs/security/mudanca-17-cp-g-manual-sql-editor.sql`
+- `supabase/tests/README.md`
+- `docs/security/mudanca-17-codex-security-triage.md`
 
 Validacoes:
 
-- Testes SQL/RLS de insert anon/auth.
-- Testes de limites de payload.
+- Teste oficial TAP/pg_prove
+  `supabase/tests/11_public_abuse_surfaces.test.sql`.
+- Script manual SQL Editor
+  `docs/security/mudanca-17-cp-g-manual-sql-editor.sql`.
+- Testes focados JS de telemetry/photo upload.
 - `npm run format`
 - `npm run build`
 - `npm run check`
+
+Riscos remanescentes:
+
+- Nao ha rate limit real por IP/session em RLS. O CP-G limita payload,
+  ownership e paths, mas abuso volumetrico ainda deve ser tratado por edge/WAF
+  ou endpoint backend se necessario.
+- `supabase test db` depende de Docker/Supabase local ativo.
 
 ### CP-H - XSS, tokens e links PDF
 
@@ -888,7 +934,7 @@ Validacoes adicionais por area:
 
 ## 12. Proximo CP recomendado
 
-Proximo CP recomendado apos CP-F: CP-G - Superficies publicas anti-abuso.
+Proximo CP recomendado apos CP-G: CP-H - XSS, tokens e links PDF.
 
 Justificativa:
 
@@ -900,7 +946,10 @@ Justificativa:
 - CP-E adicionou gate server-side para assinatura digital em banco e Storage.
 - CP-F reduziu vazamento local entre usuarios no mesmo navegador, escopando
   caches e filas sensiveis.
-- O proximo grupo relevante envolve superficies publicas e abusaveis
-  (`analytics`, `feedback` e upload de fotos), sem misturar PDF/share amplo,
-  Vite warnings genericos, React Doctor, billing/Stripe, env Supabase,
-  assinatura digital ou cache/logout.
+- CP-G reduziu abuso direto em superficies publicas (`analytics`, `feedback` e
+  upload de fotos) sem misturar PDF/share amplo, Vite warnings genericos,
+  React Doctor, billing/Stripe, env Supabase, assinatura digital ou
+  cache/logout.
+- O proximo grupo relevante e CP-H porque ainda restam achados de XSS,
+  vazamento de tokens/hashes em observabilidade e links PDF, todos com area
+  sensivel propria.
