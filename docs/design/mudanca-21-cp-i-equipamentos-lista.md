@@ -70,6 +70,27 @@ CSS antigo removido nesta etapa:
 
 - Removido o breakpoint CP-I que forçava `.lista-equip--grid` para duas colunas em `max-width: 1180px`; o grid fluido com `auto-fill` substitui essa regra com menor risco em zoom.
 
+## CP-I.3 - Acabamento nativo
+
+CP-I.3 reforcou a pagina Equipamentos como tela nativa do app, sem alterar regras de negocio ou contratos publicos.
+
+Mudancas visuais:
+
+- Header ganhou hierarquia mais forte com icone CSS, titulo/subtitulo e divisor sutil.
+- A barra operacional passou a organizar toggle, busca e filtros em uma linha coesa no desktop.
+- A busca fica visivel tambem na visao de setores, evitando a sensacao de controles soltos.
+- Filtros perderam sombra/moldura residual e ficam como pills diretamente na toolbar.
+- Chips de equipamentos dentro dos setores ficaram mais legiveis.
+- Estado de setor vazio recebeu fundo claro intencional e texto com mais contraste.
+- Banner de onboarding e superficies antigas ficam neutralizados quando ja ha cards renderizados.
+
+CSS removido ou neutralizado nesta etapa:
+
+- Neutralizado `body:not(.landing-active) #view-equipamentos .equip-operational-bar:has(.search-bar[style*='display: none'])` para manter a busca visivel e a toolbar em tres zonas.
+- Neutralizado `body:not(.landing-active) #view-equipamentos:has(.setor-card, .equip-card) > #onboarding-banner` para esconder banner residual quando existe conteudo real.
+- Neutralizadas sombras antigas em `body:not(.landing-active) #view-equipamentos .equip-filters` e `.page-toolbar`.
+- Nenhum seletor global foi removido nesta etapa; seletores compartilhados permanecem como divida tecnica controlada.
+
 ## Proximo CP recomendado
 
 CP-J: validar a mesma linguagem branco/azul em Clientes ou Servicos, escolhendo uma tela por vez.

@@ -2,6 +2,7 @@
  * Mudanca 21 / CP-I: aba Equipamentos em branco/azul compact-premium.
  * CP-I.1: normalizacao visual contra vazamentos do tema dark antigo.
  * CP-I.2: pagina nativa, barra operacional unica e grids fluidos.
+ * CP-I.3: acabamento nativo, header forte e toolbar coesa.
  * Escopo fechado: apenas o conteudo de #view-equipamentos.
  */
 
@@ -49,6 +50,8 @@ body:not(.landing-active) #view-equipamentos {
 }
 
 body:not(.landing-active) #view-equipamentos.view {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-height: calc(100vh - var(--app-header-total-height, 64px));
   padding: clamp(20px, 2.2vw, 34px) 0 42px;
@@ -60,12 +63,39 @@ body:not(.landing-active) #view-equipamentos.view {
 }
 
 body:not(.landing-active) #view-equipamentos .equip-hero {
+  order: 3;
   border: 1px solid var(--eqi-border);
   border-radius: 10px;
-  margin: 0 0 14px;
-  padding: 14px 16px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
   background: rgba(255, 255, 255, 0.82) !important;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-equipamentos .equip-hero #onboarding-banner,
+body:not(.landing-active) #view-equipamentos .equip-hero .onboarding-banner {
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-equipamentos .equip-hero .onboarding-banner__desc {
+  color: var(--eqi-muted-strong) !important;
+  font-size: 13px !important;
+}
+
+body:not(.landing-active) #view-equipamentos > #onboarding-banner {
+  order: 3;
+  margin: 0 0 14px !important;
+  border: 1px solid var(--eqi-border) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-equipamentos:has(.setor-card, .equip-card) > #onboarding-banner {
+  display: none !important;
 }
 
 body:not(.landing-active) #view-equipamentos .equip-hero__orb {
@@ -103,6 +133,7 @@ body:not(.landing-active) #view-equipamentos .equip-filters {
   padding: 0 !important;
   border: 0 !important;
   background: transparent !important;
+  box-shadow: none !important;
 }
 
 body:not(.landing-active) #view-equipamentos .equip-filters[hidden] {
@@ -203,14 +234,40 @@ body:not(.landing-active) #view-equipamentos .equip-filter--danger .equip-filter
 }
 
 body:not(.landing-active) #view-equipamentos .page-toolbar {
+  order: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
-  margin: 0 0 14px;
-  padding: 0 !important;
+  margin: 0 0 18px;
+  padding: 0 0 18px !important;
   border: 0 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22) !important;
   background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-equipamentos .page-toolbar > div:first-child {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+body:not(.landing-active) #view-equipamentos .page-toolbar > div:first-child::before {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid #cfe0fb;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff, #eaf3ff);
+  color: var(--eqi-blue-600);
+  box-shadow: 0 10px 24px rgba(30, 91, 255, 0.1);
+  content: '▦';
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 body:not(.landing-active) #view-equipamentos #equip-page-title {
@@ -231,10 +288,12 @@ body:not(.landing-active) #view-equipamentos #equip-context-chip {
 }
 
 body:not(.landing-active) #view-equipamentos .equip-operational-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0 0 18px;
+  order: 2;
+  display: grid;
+  grid-template-columns: auto minmax(280px, 1fr) minmax(min(100%, 520px), auto);
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 22px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -242,12 +301,14 @@ body:not(.landing-active) #view-equipamentos .equip-operational-bar {
 }
 
 body:not(.landing-active) #view-equipamentos .equip-operational-bar__top {
-  order: 2;
+  order: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 14px;
+  grid-column: 3;
+  gap: 8px;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 body:not(.landing-active) #view-equipamentos #equip-context-chip:empty {
@@ -332,10 +393,7 @@ body:not(.landing-active) #view-equipamentos .btn--ghost {
 }
 
 body:not(.landing-active) #view-equipamentos .equip-search-row {
-  order: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
+  display: contents;
   margin: 0 !important;
   background: transparent !important;
   border: 0 !important;
@@ -354,8 +412,29 @@ body:not(.landing-active) #view-equipamentos .search-bar {
 }
 
 body:not(.landing-active) #view-equipamentos .equip-search-row > .search-bar {
+  grid-column: 2;
   min-width: 0;
   margin: 0 !important;
+}
+
+body:not(.landing-active)
+  #view-equipamentos
+  .equip-operational-bar
+  .search-bar[style*='display: none'] {
+  display: flex !important;
+}
+
+body:not(.landing-active)
+  #view-equipamentos
+  .equip-operational-bar:has(.search-bar[style*='display: none']) {
+  grid-template-columns: auto minmax(280px, 1fr) minmax(min(100%, 520px), auto);
+}
+
+body:not(.landing-active)
+  #view-equipamentos
+  .equip-operational-bar:has(.search-bar[style*='display: none'])
+  .equip-operational-bar__top {
+  grid-column: 3;
 }
 
 body:not(.landing-active) #view-equipamentos .search-bar__icon {
@@ -379,6 +458,8 @@ body:not(.landing-active) #view-equipamentos .search-bar__input::placeholder {
 body:not(.landing-active) #view-equipamentos .equip-view-toggle {
   display: grid;
   grid-template-columns: 44px 44px;
+  grid-column: 1;
+  grid-row: 1;
   width: max-content;
   justify-self: end;
   overflow: hidden;
@@ -409,6 +490,7 @@ body:not(.landing-active) #view-equipamentos .equip-list-react .section-title {
 }
 
 body:not(.landing-active) #view-equipamentos #lista-equip {
+  order: 4;
   max-width: 100%;
   min-width: 0;
 }
@@ -787,6 +869,73 @@ body:not(.landing-active) #view-equipamentos .setor-card__meta-value {
   font-weight: 900;
 }
 
+body:not(.landing-active) #view-equipamentos .setor-card__tone-pill {
+  border-color: #bbf7d0 !important;
+  background: var(--eqi-success-soft) !important;
+  color: #087638 !important;
+  font-weight: 900;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__tone-pill--warn {
+  border-color: #fed7aa !important;
+  background: var(--eqi-warn-soft) !important;
+  color: #9a5b00 !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__tone-pill--danger {
+  border-color: #fecaca !important;
+  background: var(--eqi-danger-soft) !important;
+  color: #b91c1c !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__tone-pill--neutral {
+  border-color: var(--eqi-border-strong) !important;
+  background: var(--eqi-blue-50) !important;
+  color: var(--eqi-blue-800) !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__equips-preview {
+  gap: 8px;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__equip-preview {
+  border-color: #b9d2f4 !important;
+  background: #f8fbff !important;
+  color: var(--eqi-blue-800) !important;
+  box-shadow: none !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__equip-preview-name {
+  color: var(--eqi-blue-800) !important;
+  font-weight: 800;
+  opacity: 1 !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__equip-preview--more {
+  color: var(--eqi-blue-700) !important;
+  font-weight: 900;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__empty {
+  border: 1px solid #d6e3f5 !important;
+  background: linear-gradient(180deg, #ffffff, #f3f8ff) !important;
+  color: var(--eqi-blue-800) !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__empty-icon {
+  border-color: #cfe0fb !important;
+  background: #ffffff !important;
+  color: var(--eqi-blue-700) !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__empty-copy {
+  color: var(--eqi-muted-strong) !important;
+}
+
+body:not(.landing-active) #view-equipamentos .setor-card__empty-copy b {
+  color: var(--eqi-blue-900) !important;
+}
+
 body:not(.landing-active) #view-equipamentos .setor-card__footer {
   border-top: 1px solid #e8eef7 !important;
   background: transparent !important;
@@ -844,11 +993,26 @@ body:not(.landing-active) #view-equipamentos .lista-equip--grid .equip-card {
   }
 
   body:not(.landing-active) #view-equipamentos .equip-operational-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
 
   body:not(.landing-active) #view-equipamentos .equip-operational-bar__top {
+    grid-column: 1;
+    justify-content: flex-start;
     gap: 8px;
+  }
+
+  body:not(.landing-active) #view-equipamentos .equip-search-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  body:not(.landing-active) #view-equipamentos .equip-search-row > .search-bar,
+  body:not(.landing-active) #view-equipamentos .equip-view-toggle {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   body:not(.landing-active) #view-equipamentos #equip-toolbar-actions {

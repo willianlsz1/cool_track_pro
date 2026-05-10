@@ -70,4 +70,22 @@ describe('equipamentos CP-I visual assets', () => {
     expect(filtersIndex).toBeGreaterThan(operationalIndex);
     expect(searchIndex).toBeGreaterThan(operationalIndex);
   });
+
+  it('refina CP-I.3 para header forte, toolbar coesa e chips legiveis', () => {
+    const css = readFileSync('src/assets/styles/equipment-list-cp-i.css', 'utf8');
+
+    expect(css).toContain('CP-I.3: acabamento nativo');
+    expect(css).toMatch(/#view-equipamentos\s+\.page-toolbar\s*>\s*div:first-child::before/);
+    expect(css).toMatch(/#view-equipamentos\s+\.page-toolbar[\s\S]*border-bottom/);
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.equip-operational-bar[\s\S]*grid-template-columns:\s*auto\s+minmax\(280px,\s*1fr\)\s+minmax\(min\(100%,\s*520px\),\s*auto\)/,
+    );
+    expect(css).toMatch(/#view-equipamentos\s+\.equip-operational-bar__top[\s\S]*order:\s*0/);
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.setor-card__equip-preview-name[\s\S]*color:\s*var\(--eqi-blue-800\)\s*!important/,
+    );
+    expect(css).toMatch(
+      /#view-equipamentos\s+\.setor-card__empty[\s\S]*background:\s*linear-gradient/,
+    );
+  });
 });
