@@ -4,25 +4,17 @@ import { EquipmentDetail } from '../equipment/EquipmentDetail';
 import { EquipmentList } from '../equipment/EquipmentList';
 import { HomeToday } from '../home/HomeToday';
 import { BottomNav, type AppV2Tab } from '../navigation/BottomNav';
+import { startServiceFromEquipment as startServiceFlowAction } from '../data/appV2Actions';
+import { createAppV2MockSnapshot } from '../data/appV2MockStore';
+import { selectServiceFlowInput, selectServicesHomeInput } from '../data/appV2Selectors';
 import { ServiceFlow } from '../service/ServiceFlow';
 import { ServicesHome } from '../service/ServicesHome';
-import {
-  mockServiceClientes,
-  mockServiceCompromissos,
-  mockServiceEquipamentos,
-  mockServiceRegistros,
-  mockServiceToday,
-} from '../service/mockServiceData';
-import { createServiceDraft, type ServiceDraft } from '../service/serviceFlowViewModel';
+import type { ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
 
-const serviceFlowInput = {
-  today: mockServiceToday,
-  clientes: mockServiceClientes,
-  equipamentos: mockServiceEquipamentos,
-  compromissos: mockServiceCompromissos,
-  registros: mockServiceRegistros,
-};
+const appV2Snapshot = createAppV2MockSnapshot();
+const serviceFlowInput = selectServiceFlowInput(appV2Snapshot);
+const servicesHomeInput = selectServicesHomeInput(appV2Snapshot);
 
 export function AppV2Shell() {
   const [activeTab, setActiveTab] = useState<AppV2Tab>('hoje');
@@ -44,13 +36,14 @@ export function AppV2Shell() {
   }
 
   function startServiceFromEquipment(equipmentId: string, commitmentId?: string) {
-    setServiceDraft(createServiceDraft(serviceFlowInput, equipmentId, commitmentId));
+    const nextState = startServiceFlowAction(appV2Snapshot, equipmentId, commitmentId);
+    setServiceDraft(nextState.serviceDraft);
     setIsServiceFlowOpen(true);
     setActiveTab('servicos');
   }
 
   function startFallbackService() {
-    startServiceFromEquipment(mockServiceEquipamentos[0]?.id ?? 'eq-1');
+    startServiceFromEquipment(serviceFlowInput.equipamentos[0]?.id ?? 'eq-1');
   }
 
   return (
@@ -84,7 +77,7 @@ export function AppV2Shell() {
       {activeTab === 'servicos' && (!isServiceFlowOpen || !serviceDraft) ? (
         <ServicesHome
           draft={serviceDraft}
-          input={serviceFlowInput}
+          input={servicesHomeInput}
           onResumeService={() => setIsServiceFlowOpen(true)}
           onStartService={startFallbackService}
         />

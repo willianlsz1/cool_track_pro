@@ -1,0 +1,214 @@
+import { createAppV2MockSnapshot } from './appV2MockStore';
+import {
+  completeService,
+  registerEquipment,
+  scheduleNextCommitment,
+  startServiceFromEquipment,
+} from './appV2Actions';
+import {
+  selectAppV2OperationalState,
+  selectEquipmentInput,
+  selectHomeTodayInput,
+  selectServicesHomeInput,
+} from './appV2Selectors';
+import { buildServicesHomeViewModel } from '../service/servicesHomeViewModel';
+
+describe('app-v2 flow actions', () => {
+  it('starts a service from equipment and preselects the next commitment', () => {
+    const state = createAppV2MockSnapshot();
+
+    const next = startServiceFromEquipment(state, 'eq-1');
+
+    expect(next.serviceDraft).toMatchObject({
+      equipmentId: 'eq-1',
+      commitmentId: 'compromisso-1',
+      kind: 'preventiva',
+      diagnosis: '',
+      actionsDone: '',
+      finalStatus: 'ok',
+    });
+    expect(state).not.toHaveProperty('serviceDraft');
+  });
+
+  it('starts a service from an explicit commitment', () => {
+    const state = createAppV2MockSnapshot();
+
+    const next = startServiceFromEquipment(state, 'eq-2', 'compromisso-2');
+
+    expect(next.serviceDraft?.equipmentId).toBe('eq-2');
+    expect(next.serviceDraft?.commitmentId).toBe('compromisso-2');
+    expect(next.serviceDraft?.kind).toBe('corretiva');
+  });
+
+  it('completes a service by adding a recent record and clearing the draft', () => {
+    const state = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-2', 'compromisso-2');
+
+    const next = completeService(state, {
+      id: 'registro-novo',
+      date: '2026-05-10',
+      technician: 'Técnico',
+      diagnosis: 'Controlador com alarme intermitente.',
+      actionsDone: 'Ajuste de sensor e orientação ao cliente.',
+      finalStatus: 'warn',
+    });
+
+    expect(next.serviceDraft).toBeNull();
+    expect(next.registros[0]).toMatchObject({
+      id: 'registro-novo',
+      equipamentoId: 'eq-2',
+      data: '2026-05-10',
+      tipo: 'corretiva',
+      status: 'warn',
+      tecnico: 'Técnico',
+      observacoes: 'Controlador com alarme intermitente. Ajuste de sensor e orientação ao cliente.',
+    });
+    expect(next.compromissos.find((item) => item.id === 'compromisso-2')?.status).toBe('concluido');
+  });
+
+  it('schedules a next commitment without mutating the previous state', () => {
+    const state = createAppV2MockSnapshot();
+
+    const next = scheduleNextCommitment(state, {
+      id: 'compromisso-novo',
+      equipmentId: 'eq-4',
+      kind: 'preventiva',
+      targetDate: '2026-06-10',
+      origin: 'registro',
+    });
+
+    expect(next.compromissos).toHaveLength(state.compromissos.length + 1);
+    expect(state.compromissos).not.toContainEqual(
+      expect.objectContaining({ id: 'compromisso-novo' }),
+    );
+    expect(next.compromissos[next.compromissos.length - 1]).toMatchObject({
+      id: 'compromisso-novo',
+      equipamentoId: 'eq-4',
+      tipo: 'preventiva',
+      status: 'agendado',
+      dataAlvo: '2026-06-10',
+      origem: 'registro',
+    });
+  });
+
+  it('derives Home, Equipment and Services inputs from the same operational state', () => {
+    const state = createAppV2MockSnapshot();
+
+    const homeInput = selectHomeTodayInput(state);
+    const equipmentInput = selectEquipmentInput(state);
+    const servicesInput = selectServicesHomeInput(state);
+    const operational = selectAppV2OperationalState(state);
+
+    expect(homeInput.equipamentos).toBe(equipmentInput.equipamentos);
+    expect(equipmentInput.equipamentos).toBe(servicesInput.equipamentos);
+    expect(operational.nextAction).toMatchObject({
+      kind: 'compromisso_vencido',
+      equipamentoId: 'eq-1',
+    });
+    expect(operational.serviceDraft).toBeNull();
+  });
+
+  it('reflects in-progress and completed service in the operational state', () => {
+    const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-2', 'compromisso-2');
+    const inProgress = selectAppV2OperationalState(started);
+
+    expect(inProgress.serviceDraft?.equipmentId).toBe('eq-2');
+
+    const completed = completeService(started, {
+      id: 'registro-operacional',
+      date: '2026-05-10',
+      technician: 'Técnico',
+      diagnosis: 'Falha intermitente.',
+      actionsDone: 'Ajuste executado.',
+      finalStatus: 'ok',
+    });
+    const operational = selectAppV2OperationalState(completed);
+
+    expect(operational.serviceDraft).toBeNull();
+    expect(operational.latestRecord?.id).toBe('registro-operacional');
+    expect(operational.servicesInput.registros[0]?.id).toBe('registro-operacional');
+  });
+
+  it('covers the full equipment-first service journey without UI', () => {
+    const emptyAgenda = createAppV2MockSnapshot({
+      compromissos: [],
+      equipamentos: createAppV2MockSnapshot().equipamentos.filter((item) => item.id !== 'eq-4'),
+    });
+    const withEquipment = registerEquipment(emptyAgenda, {
+      id: 'eq-novo',
+      nome: 'Self Piso Teto',
+      local: 'Sala técnica',
+      status: 'ok',
+      clienteId: 'cliente-1',
+      tipo: 'Ar condicionado',
+      createdAt: emptyAgenda.today,
+    });
+
+    expect(selectAppV2OperationalState(withEquipment).nextAction).toMatchObject({
+      kind: 'equipamento_sem_primeiro_servico',
+      equipamentoId: 'eq-novo',
+    });
+
+    const started = startServiceFromEquipment(withEquipment, 'eq-novo');
+    expect(selectAppV2OperationalState(started).serviceDraft?.equipmentId).toBe('eq-novo');
+
+    const completed = completeService(started, {
+      id: 'registro-jornada',
+      date: emptyAgenda.today,
+      technician: 'Técnico',
+      diagnosis: 'Baixo rendimento informado pelo cliente.',
+      actionsDone: 'Limpeza inicial e recomendação de troca de capacitor.',
+      finalStatus: 'warn',
+    });
+    const services = buildServicesHomeViewModel(
+      selectAppV2OperationalState(completed).servicesInput,
+      null,
+    );
+
+    expect(services.recentServices[0]).toMatchObject({
+      id: 'registro-jornada',
+      equipmentName: 'Self Piso Teto',
+      outputStatus: 'orcamento_sugerido',
+    });
+  });
+
+  it('prioritizes a newly scheduled commitment back on Home', () => {
+    const state = createAppV2MockSnapshot({ compromissos: [], registros: [] });
+
+    const scheduled = scheduleNextCommitment(state, {
+      id: 'compromisso-retorno',
+      equipmentId: 'eq-1',
+      kind: 'preventiva',
+      targetDate: state.today,
+      origin: 'registro',
+    });
+
+    expect(selectAppV2OperationalState(scheduled).nextAction).toMatchObject({
+      kind: 'compromisso_hoje',
+      equipamentoId: 'eq-1',
+      compromissoId: 'compromisso-retorno',
+    });
+  });
+
+  it('keeps an ad-hoc completed service as a pending mock report output', () => {
+    const state = createAppV2MockSnapshot({ compromissos: [] });
+    const started = startServiceFromEquipment(state, 'eq-4');
+
+    const completed = completeService(started, {
+      id: 'registro-relatorio',
+      date: state.today,
+      technician: 'Técnico',
+      diagnosis: 'Visita técnica sem falha ativa.',
+      actionsDone: 'Orientação operacional registrada.',
+      finalStatus: 'ok',
+    });
+    const services = buildServicesHomeViewModel(
+      selectAppV2OperationalState(completed).servicesInput,
+      null,
+    );
+
+    expect(services.recentServices[0]).toMatchObject({
+      id: 'registro-relatorio',
+      outputStatus: 'relatorio_pendente',
+    });
+  });
+});

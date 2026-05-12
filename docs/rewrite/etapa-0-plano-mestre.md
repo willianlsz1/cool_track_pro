@@ -20,6 +20,7 @@ Artefatos da Etapa zero:
 - Plano de Registro de servico: `docs/rewrite/etapa-4-servico-plano.md`
 - Design da Central de Servicos: `docs/rewrite/etapa-5-servicos-design.md`
 - Plano da Central de Servicos: `docs/rewrite/etapa-5-servicos-plano.md`
+- Plano da fundacao de fluxo e dados: `docs/rewrite/etapa-6-fundacao-fluxo-dados-plano.md`
 
 ## 2. Decisoes confirmadas
 
@@ -50,6 +51,10 @@ Artefatos da Etapa zero:
 25. A navegacao fixa inicial tera quatro areas: **Hoje**, **Equipamento**, **Servicos** e **Conta**.
 26. A area **Equipamento** tera visoes de Equipamentos e Clientes.
 27. A area **Servicos** inclui registros, historico, relatorios e orcamentos.
+28. O fortalecimento do `app-v2` so sera considerado 100% quando Home Hoje, Equipamentos, Registro de Servico e Central de Servicos compartilharem contratos de dominio, store mockada unica, acoes puras de fluxo, estado operacional consistente e testes focados de fluxo completo.
+29. A Etapa 6 deve fortalecer a fundacao sem alterar UI visual, CSS/tokens, app legado, storage real, Supabase, PDF/share, WhatsApp, billing, PMOC, assinatura ou orcamento real.
+30. A Etapa 6 foi concluida com a fundacao tecnica do app-v2 em 100% segundo esse criterio; as proximas etapas devem construir sobre essa base, nao reintroduzir mocks divergentes por tela.
+31. A Etapa 6.1 revisou e consolidou a fundacao antes do avanco visual, mantendo o app-v2 isolado e adicionando cobertura explicita para as saidas futuras mockadas.
 
 ## 3. Prioridade da Home operacional
 
