@@ -4,23 +4,28 @@ import { EquipmentDetail } from '../equipment/EquipmentDetail';
 import { EquipmentList } from '../equipment/EquipmentList';
 import { HomeToday } from '../home/HomeToday';
 import { BottomNav, type AppV2Tab } from '../navigation/BottomNav';
-import { startServiceFromEquipment as startServiceFlowAction } from '../data/appV2Actions';
+import {
+  completeService,
+  startServiceFromEquipment as startServiceFlowAction,
+  type AppV2FlowState,
+} from '../data/appV2Actions';
 import { createAppV2MockSnapshot } from '../data/appV2MockStore';
-import { selectServiceFlowInput, selectServicesHomeInput } from '../data/appV2Selectors';
+import { selectAppV2OperationalState } from '../data/appV2Selectors';
 import { ServiceFlow } from '../service/ServiceFlow';
 import { ServicesHome } from '../service/ServicesHome';
 import type { ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
 
-const appV2Snapshot = createAppV2MockSnapshot();
-const serviceFlowInput = selectServiceFlowInput(appV2Snapshot);
-const servicesHomeInput = selectServicesHomeInput(appV2Snapshot);
-
 export function AppV2Shell() {
+  const [appState, setAppState] = useState<AppV2FlowState>(() => ({
+    ...createAppV2MockSnapshot(),
+    serviceDraft: null,
+  }));
   const [activeTab, setActiveTab] = useState<AppV2Tab>('hoje');
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
-  const [serviceDraft, setServiceDraft] = useState<ServiceDraft | null>(null);
   const [isServiceFlowOpen, setIsServiceFlowOpen] = useState(false);
+  const operationalState = selectAppV2OperationalState(appState);
+  const serviceDraft = operationalState.serviceDraft;
 
   function selectTab(tab: AppV2Tab) {
     setActiveTab(tab);
@@ -36,40 +41,72 @@ export function AppV2Shell() {
   }
 
   function startServiceFromEquipment(equipmentId: string, commitmentId?: string) {
-    const nextState = startServiceFlowAction(appV2Snapshot, equipmentId, commitmentId);
-    setServiceDraft(nextState.serviceDraft);
+    const nextState = startServiceFlowAction(appState, equipmentId, commitmentId);
+    setAppState(nextState);
     setIsServiceFlowOpen(true);
     setActiveTab('servicos');
   }
 
   function startFallbackService() {
-    startServiceFromEquipment(serviceFlowInput.equipamentos[0]?.id ?? 'eq-1');
+    startServiceFromEquipment(operationalState.serviceFlowInput.equipamentos[0]?.id ?? 'eq-1');
+  }
+
+  function updateServiceDraft(draft: ServiceDraft) {
+    setAppState((current) => ({
+      ...current,
+      serviceDraft: draft,
+    }));
+  }
+
+  function completeCurrentService(draft: ServiceDraft) {
+    setAppState((current) =>
+      completeService(
+        {
+          ...current,
+          serviceDraft: draft,
+        },
+        {
+          id: `reg-shell-${current.registros.length + 1}`,
+          date: current.today,
+          technician: 'Técnico app-v2',
+          diagnosis: draft.diagnosis,
+          actionsDone: draft.actionsDone,
+          finalStatus: draft.finalStatus,
+        },
+      ),
+    );
   }
 
   return (
     <div className={`tw-min-h-screen tw-font-sans ${appV2Tone.page} ${appV2Tone.text}`}>
       {activeTab === 'hoje' ? (
-        <HomeToday onOpenEquipment={openEquipment} onStartService={startServiceFromEquipment} />
+        <HomeToday
+          input={operationalState.homeInput}
+          onOpenEquipment={openEquipment}
+          onStartService={startServiceFromEquipment}
+        />
       ) : null}
 
       {activeTab === 'equipamento' && selectedEquipmentId ? (
         <EquipmentDetail
           equipmentId={selectedEquipmentId}
+          input={operationalState.equipmentInput}
           onBack={() => setSelectedEquipmentId(null)}
           onStartService={startServiceFromEquipment}
         />
       ) : null}
 
       {activeTab === 'equipamento' && !selectedEquipmentId ? (
-        <EquipmentList onOpenEquipment={openEquipment} />
+        <EquipmentList input={operationalState.equipmentInput} onOpenEquipment={openEquipment} />
       ) : null}
 
       {activeTab === 'servicos' && isServiceFlowOpen && serviceDraft ? (
         <ServiceFlow
-          input={serviceFlowInput}
+          input={operationalState.serviceFlowInput}
           initialDraft={serviceDraft}
           onBackToServices={() => setIsServiceFlowOpen(false)}
-          onDraftChange={setServiceDraft}
+          onDraftChange={updateServiceDraft}
+          onCompleteService={completeCurrentService}
           onOpenEquipment={openEquipment}
         />
       ) : null}
@@ -77,7 +114,7 @@ export function AppV2Shell() {
       {activeTab === 'servicos' && (!isServiceFlowOpen || !serviceDraft) ? (
         <ServicesHome
           draft={serviceDraft}
-          input={servicesHomeInput}
+          input={operationalState.servicesInput}
           onResumeService={() => setIsServiceFlowOpen(true)}
           onStartService={startFallbackService}
         />

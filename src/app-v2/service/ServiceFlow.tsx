@@ -22,6 +22,7 @@ interface ServiceFlowProps {
   initialDraft: ServiceDraft;
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
+  onCompleteService: (draft: ServiceDraft) => void;
   onOpenEquipment: (equipmentId: string) => void;
 }
 
@@ -32,6 +33,7 @@ export function ServiceFlow({
   initialDraft,
   onBackToServices,
   onDraftChange,
+  onCompleteService,
   onOpenEquipment,
 }: ServiceFlowProps) {
   const [step, setStep] = useState<ServiceFlowStep>('context');
@@ -54,6 +56,16 @@ export function ServiceFlow({
   function nextStep() {
     const currentIndex = stepOrder.indexOf(step);
     setStep(stepOrder[Math.min(stepOrder.length - 1, currentIndex + 1)]);
+  }
+
+  function finishAndBackToServices() {
+    onCompleteService(draft);
+    onBackToServices();
+  }
+
+  function finishAndOpenEquipment() {
+    onCompleteService(draft);
+    onOpenEquipment(draft.equipmentId);
   }
 
   return (
@@ -102,8 +114,8 @@ export function ServiceFlow({
       {step === 'done' ? (
         <ServiceDone
           done={buildServiceDoneViewModel(input, draft)}
-          onBackToServices={onBackToServices}
-          onOpenEquipment={() => onOpenEquipment(draft.equipmentId)}
+          onBackToServices={finishAndBackToServices}
+          onOpenEquipment={finishAndOpenEquipment}
         />
       ) : null}
     </main>

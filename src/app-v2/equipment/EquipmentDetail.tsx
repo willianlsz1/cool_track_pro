@@ -1,4 +1,8 @@
-import { buildEquipmentDetailViewModel, type EquipmentTone } from './equipmentViewModel';
+import {
+  buildEquipmentDetailViewModel,
+  type BuildEquipmentViewModelInput,
+  type EquipmentTone,
+} from './equipmentViewModel';
 import {
   mockEquipmentClientes,
   mockEquipmentCompromissos,
@@ -10,6 +14,7 @@ import { appV2Tone } from '../styles/tokens';
 
 interface EquipmentDetailProps {
   equipmentId: string;
+  input?: BuildEquipmentViewModelInput;
   onBack: () => void;
   onStartService?: (equipmentId: string) => void;
 }
@@ -21,17 +26,21 @@ const toneClasses: Record<EquipmentTone, string> = {
   primary: appV2Tone.actionSoft,
 };
 
-export function EquipmentDetail({ equipmentId, onBack, onStartService }: EquipmentDetailProps) {
-  const detail = buildEquipmentDetailViewModel(
-    {
-      today: mockEquipmentToday,
-      clientes: mockEquipmentClientes,
-      equipamentos: mockEquipmentEquipamentos,
-      compromissos: mockEquipmentCompromissos,
-      registros: mockEquipmentRegistros,
-    },
-    equipmentId,
-  );
+const defaultEquipmentInput: BuildEquipmentViewModelInput = {
+  today: mockEquipmentToday,
+  clientes: mockEquipmentClientes,
+  equipamentos: mockEquipmentEquipamentos,
+  compromissos: mockEquipmentCompromissos,
+  registros: mockEquipmentRegistros,
+};
+
+export function EquipmentDetail({
+  equipmentId,
+  input,
+  onBack,
+  onStartService,
+}: EquipmentDetailProps) {
+  const detail = buildEquipmentDetailViewModel(input ?? defaultEquipmentInput, equipmentId);
 
   return (
     <main className="tw-mx-auto tw-flex tw-min-h-screen tw-w-full tw-max-w-[520px] tw-flex-col tw-px-4 tw-pb-36 tw-pt-5">

@@ -63,7 +63,7 @@ describe('servicesHomeViewModel', () => {
       title: 'Serviços',
       subtitle: 'Trabalho técnico',
       emptyState: {
-        title: 'Nenhum serviço recente',
+        title: 'Nenhum serviço em andamento',
         actionLabel: 'Iniciar registro',
       },
       inProgress: null,

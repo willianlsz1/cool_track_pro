@@ -27,7 +27,7 @@ export interface HomeTodayViewModel {
   }>;
 }
 
-interface BuildHomeTodayViewModelInput {
+export interface BuildHomeTodayViewModelInput {
   today: string;
   clientes: Cliente[];
   equipamentos: Equipamento[];

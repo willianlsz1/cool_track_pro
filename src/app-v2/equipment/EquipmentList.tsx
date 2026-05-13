@@ -5,6 +5,7 @@ import {
   buildEquipmentListViewModel,
   type EquipmentFilter,
   type EquipmentListViewModel,
+  type BuildEquipmentViewModelInput,
 } from './equipmentViewModel';
 import {
   mockEquipmentClientes,
@@ -16,6 +17,7 @@ import {
 import { appV2Tone } from '../styles/tokens';
 
 interface EquipmentListProps {
+  input?: BuildEquipmentViewModelInput;
   onOpenEquipment: (equipmentId: string) => void;
 }
 
@@ -26,22 +28,20 @@ const filters: Array<{ id: EquipmentFilter; label: string }> = [
   { id: 'without_first_service', label: 'Sem primeiro serviço' },
 ];
 
-export function EquipmentList({ onOpenEquipment }: EquipmentListProps) {
+const defaultEquipmentInput: BuildEquipmentViewModelInput = {
+  today: mockEquipmentToday,
+  clientes: mockEquipmentClientes,
+  equipamentos: mockEquipmentEquipamentos,
+  compromissos: mockEquipmentCompromissos,
+  registros: mockEquipmentRegistros,
+};
+
+export function EquipmentList({ input, onOpenEquipment }: EquipmentListProps) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<EquipmentFilter>('all');
   const viewModel = useMemo<EquipmentListViewModel>(
-    () =>
-      buildEquipmentListViewModel(
-        {
-          today: mockEquipmentToday,
-          clientes: mockEquipmentClientes,
-          equipamentos: mockEquipmentEquipamentos,
-          compromissos: mockEquipmentCompromissos,
-          registros: mockEquipmentRegistros,
-        },
-        { query, filter },
-      ),
-    [filter, query],
+    () => buildEquipmentListViewModel(input ?? defaultEquipmentInput, { query, filter }),
+    [filter, input, query],
   );
 
   return (

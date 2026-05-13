@@ -32,7 +32,7 @@ export interface ServicesHomeViewModel {
 }
 
 export interface ServicesEmptyStateViewModel {
-  title: 'Nenhum serviço recente';
+  title: 'Nenhum serviço em andamento';
   description: string;
   actionLabel: 'Iniciar registro';
 }
@@ -66,7 +66,7 @@ export function buildServicesHomeViewModel(
     subtitle: 'Trabalho técnico',
     description: 'Registros recentes e saídas técnicas planejadas.',
     emptyState: {
-      title: 'Nenhum serviço recente',
+      title: 'Nenhum serviço em andamento',
       description: 'Comece por um equipamento para registrar o primeiro atendimento.',
       actionLabel: 'Iniciar registro',
     },

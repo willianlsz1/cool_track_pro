@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { NextActionCard } from './NextActionCard';
 import { ShortQueue } from './ShortQueue';
 import {
@@ -7,23 +9,26 @@ import {
   mockHomeRegistros,
   mockHomeToday,
 } from './mockHomeData';
-import { buildHomeTodayViewModel } from './homeViewModel';
+import { buildHomeTodayViewModel, type BuildHomeTodayViewModelInput } from './homeViewModel';
 import { appV2Tone } from '../styles/tokens';
 
-const viewModel = buildHomeTodayViewModel({
+const defaultHomeInput: BuildHomeTodayViewModelInput = {
   today: mockHomeToday,
   clientes: mockHomeClientes,
   equipamentos: mockHomeEquipamentos,
   compromissos: mockHomeCompromissos,
   registros: mockHomeRegistros,
-});
+};
 
 interface HomeTodayProps {
+  input?: BuildHomeTodayViewModelInput;
   onOpenEquipment?: (equipmentId: string) => void;
   onStartService?: (equipmentId: string) => void;
 }
 
-export function HomeToday({ onOpenEquipment, onStartService }: HomeTodayProps) {
+export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayProps) {
+  const viewModel = useMemo(() => buildHomeTodayViewModel(input ?? defaultHomeInput), [input]);
+
   function openNextEquipment() {
     if (viewModel.nextAction.equipmentId) {
       onOpenEquipment?.(viewModel.nextAction.equipmentId);
