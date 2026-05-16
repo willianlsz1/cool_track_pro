@@ -24,6 +24,18 @@ _Avoid_: misturar no shell legado, importar CSS legado, substituir rotas atuais 
 React, TypeScript e Tailwind CSS no Vite, aplicados somente ao Novo app e a adaptadores novos.
 _Avoid_: converter legado para TypeScript, editar package sem etapa propria, importar CSS legado
 
+**Linguagem visual app-v2**:
+Ferramenta tecnica premium de campo: clara, rapida, confiavel, com hierarquia forte de Proxima acao e acabamento proprietario sem virar vitrine visual.
+_Avoid_: dashboard decorativo, app generico SaaS, excesso de hero, visual marketing
+
+**Densidade visual app-v2**:
+Mobile-first compacto e desktop respirado, mantendo a Proxima acao como centro absoluto e usando o espaco extra apenas para apoio contextual.
+_Avoid_: compacto em tudo, respirado em tudo, desktop como dashboard, mobile com rolagem desnecessaria
+
+**Navegacao app-v2**:
+Mobile usa bottom nav e desktop usa navegacao lateral sempre expandida com contexto de turno operacional: data/status do turno, proximo atendimento e resumo curto da fila.
+_Avoid_: bottom nav no desktop, menu lateral no mobile, navegacao duplicada, nav competindo com conteudo, lateral puramente iconografica, lateral compacta no desktop, conta ou plano como contexto principal
+
 **Reaproveitamento seguro**:
 Uso planejado de regras puras, contratos de dados e adaptadores do App legado sem trazer UI, CSS ou navegacao legada para o Novo app.
 _Avoid_: copiar template, importar CSS legado, adaptar tela antiga
@@ -105,6 +117,9 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - O **Novo app** nasce em paralelo ao **App legado**.
 - O **app-v2** e o destino planejado do **Novo app**.
 - A **Stack app-v2** e React, TypeScript, Tailwind CSS e Vite.
+- A **Linguagem visual app-v2** orienta o acabamento do **Novo app** sem copiar a UI do **App legado**.
+- A **Densidade visual app-v2** adapta a mesma linguagem para mobile e desktop sem mudar a prioridade operacional.
+- A **Navegacao app-v2** muda de forma por breakpoint, preserva as mesmas areas do **Novo app** e expoe contexto de **Hoje** no desktop.
 - O **App legado** fornece referencia funcional para o **Rewrite zero**.
 - O **Reaproveitamento seguro** permite usar regras e contratos mapeados do **App legado**.
 - O **Rewrite zero** nao reaproveita a UI, a hierarquia visual ou o CSS do **App legado** como base.
@@ -142,6 +157,21 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 
 > **Dev:** "Vamos converter o projeto todo para TypeScript?"
 > **Domain expert:** "Nao. TypeScript entra no app-v2 e em adaptadores novos; o legado continua em JavaScript."
+
+> **Dev:** "Qual linguagem visual guia o app-v2?"
+> **Domain expert:** "Ferramenta tecnica premium de campo: clara, rapida, confiavel, com Proxima acao dominante e acabamento proprietario."
+
+> **Dev:** "A densidade deve ser igual em celular e desktop?"
+> **Domain expert:** "Nao. Mobile deve ser compacto para uso em campo; desktop pode respirar mais, mas sem virar dashboard e sem tirar foco da Proxima acao."
+
+> **Dev:** "A navegacao principal fica igual em mobile e desktop?"
+> **Domain expert:** "Nao. Mobile usa bottom nav; desktop usa uma lateral mais larga com contexto de turno operacional, liberando a area principal sem competir com a Proxima acao."
+
+> **Dev:** "O que entra no contexto da lateral desktop?"
+> **Domain expert:** "Data/status do turno, proximo atendimento e resumo curto da fila. Conta e plano continuam na area Conta, nao como foco da lateral."
+
+> **Dev:** "A lateral desktop pode recolher para modo compacto?"
+> **Domain expert:** "Nao. No desktop ela fica sempre expandida; se nao houver largura para isso, o layout deve voltar para mobile com bottom nav."
 
 > **Dev:** "Podemos copiar a tela antiga e limpar depois?"
 > **Domain expert:** "Nao. Reaproveitamento seguro significa regra e contrato mapeado, nao UI, CSS, templates ou navegacao legada."
@@ -202,3 +232,6 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - "Dashboard" pode significar metricas ou orientacao. Resolvido: a entrada do app e a **Home operacional**, nao dashboard de metricas.
 - "Cliente como contexto" nao significa campo auxiliar. Resolvido: **Cliente** tem detalhe proprio, mas o **Vinculo equipamento-cliente** e feito a partir do **Equipamento**.
 - "Usar TypeScript" nao significa migrar o legado. Resolvido: TypeScript pertence a **Stack app-v2** e exige etapa propria de configuracao.
+- "Premium" nao significa hero, marketing ou tela respirada demais. Resolvido: a **Linguagem visual app-v2** e uma ferramenta tecnica de campo com acabamento proprietario.
+- "Densidade" nao e uma escolha unica para todos os breakpoints. Resolvido: a **Densidade visual app-v2** e mobile compacto e desktop respirado, sempre com **Proxima acao** dominante.
+- "Navegacao responsiva" nao significa repetir bottom nav em todas as larguras nem reduzir desktop a icones soltos. Resolvido: a **Navegacao app-v2** usa bottom nav no mobile e navegacao lateral contextual sempre expandida no desktop, com **Hoje** e turno operacional como informacao principal.

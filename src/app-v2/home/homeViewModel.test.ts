@@ -65,16 +65,50 @@ describe('buildHomeTodayViewModel', () => {
       registros: [registroSplit],
     });
 
+    expect(viewModel.context).toBe('Atendimentos de hoje');
     expect(viewModel.nextAction.title).toBe('Preventiva vencida');
     expect(viewModel.nextAction.equipmentId).toBe('eq-1');
     expect(viewModel.nextAction.equipmentName).toBe('Split 24.000 BTU');
-    expect(viewModel.nextAction.customerLine).toBe('Mercado Bom Preço - Recepção');
+    expect(viewModel.nextAction.customerLine).toBe('Mercado Bom Preço · Recepção');
     expect(viewModel.nextAction.reason).toBe('Preventiva vencida há 2 dias');
     expect(viewModel.nextAction.primaryCta).toBe('Iniciar serviço');
     expect(viewModel.nextAction.secondaryAction).toBe('Ver equipamento');
     expect(viewModel.nextAction.tone).toBe('danger');
+    expect(viewModel.nextAction.equipmentVisual).toEqual({
+      fallbackLabel: 'Ar condicionado',
+    });
+    expect(viewModel.dateLabel).toBe('10/05');
+    expect(viewModel.quickStats).toEqual([
+      {
+        id: 'services-today',
+        label: 'Atendimentos',
+        value: '2',
+        detail: 'para hoje',
+        tone: 'primary',
+        icon: 'calendar',
+      },
+      {
+        id: 'overdue',
+        label: 'Vencido',
+        value: '1',
+        detail: 'vencido',
+        tone: 'danger',
+        icon: 'alert',
+      },
+      {
+        id: 'next-window',
+        label: 'Próximo',
+        value: 'Hoje',
+        detail: 'próximo na fila',
+        tone: 'primary',
+        icon: 'next',
+      },
+    ]);
     expect(viewModel.queue).toHaveLength(2);
     expect(viewModel.queue[0]?.equipmentId).toBe('eq-1');
+    expect(viewModel.queue[0]?.title).toBe('Preventiva · Split 24.000 BTU');
+    expect(viewModel.aside.nextInQueue?.title).toBe('Corretiva · Câmara fria');
+    expect(viewModel.aside.summary.map((item) => item.id)).not.toContain('estimated-time');
   });
 
   it('mostra estado sem urgências quando todos os equipamentos já têm serviço', () => {

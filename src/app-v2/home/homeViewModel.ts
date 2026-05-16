@@ -3,10 +3,21 @@ import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '
 
 type HomeActionTone = 'danger' | 'warning' | 'primary' | 'calm';
 type QueueTone = 'danger' | 'warning' | 'primary';
+type HomeStatIcon = 'calendar' | 'alert' | 'next';
 
 export interface HomeTodayViewModel {
   title: 'Hoje';
   context: string;
+  dateLabel: string;
+  shiftSummary: string;
+  quickStats: Array<{
+    id: string;
+    label: string;
+    value: string;
+    detail: string;
+    tone: QueueTone;
+    icon: HomeStatIcon;
+  }>;
   nextAction: {
     title: string;
     equipmentId?: string;
@@ -16,6 +27,10 @@ export interface HomeTodayViewModel {
     primaryCta: string;
     secondaryAction: string;
     tone: HomeActionTone;
+    equipmentVisual: {
+      imageUrl?: string;
+      fallbackLabel: string;
+    };
   };
   queue: Array<{
     id: string;
@@ -24,7 +39,23 @@ export interface HomeTodayViewModel {
     detail: string;
     status: string;
     tone: QueueTone;
+    iconLabel: string;
   }>;
+  aside: {
+    summary: Array<{
+      id: string;
+      value: string;
+      label: string;
+      tone: QueueTone | 'success';
+    }>;
+    nextInQueue?: {
+      title: string;
+      detail: string;
+      status: string;
+      tone: QueueTone;
+    };
+    note: string;
+  };
 }
 
 export interface BuildHomeTodayViewModelInput {
@@ -41,10 +72,47 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
   const equipamentosById = new Map(
     input.equipamentos.map((equipamento) => [equipamento.id, equipamento]),
   );
+  const queue = buildQueue({
+    today: input.today,
+    clientesById,
+    equipamentosById,
+    compromissos: input.compromissos,
+  });
+  const scheduledCommitments = input.compromissos.filter((item) => item.status === 'agendado');
+  const overdueCount = scheduledCommitments.filter((item) => item.dataAlvo < input.today).length;
+  const completedToday = input.registros.filter((registro) => registro.data === input.today).length;
 
   return {
     title: 'Hoje',
-    context: 'Turno de campo',
+    context: 'Atendimentos de hoje',
+    dateLabel: formatDateLabel(input.today),
+    shiftSummary: 'Prioridade, fila curta e equipamentos que pedem atenção.',
+    quickStats: [
+      {
+        id: 'services-today',
+        label: 'Atendimentos',
+        value: String(scheduledCommitments.length),
+        detail: 'para hoje',
+        tone: 'primary',
+        icon: 'calendar',
+      },
+      {
+        id: 'overdue',
+        label: 'Vencido',
+        value: String(overdueCount),
+        detail: overdueCount === 1 ? 'vencido' : 'vencidos',
+        tone: overdueCount > 0 ? 'danger' : 'primary',
+        icon: 'alert',
+      },
+      {
+        id: 'next-window',
+        label: 'Próximo',
+        value: queue[1]?.status ?? queue[0]?.status ?? 'Livre',
+        detail: 'próximo na fila',
+        tone: 'primary',
+        icon: 'next',
+      },
+    ],
     nextAction: mapNextAction({
       action: nextAction,
       today: input.today,
@@ -52,12 +120,38 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
       equipamentosById,
       compromissos: input.compromissos,
     }),
-    queue: buildQueue({
-      today: input.today,
-      clientesById,
-      equipamentosById,
-      compromissos: input.compromissos,
-    }),
+    queue,
+    aside: {
+      summary: [
+        {
+          id: 'scheduled',
+          value: String(scheduledCommitments.length),
+          label: 'Serviços programados',
+          tone: 'primary',
+        },
+        {
+          id: 'overdue',
+          value: String(overdueCount),
+          label: overdueCount === 1 ? 'Vencido' : 'Vencidos',
+          tone: overdueCount > 0 ? 'danger' : 'primary',
+        },
+        {
+          id: 'done',
+          value: String(completedToday),
+          label: 'Concluído',
+          tone: 'success',
+        },
+      ],
+      nextInQueue: queue[1]
+        ? {
+            title: queue[1].title,
+            detail: queue[1].detail,
+            status: queue[1].status,
+            tone: queue[1].tone,
+          }
+        : undefined,
+      note: 'Verifique o histórico do equipamento antes de iniciar o atendimento.',
+    },
   };
 }
 
@@ -81,6 +175,9 @@ function mapNextAction({
       primaryCta: action.cta,
       secondaryAction: 'Ver fila',
       tone: 'calm',
+      equipmentVisual: {
+        fallbackLabel: 'Sem prioridade',
+      },
     };
   }
 
@@ -96,6 +193,7 @@ function mapNextAction({
       primaryCta: action.cta,
       secondaryAction: 'Ver equipamento',
       tone: 'primary',
+      equipmentVisual: buildEquipmentVisual(equipamento),
     };
   }
 
@@ -115,6 +213,15 @@ function mapNextAction({
     primaryCta: action.cta,
     secondaryAction: 'Ver equipamento',
     tone: action.kind === 'compromisso_vencido' ? 'danger' : 'warning',
+    equipmentVisual: buildEquipmentVisual(equipamento),
+  };
+}
+
+function buildEquipmentVisual(
+  equipamento: Equipamento | undefined,
+): HomeTodayViewModel['nextAction']['equipmentVisual'] {
+  return {
+    fallbackLabel: equipamento?.tipo ?? 'Equipamento',
   };
 }
 
@@ -142,10 +249,11 @@ function buildQueue({
       return {
         id: compromisso.id,
         equipmentId: compromisso.equipamentoId,
-        title: `${kindLabel} - ${equipamento?.nome ?? 'Equipamento'}`,
+        title: `${kindLabel} · ${equipamento?.nome ?? 'Equipamento'}`,
         detail: formatCustomerLine(equipamento, clientesById) ?? 'Sem cliente vinculado',
         status: isOverdue ? 'Vencida' : isToday ? 'Hoje' : formatDateLabel(compromisso.dataAlvo),
         tone: isOverdue ? 'danger' : isToday ? 'warning' : 'primary',
+        iconLabel: kindLabel,
       };
     });
 }
@@ -160,7 +268,7 @@ function formatCustomerLine(
 
   const cliente = equipamento.clienteId ? clientesById.get(equipamento.clienteId) : undefined;
   const parts = [cliente?.nome, equipamento.local].filter(Boolean);
-  return parts.length > 0 ? parts.join(' - ') : undefined;
+  return parts.length > 0 ? parts.join(' · ') : undefined;
 }
 
 function daysBetween(start: string, end: string): number {
