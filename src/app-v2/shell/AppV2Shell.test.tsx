@@ -72,6 +72,8 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Concluir serviço$/i);
 
     expect(host.textContent).toContain('Serviço concluído');
+    expect(host.textContent).toContain('Resumo do serviço');
+    expect(host.textContent).toContain('Concluído');
 
     await clickButton(host, /Voltar para Serviços/i);
 
@@ -163,11 +165,16 @@ describe('AppV2Shell', () => {
 
     await clickButton(host, /Iniciar servi/i);
     expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Atendimento em andamento');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Mercado Bom');
+    expect(host.textContent).toContain('Contexto');
 
     await clickButton(host, /Voltar para Servi/i);
     expect(host.textContent).toContain('Em andamento');
 
     await clickButton(host, /Retomar registro/i);
     expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Atendimento em andamento');
   });
 });

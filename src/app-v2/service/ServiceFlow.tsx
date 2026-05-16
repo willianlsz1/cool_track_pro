@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import type { ServiceRecordKind } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
+import { PageShell, SectionCard, StatusBadge } from '../ui/primitives';
 import { ServiceDone } from './ServiceDone';
 import { ServiceStepContext } from './ServiceStepContext';
 import { ServiceStepExecution } from './ServiceStepExecution';
@@ -38,6 +39,7 @@ export function ServiceFlow({
 }: ServiceFlowProps) {
   const [step, setStep] = useState<ServiceFlowStep>('context');
   const [draft, setDraft] = useState<ServiceDraft>(initialDraft);
+  const context = buildServiceContextViewModel(input, draft);
 
   function updateDraft(nextDraft: ServiceDraft) {
     setDraft(nextDraft);
@@ -69,20 +71,33 @@ export function ServiceFlow({
   }
 
   return (
-    <main className="tw-mx-auto tw-flex tw-min-h-screen tw-w-full tw-max-w-[520px] tw-flex-col tw-px-4 tw-pb-36 tw-pt-5">
-      <header className="tw-mb-4">
-        <p className={`tw-text-xs tw-font-bold tw-uppercase ${appV2Tone.subtleText}`}>
-          Registro de serviço
-        </p>
+    <PageShell className="tw-max-w-[980px]">
+      <SectionCard className="sm:tw-p-6">
+        <div className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
+          <div className="tw-min-w-0">
+            <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
+              Registro de servico
+            </p>
+            <h1
+              className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight sm:tw-text-[2rem] ${appV2Tone.text}`}
+            >
+              Atendimento em andamento
+            </h1>
+            <p
+              className={`tw-m-0 tw-mt-2 tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}
+            >
+              {context.equipmentName} - {context.customerLine}
+            </p>
+          </div>
+          <StatusBadge tone={context.statusTone} className="tw-w-fit tw-shrink-0 tw-border">
+            {context.statusLabel}
+          </StatusBadge>
+        </div>
         <Progress currentStep={step} />
-      </header>
+      </SectionCard>
 
       {step === 'context' ? (
-        <ServiceStepContext
-          context={buildServiceContextViewModel(input, draft)}
-          onCancel={onBackToServices}
-          onContinue={nextStep}
-        />
+        <ServiceStepContext context={context} onCancel={onBackToServices} onContinue={nextStep} />
       ) : null}
 
       {step === 'type' ? (
@@ -118,23 +133,41 @@ export function ServiceFlow({
           onOpenEquipment={finishAndOpenEquipment}
         />
       ) : null}
-    </main>
+    </PageShell>
   );
 }
 
 function Progress({ currentStep }: { currentStep: ServiceFlowStep }) {
   const activeIndex = stepOrder.indexOf(currentStep);
+  const labels: Record<ServiceFlowStep, string> = {
+    context: 'Contexto',
+    type: 'Tipo',
+    execution: 'Execucao',
+    review: 'Revisao',
+    done: 'Finalizado',
+  };
 
   return (
-    <div className="tw-mt-3 tw-grid tw-grid-cols-5 tw-gap-2" aria-label="Progresso do registro">
-      {stepOrder.map((step, index) => (
-        <span
-          key={step}
-          className={`tw-h-2 tw-rounded-full ${
-            index <= activeIndex ? 'tw-bg-[#1E5BFF]' : 'tw-bg-[#D7E3F2]'
-          }`}
-        />
-      ))}
+    <div className="tw-mt-5" aria-label="Progresso do registro">
+      <div className="tw-grid tw-grid-cols-5 tw-gap-2">
+        {stepOrder.map((step, index) => (
+          <span
+            key={step}
+            className={`tw-h-2 tw-rounded-full ${
+              index <= activeIndex ? 'tw-bg-[#2563EB]' : 'tw-bg-[#D7E3F2]'
+            }`}
+          />
+        ))}
+      </div>
+      <div
+        className={`tw-mt-3 tw-flex tw-items-center tw-justify-between tw-gap-2 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.12em] ${appV2Tone.subtleText}`}
+      >
+        {stepOrder.map((step) => (
+          <span key={step} className={step === currentStep ? 'tw-text-[#2563EB]' : ''}>
+            {labels[step]}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

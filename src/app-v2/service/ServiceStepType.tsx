@@ -1,5 +1,6 @@
 import type { ServiceRecordKind } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
+import { ServiceActions, ServiceStepCard } from './ServiceFlowPrimitives';
 import type { ServiceTypeViewModel } from './serviceFlowViewModel';
 
 interface ServiceStepTypeProps {
@@ -18,13 +19,12 @@ export function ServiceStepType({
   const canContinue = Boolean(viewModel.selectedKind);
 
   return (
-    <section className={`tw-rounded-lg tw-border tw-bg-white tw-p-5 ${appV2Tone.border}`}>
-      <p className={`tw-text-xs tw-font-bold tw-uppercase ${appV2Tone.subtleText}`}>Etapa 2</p>
-      <h1 className={`tw-mt-1 tw-text-2xl tw-font-black tw-leading-tight ${appV2Tone.text}`}>
-        {viewModel.title}
-      </h1>
-
-      <div className="tw-mt-5 tw-grid tw-gap-3">
+    <ServiceStepCard
+      eyebrow="Etapa 2"
+      title={viewModel.title}
+      description="Escolha o tipo que melhor descreve o atendimento realizado."
+    >
+      <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
         {viewModel.options.map((option) => {
           const selected = option.kind === viewModel.selectedKind;
 
@@ -33,15 +33,16 @@ export function ServiceStepType({
               key={option.kind}
               type="button"
               onClick={() => onSelectKind(option.kind)}
-              className={`tw-rounded-lg tw-border tw-p-4 tw-text-left ${appV2Tone.focus} ${
+              className={`tw-rounded-2xl tw-border tw-p-4 tw-text-left tw-transition hover:tw-bg-[#F8FAFC] ${appV2Tone.focus} ${
                 selected
-                  ? 'tw-border-[#1E5BFF] tw-bg-[#E6F0FF] tw-text-[#0A1328]'
-                  : `${appV2Tone.border} tw-bg-white tw-text-[#0A1328]`
+                  ? 'tw-border-[#2563EB] tw-bg-[#EFF6FF] tw-text-[#061635]'
+                  : `${appV2Tone.border} tw-bg-white tw-text-[#061635]`
               }`}
+              aria-pressed={selected}
             >
-              <span className="tw-block tw-text-base tw-font-black">{option.label}</span>
+              <span className="tw-block tw-text-base tw-font-semibold">{option.label}</span>
               <span
-                className={`tw-mt-1 tw-block tw-text-sm tw-font-semibold ${appV2Tone.mutedText}`}
+                className={`tw-mt-2 tw-block tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}
               >
                 {option.description}
               </span>
@@ -50,23 +51,13 @@ export function ServiceStepType({
         })}
       </div>
 
-      <div className="tw-mt-6 tw-flex tw-flex-col tw-gap-3">
-        <button
-          type="button"
-          onClick={onContinue}
-          disabled={!canContinue}
-          className={`tw-min-h-12 tw-rounded-lg tw-border-0 tw-px-4 tw-py-3 tw-text-base tw-font-extrabold disabled:tw-bg-[#DBEAFE] disabled:tw-text-[#64748B] ${appV2Tone.action} ${appV2Tone.focus}`}
-        >
-          Continuar
-        </button>
-        <button
-          type="button"
-          onClick={onBack}
-          className={`tw-min-h-11 tw-rounded-lg tw-border tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-extrabold tw-text-[#1D4ED8] ${appV2Tone.border} ${appV2Tone.focus}`}
-        >
-          Voltar
-        </button>
-      </div>
-    </section>
+      <ServiceActions
+        primaryLabel="Continuar"
+        onPrimary={onContinue}
+        primaryDisabled={!canContinue}
+        secondaryLabel="Voltar"
+        onSecondary={onBack}
+      />
+    </ServiceStepCard>
   );
 }

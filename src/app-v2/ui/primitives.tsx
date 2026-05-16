@@ -119,7 +119,7 @@ export function ActionButton({
     <button
       {...props}
       type={type}
-      className={`tw-inline-flex tw-min-h-12 tw-items-center tw-justify-center tw-rounded-xl tw-px-5 tw-py-3 tw-text-sm tw-font-bold ${actionButtonVariantClass[variant]} ${appV2Tone.focus} ${className}`}
+      className={`tw-inline-flex tw-min-h-12 tw-items-center tw-justify-center tw-rounded-xl tw-px-5 tw-py-3 tw-text-sm tw-font-bold disabled:tw-cursor-not-allowed disabled:tw-border-[#D7E3F2] disabled:tw-bg-[#E8EEF7] disabled:tw-text-[#7A8AA6] disabled:tw-shadow-none ${actionButtonVariantClass[variant]} ${appV2Tone.focus} ${className}`}
     >
       {children}
     </button>
