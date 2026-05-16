@@ -13,6 +13,154 @@ Antes de novos checkpoints de codigo, preencher ou atualizar a matriz de
 paridade do fluxo afetado e separar paridade obrigatoria, melhoria permitida,
 backlog e areas sensiveis.
 
+## Checkpoint atual - Historico de Servicos fase 1: busca local em Registros
+
+Adicionar busca local simples em `Servicos > Registros` para reduzir a lacuna
+de consulta do Historico v1 sem recriar a tela legada.
+
+### Analise resumida
+
+O v1 permite consultar historico por registros e contexto operacional. O
+app-v2 ja lista registros recentes e permite editar/reabrir relatorio por
+caminhos locais, mas ainda nao possui busca na subvisao `Registros`.
+
+A menor fatia segura e filtrar registros recentes em memoria por equipamento,
+cliente, tecnico, tipo e texto do registro, usando input simples e mensagem
+local de estado vazio.
+
+### Plano
+
+- Criar testes RED no view model de Servicos para busca local.
+- Criar teste shell para busca em `Servicos > Registros`.
+- Implementar filtro puro em `buildServicesHomeViewModel`.
+- Adicionar input simples no topo da lista de registros.
+- Atualizar matriz de paridade.
+
+### Anti-escopo
+
+- Nao criar filtros avancados, periodo, ordenacao customizada ou tela de
+  Historico legada.
+- Nao criar router novo, storage real, Supabase/RLS, PDF/share, WhatsApp,
+  billing, PMOC ou CSS legado.
+
+### Validacao esperada
+
+- Testes focados de view model e shell.
+- Validacao geral ao final do ciclo.
+
+### Resultado deste checkpoint
+
+- `buildServicesHomeViewModel` filtra registros recentes por query local
+  normalizada.
+- `Servicos > Registros` ganhou input simples `Buscar registros`.
+- A busca cobre equipamento, cliente, local, tipo, tecnico, texto do registro,
+  pecas e custos.
+- Estado sem resultado mostra mensagem local `Nenhum registro encontrado.`
+- Nenhum router, storage real, historico legado, CSS legado ou integracao
+  sensivel foi tocado.
+
+### Validacao focada executada
+
+- RED/GREEN:
+  `npm test -- src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 28 testes.
+
+### Proximo checkpoint recomendado
+
+Clientes fase 2: exibir servicos relacionados no detalhe de Cliente usando
+registros mockados existentes, sem PMOC, sem storage real, sem router novo e
+sem criar design novo.
+
+---
+
+## Historico - Orçamentos mockados dentro de Serviços
+
+Implementar a primeira fatia segura de paridade funcional de Orçamentos no
+app-v2 usando UI mínima neutra já existente em Serviços.
+
+### Decisão de produto aplicada
+
+A UX funcional do v1 deve ser preservada como comportamento operacional, não
+como layout, CSS ou componente visual legado. Quando o app-v2 resolver uma
+capacidade útil com fluxo melhor, a matriz pode marcar `coberto por
+substituição v2`.
+
+Com isso, o prompt de próxima preventiva pós-salvamento fica coberto por
+substituição v2: o app-v2 já captura `Próxima manutenção` dentro do fluxo de
+Registro de Serviço e cria compromisso mockado no fechamento, sem reabrir o
+prompt visual do v1.
+
+### Análise resumida
+
+O v1 possui módulo de Orçamentos com pipeline, status, vínculo com cliente,
+equipamento ou registro e ações sensíveis de PDF, WhatsApp e assinatura. O
+app-v2 já possui contrato `Orcamento` e `orcamentos` na store mockada, mas a
+área Serviços ainda não expõe uma subvisão de Orçamentos.
+
+A menor fatia segura é listar orçamentos mockados dentro de Serviços, com
+estado vazio funcional e resumo de pipeline. Não haverá criação, edição,
+assinatura, PDF, WhatsApp, storage real ou billing.
+
+### Plano
+
+- Atualizar a matriz com a decisão de substituição da próxima preventiva.
+- Criar testes RED para view model de Orçamentos mockados.
+- Criar teste shell garantindo a subvisão `Orçamentos` dentro de Serviços, sem
+  virar aba global.
+- Implementar view model pequeno e componentes mínimos reutilizando primitivas
+  do app-v2.
+- Atualizar documentação de paridade ao final.
+
+### Anti-escopo
+
+- Não criar orçamento real, edição real, assinatura, PDF/share, WhatsApp real,
+  billing, cotas, Supabase/RLS, storage real, PMOC ou router novo obrigatório.
+- Não copiar UI/CSS/template legado.
+- Não criar CSS global, tema/tokens ou design final novo.
+- Não implementar modal de orçamento, download, aprovação real ou envio.
+
+### Validação esperada
+
+- Testes focados de view model e shell.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Critério de conclusão
+
+- Serviços possui subvisão `Orçamentos` com UI mínima neutra.
+- Orçamentos mockados são listados com número, título, cliente/equipamento,
+  status e total.
+- Estado vazio orienta que orçamentos surgirão em etapa mock/local futura, sem
+  prometer PDF/WhatsApp/assinatura real.
+- Orçamentos não viram aba principal global.
+- Matriz registra o fluxo como parcial/coberto apenas na fatia mock local.
+
+### Resultado deste checkpoint
+
+- `Servicos` ganhou subvisao `Orcamentos`, sem virar aba principal global.
+- `servicesQuotesViewModel` lista orcamentos mockados com numero, titulo,
+  cliente, equipamento, status e total.
+- A subvisao exibe KPIs locais de ativos, aprovados e pipeline.
+- `appV2MockData` passou a ter um orcamento mockado de exemplo vinculado a
+  cliente, equipamento e registro.
+- Nenhuma acao de criacao, edicao, PDF/share, WhatsApp, assinatura, billing,
+  storage real, Supabase/RLS ou PMOC foi implementada.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/service/servicesQuotesViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou porque o view model nao existia e a subvisao `Orcamentos` nao estava
+  disponivel.
+- GREEN:
+  `npm test -- src/app-v2/service/servicesQuotesViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 20 testes.
+
+---
+
 ## Checkpoint atual - Edicao de Registro fase 2: equipamento e data
 
 Completar a fatia segura da edicao mockada no app-v2 permitindo alterar

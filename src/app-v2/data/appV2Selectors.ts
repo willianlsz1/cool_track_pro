@@ -53,6 +53,7 @@ export function selectServicesHomeInput(state: AppV2MockSnapshot): BuildServices
     clientes: state.clientes,
     equipamentos: state.equipamentos,
     registros: state.registros,
+    orcamentos: state.orcamentos,
   };
 }
 

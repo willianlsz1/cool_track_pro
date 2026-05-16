@@ -71,6 +71,7 @@ const input: BuildServicesHomeInput = {
       observacoes: '',
     },
   ],
+  orcamentos: [],
 };
 
 describe('servicesReportsViewModel', () => {

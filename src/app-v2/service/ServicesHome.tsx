@@ -4,6 +4,7 @@ import { appV2Tone } from '../styles/tokens';
 import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
 import { RecentServiceCard } from './RecentServiceCard';
 import { ServiceInProgressCard } from './ServiceInProgressCard';
+import { ServicesQuotesHome } from './ServicesQuotesHome';
 import { ServiceReportsHome } from './ServiceReportsHome';
 import type { ServiceDraft } from './serviceFlowViewModel';
 import { buildServicesHomeViewModel, type BuildServicesHomeInput } from './servicesHomeViewModel';
@@ -25,7 +26,8 @@ export function ServicesHome({
   onEditService,
 }: ServicesHomeProps) {
   const [activeView, setActiveView] = useState<ServicesSubView>('registros');
-  const viewModel = buildServicesHomeViewModel(input, draft);
+  const [serviceQuery, setServiceQuery] = useState('');
+  const viewModel = buildServicesHomeViewModel(input, draft, serviceQuery);
 
   if (activeView === 'relatorios') {
     return (
@@ -35,6 +37,12 @@ export function ServicesHome({
         onPrintReport={() => window.print()}
         onSelectView={setActiveView}
       />
+    );
+  }
+
+  if (activeView === 'orcamentos') {
+    return (
+      <ServicesQuotesHome activeView={activeView} input={input} onSelectView={setActiveView} />
     );
   }
 
@@ -95,12 +103,29 @@ export function ServicesHome({
           <StatusBadge>{viewModel.recentServices.length}</StatusBadge>
         </div>
 
+        <label className="tw-mt-4 tw-block">
+          <span className="tw-sr-only">Buscar registros</span>
+          <input
+            aria-label="Buscar registros"
+            value={serviceQuery}
+            onChange={(event) => setServiceQuery(event.target.value)}
+            placeholder="Buscar equipamento, cliente, tecnico ou registro"
+            className={`tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+          />
+        </label>
+
         {viewModel.recentServices.length > 0 ? (
           <div className="tw-mt-4 tw-grid tw-gap-3">
             {viewModel.recentServices.map((service) => (
               <RecentServiceCard key={service.id} service={service} onEditService={onEditService} />
             ))}
           </div>
+        ) : serviceQuery.trim() ? (
+          <p
+            className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
+          >
+            Nenhum registro encontrado.
+          </p>
         ) : (
           <p
             className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}

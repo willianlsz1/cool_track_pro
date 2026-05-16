@@ -33,25 +33,25 @@ de codigo em `src/app-v2/`.
 
 ### Matriz
 
-| Capacidade v1                                              | Evidencia v1                                                             | Equivalente v2 atual                                                                           | Status  | Melhoria permitida                                                       | Validacao necessaria                    |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------ | --------------------------------------- |
-| Abrir registro direto a partir de equipamento              | `startServiceRegistration(params)` aceita `equipId`                      | `startServiceFromEquipment(state, equipmentId)`                                                | coberto | Manter entrada contextual com visual v2                                  | Teste shell + teste action              |
-| Abrir registro sem equipamento com seletor/picker          | `startServiceRegistration` usa `openEquipPicker` quando nao ha `equipId` | escolha de equipamento no app-v2 antes de iniciar o fluxo                                      | coberto | Criar escolha de equipamento dentro do fluxo v2 sem copiar picker legado | Teste shell para inicio sem equipamento |
-| Orientar criacao de equipamento quando nao ha equipamentos | `mode: create-equipment`                                                 | estado vazio orienta ir para Equipamentos antes do registro                                    | coberto | Estado vazio acionavel para criar equipamento antes do registro          | Teste de estado vazio                   |
-| Validar equipamento existente                              | `validateRegistroPayloadDraftData` usa `existingEquipamentos`            | `completeService` valida equipamento existente e shell mostra erro local                       | coberto | Validacao amigavel antes de concluir                                     | Teste de dominio/action + shell         |
-| Validar data obrigatoria e valida                          | `validateRegistroPayload`                                                | `completeService` valida data simples do contrato mockado                                      | coberto | Manter data simples no fluxo, sem storage real                           | Teste de payload/action + shell         |
-| Validar tipo de servico                                    | `tipo` obrigatorio e `Outro` customizado validado                        | v2 possui opcoes e descricao customizada local para `Outro`                                    | coberto | Campo curto para detalhe de `Outro` quando selecionado                   | Teste view model + shell                |
-| Validar tecnico obrigatorio                                | v1 exige `tecnico` no fluxo padrao                                       | v2 possui campo local de tecnico no draft e bloqueia revisao sem valor                         | coberto | Campo local sem lista global nem storage real                            | Teste de conclusao                      |
-| Registrar diagnostico/observacoes                          | `obs` vira `descricaoFinal`                                              | registro mockado preserva diagnostico, acoes e `observacoes` compatível                        | coberto | Separar diagnostico, acoes e observacoes no contrato v2                  | Teste action + relatorio                |
-| Registrar pecas                                            | `pecas` persistido                                                       | v2 possui campo opcional de pecas no draft, registro mockado e relatorio                       | coberto | Campo textual opcional sem custos, estoque ou orcamento real             | Teste view model + action + shell       |
-| Registrar custos                                           | `custoPecas` e `custoMaoObra` persistidos                                | v2 possui custos opcionais no draft, registro mockado e relatorio                              | coberto | Captura opcional sem virar orcamento real                                | Teste payload + relatorio               |
-| Registrar proxima manutencao                               | `proxima` validado e persistido                                          | v2 possui `proximaData` opcional e cria compromisso mockado no fechamento                      | coberto | Agendamento simples do proximo compromisso                               | Teste action + shell                    |
-| Atualizar status do equipamento apos salvar                | `buildRegistroCreateStateMutation` atualiza `equipamentos.status`        | `completeService` atualiza status do equipamento                                               | coberto | Manter regra pura e testavel                                             | Teste action                            |
-| Adicionar tecnico novo                                     | v1 atualiza `tecnicos` se tecnico novo nao existe                        | app-v2 acumula tecnico em lista mockada na criacao e edicao                                    | coberto | UI/autocomplete e storage real ficam para etapa propria                  | Teste action                            |
-| Editar registro existente                                  | `buildRegistroEditStateMutation`                                         | edicao mockada reidrata, salva por `id`, altera equipamento/data e reabre relatorio atualizado | coberto | Manter mock local ate etapa propria de storage real                      | Teste action + view model + shell       |
-| Manter historico automaticamente                           | v1 adiciona registro em `state.registros`                                | `completeService` adiciona registro no mock                                                    | coberto | Exibir historico consultavel por Servicos                                | Teste shell                             |
-| Pos-salvamento com PDF/WhatsApp/toast/fallback             | `notifyRegistroCreateSaved` e `runRegistroDirectShareAfterSave`          | v2 tem preview/print simples e relatorios mockados                                             | parcial | Manter relatorio local; WhatsApp/PDF real em etapa sensivel              | Teste relatorio + plano sensivel        |
-| Prompt de proxima preventiva apos salvar                   | `runRegistroPreventivaPromptAfterSave`                                   | v2 cria compromisso mockado quando a data e informada; contrato do prompt documentado          | parcial | Implementacao visual depende de decisao UX                               | Teste shell + contrato                  |
+| Capacidade v1                                              | Evidencia v1                                                             | Equivalente v2 atual                                                                           | Status                      | Melhoria permitida                                                       | Validacao necessaria                    |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------ | --------------------------------------- |
+| Abrir registro direto a partir de equipamento              | `startServiceRegistration(params)` aceita `equipId`                      | `startServiceFromEquipment(state, equipmentId)`                                                | coberto                     | Manter entrada contextual com visual v2                                  | Teste shell + teste action              |
+| Abrir registro sem equipamento com seletor/picker          | `startServiceRegistration` usa `openEquipPicker` quando nao ha `equipId` | escolha de equipamento no app-v2 antes de iniciar o fluxo                                      | coberto                     | Criar escolha de equipamento dentro do fluxo v2 sem copiar picker legado | Teste shell para inicio sem equipamento |
+| Orientar criacao de equipamento quando nao ha equipamentos | `mode: create-equipment`                                                 | estado vazio orienta ir para Equipamentos antes do registro                                    | coberto                     | Estado vazio acionavel para criar equipamento antes do registro          | Teste de estado vazio                   |
+| Validar equipamento existente                              | `validateRegistroPayloadDraftData` usa `existingEquipamentos`            | `completeService` valida equipamento existente e shell mostra erro local                       | coberto                     | Validacao amigavel antes de concluir                                     | Teste de dominio/action + shell         |
+| Validar data obrigatoria e valida                          | `validateRegistroPayload`                                                | `completeService` valida data simples do contrato mockado                                      | coberto                     | Manter data simples no fluxo, sem storage real                           | Teste de payload/action + shell         |
+| Validar tipo de servico                                    | `tipo` obrigatorio e `Outro` customizado validado                        | v2 possui opcoes e descricao customizada local para `Outro`                                    | coberto                     | Campo curto para detalhe de `Outro` quando selecionado                   | Teste view model + shell                |
+| Validar tecnico obrigatorio                                | v1 exige `tecnico` no fluxo padrao                                       | v2 possui campo local de tecnico no draft e bloqueia revisao sem valor                         | coberto                     | Campo local sem lista global nem storage real                            | Teste de conclusao                      |
+| Registrar diagnostico/observacoes                          | `obs` vira `descricaoFinal`                                              | registro mockado preserva diagnostico, acoes e `observacoes` compatível                        | coberto                     | Separar diagnostico, acoes e observacoes no contrato v2                  | Teste action + relatorio                |
+| Registrar pecas                                            | `pecas` persistido                                                       | v2 possui campo opcional de pecas no draft, registro mockado e relatorio                       | coberto                     | Campo textual opcional sem custos, estoque ou orcamento real             | Teste view model + action + shell       |
+| Registrar custos                                           | `custoPecas` e `custoMaoObra` persistidos                                | v2 possui custos opcionais no draft, registro mockado e relatorio                              | coberto                     | Captura opcional sem virar orcamento real                                | Teste payload + relatorio               |
+| Registrar proxima manutencao                               | `proxima` validado e persistido                                          | v2 possui `proximaData` opcional e cria compromisso mockado no fechamento                      | coberto                     | Agendamento simples do proximo compromisso                               | Teste action + shell                    |
+| Atualizar status do equipamento apos salvar                | `buildRegistroCreateStateMutation` atualiza `equipamentos.status`        | `completeService` atualiza status do equipamento                                               | coberto                     | Manter regra pura e testavel                                             | Teste action                            |
+| Adicionar tecnico novo                                     | v1 atualiza `tecnicos` se tecnico novo nao existe                        | app-v2 acumula tecnico em lista mockada na criacao e edicao                                    | coberto                     | UI/autocomplete e storage real ficam para etapa propria                  | Teste action                            |
+| Editar registro existente                                  | `buildRegistroEditStateMutation`                                         | edicao mockada reidrata, salva por `id`, altera equipamento/data e reabre relatorio atualizado | coberto                     | Manter mock local ate etapa propria de storage real                      | Teste action + view model + shell       |
+| Manter historico automaticamente                           | v1 adiciona registro em `state.registros`                                | `completeService` adiciona registro no mock                                                    | coberto                     | Exibir historico consultavel por Servicos                                | Teste shell                             |
+| Pos-salvamento com PDF/WhatsApp/toast/fallback             | `notifyRegistroCreateSaved` e `runRegistroDirectShareAfterSave`          | v2 tem preview/print simples e relatorios mockados                                             | parcial                     | Manter relatorio local; WhatsApp/PDF real em etapa sensivel              | Teste relatorio + plano sensivel        |
+| Prompt de proxima preventiva apos salvar                   | `runRegistroPreventivaPromptAfterSave`                                   | v2 usa campo `Proxima manutencao` dentro do fluxo e cria compromisso mockado no fechamento     | coberto por substituição v2 | Nao recriar prompt pos-salvamento do v1 sem necessidade                  | Teste action + shell                    |
 
 ## 4. Lacunas prioritarias
 
@@ -501,3 +501,93 @@ Decisoes registradas:
 > Decisao humana de UX para prompt de proxima preventiva pos-salvamento, ou
 > aprovar explicitamente manter apenas o campo `Proxima manutencao` dentro do
 > fluxo como comportamento final do app-v2.
+
+## 30. Decisao complementar - UX funcional v1 com UI minima v2
+
+A decisao de produto aprovada separa UX funcional de design visual:
+
+- o v1 continua sendo fonte de verdade para comportamento operacional,
+  sequencia de uso, campos, validacoes, estados vazios, edicao, historico,
+  relatorio, reabertura, fallback, side effects mockados e mensagens
+  funcionais;
+- o app-v2 continua sendo fonte de verdade para shell, estrutura, componentes
+  e UI minima neutra;
+- CSS, layout, componentes visuais, modais antigos, prompts problematicos,
+  PDF/share, WhatsApp real, storage real e acoplamentos do v1 nao devem ser
+  copiados.
+
+Com essa decisao, o prompt de proxima preventiva pos-salvamento deixa de ser
+pendencia funcional obrigatoria. A capacidade util do v1 fica coberta por
+substituicao v2: o tecnico informa `Proxima manutencao` dentro do fluxo de
+Registro de Servico, e o app-v2 cria compromisso mockado no fechamento.
+
+Status atualizado:
+
+- `Prompt de proxima preventiva apos salvar`: `coberto por substituição v2`.
+- PDF/share real, WhatsApp real, notificacoes, calendario real e recorrencia
+  avancada continuam como integracoes sensiveis futuras.
+
+## 31. Matriz geral de UX funcional v1 -> app-v2
+
+| Fluxo                                 | Comportamento v1 util                                                                 | Fontes v1 analisadas                                                                                     | Equivalente v2 atual                                                                                              | Lacunas                                                 | Decisao v2                                                       | Escopo permitido       | Escopo proibido                                   | Testes necessarios                   | Status        |
+| ------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- | ------------------------------------------------- | ------------------------------------ | ------------- |
+| Registro de Servico                   | Criar, validar, concluir, editar, alimentar historico, relatorio e proxima preventiva | `src/features/registro/save/*`, `src/ui/views/registro.js`                                               | Fluxo progressivo app-v2 com mock local, edicao e relatorio local                                                 | PDF/WhatsApp real fora                                  | Preservar fluxo por etapas e substituir prompt por campo interno | app-v2/mock/testes     | storage, PDF/share, WhatsApp, PMOC                | action, view model, shell, relatorio | coberto       |
+| Historico de Servicos                 | Listar registros, consultar por equipamento/cliente e abrir relatorio/registro        | `src/features/historico/*`, `src/ui/viewModels/historicoViewModel.js`                                    | `Servicos > Registros` lista recentes, permite busca local e permite editar/reabrir relatorio por caminhos locais | filtros por periodo/cliente dedicados ainda limitados   | Evoluir dentro de Servicos, sem aba global nova                  | view model e UI minima | router novo, storage real, PMOC                   | view model + shell                   | parcial       |
+| Relatorios                            | Gerar visao por registros, filtrar e reabrir documento                                | `src/ui/views/relatorio.js`, `src/ui/viewModels/relatorioViewModel.js`                                   | `Servicos > Relatorios` com busca, KPIs, preview e print local                                                    | PDF/share/WhatsApp real fora                            | Relatorio local cobre leitura; integracoes ficam sensiveis       | relatorio local/mock   | PDF/share real, WhatsApp real                     | relatorio + shell                    | parcial       |
+| Equipamentos                          | Listar, consultar detalhe, status, cliente/local e iniciar servico                    | `src/ui/viewModels/equipamentosViewModel.js`, `src/features/equipamentos/*`                              | Area Equipamentos com lista, detalhe, cliente/local e iniciar servico                                             | criar/editar mockados ainda limitados                   | Preservar equipamento como centro operacional                    | mock/local/UI minima   | storage real, Supabase/RLS                        | equipment view model + shell         | parcial       |
+| Clientes                              | Listar, abrir detalhe e ver equipamentos vinculados                                   | `src/core/clientes.js`, `src/ui/viewModels/clientes*`, `src/ui/viewModels/equipamentosViewModel.js`      | Clientes como subvisao de Equipamentos com detalhe e equipamentos vinculados                                      | CRUD e servicos por cliente ainda limitados             | Cliente continua subvisao forte, nao aba global                  | mock/local/UI minima   | storage real, PMOC, Supabase/RLS                  | clients view model + shell           | parcial       |
+| Alertas e proximas acoes              | Priorizar preventiva vencida, corretiva, criticidade e recencia                       | `src/domain/maintenance.js`, `src/domain/constants/alerts.js`, `src/ui/viewModels/dashboardViewModel.js` | Home operacional com proxima acao e fila curta baseada em compromissos mockados                                   | alertas de cliente e regras completas ainda limitadas   | Migrar como compromisso/proxima acao mockada                     | dominio puro + mock    | notificacao real, calendario real, storage        | home priority tests                  | parcial       |
+| Orcamentos                            | Acompanhar pipeline, vincular cliente/equipamento/registro e resumir valores          | `src/ui/viewModels/orcamentosViewModel.js`, `src/domain/orcamentoFollowUp.js`                            | Subvisao `Servicos > Orcamentos` com lista mockada e KPIs locais                                                  | criar/editar/assinar/baixar/enviar fora                 | Primeira fase so acompanha mock local                            | view model + UI minima | billing, assinatura, PDF/share, WhatsApp, storage | view model + shell                   | parcial       |
+| Configuracoes operacionais simples    | Atalhos e preferencias operacionais                                                   | `src/ui/views/configuracoes.js`                                                                          | Conta placeholder sem acoes operacionais                                                                          | atalhos simples nao mapeados                            | Mapear antes de implementar                                      | doc/view model         | billing, assinatura, storage real                 | shell                                | pendente mock |
+| Estados vazios e onboarding funcional | Orientar primeiro cadastro/primeiro atendimento                                       | `src/ui/viewModels/dashboardViewModel.js`, `src/features/equipamentos/*`                                 | Estados vazios de Servicos, Equipamentos e escolha sem equipamento                                                | onboarding completo limitado                            | Usar mensagens locais e CTA contextual                           | UI minima              | redesign final                                    | shell                                | parcial       |
+| Pos-salvamento local                  | Oferecer saidas apos salvar e fallback                                                | `src/features/registro/save/postSave.js`                                                                 | Done state com relatorio local, proxima manutencao no fluxo e historico atualizado                                | orcamento a partir do fechamento ainda nao implementado | Substituir prompts por saidas v2 progressivas                    | mock/local             | PDF/share real, WhatsApp real                     | shell + action                       | parcial       |
+
+## 32. Checkpoint concluido - Orcamentos mockados dentro de Servicos
+
+O app-v2 passou a cobrir a primeira fatia segura de Orçamentos:
+
+- `Servicos` ganhou subvisao `Orcamentos` sem virar aba principal global;
+- `servicesQuotesViewModel` lista orcamentos mockados com numero, titulo,
+  cliente, equipamento, status e total;
+- a subvisao exibe KPIs locais de ativos, aprovados e pipeline;
+- o estado vazio orienta apenas etapa mock/local futura;
+- dados mockados incluem um orcamento de exemplo vinculado a cliente,
+  equipamento e registro;
+- nenhuma acao sensivel de PDF/share, WhatsApp, assinatura, billing, storage
+  real, Supabase/RLS ou PMOC foi implementada.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/service/servicesQuotesViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 20 testes.
+
+## 33. Proximo checkpoint recomendado
+
+> Historico de Servicos fase 1: adicionar busca/filtro local simples em
+> `Servicos > Registros` por equipamento, cliente, tecnico e texto do registro,
+> sem router novo, sem storage real e sem copiar UI do historico legado.
+
+## 34. Checkpoint concluido - Historico de Servicos fase 1 busca local
+
+O app-v2 passou a cobrir a primeira fatia segura de consulta do Historico dentro
+de `Servicos > Registros`:
+
+- `buildServicesHomeViewModel` aceita query local opcional;
+- a busca normaliza acentos e filtra por equipamento, cliente, local, tipo,
+  tecnico, diagnostico, acoes, observacoes, pecas e custos;
+- a tela `Servicos > Registros` ganhou input simples `Buscar registros`;
+- quando a busca nao encontra resultados, exibe mensagem local
+  `Nenhum registro encontrado.`;
+- nao houve router novo, storage real, filtros avancados, tela de historico
+  legada, CSS legado ou integracao sensivel.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 28 testes.
+
+## 35. Proximo checkpoint recomendado
+
+> Clientes fase 2: exibir servicos relacionados no detalhe de Cliente usando
+> registros mockados existentes, sem PMOC, sem storage real, sem router novo e
+> sem criar design novo.

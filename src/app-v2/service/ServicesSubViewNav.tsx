@@ -1,6 +1,6 @@
 import { appV2Tone } from '../styles/tokens';
 
-export type ServicesSubView = 'registros' | 'relatorios';
+export type ServicesSubView = 'registros' | 'relatorios' | 'orcamentos';
 
 interface ServicesSubViewNavProps {
   activeView: ServicesSubView;
@@ -10,6 +10,7 @@ interface ServicesSubViewNavProps {
 const subViews: Array<{ id: ServicesSubView; label: string }> = [
   { id: 'registros', label: 'Registros' },
   { id: 'relatorios', label: 'Relatorios' },
+  { id: 'orcamentos', label: 'Orcamentos' },
 ];
 
 export function ServicesSubViewNav({ activeView, onSelectView }: ServicesSubViewNavProps) {

@@ -208,6 +208,61 @@ describe('AppV2Shell', () => {
     expect(host.textContent).not.toContain('Registro de Servico Tecnico');
   });
 
+  it('abre Orcamentos dentro de Servicos com lista mockada sem acoes sensiveis', async () => {
+    const host = await renderShell(
+      createAppV2MockSnapshot({
+        orcamentos: [
+          {
+            id: 'orc-1',
+            numero: 'ORC-2026-001',
+            status: 'rascunho',
+            clienteId: 'cliente-1',
+            equipamentoId: 'eq-1',
+            registroId: 'registro-2',
+            titulo: 'Troca de controlador',
+            total: 1250,
+          },
+        ],
+      }),
+    );
+    const sidebar = host.querySelector('aside[aria-label="Navegacao principal"]');
+    const bottomNav = host.querySelector('nav[aria-label="Navegacao principal"]');
+
+    expect(sidebar?.textContent).not.toContain('Orcamentos');
+    expect(bottomNav?.textContent).not.toContain('Orcamentos');
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Orcamentos$/i);
+
+    expect(host.textContent).toContain('Pipeline local');
+    expect(host.textContent).toContain('ORC-2026-001');
+    expect(host.textContent).toContain('Troca de controlador');
+    expect(host.textContent).toContain('Mercado Bom');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('R$ 1.250,00');
+    expect(host.textContent).not.toContain('WhatsApp');
+    expect(host.textContent).not.toContain('PDF');
+    expect(host.textContent).not.toContain('Assinatura');
+  });
+
+  it('filtra registros recentes em Servicos por busca local', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Servi/i);
+
+    const search = host.querySelector('input[aria-label="Buscar registros"]');
+    expect(search).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(search as HTMLInputElement, 'camara');
+
+    expect(host.textContent).toMatch(/C.mara fria/);
+    expect(host.textContent).not.toContain('Split 24.000 BTU');
+
+    await fillInput(search as HTMLInputElement, 'sem resultado');
+
+    expect(host.textContent).toContain('Nenhum registro encontrado');
+  });
+
   it('abre o detalhe de equipamento a partir da lista', async () => {
     const host = await renderShell();
 

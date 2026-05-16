@@ -1,4 +1,10 @@
-import type { Cliente, Equipamento, RegistroServico, ServiceRecordStatus } from '../domain/types';
+import type {
+  Cliente,
+  Equipamento,
+  Orcamento,
+  RegistroServico,
+  ServiceRecordStatus,
+} from '../domain/types';
 import { formatServiceRecordKind, type ServiceDraft } from './serviceFlowViewModel';
 
 export type ServiceOutputStatus =
@@ -14,6 +20,7 @@ export interface BuildServicesHomeInput {
   clientes: Cliente[];
   equipamentos: Equipamento[];
   registros: RegistroServico[];
+  orcamentos: Orcamento[];
 }
 
 export interface ServicesHomeViewModel {
@@ -54,12 +61,23 @@ export interface RecentServiceViewModel {
   laborCost?: string;
   nextMaintenanceLabel?: string;
   outputStatus: ServiceOutputStatus;
+  searchText: string;
 }
 
 export function buildServicesHomeViewModel(
   input: BuildServicesHomeInput,
   draft: ServiceDraft | null,
+  query = '',
 ): ServicesHomeViewModel {
+  const allRecentServices = input.registros
+    .slice()
+    .sort((a, b) => b.data.localeCompare(a.data))
+    .map((registro) => mapRecentService(input, registro));
+  const normalizedQuery = normalizeSearch(query);
+  const recentServices = normalizedQuery
+    ? allRecentServices.filter((service) => service.searchText.includes(normalizedQuery))
+    : allRecentServices;
+
   return {
     title: 'Serviços',
     subtitle: 'Trabalho técnico',
@@ -70,10 +88,7 @@ export function buildServicesHomeViewModel(
       actionLabel: 'Iniciar registro',
     },
     inProgress: draft ? buildInProgress(input, draft) : null,
-    recentServices: input.registros
-      .slice()
-      .sort((a, b) => b.data.localeCompare(a.data))
-      .map((registro) => mapRecentService(input, registro)),
+    recentServices,
   };
 }
 
@@ -113,6 +128,22 @@ function mapRecentService(
     laborCost: registro.custoMaoObra?.trim() || undefined,
     nextMaintenanceLabel: registro.proximaData ? formatDateLabel(registro.proximaData) : undefined,
     outputStatus: getOutputStatus(registro),
+    searchText: normalizeSearch(
+      [
+        registro.id,
+        equipamento.nome,
+        cliente?.nome,
+        equipamento.local,
+        registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo),
+        registro.tecnico,
+        registro.diagnostico,
+        registro.acoesExecutadas,
+        registro.observacoes,
+        registro.pecas,
+        registro.custoPecas,
+        registro.custoMaoObra,
+      ].join(' '),
+    ),
   };
 }
 
@@ -193,4 +224,12 @@ function getOutputStatus(registro: RegistroServico): ServiceOutputStatus {
 function formatDateLabel(date: string): string {
   const [, month, day] = date.split('-');
   return `${day}/${month}`;
+}
+
+function normalizeSearch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
 }

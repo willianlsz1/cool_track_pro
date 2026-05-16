@@ -1,0 +1,145 @@
+import type { Cliente, Equipamento, Orcamento, QuoteStatus } from '../domain/types';
+import type { ServiceHomeTone } from './servicesHomeViewModel';
+
+export interface BuildServicesQuotesInput {
+  clientes: Cliente[];
+  equipamentos: Equipamento[];
+  orcamentos: Orcamento[];
+}
+
+export interface ServicesQuotesKpiViewModel {
+  label: string;
+  value: number;
+  valueLabel?: string;
+  tone: ServiceHomeTone;
+}
+
+export interface ServicesQuoteListItemViewModel {
+  id: string;
+  number: string;
+  title: string;
+  customerLine: string;
+  equipmentLine: string;
+  statusLabel: string;
+  statusTone: ServiceHomeTone;
+  totalLabel: string;
+}
+
+export interface ServicesQuotesViewModel {
+  title: 'Orcamentos';
+  subtitle: 'Pipeline local';
+  description: string;
+  emptyState: {
+    title: string;
+    description: string;
+  };
+  kpis: ServicesQuotesKpiViewModel[];
+  items: ServicesQuoteListItemViewModel[];
+  totalItems: number;
+}
+
+const openStatuses = new Set<QuoteStatus>(['rascunho', 'enviado', 'aguardando_assinatura']);
+const pipelineStatuses = new Set<QuoteStatus>(['rascunho', 'enviado']);
+
+export function buildServicesQuotesViewModel(
+  input: BuildServicesQuotesInput,
+): ServicesQuotesViewModel {
+  const items = input.orcamentos.map((orcamento) => mapQuoteItem(input, orcamento));
+
+  return {
+    title: 'Orcamentos',
+    subtitle: 'Pipeline local',
+    description: 'Orcamentos mockados vinculados a cliente, equipamento ou registro.',
+    emptyState: {
+      title: 'Nenhum orcamento mockado',
+      description: 'Orcamentos locais aparecerao aqui quando a etapa mockada for habilitada.',
+    },
+    kpis: buildKpis(input.orcamentos),
+    items,
+    totalItems: items.length,
+  };
+}
+
+function mapQuoteItem(
+  input: BuildServicesQuotesInput,
+  orcamento: Orcamento,
+): ServicesQuoteListItemViewModel {
+  const cliente = orcamento.clienteId
+    ? input.clientes.find((item) => item.id === orcamento.clienteId)
+    : undefined;
+  const equipamento = orcamento.equipamentoId
+    ? input.equipamentos.find((item) => item.id === orcamento.equipamentoId)
+    : undefined;
+  const statusMeta = getStatusMeta(orcamento.status);
+
+  return {
+    id: orcamento.id,
+    number: orcamento.numero,
+    title: orcamento.titulo.trim() || 'Orcamento sem titulo',
+    customerLine: cliente?.nome ?? 'Sem cliente vinculado',
+    equipmentLine: equipamento
+      ? `${equipamento.nome} - ${equipamento.local}`
+      : 'Sem equipamento vinculado',
+    statusLabel: statusMeta.label,
+    statusTone: statusMeta.tone,
+    totalLabel: formatCurrency(orcamento.total),
+  };
+}
+
+function buildKpis(orcamentos: Orcamento[]): ServicesQuotesKpiViewModel[] {
+  const pipelineValue = orcamentos
+    .filter((orcamento) => pipelineStatuses.has(orcamento.status))
+    .reduce((sum, orcamento) => sum + orcamento.total, 0);
+
+  return [
+    {
+      label: 'Ativos',
+      value: orcamentos.filter((orcamento) => openStatuses.has(orcamento.status)).length,
+      tone: 'primary',
+    },
+    {
+      label: 'Aprovados',
+      value: orcamentos.filter((orcamento) => orcamento.status === 'aprovado').length,
+      tone: 'success',
+    },
+    {
+      label: 'Pipeline',
+      value: pipelineValue,
+      valueLabel: formatCurrency(pipelineValue),
+      tone: 'warning',
+    },
+  ];
+}
+
+function getStatusMeta(status: QuoteStatus): { label: string; tone: ServiceHomeTone } {
+  if (status === 'aprovado') {
+    return { label: 'Aprovado', tone: 'success' };
+  }
+
+  if (status === 'recusado') {
+    return { label: 'Recusado', tone: 'danger' };
+  }
+
+  if (status === 'expirado') {
+    return { label: 'Expirado', tone: 'warning' };
+  }
+
+  if (status === 'enviado') {
+    return { label: 'Enviado', tone: 'primary' };
+  }
+
+  if (status === 'aguardando_assinatura') {
+    return { label: 'Aguardando assinatura', tone: 'warning' };
+  }
+
+  return { label: 'Rascunho', tone: 'muted' };
+}
+
+function formatCurrency(value: number): string {
+  return value
+    .toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+    .replace(/\u00a0/g, ' ');
+}

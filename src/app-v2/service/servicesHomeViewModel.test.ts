@@ -55,6 +55,7 @@ const baseInput: BuildServicesHomeInput = {
       observacoes: 'Ruído no compressor e orientação ao cliente.',
     },
   ] satisfies RegistroServico[],
+  orcamentos: [],
 };
 
 describe('servicesHomeViewModel', () => {
@@ -111,6 +112,16 @@ describe('servicesHomeViewModel', () => {
       'proximo_compromisso_sugerido',
       'orcamento_sugerido',
     ]);
+  });
+
+  it('filtra registros por equipamento, cliente, tecnico e texto', () => {
+    expect(buildServicesHomeViewModel(baseInput, null, 'camara').recentServices).toHaveLength(1);
+    expect(buildServicesHomeViewModel(baseInput, null, 'ruido').recentServices[0]?.id).toBe(
+      'registro-2',
+    );
+    expect(buildServicesHomeViewModel(baseInput, null, 'mercado').recentServices).toHaveLength(2);
+    expect(buildServicesHomeViewModel(baseInput, null, 'tecnico').recentServices).toHaveLength(2);
+    expect(buildServicesHomeViewModel(baseInput, null, 'sem resultado').recentServices).toEqual([]);
   });
 
   it('usa descricao customizada de Outro nos registros recentes', () => {

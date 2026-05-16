@@ -138,5 +138,16 @@ export const appV2MockData: AppV2MockData = {
     },
   ],
   tecnicos: ['TÃ©cnico'],
-  orcamentos: [],
+  orcamentos: [
+    {
+      id: 'orcamento-1',
+      numero: 'ORC-2026-001',
+      status: 'rascunho',
+      clienteId: 'cliente-1',
+      equipamentoId: 'eq-2',
+      registroId: 'registro-2',
+      titulo: 'Troca de controlador da camara fria',
+      total: 1250,
+    },
+  ],
 };
