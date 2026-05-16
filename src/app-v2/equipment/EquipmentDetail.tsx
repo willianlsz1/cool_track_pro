@@ -1,8 +1,12 @@
+import { useState } from 'react';
+
 import {
   buildEquipmentDetailViewModel,
   type BuildEquipmentViewModelInput,
   type EquipmentTone,
 } from './equipmentViewModel';
+import { EquipmentForm } from './EquipmentForm';
+import type { SaveEquipmentDraft } from './equipmentActions';
 import {
   mockEquipmentClientes,
   mockEquipmentCompromissos,
@@ -19,6 +23,7 @@ interface EquipmentDetailProps {
   onBack: () => void;
   onOpenClient?: (clientId: string) => void;
   onStartService?: (equipmentId: string) => void;
+  onSaveEquipment?: (draft: SaveEquipmentDraft) => string | null;
 }
 
 const accentClasses: Record<EquipmentTone, string> = {
@@ -42,8 +47,12 @@ export function EquipmentDetail({
   onBack,
   onOpenClient,
   onStartService,
+  onSaveEquipment,
 }: EquipmentDetailProps) {
-  const detail = buildEquipmentDetailViewModel(input ?? defaultEquipmentInput, equipmentId);
+  const equipmentInput = input ?? defaultEquipmentInput;
+  const detail = buildEquipmentDetailViewModel(equipmentInput, equipmentId);
+  const equipment = equipmentInput.equipamentos.find((item) => item.id === equipmentId);
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <PageShell>
@@ -96,8 +105,31 @@ export function EquipmentDetail({
               {detail.primaryActionLabel}
             </ActionButton>
             <ActionButton variant="secondary">{detail.secondaryActionLabel}</ActionButton>
+            {onSaveEquipment && equipment ? (
+              <ActionButton variant="ghost" onClick={() => setIsEditing(true)}>
+                Editar equipamento
+              </ActionButton>
+            ) : null}
           </div>
         </SectionCard>
+
+        {isEditing && onSaveEquipment && equipment ? (
+          <EquipmentForm
+            title="Editar equipamento"
+            clientes={equipmentInput.clientes}
+            initialEquipment={equipment}
+            onCancel={() => setIsEditing(false)}
+            onSave={(draft) => {
+              const result = onSaveEquipment(draft);
+
+              if (!result) {
+                setIsEditing(false);
+              }
+
+              return result;
+            }}
+          />
+        ) : null}
 
         <div className="tw-grid tw-gap-4">
           <SectionCard labelledBy="technical-summary-title">

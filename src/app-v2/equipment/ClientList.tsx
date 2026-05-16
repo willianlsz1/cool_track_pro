@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
+import { ClientForm } from './ClientForm';
+import type { SaveClientDraft } from './clientActions';
 import {
   buildEquipmentClientsListViewModel,
   type EquipmentClientsListViewModel,
@@ -14,13 +16,14 @@ import {
   mockEquipmentToday,
 } from './mockEquipmentData';
 import { appV2Tone } from '../styles/tokens';
-import { ListRow, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import { ActionButton, ListRow, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
 
 interface ClientListProps {
   input?: BuildEquipmentViewModelInput;
   activeView: EquipmentSubView;
   onSelectView: (view: EquipmentSubView) => void;
   onOpenClient: (clientId: string) => void;
+  onSaveClient: (draft: SaveClientDraft) => string | null;
 }
 
 const defaultEquipmentInput: BuildEquipmentViewModelInput = {
@@ -31,11 +34,29 @@ const defaultEquipmentInput: BuildEquipmentViewModelInput = {
   registros: mockEquipmentRegistros,
 };
 
-export function ClientList({ input, activeView, onSelectView, onOpenClient }: ClientListProps) {
+export function ClientList({
+  input,
+  activeView,
+  onSelectView,
+  onOpenClient,
+  onSaveClient,
+}: ClientListProps) {
+  const [isCreating, setIsCreating] = useState(false);
   const viewModel = useMemo<EquipmentClientsListViewModel>(
     () => buildEquipmentClientsListViewModel(input ?? defaultEquipmentInput),
     [input],
   );
+  const clients = input?.clientes ?? defaultEquipmentInput.clientes;
+
+  function saveClientDraft(draft: SaveClientDraft): string | null {
+    const error = onSaveClient(draft);
+
+    if (!error) {
+      setIsCreating(false);
+    }
+
+    return error;
+  }
 
   return (
     <PageShell>
@@ -69,6 +90,14 @@ export function ClientList({ input, activeView, onSelectView, onOpenClient }: Cl
 
       <EquipmentSubViewNav activeView={activeView} onSelectView={onSelectView} />
 
+      {isCreating ? (
+        <ClientForm
+          title="Novo cliente"
+          onCancel={() => setIsCreating(false)}
+          onSave={saveClientDraft}
+        />
+      ) : null}
+
       <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="clients-list-title">
         <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-5">
           <div className="tw-min-w-0">
@@ -82,9 +111,10 @@ export function ClientList({ input, activeView, onSelectView, onOpenClient }: Cl
               Detalhe do cliente e equipamentos vinculados.
             </p>
           </div>
+          <ActionButton onClick={() => setIsCreating(true)}>Novo cliente</ActionButton>
         </div>
 
-        {viewModel.items.length === 0 ? (
+        {clients.length === 0 ? (
           <ListRow>
             <p className={`tw-m-0 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
               Nenhum cliente disponivel.

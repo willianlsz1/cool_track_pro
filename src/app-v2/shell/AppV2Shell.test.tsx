@@ -79,6 +79,15 @@ describe('AppV2Shell', () => {
     vi.restoreAllMocks();
   });
 
+  it('mostra lista curta de alertas ativos na Home sem abrir area sensivel', async () => {
+    const host = await renderShell();
+
+    expect(host.textContent).toContain('Alertas ativos');
+    expect(host.textContent).toContain('Equipamento fora de operacao');
+    expect(host.textContent).toContain('Status atual marcado como critico');
+    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
+  });
+
   it('aplica a conclusao do servico na store mockada exibida pela Central', async () => {
     const host = await renderShell();
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
@@ -111,7 +120,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Registro de Servico Tecnico');
     expect(host.textContent).toContain('CoolTrack Pro app-v2');
     expect(host.textContent).toContain('Mercado Bom');
-    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Câmara fria');
     expect(host.textContent).toContain('Ana Tecnica');
     expect(host.textContent).not.toContain('Técnico app-v2');
     expect(host.textContent).toContain('QA diagnóstico shell store.');
@@ -184,7 +193,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Pendentes');
     expect(host.textContent).toContain('Este mes');
     expect(host.textContent).toContain('REL-REGISTRO-1');
-    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Câmara fria');
 
     const search = host.querySelector('input[aria-label="Buscar relatorios"]');
     expect(search).toBeInstanceOf(HTMLInputElement);
@@ -274,6 +283,69 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Cliente vinculado');
   });
 
+  it('cria equipamento mockado pela lista sem storage real', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Novo equipamento$/i);
+
+    const name = host.querySelector('input[name="equipment-name"]');
+    const location = host.querySelector('input[name="equipment-location"]');
+    const type = host.querySelector('input[name="equipment-type"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(location).toBeInstanceOf(HTMLInputElement);
+    expect(type).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(name as HTMLInputElement, 'Self contained loja');
+    await fillInput(location as HTMLInputElement, 'Area de vendas');
+    await fillInput(type as HTMLInputElement, 'Refrigeracao');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Self contained loja');
+    expect(host.textContent).toContain('Refrigeracao');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('mostra erro amigavel ao criar equipamento sem local', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Novo equipamento$/i);
+
+    const name = host.querySelector('input[name="equipment-name"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    await fillInput(name as HTMLInputElement, 'Self contained loja');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Informe o local do equipamento.');
+  });
+
+  it('edita equipamento existente pelo detalhe preservando id e sem duplicar lista', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Editar equipamento$/i);
+
+    const name = host.querySelector('input[name="equipment-name"]');
+    const location = host.querySelector('input[name="equipment-location"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(location).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(name as HTMLInputElement, 'Split recepcao revisado');
+    await fillInput(location as HTMLInputElement, 'Recepcao principal');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Split recepcao revisado');
+    expect(host.textContent).toContain('Recepcao principal');
+
+    await clickButton(host, /^Voltar para equipamentos$/i);
+
+    expect(host.textContent).toContain('Split recepcao revisado');
+    expect(host.textContent).not.toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('4 equipamentos');
+  });
+
   it('abre Clientes como subvisao dentro de Equipamentos e retorna para a lista', async () => {
     const host = await renderShell();
 
@@ -307,13 +379,125 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Cliente vinculado');
   });
 
+  it('mostra servicos relacionados no detalhe de cliente sem abrir PMOC ou historico legado', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+    await clickButton(host, /Mercado Bom/i);
+
+    expect(host.textContent).toContain('Servicos relacionados');
+    expect(host.textContent).toContain('2 servicos relacionados');
+    expect(host.textContent).toMatch(/C.mara fria/);
+    expect(host.textContent).toContain('Alarme intermitente no controlador.');
+    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
+  });
+
+  it('cria cliente mockado dentro de Equipamentos > Clientes sem storage real', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+    await clickButton(host, /^Novo cliente$/i);
+
+    const name = host.querySelector('input[name="client-name"]');
+    const contact = host.querySelector('input[name="client-contact"]');
+    const address = host.querySelector('input[name="client-address"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(contact).toBeInstanceOf(HTMLInputElement);
+    expect(address).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(name as HTMLInputElement, 'Padaria Central');
+    await fillInput(contact as HTMLInputElement, '(11) 97777-0000');
+    await fillInput(address as HTMLInputElement, 'Rua Central, 42');
+    await clickButton(host, /^Salvar cliente$/i);
+
+    expect(host.textContent).toContain('Padaria Central');
+    expect(host.textContent).toContain('(11) 97777-0000');
+    expect(host.textContent).toContain('3 clientes');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('mostra erro amigavel ao criar cliente sem nome', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+    await clickButton(host, /^Novo cliente$/i);
+    await clickButton(host, /^Salvar cliente$/i);
+
+    expect(host.textContent).toContain('Informe o nome do cliente.');
+  });
+
+  it('edita cliente existente pelo detalhe preservando a subvisao de clientes', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+    await clickButton(host, /Mercado Bom/i);
+    await clickButton(host, /^Editar cliente$/i);
+
+    const name = host.querySelector('input[name="client-name"]');
+    const contact = host.querySelector('input[name="client-contact"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(contact).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(name as HTMLInputElement, 'Mercado Bom revisado');
+    await fillInput(contact as HTMLInputElement, '(11) 96666-0000');
+    await clickButton(host, /^Salvar cliente$/i);
+
+    expect(host.textContent).toContain('Mercado Bom revisado');
+    expect(host.textContent).toContain('(11) 96666-0000');
+    expect(host.textContent).toContain('Equipamentos vinculados');
+
+    await clickButton(host, /^Voltar para clientes$/i);
+
+    expect(host.textContent).toContain('Mercado Bom revisado');
+    expect(host.textContent).toContain('2 clientes');
+  });
+
+  it('vincula cliente recem-criado ao formulario de equipamento sem storage real', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+    await clickButton(host, /^Novo cliente$/i);
+
+    const clientName = host.querySelector('input[name="client-name"]');
+    expect(clientName).toBeInstanceOf(HTMLInputElement);
+    await fillInput(clientName as HTMLInputElement, 'Padaria Central');
+    await clickButton(host, /^Salvar cliente$/i);
+
+    await clickButton(host, /Padaria Central/i);
+    await clickButton(host, /^Criar equipamento para este cliente$/i);
+
+    const equipmentClient = host.querySelector('select[name="equipment-client"]');
+    expect(equipmentClient).toBeInstanceOf(HTMLSelectElement);
+    expect((equipmentClient as HTMLSelectElement).selectedOptions[0]?.textContent).toBe(
+      'Padaria Central',
+    );
+
+    const equipmentName = host.querySelector('input[name="equipment-name"]');
+    const equipmentLocation = host.querySelector('input[name="equipment-location"]');
+    expect(equipmentName).toBeInstanceOf(HTMLInputElement);
+    expect(equipmentLocation).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(equipmentName as HTMLInputElement, 'Balcao refrigerado');
+    await fillInput(equipmentLocation as HTMLInputElement, 'Vitrine');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Balcao refrigerado');
+    expect(host.textContent).toContain('Padaria Central');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
   it('inicia e retoma um servico em andamento pelo shell', async () => {
     const host = await renderShell();
 
     await clickButton(host, /Iniciar servi/i);
     expect(host.textContent).toContain('Registro de servi');
     expect(host.textContent).toContain('Atendimento em andamento');
-    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Câmara fria');
     expect(host.textContent).toContain('Mercado Bom');
     expect(host.textContent).toContain('Contexto');
 
@@ -402,6 +586,36 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Ir para Equipamentos$/i);
 
     expect(host.textContent).toContain('Parque');
+  });
+
+  it('inicia registro apos cadastrar o primeiro equipamento vindo do estado vazio', async () => {
+    const host = await renderShell(
+      createAppV2MockSnapshot({
+        equipamentos: [],
+        compromissos: [],
+        registros: [],
+        orcamentos: [],
+      }),
+    );
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /Iniciar registro/i);
+    await clickButton(host, /^Ir para Equipamentos$/i);
+    await clickButton(host, /^Novo equipamento$/i);
+
+    const name = host.querySelector('input[name="equipment-name"]');
+    const location = host.querySelector('input[name="equipment-location"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(location).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(name as HTMLInputElement, 'Self contained inicial');
+    await fillInput(location as HTMLInputElement, 'Area de vendas');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Atendimento em andamento');
+    expect(host.textContent).toContain('Self contained inicial');
+    expect(host.textContent).toContain('Area de vendas');
   });
 
   it('mostra mensagem amigavel quando a data mockada impede concluir o servico', async () => {

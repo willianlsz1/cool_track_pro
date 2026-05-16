@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { EquipmentCard } from './EquipmentCard';
+import { EquipmentForm } from './EquipmentForm';
 import { EquipmentSubViewNav, type EquipmentSubView } from './EquipmentSubViewNav';
+import type { SaveEquipmentDraft } from './equipmentActions';
 import {
   buildEquipmentListViewModel,
   type EquipmentFilter,
@@ -23,6 +25,9 @@ interface EquipmentListProps {
   activeView: EquipmentSubView;
   onSelectView: (view: EquipmentSubView) => void;
   onOpenEquipment: (equipmentId: string) => void;
+  onSaveEquipment?: (draft: SaveEquipmentDraft) => string | null;
+  initialClientId?: string | null;
+  onInitialClientHandled?: () => void;
 }
 
 const filters: Array<{ id: EquipmentFilter; label: string }> = [
@@ -45,13 +50,28 @@ export function EquipmentList({
   activeView,
   onSelectView,
   onOpenEquipment,
+  onSaveEquipment,
+  initialClientId,
+  onInitialClientHandled,
 }: EquipmentListProps) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<EquipmentFilter>('all');
+  const [isCreating, setIsCreating] = useState(Boolean(initialClientId));
   const viewModel = useMemo<EquipmentListViewModel>(
     () => buildEquipmentListViewModel(input ?? defaultEquipmentInput, { query, filter }),
     [filter, input, query],
   );
+
+  useEffect(() => {
+    if (initialClientId) {
+      setIsCreating(true);
+    }
+  }, [initialClientId]);
+
+  function closeCreateForm() {
+    setIsCreating(false);
+    onInitialClientHandled?.();
+  }
 
   return (
     <PageShell>
@@ -80,6 +100,35 @@ export function EquipmentList({
           </span>
         </SectionCard>
       </header>
+
+      {onSaveEquipment ? (
+        isCreating ? (
+          <EquipmentForm
+            key={initialClientId ?? 'new-equipment'}
+            title="Novo equipamento"
+            clientes={(input ?? defaultEquipmentInput).clientes}
+            initialClientId={initialClientId ?? undefined}
+            onCancel={closeCreateForm}
+            onSave={(draft) => {
+              const result = onSaveEquipment(draft);
+
+              if (!result) {
+                closeCreateForm();
+              }
+
+              return result;
+            }}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsCreating(true)}
+            className={`tw-self-start tw-rounded-xl tw-border tw-bg-white tw-px-4 tw-py-3 tw-text-sm tw-font-bold tw-text-[#2563EB] ${appV2Tone.border} ${appV2Tone.focus}`}
+          >
+            Novo equipamento
+          </button>
+        )
+      ) : null}
 
       <EquipmentSubViewNav activeView={activeView} onSelectView={onSelectView} />
 

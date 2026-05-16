@@ -42,4 +42,18 @@ describe('buildEquipmentClientDetailViewModel', () => {
     expect(detail.equipmentCountLabel).toBe('3 equipamentos vinculados');
     expect(detail.equipments.map((item) => item.id)).toEqual(['eq-1', 'eq-2', 'eq-4']);
   });
+
+  it('monta servicos relacionados ao cliente a partir dos equipamentos vinculados', () => {
+    const detail = buildEquipmentClientDetailViewModel(createInput(), 'cliente-1');
+
+    expect(detail.services.map((item) => item.id)).toEqual(['registro-2', 'registro-1']);
+    expect(detail.services[0]).toMatchObject({
+      equipmentName: 'Câmara fria',
+      kindLabel: 'Corretiva',
+      dateLabel: '09/05',
+      statusLabel: 'AtenÃ§Ã£o',
+      summary: 'Alarme intermitente no controlador.',
+    });
+    expect(detail.servicesCountLabel).toBe('2 servicos relacionados');
+  });
 });

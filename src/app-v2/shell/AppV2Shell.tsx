@@ -4,6 +4,8 @@ import { ClientDetail } from '../equipment/ClientDetail';
 import { ClientList } from '../equipment/ClientList';
 import { EquipmentDetail } from '../equipment/EquipmentDetail';
 import { EquipmentList } from '../equipment/EquipmentList';
+import { saveClient, type SaveClientDraft } from '../equipment/clientActions';
+import { saveEquipment, type SaveEquipmentDraft } from '../equipment/equipmentActions';
 import type { EquipmentSubView } from '../equipment/EquipmentSubViewNav';
 import { HomeToday } from '../home/HomeToday';
 import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNav';
@@ -39,6 +41,8 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   const [isServiceFlowOpen, setIsServiceFlowOpen] = useState(false);
   const [isServiceEquipmentChoiceOpen, setIsServiceEquipmentChoiceOpen] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [startServiceAfterEquipmentCreate, setStartServiceAfterEquipmentCreate] = useState(false);
+  const [equipmentFormClientId, setEquipmentFormClientId] = useState<string | null>(null);
   const operationalState = selectAppV2OperationalState(appState);
   const serviceDraft = operationalState.serviceDraft;
 
@@ -49,10 +53,16 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setSelectedEquipmentId(null);
       setSelectedClientId(null);
       setEquipmentSubView('equipments');
+      setEquipmentFormClientId(null);
     }
 
     if (tab !== 'servicos') {
       setIsServiceEquipmentChoiceOpen(false);
+    }
+
+    if (tab !== 'equipamento') {
+      setStartServiceAfterEquipmentCreate(false);
+      setEquipmentFormClientId(null);
     }
   }
 
@@ -74,6 +84,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     setEquipmentSubView(view);
     setSelectedEquipmentId(null);
     setSelectedClientId(null);
+    setEquipmentFormClientId(null);
   }
 
   function startServiceFromEquipment(equipmentId: string, commitmentId?: string) {
@@ -127,6 +138,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     setSelectedEquipmentId(null);
     setSelectedClientId(null);
     setEquipmentSubView('equipments');
+    setStartServiceAfterEquipmentCreate(true);
     setActiveTab('equipamento');
   }
 
@@ -135,6 +147,64 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       ...current,
       serviceDraft: draft,
     }));
+  }
+
+  function saveEquipmentDraft(draft: SaveEquipmentDraft): string | null {
+    try {
+      const equipmentId =
+        draft.id || createNextEquipmentId(appState.equipamentos.length + 1, appState);
+      const nextState = saveEquipment(appState, {
+        ...draft,
+        id: equipmentId,
+      });
+
+      if (startServiceAfterEquipmentCreate && draft.mode !== 'edit') {
+        const serviceState = startServiceFlowAction(nextState, equipmentId);
+
+        setAppState(serviceState);
+        setEditingServiceId(null);
+        setIsServiceFlowOpen(true);
+        setIsServiceEquipmentChoiceOpen(false);
+        setStartServiceAfterEquipmentCreate(false);
+        setActiveTab('servicos');
+        return null;
+      }
+
+      setAppState({
+        ...nextState,
+        serviceDraft: appState.serviceDraft,
+      });
+      setStartServiceAfterEquipmentCreate(false);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel salvar o equipamento.';
+    }
+  }
+
+  function saveClientDraft(draft: SaveClientDraft): string | null {
+    try {
+      const clientId = draft.id || createNextClientId(appState.clientes.length + 1, appState);
+      const nextState = saveClient(appState, {
+        ...draft,
+        id: clientId,
+      });
+
+      setAppState({
+        ...nextState,
+        serviceDraft: appState.serviceDraft,
+      });
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel salvar o cliente.';
+    }
+  }
+
+  function createEquipmentForClient(clientId: string) {
+    setSelectedClientId(null);
+    setSelectedEquipmentId(null);
+    setEquipmentSubView('equipments');
+    setEquipmentFormClientId(clientId);
+    setActiveTab('equipamento');
   }
 
   function completeCurrentService(draft: ServiceDraft) {
@@ -220,6 +290,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             onBack={() => setSelectedEquipmentId(null)}
             onOpenClient={openClient}
             onStartService={startServiceFromEquipment}
+            onSaveEquipment={saveEquipmentDraft}
           />
         ) : null}
 
@@ -229,6 +300,8 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             input={operationalState.equipmentInput}
             onBack={() => setSelectedClientId(null)}
             onOpenEquipment={openEquipment}
+            onSaveClient={saveClientDraft}
+            onCreateEquipmentForClient={createEquipmentForClient}
           />
         ) : null}
 
@@ -239,6 +312,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
               activeView={equipmentSubView}
               onSelectView={selectEquipmentSubView}
               onOpenClient={openClient}
+              onSaveClient={saveClientDraft}
             />
           ) : (
             <EquipmentList
@@ -246,6 +320,9 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
               activeView={equipmentSubView}
               onSelectView={selectEquipmentSubView}
               onOpenEquipment={openEquipment}
+              onSaveEquipment={saveEquipmentDraft}
+              initialClientId={equipmentFormClientId}
+              onInitialClientHandled={() => setEquipmentFormClientId(null)}
             />
           )
         ) : null}
@@ -298,6 +375,28 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       <BottomNav activeTab={activeTab} onSelectTab={selectTab} />
     </div>
   );
+}
+
+function createNextEquipmentId(seed: number, snapshot: AppV2MockSnapshot): string {
+  let nextId = `eq-shell-${seed}`;
+
+  while (snapshot.equipamentos.some((item) => item.id === nextId)) {
+    seed += 1;
+    nextId = `eq-shell-${seed}`;
+  }
+
+  return nextId;
+}
+
+function createNextClientId(seed: number, snapshot: AppV2MockSnapshot): string {
+  let nextId = `cliente-shell-${seed}`;
+
+  while (snapshot.clientes.some((item) => item.id === nextId)) {
+    seed += 1;
+    nextId = `cliente-shell-${seed}`;
+  }
+
+  return nextId;
 }
 
 function Placeholder({ title, description }: { title: string; description: string }) {

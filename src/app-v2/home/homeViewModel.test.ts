@@ -37,7 +37,7 @@ const registroSplit: RegistroServico = {
 };
 
 describe('buildHomeTodayViewModel', () => {
-  it('destaca preventiva vencida como próxima ação operacional', () => {
+  it('prioriza alerta critico e expoe contador de alertas operacionais', () => {
     const compromissos: CompromissoServico[] = [
       {
         id: 'compromisso-1',
@@ -66,16 +66,16 @@ describe('buildHomeTodayViewModel', () => {
     });
 
     expect(viewModel.context).toBe('Atendimentos de hoje');
-    expect(viewModel.nextAction.title).toBe('Preventiva vencida');
-    expect(viewModel.nextAction.equipmentId).toBe('eq-1');
-    expect(viewModel.nextAction.equipmentName).toBe('Split 24.000 BTU');
-    expect(viewModel.nextAction.customerLine).toBe('Mercado Bom Preço · Recepção');
-    expect(viewModel.nextAction.reason).toBe('Preventiva vencida há 2 dias');
-    expect(viewModel.nextAction.primaryCta).toBe('Iniciar serviço');
+    expect(viewModel.nextAction.title).toBe('Equipamento fora de operacao');
+    expect(viewModel.nextAction.equipmentId).toBe('eq-2');
+    expect(viewModel.nextAction.equipmentName).toBe('Câmara fria');
+    expect(viewModel.nextAction.customerLine).toBe('Mercado Bom Preço · Estoque');
+    expect(viewModel.nextAction.reason).toBe('Status atual marcado como critico');
+    expect(viewModel.nextAction.primaryCta).toBe('Registrar servico');
     expect(viewModel.nextAction.secondaryAction).toBe('Ver equipamento');
     expect(viewModel.nextAction.tone).toBe('danger');
     expect(viewModel.nextAction.equipmentVisual).toEqual({
-      fallbackLabel: 'Ar condicionado',
+      fallbackLabel: 'Refrigeração',
     });
     expect(viewModel.dateLabel).toBe('10/05');
     expect(viewModel.quickStats).toEqual([
@@ -89,9 +89,9 @@ describe('buildHomeTodayViewModel', () => {
       },
       {
         id: 'overdue',
-        label: 'Vencido',
-        value: '1',
-        detail: 'vencido',
+        label: 'Alertas',
+        value: '2',
+        detail: 'alertas ativos',
         tone: 'danger',
         icon: 'alert',
       },
@@ -107,6 +107,15 @@ describe('buildHomeTodayViewModel', () => {
     expect(viewModel.queue).toHaveLength(2);
     expect(viewModel.queue[0]?.equipmentId).toBe('eq-1');
     expect(viewModel.queue[0]?.title).toBe('Preventiva · Split 24.000 BTU');
+    expect(viewModel.alerts.map((alert) => alert.title)).toEqual([
+      'Equipamento fora de operacao',
+      'Preventiva vencida',
+    ]);
+    expect(viewModel.alerts[0]).toMatchObject({
+      equipmentName: 'Câmara fria',
+      detail: 'Status atual marcado como critico',
+      tone: 'danger',
+    });
     expect(viewModel.aside.nextInQueue?.title).toBe('Corretiva · Câmara fria');
     expect(viewModel.aside.summary.map((item) => item.id)).not.toContain('estimated-time');
   });

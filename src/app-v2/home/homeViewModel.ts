@@ -1,4 +1,5 @@
 import { pickNextHomeAction } from '../domain/homePriority';
+import { buildHomeAlerts, type HomeAlert } from '../domain/homeAlerts';
 import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '../domain/types';
 
 type HomeActionTone = 'danger' | 'warning' | 'primary' | 'calm';
@@ -41,6 +42,14 @@ export interface HomeTodayViewModel {
     tone: QueueTone;
     iconLabel: string;
   }>;
+  alerts: Array<{
+    id: string;
+    equipmentId: string;
+    equipmentName: string;
+    title: string;
+    detail: string;
+    tone: QueueTone;
+  }>;
   aside: {
     summary: Array<{
       id: string;
@@ -67,11 +76,17 @@ export interface BuildHomeTodayViewModelInput {
 }
 
 export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): HomeTodayViewModel {
+  const alerts = buildHomeAlerts(input);
   const nextAction = pickNextHomeAction(input);
   const clientesById = new Map(input.clientes.map((cliente) => [cliente.id, cliente]));
   const equipamentosById = new Map(
     input.equipamentos.map((equipamento) => [equipamento.id, equipamento]),
   );
+  const alertNextAction = mapAlertNextAction({
+    alert: alerts[0],
+    clientesById,
+    equipamentosById,
+  });
   const queue = buildQueue({
     today: input.today,
     clientesById,
@@ -79,7 +94,7 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
     compromissos: input.compromissos,
   });
   const scheduledCommitments = input.compromissos.filter((item) => item.status === 'agendado');
-  const overdueCount = scheduledCommitments.filter((item) => item.dataAlvo < input.today).length;
+  const dangerAlertCount = alerts.filter((alert) => alert.severity === 'danger').length;
   const completedToday = input.registros.filter((registro) => registro.data === input.today).length;
 
   return {
@@ -98,10 +113,10 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
       },
       {
         id: 'overdue',
-        label: 'Vencido',
-        value: String(overdueCount),
-        detail: overdueCount === 1 ? 'vencido' : 'vencidos',
-        tone: overdueCount > 0 ? 'danger' : 'primary',
+        label: 'Alertas',
+        value: String(alerts.length),
+        detail: alerts.length === 1 ? 'alerta ativo' : 'alertas ativos',
+        tone: dangerAlertCount > 0 ? 'danger' : alerts.length > 0 ? 'warning' : 'primary',
         icon: 'alert',
       },
       {
@@ -113,14 +128,28 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
         icon: 'next',
       },
     ],
-    nextAction: mapNextAction({
-      action: nextAction,
-      today: input.today,
-      clientesById,
-      equipamentosById,
-      compromissos: input.compromissos,
-    }),
+    nextAction:
+      alertNextAction ??
+      mapNextAction({
+        action: nextAction,
+        today: input.today,
+        clientesById,
+        equipamentosById,
+        compromissos: input.compromissos,
+      }),
     queue,
+    alerts: alerts.slice(0, 3).map((alert) => {
+      const equipamento = equipamentosById.get(alert.equipamentoId);
+
+      return {
+        id: alert.id,
+        equipmentId: alert.equipamentoId,
+        equipmentName: equipamento?.nome ?? 'Equipamento',
+        title: alert.title,
+        detail: alert.detail,
+        tone: alert.severity === 'danger' ? 'danger' : 'warning',
+      };
+    }),
     aside: {
       summary: [
         {
@@ -131,9 +160,9 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
         },
         {
           id: 'overdue',
-          value: String(overdueCount),
-          label: overdueCount === 1 ? 'Vencido' : 'Vencidos',
-          tone: overdueCount > 0 ? 'danger' : 'primary',
+          value: String(alerts.length),
+          label: alerts.length === 1 ? 'Alerta ativo' : 'Alertas ativos',
+          tone: dangerAlertCount > 0 ? 'danger' : alerts.length > 0 ? 'warning' : 'primary',
         },
         {
           id: 'done',
@@ -152,6 +181,34 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
         : undefined,
       note: 'Verifique o histórico do equipamento antes de iniciar o atendimento.',
     },
+  };
+}
+
+function mapAlertNextAction({
+  alert,
+  clientesById,
+  equipamentosById,
+}: {
+  alert: HomeAlert | undefined;
+  clientesById: Map<string, Cliente>;
+  equipamentosById: Map<string, Equipamento>;
+}): HomeTodayViewModel['nextAction'] | undefined {
+  if (!alert || alert.kind !== 'critical_status') {
+    return undefined;
+  }
+
+  const equipamento = equipamentosById.get(alert.equipamentoId);
+
+  return {
+    title: alert.title,
+    equipmentId: alert.equipamentoId,
+    equipmentName: equipamento?.nome,
+    customerLine: formatCustomerLine(equipamento, clientesById),
+    reason: alert.detail,
+    primaryCta: 'Registrar servico',
+    secondaryAction: 'Ver equipamento',
+    tone: 'danger',
+    equipmentVisual: buildEquipmentVisual(equipamento),
   };
 }
 

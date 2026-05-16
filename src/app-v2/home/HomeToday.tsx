@@ -112,7 +112,11 @@ export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayP
           <ShortQueue items={viewModel.queue} onOpenItem={onOpenEquipment} />
         </div>
 
-        <HomeAside aside={viewModel.aside} />
+        <HomeAside
+          aside={viewModel.aside}
+          alerts={viewModel.alerts}
+          onOpenAlert={onOpenEquipment}
+        />
       </div>
     </PageShell>
   );
@@ -156,7 +160,15 @@ function QuickStats({ stats }: { stats: HomeTodayViewModel['quickStats'] }) {
   );
 }
 
-function HomeAside({ aside }: { aside: HomeTodayViewModel['aside'] }) {
+function HomeAside({
+  aside,
+  alerts,
+  onOpenAlert,
+}: {
+  aside: HomeTodayViewModel['aside'];
+  alerts: HomeTodayViewModel['alerts'];
+  onOpenAlert?: (equipmentId: string) => void;
+}) {
   return (
     <aside className="tw-flex tw-flex-col tw-gap-4" aria-label="Resumo auxiliar do turno">
       <SectionCard>
@@ -186,6 +198,45 @@ function HomeAside({ aside }: { aside: HomeTodayViewModel['aside'] }) {
           ))}
         </div>
       </SectionCard>
+
+      {alerts.length > 0 ? (
+        <SectionCard>
+          <h2 className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
+            Alertas ativos
+          </h2>
+          <div className={`tw-mt-4 tw-divide-y ${appV2Tone.border}`}>
+            {alerts.map((alert) => (
+              <button
+                key={alert.id}
+                type="button"
+                onClick={() => onOpenAlert?.(alert.equipmentId)}
+                className="tw-w-full tw-bg-transparent tw-py-4 tw-text-left tw-transition first:tw-pt-0 last:tw-pb-0 hover:tw-text-[#2563EB]"
+              >
+                <span className="tw-flex tw-items-start tw-justify-between tw-gap-3">
+                  <span className="tw-min-w-0">
+                    <span className={`tw-block tw-text-sm tw-font-bold ${appV2Tone.text}`}>
+                      {alert.title}
+                    </span>
+                    <span
+                      className={`tw-mt-1 tw-block tw-text-xs tw-font-semibold ${appV2Tone.mutedText}`}
+                    >
+                      {alert.equipmentName}
+                    </span>
+                    <span
+                      className={`tw-mt-2 tw-block tw-text-xs tw-font-medium ${appV2Tone.subtleText}`}
+                    >
+                      {alert.detail}
+                    </span>
+                  </span>
+                  <StatusBadge tone={alert.tone} className="tw-shrink-0">
+                    {alert.tone === 'danger' ? 'Critico' : 'Atencao'}
+                  </StatusBadge>
+                </span>
+              </button>
+            ))}
+          </div>
+        </SectionCard>
+      ) : null}
 
       {aside.nextInQueue ? (
         <SectionCard>

@@ -13,6 +13,546 @@ Antes de novos checkpoints de codigo, preencher ou atualizar a matriz de
 paridade do fluxo afetado e separar paridade obrigatoria, melhoria permitida,
 backlog e areas sensiveis.
 
+## Checkpoint atual - Clientes fase 4: vinculo com equipamento
+
+Vincular o Cliente recem-criado ao formulario de Equipamento com UX minima,
+mantendo tudo mock/local.
+
+### Analise resumida
+
+Clientes fase 3 criou e editou Cliente dentro de `Equipamentos > Clientes`. A
+lacuna operacional seguinte era reduzir a friccao entre criar Cliente e criar o
+primeiro Equipamento desse Cliente. A menor fatia segura e abrir o formulario de
+Equipamento a partir do detalhe do Cliente com o Cliente ja selecionado.
+
+### Plano
+
+- Criar teste RED no shell para criar Cliente, abrir o detalhe, acionar criacao
+  de Equipamento e confirmar o Cliente pre-selecionado.
+- Reaproveitar `EquipmentForm` e `saveEquipment`.
+- Guardar no shell apenas a intencao local de criar equipamento para um Cliente.
+- Atualizar a matriz de paridade.
+
+### Anti-escopo
+
+- Nao criar wizard, modal novo, aba global de Clientes, storage real,
+  Supabase/RLS, PMOC, router novo, design final, CSS legado, PDF/share,
+  WhatsApp real, billing, upload ou migracao real de dados.
+
+### Resultado deste checkpoint
+
+- O detalhe de Cliente ganhou a acao `Criar equipamento para este cliente`.
+- O shell abre `Novo equipamento` na area Equipamentos com o Cliente
+  pre-selecionado.
+- O equipamento salvo fica vinculado ao Cliente recem-criado no mock local.
+- O fluxo reaproveita `EquipmentForm` e `saveEquipment`, sem storage real,
+  Supabase/RLS, router novo ou UI final nova.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou porque o
+  botao `Criar equipamento para este cliente` ainda nao existia.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 29
+  testes.
+- Validacao focada:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/equipment/clientActions.test.ts src/app-v2/equipment/equipmentActions.test.ts --run`
+  passou com 39 testes.
+- Validacao geral:
+  `npm run format`, `npm run typecheck -- --pretty false`,
+  `npm run format:check`, `git diff --check`, `npm run build` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+### Proximo checkpoint recomendado
+
+Clientes fase 5: mapear filtros/consulta dedicada por Cliente ou relatorio local
+por Cliente antes de qualquer nova UI, sem PMOC, storage real, Supabase/RLS,
+router novo, PDF/share ou WhatsApp real.
+
+---
+
+## Checkpoint atual - Clientes fase 3: criar/editar mock local
+
+Criar e editar Cliente mockado dentro de `Equipamentos > Clientes`, preservando
+a subvisao atual e a UI minima neutra do app-v2.
+
+### Analise resumida
+
+Clientes ja existe como subvisao de Equipamentos, com lista, detalhe,
+equipamentos vinculados e servicos relacionados. A lacuna funcional seguinte e
+permitir cadastro e edicao mockados de Cliente para reduzir dependencia de dados
+pre-carregados sem abrir storage real, Supabase/RLS, PMOC, router novo ou design
+final.
+
+### Plano
+
+- Criar testes RED para action pura de Cliente: criar, editar, preservar `id`,
+  nao duplicar e bloquear nome vazio.
+- Adicionar teste shell para criar cliente em `Equipamentos > Clientes`.
+- Adicionar teste shell para editar cliente no detalhe.
+- Implementar helper puro `saveClient` mock/local.
+- Reaproveitar primitives do app-v2 em formulario simples de Cliente.
+- Atualizar a matriz de paridade.
+
+### Anti-escopo
+
+- Nao criar aba global de Clientes, storage real, Supabase/RLS, PMOC, router
+  novo, design final, CSS legado, PDF/share, WhatsApp real, billing, upload ou
+  migracao real de dados.
+
+### Resultado deste checkpoint
+
+- Criado `saveClient` como action pura mock/local para criar e editar Cliente
+  em `AppV2MockSnapshot`.
+- A criacao exige nome e normaliza campos textuais opcionais.
+- A edicao atualiza por `id`, preserva o `id` e nao duplica a lista local.
+- `Equipamentos > Clientes` ganhou acao `Novo cliente` com formulario simples
+  usando primitives do app-v2.
+- O detalhe de Cliente ganhou `Editar cliente`, reaproveitando o mesmo
+  formulario simples.
+- Nenhum storage real, Supabase/RLS, router novo, PMOC, CSS legado, PDF/share,
+  WhatsApp real ou billing foi conectado.
+
+### Validacao focada executada
+
+- RED:
+  `npm run typecheck -- --pretty false` falhou porque
+  `src/app-v2/equipment/clientActions.ts` ainda nao existia.
+- GREEN parcial:
+  `npm run typecheck -- --pretty false` passou apos a implementacao.
+- Validacao geral:
+  `npm run build` passou com warnings Vite/chunk conhecidos.
+- Validacao geral:
+  `npm run check` passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+- Bloqueio local:
+  `npm test -- src/app-v2/equipment/clientActions.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou isoladamente neste ambiente porque o Vite/esbuild retornou
+  `Error: spawn EPERM` antes de executar os testes. A suite completa dentro de
+  `npm run check` carregou e passou.
+
+### Proximo checkpoint recomendado
+
+Clientes fase 4: vincular cliente recem-criado ao formulario de Equipamento com
+UX minima, mantendo tudo mock/local e sem storage real, Supabase/RLS, PMOC,
+router novo ou design final.
+
+---
+
+## Checkpoint atual - Equipamentos fase 2: onboarding do primeiro equipamento
+
+Conectar o estado vazio do inicio de Registro de Servico ao cadastro mockado do
+primeiro equipamento, reaproveitando o formulario simples de Equipamentos.
+
+### Analise resumida
+
+O app-v2 ja orienta o usuario a ir para Equipamentos quando tenta iniciar um
+Registro de Servico sem nenhum equipamento cadastrado. A fase 1 adicionou
+criacao/edicao mockada local. A lacuna funcional restante e reduzir a friccao:
+quando o usuario veio do inicio de servico sem equipamento, cadastrar o primeiro
+equipamento deve devolver o usuario ao fluxo de Registro de Servico com o
+equipamento recem-criado selecionado.
+
+### Plano
+
+- Criar teste RED de shell para base vazia: iniciar registro, ir para
+  Equipamentos, criar equipamento e abrir Registro de Servico automaticamente.
+- Guardar no shell uma intencao local de iniciar servico apos criar
+  equipamento.
+- Reaproveitar `saveEquipment` e `startServiceFromEquipment` mockados, sem
+  router novo.
+- Atualizar a matriz de paridade.
+
+### Anti-escopo
+
+- Nao criar wizard, modal novo, storage real, Supabase/RLS, router novo,
+  onboarding visual final, CSS legado, billing, PMOC, PDF/share, WhatsApp real,
+  upload/fotos ou migracao real de dados.
+
+### Validacao esperada
+
+- Teste de shell do caminho vazio -> criar equipamento -> iniciar registro.
+- Repetir testes focados de Equipamentos/Shell.
+
+### Criterio de conclusao
+
+- O usuario que tenta iniciar servico sem equipamentos consegue cadastrar o
+  primeiro equipamento e cair no Registro de Servico desse equipamento.
+- A criacao normal em Equipamentos continua apenas adicionando o item na lista.
+- O fluxo permanece mock/local.
+
+### Resultado deste checkpoint
+
+- O shell guarda uma intencao local quando o usuario tenta iniciar Registro de
+  Servico sem equipamentos e escolhe `Ir para Equipamentos`.
+- Ao cadastrar o primeiro equipamento nesse caminho, o app-v2 cria o
+  equipamento no mock e abre automaticamente o Registro de Servico desse
+  equipamento.
+- A criacao normal pela area Equipamentos continua apenas adicionando o item na
+  lista.
+- O comportamento reaproveita `saveEquipment` e `startServiceFromEquipment`,
+  sem router novo, storage real, Supabase/RLS ou UI final nova.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou porque o app
+  criava o equipamento mas permanecia na lista.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/equipment/equipmentActions.test.ts --run`
+  passou com 31 testes.
+
+### Proximo checkpoint recomendado
+
+Clientes fase 3: criar/editar Cliente mockado com UI minima dentro de
+Equipamentos > Clientes, preservando subvisao atual, sem storage real,
+Supabase/RLS, PMOC, router novo ou design final.
+
+---
+
+## Historico - Equipamentos fase 1: criar/editar mock local
+
+Mapear e implementar a primeira fatia segura de criacao/edicao de equipamento
+no app-v2 usando estado/mock local e UI minima existente.
+
+### Analise resumida
+
+O v1 permite criar e editar equipamento validando ao menos nome, local e dados
+operacionais basicos, preservando `id` em edicao e evitando duplicacao. O
+app-v2 ja lista equipamentos, abre detalhe, vincula Cliente como contexto e
+inicia Registro de Servico, mas ainda nao possui action mockada de criar/editar
+equipamento.
+
+A menor fatia segura e criar um contrato puro de upsert local para equipamento,
+com validacoes amigaveis e testes, e so conectar ao shell se for possivel
+reaproveitar os padroes simples atuais de lista/detalhe sem criar design final,
+storage real, Supabase/RLS ou CSS legado.
+
+### Plano
+
+- Criar testes RED de action para criar equipamento, editar por `id`, preservar
+  `id`, nao duplicar e bloquear nome/local ausentes.
+- Implementar helper puro em `src/app-v2/equipment`, sem storage real.
+- Se seguro, conectar UI minima em Equipamentos com campos simples e estado
+  local, reaproveitando primitives do app-v2.
+- Atualizar a matriz de paridade com o resultado real.
+
+### Anti-escopo
+
+- Nao criar design final, CSS global, CSS legado, tema/tokens novos, router
+  novo, storage real, Supabase/RLS, billing, assinatura, PMOC, PDF/share,
+  WhatsApp real, upload/fotos, limite de plano ou migracao real de dados.
+
+### Validacao esperada
+
+- Testes focados de action/view model/shell quando houver conexao visual.
+- `npm run format`, `npm run build`, `npm run check`, `npm run format:check` e
+  `git diff --check` ao final do ciclo.
+
+### Criterio de conclusao
+
+- Criacao mockada adiciona equipamento valido na lista.
+- Edicao mockada atualiza o equipamento correto por `id`, sem duplicar.
+- Erros de nome/local aparecem como mensagens locais amigaveis.
+- Fluxos existentes de lista, detalhe e inicio de servico permanecem
+  preservados.
+
+### Resultado deste checkpoint
+
+- Criado `saveEquipment` como action pura mock/local para criar e editar
+  equipamento em `AppV2MockSnapshot`.
+- A criacao exige nome e local, normaliza campos textuais e adiciona o item na
+  lista local.
+- A edicao atualiza por `id`, preserva o `id`, nao duplica a lista e mantem
+  campos operacionais existentes quando a UI minima nao os envia.
+- `Equipamentos` ganhou acao `Novo equipamento` com formulario simples usando
+  primitives do app-v2.
+- O detalhe de Equipamento ganhou `Editar equipamento`, reaproveitando o mesmo
+  formulario simples.
+- Erros de nome/local aparecem como mensagem local no formulario.
+- Nenhum storage real, Supabase/RLS, router novo, CSS legado, upload/fotos,
+  billing, PMOC, PDF/share ou WhatsApp real foi conectado.
+
+### Validacao focada executada
+
+- RED action:
+  `npm test -- src/app-v2/equipment/equipmentActions.test.ts --run` falhou
+  porque `equipmentActions` ainda nao existia.
+- RED shell:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou porque ainda
+  nao havia `Novo equipamento` nem `Editar equipamento`.
+- RED preservacao:
+  `npm test -- src/app-v2/equipment/equipmentActions.test.ts --run` falhou
+  porque a edicao minima apagava campos operacionais existentes.
+- GREEN focado:
+  `npm test -- src/app-v2/equipment/equipmentActions.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 30 testes.
+
+### Proximo checkpoint recomendado
+
+Equipamentos fase 2: mapear e implementar estado vazio/onboarding funcional de
+primeiro equipamento conectado ao fluxo de Registro de Servico, usando o mesmo
+formulario mockado, sem storage real, sem router novo e sem design final.
+
+---
+
+## Historico - Clientes fase 2: servicos relacionados mockados
+
+Exibir servicos relacionados no detalhe de Cliente usando registros mockados
+existentes, sem PMOC, sem storage real, sem router novo e sem criar design
+novo.
+
+### Analise resumida
+
+O v1 permite consultar contexto por cliente e relacionar historico/servicos ao
+cliente. O app-v2 ja tem Clientes como subvisao dentro de Equipamentos e mostra
+equipamentos vinculados, mas o detalhe do Cliente ainda nao exibe registros de
+servico relacionados.
+
+A menor fatia segura e derivar, em view model, os registros cujo equipamento
+pertence ao cliente e renderizar uma lista simples no detalhe atual. Isso
+preserva a UX funcional de consulta sem copiar tela de historico, sem PMOC e
+sem storage real.
+
+### Plano
+
+- Adicionar teste RED no view model de Clientes para servicos relacionados.
+- Adicionar teste RED no shell garantindo que o detalhe do Cliente mostra
+  servicos relacionados.
+- Implementar derivacao pura em `equipmentClientsViewModel`.
+- Renderizar uma secao simples em `ClientDetail` usando `SectionCard` e
+  `ListRow`.
+- Atualizar a matriz de paridade.
+
+### Anti-escopo
+
+- Nao implementar PMOC, relatorio por cliente, filtros avancados, router novo,
+  storage real, Supabase/RLS, PDF/share, WhatsApp real, billing ou design novo.
+- Nao copiar UI/CSS/template do historico legado.
+
+### Validacao esperada
+
+- Testes focados de view model e shell.
+- Validacao geral ao final do ciclo.
+
+### Resultado deste checkpoint
+
+- `buildEquipmentClientDetailViewModel` agora deriva servicos relacionados pelos
+  equipamentos vinculados ao cliente.
+- `ClientDetail` exibe a secao simples `Servicos relacionados` reaproveitando
+  `SectionCard`, `ListRow` e `StatusBadge`.
+- A lista mostra equipamento, tipo, data, status e resumo tecnico do registro.
+- O detalhe de Cliente continua mock/local e sem aba global nova.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/equipment/equipmentClientsViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou antes da implementacao porque `detail.services` ainda nao existia e o
+  shell nao exibia `Servicos relacionados`.
+- GREEN:
+  `npm test -- src/app-v2/equipment/equipmentClientsViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 23 testes apos a implementacao.
+
+### Proximo checkpoint recomendado
+
+Alertas e proximas acoes fase 1: mapear na matriz as regras v1 de alertas de
+cliente, preventiva vencida/proxima e criticidade contra a Home operacional
+atual do app-v2, antes de implementar qualquer nova UI.
+
+---
+
+## Checkpoint atual - Alertas e proximas acoes fase 1: mapeamento funcional
+
+Mapear as regras v1 de alertas e proximas acoes contra a Home operacional atual
+do app-v2, sem implementar UI nova.
+
+### Analise resumida
+
+O v1 concentra a regra operacional em `src/domain/maintenance.js`, especialmente
+em `buildMaintenanceAlerts`: status critico, falta de historico em ativo
+critico/alta prioridade, preventiva vencida, preventiva proxima e reincidencia
+de corretivas/ocorrencias. A ordenacao usa severidade, score operacional,
+criticidade, prioridade e dias de atraso.
+
+O app-v2 ja possui `pickNextHomeAction` e `buildHomeTodayViewModel`, mas hoje
+prioriza apenas compromissos vencidos/hoje, primeiro servico e fila curta
+mockada. A regra completa de alertas do v1 ainda nao foi portada para dominio
+puro do app-v2.
+
+### Plano
+
+- Registrar na matriz a regra v1 analisada.
+- Registrar equivalente v2 atual.
+- Separar lacuna segura de dominio/testes da lacuna visual.
+- Recomendar proximo checkpoint pequeno sem UI nova.
+
+### Anti-escopo
+
+- Nao implementar UI nova, notificacao real, calendario real, storage real,
+  Supabase/RLS, PMOC, PDF/share, WhatsApp real, billing, assinatura, router novo
+  ou CSS/design.
+
+### Resultado deste checkpoint
+
+- Matriz atualizada com o escopo funcional dos alertas v1.
+- Lacuna definida: portar priorizacao de alertas para dominio puro/mockado do
+  app-v2 antes de qualquer tela nova.
+
+### Proximo checkpoint recomendado
+
+Alertas e proximas acoes fase 2: criar dominio puro/testado no app-v2 para
+priorizar alertas mockados por status critico, preventiva vencida/proxima, falta
+de historico em equipamento critico e reincidencia corretiva, sem nova UI, sem
+storage real e sem notificacoes/calendario reais.
+
+---
+
+## Checkpoint atual - Alertas e proximas acoes fase 2: dominio puro mockado
+
+Criar dominio puro e testado no app-v2 para priorizar alertas mockados a partir
+dos dados locais existentes.
+
+### Analise resumida
+
+O mapeamento anterior identificou que o v1 usa alertas por equipamento com
+severidade, criticidade, prioridade operacional, preventiva vencida/proxima,
+falta de historico e reincidencia. A Home do app-v2 hoje possui apenas
+`pickNextHomeAction`, sem uma lista pura de alertas equivalentes.
+
+### Plano
+
+- Criar testes RED para prioridade de status critico, preventiva
+  vencida/proxima, falta de historico critico e reincidencia corretiva.
+- Implementar helper puro em `src/app-v2/domain`, sem conectar UI.
+- Preservar contratos atuais de `pickNextHomeAction`.
+- Atualizar matriz com o checkpoint.
+
+### Anti-escopo
+
+- Nao implementar UI nova, notificacao real, calendario real, storage real,
+  Supabase/RLS, PMOC, PDF/share, WhatsApp real, billing, assinatura, router novo
+  ou CSS/design.
+
+### Validacao esperada
+
+- Teste focado de dominio.
+- Testes atuais de Home/domínio continuam passando.
+
+### Resultado deste checkpoint
+
+- Criado `buildHomeAlerts` em dominio puro do app-v2.
+- Cobertos alertas mockados de status critico, preventiva vencida, preventiva
+  proxima, equipamento critico sem historico e reincidencia corretiva.
+- A ordenacao considera severidade e score operacional local por criticidade e
+  prioridade operacional.
+- Nenhuma UI, storage real, notificacao real ou integracao sensivel foi
+  conectada.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/domain/homeAlerts.test.ts --run` falhou com 4
+  assercoes porque o helper ainda retornava lista vazia.
+- GREEN:
+  `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/domain/homePriority.test.ts --run`
+  passou com 6 testes.
+
+### Proximo checkpoint recomendado
+
+Alertas e proximas acoes fase 3: consumir `buildHomeAlerts` no view model da
+Home para alimentar indicadores/estado operacional com os alertas mockados,
+reaproveitando UI atual e sem criar novo layout.
+
+---
+
+## Checkpoint atual - Alertas e proximas acoes fase 3: Home consome alertas
+
+Consumir `buildHomeAlerts` no view model da Home para refletir alertas mockados
+na prioridade operacional sem criar layout novo.
+
+### Analise resumida
+
+O dominio puro de alertas ja cobre os principais sinais v1. A menor fatia segura
+de UX funcional e fazer a Home usar esses alertas para o contador operacional e
+para a proxima acao quando houver equipamento fora de operacao, preservando o
+componente visual atual.
+
+### Resultado deste checkpoint
+
+- `buildHomeTodayViewModel` consome `buildHomeAlerts`.
+- O card de resumo antes baseado apenas em vencidos agora mostra alertas ativos.
+- A proxima acao prioriza `critical_status` e permite iniciar registro pelo
+  equipamento critico.
+- A fila curta de compromissos foi preservada.
+- Nao houve nova tela, novo layout, storage real, notificacao real ou area
+  sensivel.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/home/homeViewModel.test.ts --run`
+  falhou porque alertas criticos ainda duplicavam compromissos e a Home ainda
+  priorizava preventiva vencida.
+- GREEN:
+  `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/home/homeViewModel.test.ts src/app-v2/domain/homePriority.test.ts --run`
+  passou com 9 testes.
+
+### Proximo checkpoint recomendado
+
+Alertas e proximas acoes fase 4: exibir uma lista curta de alertas ativos na
+Home usando componentes existentes, sem criar design final, sem notificacoes
+reais e sem storage real.
+
+---
+
+## Checkpoint atual - Alertas e proximas acoes fase 4: lista curta na Home
+
+Exibir uma lista curta de alertas ativos na Home, usando os dados ja calculados
+em view model e componentes existentes.
+
+### Plano
+
+- Expor alertas resumidos no `HomeTodayViewModel`.
+- Renderizar card simples no aside atual, sem layout novo amplo.
+- Testar view model e shell.
+
+### Anti-escopo
+
+- Nao criar design final, CSS novo global, notificacao real, calendario real,
+  storage real, Supabase/RLS, PMOC, PDF/share, WhatsApp real, billing,
+  assinatura ou router.
+
+### Resultado deste checkpoint
+
+- `HomeTodayViewModel` passou a expor uma lista curta de alertas ativos.
+- `HomeToday` renderiza `Alertas ativos` no aside usando `SectionCard`,
+  `StatusBadge` e botao simples existente.
+- Clicar em um alerta abre o detalhe do equipamento, usando o mesmo callback da
+  Home.
+- Testes antigos de inicio de servico foram atualizados para refletir a nova
+  prioridade: equipamento critico antes de preventiva vencida.
+
+### Validacao focada executada
+
+- RED:
+  `npm test -- src/app-v2/home/homeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou porque `alerts` ainda nao existia no view model e a Home nao
+  renderizava `Alertas ativos`.
+- GREEN:
+  `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/home/homeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 28 testes.
+
+### Proximo checkpoint recomendado
+
+Equipamentos fase 1: mapear criar/editar equipamento mockado do v1 contra o
+app-v2 e implementar a menor fatia segura de formulario/dominio local, sem
+storage real, sem Supabase/RLS e sem design final.
+
+---
+
 ## Checkpoint atual - Historico de Servicos fase 1: busca local em Registros
 
 Adicionar busca local simples em `Servicos > Registros` para reduzir a lacuna

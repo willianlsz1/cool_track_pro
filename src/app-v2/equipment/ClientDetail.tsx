@@ -1,3 +1,7 @@
+import { useState } from 'react';
+
+import { ClientForm } from './ClientForm';
+import type { SaveClientDraft } from './clientActions';
 import { buildEquipmentClientDetailViewModel } from './equipmentClientsViewModel';
 import type { BuildEquipmentViewModelInput } from './equipmentViewModel';
 import {
@@ -15,6 +19,8 @@ interface ClientDetailProps {
   input?: BuildEquipmentViewModelInput;
   onBack: () => void;
   onOpenEquipment: (equipmentId: string) => void;
+  onSaveClient: (draft: SaveClientDraft) => string | null;
+  onCreateEquipmentForClient?: (clientId: string) => void;
 }
 
 const defaultEquipmentInput: BuildEquipmentViewModelInput = {
@@ -25,8 +31,28 @@ const defaultEquipmentInput: BuildEquipmentViewModelInput = {
   registros: mockEquipmentRegistros,
 };
 
-export function ClientDetail({ clientId, input, onBack, onOpenEquipment }: ClientDetailProps) {
-  const detail = buildEquipmentClientDetailViewModel(input ?? defaultEquipmentInput, clientId);
+export function ClientDetail({
+  clientId,
+  input,
+  onBack,
+  onOpenEquipment,
+  onSaveClient,
+  onCreateEquipmentForClient,
+}: ClientDetailProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const viewInput = input ?? defaultEquipmentInput;
+  const detail = buildEquipmentClientDetailViewModel(viewInput, clientId);
+  const client = viewInput.clientes.find((item) => item.id === clientId);
+
+  function saveClientDraft(draft: SaveClientDraft): string | null {
+    const error = onSaveClient(draft);
+
+    if (!error) {
+      setIsEditing(false);
+    }
+
+    return error;
+  }
 
   return (
     <PageShell>
@@ -66,6 +92,24 @@ export function ClientDetail({ clientId, input, onBack, onOpenEquipment }: Clien
           <InfoRow label="Status" value={detail.statusLabel} />
         </dl>
       </SectionCard>
+
+      {isEditing && client ? (
+        <ClientForm
+          title="Editar cliente"
+          initialClient={client}
+          onCancel={() => setIsEditing(false)}
+          onSave={saveClientDraft}
+        />
+      ) : (
+        <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row">
+          <ActionButton onClick={() => setIsEditing(true)}>Editar cliente</ActionButton>
+          {onCreateEquipmentForClient ? (
+            <ActionButton variant="secondary" onClick={() => onCreateEquipmentForClient(clientId)}>
+              Criar equipamento para este cliente
+            </ActionButton>
+          ) : null}
+        </div>
+      )}
 
       <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="client-equipment-title">
         <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-5">
@@ -109,6 +153,51 @@ export function ClientDetail({ clientId, input, onBack, onOpenEquipment }: Clien
                     {equipment.nextActionLabel}
                   </StatusBadge>
                 </div>
+              </div>
+            </ListRow>
+          ))
+        )}
+      </SectionCard>
+
+      <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="client-services-title">
+        <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-5">
+          <div className="tw-min-w-0">
+            <h2
+              id="client-services-title"
+              className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
+            >
+              Servicos relacionados
+            </h2>
+            <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+              {detail.servicesCountLabel}
+            </p>
+          </div>
+        </div>
+
+        {detail.services.length === 0 ? (
+          <ListRow>
+            <p className={`tw-m-0 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
+              Nenhum servico relacionado.
+            </p>
+          </ListRow>
+        ) : (
+          detail.services.map((service) => (
+            <ListRow key={service.id}>
+              <div className="tw-flex tw-min-w-0 tw-items-start tw-justify-between tw-gap-4">
+                <div className="tw-min-w-0">
+                  <p className={`tw-m-0 tw-text-sm tw-font-semibold ${appV2Tone.text}`}>
+                    {service.equipmentName}
+                  </p>
+                  <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+                    {service.kindLabel} - {service.dateLabel}
+                  </p>
+                  <p className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-medium ${appV2Tone.subtleText}`}>
+                    {service.summary}
+                  </p>
+                </div>
+                <StatusBadge tone={service.statusTone} className="tw-shrink-0">
+                  {service.statusLabel}
+                </StatusBadge>
               </div>
             </ListRow>
           ))

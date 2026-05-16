@@ -529,18 +529,18 @@ Status atualizado:
 
 ## 31. Matriz geral de UX funcional v1 -> app-v2
 
-| Fluxo                                 | Comportamento v1 util                                                                 | Fontes v1 analisadas                                                                                     | Equivalente v2 atual                                                                                              | Lacunas                                                 | Decisao v2                                                       | Escopo permitido       | Escopo proibido                                   | Testes necessarios                   | Status        |
-| ------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- | ------------------------------------------------- | ------------------------------------ | ------------- |
-| Registro de Servico                   | Criar, validar, concluir, editar, alimentar historico, relatorio e proxima preventiva | `src/features/registro/save/*`, `src/ui/views/registro.js`                                               | Fluxo progressivo app-v2 com mock local, edicao e relatorio local                                                 | PDF/WhatsApp real fora                                  | Preservar fluxo por etapas e substituir prompt por campo interno | app-v2/mock/testes     | storage, PDF/share, WhatsApp, PMOC                | action, view model, shell, relatorio | coberto       |
-| Historico de Servicos                 | Listar registros, consultar por equipamento/cliente e abrir relatorio/registro        | `src/features/historico/*`, `src/ui/viewModels/historicoViewModel.js`                                    | `Servicos > Registros` lista recentes, permite busca local e permite editar/reabrir relatorio por caminhos locais | filtros por periodo/cliente dedicados ainda limitados   | Evoluir dentro de Servicos, sem aba global nova                  | view model e UI minima | router novo, storage real, PMOC                   | view model + shell                   | parcial       |
-| Relatorios                            | Gerar visao por registros, filtrar e reabrir documento                                | `src/ui/views/relatorio.js`, `src/ui/viewModels/relatorioViewModel.js`                                   | `Servicos > Relatorios` com busca, KPIs, preview e print local                                                    | PDF/share/WhatsApp real fora                            | Relatorio local cobre leitura; integracoes ficam sensiveis       | relatorio local/mock   | PDF/share real, WhatsApp real                     | relatorio + shell                    | parcial       |
-| Equipamentos                          | Listar, consultar detalhe, status, cliente/local e iniciar servico                    | `src/ui/viewModels/equipamentosViewModel.js`, `src/features/equipamentos/*`                              | Area Equipamentos com lista, detalhe, cliente/local e iniciar servico                                             | criar/editar mockados ainda limitados                   | Preservar equipamento como centro operacional                    | mock/local/UI minima   | storage real, Supabase/RLS                        | equipment view model + shell         | parcial       |
-| Clientes                              | Listar, abrir detalhe e ver equipamentos vinculados                                   | `src/core/clientes.js`, `src/ui/viewModels/clientes*`, `src/ui/viewModels/equipamentosViewModel.js`      | Clientes como subvisao de Equipamentos com detalhe e equipamentos vinculados                                      | CRUD e servicos por cliente ainda limitados             | Cliente continua subvisao forte, nao aba global                  | mock/local/UI minima   | storage real, PMOC, Supabase/RLS                  | clients view model + shell           | parcial       |
-| Alertas e proximas acoes              | Priorizar preventiva vencida, corretiva, criticidade e recencia                       | `src/domain/maintenance.js`, `src/domain/constants/alerts.js`, `src/ui/viewModels/dashboardViewModel.js` | Home operacional com proxima acao e fila curta baseada em compromissos mockados                                   | alertas de cliente e regras completas ainda limitadas   | Migrar como compromisso/proxima acao mockada                     | dominio puro + mock    | notificacao real, calendario real, storage        | home priority tests                  | parcial       |
-| Orcamentos                            | Acompanhar pipeline, vincular cliente/equipamento/registro e resumir valores          | `src/ui/viewModels/orcamentosViewModel.js`, `src/domain/orcamentoFollowUp.js`                            | Subvisao `Servicos > Orcamentos` com lista mockada e KPIs locais                                                  | criar/editar/assinar/baixar/enviar fora                 | Primeira fase so acompanha mock local                            | view model + UI minima | billing, assinatura, PDF/share, WhatsApp, storage | view model + shell                   | parcial       |
-| Configuracoes operacionais simples    | Atalhos e preferencias operacionais                                                   | `src/ui/views/configuracoes.js`                                                                          | Conta placeholder sem acoes operacionais                                                                          | atalhos simples nao mapeados                            | Mapear antes de implementar                                      | doc/view model         | billing, assinatura, storage real                 | shell                                | pendente mock |
-| Estados vazios e onboarding funcional | Orientar primeiro cadastro/primeiro atendimento                                       | `src/ui/viewModels/dashboardViewModel.js`, `src/features/equipamentos/*`                                 | Estados vazios de Servicos, Equipamentos e escolha sem equipamento                                                | onboarding completo limitado                            | Usar mensagens locais e CTA contextual                           | UI minima              | redesign final                                    | shell                                | parcial       |
-| Pos-salvamento local                  | Oferecer saidas apos salvar e fallback                                                | `src/features/registro/save/postSave.js`                                                                 | Done state com relatorio local, proxima manutencao no fluxo e historico atualizado                                | orcamento a partir do fechamento ainda nao implementado | Substituir prompts por saidas v2 progressivas                    | mock/local             | PDF/share real, WhatsApp real                     | shell + action                       | parcial       |
+| Fluxo                                 | Comportamento v1 util                                                                                                                          | Fontes v1 analisadas                                                                                     | Equivalente v2 atual                                                                                              | Lacunas                                                    | Decisao v2                                                       | Escopo permitido       | Escopo proibido                                   | Testes necessarios                   | Status                      |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- | ------------------------------------------------- | ------------------------------------ | --------------------------- |
+| Registro de Servico                   | Criar, validar, concluir, editar, alimentar historico, relatorio e proxima preventiva                                                          | `src/features/registro/save/*`, `src/ui/views/registro.js`                                               | Fluxo progressivo app-v2 com mock local, edicao e relatorio local                                                 | PDF/WhatsApp real fora                                     | Preservar fluxo por etapas e substituir prompt por campo interno | app-v2/mock/testes     | storage, PDF/share, WhatsApp, PMOC                | action, view model, shell, relatorio | coberto                     |
+| Historico de Servicos                 | Listar registros, consultar por equipamento/cliente e abrir relatorio/registro                                                                 | `src/features/historico/*`, `src/ui/viewModels/historicoViewModel.js`                                    | `Servicos > Registros` lista recentes, permite busca local e permite editar/reabrir relatorio por caminhos locais | filtros por periodo/cliente dedicados ainda limitados      | Evoluir dentro de Servicos, sem aba global nova                  | view model e UI minima | router novo, storage real, PMOC                   | view model + shell                   | parcial                     |
+| Relatorios                            | Gerar visao por registros, filtrar e reabrir documento                                                                                         | `src/ui/views/relatorio.js`, `src/ui/viewModels/relatorioViewModel.js`                                   | `Servicos > Relatorios` com busca, KPIs, preview e print local                                                    | PDF/share/WhatsApp real fora                               | Relatorio local cobre leitura; integracoes ficam sensiveis       | relatorio local/mock   | PDF/share real, WhatsApp real                     | relatorio + shell                    | parcial                     |
+| Equipamentos                          | Listar, consultar detalhe, status, cliente/local, criar/editar e iniciar servico                                                               | `src/ui/viewModels/equipamentosViewModel.js`, `src/features/equipamentos/*`                              | Area Equipamentos com lista, detalhe, cliente/local, criar/editar mockado e iniciar servico                       | estado vazio/onboarding e campos avancados ainda limitados | Preservar equipamento como centro operacional                    | mock/local/UI minima   | storage real, Supabase/RLS                        | equipment action + shell             | parcial                     |
+| Clientes                              | Listar, abrir detalhe, ver equipamentos vinculados, consultar servicos relacionados, criar e editar cadastro basico                            | `src/core/clientes.js`, `src/ui/viewModels/clientes*`, `src/ui/viewModels/equipamentosViewModel.js`      | Clientes como subvisao de Equipamentos com detalhe, equipamentos vinculados, servicos relacionados e CRUD mockado | relatorio/filtro dedicado por cliente limitados            | Cliente continua subvisao forte, nao aba global                  | mock/local/UI minima   | storage real, PMOC, Supabase/RLS                  | clients action + shell               | parcial                     |
+| Alertas e proximas acoes              | Priorizar status critico, falta de historico critico, preventiva vencida/proxima, reincidencia corretiva, criticidade e prioridade operacional | `src/domain/maintenance.js`, `src/domain/constants/alerts.js`, `src/ui/viewModels/dashboardViewModel.js` | Home operacional consome `buildHomeAlerts`, prioriza alerta critico, exibe contador e lista curta de alertas      | notificacao/calendario real fora; regras avancadas futuras | Migrar como dominio puro/mock antes de integracoes reais         | dominio puro + mock    | notificacao real, calendario real, storage        | home priority tests + shell          | coberto por substituicao v2 |
+| Orcamentos                            | Acompanhar pipeline, vincular cliente/equipamento/registro e resumir valores                                                                   | `src/ui/viewModels/orcamentosViewModel.js`, `src/domain/orcamentoFollowUp.js`                            | Subvisao `Servicos > Orcamentos` com lista mockada e KPIs locais                                                  | criar/editar/assinar/baixar/enviar fora                    | Primeira fase so acompanha mock local                            | view model + UI minima | billing, assinatura, PDF/share, WhatsApp, storage | view model + shell                   | parcial                     |
+| Configuracoes operacionais simples    | Atalhos e preferencias operacionais                                                                                                            | `src/ui/views/configuracoes.js`                                                                          | Conta placeholder sem acoes operacionais                                                                          | atalhos simples nao mapeados                               | Mapear antes de implementar                                      | doc/view model         | billing, assinatura, storage real                 | shell                                | pendente mock               |
+| Estados vazios e onboarding funcional | Orientar primeiro cadastro/primeiro atendimento                                                                                                | `src/ui/viewModels/dashboardViewModel.js`, `src/features/equipamentos/*`                                 | Estado vazio de Servicos orienta criacao e inicia registro apos primeiro equipamento mockado                      | onboarding completo ainda limitado                         | Usar mensagens locais e CTA contextual                           | UI minima              | redesign final                                    | shell                                | parcial                     |
+| Pos-salvamento local                  | Oferecer saidas apos salvar e fallback                                                                                                         | `src/features/registro/save/postSave.js`                                                                 | Done state com relatorio local, proxima manutencao no fluxo e historico atualizado                                | orcamento a partir do fechamento ainda nao implementado    | Substituir prompts por saidas v2 progressivas                    | mock/local             | PDF/share real, WhatsApp real                     | shell + action                       | parcial                     |
 
 ## 32. Checkpoint concluido - Orcamentos mockados dentro de Servicos
 
@@ -591,3 +591,268 @@ Testes executados neste checkpoint:
 > Clientes fase 2: exibir servicos relacionados no detalhe de Cliente usando
 > registros mockados existentes, sem PMOC, sem storage real, sem router novo e
 > sem criar design novo.
+
+## 36. Checkpoint concluido - Clientes fase 2 servicos relacionados mockados
+
+O app-v2 passou a cobrir a consulta local de servicos relacionados no detalhe de
+Cliente:
+
+- `buildEquipmentClientDetailViewModel` deriva registros de servico a partir dos
+  equipamentos vinculados ao cliente;
+- os servicos relacionados sao ordenados por data mais recente;
+- cada item exibe equipamento, tipo, data, status e resumo tecnico;
+- o detalhe de Cliente ganhou secao simples `Servicos relacionados`, usando
+  componentes ja existentes do app-v2;
+- o estado vazio permanece local e mockado;
+- nao houve PMOC, storage real, router novo, PDF/share, WhatsApp real, billing,
+  Supabase/RLS, CSS legado ou design novo.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/equipment/equipmentClientsViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 23 testes.
+
+## 37. Proximo checkpoint recomendado
+
+> Alertas e proximas acoes fase 1: mapear na matriz as regras v1 de alertas de
+> cliente, preventiva vencida/proxima e criticidade contra a Home operacional
+> atual do app-v2, antes de implementar qualquer nova UI.
+
+## 38. Checkpoint concluido - Alertas e proximas acoes fase 1 mapeamento
+
+Mapeamento funcional concluido sem alteracao de codigo:
+
+- v1 usa `buildMaintenanceAlerts` em `src/domain/maintenance.js` para gerar
+  alertas por equipamento;
+- a ordenacao v1 considera `ALERT_SEVERITY_WEIGHT`, `sortScore`, criticidade,
+  prioridade operacional, score de saude e dias de atraso;
+- alertas v1 cobertos no mapeamento: equipamento fora de operacao, equipamento
+  critico/alta prioridade sem historico, preventiva vencida, preventiva
+  proxima e acompanhamento por reincidencia de ocorrencias/corretivas;
+- `src/ui/viewModels/dashboardViewModel.js` compoe contexto de cliente/setor,
+  KPIs, recencia e acoes de dashboard a partir desses sinais;
+- app-v2 hoje cobre apenas a fatia de Home operacional em
+  `src/app-v2/domain/homePriority.ts` e `src/app-v2/home/homeViewModel.ts`:
+  compromissos vencidos/hoje, equipamento sem primeiro servico, fila curta e
+  contadores locais;
+- a lacuna segura restante e portar a priorizacao de alertas para dominio puro
+  do app-v2, usando mocks existentes, antes de qualquer nova UI.
+
+Areas mantidas fora do escopo:
+
+- notificacao real, calendario real, storage real, Supabase/RLS, PMOC,
+  PDF/share, WhatsApp real, billing, assinatura, router novo, CSS legado e
+  design novo.
+
+Validacao executada neste checkpoint documental:
+
+- `npm run format:check`
+- `git diff --check`
+
+## 39. Proximo checkpoint recomendado
+
+> Alertas e proximas acoes fase 2: criar dominio puro/testado no app-v2 para
+> priorizar alertas mockados por status critico, preventiva vencida/proxima,
+> falta de historico em equipamento critico e reincidencia corretiva, sem nova
+> UI, sem storage real e sem notificacoes/calendario reais.
+
+## 40. Checkpoint concluido - Alertas e proximas acoes fase 2 dominio puro
+
+O app-v2 passou a ter uma primeira regra pura de alertas mockados:
+
+- `buildHomeAlerts` gera alertas por equipamento a partir de equipamentos,
+  compromissos, registros e data atual;
+- cobre status critico, compromisso vencido, compromisso proximo, equipamento
+  critico/alta prioridade sem historico e reincidencia corretiva;
+- ordena por severidade e score operacional local;
+- mantem `pickNextHomeAction` sem regressao;
+- nao conecta UI, storage real, notificacao real, calendario real, PMOC,
+  PDF/share, WhatsApp real, billing, assinatura, Supabase/RLS ou router.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/domain/homePriority.test.ts --run`
+  passou com 6 testes.
+
+## 41. Proximo checkpoint recomendado
+
+> Alertas e proximas acoes fase 3: consumir `buildHomeAlerts` no view model da
+> Home para alimentar indicadores/estado operacional com os alertas mockados,
+> reaproveitando UI atual e sem criar novo layout.
+
+## 42. Checkpoint concluido - Alertas e proximas acoes fase 3 Home view model
+
+A Home do app-v2 passou a consumir os alertas puros:
+
+- `buildHomeTodayViewModel` chama `buildHomeAlerts`;
+- o resumo rapido e o resumo lateral contam alertas ativos, nao apenas
+  compromissos vencidos;
+- `critical_status` passa a comandar a proxima acao quando houver equipamento
+  fora de operacao;
+- a fila curta de compromissos continua intacta;
+- alertas criticos nao duplicam alerta de compromisso do mesmo equipamento;
+- nao houve layout novo, CSS novo, storage real, notificacao real, calendario
+  real, PMOC, PDF/share, WhatsApp real, billing, assinatura ou Supabase/RLS.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/home/homeViewModel.test.ts src/app-v2/domain/homePriority.test.ts --run`
+  passou com 9 testes.
+
+## 43. Proximo checkpoint recomendado
+
+> Alertas e proximas acoes fase 4: exibir uma lista curta de alertas ativos na
+> Home usando componentes existentes, sem criar design final, sem notificacoes
+> reais e sem storage real.
+
+## 44. Checkpoint concluido - Alertas e proximas acoes fase 4 lista curta
+
+A Home do app-v2 passou a exibir a primeira UX funcional de alertas ativos:
+
+- `HomeTodayViewModel` expoe uma lista curta de alertas ativos;
+- `HomeToday` renderiza `Alertas ativos` no aside atual, usando componentes
+  existentes;
+- cada alerta mostra titulo, equipamento, detalhe e status;
+- clique no alerta reaproveita abertura de detalhe de equipamento;
+- testes de shell confirmam a renderizacao sem PMOC;
+- a prioridade de inicio de servico foi atualizada para equipamento critico
+  quando houver `critical_status`.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/domain/homeAlerts.test.ts src/app-v2/home/homeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 28 testes.
+
+## 45. Proximo checkpoint recomendado
+
+> Equipamentos fase 1: mapear criar/editar equipamento mockado do v1 contra o
+> app-v2 e implementar a menor fatia segura de formulario/dominio local, sem
+> storage real, sem Supabase/RLS e sem design final.
+
+## 46. Checkpoint concluido - Equipamentos fase 1 criar/editar mock local
+
+O app-v2 passou a cobrir a primeira fatia segura de criacao/edicao de
+Equipamentos:
+
+- `saveEquipment` cria equipamento no snapshot mockado com nome, local, tipo,
+  tag, cliente, status e campos operacionais basicos;
+- nome e local sao obrigatorios e retornam mensagens locais amigaveis;
+- edicao atualiza por `id`, preserva `id` e nao duplica a lista;
+- edicao minima preserva campos operacionais existentes que a UI simples nao
+  edita;
+- `Equipamentos` ganhou `Novo equipamento` com formulario neutro usando
+  primitives do app-v2;
+- detalhe de Equipamento ganhou `Editar equipamento` reaproveitando o mesmo
+  formulario;
+- nenhuma integracao sensivel foi tocada: storage real, Supabase/RLS, router
+  novo, upload/fotos, billing, PMOC, PDF/share e WhatsApp real ficaram fora.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/equipment/equipmentActions.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 30 testes.
+
+## 47. Proximo checkpoint recomendado
+
+> Equipamentos fase 2: mapear e implementar estado vazio/onboarding funcional
+> de primeiro equipamento conectado ao fluxo de Registro de Servico, usando o
+> mesmo formulario mockado, sem storage real, sem router novo e sem design
+> final.
+
+## 48. Checkpoint concluido - Equipamentos fase 2 onboarding do primeiro equipamento
+
+O estado vazio de Registro de Servico foi conectado ao cadastro mockado do
+primeiro equipamento:
+
+- ao iniciar registro sem equipamentos, o usuario continua vendo a orientacao
+  para ir a Equipamentos;
+- se esse caminho foi usado, salvar o primeiro equipamento abre
+  automaticamente o Registro de Servico desse equipamento;
+- a criacao normal pela area Equipamentos continua apenas adicionando o item na
+  lista;
+- o fluxo usa somente estado/mock local e reaproveita `saveEquipment` e
+  `startServiceFromEquipment`;
+- nao houve router novo, storage real, Supabase/RLS, PMOC, PDF/share,
+  WhatsApp real, billing, upload/fotos, CSS legado ou design final.
+
+Testes executados neste checkpoint:
+
+- `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/equipment/equipmentActions.test.ts --run`
+  passou com 31 testes.
+
+## 49. Proximo checkpoint recomendado
+
+> Clientes fase 3: criar/editar Cliente mockado com UI minima dentro de
+> Equipamentos > Clientes, preservando subvisao atual, sem storage real,
+> Supabase/RLS, PMOC, router novo ou design final.
+
+## 50. Checkpoint concluido - Clientes fase 3 criar/editar mock local
+
+O app-v2 passou a cobrir a primeira fatia segura de criacao/edicao de Clientes:
+
+- `saveClient` cria cliente no snapshot mockado com nome e campos cadastrais
+  opcionais;
+- nome e obrigatorio e retorna mensagem local amigavel;
+- edicao atualiza por `id`, preserva `id` e nao duplica a lista;
+- `Equipamentos > Clientes` ganhou `Novo cliente` com formulario neutro usando
+  primitives do app-v2;
+- detalhe de Cliente ganhou `Editar cliente` reaproveitando o mesmo formulario;
+- nenhuma integracao sensivel foi tocada: storage real, Supabase/RLS, router
+  novo, PMOC, PDF/share, WhatsApp real, billing, upload e CSS legado ficaram
+  fora.
+
+Validacao executada neste checkpoint:
+
+- `npm run typecheck -- --pretty false` passou.
+- `npm run build` passou com warnings Vite/chunk conhecidos.
+- `npm run check` passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+Validacao bloqueada neste ambiente:
+
+- `npm test -- src/app-v2/equipment/clientActions.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou isoladamente antes de executar testes porque o Vite/esbuild retornou
+  `Error: spawn EPERM`; a suite completa dentro de `npm run check` carregou e
+  passou.
+
+## 51. Proximo checkpoint recomendado
+
+> Clientes fase 4: vincular cliente recem-criado ao formulario de Equipamento
+> com UX minima, mantendo tudo mock/local e sem storage real, Supabase/RLS,
+> PMOC, router novo ou design final.
+
+## 52. Checkpoint concluido - Clientes fase 4 vinculo com equipamento
+
+O app-v2 passou a reduzir a friccao entre cadastro de Cliente e cadastro de
+Equipamento:
+
+- detalhe de Cliente ganhou `Criar equipamento para este cliente`;
+- o shell abre `Novo equipamento` com o Cliente selecionado no formulario;
+- o equipamento salvo fica vinculado ao Cliente recem-criado no mock local;
+- o fluxo reaproveita `EquipmentForm` e `saveEquipment`;
+- nenhuma integracao sensivel foi tocada: storage real, Supabase/RLS, router
+  novo, PMOC, PDF/share, WhatsApp real, billing, upload e CSS legado ficaram
+  fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou porque o
+  botao `Criar equipamento para este cliente` ainda nao existia.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 29
+  testes.
+- Validacao focada:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/equipment/clientActions.test.ts src/app-v2/equipment/equipmentActions.test.ts --run`
+  passou com 39 testes.
+- Validacao geral:
+  `npm run format`, `npm run typecheck -- --pretty false`,
+  `npm run format:check`, `git diff --check`, `npm run build` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 53. Proximo checkpoint recomendado
+
+> Clientes fase 5: mapear filtros/consulta dedicada por Cliente ou relatorio
+> local por Cliente antes de qualquer nova UI, sem PMOC, storage real,
+> Supabase/RLS, router novo, PDF/share ou WhatsApp real.
