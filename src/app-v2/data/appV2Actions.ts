@@ -71,6 +71,12 @@ export function startServiceFromEquipment(
   equipmentId: string,
   commitmentId?: string,
 ): AppV2FlowState {
+  const equipamento = state.equipamentos.find((item) => item.id === equipmentId);
+
+  if (equipamento?.archivedAt) {
+    throw new Error('Equipamento arquivado nao pode iniciar servico.');
+  }
+
   return {
     ...cloneSnapshot(state),
     serviceDraft: createServiceDraft(state, equipmentId, commitmentId),
@@ -270,6 +276,7 @@ function cloneSnapshot(state: AppV2MockSnapshot): AppV2MockSnapshot {
     today: state.today,
     clientes: state.clientes.map((item) => ({ ...item })),
     equipamentos: state.equipamentos.map((item) => ({ ...item })),
+    setores: state.setores.map((item) => ({ ...item })),
     compromissos: state.compromissos.map((item) => ({ ...item })),
     registros: state.registros.map((item) => ({ ...item })),
     tecnicos: [...state.tecnicos],

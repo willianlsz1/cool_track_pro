@@ -204,13 +204,13 @@ function HomeAside({
           <h2 className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
             Alertas ativos
           </h2>
-          <div className={`tw-mt-4 tw-divide-y ${appV2Tone.border}`}>
+          <div className={`tw-mt-4 tw-divide-y tw-divide-[#E5EAF0] ${appV2Tone.border}`}>
             {alerts.map((alert) => (
               <button
                 key={alert.id}
                 type="button"
                 onClick={() => onOpenAlert?.(alert.equipmentId)}
-                className="tw-w-full tw-bg-transparent tw-py-4 tw-text-left tw-transition first:tw-pt-0 last:tw-pb-0 hover:tw-text-[#2563EB]"
+                className="tw-w-full tw-border-0 tw-bg-transparent tw-py-4 tw-text-left tw-transition first:tw-pt-0 last:tw-pb-0 hover:tw-text-[#2563EB]"
               >
                 <span className="tw-flex tw-items-start tw-justify-between tw-gap-3">
                   <span className="tw-min-w-0">

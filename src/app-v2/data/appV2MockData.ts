@@ -4,11 +4,13 @@ import type {
   Equipamento,
   Orcamento,
   RegistroServico,
+  SetorEquipamento,
 } from '../domain/types';
 
 export interface AppV2MockData {
   today: string;
   clientes: Cliente[];
+  setores: SetorEquipamento[];
   equipamentos: Equipamento[];
   compromissos: CompromissoServico[];
   registros: RegistroServico[];
@@ -32,6 +34,32 @@ export const appV2MockData: AppV2MockData = {
       endereco: 'Distrito Industrial',
     },
   ],
+  setores: [
+    {
+      id: 'setor-1',
+      nome: 'Recepcao',
+      clienteId: 'cliente-1',
+      cor: '#2563EB',
+      descricao: 'Atendimento e area de espera',
+      responsavel: 'Equipe recepcao',
+    },
+    {
+      id: 'setor-2',
+      nome: 'Camara fria',
+      clienteId: 'cliente-1',
+      cor: '#DC2626',
+      descricao: 'Area refrigerada de estoque',
+      responsavel: 'Operacao loja',
+    },
+    {
+      id: 'setor-3',
+      nome: 'Producao',
+      clienteId: 'cliente-2',
+      cor: '#16A34A',
+      descricao: 'Linha de producao',
+      responsavel: 'Manutencao interna',
+    },
+  ],
   equipamentos: [
     {
       id: 'eq-1',
@@ -43,6 +71,17 @@ export const appV2MockData: AppV2MockData = {
       tipo: 'Ar condicionado',
       criticidade: 'media',
       prioridadeOperacional: 'normal',
+      setorId: 'setor-1',
+      anexos: [
+        {
+          id: 'anexo-eq-1-foto-1',
+          kind: 'foto',
+          label: 'Foto local evaporadora',
+          source: 'placeholder',
+          createdAt: '2026-05-10',
+          cover: true,
+        },
+      ],
       createdAt: '2026-04-01',
     },
     {
@@ -55,6 +94,7 @@ export const appV2MockData: AppV2MockData = {
       tipo: 'Refrigeração',
       criticidade: 'critica',
       prioridadeOperacional: 'alta',
+      setorId: 'setor-2',
       createdAt: '2026-03-15',
     },
     {
@@ -67,6 +107,7 @@ export const appV2MockData: AppV2MockData = {
       tipo: 'Refrigeração',
       criticidade: 'alta',
       prioridadeOperacional: 'alta',
+      setorId: 'setor-3',
       createdAt: '2026-02-20',
     },
     {

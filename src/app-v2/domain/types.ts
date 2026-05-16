@@ -1,6 +1,8 @@
 export type EquipmentStatus = 'ok' | 'warn' | 'danger';
 export type EquipmentCriticality = 'baixa' | 'media' | 'alta' | 'critica';
 export type OperationalPriority = 'baixa' | 'normal' | 'alta';
+export type EquipmentAttachmentKind = 'foto' | 'documento';
+export type EquipmentAttachmentSource = 'mock' | 'placeholder';
 
 export type ServiceCommitmentKind = 'preventiva' | 'corretiva';
 export type ServiceCommitmentStatus = 'agendado' | 'em_andamento' | 'concluido' | 'cancelado';
@@ -25,18 +27,39 @@ export interface Cliente {
   endereco?: string;
 }
 
+export interface SetorEquipamento {
+  id: string;
+  nome: string;
+  clienteId?: string;
+  cor?: string;
+  descricao?: string;
+  responsavel?: string;
+}
+
+export interface EquipmentAttachment {
+  id: string;
+  kind: EquipmentAttachmentKind;
+  label: string;
+  source: EquipmentAttachmentSource;
+  createdAt: string;
+  cover?: boolean;
+}
+
 export interface Equipamento {
   id: string;
   nome: string;
   local: string;
   status: EquipmentStatus;
   clienteId?: string;
+  setorId?: string;
   tag?: string;
   tipo?: string;
   criticidade?: EquipmentCriticality;
   prioridadeOperacional?: OperationalPriority;
   periodicidadePreventivaDias?: number;
+  anexos?: EquipmentAttachment[];
   createdAt?: string;
+  archivedAt?: string;
 }
 
 export interface CompromissoServico {

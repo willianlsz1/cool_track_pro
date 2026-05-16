@@ -35,14 +35,17 @@ export function selectHomeTodayInput(state: AppV2MockSnapshot): HomeTodayInput {
 }
 
 export function selectEquipmentInput(state: AppV2MockSnapshot): BuildEquipmentViewModelInput {
-  return selectHomeTodayInput(state);
+  return {
+    ...selectHomeTodayInput(state),
+    setores: state.setores,
+  };
 }
 
 export function selectServiceFlowInput(state: AppV2MockSnapshot): BuildServiceFlowInput {
   return {
     today: state.today,
     clientes: state.clientes,
-    equipamentos: state.equipamentos,
+    equipamentos: state.equipamentos.filter((equipamento) => !equipamento.archivedAt),
     compromissos: state.compromissos,
   };
 }

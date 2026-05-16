@@ -55,4 +55,27 @@ describe('pickNextHomeAction', () => {
       cta: 'Registrar primeiro serviço',
     });
   });
+
+  it('ignora equipamento arquivado em compromissos urgentes e primeiro servico', () => {
+    const result = pickNextHomeAction({
+      today,
+      equipamentos: [{ ...equipamento, archivedAt: '2026-05-09' }],
+      compromissos: [
+        {
+          id: 'comp-1',
+          equipamentoId: 'eq-1',
+          tipo: 'preventiva',
+          status: 'agendado',
+          dataAlvo: '2026-05-09',
+          origem: 'manual',
+        },
+      ],
+      registros: [],
+    });
+
+    expect(result).toEqual({
+      kind: 'sem_acao',
+      cta: 'Buscar equipamento',
+    });
+  });
 });

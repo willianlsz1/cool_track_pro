@@ -12,6 +12,7 @@ import {
   selectAppV2OperationalState,
   selectEquipmentInput,
   selectHomeTodayInput,
+  selectServiceFlowInput,
   selectServicesHomeInput,
 } from './appV2Selectors';
 import { buildServicesHomeViewModel } from '../service/servicesHomeViewModel';
@@ -32,6 +33,48 @@ describe('app-v2 flow actions', () => {
       finalStatus: 'ok',
     });
     expect(state).not.toHaveProperty('serviceDraft');
+  });
+
+  it('bloqueia inicio de servico para equipamento arquivado', () => {
+    const state = createAppV2MockSnapshot({
+      equipamentos: [
+        {
+          id: 'eq-archived',
+          nome: 'Split arquivado',
+          local: 'Sala',
+          status: 'ok',
+          archivedAt: '2026-05-10',
+        },
+      ],
+    });
+
+    expect(() => startServiceFromEquipment(state, 'eq-archived')).toThrow(
+      'Equipamento arquivado nao pode iniciar servico.',
+    );
+  });
+
+  it('remove equipamentos arquivados da escolha operacional de servico', () => {
+    const state = createAppV2MockSnapshot({
+      equipamentos: [
+        {
+          id: 'eq-active',
+          nome: 'Split ativo',
+          local: 'Sala',
+          status: 'ok',
+        },
+        {
+          id: 'eq-archived',
+          nome: 'Split arquivado',
+          local: 'Deposito',
+          status: 'ok',
+          archivedAt: '2026-05-10',
+        },
+      ],
+    });
+
+    expect(selectServiceFlowInput(state).equipamentos.map((item) => item.id)).toEqual([
+      'eq-active',
+    ]);
   });
 
   it('edita registro existente no mock preservando id e sem duplicar', () => {

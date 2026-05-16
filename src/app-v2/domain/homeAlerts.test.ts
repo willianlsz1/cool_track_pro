@@ -12,6 +12,7 @@ function equipment(input: Partial<Equipamento> = {}): Equipamento {
     status: input.status ?? 'ok',
     criticidade: input.criticidade,
     prioridadeOperacional: input.prioridadeOperacional,
+    archivedAt: input.archivedAt,
   };
 }
 
@@ -155,5 +156,29 @@ describe('buildHomeAlerts', () => {
       title: 'Equipamento exige acompanhamento',
       detail: '2 corretivas recentes',
     });
+  });
+
+  it('ignora equipamento arquivado nos alertas operacionais', () => {
+    const alerts = buildHomeAlerts({
+      today,
+      equipamentos: [
+        equipment({
+          id: 'eq-archived',
+          status: 'danger',
+          archivedAt: '2026-05-09',
+          criticidade: 'critica',
+        }),
+      ],
+      compromissos: [
+        commitment({
+          id: 'comp-archived',
+          equipamentoId: 'eq-archived',
+          dataAlvo: '2026-05-09',
+        }),
+      ],
+      registros: [],
+    });
+
+    expect(alerts).toEqual([]);
   });
 });

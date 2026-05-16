@@ -35,6 +35,20 @@ export function EquipmentCard({ item, onOpen }: EquipmentCardProps) {
           >
             {item.customerLine}
           </span>
+          <span
+            className={`tw-mt-1 tw-block tw-truncate tw-text-xs tw-font-semibold ${appV2Tone.subtleText}`}
+          >
+            {item.sectorLabel}
+          </span>
+          {item.attachmentLabel ? (
+            <span
+              className={`tw-mt-1 tw-block tw-truncate tw-text-xs tw-font-semibold ${appV2Tone.subtleText}`}
+            >
+              {item.coverAttachmentLabel
+                ? `Capa local: ${item.coverAttachmentLabel}`
+                : `Anexos: ${item.attachmentLabel}`}
+            </span>
+          ) : null}
         </span>
         <StatusBadge tone={item.statusTone} className="tw-shrink-0 tw-border">
           {item.statusLabel}

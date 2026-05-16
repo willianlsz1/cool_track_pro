@@ -25,8 +25,14 @@ interface PickNextHomeActionInput {
 }
 
 export function pickNextHomeAction(input: PickNextHomeActionInput): HomeAction {
+  const activeEquipmentIds = new Set(
+    input.equipamentos.filter((equipamento) => !equipamento.archivedAt).map((item) => item.id),
+  );
   const activeCommitments = input.compromissos
-    .filter((compromisso) => compromisso.status === 'agendado')
+    .filter(
+      (compromisso) =>
+        compromisso.status === 'agendado' && activeEquipmentIds.has(compromisso.equipamentoId),
+    )
     .sort((a, b) => a.dataAlvo.localeCompare(b.dataAlvo));
 
   const dueCommitment = activeCommitments.find(
@@ -44,7 +50,7 @@ export function pickNextHomeAction(input: PickNextHomeActionInput): HomeAction {
 
   const equipmentWithService = new Set(input.registros.map((registro) => registro.equipamentoId));
   const equipmentWithoutService = input.equipamentos.find(
-    (equipamento) => !equipmentWithService.has(equipamento.id),
+    (equipamento) => !equipamento.archivedAt && !equipmentWithService.has(equipamento.id),
   );
 
   if (equipmentWithoutService) {

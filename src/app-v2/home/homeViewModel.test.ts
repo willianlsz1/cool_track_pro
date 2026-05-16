@@ -136,4 +136,29 @@ describe('buildHomeTodayViewModel', () => {
     expect(viewModel.nextAction.tone).toBe('calm');
     expect(viewModel.queue).toEqual([]);
   });
+
+  it('nao conta compromissos de equipamento arquivado na Home operacional', () => {
+    const viewModel = buildHomeTodayViewModel({
+      today: '2026-05-10',
+      clientes: [cliente],
+      equipamentos: [{ ...split, archivedAt: '2026-05-09' }],
+      compromissos: [
+        {
+          id: 'compromisso-arquivado',
+          equipamentoId: split.id,
+          tipo: 'preventiva',
+          status: 'agendado',
+          dataAlvo: '2026-05-09',
+          origem: 'periodicidade',
+        },
+      ],
+      registros: [registroSplit],
+    });
+
+    expect(viewModel.nextAction.primaryCta).toBe('Buscar equipamento');
+    expect(viewModel.quickStats.find((item) => item.id === 'services-today')?.value).toBe('0');
+    expect(viewModel.quickStats.find((item) => item.id === 'overdue')?.value).toBe('0');
+    expect(viewModel.queue).toEqual([]);
+    expect(viewModel.alerts).toEqual([]);
+  });
 });

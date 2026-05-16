@@ -133,7 +133,7 @@ export function ServicesHome({
             value={viewModel.activeFilters.query}
             onChange={(event) => updateServiceFilter('query', event.target.value)}
             placeholder="Buscar equipamento, cliente, tecnico ou registro"
-            className={`tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            className={`tw-box-border tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
           />
         </label>
 

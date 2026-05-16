@@ -53,6 +53,7 @@ export function buildHomeAlerts(input: BuildHomeAlertsInput): HomeAlert[] {
   const commitmentsByEquipment = groupCommitmentsByEquipment(input.compromissos);
 
   return input.equipamentos
+    .filter((equipamento) => !equipamento.archivedAt)
     .flatMap((equipamento) =>
       buildEquipmentAlerts({
         today: input.today,

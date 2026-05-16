@@ -5,7 +5,13 @@ import {
   buildEquipmentListViewModel,
   type BuildEquipmentViewModelInput,
 } from './equipmentViewModel';
-import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '../domain/types';
+import type {
+  Cliente,
+  CompromissoServico,
+  Equipamento,
+  RegistroServico,
+  SetorEquipamento,
+} from '../domain/types';
 
 const clientes: Cliente[] = [
   {
@@ -33,6 +39,17 @@ const equipamentos: Equipamento[] = [
     tipo: 'Ar condicionado',
     criticidade: 'media',
     prioridadeOperacional: 'normal',
+    setorId: 'setor-1',
+    anexos: [
+      {
+        id: 'anexo-1',
+        kind: 'foto',
+        label: 'Foto local evaporadora',
+        source: 'placeholder',
+        createdAt: '2026-05-10',
+        cover: true,
+      },
+    ],
   },
   {
     id: 'eq-2',
@@ -44,6 +61,7 @@ const equipamentos: Equipamento[] = [
     tipo: 'Refrigeração',
     criticidade: 'critica',
     prioridadeOperacional: 'alta',
+    setorId: 'setor-2',
   },
   {
     id: 'eq-3',
@@ -55,6 +73,7 @@ const equipamentos: Equipamento[] = [
     tipo: 'Refrigeração',
     criticidade: 'alta',
     prioridadeOperacional: 'alta',
+    setorId: 'setor-3',
   },
   {
     id: 'eq-4',
@@ -64,6 +83,27 @@ const equipamentos: Equipamento[] = [
     clienteId: 'cliente-1',
     tag: 'CAS-010',
     tipo: 'Ar condicionado',
+  },
+];
+
+const setores: SetorEquipamento[] = [
+  {
+    id: 'setor-1',
+    nome: 'Recepcao',
+    clienteId: 'cliente-1',
+    cor: '#2563EB',
+  },
+  {
+    id: 'setor-2',
+    nome: 'Camara fria',
+    clienteId: 'cliente-1',
+    cor: '#DC2626',
+  },
+  {
+    id: 'setor-3',
+    nome: 'Producao',
+    clienteId: 'cliente-2',
+    cor: '#16A34A',
   },
 ];
 
@@ -129,6 +169,7 @@ const registros: RegistroServico[] = [
 const input: BuildEquipmentViewModelInput = {
   today: '2026-05-10',
   clientes,
+  setores,
   equipamentos,
   compromissos,
   registros,
@@ -143,12 +184,22 @@ describe('buildEquipmentListViewModel', () => {
       id: 'eq-1',
       name: 'Split 24.000 BTU',
       customerLine: 'Mercado Bom Preço - Recepção',
+      sectorLabel: 'Setor: Recepcao',
       metaLine: 'Ar condicionado - SPL-024',
       statusLabel: 'Atenção',
       statusTone: 'warning',
       nextActionLabel: 'Preventiva vencida',
       nextActionTone: 'danger',
+      attachmentLabel: '1 anexo',
+      coverAttachmentLabel: 'Foto local evaporadora',
     });
+  });
+
+  it('filtra equipamentos por setor mock/local sem storage real', () => {
+    const viewModel = buildEquipmentListViewModel(input, { sectorId: 'setor-2' });
+
+    expect(viewModel.items.map((item) => item.id)).toEqual(['eq-2']);
+    expect(viewModel.items[0]?.sectorLabel).toBe('Setor: Camara fria');
   });
 
   it('busca por nome, cliente, local e tag sem depender de acentuação', () => {
@@ -178,6 +229,17 @@ describe('buildEquipmentListViewModel', () => {
     expect(viewModel.items.map((item) => item.id)).toEqual(['eq-4']);
     expect(viewModel.items[0]?.nextActionLabel).toBe('Registrar primeiro serviço');
   });
+  it('oculta equipamentos arquivados da lista operacional por padrao', () => {
+    const viewModel = buildEquipmentListViewModel({
+      ...input,
+      equipamentos: input.equipamentos.map((equipamento) =>
+        equipamento.id === 'eq-1' ? { ...equipamento, archivedAt: '2026-05-16' } : equipamento,
+      ),
+    });
+
+    expect(viewModel.items.map((item) => item.id)).toEqual(['eq-2', 'eq-3', 'eq-4']);
+    expect(viewModel.totalLabel).toBe('3 equipamentos');
+  });
 });
 
 describe('buildEquipmentDetailViewModel', () => {
@@ -190,6 +252,7 @@ describe('buildEquipmentDetailViewModel', () => {
       typeLine: 'Ar condicionado - SPL-024',
       statusLabel: 'Atenção',
       customerName: 'Mercado Bom Preço',
+      sectorLabel: 'Setor: Recepcao',
       location: 'Recepção',
       priorityLabel: 'Prioridade normal',
       primaryActionLabel: 'Iniciar serviço',
@@ -198,6 +261,16 @@ describe('buildEquipmentDetailViewModel', () => {
       lastServiceLabel: 'Preventiva em 07/05',
       nextPreventiveLabel: 'Preventiva vencida desde 08/05',
       note: 'Limpeza de filtros e teste de temperatura.',
+      attachmentSummaryLabel: '1/3 anexos locais',
+      attachments: [
+        {
+          id: 'anexo-1',
+          kindLabel: 'Foto',
+          label: 'Foto local evaporadora',
+          sourceLabel: 'Placeholder local',
+          coverLabel: 'Capa local',
+        },
+      ],
     });
   });
 
@@ -207,5 +280,21 @@ describe('buildEquipmentDetailViewModel', () => {
     expect(detail.primaryActionLabel).toBe('Registrar primeiro serviço');
     expect(detail.lastServiceLabel).toBe('Sem histórico técnico');
     expect(detail.nextPreventiveLabel).toBe('Sem preventiva agendada');
+  });
+  it('mantem detalhe de equipamento arquivado com historico preservado', () => {
+    const detail = buildEquipmentDetailViewModel(
+      {
+        ...input,
+        equipamentos: input.equipamentos.map((equipamento) =>
+          equipamento.id === 'eq-1' ? { ...equipamento, archivedAt: '2026-05-16' } : equipamento,
+        ),
+      },
+      'eq-1',
+    );
+
+    expect(detail.archivedLabel).toBe('Arquivado em 16/05');
+    expect(detail.statusLabel).toBe('Arquivado');
+    expect(detail.primaryActionLabel).toBe('Equipamento arquivado');
+    expect(detail.lastServiceLabel).toBe('Preventiva em 07/05');
   });
 });

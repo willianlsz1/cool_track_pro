@@ -12,6 +12,7 @@ import {
   mockEquipmentCompromissos,
   mockEquipmentEquipamentos,
   mockEquipmentRegistros,
+  mockEquipmentSetores,
   mockEquipmentToday,
 } from './mockEquipmentData';
 import { appV2Tone } from '../styles/tokens';
@@ -24,6 +25,9 @@ interface EquipmentDetailProps {
   onOpenClient?: (clientId: string) => void;
   onStartService?: (equipmentId: string) => void;
   onSaveEquipment?: (draft: SaveEquipmentDraft) => string | null;
+  onArchiveEquipment?: (equipmentId: string) => string | null;
+  onUnarchiveEquipment?: (equipmentId: string) => string | null;
+  onAddPlaceholderAttachment?: (equipmentId: string) => string | null;
 }
 
 const accentClasses: Record<EquipmentTone, string> = {
@@ -36,6 +40,7 @@ const accentClasses: Record<EquipmentTone, string> = {
 const defaultEquipmentInput: BuildEquipmentViewModelInput = {
   today: mockEquipmentToday,
   clientes: mockEquipmentClientes,
+  setores: mockEquipmentSetores,
   equipamentos: mockEquipmentEquipamentos,
   compromissos: mockEquipmentCompromissos,
   registros: mockEquipmentRegistros,
@@ -48,11 +53,65 @@ export function EquipmentDetail({
   onOpenClient,
   onStartService,
   onSaveEquipment,
+  onArchiveEquipment,
+  onUnarchiveEquipment,
+  onAddPlaceholderAttachment,
 }: EquipmentDetailProps) {
   const equipmentInput = input ?? defaultEquipmentInput;
   const detail = buildEquipmentDetailViewModel(equipmentInput, equipmentId);
   const equipment = equipmentInput.equipamentos.find((item) => item.id === equipmentId);
   const [isEditing, setIsEditing] = useState(false);
+  const [isArchivePending, setIsArchivePending] = useState(false);
+  const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
+  const isArchived = Boolean(detail.archivedLabel);
+
+  function confirmArchiveEquipment() {
+    if (!onArchiveEquipment) {
+      return;
+    }
+
+    const result = onArchiveEquipment(equipmentId);
+
+    if (result) {
+      setArchiveError(result);
+      return;
+    }
+
+    setArchiveError(null);
+    setIsArchivePending(false);
+  }
+
+  function unarchiveEquipment() {
+    if (!onUnarchiveEquipment) {
+      return;
+    }
+
+    const result = onUnarchiveEquipment(equipmentId);
+
+    if (result) {
+      setArchiveError(result);
+      return;
+    }
+
+    setArchiveError(null);
+    setIsArchivePending(false);
+  }
+
+  function addPlaceholderAttachment() {
+    if (!onAddPlaceholderAttachment) {
+      return;
+    }
+
+    const result = onAddPlaceholderAttachment(equipmentId);
+
+    if (result) {
+      setAttachmentError(result);
+      return;
+    }
+
+    setAttachmentError(null);
+  }
 
   return (
     <PageShell>
@@ -89,8 +148,15 @@ export function EquipmentDetail({
             </StatusBadge>
           </div>
 
+          {detail.archivedLabel ? (
+            <p className="tw-m-0 tw-mt-5 tw-rounded-xl tw-border tw-border-[#BFDBFE] tw-bg-[#EFF6FF] tw-px-4 tw-py-3 tw-text-sm tw-font-bold tw-text-[#1D4ED8]">
+              {detail.archivedLabel}
+            </p>
+          ) : null}
+
           <dl className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-2">
             <InfoRow label="Cliente" value={detail.customerName} />
+            <InfoRow label="Setor" value={detail.sectorLabel} />
             <InfoRow label="Local" value={detail.location} />
             {detail.criticalityLabel ? (
               <InfoRow label="Criticidade" value={detail.criticalityLabel} />
@@ -101,7 +167,7 @@ export function EquipmentDetail({
           </dl>
 
           <div className="tw-mt-7 tw-grid tw-gap-3 sm:tw-grid-cols-[minmax(0,248px)_minmax(0,216px)]">
-            <ActionButton onClick={() => onStartService?.(equipmentId)}>
+            <ActionButton disabled={isArchived} onClick={() => onStartService?.(equipmentId)}>
               {detail.primaryActionLabel}
             </ActionButton>
             <ActionButton variant="secondary">{detail.secondaryActionLabel}</ActionButton>
@@ -110,13 +176,52 @@ export function EquipmentDetail({
                 Editar equipamento
               </ActionButton>
             ) : null}
+            {onArchiveEquipment && equipment && !isArchived ? (
+              isArchivePending ? (
+                <>
+                  <ActionButton
+                    variant="ghost"
+                    className="tw-border-[#FECACA] tw-bg-[#FEF2F2] tw-text-[#B91C1C]"
+                    onClick={confirmArchiveEquipment}
+                  >
+                    Confirmar arquivar equipamento
+                  </ActionButton>
+                  <ActionButton variant="ghost" onClick={() => setIsArchivePending(false)}>
+                    Cancelar arquivamento
+                  </ActionButton>
+                </>
+              ) : (
+                <ActionButton
+                  variant="ghost"
+                  className="tw-text-[#B91C1C]"
+                  onClick={() => {
+                    setArchiveError(null);
+                    setIsArchivePending(true);
+                  }}
+                >
+                  Arquivar equipamento
+                </ActionButton>
+              )
+            ) : null}
+            {onUnarchiveEquipment && equipment && isArchived ? (
+              <ActionButton variant="ghost" onClick={unarchiveEquipment}>
+                Desarquivar equipamento
+              </ActionButton>
+            ) : null}
           </div>
+
+          {archiveError ? (
+            <p className="tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-border-[#FECACA] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#991B1B]">
+              {archiveError}
+            </p>
+          ) : null}
         </SectionCard>
 
         {isEditing && onSaveEquipment && equipment ? (
           <EquipmentForm
             title="Editar equipamento"
             clientes={equipmentInput.clientes}
+            setores={equipmentInput.setores}
             initialEquipment={equipment}
             onCancel={() => setIsEditing(false)}
             onSave={(draft) => {
@@ -132,6 +237,62 @@ export function EquipmentDetail({
         ) : null}
 
         <div className="tw-grid tw-gap-4">
+          <SectionCard labelledBy="equipment-attachments-title">
+            <div className="tw-flex tw-items-start tw-justify-between tw-gap-3">
+              <div>
+                <h2
+                  id="equipment-attachments-title"
+                  className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
+                >
+                  Anexos locais
+                </h2>
+                <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
+                  {detail.attachmentSummaryLabel}
+                </p>
+              </div>
+              {onAddPlaceholderAttachment && !isArchived ? (
+                <button
+                  type="button"
+                  onClick={addPlaceholderAttachment}
+                  className={`tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#2563EB] ${appV2Tone.focus}`}
+                >
+                  Adicionar anexo placeholder
+                </button>
+              ) : null}
+            </div>
+
+            {detail.attachments.length > 0 ? (
+              <ul className="tw-m-0 tw-mt-4 tw-grid tw-list-none tw-gap-3 tw-p-0">
+                {detail.attachments.map((attachment) => (
+                  <li
+                    key={attachment.id}
+                    className="tw-rounded-xl tw-border tw-border-[#E5EAF0] tw-bg-[#F8FAFC] tw-px-4 tw-py-3"
+                  >
+                    <p className={`tw-m-0 tw-text-sm tw-font-bold ${appV2Tone.text}`}>
+                      {attachment.label}
+                    </p>
+                    <p
+                      className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-semibold ${appV2Tone.subtleText}`}
+                    >
+                      {attachment.kindLabel} - {attachment.sourceLabel}
+                      {attachment.coverLabel ? ` - ${attachment.coverLabel}` : ''}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={`tw-m-0 tw-mt-4 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
+                Nenhum anexo local neste equipamento.
+              </p>
+            )}
+
+            {attachmentError ? (
+              <p className="tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-border-[#FECACA] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#991B1B]">
+                {attachmentError}
+              </p>
+            ) : null}
+          </SectionCard>
+
           <SectionCard labelledBy="technical-summary-title">
             <h2
               id="technical-summary-title"

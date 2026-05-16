@@ -1,13 +1,14 @@
 import { useState, type ReactNode } from 'react';
 
 import type { SaveEquipmentDraft } from './equipmentActions';
-import type { Cliente, EquipmentStatus, Equipamento } from '../domain/types';
+import type { Cliente, EquipmentStatus, Equipamento, SetorEquipamento } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
 import { ActionButton, SectionCard } from '../ui/primitives';
 
 interface EquipmentFormProps {
   title: string;
   clientes: Cliente[];
+  setores?: SetorEquipamento[];
   initialEquipment?: Equipamento;
   initialClientId?: string;
   error?: string | null;
@@ -18,6 +19,7 @@ interface EquipmentFormProps {
 export function EquipmentForm({
   title,
   clientes,
+  setores = [],
   initialEquipment,
   initialClientId,
   error,
@@ -29,6 +31,7 @@ export function EquipmentForm({
   const [tipo, setTipo] = useState(initialEquipment?.tipo ?? '');
   const [tag, setTag] = useState(initialEquipment?.tag ?? '');
   const [clienteId, setClienteId] = useState(initialEquipment?.clienteId ?? initialClientId ?? '');
+  const [setorId, setSetorId] = useState(initialEquipment?.setorId ?? '');
   const [status, setStatus] = useState(initialEquipment?.status ?? 'ok');
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -41,6 +44,7 @@ export function EquipmentForm({
       tipo,
       tag,
       clienteId,
+      setorId,
       status,
     });
 
@@ -122,6 +126,22 @@ export function EquipmentForm({
             {clientes.map((cliente) => (
               <option key={cliente.id} value={cliente.id}>
                 {cliente.nome}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Setor" htmlFor="equipment-sector">
+          <select
+            id="equipment-sector"
+            name="equipment-sector"
+            value={setorId}
+            onChange={(event) => setSetorId(event.target.value)}
+            className={inputClass}
+          >
+            <option value="">Sem setor</option>
+            {setores.map((setor) => (
+              <option key={setor.id} value={setor.id}>
+                {setor.nome}
               </option>
             ))}
           </select>

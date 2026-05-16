@@ -76,8 +76,18 @@ export interface BuildHomeTodayViewModelInput {
 }
 
 export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): HomeTodayViewModel {
-  const alerts = buildHomeAlerts(input);
-  const nextAction = pickNextHomeAction(input);
+  const activeEquipmentIds = new Set(
+    input.equipamentos.filter((equipamento) => !equipamento.archivedAt).map((item) => item.id),
+  );
+  const activeCommitments = input.compromissos.filter(
+    (item) => item.status === 'agendado' && activeEquipmentIds.has(item.equipamentoId),
+  );
+  const operationalInput = {
+    ...input,
+    compromissos: activeCommitments,
+  };
+  const alerts = buildHomeAlerts(operationalInput);
+  const nextAction = pickNextHomeAction(operationalInput);
   const clientesById = new Map(input.clientes.map((cliente) => [cliente.id, cliente]));
   const equipamentosById = new Map(
     input.equipamentos.map((equipamento) => [equipamento.id, equipamento]),
@@ -91,9 +101,9 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
     today: input.today,
     clientesById,
     equipamentosById,
-    compromissos: input.compromissos,
+    compromissos: activeCommitments,
   });
-  const scheduledCommitments = input.compromissos.filter((item) => item.status === 'agendado');
+  const scheduledCommitments = activeCommitments;
   const dangerAlertCount = alerts.filter((alert) => alert.severity === 'danger').length;
   const completedToday = input.registros.filter((registro) => registro.data === input.today).length;
 
