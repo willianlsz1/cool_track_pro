@@ -529,18 +529,18 @@ Status atualizado:
 
 ## 31. Matriz geral de UX funcional v1 -> app-v2
 
-| Fluxo                                 | Comportamento v1 util                                                                                                                          | Fontes v1 analisadas                                                                                     | Equivalente v2 atual                                                                                              | Lacunas                                                    | Decisao v2                                                       | Escopo permitido       | Escopo proibido                                   | Testes necessarios                   | Status                      |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- | ------------------------------------------------- | ------------------------------------ | --------------------------- |
-| Registro de Servico                   | Criar, validar, concluir, editar, alimentar historico, relatorio e proxima preventiva                                                          | `src/features/registro/save/*`, `src/ui/views/registro.js`                                               | Fluxo progressivo app-v2 com mock local, edicao e relatorio local                                                 | PDF/WhatsApp real fora                                     | Preservar fluxo por etapas e substituir prompt por campo interno | app-v2/mock/testes     | storage, PDF/share, WhatsApp, PMOC                | action, view model, shell, relatorio | coberto                     |
-| Historico de Servicos                 | Listar registros, consultar por equipamento/cliente e abrir relatorio/registro                                                                 | `src/features/historico/*`, `src/ui/viewModels/historicoViewModel.js`                                    | `Servicos > Registros` lista recentes, permite busca local e permite editar/reabrir relatorio por caminhos locais | filtros por periodo/cliente dedicados ainda limitados      | Evoluir dentro de Servicos, sem aba global nova                  | view model e UI minima | router novo, storage real, PMOC                   | view model + shell                   | parcial                     |
-| Relatorios                            | Gerar visao por registros, filtrar e reabrir documento                                                                                         | `src/ui/views/relatorio.js`, `src/ui/viewModels/relatorioViewModel.js`                                   | `Servicos > Relatorios` com busca, KPIs, preview e print local                                                    | PDF/share/WhatsApp real fora                               | Relatorio local cobre leitura; integracoes ficam sensiveis       | relatorio local/mock   | PDF/share real, WhatsApp real                     | relatorio + shell                    | parcial                     |
-| Equipamentos                          | Listar, consultar detalhe, status, cliente/local, criar/editar e iniciar servico                                                               | `src/ui/viewModels/equipamentosViewModel.js`, `src/features/equipamentos/*`                              | Area Equipamentos com lista, detalhe, cliente/local, criar/editar mockado e iniciar servico                       | estado vazio/onboarding e campos avancados ainda limitados | Preservar equipamento como centro operacional                    | mock/local/UI minima   | storage real, Supabase/RLS                        | equipment action + shell             | parcial                     |
-| Clientes                              | Listar, abrir detalhe, ver equipamentos vinculados, consultar servicos relacionados, criar e editar cadastro basico                            | `src/core/clientes.js`, `src/ui/viewModels/clientes*`, `src/ui/viewModels/equipamentosViewModel.js`      | Clientes como subvisao de Equipamentos com detalhe, equipamentos vinculados, servicos relacionados e CRUD mockado | relatorio/filtro dedicado por cliente limitados            | Cliente continua subvisao forte, nao aba global                  | mock/local/UI minima   | storage real, PMOC, Supabase/RLS                  | clients action + shell               | parcial                     |
-| Alertas e proximas acoes              | Priorizar status critico, falta de historico critico, preventiva vencida/proxima, reincidencia corretiva, criticidade e prioridade operacional | `src/domain/maintenance.js`, `src/domain/constants/alerts.js`, `src/ui/viewModels/dashboardViewModel.js` | Home operacional consome `buildHomeAlerts`, prioriza alerta critico, exibe contador e lista curta de alertas      | notificacao/calendario real fora; regras avancadas futuras | Migrar como dominio puro/mock antes de integracoes reais         | dominio puro + mock    | notificacao real, calendario real, storage        | home priority tests + shell          | coberto por substituicao v2 |
-| Orcamentos                            | Acompanhar pipeline, vincular cliente/equipamento/registro e resumir valores                                                                   | `src/ui/viewModels/orcamentosViewModel.js`, `src/domain/orcamentoFollowUp.js`                            | Subvisao `Servicos > Orcamentos` com lista mockada e KPIs locais                                                  | criar/editar/assinar/baixar/enviar fora                    | Primeira fase so acompanha mock local                            | view model + UI minima | billing, assinatura, PDF/share, WhatsApp, storage | view model + shell                   | parcial                     |
-| Configuracoes operacionais simples    | Atalhos e preferencias operacionais                                                                                                            | `src/ui/views/configuracoes.js`                                                                          | Conta placeholder sem acoes operacionais                                                                          | atalhos simples nao mapeados                               | Mapear antes de implementar                                      | doc/view model         | billing, assinatura, storage real                 | shell                                | pendente mock               |
-| Estados vazios e onboarding funcional | Orientar primeiro cadastro/primeiro atendimento                                                                                                | `src/ui/viewModels/dashboardViewModel.js`, `src/features/equipamentos/*`                                 | Estado vazio de Servicos orienta criacao e inicia registro apos primeiro equipamento mockado                      | onboarding completo ainda limitado                         | Usar mensagens locais e CTA contextual                           | UI minima              | redesign final                                    | shell                                | parcial                     |
-| Pos-salvamento local                  | Oferecer saidas apos salvar e fallback                                                                                                         | `src/features/registro/save/postSave.js`                                                                 | Done state com relatorio local, proxima manutencao no fluxo e historico atualizado                                | orcamento a partir do fechamento ainda nao implementado    | Substituir prompts por saidas v2 progressivas                    | mock/local             | PDF/share real, WhatsApp real                     | shell + action                       | parcial                     |
+| Fluxo                                 | Comportamento v1 util                                                                                                                          | Fontes v1 analisadas                                                                                     | Equivalente v2 atual                                                                                              | Lacunas                                                    | Decisao v2                                                        | Escopo permitido       | Escopo proibido                                   | Testes necessarios                   | Status                      |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- | ---------------------- | ------------------------------------------------- | ------------------------------------ | --------------------------- |
+| Registro de Servico                   | Criar, validar, concluir, editar, alimentar historico, relatorio e proxima preventiva                                                          | `src/features/registro/save/*`, `src/ui/views/registro.js`                                               | Fluxo progressivo app-v2 com mock local, edicao e relatorio local                                                 | PDF/WhatsApp real fora                                     | Preservar fluxo por etapas e substituir prompt por campo interno  | app-v2/mock/testes     | storage, PDF/share, WhatsApp, PMOC                | action, view model, shell, relatorio | coberto                     |
+| Historico de Servicos                 | Listar registros, consultar por equipamento/cliente e abrir relatorio/registro                                                                 | `src/features/historico/*`, `src/ui/viewModels/historicoViewModel.js`                                    | `Servicos > Registros` lista recentes, permite busca local e permite editar/reabrir relatorio por caminhos locais | filtros por periodo/cliente dedicados ainda limitados      | Evoluir dentro de Servicos, sem aba global nova                   | view model e UI minima | router novo, storage real, PMOC                   | view model + shell                   | parcial                     |
+| Relatorios                            | Gerar visao por registros, filtrar e reabrir documento                                                                                         | `src/ui/views/relatorio.js`, `src/ui/viewModels/relatorioViewModel.js`                                   | `Servicos > Relatorios` com busca, KPIs, preview e print local                                                    | PDF/share/WhatsApp real fora                               | Relatorio local cobre leitura; integracoes ficam sensiveis        | relatorio local/mock   | PDF/share real, WhatsApp real                     | relatorio + shell                    | parcial                     |
+| Equipamentos                          | Listar, consultar detalhe, status, cliente/local, criar/editar e iniciar servico                                                               | `src/ui/viewModels/equipamentosViewModel.js`, `src/features/equipamentos/*`                              | Area Equipamentos com lista, detalhe, cliente/local, criar/editar mockado e iniciar servico                       | estado vazio/onboarding e campos avancados ainda limitados | Preservar equipamento como centro operacional                     | mock/local/UI minima   | storage real, Supabase/RLS                        | equipment action + shell             | parcial                     |
+| Clientes                              | Listar, abrir detalhe, ver equipamentos vinculados, consultar servicos relacionados, criar e editar cadastro basico                            | `src/core/clientes.js`, `src/ui/viewModels/clientes*`, `src/ui/viewModels/equipamentosViewModel.js`      | Clientes como subvisao de Equipamentos com detalhe, equipamentos vinculados, servicos relacionados e CRUD mockado | relatorio/filtro dedicado por cliente limitados            | Cliente continua subvisao forte, nao aba global                   | mock/local/UI minima   | storage real, PMOC, Supabase/RLS                  | clients action + shell               | parcial                     |
+| Alertas e proximas acoes              | Priorizar status critico, falta de historico critico, preventiva vencida/proxima, reincidencia corretiva, criticidade e prioridade operacional | `src/domain/maintenance.js`, `src/domain/constants/alerts.js`, `src/ui/viewModels/dashboardViewModel.js` | Home operacional consome `buildHomeAlerts`, prioriza alerta critico, exibe contador e lista curta de alertas      | notificacao/calendario real fora; regras avancadas futuras | Migrar como dominio puro/mock antes de integracoes reais          | dominio puro + mock    | notificacao real, calendario real, storage        | home priority tests + shell          | coberto por substituicao v2 |
+| Orcamentos                            | Acompanhar pipeline, vincular cliente/equipamento/registro e resumir valores                                                                   | `src/ui/viewModels/orcamentosViewModel.js`, `src/domain/orcamentoFollowUp.js`                            | Subvisao `Servicos > Orcamentos` com lista mockada e KPIs locais                                                  | criar/editar/assinar/baixar/enviar fora                    | Primeira fase so acompanha mock local                             | view model + UI minima | billing, assinatura, PDF/share, WhatsApp, storage | view model + shell                   | parcial                     |
+| Configuracoes operacionais simples    | Atalhos e preferencias operacionais                                                                                                            | `src/ui/views/configuracoes.js`                                                                          | `Conta` com atalhos locais, preferencias em memoria, microcopy, estados locais e ajustes de acessibilidade        | perfil real, persistencia, billing e PMOC fora             | Encerrar ciclo mock/local e manter integracoes em etapas proprias | doc/view model/shell   | billing, assinatura, storage real, Supabase, PMOC | shell/account tests                  | coberto por substituicao v2 |
+| Estados vazios e onboarding funcional | Orientar primeiro cadastro/primeiro atendimento                                                                                                | `src/ui/viewModels/dashboardViewModel.js`, `src/features/equipamentos/*`                                 | Estado vazio de Servicos orienta criacao e inicia registro apos primeiro equipamento mockado                      | onboarding completo ainda limitado                         | Usar mensagens locais e CTA contextual                            | UI minima              | redesign final                                    | shell                                | parcial                     |
+| Pos-salvamento local                  | Oferecer saidas apos salvar e fallback                                                                                                         | `src/features/registro/save/postSave.js`                                                                 | Done state com relatorio local, proxima manutencao no fluxo e historico atualizado                                | orcamento a partir do fechamento ainda nao implementado    | Substituir prompts por saidas v2 progressivas                     | mock/local             | PDF/share real, WhatsApp real                     | shell + action                       | parcial                     |
 
 ## 32. Checkpoint concluido - Orcamentos mockados dentro de Servicos
 
@@ -1129,3 +1129,1073 @@ Testes executados neste checkpoint:
 > Configuracoes/Conta fase 1: mapear preferencias operacionais simples e
 > documentar contrato mock/local antes de implementar a UI, ainda sem billing,
 > assinatura, storage real, Supabase/RLS, PMOC, PDF/share ou migrations.
+
+## 66. Checkpoint concluido - Configuracoes/Conta fase 1 contrato local
+
+O app-v2 passou a ter contrato documental para a primeira evolucao segura de
+`Conta`:
+
+- contrato criado em
+  `docs/rewrite/configuracoes-conta-fase-1-contrato-local.md`;
+- v1 `src/ui/views/configuracoes.js` foi usado apenas como referencia funcional;
+- atalhos locais permitidos foram mapeados para fluxos app-v2 ja existentes:
+  registro, `Equipamentos > Clientes`, `Servicos > Orcamentos` e Home/alertas;
+- preferencias futuras foram limitadas a estado em memoria: densidade visual,
+  tela inicial e lembrete visual local;
+- ajuda futura foi limitada a texto local, sem suporte externo ou feedback real;
+- PMOC, billing, assinatura, perfil real, storage real, Supabase/RLS,
+  migrations, PDF/share e WhatsApp real ficaram fora.
+
+Validacao executada neste checkpoint:
+
+- `npx prettier --write docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/configuracoes-conta-fase-1-contrato-local.md`
+  executado.
+- `git diff --check` passou.
+- `npm run format:check -- docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/configuracoes-conta-fase-1-contrato-local.md`
+  passou.
+
+## 67. Proximo checkpoint recomendado
+
+> Configuracoes/Conta fase 2: implementar view model e UI minima dos atalhos e
+> preferencias mock/local definidos na fase 1, ainda sem billing, assinatura,
+> perfil real, storage real, Supabase/RLS, PMOC, PDF/share, WhatsApp real ou
+> migrations.
+
+## 68. Checkpoint concluido - Configuracoes/Conta fase 2 UI local
+
+O app-v2 passou a cobrir a primeira UI funcional de `Conta`:
+
+- contrato documental criado em
+  `docs/rewrite/configuracoes-conta-fase-2-ui-local.md`;
+- `accountViewModel` mapeia atalhos, preferencias e ajuda local;
+- `AccountHome` substitui o placeholder de `Conta`;
+- atalhos locais abrem fluxos app-v2 ja existentes: registro, `Equipamentos >
+Clientes`, `Servicos > Orcamentos` e Home/alertas;
+- preferencias de densidade, tela inicial e lembrete visual permanecem somente
+  em memoria;
+- nenhuma area sensivel foi tocada: billing, assinatura, perfil real, storage
+  real, Supabase/RLS, migrations, PMOC, PDF/share real e WhatsApp real ficaram
+  fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts --run` falhou porque
+  `accountViewModel` ainda nao existia.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` falhou porque
+  `Conta` ainda era placeholder.
+- GREEN:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts --run` passou com 1
+  teste.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` passou com 3
+  testes.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts src/app-v2/shell/AppV2ShellAccount.test.tsx src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/shell/AppV2ShellQuotes.test.tsx --run`
+  passou com 40 testes.
+- Validacao parcial:
+  `npm run typecheck -- --pretty false` passou.
+- Validacao geral:
+  `npm run check` passou. Manteve 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 69. Proximo checkpoint recomendado
+
+> Configuracoes/Conta fase 3: aplicar preferencias locais em comportamento
+> visivel limitado, ainda somente em memoria e sem billing, assinatura, perfil
+> real, storage real, Supabase/RLS, PMOC, PDF/share, WhatsApp real ou
+> migrations.
+
+## 70. Checkpoint concluido - Configuracoes/Conta fase 3 preferencias visiveis
+
+O app-v2 passou a aplicar preferencias locais de `Conta` em comportamento
+visivel limitado:
+
+- contrato documental criado em
+  `docs/rewrite/configuracoes-conta-fase-3-preferencias-visiveis.md`;
+- `accountViewModel` expoe densidade visual, acao de tela inicial e banner de
+  lembrete local;
+- `AccountHome` aplica densidade local por atributo testavel e classe escopada;
+- lembrete visual local aparece apenas quando ativado;
+- botao de tela inicial abre `Hoje`, `Equipamentos` ou `Servicos > Registros`
+  sem criar router novo;
+- preferencias permanecem somente em memoria;
+- nenhuma area sensivel foi tocada: billing, assinatura, perfil real, storage
+  real, Supabase/RLS, migrations, PMOC, PDF/share real e WhatsApp real ficaram
+  fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts --run` falhou porque
+  os efeitos visiveis ainda nao existiam.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` falhou porque
+  a UI ainda nao aplicava densidade/banner/atalho de tela inicial.
+- GREEN:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts --run` passou com 2
+  testes.
+- Validacao focada:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts src/app-v2/shell/AppV2ShellAccount.test.tsx --run`
+  passou com 6 testes.
+- Validacao focada ampliada:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/shell/AppV2ShellQuotes.test.tsx --run`
+  passou com 36 testes.
+- Validacao parcial:
+  `npm run typecheck -- --pretty false` passou.
+- Validacao geral:
+  `npm run format`, `npm run build` e `npm run check` passaram. Manteve 1
+  warning ESLint conhecido em `src/domain/pdf/shareReport.js` e warnings
+  Vite/chunk conhecidos.
+
+## 71. Proximo checkpoint recomendado
+
+> Configuracoes/Conta fase 4: consolidar microcopy e estados vazios locais da
+> aba `Conta` dentro das regras de UI do app-v2, ainda sem design final amplo,
+> persistencia, billing, assinatura, perfil real, Supabase/RLS, PMOC,
+> PDF/share, WhatsApp real ou migrations.
+
+## 72. Checkpoint concluido - Configuracoes/Conta fase 4 microcopy e estados locais
+
+O app-v2 passou a consolidar microcopy e estados locais da aba `Conta`:
+
+- contrato documental criado em
+  `docs/rewrite/configuracoes-conta-fase-4-microcopy-estados-locais.md`;
+- `accountViewModel` expoe estado vazio local e limite local generico;
+- `AccountHome` renderiza os blocos locais sem iniciar integracao real;
+- microcopy visivel removeu linguagem de mock da aba `Conta`;
+- preferencias permanecem somente em memoria;
+- nenhuma area sensivel foi tocada: billing, assinatura, perfil real, storage
+  real, Supabase/RLS, migrations, PMOC, PDF/share real e WhatsApp real ficaram
+  fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts --run` falhou porque
+  a microcopy local e os blocos de estado ainda nao existiam.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` falhou porque
+  a UI ainda exibia a microcopy antiga e nao renderizava estado vazio/limite
+  local.
+- GREEN:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts --run` passou com 2
+  testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` passou com 4
+  testes.
+- Validacao parcial:
+  `npm run typecheck -- --pretty false` passou.
+- Validacao geral:
+  `npm run format`, `npm run build`, `npm run check` e `git diff --check`
+  passaram. Manteve 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 73. Proximo checkpoint recomendado
+
+> Configuracoes/Conta fase 5: revisar acessibilidade e responsividade local da
+> aba `Conta` com checagem de textos longos, foco e layout mobile/desktop,
+> ainda sem design final amplo, persistencia, billing, assinatura, perfil real,
+> Supabase/RLS, PMOC, PDF/share, WhatsApp real ou migrations.
+
+## 74. Checkpoint concluido - Configuracoes/Conta fase 5 acessibilidade e responsividade local
+
+O app-v2 passou a cobrir ajustes locais de acessibilidade e responsividade da
+aba `Conta`:
+
+- contrato documental criado em
+  `docs/rewrite/configuracoes-conta-fase-5-a11y-responsividade-local.md`;
+- selects de preferencias passaram a ter descricoes associadas por
+  `aria-describedby`;
+- botao de lembrete visual passou a informar estado por `aria-pressed`;
+- atalhos locais receberam atributo testavel e quebra segura de texto;
+- textos locais passaram a usar quebra segura em pontos com maior risco de
+  overflow;
+- preferencias permanecem somente em memoria;
+- nenhuma area sensivel foi tocada: billing, assinatura, perfil real, storage
+  real, Supabase/RLS, migrations, PMOC, PDF/share real e WhatsApp real ficaram
+  fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` falhou porque
+  os atributos de acessibilidade ainda nao existiam.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2ShellAccount.test.tsx --run` passou com 5
+  testes.
+- Validacao parcial:
+  `npm run typecheck -- --pretty false` passou.
+- Validacao focada ampliada:
+  `npm test -- src/app-v2/account/accountViewModel.test.ts src/app-v2/shell/AppV2ShellAccount.test.tsx src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/shell/AppV2ShellQuotes.test.tsx --run`
+  passou com 43 testes.
+- Validacao geral:
+  `npm run format`, `npm run build`, `npm run check` e `git diff --check`
+  passaram. Manteve 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 75. Proximo checkpoint recomendado
+
+> Configuracoes/Conta fase 6: consolidar encerramento documental do ciclo local
+> de Conta e recalcular impacto na matriz/auditoria funcional v1-v2 sem iniciar
+> persistencia, billing, assinatura, perfil real, Supabase/RLS, PMOC,
+> PDF/share, WhatsApp real ou migrations.
+
+## 76. Checkpoint concluido - Configuracoes/Conta fase 6 encerramento documental
+
+O ciclo local de `Conta` foi encerrado documentalmente:
+
+- contrato documental criado em
+  `docs/rewrite/configuracoes-conta-fase-6-encerramento-documental.md`;
+- fases 1 a 5 foram consolidadas como cobertura mock/local de `Conta`;
+- a matriz geral reclassificou `Configuracoes operacionais simples` de
+  placeholder para `coberto por substituicao v2`;
+- a auditoria funcional recalculou a cobertura geral estimada de 74% para 76%;
+- Registro de Servico permanece em aproximadamente 97%;
+- perfil real, persistencia, billing, assinatura, Supabase/RLS, migrations,
+  PMOC, PDF/share real e WhatsApp real seguem fora do escopo.
+
+Validacao documental deste checkpoint:
+
+- `npx prettier --write docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/configuracoes-conta-fase-6-encerramento-documental.md`
+  executado.
+- `npm run format:check -- docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/configuracoes-conta-fase-6-encerramento-documental.md`
+  passou.
+- `git diff --check` passou.
+
+## 77. Proximo checkpoint recomendado
+
+> Design System/UI fase 1 documental: criar regras de design do app-v2 em
+> `docs/rewrite/` antes de qualquer refinamento visual amplo, sem alterar CSS,
+> componentes, primitives, storage, Supabase/RLS, PMOC, PDF/share, WhatsApp,
+> billing, assinatura ou migrations.
+
+## 78. Checkpoint concluido - Design System/UI fase 1 documental
+
+A primeira fase documental de Design System/UI foi consolidada:
+
+- contrato documental criado em
+  `docs/rewrite/design-system-ui-fase-1-regras-app-v2.md`;
+- `docs/rewrite/etapa-10-regras-design-system-ui-app-v2.md` foi confirmado como
+  fonte normativa inicial;
+- checkpoints visuais futuros devem declarar area unica, componentes afetados,
+  tokens/classes esperados, estados de validacao e escopo proibido antes de
+  editar codigo;
+- nenhum CSS, token, componente, primitive, layout runtime ou integracao
+  sensivel foi alterado.
+
+Validacao documental deste checkpoint:
+
+- `npx prettier --write docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/etapa-10-regras-design-system-ui-app-v2.md docs/rewrite/design-system-ui-fase-1-regras-app-v2.md`
+  executado.
+- `npm run format:check -- docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/etapa-10-regras-design-system-ui-app-v2.md docs/rewrite/design-system-ui-fase-1-regras-app-v2.md`
+  passou.
+- `git diff --check` passou.
+
+## 79. Proximo checkpoint recomendado
+
+> Design System/UI fase 2: escolher uma unica area candidata para refinamento
+> visual controlado, preferencialmente Home Hoje, e criar plano/checklist antes
+> de alterar qualquer CSS, token ou componente.
+
+## 80. Checkpoint concluido - Design System/UI fase 2 Home Hoje checklist
+
+A fase 2 escolheu a primeira area candidata para refinamento visual controlado:
+
+- contrato documental criado em
+  `docs/rewrite/design-system-ui-fase-2-home-hoje-checklist.md`;
+- Home Hoje foi escolhida como area unica inicial;
+- arquivos candidatos foram mapeados sem alterar runtime;
+- checklist futuro exige validacao de mobile 390px, desktop 1366px, desktop
+  largo 1920px, texto longo, estado sem alertas, muitos itens e foco de teclado;
+- nenhum CSS, token, componente, primitive, layout runtime ou integracao
+  sensivel foi alterado.
+
+Validacao documental deste checkpoint:
+
+- `npx prettier --write docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/etapa-10-regras-design-system-ui-app-v2.md docs/rewrite/design-system-ui-fase-2-home-hoje-checklist.md`
+  executado.
+- `npm run format:check -- docs/app-v2-goal.md docs/rewrite/matriz-paridade-v1-v2.md docs/rewrite/auditoria-ux-funcional-v1-v2.md docs/rewrite/etapa-10-regras-design-system-ui-app-v2.md docs/rewrite/design-system-ui-fase-2-home-hoje-checklist.md`
+  passou.
+- `git diff --check` passou.
+
+## 81. Proximo checkpoint recomendado
+
+> Design System/UI fase 3: executar QA visual inicial da Home Hoje em browser e,
+> somente com evidencia de problema concreto, aplicar um refinamento pequeno em
+> Home Hoje com testes e validacao visual.
+
+## 82. Checkpoint concluido - Design System/UI fase 3 QA visual Home Hoje
+
+O QA visual inicial da Home Hoje foi executado:
+
+- contrato documental criado em
+  `docs/rewrite/design-system-ui-fase-3-qa-visual-home-hoje.md`;
+- evidencias geradas em
+  `docs/rewrite/qa-design-system-ui-fase-3-home-hoje/`;
+- mobile 390px, desktop 1366px e desktop 1920px ficaram sem overflow
+  horizontal;
+- a navegacao respeitou breakpoints: bottom nav no mobile, sidebar no desktop;
+- texto longo injetado temporariamente nao gerou overflow horizontal;
+- botoes de alerta da coluna auxiliar receberam `tw-border-0` para remover
+  borda nativa preta;
+- nenhum fluxo, dado, token, shell, storage ou integracao sensivel foi alterado.
+
+Validacao deste checkpoint:
+
+- RED/GREEN focado em `src/app-v2/shell/AppV2Shell.test.tsx`;
+- validacao focada ampliada:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/home/homeViewModel.test.ts --run`
+  passou com 35 testes;
+- `npm run format`, `npm run build`, `npm run check` e `git diff --check`
+  passaram. Manteve 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 83. Proximo checkpoint recomendado
+
+> Design System/UI fase 4: revisar Home Hoje no browser apos a correcao e
+> decidir se ha outro problema visual concreto. Se nao houver, encerrar o ciclo
+> visual da Home e escolher o proximo fluxo por matriz/auditoria, sem ampliar
+> para redesign geral.
+
+## 84. Checkpoint concluido - Design System/UI fase 4 fechamento Home Hoje
+
+A revisao pos-correcao da Home Hoje foi executada:
+
+- contrato documental criado em
+  `docs/rewrite/design-system-ui-fase-4-fechamento-home-hoje.md`;
+- evidencias geradas em
+  `docs/rewrite/qa-design-system-ui-fase-4-home-hoje/`;
+- mobile 390px, desktop 1366px e desktop 1920px ficaram sem overflow
+  horizontal;
+- cenarios de texto longo ficaram sem overflow horizontal;
+- navegacao respeitou breakpoints: bottom nav no mobile e sidebar no desktop;
+- botoes de `Alertas ativos` permaneceram sem risco de borda nativa;
+- divisor de `Alertas ativos` recebeu cor explicita `tw-divide-[#E5EAF0]`;
+- ciclo visual da Home Hoje foi encerrado sem iniciar redesign geral.
+
+Validacao deste checkpoint:
+
+- RED/GREEN focado em `src/app-v2/shell/AppV2Shell.test.tsx`;
+- QA visual pos-correcao com `failed: []` em
+  `docs/rewrite/qa-design-system-ui-fase-4-home-hoje/metrics.json`;
+- validacao focada ampliada:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/home/homeViewModel.test.ts --run`
+  passou com 35 testes;
+- `npm run format`, `npm run build`, `npm run check` e `git diff --check`
+  passaram. Manteve 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 85. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 1 documental: decidir contrato mock/local para
+> setores, fotos e delecao antes de qualquer UI, sem upload/storage real,
+> Supabase/RLS, migrations, PMOC, billing, assinatura, PDF/share, WhatsApp real
+> ou design geral.
+
+## 86. Checkpoint concluido - Equipamentos avancados fase 1 contrato local
+
+A fase documental de Equipamentos avancados foi executada:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-1-contrato-local.md`;
+- setores, fotos e delecao do v1 foram mapeados contra o contrato atual do
+  app-v2;
+- setores foram separados como proxima fatia mock/local possivel;
+- fotos foram mantidas fora por upload/storage, regra de plano e fallback;
+- delecao foi mantida fora por risco de remover registros, historico,
+  relatorios e orcamentos;
+- nenhuma UI, runtime, storage, Supabase/RLS, migrations, PMOC, billing,
+  assinatura, PDF/share, WhatsApp real ou CSS foi alterado nesta fase.
+
+Validacao documental deste checkpoint:
+
+- `npm run format` executado;
+- `npm run build` passou com warnings Vite/chunk conhecidos;
+- `npm run check` passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos;
+- `git diff --check` passou.
+
+## 87. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 2: implementar setores mock/local basicos no
+> app-v2, sem fotos, sem delecao, sem billing real, sem assinatura real, sem
+> storage real, sem Supabase/RLS, sem migrations, sem PMOC e sem redesign geral.
+
+## 88. Checkpoint concluido - Equipamentos avancados fase 2 setores mock/local
+
+A primeira fatia de setores mock/local foi implementada no app-v2:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-2-setores-mock-local.md`;
+- `SetorEquipamento` foi adicionado ao contrato do app-v2;
+- snapshot mockado passou a carregar `setores`;
+- `Equipamento` passou a aceitar `setorId`;
+- `saveEquipment` preserva setor mock/local;
+- formulario de equipamento permite escolher setor;
+- lista e detalhe exibem setor;
+- lista de equipamentos permite filtro local por setor;
+- fotos, upload, storage real, Supabase/RLS, migrations, billing real,
+  assinatura real, delecao, PMOC, PDF/share, WhatsApp e redesign geral ficaram
+  fora.
+
+Validacao deste checkpoint:
+
+- RED/GREEN focado em `equipmentActions`, `equipmentViewModel` e `AppV2Shell`;
+- validacao focada:
+  `npm test -- src/app-v2/equipment/equipmentActions.test.ts src/app-v2/equipment/equipmentViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 49 testes;
+- `npm run format`, `npm run build`, `npm run check` e `git diff --check`
+  passaram. Manteve 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 89. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 3: ampliar setores mock/local com criacao/edicao
+> simples de setor no app-v2, ainda sem delecao, sem fotos, sem billing real,
+> sem assinatura real, sem storage real, sem Supabase/RLS, sem migrations, sem
+> PMOC e sem redesign geral.
+
+## 90. Checkpoint concluido - Equipamentos avancados fase 3 setores CRUD local
+
+A segunda fatia de setores mock/local foi implementada no app-v2:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-3-setores-crud-local.md`;
+- `saveEquipmentSector` cria e edita setor no snapshot mockado;
+- `AppV2Shell` preserva `serviceDraft` ao salvar setor local;
+- `EquipmentList` ganhou painel minimo para criar e editar setor;
+- filtros e exibicao de equipamentos refletem setores criados/editados
+  localmente;
+- validacao focada passou com 45 testes em `equipmentActions` e `AppV2Shell`.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing, assinatura,
+PMOC, fotos/upload, delecao, PDF/share, WhatsApp, router global, CSS legado ou
+design geral.
+
+## 91. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 4: revisar delecao de equipamento e setor como
+> contrato documental antes de qualquer UI, avaliando impactos em registros,
+> relatorios, orcamentos, filtros e historico local, ainda sem fotos, sem
+> billing real, sem assinatura real, sem storage real, sem Supabase/RLS, sem
+> migrations, sem PMOC e sem redesign geral.
+
+## 92. Checkpoint concluido - Equipamentos avancados fase 4 delecao contrato local
+
+A etapa documental de delecao foi executada sem alterar runtime:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-4-delecao-contrato-local.md`;
+- delecao de equipamento v1 foi mapeada em
+  `src/features/equipamentos/ui/deleteEquip.js`;
+- delecao de setor v1 foi mapeada em
+  `src/features/equipamentos/setor/setorPersist.js`;
+- delecao de equipamento foi classificada como destrutiva porque remove
+  equipamento e registros vinculados;
+- delecao de setor foi classificada como remocao de agrupamento porque remove o
+  setor e limpa `setorId` dos equipamentos;
+- app-v2 atual foi confirmado sem action/UI de delecao;
+- decisao recomendada: implementar primeiro delecao mock/local de setor e manter
+  delecao/arquivamento de equipamento para etapa propria.
+
+Nao foram alterados `src/`, testes, storage real, Supabase/RLS, migrations,
+billing, assinatura, PMOC, fotos/upload, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 93. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 5: implementar somente delecao mock/local de setor
+> no app-v2, com confirmacao, limpando `setorId` dos equipamentos e preservando
+> equipamentos, registros, relatorios e orcamentos, ainda sem delecao de
+> equipamento, sem fotos, sem billing real, sem assinatura real, sem storage
+> real, sem Supabase/RLS, sem migrations, sem PMOC e sem redesign geral.
+
+## 94. Checkpoint concluido - Equipamentos avancados fase 5 delecao setor local
+
+A delecao mock/local de setor foi implementada no app-v2:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-5-delecao-setor-local.md`;
+- `deleteEquipmentSector` remove setor do snapshot local;
+- `deleteEquipmentSector` bloqueia `__sem_setor__`;
+- equipamentos vinculados ao setor removido permanecem sem `setorId`;
+- registros e orcamentos permanecem preservados;
+- `AppV2Shell` ganhou handler local de delecao de setor;
+- `EquipmentList` ganhou fluxo de confirmacao antes de remover setor;
+- validacao focada passou com 48 testes em `equipmentActions` e `AppV2Shell`.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing, assinatura,
+PMOC, fotos/upload, delecao de equipamento, PDF/share, WhatsApp, router global,
+CSS legado ou design geral.
+
+## 95. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 6: decidir contrato de arquivamento versus delecao
+> de equipamento no app-v2 antes de qualquer action ou UI, avaliando impacto em
+> registros, relatorios, orcamentos, compromissos, filtros e historico, ainda
+> sem fotos, sem billing real, sem assinatura real, sem storage real, sem
+> Supabase/RLS, sem migrations, sem PMOC e sem redesign geral.
+
+## 96. Checkpoint concluido - Equipamentos avancados fase 6 contrato arquivamento equipamento
+
+A decisao documental de equipamento foi executada sem alterar runtime:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-6-contrato-arquivamento-equipamento.md`;
+- delecao destrutiva do v1 foi revisada como remocao de equipamento e registros
+  vinculados;
+- app-v2 foi mapeado como dependente de `equipamentoId` em registros,
+  relatorios, orcamentos, compromissos, filtros e historico;
+- arquivamento local foi escolhido como contrato recomendado para a proxima
+  fatia de runtime;
+- delecao destrutiva ficou bloqueada para etapa futura propria com politica de
+  retencao/auditoria.
+
+Nao foram alterados `src/`, testes, storage real, Supabase/RLS, migrations,
+billing, assinatura, PMOC, fotos/upload, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 97. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 7: implementar somente arquivamento mock/local de
+> equipamento no app-v2, com confirmacao, preservando registros, relatorios,
+> orcamentos e compromissos, ocultando arquivados da lista operacional por
+> padrao e mantendo resolucao de historico, ainda sem fotos, sem billing real,
+> sem assinatura real, sem storage real, sem Supabase/RLS, sem migrations, sem
+> PMOC e sem redesign geral.
+
+## 98. Checkpoint concluido - Equipamentos avancados fase 7 arquivamento equipamento local
+
+O arquivamento mock/local de equipamento foi implementado no app-v2:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-7-arquivamento-equipamento-local.md`;
+- `Equipamento` ganhou metadado opcional `archivedAt`;
+- `archiveEquipment` marca equipamento como arquivado sem remover a entidade;
+- registros, compromissos e orcamentos vinculados permanecem preservados;
+- lista operacional de Equipamentos oculta arquivados por padrao;
+- detalhe do equipamento arquivado continua resolvendo historico e mostra estado
+  arquivado;
+- `AppV2Shell` ganhou handler local de arquivamento com confirmacao no detalhe;
+- validacao focada passou com 61 testes em `equipmentActions`,
+  `equipmentViewModel` e `AppV2Shell`.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing, assinatura,
+PMOC, fotos/upload, delecao destrutiva, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 99. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 8: decidir contrato local de desarquivamento e/ou
+> tratamento de compromissos futuros de equipamento arquivado antes de qualquer
+> persistencia real, ainda sem fotos, sem billing real, sem assinatura real, sem
+> storage real, sem Supabase/RLS, sem migrations, sem PMOC e sem redesign geral.
+
+## 100. Checkpoint concluido - Equipamentos avancados fase 8 contrato desarquivamento e compromissos
+
+A decisao documental de desarquivamento e compromissos foi executada sem alterar
+runtime:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-8-contrato-desarquivamento-compromissos.md`;
+- Home, alertas, fila e proxima acao foram mapeados como consumidores de
+  compromissos `agendado`;
+- Servicos, Relatorios e Orcamentos foram preservados como consumidores
+  historicos de `equipamentoId`;
+- ficou definido que equipamento arquivado deve sair da operacao ativa sem
+  perder historico;
+- ficou definido que compromissos `agendado` vinculados ao equipamento
+  arquivado devem ser preservados como registros, mas convertidos localmente
+  para `cancelado` na proxima fatia de runtime;
+- ficou definido que desarquivar remove `archivedAt`, mas nao reabre
+  compromissos cancelados automaticamente.
+
+Nao foram alterados `src/`, testes, storage real, Supabase/RLS, migrations,
+billing, assinatura, PMOC, fotos/upload, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 101. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 9: implementar somente runtime mock/local do
+> contrato da fase 8, cancelando compromissos `agendado` ao arquivar
+> equipamento, criando `unarchiveEquipment`, impedindo que arquivados alimentem
+> Home/fila e mantendo historico em Servicos/Relatorios, ainda sem fotos, sem
+> billing real, sem assinatura real, sem storage real, sem Supabase/RLS, sem
+> migrations, sem PMOC e sem redesign geral.
+
+## 102. Checkpoint concluido - Equipamentos avancados fase 9 runtime desarquivamento e compromissos
+
+O runtime mock/local do contrato da fase 8 foi implementado no app-v2:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-9-runtime-desarquivamento-compromissos.md`;
+- `archiveEquipment` cancela compromissos `agendado` do equipamento arquivado,
+  preservando os registros de compromisso;
+- `unarchiveEquipment` remove `archivedAt` sem reabrir compromissos cancelados;
+- detalhe de equipamento arquivado exibe acao local para desarquivar;
+- Home, alertas, fila e proxima acao ignoram equipamentos arquivados;
+- escolha operacional de Servicos oculta arquivados;
+- inicio direto de servico para equipamento arquivado fica bloqueado;
+- historico em Servicos/Relatorios permanece preservado por `equipamentoId`.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing, assinatura,
+PMOC, fotos/upload, delecao destrutiva, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 103. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 10: decidir contrato local para fotos/anexos de
+> equipamento sem upload/storage real, separando placeholder/mock local,
+> permissoes, limites e futura persistencia, ainda sem billing real, sem
+> assinatura real, sem Supabase/RLS, sem migrations, sem PMOC, sem PDF/share e
+> sem redesign geral.
+
+## 104. Checkpoint concluido - Equipamentos avancados fase 10 contrato fotos e anexos
+
+A decisao documental de fotos/anexos foi executada sem alterar runtime:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-10-contrato-fotos-anexos.md`;
+- fotos do v1 foram mapeadas como fluxo sensivel por misturar gate Plus/Pro,
+  editor, upload, storage, fallback offline e capa visual;
+- app-v2 foi confirmado sem contrato atual de fotos/anexos;
+- ficou definido que a primeira fatia futura deve usar apenas
+  `EquipmentAttachment` mock/local, sem `File`, `Blob`, `dataUrl` grande, path
+  de bucket, signed URL ou userId real;
+- ficou definido limite inicial de ate 3 itens visuais por equipamento no mock;
+- ficou definido que upload/storage real, billing/gates reais, Supabase/RLS e
+  migrations exigem etapas proprias.
+
+Nao foram alterados `src/`, testes, storage real, Supabase/RLS, migrations,
+billing, assinatura, PMOC, upload real, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 105. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 11: implementar somente anexos/fotos placeholder
+> mock/local no app-v2 usando o contrato da fase 10, com no maximo 3 itens,
+> exibicao no detalhe/card e preservacao em criar/editar/arquivar/desarquivar,
+> sem input real de arquivo, sem upload, sem storage real, sem billing real, sem
+> assinatura real, sem Supabase/RLS, sem migrations, sem PMOC, sem PDF/share e
+> sem redesign geral.
+
+## 106. Checkpoint concluido - Equipamentos avancados fase 11 anexos placeholder local
+
+A fatia runtime mock/local de fotos/anexos foi implementada no app-v2:
+
+- contrato documental criado em
+  `docs/rewrite/equipamentos-avancados-fase-11-anexos-placeholder-local.md`;
+- `Equipamento` passou a aceitar `anexos?: EquipmentAttachment[]`;
+- `saveEquipmentAttachment` adiciona/edita anexo local com limite de 3 itens;
+- metadados de arquivo, URL, bucket, signed URL e storage real sao bloqueados;
+- card e detalhe exibem capa/anexos locais;
+- shell adiciona placeholder local sem input real de arquivo;
+- editar, arquivar e desarquivar preservam os anexos locais.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing, assinatura,
+PMOC, upload real, PDF/share, WhatsApp, router global, CSS legado ou design
+geral.
+
+## 107. Proximo checkpoint recomendado
+
+> Equipamentos avancados fase 12: reauditar a area de Equipamentos apos anexos
+> placeholder locais, atualizar a porcentagem/estado de paridade UX v1-v2 e
+> decidir documentalmente se o restante deve ir para design, backlog sensivel ou
+> etapas proprias, sem implementar storage real, Supabase/RLS, migrations, PMOC,
+> PDF/share, billing real, assinatura real ou redesign geral.
+
+## 108. Checkpoint concluido - Equipamentos avancados fase 12 reauditoria de paridade
+
+A reauditoria documental de Equipamentos foi executada:
+
+- relatorio criado em
+  `docs/rewrite/equipamentos-avancados-fase-12-reauditoria-paridade.md`;
+- `Equipamentos: setores/fotos/delecao` foi atualizado na auditoria para
+  refletir setores, arquivamento/desarquivamento e anexos placeholder locais;
+- a porcentagem geral estimada permanece **76%**, porque o item continua
+  `parcial` pelo metodo de peso e as lacunas restantes sao sensiveis ou exigem
+  etapa propria;
+- PMOC foi mantido excluido deste ciclo e deve ser refeito em nova etapa
+  propria;
+- o restante foi separado entre design, backlog sensivel e etapa propria de
+  delecao destrutiva.
+
+Nao foram alterados `src/`, runtime, storage real, Supabase/RLS, migrations,
+billing, assinatura, PMOC, upload real, PDF/share, WhatsApp, router global, CSS
+legado ou design geral.
+
+## 109. Proximo checkpoint recomendado
+
+> Design System/UI fase 5: auditoria visual documental de Equipamentos app-v2
+> apos a cobertura mock/local, cobrindo lista, card, detalhe, estados vazios,
+> anexos locais, mobile/desktop, rolagem e texto longo, sem alterar runtime, sem
+> storage real, sem Supabase/RLS, sem migrations, sem PMOC, sem PDF/share, sem
+> billing real e sem redesign amplo.
+
+## 110. Checkpoint concluido - Design System/UI fase 5 auditoria visual Equipamentos
+
+A auditoria visual documental de Equipamentos foi executada sem alterar runtime:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-5-equipamentos-auditoria-visual.md`;
+- lista, card, detalhe, estados vazios, anexos locais, mobile/desktop, rolagem
+  e texto longo foram classificados como criterios obrigatorios da proxima
+  fase visual;
+- riscos de densidade, excesso de cards, truncamento, diferenca entre vazio real
+  e filtro sem resultado, e interpretacao de anexo placeholder como upload real
+  foram documentados;
+- matriz minima de QA visual futura foi definida para mobile 390, desktop 1366
+  e desktop 1920;
+- PMOC foi mantido fora do ciclo e deve ser refeito em etapa propria futura.
+
+Nao foram alterados `src/`, runtime, CSS, tokens, primitives, componentes,
+testes, storage real, Supabase/RLS, migrations, billing, assinatura, PMOC,
+upload real, PDF/share, WhatsApp, router global, seguranca, React Doctor ou
+redesign amplo.
+
+## 111. Proximo checkpoint recomendado
+
+> Design System/UI fase 6: executar QA visual real de Equipamentos app-v2 em
+> browser com screenshots mobile 390, desktop 1366 e desktop 1920, incluindo
+> texto longo, estado vazio e detalhe com anexos, e somente depois decidir se
+> existe ajuste visual pequeno; sem runtime funcional, storage real,
+> Supabase/RLS, migrations, PMOC, PDF/share, billing real ou redesign amplo.
+
+## 112. Checkpoint concluido - Design System/UI fase 6 QA visual Equipamentos
+
+O QA visual real de Equipamentos foi executado em browser:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-6-equipamentos-qa-visual.md`;
+- evidencias salvas em
+  `docs/rewrite/qa-design-system-ui-fase-6-equipamentos/`;
+- foram capturados 12 screenshots em mobile 390, desktop 1366 e desktop 1920;
+- lista, filtro sem resultado, texto longo e detalhe com 3 anexos locais foram
+  validados;
+- nao houve overflow horizontal da pagina em nenhum cenario;
+- estado vazio por filtro sem resultado apareceu corretamente;
+- detalhe com 3 anexos locais permaneceu legivel;
+- texto longo foi truncado sem quebrar layout;
+- achado visual controlado: no mobile 390, o chip `Sem primeiro servico` fica
+  parcialmente cortado dentro da faixa de filtros rolavel.
+
+Nao foram alterados runtime, storage real, Supabase/RLS, migrations, billing,
+assinatura, PMOC, upload real, PDF/share, WhatsApp, router global, seguranca,
+React Doctor ou redesign amplo.
+
+## 113. Proximo checkpoint recomendado
+
+> Design System/UI fase 7: ajustar somente a faixa de filtros de Equipamentos no
+> mobile para evitar chip parcialmente cortado, preferindo quebra de linha ou
+> comportamento equivalente sem overflow horizontal de pagina; validar novamente
+> mobile 390, desktop 1366 e desktop 1920; sem storage real, Supabase/RLS,
+> migrations, PMOC, PDF/share, billing real ou redesign amplo.
+
+## 114. Checkpoint concluido - Design System/UI fase 7 filtros mobile Equipamentos
+
+O ajuste visual pequeno da faixa de filtros de Equipamentos foi executado:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-7-equipamentos-filtros-mobile.md`;
+- `src/app-v2/equipment/EquipmentList.tsx` passou a usar `tw-flex-wrap` na
+  faixa de filtros;
+- a rolagem horizontal do rail de filtros foi removida;
+- evidencias pos-ajuste foram salvas em
+  `docs/rewrite/qa-design-system-ui-fase-7-equipamentos-filtros/`;
+- os 12 cenarios de lista, filtro sem resultado, texto longo e detalhe com
+  anexos foram recapturados em mobile 390, desktop 1366 e desktop 1920;
+- todos os cenarios ficaram sem overflow horizontal de pagina e sem elementos
+  visiveis fora da viewport.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing,
+assinatura, PMOC, upload real, PDF/share, WhatsApp, router global, seguranca,
+React Doctor ou redesign amplo.
+
+## 115. Proximo checkpoint recomendado
+
+> Reauditoria documental da matriz UX v1-v2 apos o fechamento visual de
+> Equipamentos, para escolher o proximo fluxo do app-v2 por lacuna funcional ou
+> visual ainda nao sensivel; manter PMOC, Supabase/RLS, migrations, storage
+> real, billing real, PDF/share, WhatsApp e security hardening em etapas
+> proprias.
+
+## 116. Checkpoint concluido - Reauditoria matriz UX v1-v2 pos Equipamentos visual
+
+A reauditoria documental da matriz UX v1-v2 foi executada apos o fechamento
+visual local de Equipamentos:
+
+- relatorio criado em
+  `docs/rewrite/reauditoria-matriz-ux-v1-v2-pos-equipamentos-design.md`;
+- Equipamentos foi confirmado como visualmente fechado para lista, filtros,
+  estado vazio, texto longo e detalhe com anexos locais;
+- a estimativa geral permanece **76%**, porque a fase visual nao altera peso
+  funcional e as lacunas restantes de Equipamentos sao sensiveis ou de etapa
+  propria;
+- PMOC foi mantido excluido deste ciclo e deve ser refeito em nova etapa
+  propria;
+- Supabase/RLS e migrations foram mantidos em etapa propria futura, incluindo a
+  possibilidade de refazer migrations se necessario;
+- acoes pos-salvamento, filtros de Registros, Relatorios consolidados e
+  Orcamentos mock/local foram reconhecidos como checkpoints ja existentes, sem
+  reabertura;
+- o proximo fluxo nao sensivel foi definido como auditoria visual documental de
+  `Servicos`.
+
+Nao foram alterados runtime, CSS, tokens, componentes, testes, storage real,
+Supabase/RLS, migrations, billing, assinatura, PMOC, upload real, PDF/share,
+WhatsApp, router global, seguranca, React Doctor ou redesign amplo.
+
+## 117. Proximo checkpoint recomendado
+
+> Design System/UI fase 8: auditoria visual documental de `Servicos` no
+> app-v2, cobrindo Registros, Relatorios e Orcamentos locais apos os
+> checkpoints funcionais ja existentes, sem alterar runtime, sem PDF/share real,
+> WhatsApp real, storage real, Supabase/RLS, migrations, PMOC, billing real,
+> assinatura, router novo ou redesign amplo.
+
+## 118. Checkpoint concluido - Design System/UI fase 8 auditoria visual Servicos
+
+A auditoria visual documental de `Servicos` foi executada sem alterar runtime:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-8-servicos-auditoria-visual.md`;
+- Registros, Relatorios e Orcamentos foram auditados como uma area unica de
+  `Servicos`;
+- riscos de subvisao horizontal, densidade de filtros, lista operacional,
+  preview imprimivel, cards de orcamento e edicao local foram documentados;
+- matriz minima de QA visual futura foi definida para mobile 390, desktop 1366
+  e desktop 1920;
+- PMOC, PDF/share real, WhatsApp real, storage real, Supabase/RLS, migrations,
+  billing real e assinatura foram mantidos fora do ciclo.
+
+Nao foram alterados `src/`, runtime, CSS, tokens, primitives, componentes,
+testes, storage real, Supabase/RLS, migrations, billing, assinatura, PMOC,
+PDF/share, WhatsApp, router global, seguranca, React Doctor ou redesign amplo.
+
+## 119. Proximo checkpoint recomendado
+
+> Design System/UI fase 9: executar QA visual real de `Servicos` app-v2 em
+> browser com screenshots mobile 390, desktop 1366 e desktop 1920, cobrindo
+> Registros, Relatorios, Orcamentos, estados vazios, texto longo, preview de
+> relatorio e edicao local de orcamento; somente depois decidir se existe ajuste
+> visual pequeno; sem runtime funcional, storage real, Supabase/RLS, migrations,
+> PMOC, PDF/share real, WhatsApp real, billing real ou redesign amplo.
+
+## 120. Checkpoint concluido - Design System/UI fase 9 QA visual Servicos
+
+O QA visual real de `Servicos` foi executado em browser:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-9-servicos-qa-visual.md`;
+- evidencias salvas em `docs/rewrite/qa-design-system-ui-fase-9-servicos/`;
+- foram capturados 27 screenshots em mobile 390, desktop 1366 e desktop 1920;
+- Registros, Relatorios, Orcamentos, estados vazios, texto tecnico, preview de
+  relatorio, edicao de orcamento e item local longo foram validados;
+- a primeira captura encontrou overflow horizontal de 2px em
+  `Servicos > Registros` no mobile 390;
+- `src/app-v2/service/ServicesHome.tsx` recebeu somente `tw-box-border` no input
+  `Buscar registros`;
+- a recaptura completa ficou sem overflow horizontal de pagina e sem elementos
+  visiveis fora da viewport nos 27 cenarios.
+
+Nao foram alterados storage real, Supabase/RLS, migrations, billing,
+assinatura, PMOC, PDF/share real, WhatsApp, router global, seguranca, React
+Doctor ou redesign amplo.
+
+## 121. Proximo checkpoint recomendado
+
+> Reauditoria documental da matriz UX v1-v2 apos o fechamento visual de
+> `Servicos`, para escolher o proximo fluxo do app-v2 por lacuna funcional ou
+> visual ainda nao sensivel; manter PMOC, Supabase/RLS, migrations, storage
+> real, billing real, PDF/share, WhatsApp e security hardening em etapas
+> proprias.
+
+## 122. Checkpoint concluido - Reauditoria matriz UX v1-v2 pos Servicos visual
+
+A reauditoria documental da matriz UX v1-v2 foi executada apos o fechamento
+visual local de `Servicos`:
+
+- relatorio criado em
+  `docs/rewrite/reauditoria-matriz-ux-v1-v2-pos-servicos-design.md`;
+- `Servicos` foi confirmado como visualmente fechado para Registros,
+  Relatorios e Orcamentos nos 27 cenarios cobertos pela fase 9;
+- a estimativa geral permanece **76%**, porque esta etapa nao cria nova
+  paridade funcional e as lacunas restantes de `Servicos` pertencem a
+  integracoes sensiveis ou etapas proprias;
+- Home Hoje, Equipamentos e Servicos foram reconhecidos como ciclos visuais ja
+  executados, sem reabertura sem novo achado objetivo;
+- PMOC permanece excluido deste ciclo e deve ser refeito em nova etapa propria;
+- Supabase/RLS e migrations permanecem em etapa propria futura, com
+  possibilidade de refazer migrations se necessario;
+- o proximo fluxo recomendado foi definido como auditoria visual documental de
+  `Conta`.
+
+Nao foram alterados runtime, CSS, tokens, componentes, testes, storage real,
+Supabase/RLS, migrations, billing, assinatura, PMOC, PDF/share, WhatsApp, perfil
+real, seguranca, React Doctor ou redesign amplo.
+
+## 123. Proximo checkpoint recomendado
+
+> Design System/UI fase 10: auditoria visual documental de `Conta` no app-v2,
+> cobrindo atalhos locais, preferencias em memoria, lembrete local, ajuda,
+> estados locais, texto longo, foco, mobile/desktop e densidade compacta, sem
+> alterar runtime, sem storage real, sem Supabase/RLS, sem migrations, sem PMOC,
+> sem billing real, sem assinatura, sem PDF/share, sem WhatsApp, sem perfil real
+> e sem redesign amplo.
+
+## 124. Checkpoint concluido - Design System/UI fase 10 auditoria visual Conta
+
+A auditoria visual documental de `Conta` foi executada sem alterar runtime:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-10-conta-auditoria-visual.md`;
+- atalhos locais, preferencias em memoria, lembrete local, ajuda, estados
+  locais, texto longo, foco, mobile/desktop e densidade compacta foram
+  classificados como criterios obrigatorios da proxima fase visual;
+- riscos de densidade compacta em mobile, atalhos com texto longo, selects em
+  grid, lembrete condicional, termos sensiveis proximos e excesso de blocos
+  foram documentados;
+- matriz minima de QA visual futura foi definida para mobile 390, desktop 1366
+  e desktop 1920;
+- perfil real, persistencia, billing, assinatura, Supabase/RLS, migrations,
+  PMOC, PDF/share, WhatsApp e suporte real foram mantidos fora do ciclo.
+
+Nao foram alterados `src/`, runtime, CSS, tokens, primitives, componentes,
+testes, storage real, localStorage, Supabase/RLS, migrations, billing,
+assinatura, PMOC, PDF/share, WhatsApp, perfil real, seguranca, React Doctor ou
+redesign amplo.
+
+## 125. Proximo checkpoint recomendado
+
+> Design System/UI fase 11: executar QA visual real de `Conta` app-v2 em browser
+> com screenshots mobile 390, desktop 1366 e desktop 1920, cobrindo estado
+> default, densidade compacta, lembrete ativo, foco em controle, texto longo
+> local e preferencias; somente depois decidir se existe ajuste visual pequeno;
+> sem runtime funcional novo, sem storage real, sem localStorage, sem
+> Supabase/RLS, sem migrations, sem PMOC, sem billing real, sem assinatura, sem
+> PDF/share, sem WhatsApp, sem perfil real e sem redesign amplo.
+
+## 126. Checkpoint concluido - Design System/UI fase 11 QA visual Conta
+
+O QA visual real de `Conta` foi executado em browser:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-11-conta-qa-visual.md`;
+- evidencias salvas em `docs/rewrite/qa-design-system-ui-fase-11-conta/`;
+- foram capturados 13 screenshots em mobile 390, desktop 1366 e desktop 1920;
+- default, densidade compacta, lembrete ativo, foco em atalho, texto local e
+  preferencias foram validados;
+- a captura ficou sem overflow horizontal de pagina, sem elementos visiveis fora
+  da viewport e sem termos sensiveis visiveis nos 13 cenarios;
+- nao houve ajuste visual porque nao houve achado objetivo.
+
+Nao foram alterados storage real, localStorage, Supabase/RLS, migrations,
+billing, assinatura, PMOC, PDF/share real, WhatsApp, perfil real, router global,
+seguranca, React Doctor ou redesign amplo.
+
+## 127. Proximo checkpoint recomendado
+
+> Reauditoria documental da matriz UX v1-v2 apos o fechamento visual de `Conta`,
+> para escolher o proximo fluxo do app-v2 por lacuna funcional ou visual ainda
+> nao sensivel; manter PMOC, Supabase/RLS, migrations, storage real, billing
+> real, PDF/share, WhatsApp, perfil real e security hardening em etapas
+> proprias.
+
+## 128. Checkpoint concluido - Reauditoria matriz UX v1-v2 pos Conta visual
+
+A reauditoria documental da matriz UX v1-v2 foi executada apos o fechamento
+visual local de `Conta`:
+
+- relatorio criado em
+  `docs/rewrite/reauditoria-matriz-ux-v1-v2-pos-conta-design.md`;
+- Home Hoje, Equipamentos, Servicos e Conta foram reconhecidos como areas com
+  ciclos visuais recentes no recorte local;
+- `Conta` foi confirmada como visualmente validada nos 13 cenarios cobertos pela
+  fase 11;
+- a porcentagem geral estimada permanece **76%**, porque esta etapa nao cria
+  nova paridade funcional;
+- PMOC permanece excluido deste ciclo e deve ser refeito em nova etapa propria;
+- Supabase/RLS e migrations permanecem em etapa propria futura, com
+  possibilidade de refazer migrations se necessario;
+- o proximo checkpoint recomendado foi definido como fechamento documental da
+  primeira passada visual do app-v2.
+
+Nao foram alterados `src/`, runtime, CSS, tokens, primitives, componentes,
+testes, storage real, localStorage, Supabase/RLS, migrations, billing,
+assinatura, PMOC, PDF/share, WhatsApp, perfil real, seguranca, React Doctor ou
+redesign amplo.
+
+## 129. Proximo checkpoint recomendado
+
+> Design System/UI fase 12: fechamento documental da primeira passada visual do
+> app-v2, consolidando Home Hoje, Equipamentos, Servicos e Conta, evidencias de
+> QA, criterios aceitos, limites do que nao foi coberto e gates para nao reabrir
+> visual sem novo achado objetivo; sem alterar runtime, sem CSS, sem tokens, sem
+> componentes, sem storage real, sem Supabase/RLS, sem migrations, sem PMOC, sem
+> billing real, sem assinatura, sem PDF/share, sem WhatsApp, sem perfil real,
+> sem security hardening e sem React Doctor.
+
+## 130. Checkpoint concluido - Design System/UI fase 12 fechamento da primeira passada visual
+
+O fechamento documental da primeira passada visual do app-v2 foi executado:
+
+- relatorio criado em
+  `docs/rewrite/design-system-ui-fase-12-fechamento-primeira-passada.md`;
+- Home Hoje, Equipamentos, Servicos e Conta foram consolidados como primeira
+  passada visual encerrada no recorte local;
+- 76 screenshots de QA visual foram contabilizados nas pastas das fases 3, 4,
+  6, 7, 9 e 11;
+- os criterios aceitos foram registrados sem ampliar para design final ou
+  paridade funcional completa;
+- gates para reabrir visual foram definidos: overflow, elemento fora da
+  viewport, texto cobrindo conteudo, foco invisivel, estado vazio ambigui,
+  promessa de integracao real inexistente ou novo fluxo funcional;
+- a porcentagem geral estimada permanece **76%**, porque esta etapa nao cria
+  nova paridade funcional.
+
+Nao foram alterados `src/`, runtime, CSS, tokens, primitives, componentes,
+testes, storage real, localStorage, Supabase/RLS, migrations, billing,
+assinatura, PMOC, PDF/share, WhatsApp, perfil real, seguranca, React Doctor ou
+redesign amplo.
+
+## 131. Proximo checkpoint recomendado
+
+> Reauditoria funcional documental pos-fechamento visual: revisar a matriz UX
+> v1-v2 e escolher uma unica proxima lacuna nao sensivel entre
+> Historico/filtros, Relatorios locais, Orcamentos mock/action e Clientes
+> filtros/relatorio local, sem implementar runtime nesta etapa e mantendo PMOC,
+> Supabase/RLS, migrations, storage real, billing real, assinatura, PDF/share,
+> WhatsApp, perfil real, security hardening e React Doctor em etapas proprias.
+
+## 132. Checkpoint concluido - Reauditoria funcional pos-fechamento visual
+
+A reauditoria funcional documental pos-fechamento visual foi executada:
+
+- relatorio criado em
+  `docs/rewrite/reauditoria-funcional-pos-fechamento-visual.md`;
+- Historico/filtros foi reconhecido como fatia ja executada por
+  `docs/rewrite/servicos-registros-filtros-app-v2.md`;
+- Relatorios locais foi reconhecido como fatia ja executada por
+  `docs/rewrite/relatorios-consolidados-locais-app-v2.md`;
+- Orcamentos mock/action foi reconhecido como ciclo local ja executado pelas
+  fases de orcamento;
+- Clientes filtros/relatorio local foi reconhecido como fatia ja executada por
+  `docs/rewrite/clientes-fase-5-consulta-relatorio-local.md`;
+- a porcentagem geral estimada permanece **76%** ate recalculo documental
+  completo dos 38 itens ponderados.
+
+Nao foram alterados `src/`, runtime, CSS, tokens, primitives, componentes,
+testes, storage real, localStorage, Supabase/RLS, migrations, billing,
+assinatura, PMOC, PDF/share, WhatsApp, perfil real, seguranca, React Doctor ou
+redesign amplo.
+
+## 133. Proximo checkpoint recomendado
+
+> Recalculo documental completo da matriz UX v1-v2 apos fechamento visual e
+> candidatos nao sensiveis ja executados, revisando os 38 itens ponderados,
+> atualizando status e percentual geral quando houver evidencia documental e de
+> testes, sem alterar runtime e mantendo PMOC, Supabase/RLS, migrations, storage
+> real, billing real, assinatura, PDF/share, WhatsApp, perfil real, security
+> hardening e React Doctor em etapas proprias.

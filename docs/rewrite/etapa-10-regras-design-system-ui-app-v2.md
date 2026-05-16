@@ -6,6 +6,19 @@ Definir regras praticas para qualquer refinamento visual do `app-v2` antes da
 Etapa 10-A. Este documento nao autoriza mudanca visual por si so; ele cria o
 contrato minimo para evitar repetir problemas do app v1.
 
+Atualizacao 2026-05-16: a Design System/UI fase 1 documental consolida este
+arquivo como fonte normativa inicial. As fases 2 a 4 aplicaram o primeiro ciclo
+controlado em Home Hoje, com checklist, QA visual, dois ajustes pequenos e
+fechamento por evidencia. Esse ciclo nao autoriza redesign geral; ele confirma
+que novos refinamentos visuais devem continuar por area unica e problema
+concreto.
+
+Atualizacao 2026-05-16 pos fase 12: a primeira passada visual do app-v2 fica
+documentalmente fechada para Home Hoje, Equipamentos, Servicos e Conta no
+recorte local. Novos ciclos visuais dessas areas exigem achado objetivo ou novo
+fluxo funcional que altere densidade/hierarquia; preferencia estetica isolada
+nao reabre visual.
+
 ## Contexto
 
 O `app-v2` ja possui fundacao mockada, shell operacional, navegacao principal e
@@ -114,6 +127,22 @@ Antes de considerar qualquer mudanca visual concluida:
 - confirmar que nenhum CSS legado foi importado ou copiado;
 - confirmar que nao houve mudanca funcional fora do escopo visual.
 
+## Contrato para checkpoints visuais
+
+Todo checkpoint visual futuro deve declarar antes de editar codigo:
+
+- area unica afetada;
+- componentes afetados;
+- tokens, helpers ou classes novas esperadas;
+- estados obrigatorios de validacao: vazio, carregado, muitos itens, texto
+  longo, foco, mobile estreito e desktop largo;
+- comandos/testes de verificacao;
+- escopo proibido preservado.
+
+O checkpoint visual nao deve misturar redesign, storage, Supabase/RLS, billing,
+assinatura, PMOC, PDF/share, WhatsApp, migrations, security hardening, React
+Doctor ou limpeza ampla de imports.
+
 ## Duvidas e recomendacao segura
 
 Ainda nao ha decisao final sobre uma biblioteca de componentes. A recomendacao
@@ -122,7 +151,9 @@ app-v2 ate surgir necessidade real de biblioteca externa.
 
 ## Proximo passo recomendado
 
-Executar a Etapa 10-A como refinamento visual controlado de uma unica area,
-preferencialmente Home Hoje, usando este documento como checklist. A etapa deve
-ter escopo pequeno, validacao visual em mobile/desktop e remocao segura de
-qualquer estilo obsoleto que ela tornar desnecessario.
+Reauditoria funcional documental pos-fechamento visual: revisar a matriz UX
+v1-v2 e escolher uma unica proxima lacuna nao sensivel entre Historico/filtros,
+Relatorios locais, Orcamentos mock/action e Clientes filtros/relatorio local,
+sem implementar runtime nesta etapa e mantendo PMOC, Supabase/RLS, migrations,
+storage real, billing real, assinatura, PDF/share, WhatsApp, perfil real,
+security hardening e React Doctor em etapas proprias.

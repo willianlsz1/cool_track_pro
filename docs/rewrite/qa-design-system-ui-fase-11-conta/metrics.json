@@ -1,0 +1,352 @@
+{
+  "generatedAt": "2026-05-16T22:47:56.483Z",
+  "total": 13,
+  "overflowFailures": 0,
+  "offscreenFailures": 0,
+  "sensitiveTextFailures": 0,
+  "byViewport": {
+    "mobile-390": 5,
+    "desktop-1366": 4,
+    "desktop-1920": 4
+  },
+  "results": [
+    {
+      "viewportName": "mobile-390",
+      "scenario": "default",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1699
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "mobile-390-default.png"
+    },
+    {
+      "viewportName": "mobile-390",
+      "scenario": "compacta",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1667
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "compacta",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "mobile-390-compacta.png"
+    },
+    {
+      "viewportName": "mobile-390",
+      "scenario": "lembrete-ativo",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1771
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Ligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "mobile-390-lembrete-ativo.png"
+    },
+    {
+      "viewportName": "mobile-390",
+      "scenario": "foco-atalho",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1699
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "button",
+        "text": "Registrar servicoAbre o fluxo local de registro no app-v2.",
+        "name": null,
+        "dataShortcut": "start-service"
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "mobile-390-foco-atalho.png"
+    },
+    {
+      "viewportName": "mobile-390",
+      "scenario": "texto-longo-local",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1731
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "compacta",
+      "reminder": "Ligado",
+      "activeElement": {
+        "tag": "button",
+        "text": "Registrar servicoAbre o fluxo local de registro no app-v2.",
+        "name": null,
+        "dataShortcut": "start-service"
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "mobile-390-texto-longo-local.png"
+    },
+    {
+      "viewportName": "desktop-1366",
+      "scenario": "default",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 992
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1366-default.png"
+    },
+    {
+      "viewportName": "desktop-1366",
+      "scenario": "compacta",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 960
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "compacta",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1366-compacta.png"
+    },
+    {
+      "viewportName": "desktop-1366",
+      "scenario": "lembrete-ativo",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 1064
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Ligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1366-lembrete-ativo.png"
+    },
+    {
+      "viewportName": "desktop-1366",
+      "scenario": "grid-preferencias-atalhos",
+      "viewport": {
+        "width": 1366,
+        "height": 900
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 992
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1366-grid-preferencias-atalhos.png"
+    },
+    {
+      "viewportName": "desktop-1920",
+      "scenario": "default",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1080
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1920-default.png"
+    },
+    {
+      "viewportName": "desktop-1920",
+      "scenario": "compacta",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1080
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "compacta",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1920-compacta.png"
+    },
+    {
+      "viewportName": "desktop-1920",
+      "scenario": "texto-longo-local",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1080
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "compacta",
+      "reminder": "Ligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1920-texto-longo-local.png"
+    },
+    {
+      "viewportName": "desktop-1920",
+      "scenario": "secoes-largas",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1080
+      },
+      "horizontalOverflow": false,
+      "offscreenCount": 0,
+      "offscreen": [],
+      "h1": "Conta",
+      "density": "confortavel",
+      "reminder": "Desligado",
+      "activeElement": {
+        "tag": "body",
+        "text": "CoolTrack Proapp-v2HojeEquipamentosServiçosContaPainel localContaAtalhos e prefe",
+        "name": null,
+        "dataShortcut": null
+      },
+      "sensitiveTextPresent": false,
+      "screenshot": "desktop-1920-secoes-largas.png"
+    }
+  ]
+}
