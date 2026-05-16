@@ -62,6 +62,7 @@ describe('serviceFlowViewModel', () => {
       equipmentId: 'eq-1',
       commitmentId: 'compromisso-1',
       kind: 'preventiva',
+      technician: '',
       diagnosis: '',
       actionsDone: '',
       finalStatus: 'ok',
@@ -73,6 +74,7 @@ describe('serviceFlowViewModel', () => {
       equipmentId: 'eq-1',
       commitmentId: 'compromisso-1',
       kind: 'preventiva',
+      technician: 'Ana Tecnica',
       diagnosis: 'Filtro com acúmulo de sujeira.',
       actionsDone: 'Limpeza de filtros e teste de temperatura.',
       finalStatus: 'warn',
@@ -81,6 +83,7 @@ describe('serviceFlowViewModel', () => {
     expect(buildServiceReviewViewModel(input, draft)).toMatchObject({
       title: 'Revisar serviço',
       kindLabel: 'Preventiva',
+      technician: 'Ana Tecnica',
       diagnosis: 'Filtro com acúmulo de sujeira.',
       actionsDone: 'Limpeza de filtros e teste de temperatura.',
       finalStatusLabel: 'Atenção',
@@ -91,6 +94,7 @@ describe('serviceFlowViewModel', () => {
     const draft: ServiceDraft = {
       equipmentId: 'eq-1',
       kind: 'corretiva',
+      technician: 'Bruno Tecnico',
       diagnosis: 'Compressor com ruído acima do normal.',
       actionsDone: 'Ajuste de fixação e orientação ao cliente.',
       finalStatus: 'ok',
@@ -99,6 +103,7 @@ describe('serviceFlowViewModel', () => {
     expect(buildServiceDoneViewModel(input, draft)).toMatchObject({
       title: 'Serviço concluído',
       summary: 'Corretiva registrada para Split 24.000 BTU.',
+      technicalSummary: expect.arrayContaining(['Tecnico: Bruno Tecnico']),
       disabledOutputs: ['Orçamento', 'Próximo compromisso'],
     });
   });

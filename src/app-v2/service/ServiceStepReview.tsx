@@ -23,6 +23,7 @@ export function ServiceStepReview({ review, onBack, onComplete }: ServiceStepRev
         <ServiceInfoBlock label="Equipamento" value={review.equipmentName} />
         <ServiceInfoBlock label="Cliente/local" value={review.customerLine} />
         <ServiceInfoBlock label="Tipo" value={review.kindLabel} />
+        <ServiceInfoBlock label="Técnico" value={review.technician} />
         <div>
           <p className="tw-m-0 tw-mb-2 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#7A8AA6]">
             Status final

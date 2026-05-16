@@ -10,7 +10,10 @@ interface ServiceReportPreviewProps {
 export function ServiceReportPreview({ report, onPrint }: ServiceReportPreviewProps) {
   return (
     <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="service-report-title">
-      <div className="tw-flex tw-flex-col tw-gap-4 tw-border-b tw-border-[#E5EAF0] tw-p-5 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
+      <div
+        className="tw-flex tw-flex-col tw-gap-4 tw-border-b tw-border-[#E5EAF0] tw-p-5 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between"
+        data-app-v2-print-hidden="true"
+      >
         <div className="tw-min-w-0">
           <p
             className={`tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] ${appV2Tone.subtleText}`}
@@ -38,7 +41,10 @@ export function ServiceReportPreview({ report, onPrint }: ServiceReportPreviewPr
       </div>
 
       <div className="tw-bg-white tw-p-5 print:tw-p-0">
-        <div className="tw-rounded-lg tw-border tw-border-[#E5EAF0] tw-bg-[#F8FAFC] tw-p-5 print:tw-border-0 print:tw-bg-white print:tw-p-0">
+        <div
+          className="tw-rounded-lg tw-border tw-border-[#E5EAF0] tw-bg-[#F8FAFC] tw-p-5 print:tw-border-0 print:tw-bg-white print:tw-p-0"
+          data-app-v2-print-scope="service-report"
+        >
           <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
             <div>
               <p className="tw-m-0 tw-text-[0.72rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] tw-text-[#2563EB]">

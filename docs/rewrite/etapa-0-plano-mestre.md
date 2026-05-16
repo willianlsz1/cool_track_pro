@@ -21,6 +21,7 @@ Artefatos da Etapa zero:
 - Design da Central de Servicos: `docs/rewrite/etapa-5-servicos-design.md`
 - Plano da Central de Servicos: `docs/rewrite/etapa-5-servicos-plano.md`
 - Plano da fundacao de fluxo e dados: `docs/rewrite/etapa-6-fundacao-fluxo-dados-plano.md`
+- Plano de paridade funcional v1-v2: `docs/rewrite/plano-paridade-funcional-v1-v2.md`
 
 ## 2. Decisoes confirmadas
 
@@ -55,6 +56,8 @@ Artefatos da Etapa zero:
 29. A Etapa 6 deve fortalecer a fundacao sem alterar UI visual, CSS/tokens, app legado, storage real, Supabase, PDF/share, WhatsApp, billing, PMOC, assinatura ou orcamento real.
 30. A Etapa 6 foi concluida com a fundacao tecnica do app-v2 em 100% segundo esse criterio; as proximas etapas devem construir sobre essa base, nao reintroduzir mocks divergentes por tela.
 31. A Etapa 6.1 revisou e consolidou a fundacao antes do avanco visual, mantendo o app-v2 isolado e adicionando cobertura explicita para as saidas futuras mockadas.
+32. O app-v2 deve perseguir paridade funcional operacional com o app legado/v1 antes de substituir fluxos usados pelo usuario.
+33. Melhorias estruturais, funcionais ou visuais durante a migracao sao permitidas apenas quando preservam a capacidade operacional existente no v1 e ficam classificadas no plano de paridade.
 
 ## 3. Prioridade da Home operacional
 

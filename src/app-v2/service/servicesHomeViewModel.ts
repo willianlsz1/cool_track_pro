@@ -50,6 +50,7 @@ export interface RecentServiceViewModel {
   equipmentName: string;
   customerLine: string;
   kindLabel: string;
+  technician: string;
   dateLabel: string;
   statusLabel: string;
   statusTone: ServiceHomeTone;
@@ -104,6 +105,7 @@ function mapRecentService(
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
     kindLabel: formatRecordKind(registro.tipo),
+    technician: registro.tecnico.trim() || 'TÃ©cnico nÃ£o informado',
     dateLabel: formatDateLabel(registro.data),
     statusLabel: formatStatusLabel(registro.status),
     statusTone: mapStatusTone(registro.status),

@@ -75,6 +75,7 @@ describe('servicesHomeViewModel', () => {
     const draft: ServiceDraft = {
       equipmentId: 'eq-1',
       kind: 'preventiva',
+      technician: 'Tecnico',
       diagnosis: 'Filtro com acúmulo de sujeira.',
       actionsDone: '',
       finalStatus: 'ok',
@@ -95,6 +96,7 @@ describe('servicesHomeViewModel', () => {
       equipmentName: 'Split 24.000 BTU',
       customerLine: 'Mercado Bom Preço - Recepção',
       kindLabel: 'Preventiva',
+      technician: 'Técnico',
       dateLabel: '09/05',
       statusLabel: 'Operacional',
       summary: 'Limpeza de filtros e teste de temperatura.',

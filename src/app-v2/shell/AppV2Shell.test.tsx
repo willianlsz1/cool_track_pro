@@ -2,6 +2,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { createAppV2MockSnapshot, type AppV2MockSnapshot } from '../data/appV2MockStore';
 import { AppV2Shell } from './AppV2Shell';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -9,13 +10,13 @@ import { AppV2Shell } from './AppV2Shell';
 
 let root: Root | null = null;
 
-async function renderShell() {
+async function renderShell(initialSnapshot?: AppV2MockSnapshot) {
   const host = document.createElement('div');
   document.body.appendChild(host);
 
   root = createRoot(host);
   await act(async () => {
-    root?.render(<AppV2Shell />);
+    root?.render(<AppV2Shell initialSnapshot={initialSnapshot} />);
   });
 
   return host;
@@ -41,6 +42,15 @@ async function fillTextarea(textarea: HTMLTextAreaElement, value: string) {
   await act(async () => {
     valueSetter?.call(textarea, value);
     textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+async function fillInput(input: HTMLInputElement, value: string) {
+  const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+
+  await act(async () => {
+    valueSetter?.call(input, value);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
   });
 }
 
@@ -70,6 +80,10 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Preventiva/i);
     await clickButton(host, /^Continuar$/i);
 
+    const technician = host.querySelector('input[name="service-technician"]');
+    expect(technician).toBeInstanceOf(HTMLInputElement);
+    await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+
     const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
     await fillTextarea(diagnosis, 'QA diagnóstico shell store.');
     await fillTextarea(actionsDone, 'QA ações shell store.');
@@ -88,6 +102,8 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('CoolTrack Pro app-v2');
     expect(host.textContent).toContain('Mercado Bom');
     expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Ana Tecnica');
+    expect(host.textContent).not.toContain('Técnico app-v2');
     expect(host.textContent).toContain('QA diagnóstico shell store.');
     expect(host.textContent).toContain('QA ações shell store.');
 
@@ -104,6 +120,7 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).not.toContain('EM ANDAMENTO');
     expect(host.textContent).not.toContain('Pronto para revisão');
+    expect(host.textContent).toContain('Ana Tecnica');
     expect(host.textContent).toContain('QA diagnóstico shell store.');
     expect(host.textContent).toContain('QA ações shell store.');
   });
@@ -139,6 +156,46 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Conta');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('abre Relatorios dentro de Servicos com busca e preview dedicado', async () => {
+    const host = await renderShell();
+    const sidebar = host.querySelector('aside[aria-label="Navegacao principal"]');
+    const bottomNav = host.querySelector('nav[aria-label="Navegacao principal"]');
+
+    expect(sidebar?.textContent).not.toContain('Relatorios');
+    expect(bottomNav?.textContent).not.toContain('Relatorios');
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Relatorios$/i);
+
+    expect(host.textContent).toContain('Relatorios prontos');
+    expect(host.textContent).toContain('Com atencao');
+    expect(host.textContent).toContain('Pendentes');
+    expect(host.textContent).toContain('Este mes');
+    expect(host.textContent).toContain('REL-REGISTRO-1');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+
+    const search = host.querySelector('input[aria-label="Buscar relatorios"]');
+    expect(search).toBeInstanceOf(HTMLInputElement);
+    await fillInput(search as HTMLInputElement, 'camara');
+
+    expect(host.textContent).not.toContain('REL-REGISTRO-1');
+    expect(host.textContent).toContain('REL-REGISTRO-2');
+    expect(host.textContent).toMatch(/C.mara fria/);
+
+    await clickButton(host, /^Ver relatorio$/i);
+
+    expect(host.textContent).toContain('Voltar para relatorios');
+    expect(host.textContent).toContain('Registro de Servico Tecnico');
+    expect(host.textContent).toMatch(/C.mara fria/);
+    expect(host.querySelector('[data-app-v2-print-scope="service-report"]')).toBeTruthy();
+    expect(host.querySelector('[data-app-v2-print-hidden="true"]')).toBeTruthy();
+
+    await clickButton(host, /^Voltar para relatorios$/i);
+
+    expect(host.textContent).toContain('REL-REGISTRO-2');
+    expect(host.textContent).not.toContain('Registro de Servico Tecnico');
   });
 
   it('abre o detalhe de equipamento a partir da lista', async () => {
@@ -201,5 +258,45 @@ describe('AppV2Shell', () => {
     await clickButton(host, /Retomar registro/i);
     expect(host.textContent).toContain('Registro de servi');
     expect(host.textContent).toContain('Atendimento em andamento');
+  });
+
+  it('ao iniciar servico sem equipamento exige escolha antes do registro', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /Iniciar registro/i);
+
+    expect(host.textContent).toContain('Escolher equipamento');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Câmara fria');
+    expect(host.textContent).not.toContain('Atendimento em andamento');
+
+    await clickButton(host, /C.mara fria/i);
+
+    expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Câmara fria');
+    expect(host.textContent).toContain('Atendimento em andamento');
+  });
+
+  it('orienta cadastrar equipamento antes de iniciar servico quando a base esta vazia', async () => {
+    const host = await renderShell(
+      createAppV2MockSnapshot({
+        equipamentos: [],
+        compromissos: [],
+        registros: [],
+        orcamentos: [],
+      }),
+    );
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /Iniciar registro/i);
+
+    expect(host.textContent).toContain('Nenhum equipamento cadastrado');
+    expect(host.textContent).toContain('Cadastre um equipamento antes de registrar um serviço');
+    expect(host.textContent).not.toContain('Atendimento em andamento');
+
+    await clickButton(host, /^Ir para Equipamentos$/i);
+
+    expect(host.textContent).toContain('Parque');
   });
 });

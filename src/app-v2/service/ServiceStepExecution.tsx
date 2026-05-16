@@ -29,7 +29,10 @@ export function ServiceStepExecution({
   onChangeDraft,
   onContinue,
 }: ServiceStepExecutionProps) {
-  const canContinue = draft.diagnosis.trim().length > 0 && draft.actionsDone.trim().length > 0;
+  const canContinue =
+    draft.technician.trim().length > 0 &&
+    draft.diagnosis.trim().length > 0 &&
+    draft.actionsDone.trim().length > 0;
 
   return (
     <ServiceStepCard
@@ -38,6 +41,23 @@ export function ServiceStepExecution({
       description="Registre o diagnóstico, as ações executadas e o estado final do equipamento."
     >
       <div className="tw-grid tw-gap-5">
+        <label className="tw-grid tw-gap-2">
+          <span
+            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+          >
+            Técnico responsável
+          </span>
+          <input
+            type="text"
+            name="service-technician"
+            value={draft.technician}
+            onChange={(event) => onChangeDraft({ ...draft, technician: event.target.value })}
+            className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            placeholder="Informe o técnico responsável"
+            autoComplete="name"
+          />
+        </label>
+
         <label className="tw-grid tw-gap-2">
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}

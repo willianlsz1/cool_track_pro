@@ -1,5 +1,17 @@
-import type { Cliente, Equipamento, ServiceRecordKind, ServiceRecordStatus } from '../domain/types';
+import type {
+  Cliente,
+  Equipamento,
+  RegistroServico,
+  ServiceRecordKind,
+  ServiceRecordStatus,
+} from '../domain/types';
 import type { BuildServiceFlowInput, ServiceDraft, ServiceTone } from './serviceFlowViewModel';
+
+export interface ServiceReportDataInput {
+  today: string;
+  clientes: Cliente[];
+  equipamentos: Equipamento[];
+}
 
 export interface ServiceReportFieldViewModel {
   label: string;
@@ -27,26 +39,79 @@ export function buildServiceReportViewModel(
   draft: ServiceDraft,
 ): ServiceReportViewModel {
   const { equipamento, cliente } = getReportEntities(input, draft.equipmentId);
-  const kindLabel = formatRecordKind(draft.kind);
-  const statusLabel = formatStatusLabel(draft.finalStatus);
-  const reportId = buildReportId(input.today, draft);
+
+  return buildReport({
+    date: input.today,
+    reportId: buildReportId(input.today, draft),
+    kind: draft.kind,
+    status: draft.finalStatus,
+    technician: draft.technician,
+    diagnosis: draft.diagnosis,
+    actionsDone: draft.actionsDone,
+    equipamento,
+    cliente,
+  });
+}
+
+export function buildServiceReportViewModelFromRecord(
+  input: ServiceReportDataInput,
+  registro: RegistroServico,
+): ServiceReportViewModel {
+  const { equipamento, cliente } = getReportEntities(input, registro.equipamentoId);
+
+  return buildReport({
+    date: registro.data,
+    reportId: `REL-${registro.id.toUpperCase()}`,
+    kind: registro.tipo,
+    status: registro.status,
+    technician: registro.tecnico,
+    diagnosis: registro.observacoes ?? '',
+    actionsDone: registro.observacoes ?? '',
+    equipamento,
+    cliente,
+  });
+}
+
+function buildReport({
+  date,
+  reportId,
+  kind,
+  status,
+  technician,
+  diagnosis,
+  actionsDone,
+  equipamento,
+  cliente,
+}: {
+  date: string;
+  reportId: string;
+  kind?: ServiceRecordKind;
+  status: ServiceRecordStatus;
+  technician: string;
+  diagnosis: string;
+  actionsDone: string;
+  equipamento: Equipamento;
+  cliente?: Cliente;
+}): ServiceReportViewModel {
+  const kindLabel = formatRecordKind(kind);
+  const statusLabel = formatStatusLabel(status);
 
   return {
     reportId,
     title: 'Registro de Servico Tecnico',
     subtitle: `${kindLabel} - ${equipamento.nome}`,
-    generatedAtLabel: formatDateLabel(input.today),
+    generatedAtLabel: formatDateLabel(date),
     statusLabel,
-    statusTone: mapStatusTone(draft.finalStatus),
+    statusTone: mapStatusTone(status),
     sections: [
       {
         title: 'Cabecalho',
         fields: [
           { label: 'App', value: 'CoolTrack Pro app-v2' },
           { label: 'Registro', value: reportId },
-          { label: 'Data', value: formatDateLabel(input.today) },
+          { label: 'Data', value: formatDateLabel(date) },
           { label: 'Status', value: statusLabel },
-          { label: 'Tecnico/responsavel', value: 'Nao informado' },
+          { label: 'Tecnico/responsavel', value: normalizeText(technician, 'Nao informado') },
         ],
       },
       {
@@ -74,17 +139,17 @@ export function buildServiceReportViewModel(
         fields: [
           { label: 'Tipo de servico', value: kindLabel },
           { label: 'Status', value: statusLabel },
-          { label: 'Inicio', value: formatDateLabel(input.today) },
-          { label: 'Conclusao', value: formatDateLabel(input.today) },
+          { label: 'Inicio', value: formatDateLabel(date) },
+          { label: 'Conclusao', value: formatDateLabel(date) },
           { label: 'Resultado', value: statusLabel },
         ],
       },
       {
         title: 'Execucao',
         fields: [
-          { label: 'Diagnostico', value: normalizeText(draft.diagnosis, 'Nao informado') },
-          { label: 'Acoes executadas', value: normalizeText(draft.actionsDone, 'Nao informado') },
-          { label: 'Observacoes', value: normalizeText(draft.diagnosis, 'Nao informado') },
+          { label: 'Diagnostico', value: normalizeText(diagnosis, 'Nao informado') },
+          { label: 'Acoes executadas', value: normalizeText(actionsDone, 'Nao informado') },
+          { label: 'Observacoes', value: normalizeText(diagnosis, 'Nao informado') },
           { label: 'Recomendacoes', value: 'Nao informado' },
         ],
       },
@@ -93,7 +158,7 @@ export function buildServiceReportViewModel(
   };
 }
 
-function getReportEntities(input: BuildServiceFlowInput, equipmentId: string) {
+function getReportEntities(input: ServiceReportDataInput, equipmentId: string) {
   const equipamento = input.equipamentos.find((item) => item.id === equipmentId);
 
   if (!equipamento) {

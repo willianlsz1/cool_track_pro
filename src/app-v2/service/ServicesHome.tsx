@@ -1,9 +1,13 @@
+import { useState } from 'react';
+
 import { appV2Tone } from '../styles/tokens';
 import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
 import { RecentServiceCard } from './RecentServiceCard';
 import { ServiceInProgressCard } from './ServiceInProgressCard';
+import { ServiceReportsHome } from './ServiceReportsHome';
 import type { ServiceDraft } from './serviceFlowViewModel';
 import { buildServicesHomeViewModel, type BuildServicesHomeInput } from './servicesHomeViewModel';
+import { ServicesSubViewNav, type ServicesSubView } from './ServicesSubViewNav';
 
 interface ServicesHomeProps {
   draft: ServiceDraft | null;
@@ -13,10 +17,24 @@ interface ServicesHomeProps {
 }
 
 export function ServicesHome({ draft, input, onResumeService, onStartService }: ServicesHomeProps) {
+  const [activeView, setActiveView] = useState<ServicesSubView>('registros');
   const viewModel = buildServicesHomeViewModel(input, draft);
+
+  if (activeView === 'relatorios') {
+    return (
+      <ServiceReportsHome
+        activeView={activeView}
+        input={input}
+        onPrintReport={() => window.print()}
+        onSelectView={setActiveView}
+      />
+    );
+  }
 
   return (
     <PageShell>
+      <ServicesSubViewNav activeView={activeView} onSelectView={setActiveView} />
+
       <header className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)] lg:tw-items-end">
         <div className="tw-min-w-0">
           <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">

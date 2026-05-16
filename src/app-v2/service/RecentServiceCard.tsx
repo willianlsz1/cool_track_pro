@@ -41,6 +41,11 @@ export function RecentServiceCard({ service }: RecentServiceCardProps) {
           >
             {service.customerLine}
           </p>
+          <p
+            className={`tw-m-0 tw-mt-1 tw-truncate tw-text-xs tw-font-semibold ${appV2Tone.subtleText}`}
+          >
+            Tecnico: {service.technician}
+          </p>
         </div>
         <StatusBadge tone={service.statusTone} className="tw-shrink-0 tw-border">
           {service.statusLabel}

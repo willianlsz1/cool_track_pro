@@ -1,128 +1,417 @@
-# app-v2 goal - Servicos > Relatorios
+# app-v2 goal - Paridade Registro de Servico
 
-## Proximo checkpoint planejado
+## Diretriz superior
 
-Planejar a subvisao `Servicos > Relatorios` do app-v2, usando a referencia
-visual aprovada para orientar densidade, KPIs, busca e lista de relatorios, sem
-transformar Relatorios em aba principal global.
+Implementacoes futuras do app-v2 devem seguir
+`docs/rewrite/plano-paridade-funcional-v1-v2.md`.
 
-Este registro e apenas planejamento. Nao houve implementacao de codigo nesta
-etapa de grill.
+O objetivo do app-v2 nao e ser uma versao enxuta do v1. O objetivo e preservar
+paridade funcional operacional com o app legado, mantendo visual, shell,
+componentes e arquitetura novos no app-v2.
 
-## Contexto do working tree
+Antes de novos checkpoints de codigo, preencher ou atualizar a matriz de
+paridade do fluxo afetado e separar paridade obrigatoria, melhoria permitida,
+backlog e areas sensiveis.
+
+## Checkpoint atual - Tecnico como dado operacional
+
+Implementar a proxima lacuna de paridade do Registro de Servico:
+
+> Tecnico deve virar dado operacional do Registro de Servico no app-v2, sem
+> storage real e sem lista global de tecnicos.
+
+### Analise resumida
+
+No v1, o Registro de Servico exige `tecnico` no fluxo padrao e salva esse dado
+no registro.
+
+No v2 atual, o shell injeta `Tecnico app-v2` no momento da conclusao. Isso
+mantem o mock funcionando, mas nao torna o tecnico parte do draft, da revisao ou
+do relatorio imediato.
+
+Ha 99% de certeza para implementar um campo local de tecnico dentro do fluxo
+app-v2, porque a mudanca fica isolada em `src/app-v2/`, usa a store mockada
+existente e nao altera storage real, lista global de tecnicos ou contratos
+sensiveis.
+
+### Plano
+
+- Adicionar teste RED no view model do fluxo para tecnico no draft, revisao e
+  conclusao.
+- Adicionar teste RED no relatorio para usar o tecnico informado no draft.
+- Adicionar teste RED no shell para preencher tecnico, concluir o servico e
+  garantir que o historico/relatorio nao usem valor fixo.
+- Incluir `technician` no `ServiceDraft`.
+- Adicionar campo local `Tecnico responsavel` na etapa de execucao.
+- Bloquear avancar para revisao enquanto tecnico, diagnostico e acoes estiverem
+  vazios.
+- Usar `draft.technician` na conclusao e no relatorio imediato.
+- Atualizar a matriz de paridade para refletir a cobertura desse item.
+
+### Anti-escopo
+
+- Nao criar lista global de tecnicos.
+- Nao adicionar tecnico novo em storage real.
+- Nao copiar UI, CSS, template ou shell legado.
+- Nao tocar app legado.
+- Nao conectar storage real.
+- Nao mexer em Supabase/RLS, billing, PDF/share, WhatsApp real, PMOC,
+  assinatura, permissoes ou upload/storage.
+- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
+- Nao resolver custos, pecas, `Outro` customizado ou proxima manutencao neste
+  checkpoint.
+
+### Validacao esperada
+
+- TDD RED antes da implementacao.
+- Testes focados de `serviceFlowViewModel`, `serviceReportViewModel` e
+  `AppV2Shell`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- O draft de Registro de Servico carrega `technician`.
+- A etapa de execucao permite informar tecnico responsavel.
+- O usuario nao avanca para revisao sem tecnico, diagnostico e acoes.
+- A revisao, conclusao, relatorio imediato e registro mockado usam o tecnico
+  informado, nao um valor fixo do shell.
+
+### Resultado deste checkpoint
+
+- `ServiceDraft` passou a carregar `technician`.
+- A etapa de execucao ganhou campo local `Tecnico responsavel`.
+- O botao `Revisar` agora depende de tecnico, diagnostico e acoes preenchidos.
+- A revisao, a conclusao, o relatorio imediato e a lista de registros recentes
+  mostram o tecnico informado.
+- `AppV2Shell` deixou de injetar `Tecnico app-v2` ao concluir o registro.
+- Matriz de paridade atualizada: `Validar tecnico obrigatorio` passou de
+  `regressao` para `coberto`.
+- Proximo checkpoint recomendado: campo `Outro` deve permitir descricao
+  customizada no Registro de Servico do app-v2, sem alterar storage real e sem
+  copiar UI legado.
+
+### Validacao executada
+
+- TDD RED:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou porque `ServiceDraft` nao tinha `technician`, a revisao/conclusao nao
+  exibiam tecnico, o relatorio imediato usava `Nao informado` e a UI nao tinha
+  input `service-technician`.
+- GREEN focado:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 4 arquivos e 22 testes.
+- `npm run format`: passou.
+- Revalidacao focada apos format:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 4 arquivos e 22 testes.
+- `npm run build`: passou com warnings Vite/chunk conhecidos do legado.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos do legado.
+- `npm run format:check`: passou.
+- `git diff --check`: passou.
+
+---
+
+## Historico - Paridade Registro de Servico
+
+Iniciar checkpoint de paridade funcional v1 -> v2 para **Registro de Servico**.
+
+Este checkpoint e documental. Nao implementa codigo porque a comparacao mostrou
+lacunas amplas demais para uma alteracao segura com 99% de certeza.
+
+### Capacidade v1 a preservar
+
+O Registro de Servico v1 permite:
+
+- abrir registro direto por equipamento;
+- abrir registro sem equipamento e acionar escolha de equipamento;
+- orientar criacao de equipamento quando nao ha equipamentos;
+- validar equipamento, data, tipo, tecnico, status, proxima manutencao e custos;
+- persistir observacoes, pecas, custos, cliente/local e assinatura/checklist
+  quando aplicavel;
+- atualizar status do equipamento depois do registro;
+- adicionar tecnico novo quando necessario;
+- manter historico automaticamente;
+- oferecer pos-salvamento com PDF/WhatsApp/toast/fallback para relatorio;
+- acionar prompt de proxima preventiva depois de salvar.
+
+### Equivalente v2 atual
+
+O app-v2 cobre parcialmente:
+
+- abertura direta por equipamento via `startServiceFromEquipment`;
+- fluxo por etapas com contexto, tipo, execucao, revisao e conclusao;
+- conclusao mockada via `completeService`;
+- atualizacao de status do equipamento;
+- insercao de registro mockado no historico;
+- preview simples de relatorio no estado concluido;
+- subvisao `Servicos > Relatorios` em working tree atual.
+
+### Lacunas
+
+- Inicio sem equipamento ainda cai em fallback para primeiro equipamento mockado,
+  nao em escolha operacional.
+- Estado sem equipamentos nao orienta criacao antes do registro.
+- Tecnico nao e campo do fluxo; o shell injeta valor fixo.
+- `Outro` nao possui descricao customizada.
+- `pecas`, `custoPecas`, `custoMaoObra` e `proxima` nao existem no draft v2.
+- Agendamento de proximo compromisso existe como action, mas nao esta integrado
+  ao fechamento do Registro de Servico.
+- Pos-salvamento WhatsApp/PDF/fallback permanece area sensivel e nao deve ser
+  misturado neste checkpoint.
+
+### Melhoria permitida
+
+- Criar matriz de paridade do fluxo.
+- Classificar lacunas entre paridade obrigatoria, melhoria permitida, backlog e
+  area sensivel.
+- Recomendar o primeiro checkpoint pequeno de codigo sem tocar areas sensiveis.
+
+### Anti-escopo
+
+- Nao alterar `src/` neste checkpoint documental.
+- Nao copiar UI, CSS, template, shell ou picker legado.
+- Nao conectar storage real.
+- Nao mexer em Supabase/RLS, billing, PDF/share, WhatsApp real, PMOC,
+  assinatura, permissoes ou upload/storage.
+- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
+
+### Arquivos afetados
+
+- `docs/app-v2-goal.md`.
+- `docs/rewrite/matriz-paridade-v1-v2.md`.
+
+### Validacao esperada
+
+- `npm run format:check`.
+- `git diff --check`.
+
+### Resultado deste checkpoint
+
+- Implementado estado de escolha de equipamento para inicio sem contexto.
+- Implementado estado vazio orientando ir para Equipamentos quando nao ha
+  equipamentos.
+- Abertura direta por equipamento foi preservada.
+- Matriz de paridade atualizada: as capacidades "abrir registro sem equipamento
+  com seletor/picker" e "orientar criacao de equipamento quando nao ha
+  equipamentos" passaram de `regressao` para `coberto`.
+- Proximo checkpoint recomendado: tecnico deve virar dado operacional do
+  Registro de Servico no app-v2, sem storage real e sem lista global de
+  tecnicos.
+
+### Validacao executada
+
+- TDD RED: `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou
+  porque `Iniciar registro` ainda abria direto o primeiro equipamento em vez de
+  mostrar escolha/estado vazio.
+- GREEN: `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 1
+  arquivo e 10 testes.
+- `npm run format`: passou.
+- `git diff --check`: passou.
+- `npm run build`: passou com warnings Vite/chunk conhecidos do legado.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos do legado.
+
+---
+
+## Historico - Servicos > Relatorios
+
+### Checkpoint
+
+Implementar `Servicos > Relatorios` como subvisao interna de `Servicos`,
+derivada dos Registros de Servico concluidos, com KPIs, busca, lista
+responsiva, preview reabrivel e impressao escopada ao documento do relatorio.
+
+## Preservacao do estado anterior
+
+O checkpoint anterior de relatorio simples de Registro de Servico foi preservado
+por commit separado antes de iniciar esta implementacao.
 
 - Branch: `codex/rewrite-zero-react-parallel`.
-- Working tree ja estava sujo com o checkpoint anterior de relatorio simples de
-  Registro de Servico.
-- `CONTEXT.md` foi atualizado durante o grill para registrar:
-  - `Relatorios` como subvisao de `Servicos`;
-  - acesso a relatorio a partir de `Registro de servico` concluido;
-  - `Agendamento de proximo compromisso` como passo simples do fechamento.
-- O checkpoint de implementacao futuro deve preservar as alteracoes atuais e
-  nao misturar silently design, print, relatorios e agendamento sem plano.
+- Commit de preservacao: `7600c6b674a92e289dca384612d7d2ce3c1da9a5`
+  (`feat(app-v2): add simple service report preview`).
+- HEAD base deste checkpoint: `7600c6b674a92e289dca384612d7d2ce3c1da9a5`.
+- Working tree apos preservacao: limpo.
+- Working tree final: sujo apenas com este checkpoint de `Servicos >
+Relatorios` e atualizacao deste documento.
+- Validacoes conhecidas do checkpoint anterior: `npm run format`, `npm run
+format:check`, `npm run typecheck`, testes app-v2, `npm run build`, `npm run
+check`, `git diff --check`, isolamento textual e QA desktop/mobile passaram;
+  `npm run check` manteve apenas warning conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos do legado.
 
-## Decisoes aprovadas para o proximo checkpoint
+## Escopo executado
 
-- `Relatorios` sera subvisao dentro de `Servicos`, nao aba principal global.
-- Cada `Registro de servico` concluido podera abrir/reabrir seu relatorio.
-- `Servicos > Relatorios` usara como referencia a imagem aprovada:
-  - KPIs no topo;
-  - busca;
-  - lista/tabela de relatorios;
-  - acoes por registro.
-- A lista de relatorios nasce dos `Registro de servico` concluidos.
-- Status dos relatorios sera simples e local:
-  - `Pronto`;
-  - `Pendente de revisao`;
-  - `Atencao`.
-- KPIs aprovados:
+- `Relatorios` criado como subvisao dentro de `Servicos`, sem aparecer na
+  sidebar desktop nem na bottom nav mobile.
+- Lista de relatorios derivada dos registros mockados concluidos ja existentes.
+- KPIs implementados:
   - `Relatorios prontos`;
   - `Com atencao`;
   - `Pendentes`;
   - `Este mes`.
-- Busca aprovada:
-  - atendimento/ID;
-  - cliente;
-  - equipamento;
-  - tipo de servico.
-- Acao principal por item:
-  - `Ver relatorio`.
-- `Ver relatorio` abre uma subvisao dedicada dentro de
-  `Servicos > Relatorios`, com `Voltar para relatorios`.
-- Na tela normal, a subvisao mostra cabecalho, acoes e preview.
-- No print, somente o documento do relatorio deve ser impresso.
-- `Agendamento de proximo compromisso` sera passo simples do fechamento,
-  criando nova preventiva/corretiva do mesmo equipamento, nao agenda completa.
+- Busca local implementada por atendimento/ID, cliente, equipamento e tipo de
+  servico.
+- Cada item possui acao `Ver relatorio`.
+- `Ver relatorio` abre preview dedicado dentro de `Servicos > Relatorios` com
+  `Voltar para relatorios`.
+- Preview historico usa o mesmo modelo puro do relatorio simples e reabre
+  relatorios a partir do registro concluido.
+- Impressao escopada por wrapper `data-app-v2-print-scope="service-report"` e
+  CSS de print local do app-v2.
 
-## Escopo permitido do proximo checkpoint
+## Anti-escopo preservado
 
-- Criar ou ajustar view model puro para `Servicos > Relatorios`.
-- Derivar relatorios a partir de registros concluidos e dados mockados
-  existentes.
-- Criar subvisoes internas de `Servicos` para `Registros`, `Relatorios` e,
-  se necessario, manter `Orcamentos` como placeholder controlado.
-- Implementar lista/tabela responsiva de relatorios.
-- Implementar busca local por ID, cliente, equipamento e tipo de servico.
-- Abrir preview de relatorio a partir de registro concluido.
-- Corrigir impressao escopada para imprimir apenas o documento do relatorio.
-- Adicionar testes focados para modelo, busca, acesso ao relatorio e print
-  escopado quando viavel em teste observavel.
-- Fazer segunda passada de design somente nesta area.
+- Relatorios nao virou aba principal global.
+- Nao foi implementada agenda completa, calendario, recorrencia avancada ou
+  edicao completa de compromissos.
+- Nao foi implementado PMOC, Modelo B HVAC, Modelo C mensal, relatorio mensal,
+  checklist regulatorio, assinatura real, WhatsApp/share real, download binario
+  robusto, storage real, Supabase, billing, backend, rotas reais, autenticacao
+  ou permissoes reais.
+- Nao houve uso de `src/domain/pdf/shareReport.js` nem modulos legados de
+  PDF/share.
+- Nao houve mudanca em `package.json`, `package-lock.json`, Vite, ESLint ou
+  TypeScript.
 
-## Anti-escopo do proximo checkpoint
+## Checklist de progresso atual
 
-- Nova aba principal global para Relatorios.
-- Agenda completa, calendario, recorrencia avancada ou edicao completa de
-  compromissos.
-- Assinatura real.
-- Envio real por WhatsApp.
-- Download binario robusto.
-- Storage real, Supabase, billing, autenticacao, permissoes reais ou backend.
-- Rotas reais.
-- PMOC, Modelo B HVAC ou Modelo C mensal.
-- Uso de `src/domain/pdf/shareReport.js` ou modulos legados de PDF/share.
-- Redesign amplo do shell, Home, Equipamentos, Clientes ou Conta.
-- Edicao de `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
+- [x] Preservar explicitamente o estado anterior por commit separado.
+- [x] Criar modelo puro de `Servicos > Relatorios`.
+- [x] Criar subvisao `Relatorios` dentro de `Servicos`.
+- [x] Implementar KPIs aprovados.
+- [x] Implementar busca local aprovada.
+- [x] Implementar lista derivada de registros concluidos.
+- [x] Implementar acao `Ver relatorio`.
+- [x] Implementar preview dedicado com `Voltar para relatorios`.
+- [x] Escopar impressao para imprimir somente o documento.
+- [x] Adicionar ou ajustar testes focados.
+- [x] Executar QA desktop/mobile.
+- [x] Validar isolamento app-v2.
+- [x] Atualizar este arquivo com resultado real.
 
-## Checklist planejado
+## Decisoes tomadas
 
-- [ ] Preservar explicitamente o estado atual antes de implementar.
-- [ ] Criar modelo puro de `Servicos > Relatorios`.
-- [ ] Criar subvisao `Relatorios` dentro de `Servicos`.
-- [ ] Implementar KPIs aprovados.
-- [ ] Implementar busca local aprovada.
-- [ ] Implementar lista de relatorios derivada de registros concluidos.
-- [ ] Implementar acao `Ver relatorio`.
-- [ ] Implementar subvisao dedicada de preview com `Voltar para relatorios`.
-- [ ] Corrigir impressao escopada para imprimir somente o documento.
-- [ ] Adicionar ou ajustar testes focados.
-- [ ] Executar QA desktop/mobile.
-- [ ] Validar isolamento app-v2.
-- [ ] Atualizar este arquivo com resultado real.
+- A subnavegacao de `Servicos` fica limitada a `Registros` e `Relatorios` neste
+  checkpoint; `Orcamentos` nao foi criado porque nao era necessario para a
+  navegacao controlada.
+- A lista de relatorios usa status local derivado:
+  - status `warn`/`danger` vira `Atencao`;
+  - registro sem observacoes vira `Pendente de revisao`;
+  - demais registros viram `Pronto`.
+- A impressao continua usando `window.print()`, mas o CSS de print esconde shell,
+  botoes e navegacao, deixando visivel apenas o documento marcado.
+- O agendamento simples de proximo compromisso permaneceu em backlog; nao era
+  necessario para integrar relatorios.
 
-## Riscos a controlar
+## Arquivos alterados neste checkpoint
 
-- A tela virar dashboard administrativo demais e perder foco operacional.
-- Status visual prometer assinatura, WhatsApp ou PMOC antes de esses fluxos
-  existirem.
-- O preview de relatorio continuar acoplado ao fluxo recem-concluido e nao
-  reabrir corretamente a partir de registros historicos.
-- `window.print()` continuar imprimindo shell/nav/botoes se o escopo de print
-  nao for testado.
-- `Servicos` crescer demais em um unico componente.
+- `docs/app-v2-goal.md`.
+- `src/app-v2/index.tsx`.
+- `src/app-v2/service/ServiceReportPreview.tsx`.
+- `src/app-v2/service/ServiceReportsHome.tsx`.
+- `src/app-v2/service/ServiceReportsKpis.tsx`.
+- `src/app-v2/service/ServiceReportsList.tsx`.
+- `src/app-v2/service/ServicesHome.tsx`.
+- `src/app-v2/service/ServicesSubViewNav.tsx`.
+- `src/app-v2/service/serviceReportViewModel.test.ts`.
+- `src/app-v2/service/serviceReportViewModel.ts`.
+- `src/app-v2/service/servicesReportsViewModel.test.ts`.
+- `src/app-v2/service/servicesReportsViewModel.ts`.
+- `src/app-v2/shell/AppV2Shell.test.tsx`.
+- `src/app-v2/styles/print.css`.
 
-## Validacao esperada no checkpoint futuro
+## Componentes e modelos criados ou ajustados
 
-- `npm run format`.
-- `npm run format:check`.
-- `npm run typecheck`.
-- Testes focados app-v2 afetados.
-- `npm run build`.
-- `npm run check`, aceitando apenas warnings conhecidos ja documentados.
-- `git diff --check`.
-- Busca textual confirmando que `src/app-v2` nao referencia `src/ui`,
-  `src/core`, storage real, Supabase, billing, WhatsApp, PMOC ou
-  `src/domain/pdf/shareReport.js`.
+- Criado `servicesReportsViewModel.ts`: deriva itens, busca, fallback e KPIs.
+- Ajustado `serviceReportViewModel.ts`: adiciona
+  `buildServiceReportViewModelFromRecord` para reabrir relatorio historico.
+- Criado `ServiceReportsHome.tsx`: subvisao de lista e preview dedicado.
+- Criados `ServiceReportsKpis.tsx`, `ServiceReportsList.tsx` e
+  `ServicesSubViewNav.tsx`.
+- Ajustado `ServiceReportPreview.tsx`: marca area imprimivel e regioes ocultas
+  no print.
+- Ajustado `ServicesHome.tsx`: orquestra subvisoes `Registros` e `Relatorios`
+  sem crescer o shell global.
+
+## Testes adicionados ou ajustados
+
+- `servicesReportsViewModel.test.ts`: cobre derivacao dos relatorios, KPIs,
+  busca por ID/cliente/equipamento/tipo, fallback e ausencia de escopo
+  regulatorio/legado.
+- `serviceReportViewModel.test.ts`: cobre reabertura do relatorio a partir de
+  registro concluido.
+- `AppV2Shell.test.tsx`: cobre subvisao dentro de `Servicos`, ausencia de aba
+  global, busca, preview dedicado, volta para lista, print scoped por atributo e
+  regressao de iniciar/retomar/concluir servico.
+
+## Comandos executados neste checkpoint
+
+- `npm run format`: passou.
+- `npm run format:check`: passou.
+- `npm run typecheck`: passou.
+- `npm run test -- src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx`:
+  passou com 3 arquivos e 16 testes.
+- `npm run test -- src/app-v2`: passou com 12 arquivos e 51 testes.
+- `npm run build`: passou com warnings Vite/chunk conhecidos do legado.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos do legado.
+- `git diff --check`: passou.
+- Busca textual em `src/app-v2` para `src/ui`, `src/core`, `localStorage`,
+  `sessionStorage`, `supabase`, `billing`, `WhatsApp`, `whatsapp`, `PMOC`,
+  `pmoc`, `src/domain/pdf/shareReport.js` e `shareReport`: sem referencias
+  proibidas apos ajuste do teste.
+
+## QA desktop/mobile
+
+- Desktop 1920x1080: `Relatorios` aparece como subvisao dentro de `Servicos`,
+  nao aparece na navegacao global, KPIs ficam no topo, busca filtra por
+  `camara`, lista fica legivel, `Ver relatorio` abre preview dedicado e nao ha
+  overflow horizontal.
+- Mobile 390x844: bottom nav permanece preservada, `Relatorios` continua apenas
+  dentro de `Servicos`, KPIs/lista ficam acessiveis, `Ver relatorio` abre o
+  preview e nao ha overflow horizontal.
+- Ajuste feito durante QA: adicionado `tw-box-border` ao campo de busca para
+  remover overflow horizontal mobile de 18px.
+- Preview dedicado: contem cliente, equipamento, status e execucao; botao
+  `Voltar para relatorios` funciona; acao de imprimir fica acessivel.
+- Print scoped: o documento possui `data-app-v2-print-scope="service-report"` e
+  a UI operacional possui `data-app-v2-print-hidden="true"`, evitando shell,
+  nav, filtros, lista e botoes no print.
+- A tela manteve densidade operacional, sem virar dashboard administrativo
+  pesado.
+
+## Resultado do checkpoint atual
+
+Concluido em working tree sujo, sem commit final deste checkpoint. O app-v2 tem
+agora uma subvisao operacional `Servicos > Relatorios`, local e testavel,
+derivada dos Registros de Servico concluidos, com KPIs, busca, lista, preview
+reabrivel e impressao escopada.
+
+- Isolamento app-v2 confirmado.
+- `Relatorios` nao virou aba principal global.
+- PMOC, Modelo B HVAC e Modelo C mensal ficaram fora.
+- WhatsApp/share real, storage real, Supabase, billing e rotas reais ficaram
+  fora.
+- PDF/share legado nao foi usado.
+- Maior arquivo app-v2 apos a tarefa: `src/app-v2/equipment/equipmentViewModel.ts`
+  com 328 linhas.
+
+## Backlog final
+
+- Evoluir detalhe de Cliente para servicos relacionados.
+- Melhorar dados mockados de historico por cliente/equipamento.
+- Implementar agendamento simples de proximo compromisso em checkpoint proprio,
+  se ainda fizer sentido.
+- Criar exportacao/download mais robusto em checkpoint proprio, se a previa
+  imprimivel deixar de ser suficiente.
+- Criar Modelo B - Registro Tecnico HVAC em checkpoint proprio.
+- Criar Modelo C - Relatorio mensal em checkpoint proprio.
+- PMOC contextual somente depois que Servicos, Relatorios, Clientes e PDF
+  simples estiverem estaveis.
 
 ---
 

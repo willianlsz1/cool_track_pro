@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { createAppV2MockSnapshot } from '../data/appV2MockStore';
 import { createServiceDraft } from './serviceFlowViewModel';
-import { buildServiceReportViewModel } from './serviceReportViewModel';
+import {
+  buildServiceReportViewModel,
+  buildServiceReportViewModelFromRecord,
+} from './serviceReportViewModel';
 
 describe('serviceReportViewModel', () => {
   const forbiddenRegulatoryTerm = ['P', 'MOC'].join('');
@@ -11,6 +14,7 @@ describe('serviceReportViewModel', () => {
     const input = createAppV2MockSnapshot();
     const draft = {
       ...createServiceDraft(input, 'eq-1', 'compromisso-1'),
+      technician: 'Ana Tecnica',
       diagnosis: 'Filtro saturado e serpentina com sujeira.',
       actionsDone: 'Limpeza preventiva e teste operacional.',
       finalStatus: 'ok' as const,
@@ -39,6 +43,7 @@ describe('serviceReportViewModel', () => {
         { label: 'Cliente', value: 'Mercado Bom Preço' },
         { label: 'Equipamento', value: 'Split 24.000 BTU' },
         { label: 'Tipo de servico', value: 'Preventiva' },
+        { label: 'Tecnico/responsavel', value: 'Ana Tecnica' },
         { label: 'Diagnostico', value: 'Filtro saturado e serpentina com sujeira.' },
         { label: 'Acoes executadas', value: 'Limpeza preventiva e teste operacional.' },
       ]),
@@ -74,5 +79,25 @@ describe('serviceReportViewModel', () => {
     expect(serializedReport).not.toContain(forbiddenRegulatoryTerm.toLowerCase());
     expect(serializedReport).not.toContain('HVAC');
     expect(serializedReport).not.toContain('mensal');
+  });
+
+  it('reabre relatorio a partir de registro concluido', () => {
+    const input = createAppV2MockSnapshot();
+    const report = buildServiceReportViewModelFromRecord(input, input.registros[0]);
+    const flatFields = report.sections.flatMap((section) => section.fields);
+
+    expect(report.reportId).toBe('REL-REGISTRO-1');
+    expect(report.subtitle).toContain('Preventiva');
+    expect(report.subtitle).toContain('Split 24.000 BTU');
+    expect(report.generatedAtLabel).toBe('07/05/2026');
+    expect(flatFields).toEqual(
+      expect.arrayContaining([
+        { label: 'Cliente', value: 'Mercado Bom Preço' },
+        { label: 'Equipamento', value: 'Split 24.000 BTU' },
+        { label: 'Tipo de servico', value: 'Preventiva' },
+        { label: 'Tecnico/responsavel', value: 'Técnico' },
+        { label: 'Acoes executadas', value: 'Limpeza de filtros e teste de temperatura.' },
+      ]),
+    );
   });
 });

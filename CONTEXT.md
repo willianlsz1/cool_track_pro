@@ -40,6 +40,18 @@ _Avoid_: bottom nav no desktop, menu lateral no mobile, navegacao duplicada, nav
 Uso planejado de regras puras, contratos de dados e adaptadores do App legado sem trazer UI, CSS ou navegacao legada para o Novo app.
 _Avoid_: copiar template, importar CSS legado, adaptar tela antiga
 
+**Paridade funcional operacional**:
+Contrato minimo em que o Novo app preserva as capacidades operacionais boas do App legado enquanto substitui visual, shell, navegacao e arquitetura.
+_Avoid_: v2 enxuto que perde fluxo, reimplementacao visual que remove atalho util, paridade de CSS legado
+
+**Melhoria com paridade**:
+Evolucao estrutural ou funcional permitida durante a migracao quando preserva a capacidade do App legado e reduz friccao, acoplamento ou risco.
+_Avoid_: copiar defeito legado, refatoracao ampla sem contrato, melhoria que remove fluxo usado
+
+**Adaptador de migracao**:
+Camada planejada que traduz contratos e regras do App legado para o app-v2 sem importar UI, CSS, shell ou infraestrutura sensivel diretamente.
+_Avoid_: import direto de tela legada, storage real acoplado, ponte improvisada entre shells
+
 **Etapa zero**:
 Marco inicial do Rewrite zero usado para planejar e validar o novo app antes de implementar fluxos em codigo.
 _Avoid_: CP-I, continuacao da Mudanca 21, redesign incremental
@@ -130,6 +142,9 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - A **Navegacao app-v2** muda de forma por breakpoint, preserva as mesmas areas do **Novo app** e expoe contexto de **Hoje** no desktop.
 - O **App legado** fornece referencia funcional para o **Rewrite zero**.
 - O **Reaproveitamento seguro** permite usar regras e contratos mapeados do **App legado**.
+- A **Paridade funcional operacional** protege fluxos, atalhos e saidas uteis do **App legado** sem autorizar copia visual ou CSS legado.
+- A **Melhoria com paridade** permite melhorar estrutura e fluxo somente quando a capacidade operacional do **App legado** continua coberta.
+- Um **Adaptador de migracao** pode conectar regras e contratos legados ao **app-v2** sem contaminar o Novo app com UI, CSS ou infraestrutura sensivel.
 - O **Rewrite zero** nao reaproveita a UI, a hierarquia visual ou o CSS do **App legado** como base.
 - A **Etapa zero** substitui a nomenclatura CP-I para o planejamento do **Rewrite zero**.
 - O **Fluxo tecnico principal** e a primeira fatia funcional do **Novo app**.
@@ -189,6 +204,15 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 > **Dev:** "Podemos copiar a tela antiga e limpar depois?"
 > **Domain expert:** "Nao. Reaproveitamento seguro significa regra e contrato mapeado, nao UI, CSS, templates ou navegacao legada."
 
+> **Dev:** "Se o v1 fazia uma acao util, podemos deixar para depois porque o v2 esta mais bonito?"
+> **Domain expert:** "Nao. Paridade funcional operacional e contrato minimo: o v2 pode mudar a experiencia visual, mas nao deve piorar a capacidade do tecnico."
+
+> **Dev:** "Durante a paridade, podemos melhorar um fluxo que no v1 era confuso?"
+> **Domain expert:** "Sim, desde que seja melhoria com paridade: a capacidade continua existindo e a mudanca reduz friccao ou risco."
+
+> **Dev:** "Como o v1 e o v2 usam bases tecnicas diferentes, importamos direto o codigo antigo?"
+> **Domain expert:** "Nao. Use adaptador de migracao para regras e contratos; UI, CSS, shell e storage sensivel nao entram direto no app-v2."
+
 > **Dev:** "Continuamos chamando isso de CP-I?"
 > **Domain expert:** "Nao. O rewrite reinicia a numeracao como Etapa zero, porque nao e continuidade incremental da Mudanca 21."
 
@@ -246,6 +270,8 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 ## Flagged ambiguities
 
 - "Comecar do zero" foi usado de forma ampla. Resolvido: significa **Rewrite zero** com novo app React em paralelo no mesmo repositorio, nao pequenas correcoes visuais no app atual.
+- "Nao copiar o v1" pode ser confundido com aceitar perda funcional. Resolvido: o v2 nao copia UI/CSS legado, mas deve perseguir **Paridade funcional operacional** nos fluxos bons do v1.
+- "Melhorar durante a migracao" pode virar escopo solto. Resolvido: melhorias devem ser **Melhoria com paridade**, classificadas e validadas contra a capacidade existente no v1.
 - "CP-I" nao deve nomear o rewrite. Resolvido: o novo ciclo usa **Etapa zero** como marco inicial.
 - "Cliente primeiro" conflita com o fluxo desejado. Resolvido: **Equipamento** vem primeiro; **Cliente** e contexto depois.
 - "Dashboard" pode significar metricas ou orientacao. Resolvido: a entrada do app e a **Home operacional**, nao dashboard de metricas.

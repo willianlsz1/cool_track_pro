@@ -1,0 +1,24 @@
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  [data-app-v2-print-scope='service-report'],
+  [data-app-v2-print-scope='service-report'] * {
+    visibility: visible !important;
+  }
+
+  [data-app-v2-print-scope='service-report'] {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  [data-app-v2-print-hidden='true'] {
+    display: none !important;
+  }
+}

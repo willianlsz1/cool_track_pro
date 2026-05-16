@@ -15,6 +15,7 @@ export interface ServiceDraft {
   equipmentId: string;
   commitmentId?: string;
   kind?: ServiceRecordKind;
+  technician: string;
   diagnosis: string;
   actionsDone: string;
   finalStatus: ServiceRecordStatus;
@@ -54,6 +55,7 @@ export interface ServiceReviewViewModel {
   equipmentName: string;
   customerLine: string;
   kindLabel: string;
+  technician: string;
   diagnosis: string;
   actionsDone: string;
   finalStatusLabel: string;
@@ -110,6 +112,7 @@ export function createServiceDraft(
     equipmentId,
     commitmentId: commitment?.id,
     kind: commitment?.tipo,
+    technician: '',
     diagnosis: '',
     actionsDone: '',
     finalStatus: 'ok',
@@ -156,6 +159,7 @@ export function buildServiceReviewViewModel(
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
     kindLabel: formatRecordKind(draft.kind),
+    technician: draft.technician.trim() || 'Técnico não informado',
     diagnosis: draft.diagnosis.trim() || 'Diagnóstico não informado',
     actionsDone: draft.actionsDone.trim() || 'Ações executadas não informadas',
     finalStatusLabel: formatStatusLabel(draft.finalStatus),
@@ -174,6 +178,7 @@ export function buildServiceDoneViewModel(
     summary: `${review.kindLabel} registrada para ${review.equipmentName}.`,
     technicalSummary: [
       `Cliente/local: ${review.customerLine}`,
+      `Tecnico: ${review.technician}`,
       `Diagnóstico: ${review.diagnosis}`,
       `Ações: ${review.actionsDone}`,
       `Status final: ${review.finalStatusLabel}`,
