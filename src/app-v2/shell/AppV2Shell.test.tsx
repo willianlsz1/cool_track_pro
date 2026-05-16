@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AppV2Shell } from './AppV2Shell';
 
@@ -45,6 +45,8 @@ async function fillTextarea(textarea: HTMLTextAreaElement, value: string) {
 }
 
 describe('AppV2Shell', () => {
+  const forbiddenRegulatoryTerm = ['P', 'MOC'].join('');
+
   afterEach(async () => {
     if (root) {
       await act(async () => {
@@ -54,12 +56,16 @@ describe('AppV2Shell', () => {
 
     root = null;
     document.body.innerHTML = '';
+    vi.restoreAllMocks();
   });
 
   it('aplica a conclusao do servico na store mockada exibida pela Central', async () => {
     const host = await renderShell();
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
 
     await clickButton(host, /Iniciar serviço/i);
+    expect(host.textContent).not.toContain('Ver relatorio');
+
     await clickButton(host, /^Continuar$/i);
     await clickButton(host, /^Preventiva/i);
     await clickButton(host, /^Continuar$/i);
@@ -74,6 +80,25 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Serviço concluído');
     expect(host.textContent).toContain('Resumo do serviço');
     expect(host.textContent).toContain('Concluído');
+    expect(host.textContent).toContain('Ver relatorio');
+
+    await clickButton(host, /^Ver relatorio$/i);
+
+    expect(host.textContent).toContain('Registro de Servico Tecnico');
+    expect(host.textContent).toContain('CoolTrack Pro app-v2');
+    expect(host.textContent).toContain('Mercado Bom');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('QA diagnóstico shell store.');
+    expect(host.textContent).toContain('QA ações shell store.');
+
+    expect(host.textContent).toContain('Tecnico/responsavel');
+    expect(host.textContent).toContain('Cliente/responsavel');
+    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
+
+    await clickButton(host, /^Imprimir relatorio$/i);
+
+    expect(printSpy).toHaveBeenCalledTimes(1);
+    printSpy.mockRestore();
 
     await clickButton(host, /Voltar para Serviços/i);
 

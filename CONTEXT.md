@@ -88,6 +88,10 @@ _Avoid_: formulario longo unico, checklist escondido, anotacao solta
 Etapa final do Registro de servico que oferece gerar relatorio, criar orcamento ou agendar proximo compromisso.
 _Avoid_: salvar e abandonar, historico como CTA principal
 
+**Agendamento de proximo compromisso**:
+Passo simples do **Fechamento de servico** para criar uma nova preventiva ou corretiva do mesmo **Equipamento**.
+_Avoid_: agenda completa, recorrencia avancada, modulo de calendario
+
 **Relatorio por WhatsApp**:
 Saida primaria de compartilhamento do relatorio tecnico para o cliente.
 _Avoid_: PDF como unico destino, download sem envio, canal secundario escondido
@@ -107,6 +111,10 @@ _Avoid_: dashboard de metricas
 **Servicos**:
 Area fixa que agrupa registros de servico, historico, relatorios e orcamentos.
 _Avoid_: abas separadas para historico, relatorio e orcamentos
+
+**Relatorios**:
+Subvisao de **Servicos** que concentra relatorios gerados e permite reabrir relatorio de um **Registro de servico** concluido.
+_Avoid_: aba principal global, destino acessivel apenas no fechamento imediato
 
 **Conta**:
 Area fixa para plano, dados do usuario e configuracoes.
@@ -139,6 +147,7 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - Um **Registro de servico** pertence a um **Equipamento**.
 - Um **Registro de servico** termina em **Fechamento de servico**.
 - **Fechamento de servico** pode gerar **Relatorio por WhatsApp**, criar orcamento ou agendar novo **Compromisso de servico**.
+- **Agendamento de proximo compromisso** cria um **Compromisso de servico** para o mesmo **Equipamento** do **Registro de servico** concluido.
 - Um **Orcamento** nasce preferencialmente do **Fechamento de servico**.
 - Um **Orcamento** pode nascer de um **Equipamento** quando nao houver servico anterior.
 - **PMOC** pertence a etapas futuras do **Rewrite zero**, nao ao nucleo da **Etapa zero**.
@@ -148,6 +157,8 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - O detalhe de **Cliente** pode futuramente concentrar servicos relacionados e
   **PMOC** contextual, sem tornar **Cliente** uma area global do **Novo app**.
 - **Servicos** inclui historico, relatorios e orcamentos.
+- **Relatorios** pertence a **Servicos** e tambem pode ser acessado a partir de
+  um **Registro de servico** concluido.
 
 ## Example dialogue
 
@@ -214,6 +225,9 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 > **Dev:** "Depois de salvar, o tecnico vai para o historico?"
 > **Domain expert:** "Nao como acao principal. O Fechamento de servico oferece relatorio, orcamento ou proximo compromisso; o historico e atualizado automaticamente."
 
+> **Dev:** "Agendar preventiva precisa abrir uma agenda completa?"
+> **Domain expert:** "Nao nesta etapa. O fechamento oferece um agendamento simples para o proximo compromisso do mesmo equipamento."
+
 > **Dev:** "Relatorio significa baixar PDF?"
 > **Domain expert:** "Nao como padrao. Para tecnicos, a saida mais usada e Relatorio por WhatsApp."
 
@@ -225,6 +239,9 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 
 > **Dev:** "Orcamentos vira uma aba principal?"
 > **Domain expert:** "Nao. Orcamentos fica dentro de Servicos junto com registros, historico e relatorios."
+
+> **Dev:** "Relatorios precisa virar uma aba principal?"
+> **Domain expert:** "Nao. Relatorios fica como subvisao dentro de Servicos, mas cada registro concluido tambem oferece acesso direto ao seu relatorio."
 
 ## Flagged ambiguities
 

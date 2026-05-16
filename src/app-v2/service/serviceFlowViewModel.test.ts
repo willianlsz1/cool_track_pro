@@ -99,7 +99,7 @@ describe('serviceFlowViewModel', () => {
     expect(buildServiceDoneViewModel(input, draft)).toMatchObject({
       title: 'Serviço concluído',
       summary: 'Corretiva registrada para Split 24.000 BTU.',
-      disabledOutputs: ['Relatório', 'Orçamento', 'Próximo compromisso'],
+      disabledOutputs: ['Orçamento', 'Próximo compromisso'],
     });
   });
 });

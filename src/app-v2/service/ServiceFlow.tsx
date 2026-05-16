@@ -17,6 +17,7 @@ import {
   type ServiceDraft,
   type ServiceFlowStep,
 } from './serviceFlowViewModel';
+import { buildServiceReportViewModel } from './serviceReportViewModel';
 
 interface ServiceFlowProps {
   input: BuildServiceFlowInput;
@@ -129,6 +130,7 @@ export function ServiceFlow({
       {step === 'done' ? (
         <ServiceDone
           done={buildServiceDoneViewModel(input, draft)}
+          report={buildServiceReportViewModel(input, draft)}
           onBackToServices={finishAndBackToServices}
           onOpenEquipment={finishAndOpenEquipment}
         />

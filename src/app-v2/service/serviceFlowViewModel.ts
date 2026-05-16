@@ -64,7 +64,7 @@ export interface ServiceDoneViewModel {
   title: 'Serviço concluído';
   summary: string;
   technicalSummary: string[];
-  disabledOutputs: ['Relatório', 'Orçamento', 'Próximo compromisso'];
+  disabledOutputs: ['Orçamento', 'Próximo compromisso'];
 }
 
 const serviceTypeOptions: ServiceTypeOptionViewModel[] = [
@@ -178,7 +178,7 @@ export function buildServiceDoneViewModel(
       `Ações: ${review.actionsDone}`,
       `Status final: ${review.finalStatusLabel}`,
     ],
-    disabledOutputs: ['Relatório', 'Orçamento', 'Próximo compromisso'],
+    disabledOutputs: ['Orçamento', 'Próximo compromisso'],
   };
 }
 

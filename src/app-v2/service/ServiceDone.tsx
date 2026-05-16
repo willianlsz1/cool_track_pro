@@ -1,14 +1,25 @@
+import { useState } from 'react';
+
 import { appV2Tone } from '../styles/tokens';
 import { ActionButton, ListRow, SectionCard, StatusBadge } from '../ui/primitives';
+import { ServiceReportPreview } from './ServiceReportPreview';
 import type { ServiceDoneViewModel } from './serviceFlowViewModel';
+import type { ServiceReportViewModel } from './serviceReportViewModel';
 
 interface ServiceDoneProps {
   done: ServiceDoneViewModel;
+  report: ServiceReportViewModel;
   onBackToServices: () => void;
   onOpenEquipment: () => void;
 }
 
-export function ServiceDone({ done, onBackToServices, onOpenEquipment }: ServiceDoneProps) {
+export function ServiceDone({ done, report, onBackToServices, onOpenEquipment }: ServiceDoneProps) {
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
+  function printReport() {
+    window.print();
+  }
+
   return (
     <div className="tw-grid tw-gap-5">
       <SectionCard className="sm:tw-p-6">
@@ -35,8 +46,11 @@ export function ServiceDone({ done, onBackToServices, onOpenEquipment }: Service
           </StatusBadge>
         </div>
 
-        <div className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-[minmax(0,1fr)_minmax(0,180px)]">
-          <ActionButton onClick={onOpenEquipment}>Ver equipamento</ActionButton>
+        <div className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-3">
+          <ActionButton onClick={() => setIsReportOpen(true)}>Ver relatorio</ActionButton>
+          <ActionButton variant="secondary" onClick={onOpenEquipment}>
+            Ver equipamento
+          </ActionButton>
           <ActionButton variant="secondary" onClick={onBackToServices}>
             Voltar para Serviços
           </ActionButton>
@@ -60,6 +74,8 @@ export function ServiceDone({ done, onBackToServices, onOpenEquipment }: Service
           </ListRow>
         ))}
       </SectionCard>
+
+      {isReportOpen ? <ServiceReportPreview report={report} onPrint={printReport} /> : null}
 
       <SectionCard labelledBy="service-next-outputs-title">
         <h2
