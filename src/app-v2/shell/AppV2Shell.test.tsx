@@ -403,6 +403,54 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Registros recentes');
     expect(host.textContent).toContain('3');
   });
+
+  it('permite alterar equipamento e data durante edicao e reabrir relatorio com os novos dados', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Editar$/i);
+
+    const serviceDate = host.querySelector('input[name="service-date"]');
+    expect(serviceDate).toBeInstanceOf(HTMLInputElement);
+    await fillInput(serviceDate as HTMLInputElement, '2026-05-12');
+
+    await clickButton(host, /^Alterar equipamento$/i);
+    expect(host.textContent).toContain('Escolher equipamento');
+
+    await clickButton(host, /C.mara fria/i);
+    expect(host.textContent).toContain('Câmara fria');
+    expect(host.textContent).not.toContain('Split 24.000 BTU - Mercado Bom Preço - Recepção');
+
+    await clickButton(host, /^Continuar$/i);
+    await clickButton(host, /^Continuar$/i);
+
+    const technician = host.querySelector('input[name="service-technician"]');
+    expect(technician).toBeInstanceOf(HTMLInputElement);
+    await fillInput(technician as HTMLInputElement, 'Ana Editora');
+
+    const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+    await fillTextarea(diagnosis, 'Diagnostico editado com troca de equipamento.');
+    await fillTextarea(actionsDone, 'Acoes editadas preservadas.');
+
+    await clickButton(host, /^Revisar$/i);
+    expect(host.textContent).toContain('Câmara fria');
+    expect(host.textContent).toContain('12/05/2026');
+
+    await clickButton(host, /^Concluir servi/i);
+    await clickButton(host, /^Ver relatorio$/i);
+
+    expect(host.textContent).toContain('Registro de Servico Tecnico');
+    expect(host.textContent).toContain('Câmara fria');
+    expect(host.textContent).toContain('12/05/2026');
+    expect(host.textContent).toContain('Diagnostico editado com troca de equipamento.');
+    expect(host.textContent).toContain('Acoes editadas preservadas.');
+
+    await clickButton(host, /^Voltar para Servi/i);
+
+    expect(host.textContent).toContain('Registros recentes');
+    expect(host.textContent).toContain('Câmara fria');
+    expect(host.textContent).toContain('3');
+  });
 });
 
 it('permite registrar pecas usadas sem exigir custo ou orcamento', async () => {

@@ -12,6 +12,7 @@ export interface AppV2MockData {
   equipamentos: Equipamento[];
   compromissos: CompromissoServico[];
   registros: RegistroServico[];
+  tecnicos: string[];
   orcamentos: Orcamento[];
 }
 
@@ -136,5 +137,6 @@ export const appV2MockData: AppV2MockData = {
       proximaData: '2026-05-16',
     },
   ],
+  tecnicos: ['TÃ©cnico'],
   orcamentos: [],
 };

@@ -28,6 +28,7 @@ export function ServiceStepReview({
       <div className="tw-grid tw-gap-5 lg:tw-grid-cols-2">
         <ServiceInfoBlock label="Equipamento" value={review.equipmentName} />
         <ServiceInfoBlock label="Cliente/local" value={review.customerLine} />
+        <ServiceInfoBlock label="Data" value={review.serviceDateLabel} />
         <ServiceInfoBlock label="Tipo" value={review.kindLabel} />
         <ServiceInfoBlock label="Tecnico" value={review.technician} />
         <div>

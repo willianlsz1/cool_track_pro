@@ -38,10 +38,11 @@ export function buildServiceReportViewModel(
   draft: ServiceDraft,
 ): ServiceReportViewModel {
   const { equipamento, cliente } = getReportEntities(input, draft.equipmentId);
+  const serviceDate = draft.serviceDate ?? input.today;
 
   return buildReport({
-    date: input.today,
-    reportId: buildReportId(input.today, draft),
+    date: serviceDate,
+    reportId: buildReportId(serviceDate, draft),
     kindLabel: formatServiceRecordKind(draft.kind, draft.customKind),
     status: draft.finalStatus,
     technician: draft.technician,

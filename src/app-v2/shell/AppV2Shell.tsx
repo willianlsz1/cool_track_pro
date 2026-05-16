@@ -91,6 +91,37 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     setActiveTab('servicos');
   }
 
+  function changeEditingEquipment() {
+    if (!editingServiceId || !appState.serviceDraft) {
+      return;
+    }
+
+    setIsServiceFlowOpen(false);
+    setIsServiceEquipmentChoiceOpen(true);
+    setActiveTab('servicos');
+  }
+
+  function selectEquipmentForService(equipmentId: string) {
+    if (editingServiceId && appState.serviceDraft) {
+      setAppState((current) => ({
+        ...current,
+        serviceDraft: current.serviceDraft
+          ? {
+              ...current.serviceDraft,
+              equipmentId,
+              commitmentId: undefined,
+            }
+          : current.serviceDraft,
+      }));
+      setIsServiceEquipmentChoiceOpen(false);
+      setIsServiceFlowOpen(true);
+      setActiveTab('servicos');
+      return;
+    }
+
+    startServiceFromEquipment(equipmentId);
+  }
+
   function openEquipmentListForService() {
     setIsServiceEquipmentChoiceOpen(false);
     setSelectedEquipmentId(null);
@@ -224,7 +255,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             clientes={operationalState.serviceFlowInput.clientes}
             equipamentos={operationalState.serviceFlowInput.equipamentos}
             onCreateEquipment={openEquipmentListForService}
-            onSelectEquipment={startServiceFromEquipment}
+            onSelectEquipment={selectEquipmentForService}
           />
         ) : null}
 
@@ -239,6 +270,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             onDraftChange={updateServiceDraft}
             onCompleteService={completeCurrentService}
             onValidateService={validateCurrentService}
+            onChangeEquipment={editingServiceId ? changeEditingEquipment : undefined}
             onOpenEquipment={openEquipment}
           />
         ) : null}

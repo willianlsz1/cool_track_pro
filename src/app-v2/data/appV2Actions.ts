@@ -91,6 +91,7 @@ export function completeService(
       ...(nextCommitment ? [nextCommitment] : []),
     ],
     registros: [registro, ...state.registros.map((item) => ({ ...item }))],
+    tecnicos: appendTechnician(state.tecnicos, completion.technician),
     serviceDraft: null,
   };
 }
@@ -118,6 +119,7 @@ export function updateServiceRecord(
     registros: state.registros.map((registro) =>
       registro.id === completion.id ? updatedRecord : { ...registro },
     ),
+    tecnicos: appendTechnician(state.tecnicos, completion.technician),
     serviceDraft: null,
   };
 }
@@ -172,8 +174,19 @@ function cloneSnapshot(state: AppV2MockSnapshot): AppV2MockSnapshot {
     equipamentos: state.equipamentos.map((item) => ({ ...item })),
     compromissos: state.compromissos.map((item) => ({ ...item })),
     registros: state.registros.map((item) => ({ ...item })),
+    tecnicos: [...state.tecnicos],
     orcamentos: state.orcamentos.map((item) => ({ ...item })),
   };
+}
+
+function appendTechnician(tecnicos: string[], technician: string): string[] {
+  const normalized = technician.trim();
+
+  if (!normalized || tecnicos.includes(normalized)) {
+    return [...tecnicos];
+  }
+
+  return [...tecnicos, normalized];
 }
 
 function buildServiceRecord(

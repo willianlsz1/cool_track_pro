@@ -1,4 +1,5 @@
 import type { ServiceContextViewModel } from './serviceFlowViewModel';
+import { ActionButton } from '../ui/primitives';
 import {
   ServiceActions,
   ServiceInfoBlock,
@@ -8,11 +9,21 @@ import {
 
 interface ServiceStepContextProps {
   context: ServiceContextViewModel;
+  serviceDate?: string;
   onCancel: () => void;
+  onChangeEquipment?: () => void;
+  onServiceDateChange?: (serviceDate: string) => void;
   onContinue: () => void;
 }
 
-export function ServiceStepContext({ context, onCancel, onContinue }: ServiceStepContextProps) {
+export function ServiceStepContext({
+  context,
+  serviceDate,
+  onCancel,
+  onChangeEquipment,
+  onServiceDateChange,
+  onContinue,
+}: ServiceStepContextProps) {
   return (
     <ServiceStepCard
       eyebrow="Etapa 1"
@@ -30,9 +41,32 @@ export function ServiceStepContext({ context, onCancel, onContinue }: ServiceSte
           <p className="tw-m-0 tw-mt-2 tw-text-sm tw-font-medium tw-leading-6 tw-text-[#31476A]">
             {context.equipmentLine}
           </p>
+          {onChangeEquipment ? (
+            <ActionButton
+              variant="secondary"
+              className="tw-mt-4 tw-min-h-10 tw-px-4 tw-py-2"
+              onClick={onChangeEquipment}
+            >
+              Alterar equipamento
+            </ActionButton>
+          ) : null}
         </div>
 
         <div className="tw-grid tw-gap-4">
+          {onServiceDateChange ? (
+            <label className="tw-grid tw-gap-2">
+              <span className="tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#7A8AA6]">
+                Data do registro
+              </span>
+              <input
+                type="date"
+                name="service-date"
+                value={serviceDate ?? ''}
+                onChange={(event) => onServiceDateChange(event.target.value)}
+                className="tw-w-full tw-rounded-2xl tw-border tw-border-[#D7E3F2] tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 tw-text-[#061635] focus:tw-border-[#38BDF8] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#BAE6FD]"
+              />
+            </label>
+          ) : null}
           <ServiceInfoBlock label="Cliente/local" value={context.customerLine} />
           <ServiceInfoBlock label="Motivo" value={context.reason} />
           <div>

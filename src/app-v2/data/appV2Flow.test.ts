@@ -85,6 +85,56 @@ describe('app-v2 flow actions', () => {
     expect(edited.equipamentos.find((item) => item.id === 'eq-1')?.status).toBe('warn');
   });
 
+  it('edita equipamento e data de registro existente preservando campos migrados', () => {
+    const state = createAppV2MockSnapshot();
+    const started = startServiceFromEquipment(state, 'eq-1');
+    const draft = {
+      ...started.serviceDraft!,
+      equipmentId: 'eq-2',
+      commitmentId: undefined,
+      serviceDate: '2026-05-12',
+      technician: 'Ana Editora',
+      diagnosis: 'Diagnostico separado preservado.',
+      actionsDone: 'Acoes separadas preservadas.',
+      partsUsed: 'Filtro de ar',
+      partsCost: '120,00',
+      laborCost: '250,00',
+      nextMaintenanceDate: '2026-06-12',
+      finalStatus: 'danger' as const,
+    };
+
+    const edited = updateServiceRecord(
+      {
+        ...started,
+        serviceDraft: draft,
+      },
+      {
+        id: 'registro-1',
+        date: draft.serviceDate,
+        technician: draft.technician,
+        diagnosis: draft.diagnosis,
+        actionsDone: draft.actionsDone,
+        finalStatus: draft.finalStatus,
+      },
+    );
+
+    expect(edited.registros).toHaveLength(state.registros.length);
+    expect(edited.registros.find((item) => item.id === 'registro-1')).toMatchObject({
+      id: 'registro-1',
+      equipamentoId: 'eq-2',
+      data: '2026-05-12',
+      diagnostico: 'Diagnostico separado preservado.',
+      acoesExecutadas: 'Acoes separadas preservadas.',
+      pecas: 'Filtro de ar',
+      custoPecas: '120,00',
+      custoMaoObra: '250,00',
+      proximaData: '2026-06-12',
+      status: 'danger',
+    });
+    expect(edited.registros.filter((item) => item.id === 'registro-1')).toHaveLength(1);
+    expect(edited.equipamentos.find((item) => item.id === 'eq-2')?.status).toBe('danger');
+  });
+
   it('bloqueia edicao quando equipamento ou data do registro sao invalidos', () => {
     const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
     const completion = {
@@ -145,6 +195,71 @@ describe('app-v2 flow actions', () => {
       observacoes: 'Controlador com alarme intermitente. Ajuste de sensor e orientação ao cliente.',
     });
     expect(next.compromissos.find((item) => item.id === 'compromisso-2')?.status).toBe('concluido');
+  });
+
+  it('acumula tecnico novo no mock ao concluir servico sem duplicar nomes existentes', () => {
+    const state = startServiceFromEquipment(
+      {
+        ...createAppV2MockSnapshot(),
+        tecnicos: ['Bruno'],
+      },
+      'eq-2',
+      'compromisso-2',
+    );
+
+    const next = completeService(state, {
+      id: 'registro-tecnico',
+      date: '2026-05-10',
+      technician: ' Ana Tecnica ',
+      diagnosis: 'Diagnostico registrado.',
+      actionsDone: 'Acoes registradas.',
+      finalStatus: 'ok',
+    });
+
+    expect(next.tecnicos).toEqual(['Bruno', 'Ana Tecnica']);
+
+    const repeated = completeService(startServiceFromEquipment(next, 'eq-1'), {
+      id: 'registro-tecnico-2',
+      date: '2026-05-11',
+      technician: 'Ana Tecnica',
+      diagnosis: 'Diagnostico registrado.',
+      actionsDone: 'Acoes registradas.',
+      finalStatus: 'ok',
+    });
+
+    expect(repeated.tecnicos).toEqual(['Bruno', 'Ana Tecnica']);
+  });
+
+  it('acumula tecnico editado no mock ao atualizar registro existente', () => {
+    const state = startServiceFromEquipment(
+      {
+        ...createAppV2MockSnapshot(),
+        tecnicos: ['Bruno'],
+      },
+      'eq-1',
+    );
+
+    const edited = updateServiceRecord(
+      {
+        ...state,
+        serviceDraft: {
+          ...state.serviceDraft!,
+          technician: 'Carla Tecnica',
+          diagnosis: 'Diagnostico editado.',
+          actionsDone: 'Acoes editadas.',
+        },
+      },
+      {
+        id: 'registro-1',
+        date: '2026-05-12',
+        technician: 'Carla Tecnica',
+        diagnosis: 'Diagnostico editado.',
+        actionsDone: 'Acoes editadas.',
+        finalStatus: 'ok',
+      },
+    );
+
+    expect(edited.tecnicos).toEqual(['Bruno', 'Carla Tecnica']);
   });
 
   it('bloqueia conclusao quando o equipamento do rascunho nao existe mais', () => {

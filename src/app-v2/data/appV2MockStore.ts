@@ -10,6 +10,7 @@ export function createAppV2MockSnapshot(overrides: Partial<AppV2MockData> = {}):
     equipamentos: cloneList(overrides.equipamentos ?? appV2MockData.equipamentos),
     compromissos: cloneList(overrides.compromissos ?? appV2MockData.compromissos),
     registros: cloneList(overrides.registros ?? appV2MockData.registros),
+    tecnicos: [...(overrides.tecnicos ?? appV2MockData.tecnicos)],
     orcamentos: cloneList(overrides.orcamentos ?? appV2MockData.orcamentos),
   };
 }

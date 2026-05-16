@@ -71,6 +71,152 @@ novo picker visual. O campo de data pode reaproveitar o mesmo estilo de input
   continuam preservados.
 - Equipamento inexistente e data ausente/invalida continuam bloqueados.
 
+### Resultado deste checkpoint
+
+- A edicao de registro existente permite alterar data no passo de contexto com
+  input simples `type="date"`.
+- A edicao permite alterar equipamento reaproveitando `ServiceEquipmentChoice`,
+  o mesmo padrao visual do inicio sem contexto.
+- Ao escolher outro equipamento, o draft volta ao fluxo de edicao sem router
+  novo e sem picker visual novo.
+- `updateServiceRecord` continua preservando `id`, sem duplicar historico, e
+  grava equipamento/data editados.
+- Relatorio imediato e reaberto refletem equipamento e data editados.
+- Diagnostico, acoes, pecas, custos, proxima manutencao e fallback de
+  `observacoes` continuam cobertos.
+
+### Validacao executada
+
+- RED relatorio:
+  `npm test -- src/app-v2/service/serviceReportViewModel.test.ts --run`
+  falhou porque o relatorio imediato ainda usava `today` em vez de
+  `draft.serviceDate`.
+- RED shell:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou porque o
+  fluxo ainda nao tinha `input[name="service-date"]` nem troca de equipamento.
+- GREEN relatorio:
+  `npm test -- src/app-v2/service/serviceReportViewModel.test.ts --run`
+  passou com 10 testes.
+- GREEN shell:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 17
+  testes.
+- GREEN focado app-v2:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 55 testes.
+
+### Proximo checkpoint recomendado
+
+Contrato documental de tecnico global no app-v2, sem storage real.
+
+### Acao automatica
+
+Continuando automaticamente para contrato documental de tecnico global, porque
+a lacuna pode ser decomposta sem storage real, sem design novo e sem area
+sensivel.
+
+---
+
+## Checkpoint atual - Contrato documental de tecnico global
+
+Definir contrato seguro para a capacidade do v1 de adicionar tecnico informado
+no Registro de Servico a uma lista global de tecnicos.
+
+### Analise resumida
+
+No v1, `buildRegistroCreateStateMutation` adiciona
+`persistedPayload.tecnico` a `prev.tecnicos` quando o nome ainda nao existe. O
+app-v2 ja exige tecnico no draft, mas ainda nao possui lista global mockada nem
+contrato para evoluir essa paridade sem tocar storage real.
+
+### Resultado deste checkpoint
+
+- Criado `docs/rewrite/contrato-tecnico-global-app-v2.md`.
+- Definido que a primeira paridade segura deve ser `tecnicos: string[]` no mock
+  local.
+- Definido que criacao e edicao de Registro de Servico podem acumular tecnico
+  nao vazio no mock.
+- Definido anti-escopo: UI nova, autocomplete, storage real, Supabase/RLS,
+  permissoes, perfil, migracao, PDF/share e WhatsApp.
+
+### Validacao esperada
+
+- `npm run format:check`.
+- `git diff --check`.
+
+### Proximo checkpoint recomendado
+
+Tecnico global fase 1 mockada: acumular tecnico informado em lista mockada no
+app-v2 durante criacao e edicao de Registro de Servico, sem UI nova e sem
+storage real.
+
+### Acao automatica
+
+Continuar automaticamente, porque a proxima fatia e app-v2/mock local, sem UI
+nova e sem area sensivel.
+
+---
+
+## Checkpoint atual - Tecnico global fase 1 mockada
+
+Acumular tecnico informado em lista mockada no app-v2 durante criacao e edicao
+de Registro de Servico, sem UI nova e sem storage real.
+
+### Resultado deste checkpoint
+
+- `AppV2MockData` agora possui `tecnicos: string[]`.
+- `createAppV2MockSnapshot` clona a lista de tecnicos.
+- `completeService` adiciona tecnico novo ao mock local.
+- `updateServiceRecord` adiciona tecnico editado ao mock local.
+- A regra usa `trim`, ignora nome vazio e nao duplica nome existente.
+- Nenhuma UI, autocomplete, storage real, Supabase/RLS, permissao, perfil,
+  PDF/share ou WhatsApp foi alterado.
+
+### Validacao executada
+
+- RED:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` falhou porque
+  `tecnicos` ainda era `undefined`.
+- GREEN:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` passou com 20 testes.
+
+### Proximo checkpoint recomendado
+
+Definir contrato controlado para prompt de proxima preventiva pos-salvamento no
+app-v2, sem implementar UX nova.
+
+### Acao automatica
+
+Continuando automaticamente apenas para a fatia documental segura antes do gate
+de UX.
+
+---
+
+## Checkpoint atual - Contrato de proxima preventiva pos-salvamento
+
+Documentar o contrato do prompt pos-salvamento sem implementar UX nova.
+
+### Resultado deste checkpoint
+
+- Criado
+  `docs/rewrite/contrato-proxima-preventiva-pos-salvamento-app-v2.md`.
+- Registrado que o app-v2 ja cria compromisso mockado quando
+  `nextMaintenanceDate` e informado durante o fluxo.
+- Registrado que prompt futuro deve evitar duplicidade e permitir confirmar,
+  alterar ou recusar a proxima preventiva.
+- Mantidos fora do escopo: UI nova, modal/drawer, storage real, notificacao,
+  calendario real, recorrencia avancada, PDF/share, WhatsApp, billing,
+  Supabase/RLS, permissoes e PMOC.
+
+### Proximo checkpoint recomendado
+
+Decisao humana de UX para prompt de proxima preventiva pos-salvamento, ou
+aprovar explicitamente manter apenas o campo `Proxima manutencao` dentro do
+fluxo como comportamento final do app-v2.
+
+### Acao automatica
+
+Bloqueado por gate humano: a proxima acao funcional exige decisao visual/UX.
+
 ---
 
 ## Historico - Edicao de Registro de Servico existente fase 1 mockada

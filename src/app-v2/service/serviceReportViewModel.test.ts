@@ -280,3 +280,27 @@ it('exibe proxima manutencao no relatorio imediato e reaberto', () => {
     expect.arrayContaining([{ label: 'Proxima manutencao', value: '10/06/2026' }]),
   );
 });
+
+it('usa a data editada do draft no relatorio imediato', () => {
+  const input = createAppV2MockSnapshot();
+  const draft = {
+    ...createServiceDraft(input, 'eq-1', 'compromisso-1'),
+    serviceDate: '2026-05-12',
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    finalStatus: 'ok' as const,
+  };
+
+  const fields = buildServiceReportViewModel(input, draft).sections.flatMap(
+    (section) => section.fields,
+  );
+
+  expect(fields).toEqual(
+    expect.arrayContaining([
+      { label: 'Data', value: '12/05/2026' },
+      { label: 'Inicio', value: '12/05/2026' },
+      { label: 'Conclusao', value: '12/05/2026' },
+    ]),
+  );
+});

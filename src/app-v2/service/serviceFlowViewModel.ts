@@ -64,6 +64,7 @@ export interface ServiceReviewViewModel {
   title: 'Revisar serviço';
   equipmentName: string;
   customerLine: string;
+  serviceDateLabel: string;
   kindLabel: string;
   technician: string;
   diagnosis: string;
@@ -200,6 +201,7 @@ export function buildServiceReviewViewModel(
     title: 'Revisar serviço',
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
+    serviceDateLabel: formatOptionalFullDateLabel(draft.serviceDate),
     kindLabel: formatRecordKind(draft.kind, draft.customKind),
     technician: draft.technician.trim() || 'Técnico não informado',
     diagnosis: draft.diagnosis.trim() || 'Diagnóstico não informado',

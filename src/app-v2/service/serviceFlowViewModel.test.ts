@@ -270,11 +270,13 @@ it('mantem proxima manutencao como campo opcional no resumo tecnico', () => {
     technician: 'Ana Tecnica',
     diagnosis: 'Filtro saturado.',
     actionsDone: 'Limpeza e substituicao preventiva.',
+    serviceDate: '2026-05-12',
     nextMaintenanceDate: '2026-06-10',
     finalStatus: 'ok',
   };
 
   expect(buildServiceReviewViewModel(input, draft)).toMatchObject({
+    serviceDateLabel: '12/05/2026',
     nextMaintenanceLabel: '10/06/2026',
   });
   expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(

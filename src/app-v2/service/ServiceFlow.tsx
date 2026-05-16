@@ -26,6 +26,7 @@ interface ServiceFlowProps {
   onDraftChange: (draft: ServiceDraft) => void;
   onCompleteService: (draft: ServiceDraft) => void;
   onValidateService?: (draft: ServiceDraft) => string | null;
+  onChangeEquipment?: () => void;
   onOpenEquipment: (equipmentId: string) => void;
 }
 
@@ -38,6 +39,7 @@ export function ServiceFlow({
   onDraftChange,
   onCompleteService,
   onValidateService,
+  onChangeEquipment,
   onOpenEquipment,
 }: ServiceFlowProps) {
   const [step, setStep] = useState<ServiceFlowStep>('context');
@@ -122,7 +124,16 @@ export function ServiceFlow({
       </SectionCard>
 
       {step === 'context' ? (
-        <ServiceStepContext context={context} onCancel={onBackToServices} onContinue={nextStep} />
+        <ServiceStepContext
+          context={context}
+          serviceDate={draft.serviceDate}
+          onCancel={onBackToServices}
+          onChangeEquipment={onChangeEquipment}
+          onContinue={nextStep}
+          onServiceDateChange={
+            onChangeEquipment ? (serviceDate) => updateDraft({ ...draft, serviceDate }) : undefined
+          }
+        />
       ) : null}
 
       {step === 'type' ? (
