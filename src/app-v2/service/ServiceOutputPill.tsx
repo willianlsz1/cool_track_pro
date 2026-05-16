@@ -1,4 +1,4 @@
-import { appV2Tone } from '../styles/tokens';
+import { StatusBadge, type StatusBadgeTone } from '../ui/primitives';
 import type { ServiceOutputStatus } from './servicesHomeViewModel';
 
 interface ServiceOutputPillProps {
@@ -12,19 +12,13 @@ const outputLabels: Record<ServiceOutputStatus, string> = {
   sem_pendencia: 'Sem pendência',
 };
 
-const outputClasses: Record<ServiceOutputStatus, string> = {
-  relatorio_pendente: appV2Tone.actionSoft,
-  orcamento_sugerido: 'tw-border-[#F6C453] tw-bg-[#FFF7E6] tw-text-[#8A5A00]',
-  proximo_compromisso_sugerido: appV2Tone.success,
-  sem_pendencia: `tw-bg-[#F8FAFC] tw-text-[#64748B] ${appV2Tone.border}`,
+const outputTones: Record<ServiceOutputStatus, StatusBadgeTone> = {
+  relatorio_pendente: 'primary',
+  orcamento_sugerido: 'warning',
+  proximo_compromisso_sugerido: 'success',
+  sem_pendencia: 'muted',
 };
 
 export function ServiceOutputPill({ status }: ServiceOutputPillProps) {
-  return (
-    <span
-      className={`tw-inline-flex tw-w-fit tw-rounded-md tw-border tw-px-2.5 tw-py-1 tw-text-xs tw-font-black ${outputClasses[status]}`}
-    >
-      {outputLabels[status]}
-    </span>
-  );
+  return <StatusBadge tone={outputTones[status]}>{outputLabels[status]}</StatusBadge>;
 }

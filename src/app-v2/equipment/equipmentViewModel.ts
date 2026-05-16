@@ -50,6 +50,7 @@ export interface EquipmentListItemViewModel {
 export interface EquipmentDetailViewModel {
   id: string;
   name: string;
+  customerId?: string;
   typeLine: string;
   statusLabel: string;
   statusTone: EquipmentTone;
@@ -124,6 +125,7 @@ export function buildEquipmentDetailViewModel(
   return {
     id: equipamento.id,
     name: equipamento.nome,
+    customerId: cliente?.id,
     typeLine: formatTypeLine(equipamento),
     statusLabel: formatStatusLabel(equipamento.status),
     statusTone: mapStatusTone(equipamento.status),

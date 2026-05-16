@@ -15,6 +15,7 @@ import {
   type HomeTodayViewModel,
 } from './homeViewModel';
 import { appV2Tone } from '../styles/tokens';
+import { PageShell, SectionCard, StatusBadge } from '../ui/primitives';
 
 const defaultHomeInput: BuildHomeTodayViewModelInput = {
   today: mockHomeToday,
@@ -32,20 +33,24 @@ interface HomeTodayProps {
 
 const statToneClasses = {
   danger: {
-    icon: 'tw-bg-[#FDE2E6] tw-text-[#DC2626]',
-    badge: 'tw-bg-[#FEF2F2] tw-text-[#B91C1C]',
+    dot: 'tw-bg-[#DC2626]',
+    icon: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
+    badge: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
   },
   warning: {
-    icon: 'tw-bg-[#FFF1DD] tw-text-[#C2410C]',
-    badge: 'tw-bg-[#FFF7ED] tw-text-[#9A3412]',
+    dot: 'tw-bg-[#D97706]',
+    icon: 'tw-bg-[#FFF7ED] tw-text-[#D97706]',
+    badge: 'tw-bg-[#FFF7ED] tw-text-[#D97706]',
   },
   primary: {
-    icon: 'tw-bg-[#E6F0FF] tw-text-[#1D4ED8]',
-    badge: 'tw-bg-[#E6F0FF] tw-text-[#1D4ED8]',
+    dot: 'tw-bg-[#2CC7EA]',
+    icon: 'tw-bg-[#ECFEFF] tw-text-[#0891B2]',
+    badge: 'tw-bg-[#EFF6FF] tw-text-[#2563EB]',
   },
   success: {
-    icon: 'tw-bg-[#DCFCE7] tw-text-[#15803D]',
-    badge: 'tw-bg-[#ECFDF3] tw-text-[#15803D]',
+    dot: 'tw-bg-[#16A34A]',
+    icon: 'tw-bg-[#F0FDF4] tw-text-[#16A34A]',
+    badge: 'tw-bg-[#F0FDF4] tw-text-[#16A34A]',
   },
 } as const;
 
@@ -65,63 +70,40 @@ export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayP
   }
 
   return (
-    <main className="tw-mx-auto tw-box-border tw-flex tw-min-h-screen tw-w-full tw-max-w-[1220px] tw-flex-col tw-gap-4 tw-px-4 tw-pb-48 tw-pt-4 sm:tw-px-6 lg:tw-gap-5 lg:tw-px-8 lg:tw-pb-44 lg:tw-pt-6">
-      <header
-        className={`tw-rounded-2xl tw-border tw-bg-white/90 tw-px-4 tw-py-3.5 tw-shadow-[0_18px_42px_-36px_rgba(10,19,40,0.65)] sm:tw-px-5 sm:tw-py-4 lg:tw-py-3 ${appV2Tone.border}`}
-      >
-        <div className="tw-flex tw-items-center tw-justify-between tw-gap-4">
-          <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
-            <img
-              src="/icons/icon-192x192.png"
-              alt=""
-              className="tw-h-9 tw-w-9 tw-shrink-0 tw-rounded-xl"
-              aria-hidden="true"
-            />
-            <div className="tw-min-w-0">
-              <p className={`tw-m-0 tw-truncate tw-text-sm tw-font-black ${appV2Tone.text}`}>
-                CoolTrack Pro
-              </p>
-              <p className={`tw-m-0 tw-text-xs tw-font-black tw-text-[#1D4ED8]`}>app-v2</p>
-            </div>
-          </div>
-
-          <div className="tw-flex tw-shrink-0 tw-items-center tw-gap-3">
-            <span
-              className={`tw-hidden tw-text-xs tw-font-bold sm:tw-inline ${appV2Tone.mutedText}`}
-            >
-              Hoje
-            </span>
-            <span
-              className={`tw-rounded-full tw-border tw-bg-white tw-px-3 tw-py-1.5 tw-text-sm tw-font-black ${appV2Tone.border} ${appV2Tone.text}`}
-            >
-              {viewModel.dateLabel}
-            </span>
-          </div>
-        </div>
-
-        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-3 lg:tw-mt-3 lg:tw-flex-row lg:tw-items-center lg:tw-justify-between">
-          <div className="tw-min-w-0">
+    <PageShell>
+      <header className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(540px,0.86fr)] lg:tw-items-start">
+        <div className="tw-min-w-0">
+          <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
+            Hoje em CoolTrack
+          </p>
+          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3">
             <h1
-              className={`tw-m-0 tw-text-[1.85rem] tw-font-black tw-leading-none sm:tw-text-3xl ${appV2Tone.text}`}
+              className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-none sm:tw-text-[2rem] ${appV2Tone.text}`}
             >
               {viewModel.title}
             </h1>
-            <p className={`tw-m-0 tw-mt-1.5 tw-text-base tw-font-black ${appV2Tone.text}`}>
-              {viewModel.context}
-            </p>
-            <p
-              className={`tw-m-0 tw-mt-1.5 tw-hidden tw-max-w-2xl tw-text-sm tw-font-semibold tw-leading-5 sm:tw-block ${appV2Tone.mutedText}`}
+            <span
+              className={`tw-mt-2 tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-sm tw-font-semibold tw-shadow-[0_16px_36px_-30px_rgba(15,23,42,0.45)] ${appV2Tone.border} ${appV2Tone.text}`}
             >
-              {viewModel.shiftSummary}
-            </p>
+              <HomeIcon name="calendar" />
+              {viewModel.dateLabel}
+            </span>
           </div>
-
-          <QuickStats stats={viewModel.quickStats} />
+          <p className={`tw-m-0 tw-mt-5 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
+            {viewModel.context}
+          </p>
+          <p
+            className={`tw-m-0 tw-mt-2 tw-max-w-xl tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}
+          >
+            {viewModel.shiftSummary}
+          </p>
         </div>
+
+        <QuickStats stats={viewModel.quickStats} />
       </header>
 
-      <div className="tw-grid tw-gap-4 lg:tw-grid-cols-[minmax(0,2.25fr)_minmax(280px,0.8fr)] lg:tw-items-start">
-        <div className="tw-flex tw-min-w-0 tw-flex-col tw-gap-4">
+      <div className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_336px] lg:tw-items-start">
+        <div className="tw-flex tw-min-w-0 tw-flex-col tw-gap-5">
           <NextActionCard
             action={viewModel.nextAction}
             onPrimaryAction={startNextService}
@@ -132,37 +114,43 @@ export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayP
 
         <HomeAside aside={viewModel.aside} />
       </div>
-    </main>
+    </PageShell>
   );
 }
 
 function QuickStats({ stats }: { stats: HomeTodayViewModel['quickStats'] }) {
   return (
     <section
-      className={`tw-grid tw-grid-cols-3 tw-gap-1.5 tw-rounded-2xl tw-border tw-bg-white tw-p-2.5 sm:tw-min-w-[440px] sm:tw-gap-3 sm:tw-p-3 ${appV2Tone.border}`}
-      aria-label="Resumo rápido do turno"
+      className="tw-grid tw-grid-cols-1 tw-gap-3 sm:tw-grid-cols-3"
+      aria-label="Resumo rapido do turno"
     >
       {stats.map((stat) => (
-        <div key={stat.id} className="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5 sm:tw-gap-3">
+        <SectionCard
+          key={stat.id}
+          className="tw-relative tw-flex tw-min-h-[100px] tw-min-w-0 tw-items-center tw-gap-4"
+          padding="sm"
+        >
           <span
-            className={`tw-grid tw-h-8 tw-w-8 tw-shrink-0 tw-place-items-center tw-rounded-full sm:tw-h-9 sm:tw-w-9 ${statToneClasses[stat.tone].icon}`}
+            className={`tw-absolute tw-right-4 tw-top-4 tw-h-2 tw-w-2 tw-rounded-full ${statToneClasses[stat.tone].dot}`}
+            aria-hidden="true"
+          />
+          <span
+            className={`tw-grid tw-h-11 tw-w-11 tw-shrink-0 tw-place-items-center tw-rounded-2xl ${statToneClasses[stat.tone].icon}`}
             aria-hidden="true"
           >
             <HomeIcon name={stat.icon} />
           </span>
           <span className="tw-min-w-0">
-            <span
-              className={`tw-block tw-text-sm tw-font-black tw-leading-4 sm:tw-text-base sm:tw-leading-5 ${appV2Tone.text}`}
-            >
+            <span className={`tw-block tw-text-2xl tw-font-bold tw-leading-7 ${appV2Tone.text}`}>
               {stat.value}
             </span>
             <span
-              className={`tw-block tw-text-[0.68rem] tw-font-bold tw-leading-3 sm:tw-text-xs sm:tw-leading-4 ${appV2Tone.mutedText}`}
+              className={`tw-block tw-text-sm tw-font-medium tw-leading-5 ${appV2Tone.mutedText}`}
             >
               {stat.detail}
             </span>
           </span>
-        </div>
+        </SectionCard>
       ))}
     </section>
   );
@@ -170,17 +158,16 @@ function QuickStats({ stats }: { stats: HomeTodayViewModel['quickStats'] }) {
 
 function HomeAside({ aside }: { aside: HomeTodayViewModel['aside'] }) {
   return (
-    <aside
-      className="tw-hidden tw-flex-col tw-gap-4 lg:tw-flex"
-      aria-label="Resumo auxiliar do turno"
-    >
-      <section className={`tw-rounded-2xl tw-border tw-bg-white tw-p-5 ${appV2Tone.border}`}>
-        <h2 className={`tw-m-0 tw-text-base tw-font-black ${appV2Tone.text}`}>Resumo do turno</h2>
-        <div className="tw-mt-5 tw-flex tw-flex-col tw-gap-4">
+    <aside className="tw-flex tw-flex-col tw-gap-4" aria-label="Resumo auxiliar do turno">
+      <SectionCard>
+        <h2 className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
+          Resumo do turno
+        </h2>
+        <div className="tw-mt-5 tw-flex tw-flex-col tw-gap-5">
           {aside.summary.map((item) => (
-            <div key={item.id} className="tw-flex tw-items-center tw-gap-3">
+            <div key={item.id} className="tw-flex tw-items-center tw-gap-4">
               <span
-                className={`tw-grid tw-h-10 tw-w-10 tw-shrink-0 tw-place-items-center tw-rounded-full ${statToneClasses[item.tone].icon}`}
+                className={`tw-grid tw-h-11 tw-w-11 tw-shrink-0 tw-place-items-center tw-rounded-2xl ${statToneClasses[item.tone].icon}`}
                 aria-hidden="true"
               >
                 <HomeIcon
@@ -188,55 +175,57 @@ function HomeAside({ aside }: { aside: HomeTodayViewModel['aside'] }) {
                 />
               </span>
               <span className="tw-min-w-0">
-                <span
-                  className={`tw-block tw-text-lg tw-font-black tw-leading-5 ${appV2Tone.text}`}
-                >
+                <span className={`tw-block tw-text-xl tw-font-bold tw-leading-6 ${appV2Tone.text}`}>
                   {item.value}
                 </span>
-                <span className={`tw-block tw-text-xs tw-font-bold ${appV2Tone.mutedText}`}>
+                <span className={`tw-block tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
                   {item.label}
                 </span>
               </span>
             </div>
           ))}
         </div>
-      </section>
+      </SectionCard>
 
       {aside.nextInQueue ? (
-        <section className={`tw-rounded-2xl tw-border tw-bg-white tw-p-5 ${appV2Tone.border}`}>
-          <h2 className={`tw-text-base tw-font-black ${appV2Tone.text}`}>Próximo na fila</h2>
-          <div className="tw-mt-4 tw-flex tw-items-center tw-gap-3">
+        <SectionCard>
+          <h2 className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
+            Próximo na fila
+          </h2>
+          <div className="tw-mt-5 tw-flex tw-items-center tw-gap-4">
             <span
-              className={`tw-grid tw-h-10 tw-w-10 tw-shrink-0 tw-place-items-center tw-rounded-full ${statToneClasses[aside.nextInQueue.tone].icon}`}
+              className={`tw-grid tw-h-11 tw-w-11 tw-shrink-0 tw-place-items-center tw-rounded-full ${statToneClasses[aside.nextInQueue.tone].icon}`}
               aria-hidden="true"
             >
               <HomeIcon name="next" />
             </span>
             <div className="tw-min-w-0">
-              <p className={`tw-m-0 tw-truncate tw-text-sm tw-font-black ${appV2Tone.text}`}>
+              <p className={`tw-m-0 tw-truncate tw-text-sm tw-font-bold ${appV2Tone.text}`}>
                 {aside.nextInQueue.title}
               </p>
               <p
-                className={`tw-m-0 tw-mt-1 tw-truncate tw-text-xs tw-font-bold ${appV2Tone.mutedText}`}
+                className={`tw-m-0 tw-mt-1 tw-truncate tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}
               >
                 {aside.nextInQueue.detail}
               </p>
-              <span
-                className={`tw-mt-2 tw-inline-flex tw-rounded-md tw-px-2 tw-py-1 tw-text-xs tw-font-black ${statToneClasses[aside.nextInQueue.tone].badge}`}
-              >
+              <StatusBadge tone={aside.nextInQueue.tone} className="tw-mt-3">
                 {aside.nextInQueue.status}
-              </span>
+              </StatusBadge>
             </div>
           </div>
-        </section>
+        </SectionCard>
       ) : null}
 
-      <section className="tw-rounded-2xl tw-border tw-border-[#D7E3F2] tw-bg-[#F8FBFF] tw-p-4">
-        <h2 className={`tw-text-sm tw-font-black ${appV2Tone.text}`}>Lembrete técnico</h2>
-        <p className={`tw-mt-2 tw-text-sm tw-font-semibold tw-leading-6 ${appV2Tone.mutedText}`}>
+      <SectionCard>
+        <h2 className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
+          Lembrete técnico
+        </h2>
+        <p
+          className={`tw-m-0 tw-mt-4 tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}
+        >
           {aside.note}
         </p>
-      </section>
+      </SectionCard>
     </aside>
   );
 }
@@ -246,7 +235,7 @@ function HomeIcon({ name }: { name: HomeTodayViewModel['quickStats'][number]['ic
     return (
       <svg
         viewBox="0 0 24 24"
-        className="tw-h-4 tw-w-4"
+        className="tw-h-5 tw-w-5"
         fill="none"
         stroke="currentColor"
         strokeWidth="2.2"
@@ -264,7 +253,7 @@ function HomeIcon({ name }: { name: HomeTodayViewModel['quickStats'][number]['ic
     return (
       <svg
         viewBox="0 0 24 24"
-        className="tw-h-4 tw-w-4"
+        className="tw-h-5 tw-w-5"
         fill="none"
         stroke="currentColor"
         strokeWidth="2.2"
@@ -281,7 +270,7 @@ function HomeIcon({ name }: { name: HomeTodayViewModel['quickStats'][number]['ic
     return (
       <svg
         viewBox="0 0 24 24"
-        className="tw-h-4 tw-w-4"
+        className="tw-h-5 tw-w-5"
         fill="none"
         stroke="currentColor"
         strokeWidth="2.2"
@@ -297,7 +286,7 @@ function HomeIcon({ name }: { name: HomeTodayViewModel['quickStats'][number]['ic
   return (
     <svg
       viewBox="0 0 24 24"
-      className="tw-h-4 tw-w-4"
+      className="tw-h-5 tw-w-5"
       fill="none"
       stroke="currentColor"
       strokeWidth="2.2"

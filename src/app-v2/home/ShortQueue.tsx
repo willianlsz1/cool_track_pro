@@ -1,5 +1,6 @@
 import type { HomeTodayViewModel } from './homeViewModel';
 import { appV2Tone } from '../styles/tokens';
+import { ListRow, StatusBadge } from '../ui/primitives';
 
 interface ShortQueueProps {
   items: HomeTodayViewModel['queue'];
@@ -8,80 +9,83 @@ interface ShortQueueProps {
 
 const statusClasses = {
   danger: {
-    badge: 'tw-bg-[#FEF2F2] tw-text-[#B91C1C]',
-    icon: 'tw-bg-[#FDE2E6] tw-text-[#DC2626]',
+    badge: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
+    icon: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
   },
   warning: {
-    badge: 'tw-bg-[#FFF7ED] tw-text-[#9A3412]',
-    icon: 'tw-bg-[#FFF1DD] tw-text-[#C2410C]',
+    badge: 'tw-bg-[#FFF7ED] tw-text-[#D97706]',
+    icon: 'tw-bg-[#FFF7ED] tw-text-[#D97706]',
   },
   primary: {
-    badge: 'tw-bg-[#E6F0FF] tw-text-[#1D4ED8]',
-    icon: 'tw-bg-[#E6F0FF] tw-text-[#1D4ED8]',
+    badge: 'tw-bg-[#EFF6FF] tw-text-[#2563EB]',
+    icon: 'tw-bg-[#ECFEFF] tw-text-[#0891B2]',
   },
 } as const;
 
 export function ShortQueue({ items, onOpenItem }: ShortQueueProps) {
   return (
-    <section aria-labelledby="short-queue-title">
-      <div className="tw-mb-3 tw-flex tw-items-center tw-justify-between tw-gap-3">
-        <h2 id="short-queue-title" className={`tw-m-0 tw-text-xl tw-font-black ${appV2Tone.text}`}>
+    <section
+      className={`tw-overflow-hidden tw-rounded-2xl tw-border tw-bg-white tw-shadow-[0_20px_52px_-40px_rgba(15,23,42,0.46)] ${appV2Tone.border}`}
+      aria-labelledby="short-queue-title"
+    >
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-border-b tw-border-[#E5EAF0] tw-px-4 tw-py-4 sm:tw-px-5">
+        <h2
+          id="short-queue-title"
+          className={`tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-base tw-font-semibold ${appV2Tone.text}`}
+        >
+          <span className="tw-h-2 tw-w-2 tw-rounded-full tw-bg-[#2CC7EA]" aria-hidden="true" />
           Fila curta
         </h2>
-        <span className="tw-text-sm tw-font-black tw-text-[#1D4ED8]">Ver todos</span>
+        <span className="tw-text-sm tw-font-semibold tw-text-[#2563EB]">Ver todos</span>
       </div>
 
-      <div
-        className={`tw-overflow-hidden tw-rounded-2xl tw-border tw-bg-white ${appV2Tone.border}`}
-      >
-        {items.length === 0 ? (
-          <div className={`tw-p-5 tw-text-sm tw-font-semibold tw-leading-6 ${appV2Tone.mutedText}`}>
-            Fila limpa para hoje. Novos compromissos aparecem aqui quando forem agendados.
-          </div>
-        ) : (
-          items.map((item, index) => {
+      {items.length === 0 ? (
+        <div className={`tw-p-5 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.mutedText}`}>
+          Fila limpa para hoje. Novos compromissos aparecem aqui quando forem agendados.
+        </div>
+      ) : (
+        <div className="tw-divide-y tw-divide-[#E5EAF0]">
+          {items.map((item) => {
             const tone = statusClasses[item.tone];
 
             return (
-              <button
+              <ListRow
                 key={item.id}
-                type="button"
                 onClick={() => onOpenItem?.(item.equipmentId)}
-                className={`tw-flex tw-w-full tw-items-center tw-gap-3 tw-border-0 tw-bg-white tw-p-4 tw-text-left hover:tw-bg-[#F8FBFF] ${index > 0 ? 'tw-border-t tw-border-[#E8EEF6]' : ''} ${appV2Tone.focus}`}
+                interactive
+                className="tw-grid tw-grid-cols-[36px_minmax(0,1fr)_auto_16px] tw-items-center tw-gap-3 tw-px-4 sm:tw-px-5"
               >
                 <span
-                  className={`tw-grid tw-h-10 tw-w-10 tw-shrink-0 tw-place-items-center tw-rounded-full ${tone.icon}`}
+                  className={`tw-grid tw-h-9 tw-w-9 tw-shrink-0 tw-place-items-center tw-rounded-full ${tone.icon}`}
                   aria-hidden="true"
                 >
                   <QueueIcon kind={item.iconLabel} tone={item.tone} />
                 </span>
 
-                <span className="tw-min-w-0 tw-flex-1">
+                <span className="tw-min-w-0">
                   <span
-                    className={`tw-block tw-truncate tw-text-sm tw-font-black ${appV2Tone.text}`}
+                    className={`tw-block tw-truncate tw-text-sm tw-font-bold ${appV2Tone.text}`}
                   >
                     {item.title}
                   </span>
                   <span
-                    className={`tw-mt-1 tw-block tw-truncate tw-text-xs tw-font-semibold ${appV2Tone.mutedText}`}
+                    className={`tw-mt-1 tw-block tw-truncate tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}
                   >
                     {item.detail}
                   </span>
                 </span>
 
-                <span
-                  className={`tw-shrink-0 tw-rounded-md tw-px-2.5 tw-py-1 tw-text-xs tw-font-black ${tone.badge}`}
-                >
+                <StatusBadge tone={item.tone} className="tw-shrink-0">
                   {item.status}
-                </span>
-                <span className={`tw-shrink-0 tw-text-lg tw-font-black ${appV2Tone.mutedText}`}>
+                </StatusBadge>
+                <span className={`tw-shrink-0 tw-text-xl tw-font-semibold ${appV2Tone.mutedText}`}>
                   ›
                 </span>
-              </button>
+              </ListRow>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
     </section>
   );
 }

@@ -1,5 +1,6 @@
 import type { HomeTodayViewModel } from './homeViewModel';
 import { appV2Tone } from '../styles/tokens';
+import { ActionButton, SectionCard } from '../ui/primitives';
 
 interface NextActionCardProps {
   action: HomeTodayViewModel['nextAction'];
@@ -9,24 +10,28 @@ interface NextActionCardProps {
 
 const toneClasses = {
   danger: {
-    badge: 'tw-bg-[#FEF2F2] tw-text-[#B91C1C]',
-    icon: 'tw-bg-[#FDE2E6] tw-text-[#DC2626]',
+    accent: 'tw-bg-[#DC2626]',
+    badge: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
+    icon: 'tw-bg-[#FEE2E2] tw-text-[#DC2626]',
     reason: 'tw-text-[#DC2626]',
   },
   warning: {
-    badge: 'tw-bg-[#FFF7ED] tw-text-[#9A3412]',
-    icon: 'tw-bg-[#FFF1DD] tw-text-[#C2410C]',
-    reason: 'tw-text-[#C2410C]',
+    accent: 'tw-bg-[#D97706]',
+    badge: 'tw-bg-[#FFF7ED] tw-text-[#D97706]',
+    icon: 'tw-bg-[#FEF3C7] tw-text-[#D97706]',
+    reason: 'tw-text-[#D97706]',
   },
   primary: {
-    badge: 'tw-bg-[#E6F0FF] tw-text-[#1D4ED8]',
-    icon: 'tw-bg-[#E6F0FF] tw-text-[#1D4ED8]',
-    reason: 'tw-text-[#1D4ED8]',
+    accent: 'tw-bg-[#2563EB]',
+    badge: 'tw-bg-[#EFF6FF] tw-text-[#2563EB]',
+    icon: 'tw-bg-[#DBEAFE] tw-text-[#2563EB]',
+    reason: 'tw-text-[#2563EB]',
   },
   calm: {
-    badge: 'tw-bg-[#F1F5F9] tw-text-[#31415F]',
-    icon: 'tw-bg-[#F1F5F9] tw-text-[#31415F]',
-    reason: 'tw-text-[#31415F]',
+    accent: 'tw-bg-[#64748B]',
+    badge: 'tw-bg-[#F1F5F9] tw-text-[#334155]',
+    icon: 'tw-bg-[#F1F5F9] tw-text-[#334155]',
+    reason: 'tw-text-[#334155]',
   },
 } as const;
 
@@ -38,23 +43,29 @@ export function NextActionCard({
   const tone = toneClasses[action.tone];
 
   return (
-    <section
-      className={`tw-rounded-2xl tw-border tw-bg-white tw-p-3.5 tw-shadow-[0_20px_46px_-38px_rgba(10,19,40,0.7)] sm:tw-p-5 ${appV2Tone.border}`}
-      aria-labelledby="next-action-title"
+    <SectionCard
+      className="tw-relative tw-overflow-hidden sm:tw-p-5"
+      labelledBy="next-action-title"
+      padding="sm"
     >
+      <span
+        className={`tw-absolute tw-inset-y-0 tw-left-0 tw-w-1 ${tone.accent}`}
+        aria-hidden="true"
+      />
       <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
-        <span className={`tw-rounded-md tw-px-2.5 tw-py-1 tw-text-xs tw-font-black ${tone.badge}`}>
-          PRÓXIMA AÇÃO
+        <span className="tw-inline-flex tw-items-center tw-gap-2 tw-text-sm tw-font-semibold tw-text-[#061635]">
+          <span className={`tw-h-2 tw-w-2 tw-rounded-full ${tone.accent}`} aria-hidden="true" />
+          Próxima ação
         </span>
-        <span className={`tw-hidden tw-text-xs tw-font-black sm:tw-inline ${tone.reason}`}>
+        <span className={`tw-hidden tw-text-sm tw-font-semibold sm:tw-inline ${tone.reason}`}>
           {action.reason}
         </span>
       </div>
 
-      <div className="tw-mt-3.5 tw-grid tw-gap-4 lg:tw-mt-4 lg:tw-grid-cols-[minmax(0,1fr)_180px] lg:tw-items-center">
-        <div className="tw-flex tw-min-w-0 tw-gap-3.5 sm:tw-gap-4">
+      <div className="tw-mt-6 tw-grid tw-gap-6 xl:tw-grid-cols-[minmax(0,1fr)_320px] xl:tw-items-center">
+        <div className="tw-flex tw-min-w-0 tw-gap-4 sm:tw-gap-5">
           <span
-            className={`tw-grid tw-h-10 tw-w-10 tw-shrink-0 tw-place-items-center tw-rounded-full sm:tw-h-12 sm:tw-w-12 ${tone.icon}`}
+            className={`tw-grid tw-h-12 tw-w-12 tw-shrink-0 tw-place-items-center tw-rounded-full sm:tw-h-14 sm:tw-w-14 ${tone.icon}`}
             aria-hidden="true"
           >
             <AlertIcon />
@@ -63,24 +74,24 @@ export function NextActionCard({
           <div className="tw-min-w-0 tw-flex-1">
             <h2
               id="next-action-title"
-              className={`tw-m-0 tw-text-[1.32rem] tw-font-black tw-leading-tight sm:tw-text-[1.6rem] ${appV2Tone.text}`}
+              className={`tw-m-0 tw-text-xl tw-font-bold tw-leading-tight sm:tw-text-[1.7rem] ${appV2Tone.text}`}
             >
               {action.title}
             </h2>
 
             {action.equipmentName ? (
-              <p className={`tw-m-0 tw-mt-1.5 tw-text-base tw-font-black ${appV2Tone.text}`}>
+              <p className={`tw-m-0 tw-mt-2 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
                 {action.equipmentName}
               </p>
             ) : null}
 
             {action.customerLine ? (
-              <p className={`tw-m-0 tw-mt-1.5 tw-text-sm tw-font-semibold ${appV2Tone.mutedText}`}>
+              <p className={`tw-m-0 tw-mt-2 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
                 {action.customerLine}
               </p>
             ) : null}
 
-            <p className={`tw-m-0 tw-mt-1.5 tw-text-sm tw-font-black ${tone.reason}`}>
+            <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-semibold ${tone.reason}`}>
               {action.reason}
             </p>
           </div>
@@ -89,23 +100,13 @@ export function NextActionCard({
         <EquipmentVisual visual={action.equipmentVisual} />
       </div>
 
-      <div className="tw-mt-4 tw-grid tw-gap-2 sm:tw-grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
-        <button
-          type="button"
-          onClick={onPrimaryAction}
-          className={`tw-min-h-11 tw-rounded-lg tw-border-0 tw-px-4 tw-py-2.5 tw-text-base tw-font-extrabold tw-shadow-[0_16px_30px_-22px_rgba(30,91,255,0.95)] ${appV2Tone.action} ${appV2Tone.focus}`}
-        >
-          Iniciar serviço
-        </button>
-        <button
-          type="button"
-          onClick={onSecondaryAction}
-          className={`tw-min-h-11 tw-rounded-lg tw-border tw-bg-white tw-px-4 tw-py-2.5 tw-text-base tw-font-extrabold tw-text-[#1D4ED8] ${appV2Tone.border} ${appV2Tone.focus}`}
-        >
+      <div className="tw-mt-7 tw-grid tw-gap-3 sm:tw-grid-cols-[minmax(0,248px)_minmax(0,216px)]">
+        <ActionButton onClick={onPrimaryAction}>Iniciar serviço</ActionButton>
+        <ActionButton onClick={onSecondaryAction} variant="secondary">
           {action.secondaryAction}
-        </button>
+        </ActionButton>
       </div>
-    </section>
+    </SectionCard>
   );
 }
 
@@ -116,7 +117,7 @@ function EquipmentVisual({
 }) {
   if (visual.imageUrl) {
     return (
-      <div className="tw-hidden tw-h-28 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-[#D8E2F0] tw-bg-[#F8FBFF] lg:tw-block">
+      <div className="tw-hidden tw-h-40 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-[#E5EAF0] tw-bg-[#F6F8FB] xl:tw-block">
         <img
           src={visual.imageUrl}
           alt=""
@@ -128,12 +129,23 @@ function EquipmentVisual({
   }
 
   return (
-    <div className="tw-hidden tw-h-28 tw-rounded-2xl tw-border tw-border-[#D8E2F0] tw-bg-[#F8FBFF] tw-p-4 lg:tw-flex lg:tw-items-center lg:tw-justify-center">
+    <div className="tw-hidden tw-h-40 tw-rounded-2xl tw-border tw-border-[#E5EAF0] tw-bg-[linear-gradient(135deg,#F8FAFC_0%,#EEF3FA_100%)] tw-p-5 xl:tw-flex xl:tw-items-center xl:tw-justify-center">
       <div className="tw-flex tw-flex-col tw-items-center tw-gap-3">
-        <div className="tw-flex tw-h-14 tw-w-28 tw-items-end tw-justify-center tw-rounded-2xl tw-border tw-border-[#B8D2FF] tw-bg-white tw-pb-3 tw-shadow-[0_18px_28px_-24px_rgba(10,19,40,0.7)]">
-          <span className="tw-h-2 tw-w-16 tw-rounded-full tw-bg-[#1E5BFF]/25" aria-hidden="true" />
+        <div className="tw-relative tw-h-[86px] tw-w-[206px] tw-rounded-2xl tw-border tw-border-[#D7E0EC] tw-bg-white tw-shadow-[0_24px_42px_-32px_rgba(15,23,42,0.62)]">
+          <span
+            className="tw-absolute tw-inset-x-5 tw-bottom-4 tw-h-2 tw-rounded-full tw-bg-[#C7D7F4]"
+            aria-hidden="true"
+          />
+          <span
+            className="tw-absolute tw-bottom-3 tw-right-7 tw-h-4 tw-w-8 tw-rounded tw-bg-[#E8F3FF]"
+            aria-hidden="true"
+          />
+          <span
+            className="tw-absolute tw-inset-x-0 tw-bottom-0 tw-h-px tw-bg-[#D7E0EC]"
+            aria-hidden="true"
+          />
         </div>
-        <span className={`tw-text-xs tw-font-black ${appV2Tone.mutedText}`}>
+        <span className={`tw-text-xs tw-font-medium ${appV2Tone.mutedText}`}>
           {visual.fallbackLabel}
         </span>
       </div>
@@ -148,7 +160,7 @@ function AlertIcon() {
       className="tw-h-5 tw-w-5"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.4"
+      strokeWidth="2.2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >

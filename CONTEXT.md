@@ -145,6 +145,8 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - O **Novo app** tem quatro areas fixas: **Hoje**, **Equipamento**, **Servicos** e **Conta**.
 - A area **Equipamento** contem uma visao de **Equipamentos** e uma visao de **Clientes**.
 - A visao de **Clientes** mostra detalhes do **Cliente** e seus **Equipamentos** vinculados.
+- O detalhe de **Cliente** pode futuramente concentrar servicos relacionados e
+  **PMOC** contextual, sem tornar **Cliente** uma area global do **Novo app**.
 - **Servicos** inclui historico, relatorios e orcamentos.
 
 ## Example dialogue
