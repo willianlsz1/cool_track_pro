@@ -33,25 +33,25 @@ de codigo em `src/app-v2/`.
 
 ### Matriz
 
-| Capacidade v1                                              | Evidencia v1                                                             | Equivalente v2 atual                                                      | Status           | Melhoria permitida                                                       | Validacao necessaria                    |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------ | --------------------------------------- |
-| Abrir registro direto a partir de equipamento              | `startServiceRegistration(params)` aceita `equipId`                      | `startServiceFromEquipment(state, equipmentId)`                           | coberto          | Manter entrada contextual com visual v2                                  | Teste shell + teste action              |
-| Abrir registro sem equipamento com seletor/picker          | `startServiceRegistration` usa `openEquipPicker` quando nao ha `equipId` | escolha de equipamento no app-v2 antes de iniciar o fluxo                 | coberto          | Criar escolha de equipamento dentro do fluxo v2 sem copiar picker legado | Teste shell para inicio sem equipamento |
-| Orientar criacao de equipamento quando nao ha equipamentos | `mode: create-equipment`                                                 | estado vazio orienta ir para Equipamentos antes do registro               | coberto          | Estado vazio acionavel para criar equipamento antes do registro          | Teste de estado vazio                   |
-| Validar equipamento existente                              | `validateRegistroPayloadDraftData` usa `existingEquipamentos`            | `completeService` valida equipamento existente e shell mostra erro local  | coberto          | Validacao amigavel antes de concluir                                     | Teste de dominio/action + shell         |
-| Validar data obrigatoria e valida                          | `validateRegistroPayload`                                                | `completeService` valida data simples do contrato mockado                 | coberto          | Manter data simples no fluxo, sem storage real                           | Teste de payload/action + shell         |
-| Validar tipo de servico                                    | `tipo` obrigatorio e `Outro` customizado validado                        | v2 possui opcoes e descricao customizada local para `Outro`               | coberto          | Campo curto para detalhe de `Outro` quando selecionado                   | Teste view model + shell                |
-| Validar tecnico obrigatorio                                | v1 exige `tecnico` no fluxo padrao                                       | v2 possui campo local de tecnico no draft e bloqueia revisao sem valor    | coberto          | Campo local sem lista global nem storage real                            | Teste de conclusao                      |
-| Registrar diagnostico/observacoes                          | `obs` vira `descricaoFinal`                                              | registro mockado preserva diagnostico, acoes e `observacoes` compatível   | coberto          | Separar diagnostico, acoes e observacoes no contrato v2                  | Teste action + relatorio                |
-| Registrar pecas                                            | `pecas` persistido                                                       | v2 possui campo opcional de pecas no draft, registro mockado e relatorio  | coberto          | Campo textual opcional sem custos, estoque ou orcamento real             | Teste view model + action + shell       |
-| Registrar custos                                           | `custoPecas` e `custoMaoObra` persistidos                                | v2 possui custos opcionais no draft, registro mockado e relatorio         | coberto          | Captura opcional sem virar orcamento real                                | Teste payload + relatorio               |
-| Registrar proxima manutencao                               | `proxima` validado e persistido                                          | v2 possui `proximaData` opcional e cria compromisso mockado no fechamento | coberto          | Agendamento simples do proximo compromisso                               | Teste action + shell                    |
-| Atualizar status do equipamento apos salvar                | `buildRegistroCreateStateMutation` atualiza `equipamentos.status`        | `completeService` atualiza status do equipamento                          | coberto          | Manter regra pura e testavel                                             | Teste action                            |
-| Adicionar tecnico novo                                     | v1 atualiza `tecnicos` se tecnico novo nao existe                        | app-v2 snapshot nao possui lista de tecnicos                              | fora desta etapa | Decidir contrato de tecnico antes de storage real                        | Documento de contrato                   |
-| Editar registro existente                                  | `buildRegistroEditStateMutation`                                         | app-v2 nao possui edicao de registro                                      | fora desta etapa | Planejar depois da criacao/conclusao ficar estavel                       | Matriz futura                           |
-| Manter historico automaticamente                           | v1 adiciona registro em `state.registros`                                | `completeService` adiciona registro no mock                               | coberto          | Exibir historico consultavel por Servicos                                | Teste shell                             |
-| Pos-salvamento com PDF/WhatsApp/toast/fallback             | `notifyRegistroCreateSaved` e `runRegistroDirectShareAfterSave`          | v2 tem preview/print simples e relatorios mockados                        | parcial          | Manter relatorio local; WhatsApp/PDF real em etapa sensivel              | Teste relatorio + plano sensivel        |
-| Prompt de proxima preventiva apos salvar                   | `runRegistroPreventivaPromptAfterSave`                                   | v2 cria compromisso mockado quando a data e informada, sem prompt legado  | parcial          | Agendamento simples no fechamento                                        | Teste shell                             |
+| Capacidade v1                                              | Evidencia v1                                                             | Equivalente v2 atual                                                       | Status           | Melhoria permitida                                                       | Validacao necessaria                    |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------ | --------------------------------------- |
+| Abrir registro direto a partir de equipamento              | `startServiceRegistration(params)` aceita `equipId`                      | `startServiceFromEquipment(state, equipmentId)`                            | coberto          | Manter entrada contextual com visual v2                                  | Teste shell + teste action              |
+| Abrir registro sem equipamento com seletor/picker          | `startServiceRegistration` usa `openEquipPicker` quando nao ha `equipId` | escolha de equipamento no app-v2 antes de iniciar o fluxo                  | coberto          | Criar escolha de equipamento dentro do fluxo v2 sem copiar picker legado | Teste shell para inicio sem equipamento |
+| Orientar criacao de equipamento quando nao ha equipamentos | `mode: create-equipment`                                                 | estado vazio orienta ir para Equipamentos antes do registro                | coberto          | Estado vazio acionavel para criar equipamento antes do registro          | Teste de estado vazio                   |
+| Validar equipamento existente                              | `validateRegistroPayloadDraftData` usa `existingEquipamentos`            | `completeService` valida equipamento existente e shell mostra erro local   | coberto          | Validacao amigavel antes de concluir                                     | Teste de dominio/action + shell         |
+| Validar data obrigatoria e valida                          | `validateRegistroPayload`                                                | `completeService` valida data simples do contrato mockado                  | coberto          | Manter data simples no fluxo, sem storage real                           | Teste de payload/action + shell         |
+| Validar tipo de servico                                    | `tipo` obrigatorio e `Outro` customizado validado                        | v2 possui opcoes e descricao customizada local para `Outro`                | coberto          | Campo curto para detalhe de `Outro` quando selecionado                   | Teste view model + shell                |
+| Validar tecnico obrigatorio                                | v1 exige `tecnico` no fluxo padrao                                       | v2 possui campo local de tecnico no draft e bloqueia revisao sem valor     | coberto          | Campo local sem lista global nem storage real                            | Teste de conclusao                      |
+| Registrar diagnostico/observacoes                          | `obs` vira `descricaoFinal`                                              | registro mockado preserva diagnostico, acoes e `observacoes` compatível    | coberto          | Separar diagnostico, acoes e observacoes no contrato v2                  | Teste action + relatorio                |
+| Registrar pecas                                            | `pecas` persistido                                                       | v2 possui campo opcional de pecas no draft, registro mockado e relatorio   | coberto          | Campo textual opcional sem custos, estoque ou orcamento real             | Teste view model + action + shell       |
+| Registrar custos                                           | `custoPecas` e `custoMaoObra` persistidos                                | v2 possui custos opcionais no draft, registro mockado e relatorio          | coberto          | Captura opcional sem virar orcamento real                                | Teste payload + relatorio               |
+| Registrar proxima manutencao                               | `proxima` validado e persistido                                          | v2 possui `proximaData` opcional e cria compromisso mockado no fechamento  | coberto          | Agendamento simples do proximo compromisso                               | Teste action + shell                    |
+| Atualizar status do equipamento apos salvar                | `buildRegistroCreateStateMutation` atualiza `equipamentos.status`        | `completeService` atualiza status do equipamento                           | coberto          | Manter regra pura e testavel                                             | Teste action                            |
+| Adicionar tecnico novo                                     | v1 atualiza `tecnicos` se tecnico novo nao existe                        | app-v2 snapshot nao possui lista de tecnicos                               | fora desta etapa | Decidir contrato de tecnico antes de storage real                        | Documento de contrato                   |
+| Editar registro existente                                  | `buildRegistroEditStateMutation`                                         | fase 1 mockada atualiza por `id`, reidrata draft e conecta shell existente | parcial          | Proxima fase deve decidir UX para editar equipamento/data                | Teste action + view model + shell       |
+| Manter historico automaticamente                           | v1 adiciona registro em `state.registros`                                | `completeService` adiciona registro no mock                                | coberto          | Exibir historico consultavel por Servicos                                | Teste shell                             |
+| Pos-salvamento com PDF/WhatsApp/toast/fallback             | `notifyRegistroCreateSaved` e `runRegistroDirectShareAfterSave`          | v2 tem preview/print simples e relatorios mockados                         | parcial          | Manter relatorio local; WhatsApp/PDF real em etapa sensivel              | Teste relatorio + plano sensivel        |
+| Prompt de proxima preventiva apos salvar                   | `runRegistroPreventivaPromptAfterSave`                                   | v2 cria compromisso mockado quando a data e informada, sem prompt legado   | parcial          | Agendamento simples no fechamento                                        | Teste shell                             |
 
 ## 4. Lacunas prioritarias
 
@@ -308,3 +308,72 @@ Motivo:
 - edicao de registro existente e maior que um checkpoint pequeno;
 - prompt de proxima preventiva envolve decisao de UX;
 - PDF/share e WhatsApp real sao areas sensiveis.
+
+## 20. Checkpoint concluido - Edicao de Registro fase 1 mockada
+
+O app-v2 passou a cobrir a primeira fatia segura de edicao de registro
+existente:
+
+- `createServiceDraftFromRecord` reidrata `ServiceDraft` a partir de
+  `RegistroServico`;
+- registros antigos apenas com `observacoes` continuam gerando draft por
+  fallback;
+- `updateServiceRecord` atualiza registro existente por `id`;
+- a edicao preserva `id` e nao duplica item em `registros`;
+- equipamento inexistente e data invalida continuam bloqueados pela validacao
+  compartilhada;
+- o shell reaproveita o fluxo visual existente para editar um registro recente
+  do mock local, sem router novo e sem CSS legado.
+
+Campos cobertos nesta fase:
+
+- equipamento preservado;
+- data preservada pelo draft de edicao;
+- tipo e `Outro` customizado;
+- tecnico;
+- diagnostico;
+- acoes executadas;
+- `observacoes` como compatibilidade;
+- pecas usadas;
+- custos;
+- proxima manutencao;
+- status final.
+
+Areas mantidas fora do escopo:
+
+- storage real;
+- router novo;
+- contratos legados;
+- PDF/share real;
+- WhatsApp real;
+- billing, assinatura, cotas, Supabase/RLS, permissoes e PMOC;
+- novo design visual e CSS legado.
+
+Testes executados:
+
+- `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts --run`
+  passou com 10 testes.
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts --run`
+  passou com 27 testes.
+- `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 16
+  testes.
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 52 testes.
+- `npm run format`: passou.
+- `npm run build`: passou com warnings Vite conhecidos.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite conhecidos no build.
+- `git diff --check`: passou.
+
+## 21. Proximo checkpoint recomendado
+
+> Edicao de Registro fase 2: definir UX aprovada para alterar equipamento e
+> data dentro do fluxo de edicao, ou limitar explicitamente a fase 2 a uma
+> fatia sem UI nova.
+
+Motivo:
+
+- a fase 1 preserva equipamento/data, mas nao cria controles visuais novos para
+  altera-los;
+- alterar equipamento ou data no fluxo exige decisao de UX/posicionamento;
+- qualquer evolucao alem da action/mock deve evitar novo design improvisado.

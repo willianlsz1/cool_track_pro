@@ -4,6 +4,7 @@ import {
   registerEquipment,
   scheduleNextCommitment,
   startServiceFromEquipment,
+  updateServiceRecord,
 } from './appV2Actions';
 import {
   selectAppV2OperationalState,
@@ -29,6 +30,84 @@ describe('app-v2 flow actions', () => {
       finalStatus: 'ok',
     });
     expect(state).not.toHaveProperty('serviceDraft');
+  });
+
+  it('edita registro existente no mock preservando id e sem duplicar', () => {
+    const state = createAppV2MockSnapshot();
+    const started = startServiceFromEquipment(state, 'eq-1');
+    const draft = {
+      ...started.serviceDraft!,
+      kind: 'outro' as const,
+      customKind: 'Higienizacao',
+      technician: 'Ana Tecnica',
+      diagnosis: 'Serpentina com sujeira acumulada.',
+      actionsDone: 'Limpeza preventiva e teste operacional.',
+      partsUsed: 'Filtro de ar',
+      partsCost: '120,00',
+      laborCost: '250,00',
+      nextMaintenanceDate: '2026-06-10',
+      finalStatus: 'warn' as const,
+    };
+
+    const edited = updateServiceRecord(
+      {
+        ...started,
+        serviceDraft: draft,
+      },
+      {
+        id: 'registro-1',
+        date: '2026-05-11',
+        technician: draft.technician,
+        diagnosis: draft.diagnosis,
+        actionsDone: draft.actionsDone,
+        finalStatus: draft.finalStatus,
+      },
+    );
+
+    expect(edited.registros).toHaveLength(state.registros.length);
+    expect(edited.registros.filter((item) => item.id === 'registro-1')).toHaveLength(1);
+    expect(edited.registros.find((item) => item.id === 'registro-1')).toMatchObject({
+      id: 'registro-1',
+      equipamentoId: 'eq-1',
+      data: '2026-05-11',
+      tipo: 'outro',
+      tipoDescricao: 'Outro · Higienizacao',
+      status: 'warn',
+      tecnico: 'Ana Tecnica',
+      diagnostico: 'Serpentina com sujeira acumulada.',
+      acoesExecutadas: 'Limpeza preventiva e teste operacional.',
+      observacoes: 'Serpentina com sujeira acumulada. Limpeza preventiva e teste operacional.',
+      pecas: 'Filtro de ar',
+      custoPecas: '120,00',
+      custoMaoObra: '250,00',
+      proximaData: '2026-06-10',
+    });
+    expect(edited.equipamentos.find((item) => item.id === 'eq-1')?.status).toBe('warn');
+  });
+
+  it('bloqueia edicao quando equipamento ou data do registro sao invalidos', () => {
+    const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+    const completion = {
+      id: 'registro-1',
+      technician: 'Tecnico',
+      diagnosis: 'Diagnostico registrado.',
+      actionsDone: 'Acoes registradas.',
+      finalStatus: 'ok' as const,
+    };
+
+    expect(() => updateServiceRecord(started, { ...completion, date: '' })).toThrow(
+      'Informe uma data valida para concluir o servico.',
+    );
+
+    expect(() =>
+      updateServiceRecord(
+        {
+          ...started,
+          equipamentos: started.equipamentos.filter((item) => item.id !== 'eq-1'),
+        },
+        { ...completion, date: '2026-05-11' },
+      ),
+    ).toThrow('Equipamento nao encontrado. Escolha um equipamento valido antes de concluir.');
   });
 
   it('starts a service from an explicit commitment', () => {

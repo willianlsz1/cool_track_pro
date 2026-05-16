@@ -10,6 +10,7 @@ import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNa
 import {
   completeService,
   startServiceFromEquipment as startServiceFlowAction,
+  updateServiceRecord,
   validateServiceCompletion,
   type AppV2FlowState,
 } from '../data/appV2Actions';
@@ -18,7 +19,7 @@ import { selectAppV2OperationalState } from '../data/appV2Selectors';
 import { ServiceFlow } from '../service/ServiceFlow';
 import { ServiceEquipmentChoice } from '../service/ServiceEquipmentChoice';
 import { ServicesHome } from '../service/ServicesHome';
-import type { ServiceDraft } from '../service/serviceFlowViewModel';
+import { createServiceDraftFromRecord, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
 import { PageShell, SectionCard } from '../ui/primitives';
 
@@ -37,6 +38,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isServiceFlowOpen, setIsServiceFlowOpen] = useState(false);
   const [isServiceEquipmentChoiceOpen, setIsServiceEquipmentChoiceOpen] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const operationalState = selectAppV2OperationalState(appState);
   const serviceDraft = operationalState.serviceDraft;
 
@@ -77,6 +79,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   function startServiceFromEquipment(equipmentId: string, commitmentId?: string) {
     const nextState = startServiceFlowAction(appState, equipmentId, commitmentId);
     setAppState(nextState);
+    setEditingServiceId(null);
     setIsServiceFlowOpen(true);
     setIsServiceEquipmentChoiceOpen(false);
     setActiveTab('servicos');
@@ -104,22 +107,25 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   }
 
   function completeCurrentService(draft: ServiceDraft) {
-    setAppState((current) =>
-      completeService(
-        {
-          ...current,
-          serviceDraft: draft,
-        },
-        {
-          id: `reg-shell-${current.registros.length + 1}`,
-          date: current.today,
-          technician: draft.technician,
-          diagnosis: draft.diagnosis,
-          actionsDone: draft.actionsDone,
-          finalStatus: draft.finalStatus,
-        },
-      ),
-    );
+    setAppState((current) => {
+      const completion = {
+        id: editingServiceId ?? `reg-shell-${current.registros.length + 1}`,
+        date: draft.serviceDate ?? current.today,
+        technician: draft.technician,
+        diagnosis: draft.diagnosis,
+        actionsDone: draft.actionsDone,
+        finalStatus: draft.finalStatus,
+      };
+      const stateWithDraft = {
+        ...current,
+        serviceDraft: draft,
+      };
+
+      return editingServiceId
+        ? updateServiceRecord(stateWithDraft, completion)
+        : completeService(stateWithDraft, completion);
+    });
+    setEditingServiceId(null);
   }
 
   function validateCurrentService(draft: ServiceDraft): string | null {
@@ -130,8 +136,8 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
           serviceDraft: draft,
         },
         {
-          id: `reg-shell-${appState.registros.length + 1}`,
-          date: appState.today,
+          id: editingServiceId ?? `reg-shell-${appState.registros.length + 1}`,
+          date: draft.serviceDate ?? appState.today,
           technician: draft.technician,
           diagnosis: draft.diagnosis,
           actionsDone: draft.actionsDone,
@@ -142,6 +148,23 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     } catch (error) {
       return error instanceof Error ? error.message : 'Nao foi possivel concluir o servico.';
     }
+  }
+
+  function editServiceRecord(registroId: string) {
+    const registro = appState.registros.find((item) => item.id === registroId);
+
+    if (!registro) {
+      return;
+    }
+
+    setEditingServiceId(registroId);
+    setAppState((current) => ({
+      ...current,
+      serviceDraft: createServiceDraftFromRecord(registro),
+    }));
+    setIsServiceEquipmentChoiceOpen(false);
+    setIsServiceFlowOpen(true);
+    setActiveTab('servicos');
   }
 
   return (
@@ -228,6 +251,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             input={operationalState.servicesInput}
             onResumeService={() => setIsServiceFlowOpen(true)}
             onStartService={startFallbackService}
+            onEditService={editServiceRecord}
           />
         ) : null}
 

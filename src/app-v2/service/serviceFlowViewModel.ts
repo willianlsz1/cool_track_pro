@@ -3,6 +3,7 @@ import type {
   CompromissoServico,
   EquipmentStatus,
   Equipamento,
+  RegistroServico,
   ServiceCommitmentKind,
   ServiceRecordKind,
   ServiceRecordStatus,
@@ -13,6 +14,7 @@ export type ServiceTone = 'danger' | 'warning' | 'success' | 'primary';
 
 export interface ServiceDraft {
   equipmentId: string;
+  serviceDate?: string;
   commitmentId?: string;
   kind?: ServiceRecordKind;
   customKind: string;
@@ -124,6 +126,7 @@ export function createServiceDraft(
 
   return {
     equipmentId,
+    serviceDate: input.today,
     commitmentId: commitment?.id,
     kind: commitment?.tipo,
     customKind: '',
@@ -135,6 +138,23 @@ export function createServiceDraft(
     laborCost: '',
     nextMaintenanceDate: '',
     finalStatus: 'ok',
+  };
+}
+
+export function createServiceDraftFromRecord(registro: RegistroServico): ServiceDraft {
+  return {
+    equipmentId: registro.equipamentoId,
+    serviceDate: registro.data,
+    kind: registro.tipo,
+    customKind: normalizeCustomRecordKind(registro),
+    technician: registro.tecnico,
+    diagnosis: registro.diagnostico ?? registro.observacoes ?? '',
+    actionsDone: registro.acoesExecutadas ?? registro.observacoes ?? '',
+    partsUsed: registro.pecas ?? '',
+    partsCost: registro.custoPecas ?? '',
+    laborCost: registro.custoMaoObra ?? '',
+    nextMaintenanceDate: registro.proximaData ?? '',
+    finalStatus: registro.status,
   };
 }
 
@@ -315,6 +335,21 @@ function formatRecordKind(kind: ServiceRecordKind | undefined, customKind?: stri
   };
 
   return kind ? labels[kind] : 'Serviço';
+}
+
+function normalizeCustomRecordKind(registro: RegistroServico): string {
+  if (registro.tipo !== 'outro') {
+    return '';
+  }
+
+  const description = registro.tipoDescricao?.trim();
+
+  if (!description) {
+    return '';
+  }
+
+  const [, customKind] = description.split('·');
+  return customKind?.trim() ?? '';
 }
 
 function formatStatusLabel(status: EquipmentStatus): string {

@@ -13,7 +13,181 @@ Antes de novos checkpoints de codigo, preencher ou atualizar a matriz de
 paridade do fluxo afetado e separar paridade obrigatoria, melhoria permitida,
 backlog e areas sensiveis.
 
-## Checkpoint atual - Diagnostico e acoes separados
+## Checkpoint atual - Edicao de Registro fase 2: equipamento e data
+
+Completar a fatia segura da edicao mockada no app-v2 permitindo alterar
+equipamento e data de um registro existente, sem criar design novo e
+reaproveitando padroes ja presentes no app-v2.
+
+### Analise resumida
+
+A fase 1 ja reidrata o draft, salva por `id`, nao duplica historico e preserva
+campos migrados. A lacuna restante aprovada e permitir alterar os dados basicos
+do registro em modo edicao: equipamento e data.
+
+O app-v2 ja tem um padrao de escolha de equipamento em
+`ServiceEquipmentChoice`, usado quando o registro inicia sem contexto. Para a
+fase 2, a mudanca segura e reutilizar esse mesmo componente no modo edicao, sem
+novo picker visual. O campo de data pode reaproveitar o mesmo estilo de input
+`type="date"` usado em `nextMaintenanceDate`, mantendo validacao local por
+`validateServiceCompletion`.
+
+### Plano
+
+- Adicionar testes RED para editar equipamento e data de registro existente.
+- Cobrir relatorio/reabertura refletindo novo equipamento e nova data.
+- Reaproveitar `ServiceEquipmentChoice` para troca de equipamento em modo
+  edicao.
+- Inserir campo simples de data no fluxo atual, usando padrao visual ja
+  existente.
+- Preservar `id`, nao duplicar historico e manter campos ja migrados.
+- Atualizar matriz de paridade e validacoes.
+
+### Anti-escopo
+
+- Nao criar design novo, CSS global, CSS legado ou tema/tokens novos.
+- Nao criar calendario complexo, tela grande nova ou router obrigatorio.
+- Nao implementar storage real, Supabase/RLS, PDF/share real, WhatsApp real,
+  billing, assinatura, cotas, permissoes ou PMOC.
+- Nao recomputar historico complexo de status se isso exigir regra nova grande.
+
+### Validacao esperada
+
+- Testes focados de action/view model.
+- Testes de shell relacionados a edicao.
+- Testes de relatorio/reabertura.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- Registro existente pode alterar equipamento e data no mock local.
+- O `id` e preservado e o historico nao duplica.
+- Relatorio/reabertura refletem novo equipamento e nova data.
+- Diagnostico, acoes, pecas, custos, proxima manutencao e fallback legado
+  continuam preservados.
+- Equipamento inexistente e data ausente/invalida continuam bloqueados.
+
+---
+
+## Historico - Edicao de Registro de Servico existente fase 1 mockada
+
+Implementar a primeira fatia segura da edicao de registro existente no app-v2:
+
+> contrato/action/view model para editar um registro salvo no mock local,
+> preservando `id`, sem duplicar registro, com reidratacao de draft a partir do
+> registro existente e sem design novo, CSS legado, storage real, router novo
+> obrigatorio ou integracoes sensiveis.
+
+### Analise resumida
+
+No v1, `buildRegistroEditStateMutation` localiza o registro por `editingId`,
+gera uma versao editada com `buildEditedRegistro`, substitui apenas o item
+correspondente em `prev.registros` e reconcilia status dos equipamentos. O modo
+edicao tambem reidrata campos do registro existente no formulario, incluindo
+tipo `Outro`, tecnico, observacoes, pecas, custos e dados operacionais.
+
+No app-v2, `completeService` cobre criacao/conclusao mockada e ja valida
+equipamento/data. A lacuna segura agora e criar a fatia equivalente mockada:
+reidratar `ServiceDraft` a partir de `RegistroServico` e atualizar um registro
+existente sem duplicar. Ha 99% de certeza para atuar porque a mudanca fica em
+app-v2, action pura, view model e testes. A conexao visual ao shell so deve
+acontecer se couber no padrao atual sem novo desenho.
+
+### Plano
+
+- Adicionar testes RED para reidratacao de draft a partir de registro existente.
+- Adicionar testes RED para editar registro existente no mock preservando `id`
+  e sem duplicar.
+- Cobrir campos migrados: equipamento, data, tipo, `Outro`, tecnico,
+  diagnostico, acoes, observacoes/fallback legado, pecas, custos e proxima
+  manutencao.
+- Reutilizar a validacao de equipamento existente e data valida no modo edicao.
+- Implementar helpers/actions pequenos em app-v2.
+- Atualizar matriz de paridade e validacoes.
+
+### Anti-escopo
+
+- Nao criar design final novo nem CSS global.
+- Nao copiar UI/CSS/template legado.
+- Nao implementar storage real, Supabase/RLS, PDF/share real, WhatsApp real,
+  billing, cotas, assinatura, PMOC, permissoes ou package/config.
+- Nao implementar edicao visual completa se exigir decisao de UX.
+
+### Validacao esperada
+
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts --run`.
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/service/serviceReportViewModel.test.ts --run`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- Registro existente e atualizado por `id` sem duplicacao.
+- Edicao preserva o `id`.
+- Edicao preserva campos migrados do Registro de Servico.
+- Reidratacao aceita registros antigos apenas com `observacoes`.
+- Edicao bloqueia equipamento inexistente e data ausente/invalida.
+- Fluxo valido atual de conclusao/relatorio continua passando.
+
+### Resultado deste checkpoint
+
+- `createServiceDraftFromRecord` reidrata o draft de edicao a partir de
+  `RegistroServico`.
+- Registros antigos apenas com `observacoes` continuam abrindo por fallback.
+- `updateServiceRecord` atualiza o registro existente por `id`, preserva o
+  `id` e nao duplica historico.
+- A action de edicao reutiliza a validacao de equipamento existente e data
+  valida.
+- O shell ganhou conexao minima usando o fluxo visual existente: botao
+  `Editar` em registro recente, draft reidratado e salvamento via
+  `updateServiceRecord`.
+- Nao houve router novo, storage real, CSS global, CSS legado ou integracao
+  sensivel.
+
+### Validacao executada
+
+- RED/GREEN view model:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts --run`
+  passou com 10 testes.
+- GREEN action + view model:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts --run`
+  passou com 27 testes.
+- GREEN shell:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 16
+  testes.
+- GREEN fluxo app-v2:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 52 testes.
+- `npm run format`: passou.
+- `npm run build`: passou com warnings Vite conhecidos de import
+  static/dynamic e chunk size.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite conhecidos no build.
+- `npm run format:check`: passou dentro de `npm run check`.
+- `git diff --check`: passou.
+
+### Proximo checkpoint recomendado
+
+Edicao de Registro fase 2: definir UX aprovada para alterar equipamento e data
+dentro do fluxo de edicao, ou limitar explicitamente a fase 2 a uma fatia sem
+UI nova.
+
+### Gate
+
+O ciclo automatico deve parar aqui: a proxima evolucao funcional relevante da
+edicao exige decisao visual/UX para editar equipamento e data no fluxo, ou uma
+nova fatia explicitamente limitada sem UI.
+
+---
+
+## Historico - Diagnostico e acoes separados
 
 Implementar a proxima lacuna funcional segura do Registro de Servico:
 

@@ -372,6 +372,37 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Etapa 4');
     expect(host.textContent).not.toContain('Servico concluido');
   });
+
+  it('permite editar um registro recente usando o fluxo existente sem duplicar historico', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Servi/i);
+
+    expect(host.textContent).toContain('Registros recentes');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('3');
+
+    await clickButton(host, /^Editar$/i);
+    await clickButton(host, /^Continuar$/i);
+    await clickButton(host, /^Continuar$/i);
+
+    const technician = host.querySelector('input[name="service-technician"]');
+    expect(technician).toBeInstanceOf(HTMLInputElement);
+    await fillInput(technician as HTMLInputElement, 'Ana Editora');
+
+    const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+    await fillTextarea(diagnosis, 'Diagnostico editado no mock.');
+    await fillTextarea(actionsDone, 'Acoes editadas no mock.');
+
+    await clickButton(host, /^Revisar$/i);
+    await clickButton(host, /^Concluir servi/i);
+    await clickButton(host, /^Voltar para Servi/i);
+
+    expect(host.textContent).toContain('Ana Editora');
+    expect(host.textContent).toContain('Diagnostico editado no mock. Acoes editadas no mock.');
+    expect(host.textContent).toContain('Registros recentes');
+    expect(host.textContent).toContain('3');
+  });
 });
 
 it('permite registrar pecas usadas sem exigir custo ou orcamento', async () => {

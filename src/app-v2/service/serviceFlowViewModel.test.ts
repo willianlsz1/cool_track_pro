@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Cliente, CompromissoServico, Equipamento } from '../domain/types';
+import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '../domain/types';
 import {
   buildServiceContextViewModel,
   buildServiceDoneViewModel,
   buildServiceReviewViewModel,
   buildServiceTypeViewModel,
+  createServiceDraftFromRecord,
   createServiceDraft,
   type BuildServiceFlowInput,
   type ServiceDraft,
@@ -151,6 +152,61 @@ describe('serviceFlowViewModel', () => {
     expect(buildServiceDoneViewModel(input, validCustomDraft).summary).toBe(
       'Outro · Higienizacao registrada para Split 24.000 BTU.',
     );
+  });
+});
+
+it('reidrata draft de edicao a partir de registro existente com campos migrados', () => {
+  const registro: RegistroServico = {
+    id: 'registro-editado',
+    equipamentoId: 'eq-1',
+    data: '2026-05-11',
+    tipo: 'outro',
+    tipoDescricao: 'Outro Â· Higienizacao',
+    status: 'warn',
+    tecnico: 'Ana Tecnica',
+    diagnostico: 'Serpentina com sujeira acumulada.',
+    acoesExecutadas: 'Limpeza preventiva e teste operacional.',
+    observacoes: 'Serpentina com sujeira acumulada. Limpeza preventiva e teste operacional.',
+    pecas: 'Filtro de ar',
+    custoPecas: '120,00',
+    custoMaoObra: '250,00',
+    proximaData: '2026-06-10',
+  };
+
+  expect(createServiceDraftFromRecord(registro)).toMatchObject({
+    equipmentId: 'eq-1',
+    kind: 'outro',
+    customKind: 'Higienizacao',
+    technician: 'Ana Tecnica',
+    diagnosis: 'Serpentina com sujeira acumulada.',
+    actionsDone: 'Limpeza preventiva e teste operacional.',
+    partsUsed: 'Filtro de ar',
+    partsCost: '120,00',
+    laborCost: '250,00',
+    nextMaintenanceDate: '2026-06-10',
+    finalStatus: 'warn',
+  });
+});
+
+it('reidrata draft de registro antigo usando observacoes como fallback', () => {
+  const registro: RegistroServico = {
+    id: 'registro-legado',
+    equipamentoId: 'eq-1',
+    data: '2026-05-11',
+    tipo: 'preventiva',
+    status: 'ok',
+    tecnico: 'Tecnico',
+    observacoes: 'Limpeza de filtros e teste de temperatura.',
+  };
+
+  expect(createServiceDraftFromRecord(registro)).toMatchObject({
+    equipmentId: 'eq-1',
+    kind: 'preventiva',
+    customKind: '',
+    technician: 'Tecnico',
+    diagnosis: 'Limpeza de filtros e teste de temperatura.',
+    actionsDone: 'Limpeza de filtros e teste de temperatura.',
+    finalStatus: 'ok',
   });
 });
 

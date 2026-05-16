@@ -14,9 +14,16 @@ interface ServicesHomeProps {
   input: BuildServicesHomeInput;
   onResumeService: () => void;
   onStartService: () => void;
+  onEditService?: (serviceId: string) => void;
 }
 
-export function ServicesHome({ draft, input, onResumeService, onStartService }: ServicesHomeProps) {
+export function ServicesHome({
+  draft,
+  input,
+  onResumeService,
+  onStartService,
+  onEditService,
+}: ServicesHomeProps) {
   const [activeView, setActiveView] = useState<ServicesSubView>('registros');
   const viewModel = buildServicesHomeViewModel(input, draft);
 
@@ -91,7 +98,7 @@ export function ServicesHome({ draft, input, onResumeService, onStartService }: 
         {viewModel.recentServices.length > 0 ? (
           <div className="tw-mt-4 tw-grid tw-gap-3">
             {viewModel.recentServices.map((service) => (
-              <RecentServiceCard key={service.id} service={service} />
+              <RecentServiceCard key={service.id} service={service} onEditService={onEditService} />
             ))}
           </div>
         ) : (

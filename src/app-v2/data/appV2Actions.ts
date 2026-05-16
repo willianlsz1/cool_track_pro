@@ -62,23 +62,7 @@ export function completeService(
   validateServiceCompletion(state, completion);
 
   const draft = state.serviceDraft!;
-  const registro: RegistroServico = {
-    id: completion.id,
-    equipamentoId: draft.equipmentId,
-    data: completion.date,
-    tipo: draft.kind ?? 'outro',
-    tipoDescricao:
-      draft.kind === 'outro' ? formatServiceRecordKind(draft.kind, draft.customKind) : undefined,
-    status: completion.finalStatus,
-    tecnico: completion.technician,
-    diagnostico: completion.diagnosis.trim() || undefined,
-    acoesExecutadas: completion.actionsDone.trim() || undefined,
-    observacoes: formatServiceObservation(completion.diagnosis, completion.actionsDone),
-    pecas: draft.partsUsed?.trim() || undefined,
-    custoPecas: draft.partsCost?.trim() || undefined,
-    custoMaoObra: draft.laborCost?.trim() || undefined,
-    proximaData: draft.nextMaintenanceDate?.trim() || undefined,
-  };
+  const registro = buildServiceRecord(draft, completion);
   const nextMaintenanceDate = draft.nextMaintenanceDate?.trim();
   const nextCommitment: CompromissoServico | null = nextMaintenanceDate
     ? {
@@ -107,6 +91,33 @@ export function completeService(
       ...(nextCommitment ? [nextCommitment] : []),
     ],
     registros: [registro, ...state.registros.map((item) => ({ ...item }))],
+    serviceDraft: null,
+  };
+}
+
+export function updateServiceRecord(
+  state: AppV2FlowState,
+  completion: CompleteServiceInput,
+): AppV2FlowState {
+  validateServiceCompletion(state, completion);
+
+  if (!state.registros.some((registro) => registro.id === completion.id)) {
+    throw new Error('Registro nao encontrado para edicao.');
+  }
+
+  const draft = state.serviceDraft!;
+  const updatedRecord = buildServiceRecord(draft, completion);
+
+  return {
+    ...cloneSnapshot(state),
+    equipamentos: state.equipamentos.map((equipamento) =>
+      equipamento.id === draft.equipmentId
+        ? { ...equipamento, status: completion.finalStatus }
+        : { ...equipamento },
+    ),
+    registros: state.registros.map((registro) =>
+      registro.id === completion.id ? updatedRecord : { ...registro },
+    ),
     serviceDraft: null,
   };
 }
@@ -162,6 +173,29 @@ function cloneSnapshot(state: AppV2MockSnapshot): AppV2MockSnapshot {
     compromissos: state.compromissos.map((item) => ({ ...item })),
     registros: state.registros.map((item) => ({ ...item })),
     orcamentos: state.orcamentos.map((item) => ({ ...item })),
+  };
+}
+
+function buildServiceRecord(
+  draft: ServiceDraft,
+  completion: CompleteServiceInput,
+): RegistroServico {
+  return {
+    id: completion.id,
+    equipamentoId: draft.equipmentId,
+    data: completion.date,
+    tipo: draft.kind ?? 'outro',
+    tipoDescricao:
+      draft.kind === 'outro' ? formatServiceRecordKind(draft.kind, draft.customKind) : undefined,
+    status: completion.finalStatus,
+    tecnico: completion.technician,
+    diagnostico: completion.diagnosis.trim() || undefined,
+    acoesExecutadas: completion.actionsDone.trim() || undefined,
+    observacoes: formatServiceObservation(completion.diagnosis, completion.actionsDone),
+    pecas: draft.partsUsed?.trim() || undefined,
+    custoPecas: draft.partsCost?.trim() || undefined,
+    custoMaoObra: draft.laborCost?.trim() || undefined,
+    proximaData: draft.nextMaintenanceDate?.trim() || undefined,
   };
 }
 

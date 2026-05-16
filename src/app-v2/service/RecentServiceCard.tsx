@@ -1,10 +1,11 @@
 import { appV2Tone } from '../styles/tokens';
-import { StatusBadge } from '../ui/primitives';
+import { ActionButton, StatusBadge } from '../ui/primitives';
 import { ServiceOutputPill } from './ServiceOutputPill';
 import type { RecentServiceViewModel, ServiceHomeTone } from './servicesHomeViewModel';
 
 interface RecentServiceCardProps {
   service: RecentServiceViewModel;
+  onEditService?: (serviceId: string) => void;
 }
 
 const accentClasses: Record<ServiceHomeTone, string> = {
@@ -15,7 +16,7 @@ const accentClasses: Record<ServiceHomeTone, string> = {
   muted: 'tw-bg-[#94A3B8]',
 };
 
-export function RecentServiceCard({ service }: RecentServiceCardProps) {
+export function RecentServiceCard({ service, onEditService }: RecentServiceCardProps) {
   return (
     <article
       className={`tw-relative tw-overflow-hidden tw-rounded-xl tw-border tw-bg-white tw-p-4 tw-shadow-[0_18px_44px_-38px_rgba(15,23,42,0.45)] ${appV2Tone.border}`}
@@ -72,8 +73,17 @@ export function RecentServiceCard({ service }: RecentServiceCardProps) {
         </div>
       ) : null}
 
-      <div className="tw-mt-4">
+      <div className="tw-mt-4 tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between">
         <ServiceOutputPill status={service.outputStatus} />
+        {onEditService ? (
+          <ActionButton
+            variant="secondary"
+            className="tw-min-h-10 tw-px-4 tw-py-2"
+            onClick={() => onEditService(service.id)}
+          >
+            Editar
+          </ActionButton>
+        ) : null}
       </div>
     </article>
   );
