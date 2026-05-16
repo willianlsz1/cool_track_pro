@@ -13,58 +13,172 @@ Antes de novos checkpoints de codigo, preencher ou atualizar a matriz de
 paridade do fluxo afetado e separar paridade obrigatoria, melhoria permitida,
 backlog e areas sensiveis.
 
-## Checkpoint atual - Tecnico como dado operacional
+## Checkpoint atual - Custos opcionais
 
 Implementar a proxima lacuna de paridade do Registro de Servico:
 
-> Tecnico deve virar dado operacional do Registro de Servico no app-v2, sem
-> storage real e sem lista global de tecnicos.
+> Custos de pecas e mao de obra devem virar campos opcionais do Registro de
+> Servico no app-v2, sem orcamento real, sem billing e sem storage real.
 
 ### Analise resumida
 
-No v1, o Registro de Servico exige `tecnico` no fluxo padrao e salva esse dado
-no registro.
+No v1, `custoPecas` e `custoMaoObra` entram no payload e no registro criado,
+separados de `pecas`, `proxima` e das saidas comerciais. A capacidade
+operacional a preservar neste checkpoint e registrar os valores informados pelo
+tecnico no atendimento, sem transformar isso em orcamento real, cobranca,
+estoque, billing ou persistencia real.
 
-No v2 atual, o shell injeta `Tecnico app-v2` no momento da conclusao. Isso
-mantem o mock funcionando, mas nao torna o tecnico parte do draft, da revisao ou
-do relatorio imediato.
+No v2 atual, o draft ja cobre tecnico, tipo, diagnostico, acoes, pecas e
+status final, mas nao preserva custos. Isso mantem a linha `Registrar custos`
+como regressao na matriz.
 
-Ha 99% de certeza para implementar um campo local de tecnico dentro do fluxo
-app-v2, porque a mudanca fica isolada em `src/app-v2/`, usa a store mockada
-existente e nao altera storage real, lista global de tecnicos ou contratos
-sensiveis.
+Ha 99% de certeza para implementar porque a mudanca fica restrita ao app-v2,
+com campos opcionais no draft, registro mockado, view models, UI da etapa de
+execucao e relatorios. Nao ha schema real, storage real, PDF/share, WhatsApp
+real, billing ou orcamento real envolvidos.
 
 ### Plano
 
-- Adicionar teste RED no view model do fluxo para tecnico no draft, revisao e
-  conclusao.
-- Adicionar teste RED no relatorio para usar o tecnico informado no draft.
-- Adicionar teste RED no shell para preencher tecnico, concluir o servico e
-  garantir que o historico/relatorio nao usem valor fixo.
-- Incluir `technician` no `ServiceDraft`.
-- Adicionar campo local `Tecnico responsavel` na etapa de execucao.
-- Bloquear avancar para revisao enquanto tecnico, diagnostico e acoes estiverem
-  vazios.
-- Usar `draft.technician` na conclusao e no relatorio imediato.
-- Atualizar a matriz de paridade para refletir a cobertura desse item.
+- Adicionar testes RED para custos opcionais no resumo tecnico do fluxo.
+- Adicionar testes RED para relatorio imediato e reaberto exibirem custos.
+- Adicionar testes RED para `completeService` gravar `custoPecas` e
+  `custoMaoObra` no registro mockado.
+- Adicionar teste RED no shell preenchendo custos sem exigir orcamento.
+- Incluir `partsCost` e `laborCost` opcionais em `ServiceDraft`.
+- Exibir campos opcionais na etapa de execucao.
+- Propagar custos para revisao, conclusao, relatorio imediato, registro
+  mockado, registros recentes e busca de relatorios.
+- Atualizar a matriz de paridade para refletir `Registrar custos` como coberto.
 
 ### Anti-escopo
 
-- Nao criar lista global de tecnicos.
-- Nao adicionar tecnico novo em storage real.
+- Nao gerar orcamento real.
+- Nao somar total comercial, estoque, itens de orcamento, billing ou cobranca.
+- Nao alterar storage real nem schema persistido real.
 - Nao copiar UI, CSS, template ou shell legado.
 - Nao tocar app legado.
-- Nao conectar storage real.
-- Nao mexer em Supabase/RLS, billing, PDF/share, WhatsApp real, PMOC,
-  assinatura, permissoes ou upload/storage.
+- Nao mexer em Supabase/RLS, PDF/share, WhatsApp real, PMOC, assinatura,
+  permissoes ou upload/storage.
 - Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
-- Nao resolver custos, pecas, `Outro` customizado ou proxima manutencao neste
-  checkpoint.
+- Nao resolver proxima manutencao neste checkpoint.
 
 ### Validacao esperada
 
 - TDD RED antes da implementacao.
-- Testes focados de `serviceFlowViewModel`, `serviceReportViewModel` e
+- Testes focados de `serviceFlowViewModel`, `serviceReportViewModel`,
+  `servicesHomeViewModel`, `servicesReportsViewModel`, `appV2Actions` e
+  `AppV2Shell`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- O draft de Registro de Servico carrega `partsCost` e `laborCost`.
+- A etapa de execucao exibe custos opcionais de pecas e mao de obra.
+- Os campos nao bloqueiam conclusao quando vazios.
+- Revisao, conclusao, relatorio imediato, registro mockado, registros recentes
+  e relatorio reaberto exibem custos quando informados.
+- Os valores ficam isolados no mock app-v2 como `custoPecas` e
+  `custoMaoObra`, sem orcamento real, billing ou storage real.
+
+### Resultado deste checkpoint
+
+- `ServiceDraft` passou a carregar `partsCost` e `laborCost` opcionais.
+- `ServiceStepExecution` passou a exibir campos opcionais `Custo de pecas` e
+  `Custo de mao de obra`.
+- A revisao e a conclusao exibem custos quando informados, sem bloquear o
+  fluxo quando vazios.
+- `RegistroServico` do app-v2 ganhou `custoPecas` e `custoMaoObra` opcionais
+  no mock local.
+- Relatorio imediato, relatorio reaberto, registros recentes e busca de
+  relatorios preservam custos informados.
+- O card de registro recente exibe pecas/custos quando existirem.
+- Matriz de paridade atualizada: `Registrar custos` passou de `regressao` para
+  `coberto`.
+- Proximo checkpoint recomendado: proxima manutencao deve virar campo opcional
+  do Registro de Servico no app-v2, conectando-se ao agendamento mockado ja
+  existente, sem calendario completo, sem recorrencia avancada e sem storage
+  real.
+
+### Validacao executada
+
+- TDD RED:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou com 6 testes porque `partsCost`, `laborCost`, `custoPecas`,
+  `custoMaoObra` e os inputs `service-parts-cost` e `service-labor-cost` ainda
+  nao existiam.
+- GREEN focado:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 6 arquivos e 53 testes.
+- `npm run format`: passou.
+- Revalidacao focada apos format:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 6 arquivos e 53 testes.
+- `npm run build`: passou com warnings Vite/chunk conhecidos.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+- `npm run format:check`: passou.
+- `git diff --check`: passou.
+
+---
+
+## Historico - Pecas usadas
+
+Implementar a proxima lacuna de paridade do Registro de Servico:
+
+> Pecas usadas devem virar campo opcional do Registro de Servico no app-v2, sem
+> custos, sem orcamento real e sem storage real.
+
+### Analise resumida
+
+No v1, `pecas` entra no payload e no registro criado, separado de `custoPecas`
+e `custoMaoObra`. A capacidade operacional a preservar neste checkpoint e
+registrar quais pecas foram usadas no atendimento, sem abrir captura de custo,
+orcamento real ou storage real.
+
+No v2 atual, o draft possui tecnico, diagnostico, acoes e status, mas nao tem
+campo para pecas. Isso faz o relatorio e o registro mockado perderem uma
+informacao operacional que ja existia no v1.
+
+Ha 99% de certeza para implementar esse checkpoint porque a mudanca fica
+isolada ao draft, view models, UI da etapa de execucao, registro mockado e
+relatorio app-v2. O campo sera opcional e textual, sem custos, sem orcamento,
+sem storage real, sem PDF/share e sem WhatsApp real.
+
+### Plano
+
+- Adicionar teste RED no view model para `partsUsed` opcional no draft, revisao
+  e conclusao.
+- Adicionar teste RED no relatorio imediato e reaberto para exibir pecas usadas.
+- Adicionar teste RED na action para gravar `pecas` no registro mockado apenas
+  quando houver texto.
+- Adicionar teste RED no shell para preencher pecas na etapa de execucao e
+  manter o valor na conclusao/relatorio.
+- Incluir `partsUsed` no `ServiceDraft`.
+- Exibir campo opcional `Pecas usadas` na etapa de execucao.
+- Propagar o texto para revisao, conclusao, relatorio imediato, registro
+  mockado, registros recentes e relatorio reaberto.
+- Atualizar a matriz de paridade para refletir a cobertura de `Registrar pecas`.
+
+### Anti-escopo
+
+- Nao alterar storage real nem schema persistido real.
+- Nao copiar UI, CSS, template ou shell legado.
+- Nao tocar app legado.
+- Nao mexer em Supabase/RLS, billing, PDF/share, WhatsApp real, PMOC,
+  assinatura, permissoes ou upload/storage.
+- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
+- Nao resolver custos, orcamento real, proxima manutencao, estoque ou cadastro
+  de pecas neste checkpoint.
+
+### Validacao esperada
+
+- TDD RED antes da implementacao.
+- Testes focados de `serviceFlowViewModel`, `serviceReportViewModel`,
+  `servicesHomeViewModel`, `servicesReportsViewModel`, `appV2Actions` e
   `AppV2Shell`.
 - `npm run format`.
 - `npm run build`.
@@ -73,11 +187,155 @@ sensiveis.
 
 ### Criterio de conclusao
 
-- O draft de Registro de Servico carrega `technician`.
-- A etapa de execucao permite informar tecnico responsavel.
-- O usuario nao avanca para revisao sem tecnico, diagnostico e acoes.
-- A revisao, conclusao, relatorio imediato e registro mockado usam o tecnico
-  informado, nao um valor fixo do shell.
+- O draft de Registro de Servico carrega `partsUsed`.
+- A etapa de execucao exibe campo opcional para pecas usadas.
+- O campo nao bloqueia a conclusao quando vazio.
+- Revisao, conclusao, relatorio imediato, registro mockado e relatorio reaberto
+  exibem pecas usadas quando informadas.
+- O valor fica isolado no mock app-v2 como `pecas` opcional, sem custos e sem
+  storage real.
+
+### Resultado deste checkpoint
+
+- `ServiceDraft` passou a carregar `partsUsed` opcional.
+- `ServiceStepExecution` passou a exibir campo opcional `Pecas usadas`.
+- A revisao e a conclusao exibem pecas usadas quando informadas, sem bloquear o
+  fluxo quando vazio.
+- `RegistroServico` do app-v2 ganhou `pecas` opcional no mock local.
+- Relatorio imediato, relatorio reaberto, registros recentes e busca de
+  relatorios preservam pecas usadas.
+- Matriz de paridade atualizada: `Registrar pecas` passou de `regressao` para
+  `coberto`.
+- Proximo checkpoint recomendado: custos de pecas e mao de obra como campos
+  opcionais do Registro de Servico no app-v2, sem orcamento real, sem billing e
+  sem storage real.
+
+### Validacao executada
+
+- TDD RED:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou com 6 testes porque `partsUsed`, `pecas` e
+  `textarea[name="service-parts-used"]` ainda nao existiam.
+- GREEN focado:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 6 arquivos e 47 testes.
+- `npm run format`: passou.
+- Revalidacao focada apos format:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 6 arquivos e 47 testes.
+- `npm run build`: passou com warnings Vite/chunk conhecidos do legado.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos do legado.
+
+---
+
+## Historico - Outro customizado
+
+Implementar a proxima lacuna de paridade do Registro de Servico:
+
+> Campo `Outro` deve permitir descricao customizada no Registro de Servico do
+> app-v2, sem alterar storage real e sem copiar UI legado.
+
+### Analise resumida
+
+No v1, `normalizeRegistroServiceTypeValue` valida `tipo: "Outro"` com
+`tipoCustom`, exige texto nao vazio e limita a descricao customizada a 40
+caracteres. O valor persistivel vira `Outro · descricao`.
+
+No v2 atual, o tipo `outro` existe como opcao, mas sem descricao customizada. A
+revisao, a conclusao, o relatorio e o historico mostram apenas `Servico`, o que
+perde informacao operacional do v1.
+
+Ha 99% de certeza para implementar esse checkpoint porque a mudanca fica
+isolada no contrato mockado do app-v2, sem storage real, sem UI legado e sem
+alterar rotas, PDF/share, WhatsApp, billing, Supabase ou permissoes.
+
+### Plano
+
+- Adicionar teste RED no view model para `customKind` no draft e label
+  `Outro · descricao`.
+- Adicionar teste RED no relatorio imediato e reaberto para exibir a descricao
+  customizada.
+- Adicionar teste RED no shell para selecionar `Outro`, preencher descricao e
+  concluir sem perder o label.
+- Incluir `customKind` no `ServiceDraft`.
+- Exibir campo local de descricao apenas quando `Outro` estiver selecionado.
+- Bloquear `Continuar` em `Tipo` quando `Outro` estiver vazio ou acima de 40
+  caracteres.
+- Persistir a descricao somente no mock app-v2 como `tipoDescricao` opcional do
+  registro concluido.
+- Atualizar a matriz de paridade para refletir a cobertura desse item.
+
+### Anti-escopo
+
+- Nao alterar storage real nem schema persistido real.
+- Nao copiar UI, CSS, template ou shell legado.
+- Nao tocar app legado.
+- Nao mexer em Supabase/RLS, billing, PDF/share, WhatsApp real, PMOC,
+  assinatura, permissoes ou upload/storage.
+- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
+- Nao resolver custos, pecas ou proxima manutencao neste checkpoint.
+
+### Validacao esperada
+
+- TDD RED antes da implementacao.
+- Testes focados de `serviceFlowViewModel`, `serviceReportViewModel`,
+  `servicesHomeViewModel`, `servicesReportsViewModel`, `appV2Actions` e
+  `AppV2Shell`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- O draft de Registro de Servico carrega `customKind`.
+- Selecionar `Outro` exibe campo de descricao customizada.
+- O usuario nao avanca da etapa de tipo com `Outro` vazio ou acima de 40
+  caracteres.
+- Revisao, conclusao, relatorio imediato, registro mockado e relatorio reaberto
+  exibem `Outro · descricao`.
+- O tipo base continua `outro`; a descricao customizada fica isolada como dado
+  mockado do app-v2.
+
+### Resultado deste checkpoint
+
+- `ServiceDraft` passou a carregar `customKind`.
+- `ServiceStepType` passou a exibir `Descricao do tipo` quando `Outro` e
+  selecionado.
+- `Continuar` na etapa de tipo fica bloqueado para `Outro` vazio ou acima de 40
+  caracteres.
+- Revisao, conclusao, relatorio imediato, registro mockado, registros recentes e
+  relatorios reabertos exibem `Outro · descricao`.
+- `RegistroServico` do app-v2 ganhou `tipoDescricao` opcional para preservar o
+  label customizado no mock local.
+- Matriz de paridade atualizada: `Validar tipo de servico` passou de `parcial`
+  para `coberto`.
+- Proximo checkpoint recomendado: pecas usadas devem virar campo opcional do
+  Registro de Servico no app-v2, sem custos, sem orcamento real e sem storage
+  real.
+
+### Validacao executada
+
+- TDD RED:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou porque `customKind`, `tipoDescricao`, label `Outro · descricao` e input
+  `service-kind-custom` ainda nao existiam.
+- GREEN focado:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 6 arquivos e 41 testes.
+- `npm run format`: passou.
+- Revalidacao focada apos format:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 6 arquivos e 41 testes.
+- `npm run build`: passou com warnings Vite/chunk conhecidos do legado.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos do legado.
+- `npm run format:check`: passou dentro de `npm run check`.
+
+---
+
+## Historico - Tecnico como dado operacional
 
 ### Resultado deste checkpoint
 

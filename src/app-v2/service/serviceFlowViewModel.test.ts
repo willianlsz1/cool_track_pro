@@ -5,6 +5,7 @@ import {
   buildServiceContextViewModel,
   buildServiceDoneViewModel,
   buildServiceReviewViewModel,
+  buildServiceTypeViewModel,
   createServiceDraft,
   type BuildServiceFlowInput,
   type ServiceDraft,
@@ -62,6 +63,7 @@ describe('serviceFlowViewModel', () => {
       equipmentId: 'eq-1',
       commitmentId: 'compromisso-1',
       kind: 'preventiva',
+      customKind: '',
       technician: '',
       diagnosis: '',
       actionsDone: '',
@@ -74,6 +76,7 @@ describe('serviceFlowViewModel', () => {
       equipmentId: 'eq-1',
       commitmentId: 'compromisso-1',
       kind: 'preventiva',
+      customKind: '',
       technician: 'Ana Tecnica',
       diagnosis: 'Filtro com acúmulo de sujeira.',
       actionsDone: 'Limpeza de filtros e teste de temperatura.',
@@ -94,6 +97,7 @@ describe('serviceFlowViewModel', () => {
     const draft: ServiceDraft = {
       equipmentId: 'eq-1',
       kind: 'corretiva',
+      customKind: '',
       technician: 'Bruno Tecnico',
       diagnosis: 'Compressor com ruído acima do normal.',
       actionsDone: 'Ajuste de fixação e orientação ao cliente.',
@@ -106,5 +110,98 @@ describe('serviceFlowViewModel', () => {
       technicalSummary: expect.arrayContaining(['Tecnico: Bruno Tecnico']),
       disabledOutputs: ['Orçamento', 'Próximo compromisso'],
     });
+  });
+
+  it('exige descricao curta quando o tipo selecionado e Outro', () => {
+    const emptyCustomDraft: ServiceDraft = {
+      equipmentId: 'eq-1',
+      kind: 'outro',
+      customKind: '',
+      technician: '',
+      diagnosis: '',
+      actionsDone: '',
+      finalStatus: 'ok',
+    };
+    const validCustomDraft = {
+      ...emptyCustomDraft,
+      customKind: 'Higienizacao',
+    };
+    const longCustomDraft = {
+      ...emptyCustomDraft,
+      customKind: 'x'.repeat(41),
+    };
+
+    expect(buildServiceTypeViewModel(emptyCustomDraft)).toMatchObject({
+      selectedKind: 'outro',
+      customKind: '',
+      customKindMaxLength: 40,
+      canContinue: false,
+    });
+    expect(buildServiceTypeViewModel(longCustomDraft)).toMatchObject({
+      canContinue: false,
+    });
+    expect(buildServiceTypeViewModel(validCustomDraft)).toMatchObject({
+      selectedKind: 'outro',
+      customKind: 'Higienizacao',
+      canContinue: true,
+    });
+    expect(buildServiceReviewViewModel(input, validCustomDraft)).toMatchObject({
+      kindLabel: 'Outro · Higienizacao',
+    });
+    expect(buildServiceDoneViewModel(input, validCustomDraft).summary).toBe(
+      'Outro · Higienizacao registrada para Split 24.000 BTU.',
+    );
+  });
+});
+
+it('mantem pecas usadas como campo opcional no resumo tecnico', () => {
+  const draft: ServiceDraft = {
+    equipmentId: 'eq-1',
+    kind: 'preventiva',
+    customKind: '',
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    partsUsed: 'Filtro de ar, capacitor 35uF',
+    finalStatus: 'ok',
+  };
+
+  expect(buildServiceReviewViewModel(input, draft)).toMatchObject({
+    partsUsed: 'Filtro de ar, capacitor 35uF',
+  });
+  expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(
+    expect.arrayContaining(['Pecas usadas: Filtro de ar, capacitor 35uF']),
+  );
+  expect(buildServiceReviewViewModel(input, { ...draft, partsUsed: '' })).toMatchObject({
+    partsUsed: 'Sem pecas informadas',
+  });
+});
+
+it('mantem custos opcionais no resumo tecnico sem exigir orcamento', () => {
+  const draft: ServiceDraft = {
+    equipmentId: 'eq-1',
+    kind: 'preventiva',
+    customKind: '',
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    partsUsed: 'Filtro de ar',
+    partsCost: '120,00',
+    laborCost: '250,00',
+    finalStatus: 'ok',
+  };
+
+  expect(buildServiceReviewViewModel(input, draft)).toMatchObject({
+    partsCost: '120,00',
+    laborCost: '250,00',
+  });
+  expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(
+    expect.arrayContaining(['Custo de pecas: 120,00', 'Custo de mao de obra: 250,00']),
+  );
+  expect(
+    buildServiceReviewViewModel(input, { ...draft, partsCost: '', laborCost: '' }),
+  ).toMatchObject({
+    partsCost: 'Nao informado',
+    laborCost: 'Nao informado',
   });
 });

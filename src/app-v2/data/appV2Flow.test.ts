@@ -23,6 +23,7 @@ describe('app-v2 flow actions', () => {
       equipmentId: 'eq-1',
       commitmentId: 'compromisso-1',
       kind: 'preventiva',
+      customKind: '',
       diagnosis: '',
       actionsDone: '',
       finalStatus: 'ok',
@@ -211,4 +212,84 @@ describe('app-v2 flow actions', () => {
       outputStatus: 'relatorio_pendente',
     });
   });
+
+  it('preserva descricao customizada quando conclui servico do tipo Outro', () => {
+    const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+    const withCustomKind = {
+      ...started,
+      serviceDraft: {
+        ...started.serviceDraft!,
+        kind: 'outro' as const,
+        customKind: 'Higienizacao',
+      },
+    };
+
+    const completed = completeService(withCustomKind, {
+      id: 'registro-outro',
+      date: started.today,
+      technician: 'Ana Tecnica',
+      diagnosis: 'Atendimento fora das categorias principais.',
+      actionsDone: 'Higienizacao completa registrada.',
+      finalStatus: 'ok',
+    });
+
+    expect(completed.registros[0]).toMatchObject({
+      id: 'registro-outro',
+      tipo: 'outro',
+      tipoDescricao: 'Outro · Higienizacao',
+    });
+  });
+});
+
+it('preserva pecas usadas quando conclui servico com campo opcional preenchido', () => {
+  const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+  const withParts = {
+    ...started,
+    serviceDraft: {
+      ...started.serviceDraft!,
+      partsUsed: 'Filtro de ar, capacitor 35uF',
+    },
+  };
+
+  const completed = completeService(withParts, {
+    id: 'registro-pecas',
+    date: started.today,
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    finalStatus: 'ok',
+  });
+
+  expect(completed.registros[0]).toMatchObject({
+    id: 'registro-pecas',
+    pecas: 'Filtro de ar, capacitor 35uF',
+  });
+});
+
+it('preserva custos opcionais quando conclui servico sem criar orcamento', () => {
+  const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+  const withCosts = {
+    ...started,
+    serviceDraft: {
+      ...started.serviceDraft!,
+      partsCost: '120,00',
+      laborCost: '250,00',
+    },
+  };
+
+  const completed = completeService(withCosts, {
+    id: 'registro-custos',
+    date: started.today,
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    finalStatus: 'ok',
+  });
+
+  expect(completed.registros[0]).toMatchObject({
+    id: 'registro-custos',
+    custoPecas: '120,00',
+    custoMaoObra: '250,00',
+  });
+  expect(completed.orcamentos).toHaveLength(started.orcamentos.length);
 });

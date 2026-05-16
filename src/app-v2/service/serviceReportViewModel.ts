@@ -1,11 +1,10 @@
-import type {
-  Cliente,
-  Equipamento,
-  RegistroServico,
-  ServiceRecordKind,
-  ServiceRecordStatus,
-} from '../domain/types';
-import type { BuildServiceFlowInput, ServiceDraft, ServiceTone } from './serviceFlowViewModel';
+import type { Cliente, Equipamento, RegistroServico, ServiceRecordStatus } from '../domain/types';
+import {
+  formatServiceRecordKind,
+  type BuildServiceFlowInput,
+  type ServiceDraft,
+  type ServiceTone,
+} from './serviceFlowViewModel';
 
 export interface ServiceReportDataInput {
   today: string;
@@ -43,11 +42,14 @@ export function buildServiceReportViewModel(
   return buildReport({
     date: input.today,
     reportId: buildReportId(input.today, draft),
-    kind: draft.kind,
+    kindLabel: formatServiceRecordKind(draft.kind, draft.customKind),
     status: draft.finalStatus,
     technician: draft.technician,
     diagnosis: draft.diagnosis,
     actionsDone: draft.actionsDone,
+    partsUsed: draft.partsUsed,
+    partsCost: draft.partsCost,
+    laborCost: draft.laborCost,
     equipamento,
     cliente,
   });
@@ -62,11 +64,14 @@ export function buildServiceReportViewModelFromRecord(
   return buildReport({
     date: registro.data,
     reportId: `REL-${registro.id.toUpperCase()}`,
-    kind: registro.tipo,
+    kindLabel: registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo),
     status: registro.status,
     technician: registro.tecnico,
     diagnosis: registro.observacoes ?? '',
     actionsDone: registro.observacoes ?? '',
+    partsUsed: registro.pecas,
+    partsCost: registro.custoPecas,
+    laborCost: registro.custoMaoObra,
     equipamento,
     cliente,
   });
@@ -75,25 +80,30 @@ export function buildServiceReportViewModelFromRecord(
 function buildReport({
   date,
   reportId,
-  kind,
+  kindLabel,
   status,
   technician,
   diagnosis,
   actionsDone,
+  partsUsed,
+  partsCost,
+  laborCost,
   equipamento,
   cliente,
 }: {
   date: string;
   reportId: string;
-  kind?: ServiceRecordKind;
+  kindLabel: string;
   status: ServiceRecordStatus;
   technician: string;
   diagnosis: string;
   actionsDone: string;
+  partsUsed?: string;
+  partsCost?: string;
+  laborCost?: string;
   equipamento: Equipamento;
   cliente?: Cliente;
 }): ServiceReportViewModel {
-  const kindLabel = formatRecordKind(kind);
   const statusLabel = formatStatusLabel(status);
 
   return {
@@ -149,6 +159,9 @@ function buildReport({
         fields: [
           { label: 'Diagnostico', value: normalizeText(diagnosis, 'Nao informado') },
           { label: 'Acoes executadas', value: normalizeText(actionsDone, 'Nao informado') },
+          { label: 'Pecas usadas', value: normalizeText(partsUsed ?? '', 'Nao informado') },
+          { label: 'Custo de pecas', value: normalizeText(partsCost ?? '', 'Nao informado') },
+          { label: 'Custo de mao de obra', value: normalizeText(laborCost ?? '', 'Nao informado') },
           { label: 'Observacoes', value: normalizeText(diagnosis, 'Nao informado') },
           { label: 'Recomendacoes', value: 'Nao informado' },
         ],
@@ -176,18 +189,6 @@ function buildReportId(today: string, draft: ServiceDraft): string {
   const datePart = today.split('-').join('');
   const sourcePart = draft.commitmentId ?? draft.equipmentId;
   return `CTP-${datePart}-${sourcePart.toUpperCase()}`;
-}
-
-function formatRecordKind(kind: ServiceRecordKind | undefined): string {
-  const labels: Record<ServiceRecordKind, string> = {
-    preventiva: 'Preventiva',
-    corretiva: 'Corretiva',
-    instalacao: 'Instalacao',
-    visita: 'Visita tecnica',
-    outro: 'Servico',
-  };
-
-  return kind ? labels[kind] : 'Servico';
 }
 
 function formatStatusLabel(status: ServiceRecordStatus): string {

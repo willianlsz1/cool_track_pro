@@ -56,6 +56,16 @@ export function RecentServiceCard({ service }: RecentServiceCardProps) {
         {service.summary}
       </p>
 
+      {service.partsUsed || service.partsCost || service.laborCost ? (
+        <div
+          className={`tw-mt-3 tw-grid tw-gap-1 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-3 tw-text-xs tw-font-semibold ${appV2Tone.border} ${appV2Tone.mutedText}`}
+        >
+          {service.partsUsed ? <span>Pecas usadas: {service.partsUsed}</span> : null}
+          {service.partsCost ? <span>Custo de pecas: {service.partsCost}</span> : null}
+          {service.laborCost ? <span>Custo de mao de obra: {service.laborCost}</span> : null}
+        </div>
+      ) : null}
+
       <div className="tw-mt-4">
         <ServiceOutputPill status={service.outputStatus} />
       </div>

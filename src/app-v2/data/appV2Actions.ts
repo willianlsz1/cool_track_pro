@@ -5,7 +5,11 @@ import type {
   ServiceCommitmentKind,
   ServiceRecordStatus,
 } from '../domain/types';
-import { createServiceDraft, type ServiceDraft } from '../service/serviceFlowViewModel';
+import {
+  createServiceDraft,
+  formatServiceRecordKind,
+  type ServiceDraft,
+} from '../service/serviceFlowViewModel';
 import type { AppV2MockSnapshot } from './appV2MockStore';
 
 export interface AppV2FlowState extends AppV2MockSnapshot {
@@ -65,9 +69,14 @@ export function completeService(
     equipamentoId: draft.equipmentId,
     data: completion.date,
     tipo: draft.kind ?? 'outro',
+    tipoDescricao:
+      draft.kind === 'outro' ? formatServiceRecordKind(draft.kind, draft.customKind) : undefined,
     status: completion.finalStatus,
     tecnico: completion.technician,
     observacoes: formatServiceObservation(completion.diagnosis, completion.actionsDone),
+    pecas: draft.partsUsed?.trim() || undefined,
+    custoPecas: draft.partsCost?.trim() || undefined,
+    custoMaoObra: draft.laborCost?.trim() || undefined,
   };
 
   return {

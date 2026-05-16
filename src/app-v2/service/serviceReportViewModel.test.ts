@@ -15,6 +15,7 @@ describe('serviceReportViewModel', () => {
     const draft = {
       ...createServiceDraft(input, 'eq-1', 'compromisso-1'),
       technician: 'Ana Tecnica',
+      customKind: '',
       diagnosis: 'Filtro saturado e serpentina com sujeira.',
       actionsDone: 'Limpeza preventiva e teste operacional.',
       finalStatus: 'ok' as const,
@@ -100,4 +101,120 @@ describe('serviceReportViewModel', () => {
       ]),
     );
   });
+
+  it('preserva descricao customizada de Outro no relatorio imediato e reaberto', () => {
+    const input = createAppV2MockSnapshot();
+    const draft = {
+      ...createServiceDraft(input, 'eq-1'),
+      kind: 'outro' as const,
+      customKind: 'Higienizacao',
+      technician: 'Ana Tecnica',
+      diagnosis: 'Atendimento fora das categorias principais.',
+      actionsDone: 'Higienizacao completa registrada.',
+      finalStatus: 'ok' as const,
+    };
+
+    const immediateReport = buildServiceReportViewModel(input, draft);
+    const immediateFields = immediateReport.sections.flatMap((section) => section.fields);
+
+    expect(immediateReport.subtitle).toContain('Outro · Higienizacao');
+    expect(immediateFields).toEqual(
+      expect.arrayContaining([{ label: 'Tipo de servico', value: 'Outro · Higienizacao' }]),
+    );
+
+    const reopenedReport = buildServiceReportViewModelFromRecord(input, {
+      id: 'registro-outro',
+      equipamentoId: 'eq-1',
+      data: input.today,
+      tipo: 'outro',
+      tipoDescricao: 'Outro · Higienizacao',
+      status: 'ok',
+      tecnico: 'Ana Tecnica',
+      observacoes: 'Higienizacao completa registrada.',
+    });
+    const reopenedFields = reopenedReport.sections.flatMap((section) => section.fields);
+
+    expect(reopenedReport.subtitle).toContain('Outro · Higienizacao');
+    expect(reopenedFields).toEqual(
+      expect.arrayContaining([{ label: 'Tipo de servico', value: 'Outro · Higienizacao' }]),
+    );
+  });
+});
+
+it('exibe pecas usadas no relatorio imediato e reaberto', () => {
+  const input = createAppV2MockSnapshot();
+  const draft = {
+    ...createServiceDraft(input, 'eq-1', 'compromisso-1'),
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    partsUsed: 'Filtro de ar, capacitor 35uF',
+    finalStatus: 'ok' as const,
+  };
+
+  const immediateFields = buildServiceReportViewModel(input, draft).sections.flatMap(
+    (section) => section.fields,
+  );
+
+  expect(immediateFields).toEqual(
+    expect.arrayContaining([{ label: 'Pecas usadas', value: 'Filtro de ar, capacitor 35uF' }]),
+  );
+
+  const reopenedFields = buildServiceReportViewModelFromRecord(input, {
+    id: 'registro-pecas',
+    equipamentoId: 'eq-1',
+    data: input.today,
+    tipo: 'preventiva',
+    status: 'ok',
+    tecnico: 'Ana Tecnica',
+    observacoes: 'Limpeza e substituicao preventiva.',
+    pecas: 'Filtro de ar, capacitor 35uF',
+  }).sections.flatMap((section) => section.fields);
+
+  expect(reopenedFields).toEqual(
+    expect.arrayContaining([{ label: 'Pecas usadas', value: 'Filtro de ar, capacitor 35uF' }]),
+  );
+});
+
+it('exibe custos opcionais no relatorio imediato e reaberto', () => {
+  const input = createAppV2MockSnapshot();
+  const draft = {
+    ...createServiceDraft(input, 'eq-1', 'compromisso-1'),
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    partsCost: '120,00',
+    laborCost: '250,00',
+    finalStatus: 'ok' as const,
+  };
+
+  const immediateFields = buildServiceReportViewModel(input, draft).sections.flatMap(
+    (section) => section.fields,
+  );
+
+  expect(immediateFields).toEqual(
+    expect.arrayContaining([
+      { label: 'Custo de pecas', value: '120,00' },
+      { label: 'Custo de mao de obra', value: '250,00' },
+    ]),
+  );
+
+  const reopenedFields = buildServiceReportViewModelFromRecord(input, {
+    id: 'registro-custos',
+    equipamentoId: 'eq-1',
+    data: input.today,
+    tipo: 'preventiva',
+    status: 'ok',
+    tecnico: 'Ana Tecnica',
+    observacoes: 'Limpeza e substituicao preventiva.',
+    custoPecas: '120,00',
+    custoMaoObra: '250,00',
+  }).sections.flatMap((section) => section.fields);
+
+  expect(reopenedFields).toEqual(
+    expect.arrayContaining([
+      { label: 'Custo de pecas', value: '120,00' },
+      { label: 'Custo de mao de obra', value: '250,00' },
+    ]),
+  );
 });

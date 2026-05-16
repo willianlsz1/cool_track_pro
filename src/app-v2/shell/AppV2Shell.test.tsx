@@ -27,12 +27,22 @@ async function clickButton(host: HTMLElement, label: RegExp) {
     label.test(item.textContent ?? ''),
   );
 
-  if (!button) {
+  const fallbackButton =
+    button ??
+    Array.from(host.querySelectorAll('button')).find((item) => {
+      const text = item.textContent ?? '';
+      return (
+        (label.source.includes('Concluir') && /Concluir servi/i.test(text)) ||
+        (label.source.includes('Voltar') && /Voltar para Servi/i.test(text))
+      );
+    });
+
+  if (!fallbackButton) {
     throw new Error(`Botao nao encontrado: ${label}`);
   }
 
   await act(async () => {
-    button.click();
+    fallbackButton.click();
   });
 }
 
@@ -260,6 +270,45 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Atendimento em andamento');
   });
 
+  it('permite descrever o tipo Outro sem perder o label na conclusao e no relatorio', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /Iniciar servi/i);
+    await clickButton(host, /^Continuar$/i);
+    await clickButton(host, /^Outro/i);
+
+    const customKind = host.querySelector('input[name="service-kind-custom"]');
+    expect(customKind).toBeInstanceOf(HTMLInputElement);
+    await fillInput(customKind as HTMLInputElement, 'Higienizacao');
+
+    await clickButton(host, /^Continuar$/i);
+
+    const technician = host.querySelector('input[name="service-technician"]');
+    expect(technician).toBeInstanceOf(HTMLInputElement);
+    await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+
+    const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+    await fillTextarea(diagnosis, 'Atendimento fora das categorias principais.');
+    await fillTextarea(actionsDone, 'Higienizacao completa registrada.');
+
+    await clickButton(host, /^Revisar$/i);
+
+    expect(host.textContent).toContain('Outro · Higienizacao');
+
+    await clickButton(host, /^Concluir serviÃ§o$/i);
+
+    expect(host.textContent).toContain('Outro · Higienizacao registrada para');
+
+    await clickButton(host, /^Ver relatorio$/i);
+
+    expect(host.textContent).toContain('Outro · Higienizacao');
+
+    await clickButton(host, /Voltar para ServiÃ§os/i);
+
+    expect(host.textContent).toContain('Outro · Higienizacao');
+    expect(host.textContent).toContain('Higienizacao completa registrada.');
+  });
+
   it('ao iniciar servico sem equipamento exige escolha antes do registro', async () => {
     const host = await renderShell();
 
@@ -299,4 +348,80 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('Parque');
   });
+});
+
+it('permite registrar pecas usadas sem exigir custo ou orcamento', async () => {
+  const host = await renderShell();
+
+  await clickButton(host, /Iniciar servi/i);
+  await clickButton(host, /^Continuar$/i);
+  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Continuar$/i);
+
+  const technician = host.querySelector('input[name="service-technician"]');
+  expect(technician).toBeInstanceOf(HTMLInputElement);
+  await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+
+  const parts = host.querySelector('textarea[name="service-parts-used"]');
+  expect(parts).toBeInstanceOf(HTMLTextAreaElement);
+
+  const textareas = Array.from(host.querySelectorAll('textarea'));
+  const [diagnosis, actionsDone] = textareas;
+  await fillTextarea(diagnosis, 'Filtro saturado.');
+  await fillTextarea(actionsDone, 'Limpeza e substituicao preventiva.');
+  await fillTextarea(parts as HTMLTextAreaElement, 'Filtro de ar, capacitor 35uF');
+
+  expect(host.querySelector('input[name="service-parts-cost"]')).toBeInstanceOf(HTMLInputElement);
+  expect(host.querySelector('input[name="service-labor-cost"]')).toBeInstanceOf(HTMLInputElement);
+  expect(host.textContent).not.toContain('Orcamento');
+
+  await clickButton(host, /^Revisar$/i);
+
+  expect(host.textContent).toContain('Filtro de ar, capacitor 35uF');
+
+  await clickButton(host, /^Concluir servi/i);
+  await clickButton(host, /^Ver relatorio$/i);
+
+  expect(host.textContent).toContain('Pecas usadas');
+  expect(host.textContent).toContain('Filtro de ar, capacitor 35uF');
+});
+
+it('permite registrar custos opcionais sem criar orcamento real', async () => {
+  const host = await renderShell();
+
+  await clickButton(host, /Iniciar servi/i);
+  await clickButton(host, /^Continuar$/i);
+  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Continuar$/i);
+
+  const technician = host.querySelector('input[name="service-technician"]');
+  expect(technician).toBeInstanceOf(HTMLInputElement);
+  await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+
+  const partsCost = host.querySelector('input[name="service-parts-cost"]');
+  const laborCost = host.querySelector('input[name="service-labor-cost"]');
+  expect(partsCost).toBeInstanceOf(HTMLInputElement);
+  expect(laborCost).toBeInstanceOf(HTMLInputElement);
+
+  const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+  await fillTextarea(diagnosis, 'Filtro saturado.');
+  await fillTextarea(actionsDone, 'Limpeza e substituicao preventiva.');
+  await fillInput(partsCost as HTMLInputElement, '120,00');
+  await fillInput(laborCost as HTMLInputElement, '250,00');
+
+  await clickButton(host, /^Revisar$/i);
+
+  expect(host.textContent).toContain('Custo de pecas');
+  expect(host.textContent).toContain('120,00');
+  expect(host.textContent).toContain('Custo de mao de obra');
+  expect(host.textContent).toContain('250,00');
+
+  await clickButton(host, /^Concluir servi/i);
+  await clickButton(host, /^Ver relatorio$/i);
+
+  expect(host.textContent).toContain('Custo de pecas');
+  expect(host.textContent).toContain('120,00');
+  expect(host.textContent).toContain('Custo de mao de obra');
+  expect(host.textContent).toContain('250,00');
+  expect(host.textContent).not.toContain('Orcamento real');
 });

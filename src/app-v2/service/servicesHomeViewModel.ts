@@ -1,11 +1,5 @@
-import type {
-  Cliente,
-  Equipamento,
-  RegistroServico,
-  ServiceRecordKind,
-  ServiceRecordStatus,
-} from '../domain/types';
-import type { ServiceDraft } from './serviceFlowViewModel';
+import type { Cliente, Equipamento, RegistroServico, ServiceRecordStatus } from '../domain/types';
+import { formatServiceRecordKind, type ServiceDraft } from './serviceFlowViewModel';
 
 export type ServiceOutputStatus =
   | 'relatorio_pendente'
@@ -55,6 +49,9 @@ export interface RecentServiceViewModel {
   statusLabel: string;
   statusTone: ServiceHomeTone;
   summary: string;
+  partsUsed?: string;
+  partsCost?: string;
+  laborCost?: string;
   outputStatus: ServiceOutputStatus;
 }
 
@@ -88,7 +85,7 @@ function buildInProgress(
   return {
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
-    kindLabel: formatRecordKind(draft.kind),
+    kindLabel: formatServiceRecordKind(draft.kind, draft.customKind),
     progressLabel: formatProgressLabel(draft),
     actionLabel: 'Retomar registro',
   };
@@ -104,12 +101,15 @@ function mapRecentService(
     id: registro.id,
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
-    kindLabel: formatRecordKind(registro.tipo),
+    kindLabel: registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo),
     technician: registro.tecnico.trim() || 'TÃ©cnico nÃ£o informado',
     dateLabel: formatDateLabel(registro.data),
     statusLabel: formatStatusLabel(registro.status),
     statusTone: mapStatusTone(registro.status),
     summary: registro.observacoes?.trim() || 'Sem resumo técnico informado.',
+    partsUsed: registro.pecas?.trim() || undefined,
+    partsCost: registro.custoPecas?.trim() || undefined,
+    laborCost: registro.custoMaoObra?.trim() || undefined,
     outputStatus: getOutputStatus(registro),
   };
 }
@@ -146,18 +146,6 @@ function formatProgressLabel(draft: ServiceDraft): string {
   }
 
   return 'Contexto iniciado';
-}
-
-function formatRecordKind(kind: ServiceRecordKind | undefined): string {
-  const labels: Record<ServiceRecordKind, string> = {
-    preventiva: 'Preventiva',
-    corretiva: 'Corretiva',
-    instalacao: 'Instalação',
-    visita: 'Visita',
-    outro: 'Serviço',
-  };
-
-  return kind ? labels[kind] : 'Serviço';
 }
 
 function formatStatusLabel(status: ServiceRecordStatus): string {

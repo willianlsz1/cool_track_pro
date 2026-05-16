@@ -15,9 +15,13 @@ export interface ServiceDraft {
   equipmentId: string;
   commitmentId?: string;
   kind?: ServiceRecordKind;
+  customKind: string;
   technician: string;
   diagnosis: string;
   actionsDone: string;
+  partsUsed?: string;
+  partsCost?: string;
+  laborCost?: string;
   finalStatus: ServiceRecordStatus;
 }
 
@@ -47,6 +51,9 @@ export interface ServiceTypeOptionViewModel {
 export interface ServiceTypeViewModel {
   title: 'Tipo de serviço';
   selectedKind?: ServiceRecordKind;
+  customKind: string;
+  customKindMaxLength: 40;
+  canContinue: boolean;
   options: ServiceTypeOptionViewModel[];
 }
 
@@ -58,6 +65,9 @@ export interface ServiceReviewViewModel {
   technician: string;
   diagnosis: string;
   actionsDone: string;
+  partsUsed: string;
+  partsCost: string;
+  laborCost: string;
   finalStatusLabel: string;
   finalStatusTone: ServiceTone;
 }
@@ -97,6 +107,8 @@ const serviceTypeOptions: ServiceTypeOptionViewModel[] = [
   },
 ];
 
+export const serviceCustomKindMaxLength = 40;
+
 export function createServiceDraft(
   input: BuildServiceFlowInput,
   equipmentId: string,
@@ -112,9 +124,13 @@ export function createServiceDraft(
     equipmentId,
     commitmentId: commitment?.id,
     kind: commitment?.tipo,
+    customKind: '',
     technician: '',
     diagnosis: '',
     actionsDone: '',
+    partsUsed: '',
+    partsCost: '',
+    laborCost: '',
     finalStatus: 'ok',
   };
 }
@@ -144,6 +160,9 @@ export function buildServiceTypeViewModel(draft: ServiceDraft): ServiceTypeViewM
   return {
     title: 'Tipo de serviço',
     selectedKind: draft.kind,
+    customKind: draft.customKind,
+    customKindMaxLength: serviceCustomKindMaxLength,
+    canContinue: canContinueServiceType(draft),
     options: serviceTypeOptions,
   };
 }
@@ -158,10 +177,13 @@ export function buildServiceReviewViewModel(
     title: 'Revisar serviço',
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
-    kindLabel: formatRecordKind(draft.kind),
+    kindLabel: formatRecordKind(draft.kind, draft.customKind),
     technician: draft.technician.trim() || 'Técnico não informado',
     diagnosis: draft.diagnosis.trim() || 'Diagnóstico não informado',
     actionsDone: draft.actionsDone.trim() || 'Ações executadas não informadas',
+    partsUsed: draft.partsUsed?.trim() || 'Sem pecas informadas',
+    partsCost: draft.partsCost?.trim() || 'Nao informado',
+    laborCost: draft.laborCost?.trim() || 'Nao informado',
     finalStatusLabel: formatStatusLabel(draft.finalStatus),
     finalStatusTone: mapStatusTone(draft.finalStatus),
   };
@@ -181,6 +203,9 @@ export function buildServiceDoneViewModel(
       `Tecnico: ${review.technician}`,
       `Diagnóstico: ${review.diagnosis}`,
       `Ações: ${review.actionsDone}`,
+      `Pecas usadas: ${review.partsUsed}`,
+      `Custo de pecas: ${review.partsCost}`,
+      `Custo de mao de obra: ${review.laborCost}`,
       `Status final: ${review.finalStatusLabel}`,
     ],
     disabledOutputs: ['Orçamento', 'Próximo compromisso'],
@@ -250,7 +275,32 @@ function formatCommitmentKind(kind: ServiceCommitmentKind): string {
   return kind === 'corretiva' ? 'Corretiva' : 'Preventiva';
 }
 
-function formatRecordKind(kind: ServiceRecordKind | undefined): string {
+export function formatServiceRecordKind(
+  kind: ServiceRecordKind | undefined,
+  customKind?: string,
+): string {
+  return formatRecordKind(kind, customKind);
+}
+
+function canContinueServiceType(draft: ServiceDraft): boolean {
+  if (!draft.kind) {
+    return false;
+  }
+
+  if (draft.kind !== 'outro') {
+    return true;
+  }
+
+  const customKind = draft.customKind.trim();
+  return customKind.length > 0 && customKind.length <= serviceCustomKindMaxLength;
+}
+
+function formatRecordKind(kind: ServiceRecordKind | undefined, customKind?: string): string {
+  if (kind === 'outro') {
+    const normalizedCustomKind = customKind?.trim();
+    return normalizedCustomKind ? `Outro · ${normalizedCustomKind}` : 'ServiÃ§o';
+  }
+
   const labels: Record<ServiceRecordKind, string> = {
     preventiva: 'Preventiva',
     corretiva: 'Corretiva',

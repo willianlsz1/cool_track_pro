@@ -88,6 +88,58 @@ export function ServiceStepExecution({
           />
         </label>
 
+        <label className="tw-grid tw-gap-2">
+          <span
+            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+          >
+            Pecas usadas
+          </span>
+          <textarea
+            name="service-parts-used"
+            value={draft.partsUsed ?? ''}
+            onChange={(event) => onChangeDraft({ ...draft, partsUsed: event.target.value })}
+            rows={3}
+            className={`tw-w-full tw-resize-none tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            placeholder="Opcional: informe pecas substituidas ou utilizadas"
+          />
+        </label>
+
+        <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
+          <label className="tw-grid tw-gap-2">
+            <span
+              className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+            >
+              Custo de pecas
+            </span>
+            <input
+              type="text"
+              name="service-parts-cost"
+              value={draft.partsCost ?? ''}
+              onChange={(event) => onChangeDraft({ ...draft, partsCost: event.target.value })}
+              className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+              placeholder="Opcional"
+              inputMode="decimal"
+            />
+          </label>
+
+          <label className="tw-grid tw-gap-2">
+            <span
+              className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+            >
+              Custo de mao de obra
+            </span>
+            <input
+              type="text"
+              name="service-labor-cost"
+              value={draft.laborCost ?? ''}
+              onChange={(event) => onChangeDraft({ ...draft, laborCost: event.target.value })}
+              className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+              placeholder="Opcional"
+              inputMode="decimal"
+            />
+          </label>
+        </div>
+
         <div>
           <p
             className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}

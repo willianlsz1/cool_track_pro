@@ -75,6 +75,7 @@ describe('servicesHomeViewModel', () => {
     const draft: ServiceDraft = {
       equipmentId: 'eq-1',
       kind: 'preventiva',
+      customKind: '',
       technician: 'Tecnico',
       diagnosis: 'Filtro com acúmulo de sujeira.',
       actionsDone: '',
@@ -110,5 +111,85 @@ describe('servicesHomeViewModel', () => {
       'proximo_compromisso_sugerido',
       'orcamento_sugerido',
     ]);
+  });
+
+  it('usa descricao customizada de Outro nos registros recentes', () => {
+    const viewModel = buildServicesHomeViewModel(
+      {
+        ...baseInput,
+        registros: [
+          {
+            id: 'registro-outro',
+            equipamentoId: 'eq-1',
+            data: '2026-05-10',
+            tipo: 'outro',
+            tipoDescricao: 'Outro · Higienizacao',
+            status: 'ok',
+            tecnico: 'Tecnico',
+            observacoes: 'Higienizacao completa registrada.',
+          },
+        ],
+      },
+      null,
+    );
+
+    expect(viewModel.recentServices[0]).toMatchObject({
+      id: 'registro-outro',
+      kindLabel: 'Outro · Higienizacao',
+      outputStatus: 'relatorio_pendente',
+    });
+  });
+});
+
+it('exibe pecas usadas em registro recente quando informadas', () => {
+  const viewModel = buildServicesHomeViewModel(
+    {
+      ...baseInput,
+      registros: [
+        {
+          id: 'registro-pecas',
+          equipamentoId: 'eq-1',
+          data: '2026-05-10',
+          tipo: 'preventiva',
+          status: 'ok',
+          tecnico: 'Tecnico',
+          observacoes: 'Limpeza e substituicao preventiva.',
+          pecas: 'Filtro de ar, capacitor 35uF',
+        },
+      ],
+    },
+    null,
+  );
+
+  expect(viewModel.recentServices[0]).toMatchObject({
+    id: 'registro-pecas',
+    partsUsed: 'Filtro de ar, capacitor 35uF',
+  });
+});
+
+it('exibe custos opcionais em registro recente quando informados', () => {
+  const input: BuildServicesHomeInput = {
+    ...baseInput,
+    registros: [
+      {
+        id: 'registro-custos',
+        equipamentoId: 'eq-1',
+        data: '2026-05-10',
+        tipo: 'preventiva',
+        status: 'ok',
+        tecnico: 'Ana Tecnica',
+        observacoes: 'Limpeza preventiva.',
+        custoPecas: '120,00',
+        custoMaoObra: '250,00',
+      },
+    ],
+  };
+
+  const viewModel = buildServicesHomeViewModel(input, null);
+
+  expect(viewModel.recentServices[0]).toMatchObject({
+    id: 'registro-custos',
+    partsCost: '120,00',
+    laborCost: '250,00',
   });
 });

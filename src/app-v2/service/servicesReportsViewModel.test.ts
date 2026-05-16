@@ -115,6 +115,33 @@ describe('servicesReportsViewModel', () => {
     ]);
   });
 
+  it('usa descricao customizada de Outro na lista e na busca de relatorios', () => {
+    const viewModel = buildServicesReportsViewModel(
+      {
+        ...input,
+        registros: [
+          {
+            id: 'registro-outro',
+            equipamentoId: 'eq-1',
+            data: '2026-05-10',
+            tipo: 'outro',
+            tipoDescricao: 'Outro · Higienizacao',
+            status: 'ok',
+            tecnico: 'Tecnico',
+            observacoes: 'Higienizacao completa registrada.',
+          },
+        ],
+      },
+      'higienizacao',
+    );
+
+    expect(viewModel.items).toHaveLength(1);
+    expect(viewModel.items[0]).toMatchObject({
+      id: 'registro-outro',
+      kindLabel: 'Outro · Higienizacao',
+    });
+  });
+
   it('aplica fallback para dados ausentes sem criar blocos regulatorios', () => {
     const viewModel = buildServicesReportsViewModel({
       ...input,
@@ -137,5 +164,60 @@ describe('servicesReportsViewModel', () => {
     });
     expect(JSON.stringify(viewModel)).not.toContain(['P', 'MOC'].join(''));
     expect(JSON.stringify(viewModel)).not.toContain(['share', 'Report'].join(''));
+  });
+});
+
+it('inclui pecas usadas na busca local de relatorios', () => {
+  const viewModel = buildServicesReportsViewModel(
+    {
+      ...input,
+      registros: [
+        {
+          id: 'registro-pecas',
+          equipamentoId: 'eq-1',
+          data: '2026-05-10',
+          tipo: 'preventiva',
+          status: 'ok',
+          tecnico: 'Tecnico',
+          observacoes: 'Limpeza e substituicao preventiva.',
+          pecas: 'Filtro de ar, capacitor 35uF',
+        },
+      ],
+    },
+    'capacitor',
+  );
+
+  expect(viewModel.items).toHaveLength(1);
+  expect(viewModel.items[0]).toMatchObject({
+    id: 'registro-pecas',
+    partsUsed: 'Filtro de ar, capacitor 35uF',
+  });
+});
+
+it('inclui custos opcionais na busca local de relatorios', () => {
+  const inputWithCosts: BuildServicesHomeInput = {
+    ...input,
+    registros: [
+      {
+        id: 'registro-custos',
+        equipamentoId: 'eq-1',
+        data: '2026-05-10',
+        tipo: 'preventiva',
+        status: 'ok',
+        tecnico: 'Ana Tecnica',
+        observacoes: 'Limpeza preventiva.',
+        custoPecas: '120,00',
+        custoMaoObra: '250,00',
+      },
+    ],
+  };
+
+  const viewModel = buildServicesReportsViewModel(inputWithCosts, '250');
+
+  expect(viewModel.items).toHaveLength(1);
+  expect(viewModel.items[0]).toMatchObject({
+    id: 'registro-custos',
+    partsCost: '120,00',
+    laborCost: '250,00',
   });
 });

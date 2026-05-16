@@ -54,9 +54,13 @@ export interface RegistroServico {
   equipamentoId: string;
   data: string;
   tipo: ServiceRecordKind;
+  tipoDescricao?: string;
   status: ServiceRecordStatus;
   tecnico: string;
   observacoes?: string;
+  pecas?: string;
+  custoPecas?: string;
+  custoMaoObra?: string;
   proximaData?: string;
 }
 

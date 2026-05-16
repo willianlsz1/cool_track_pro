@@ -48,7 +48,15 @@ export function ServiceFlow({
   }
 
   function selectKind(kind: ServiceRecordKind) {
-    updateDraft({ ...draft, kind });
+    updateDraft({
+      ...draft,
+      kind,
+      customKind: kind === 'outro' ? draft.customKind : '',
+    });
+  }
+
+  function updateCustomKind(customKind: string) {
+    updateDraft({ ...draft, customKind });
   }
 
   function previousStep() {
@@ -106,6 +114,7 @@ export function ServiceFlow({
           viewModel={buildServiceTypeViewModel(draft)}
           onBack={previousStep}
           onContinue={nextStep}
+          onCustomKindChange={updateCustomKind}
           onSelectKind={selectKind}
         />
       ) : null}

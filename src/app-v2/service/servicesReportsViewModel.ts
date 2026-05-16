@@ -1,4 +1,5 @@
-import type { Cliente, Equipamento, RegistroServico, ServiceRecordKind } from '../domain/types';
+import type { Cliente, Equipamento, RegistroServico } from '../domain/types';
+import { formatServiceRecordKind } from './serviceFlowViewModel';
 import type { BuildServicesHomeInput, ServiceHomeTone } from './servicesHomeViewModel';
 
 export type ServiceReportListStatus = 'pronto' | 'pendente' | 'atencao';
@@ -20,6 +21,9 @@ export interface ServicesReportListItemViewModel {
   status: ServiceReportListStatus;
   statusLabel: 'Pronto' | 'Pendente de revisao' | 'Atencao';
   statusTone: ServiceHomeTone;
+  partsUsed?: string;
+  partsCost?: string;
+  laborCost?: string;
   searchText: string;
 }
 
@@ -72,7 +76,7 @@ function mapReportItem(
   registro: RegistroServico,
 ): ServicesReportListItemViewModel {
   const { equipamento, cliente } = getReportEntities(input, registro.equipamentoId);
-  const kindLabel = formatRecordKind(registro.tipo);
+  const kindLabel = registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo);
   const status = mapReportStatus(registro);
   const statusMeta = getStatusMeta(status);
   const customerName = cliente?.nome ?? 'Sem cliente vinculado';
@@ -90,8 +94,20 @@ function mapReportItem(
     status,
     statusLabel: statusMeta.label,
     statusTone: statusMeta.tone,
+    partsUsed: registro.pecas?.trim() || undefined,
+    partsCost: registro.custoPecas?.trim() || undefined,
+    laborCost: registro.custoMaoObra?.trim() || undefined,
     searchText: normalizeSearch(
-      [registro.id, reportId, customerName, equipmentName, kindLabel].join(' '),
+      [
+        registro.id,
+        reportId,
+        customerName,
+        equipmentName,
+        kindLabel,
+        registro.pecas,
+        registro.custoPecas,
+        registro.custoMaoObra,
+      ].join(' '),
     ),
   };
 }
@@ -161,18 +177,6 @@ function buildKpis(
       tone: 'primary',
     },
   ];
-}
-
-function formatRecordKind(kind: ServiceRecordKind): string {
-  const labels: Record<ServiceRecordKind, string> = {
-    preventiva: 'Preventiva',
-    corretiva: 'Corretiva',
-    instalacao: 'Instalacao',
-    visita: 'Visita tecnica',
-    outro: 'Servico',
-  };
-
-  return labels[kind];
 }
 
 function formatDateLabel(date: string): string {
