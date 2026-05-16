@@ -41,7 +41,7 @@ export function ServiceStepExecution({
       description="Registre o diagnóstico, as ações executadas e o estado final do equipamento."
     >
       <div className="tw-grid tw-gap-5">
-        <label className="tw-grid tw-gap-2">
+        <label className="tw-grid tw-gap-5">
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
@@ -58,7 +58,7 @@ export function ServiceStepExecution({
           />
         </label>
 
-        <label className="tw-grid tw-gap-2">
+        <label className="tw-grid tw-gap-5">
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
@@ -73,7 +73,7 @@ export function ServiceStepExecution({
           />
         </label>
 
-        <label className="tw-grid tw-gap-2">
+        <label className="tw-grid tw-gap-5">
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
@@ -88,7 +88,7 @@ export function ServiceStepExecution({
           />
         </label>
 
-        <label className="tw-grid tw-gap-2">
+        <label className="tw-grid tw-gap-5">
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
@@ -104,8 +104,8 @@ export function ServiceStepExecution({
           />
         </label>
 
-        <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
-          <label className="tw-grid tw-gap-2">
+        <div className="tw-grid tw-gap-x-3 tw-gap-y-5 sm:tw-grid-cols-2">
+          <label className="tw-grid tw-gap-5">
             <span
               className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
             >
@@ -122,7 +122,7 @@ export function ServiceStepExecution({
             />
           </label>
 
-          <label className="tw-grid tw-gap-2">
+          <label className="tw-grid tw-gap-5">
             <span
               className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
             >
@@ -140,13 +140,30 @@ export function ServiceStepExecution({
           </label>
         </div>
 
+        <label className="tw-grid tw-gap-5">
+          <span
+            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+          >
+            Proxima manutencao
+          </span>
+          <input
+            type="date"
+            name="service-next-maintenance"
+            value={draft.nextMaintenanceDate ?? ''}
+            onChange={(event) =>
+              onChangeDraft({ ...draft, nextMaintenanceDate: event.target.value })
+            }
+            className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+          />
+        </label>
+
         <div>
           <p
             className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
             Status final
           </p>
-          <div className="tw-mt-3 tw-grid tw-grid-cols-1 tw-gap-2 sm:tw-grid-cols-3">
+          <div className="tw-mt-5 tw-grid tw-grid-cols-1 tw-gap-2 sm:tw-grid-cols-3">
             {statusOptions.map((option) => {
               const selected = option.status === draft.finalStatus;
 

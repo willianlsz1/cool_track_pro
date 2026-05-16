@@ -25,6 +25,7 @@ interface ServiceFlowProps {
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
   onCompleteService: (draft: ServiceDraft) => void;
+  onValidateService?: (draft: ServiceDraft) => string | null;
   onOpenEquipment: (equipmentId: string) => void;
 }
 
@@ -36,13 +37,16 @@ export function ServiceFlow({
   onBackToServices,
   onDraftChange,
   onCompleteService,
+  onValidateService,
   onOpenEquipment,
 }: ServiceFlowProps) {
   const [step, setStep] = useState<ServiceFlowStep>('context');
   const [draft, setDraft] = useState<ServiceDraft>(initialDraft);
+  const [completionError, setCompletionError] = useState<string | null>(null);
   const context = buildServiceContextViewModel(input, draft);
 
   function updateDraft(nextDraft: ServiceDraft) {
+    setCompletionError(null);
     setDraft(nextDraft);
     onDraftChange(nextDraft);
   }
@@ -69,6 +73,18 @@ export function ServiceFlow({
     setStep(stepOrder[Math.min(stepOrder.length - 1, currentIndex + 1)]);
   }
 
+  function completeReviewStep() {
+    const errorMessage = onValidateService?.(draft) ?? null;
+
+    if (errorMessage) {
+      setCompletionError(errorMessage);
+      return;
+    }
+
+    setCompletionError(null);
+    nextStep();
+  }
+
   function finishAndBackToServices() {
     onCompleteService(draft);
     onBackToServices();
@@ -80,7 +96,7 @@ export function ServiceFlow({
   }
 
   return (
-    <PageShell className="tw-max-w-[980px]">
+    <PageShell className="tw-max-w-none">
       <SectionCard className="sm:tw-p-6">
         <div className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
           <div className="tw-min-w-0">
@@ -131,8 +147,9 @@ export function ServiceFlow({
       {step === 'review' ? (
         <ServiceStepReview
           review={buildServiceReviewViewModel(input, draft)}
+          errorMessage={completionError}
           onBack={previousStep}
-          onComplete={nextStep}
+          onComplete={completeReviewStep}
         />
       ) : null}
 

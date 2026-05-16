@@ -61,9 +61,48 @@ describe('app-v2 flow actions', () => {
       tipo: 'corretiva',
       status: 'warn',
       tecnico: 'Técnico',
+      diagnostico: 'Controlador com alarme intermitente.',
+      acoesExecutadas: 'Ajuste de sensor e orientação ao cliente.',
       observacoes: 'Controlador com alarme intermitente. Ajuste de sensor e orientação ao cliente.',
     });
     expect(next.compromissos.find((item) => item.id === 'compromisso-2')?.status).toBe('concluido');
+  });
+
+  it('bloqueia conclusao quando o equipamento do rascunho nao existe mais', () => {
+    const state = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+    const withoutEquipment = {
+      ...state,
+      equipamentos: state.equipamentos.filter((item) => item.id !== 'eq-1'),
+    };
+
+    expect(() =>
+      completeService(withoutEquipment, {
+        id: 'registro-sem-equipamento',
+        date: state.today,
+        technician: 'Tecnico',
+        diagnosis: 'Diagnostico registrado.',
+        actionsDone: 'Acoes registradas.',
+        finalStatus: 'ok',
+      }),
+    ).toThrow('Equipamento nao encontrado. Escolha um equipamento valido antes de concluir.');
+  });
+
+  it('bloqueia conclusao quando a data do registro esta ausente ou invalida', () => {
+    const state = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+    const completion = {
+      id: 'registro-data-invalida',
+      technician: 'Tecnico',
+      diagnosis: 'Diagnostico registrado.',
+      actionsDone: 'Acoes registradas.',
+      finalStatus: 'ok' as const,
+    };
+
+    expect(() => completeService(state, { ...completion, date: '' })).toThrow(
+      'Informe uma data valida para concluir o servico.',
+    );
+    expect(() => completeService(state, { ...completion, date: '16/05/2026' })).toThrow(
+      'Informe uma data valida para concluir o servico.',
+    );
   });
 
   it('schedules a next commitment without mutating the previous state', () => {
@@ -292,4 +331,41 @@ it('preserva custos opcionais quando conclui servico sem criar orcamento', () =>
     custoMaoObra: '250,00',
   });
   expect(completed.orcamentos).toHaveLength(started.orcamentos.length);
+});
+
+it('preserva proxima manutencao e cria compromisso mockado ao concluir servico', () => {
+  const started = startServiceFromEquipment(createAppV2MockSnapshot({ compromissos: [] }), 'eq-1');
+  const withNextMaintenance = {
+    ...started,
+    serviceDraft: {
+      ...started.serviceDraft!,
+      nextMaintenanceDate: '2026-06-10',
+    },
+  };
+
+  const completed = completeService(withNextMaintenance, {
+    id: 'registro-proxima',
+    date: started.today,
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    finalStatus: 'ok',
+  });
+
+  expect(completed.registros[0]).toMatchObject({
+    id: 'registro-proxima',
+    proximaData: '2026-06-10',
+  });
+  expect(completed.compromissos).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        id: 'compromisso-registro-proxima',
+        equipamentoId: 'eq-1',
+        tipo: 'preventiva',
+        status: 'agendado',
+        dataAlvo: '2026-06-10',
+        origem: 'registro',
+      }),
+    ]),
+  );
 });

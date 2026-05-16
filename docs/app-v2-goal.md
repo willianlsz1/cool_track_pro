@@ -13,7 +13,439 @@ Antes de novos checkpoints de codigo, preencher ou atualizar a matriz de
 paridade do fluxo afetado e separar paridade obrigatoria, melhoria permitida,
 backlog e areas sensiveis.
 
-## Checkpoint atual - Custos opcionais
+## Checkpoint atual - Diagnostico e acoes separados
+
+Implementar a proxima lacuna funcional segura do Registro de Servico:
+
+> Separar diagnostico e acoes executadas no registro mockado e no relatorio
+> local do app-v2, preservando `observacoes` como compatibilidade e sem tocar
+> storage real, PDF/share, WhatsApp real, router ou contratos legados.
+
+### Analise resumida
+
+No v1, `obs` alimenta a descricao final do registro. No app-v2, o fluxo ja
+captura `diagnosis` e `actionsDone` separados no draft, mas o registro mockado
+salva ambos apenas concatenados em `observacoes`. Ao reabrir relatorio a partir
+de registro, diagnostico e acoes voltam duplicados a partir de `observacoes`.
+
+Ha 99% de certeza para atuar porque a mudanca fica restrita ao contrato
+mockado do app-v2, action pura e view model de relatorio local. Nao ha storage
+real, schema real, router, PDF/share, WhatsApp, billing, PMOC, permissoes,
+package/config ou CSS legado envolvidos.
+
+### Plano
+
+- Adicionar testes RED em `appV2Flow.test.ts` garantindo que o registro mockado
+  preserva diagnostico e acoes separadamente, mantendo `observacoes`.
+- Adicionar teste RED em `serviceReportViewModel.test.ts` garantindo que
+  relatorio reaberto usa diagnostico e acoes separados quando existirem.
+- Adicionar campos opcionais ao tipo `RegistroServico` mockado do app-v2.
+- Atualizar `completeService` para preencher os campos separados.
+- Atualizar view model de relatorio para preferir campos separados e manter
+  fallback por `observacoes`.
+- Atualizar matriz de paridade e validacoes.
+
+### Anti-escopo
+
+- Nao alterar UI estrutural, CSS global, design visual ou shell legado.
+- Nao alterar storage real, Supabase/RLS, PDF/share, WhatsApp real, billing,
+  PMOC, assinatura, permissoes, router ou package/config.
+- Nao migrar dados reais nem alterar contratos legados.
+
+### Validacao esperada
+
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceReportViewModel.test.ts --run`.
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- Registro mockado preserva diagnostico e acoes separadamente.
+- `observacoes` continua preenchida como compatibilidade.
+- Relatorio reaberto usa diagnostico e acoes separados quando existirem.
+- Relatorio reaberto continua aceitando registros antigos apenas com
+  `observacoes`.
+- Matriz de paridade marca a lacuna como coberta.
+
+### Resultado deste checkpoint
+
+- `RegistroServico` mockado passou a aceitar `diagnostico` e
+  `acoesExecutadas` opcionais.
+- `completeService` grava diagnostico e acoes separadamente e mantem
+  `observacoes` concatenada para compatibilidade.
+- `buildServiceReportViewModelFromRecord` prefere os campos separados quando
+  existirem.
+- Registros antigos apenas com `observacoes` continuam abrindo relatorio por
+  fallback.
+
+### Validacao executada
+
+- RED:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceReportViewModel.test.ts --run`
+  falhou porque o registro nao possuia campos separados e o relatorio reaberto
+  duplicava `observacoes`.
+- GREEN focado:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceReportViewModel.test.ts --run`
+  passou com 24 testes.
+- GREEN de fluxo:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/service/serviceReportViewModel.test.ts --run`
+  passou com 39 testes.
+- Validacao geral:
+  `npm run format`, `npm run build`, `npm run check`,
+  `npm run format:check` e `git diff --check` passaram.
+
+### Proximo checkpoint recomendado
+
+Definir por decisao humana qual lacuna restante deve abrir proxima etapa:
+tecnico global, edicao de registro existente, prompt de proxima preventiva ou
+pos-salvamento PDF/WhatsApp real.
+
+### Gate
+
+O ciclo automatico deve parar aqui: as lacunas restantes envolvem contrato
+novo, UX de prompt, fluxo maior de edicao ou areas sensiveis.
+
+---
+
+## Historico - Validacao amigavel de equipamento e data
+
+Implementar a proxima lacuna funcional segura do Registro de Servico:
+
+> Validacao amigavel de equipamento e data do Registro de Servico no app-v2,
+> sem alterar router, storage real, contratos legados ou areas sensiveis.
+
+### Analise resumida
+
+No v1, o payload do Registro valida `equipId` contra equipamentos existentes e
+exige `data` valida antes de persistir. No app-v2, a conclusao mockada ja
+recebe `date` e `serviceDraft.equipmentId`, mas ainda nao bloqueia de forma
+amigavel quando o equipamento desaparece do snapshot ou quando a data do
+contrato mockado vem ausente/invalida.
+
+Ha 99% de certeza para atuar porque a mudanca fica restrita ao app-v2:
+action pura/mockada, shell do fluxo, testes focados e matriz de paridade. Nao
+ha storage real, schema real, router, PDF/share, WhatsApp, billing, PMOC,
+permissoes ou CSS legado envolvidos.
+
+### Plano
+
+- Adicionar testes RED em `appV2Flow.test.ts` para equipamento inexistente,
+  data ausente/invalida e fluxo valido preservado.
+- Adicionar teste RED no shell garantindo mensagem amigavel local quando a
+  conclusao falha por equipamento invalido.
+- Implementar validacao pura em `completeService`.
+- Capturar erro no shell e passar mensagem local para o fluxo.
+- Exibir mensagem local no app-v2 sem alterar estrutura visual ampla.
+- Atualizar matriz de paridade e validacoes.
+
+### Anti-escopo
+
+- Nao criar novo campo visual de data neste checkpoint.
+- Nao alterar router, storage real, Supabase/RLS, PDF/share, WhatsApp real,
+  billing, PMOC, assinatura, permissoes ou package/config.
+- Nao copiar UI, CSS, template ou shell legado.
+- Nao implementar edicao de registro, tecnico global ou lista real de tecnicos.
+
+### Validacao esperada
+
+- `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- `completeService` bloqueia equipamento inexistente com mensagem amigavel.
+- `completeService` bloqueia data ausente ou invalida com mensagem amigavel.
+- O shell exibe a mensagem local no fluxo quando a conclusao falha.
+- Fluxo valido de conclusao permanece preservado.
+- Matriz de paridade marca validacao de equipamento/data como coberta.
+
+### Resultado deste checkpoint
+
+- `completeService` passou a chamar `validateServiceCompletion` antes de criar
+  o registro mockado.
+- `validateServiceCompletion` bloqueia equipamento inexistente e data ausente
+  ou invalida em formato calendario simples `YYYY-MM-DD`.
+- `ServiceFlow` valida antes de sair da revisao para a etapa final.
+- `ServiceStepReview` exibe mensagem local amigavel quando a validacao falha.
+- O shell usa a mesma validacao da action, preservando o fluxo valido atual.
+
+### Validacao executada
+
+- RED inicial:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou porque `completeService` ainda nao bloqueava equipamento/data e o shell
+  avancava para finalizado.
+- GREEN focado:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 30 testes.
+
+### Proximo checkpoint recomendado
+
+Separar diagnostico e acoes executadas no registro mockado e no relatorio local
+do app-v2, preservando `observacoes` como compatibilidade e sem tocar storage
+real, PDF/share, WhatsApp real, router ou contratos legados.
+
+---
+
+## Historico - QA visual dos campos do Registro
+
+Corrigir regressao visual observada no Registro de Servico do app-v2:
+
+> labels e campos compactos da etapa de execucao nao podem se amontoar,
+> sobrepor ou encostar visualmente uns nos outros em desktop ou mobile.
+
+### Analise resumida
+
+A captura enviada mostra a etapa de execucao com campos de custos e proxima
+manutencao visualmente apertados. A causa confirmada esta no agrupamento de
+campos compactos em grid: o teste inicial media apenas label contra o proprio
+controle, mas nao media a distancia entre o controle anterior e o proximo label
+quando o grid quebra para uma coluna no mobile.
+
+Ha 99% de certeza para atuar porque a mudanca fica restrita ao app-v2:
+componente visual do Registro de Servico e teste Playwright de layout no
+preview. Nao ha regra de negocio, storage, integracao real, PDF/share,
+WhatsApp, billing, PMOC, permissoes ou contrato legado envolvidos.
+
+### Plano
+
+- Criar teste Playwright RED no preview app-v2 medindo retangulos reais de
+  label/input.
+- Validar que labels de `Custo de pecas`, `Custo de mao de obra`,
+  `Proxima manutencao` e `Status final` mantem respiro vertical minimo e nao
+  sobrepoem seus controles.
+- Validar em mobile que um grupo de campo nao invade visualmente o proximo
+  label quando o grid de custos quebra para uma coluna.
+- Validar em desktop que o Registro de Servico usa quase toda a superficie util
+  do app-v2, sem ficar centralizado em uma coluna estreita.
+- Ajustar apenas espacamento/estrutura local da etapa de execucao.
+- Revalidar teste focado de shell, teste e2e novo, format, build, check e
+  `git diff --check`.
+
+### Anti-escopo
+
+- Nao redesenhar o fluxo inteiro.
+- Nao alterar regra de negocio do Registro de Servico.
+- Nao tocar app legado.
+- Nao alterar storage real, Supabase/RLS, PDF/share, WhatsApp real, billing,
+  PMOC, assinatura, permissoes, package/config ou router.
+- Nao mexer em calendario, recorrencia, notificacoes ou prompt legado.
+
+### Validacao esperada
+
+- TDD RED com Playwright antes da correcao visual.
+- `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run`.
+- Playwright focado do novo teste visual.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- O teste automatizado falha antes da correcao por espacamento insuficiente ou
+  sobreposicao.
+- Labels compactos da etapa de execucao mantem respiro vertical minimo de 20px
+  em relacao aos seus controles.
+- Grupos de campo compactos mantem respiro vertical minimo de 20px entre o fim
+  do controle anterior e o inicio do proximo label em mobile.
+- Custos em duas colunas nao colidem entre si em desktop.
+- O fluxo funcional existente permanece passando.
+
+### Resultado deste checkpoint
+
+- Criado teste Playwright focado em `e2e/specs/app-v2-service-layout.spec.js`.
+- O teste mede `getBoundingClientRect()` real no preview app-v2 para travar
+  respiro minimo entre labels e controles compactos.
+- RED confirmado: `Custo de pecas` tinha 8px de respiro, abaixo do minimo de
+  12px.
+- `ServiceStepExecution` passou a usar `tw-gap-3` entre labels e controles da
+  etapa de execucao.
+- GREEN confirmado no Playwright: labels de custos, proxima manutencao e status
+  final nao sobrepoem controles e mantem respiro minimo em desktop.
+- A segunda validacao visual mostrou que o problema maior era estrutural:
+  `ServiceFlow` limitava o fluxo a `tw-max-w-[980px]`, usando apenas 58,6% da
+  largura util em desktop grande.
+- O teste Playwright passou a travar aproveitamento minimo de 70% da superficie
+  desktop e largura superior a 1180px.
+- `ServiceFlow` deixou de sobrescrever o `PageShell` com 980px e voltou a usar
+  o limite padrao do app-v2.
+- A terceira validacao visual mostrou que ainda havia uma lacuna mobile: o
+  respiro entre `Custo de pecas` e `Custo de mao de obra` era de 12px quando a
+  grade quebrava para uma coluna.
+- O teste Playwright agora trava respiro minimo de 20px entre grupos de campos
+  compactos em mobile.
+- `ServiceStepExecution` passou a usar `tw-gap-x-3 tw-gap-y-5` no grid de
+  custos, preservando colunas no desktop e aumentando apenas o respiro vertical.
+- A quarta validacao visual mostrou que 12px entre label e controle continuava
+  parecendo colado na borda com foco ativo. O contrato Playwright agora exige
+  20px entre label e controle.
+- `ServiceStepExecution` passou a usar `tw-gap-5` em todos os labels da etapa
+  de execucao e `tw-mt-5` antes dos botoes de status.
+- A largura desktop tambem foi endurecida: o Registro de Servico agora deve usar
+  mais de 90% da superficie util. `ServiceFlow` usa `tw-max-w-none` apenas nesse
+  fluxo.
+
+### Validacao executada
+
+- TDD RED:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  falhou primeiro por seletor ambiguo do teste; apos ajuste do seletor, falhou
+  corretamente por `Custo de pecas` com 8px de respiro.
+- GREEN focado:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  passou com 1 teste.
+- `npm run format`: passou.
+- `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run`: passou com 1
+  arquivo e 14 testes.
+- Revalidacao Playwright apos format:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  passou com 1 teste.
+- RED de largura:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  falhou com ratio `0.5861244019138756`, abaixo do minimo `0.7`.
+- GREEN de largura:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  passou com 1 teste apos remover o limite local de 980px.
+- RED mobile entre grupos:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  falhou com 12px entre `Custo de pecas` e `Custo de mao de obra`, abaixo do
+  minimo de 20px.
+- GREEN mobile/desktop:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  passou com 2 testes apos aumentar o gap vertical do grid de custos.
+- RED de respiro label-controle:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  falhou com 12px entre label e campo, abaixo do novo minimo de 20px.
+- RED de largura desktop:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  falhou com ratio `0.7655502392344498`, abaixo do minimo `0.9`.
+- GREEN final visual:
+  `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-service-layout.spec.js --project=chromium`
+  passou com 2 testes apos ampliar respiro interno e liberar largura total do
+  `ServiceFlow`.
+- `npm run build`: passou com warnings Vite/chunk conhecidos.
+- `npm run check`: passou com 1 warning ESLint conhecido em
+  `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+- `npm run format:check`: passou.
+- `git diff --check`: passou.
+
+---
+
+## Historico - Proxima manutencao
+
+Implementar a proxima lacuna de paridade do Registro de Servico:
+
+> Proxima manutencao deve virar campo opcional do Registro de Servico no
+> app-v2, conectando-se ao agendamento mockado ja existente, sem calendario
+> completo, sem recorrencia avancada e sem storage real.
+
+### Analise resumida
+
+No v1, `proxima` entra no payload e no registro persistido. O pos-salvamento
+tambem pode acionar prompt de proxima preventiva. A capacidade operacional a
+preservar neste checkpoint e registrar a data de proxima manutencao e refletir
+isso no agendamento mockado do app-v2.
+
+No v2 atual, `scheduleNextCommitment` ja existe como action mockada, mas o
+Registro de Servico ainda nao coleta `proxima` nem cria compromisso ao concluir.
+
+Ha 99% de certeza para implementar porque a mudanca fica restrita ao app-v2:
+draft, action mockada, view models, UI de execucao, relatorio e testes. O
+compromisso criado sera uma preventiva simples com `origem: "registro"`, sem
+calendario completo, sem recorrencia avancada, sem storage real, sem
+notificacoes e sem integracoes sensiveis.
+
+### Plano
+
+- Adicionar testes RED para `nextMaintenanceDate` no resumo tecnico.
+- Adicionar testes RED para relatorio imediato e reaberto exibirem proxima
+  manutencao.
+- Adicionar teste RED em `completeService` para gravar `proximaData` e criar
+  compromisso mockado.
+- Adicionar teste RED no shell preenchendo a data sem abrir calendario real.
+- Incluir `nextMaintenanceDate` opcional em `ServiceDraft`.
+- Exibir campo opcional de data na etapa de execucao.
+- Propagar a data para revisao, conclusao, relatorio imediato, registro
+  mockado, relatorio reaberto e recentes.
+- Atualizar a matriz de paridade para refletir `Registrar proxima manutencao`
+  como coberto.
+
+### Anti-escopo
+
+- Nao implementar calendario completo.
+- Nao implementar recorrencia avancada, notificacoes, lembretes reais ou push.
+- Nao alterar storage real nem schema persistido real.
+- Nao copiar UI, CSS, template ou shell legado.
+- Nao tocar app legado.
+- Nao mexer em Supabase/RLS, billing, PDF/share, WhatsApp real, PMOC,
+  assinatura, permissoes ou upload/storage.
+- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript.
+- Nao resolver prompt WhatsApp/PDF/fallback neste checkpoint.
+
+### Validacao esperada
+
+- TDD RED antes da implementacao.
+- Testes focados de `serviceFlowViewModel`, `serviceReportViewModel`,
+  `servicesHomeViewModel`, `appV2Actions` e `AppV2Shell`.
+- `npm run format`.
+- `npm run build`.
+- `npm run check`.
+- `npm run format:check`.
+- `git diff --check`.
+
+### Criterio de conclusao
+
+- O draft de Registro de Servico carrega `nextMaintenanceDate`.
+- A etapa de execucao exibe data opcional de proxima manutencao.
+- O campo nao bloqueia conclusao quando vazio.
+- Quando preenchido, o registro mockado recebe `proximaData`.
+- Quando preenchido, a store mockada cria um compromisso preventiva com
+  `origem: "registro"` para o mesmo equipamento.
+- Revisao, conclusao, relatorio imediato, relatorio reaberto e recentes exibem
+  a proxima manutencao.
+
+### Resultado deste checkpoint
+
+- `ServiceDraft` passou a carregar `nextMaintenanceDate` opcional.
+- `ServiceStepExecution` passou a exibir campo opcional `Proxima manutencao`.
+- A revisao e a conclusao exibem a data quando informada e fallback quando
+  vazia.
+- `RegistroServico` do app-v2 recebe `proximaData` no mock local quando a data
+  e preenchida.
+- `completeService` cria compromisso mockado `preventiva` com
+  `origem: "registro"` para o mesmo equipamento.
+- Relatorio imediato, relatorio reaberto e registros recentes preservam a
+  proxima manutencao.
+- Matriz de paridade atualizada: `Registrar proxima manutencao` passou de
+  `parcial` para `coberto`; o prompt legado de proxima preventiva ficou como
+  `parcial`, coberto por compromisso mockado sem prompt legado.
+- Proximo checkpoint recomendado: validacao amigavel de equipamento e data do
+  Registro de Servico no app-v2, sem alterar router, storage real, contratos
+  legados ou areas sensiveis.
+
+### Validacao executada
+
+- TDD RED:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  falhou com 5 testes porque `nextMaintenanceDate`, `proximaData`, compromisso
+  mockado e input `service-next-maintenance` ainda nao existiam.
+- GREEN focado:
+  `npm test -- src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/serviceReportViewModel.test.ts src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/data/appV2Flow.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 5 arquivos e 51 testes antes da validacao completa.
+
+---
+
+## Historico - Custos opcionais
 
 Implementar a proxima lacuna de paridade do Registro de Servico:
 

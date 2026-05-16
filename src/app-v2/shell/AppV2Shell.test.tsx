@@ -348,6 +348,30 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('Parque');
   });
+
+  it('mostra mensagem amigavel quando a data mockada impede concluir o servico', async () => {
+    const host = await renderShell(createAppV2MockSnapshot({ today: '' }));
+
+    await clickButton(host, /Iniciar servi/i);
+    await clickButton(host, /^Continuar$/i);
+    await clickButton(host, /^Preventiva/i);
+    await clickButton(host, /^Continuar$/i);
+
+    const technician = host.querySelector('input[name="service-technician"]');
+    expect(technician).toBeInstanceOf(HTMLInputElement);
+    await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+
+    const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+    await fillTextarea(diagnosis, 'Diagnostico preenchido.');
+    await fillTextarea(actionsDone, 'Acoes preenchidas.');
+
+    await clickButton(host, /^Revisar$/i);
+    await clickButton(host, /^Concluir servi/i);
+
+    expect(host.textContent).toContain('Informe uma data valida para concluir o servico.');
+    expect(host.textContent).toContain('Etapa 4');
+    expect(host.textContent).not.toContain('Servico concluido');
+  });
 });
 
 it('permite registrar pecas usadas sem exigir custo ou orcamento', async () => {
@@ -424,4 +448,41 @@ it('permite registrar custos opcionais sem criar orcamento real', async () => {
   expect(host.textContent).toContain('Custo de mao de obra');
   expect(host.textContent).toContain('250,00');
   expect(host.textContent).not.toContain('Orcamento real');
+});
+
+it('permite registrar proxima manutencao sem abrir calendario real', async () => {
+  const host = await renderShell(createAppV2MockSnapshot({ compromissos: [] }));
+
+  await clickButton(host, /Iniciar servi/i);
+  await clickButton(host, /^Continuar$/i);
+  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Continuar$/i);
+
+  const technician = host.querySelector('input[name="service-technician"]');
+  expect(technician).toBeInstanceOf(HTMLInputElement);
+  await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+
+  const nextMaintenance = host.querySelector('input[name="service-next-maintenance"]');
+  expect(nextMaintenance).toBeInstanceOf(HTMLInputElement);
+
+  const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+  await fillTextarea(diagnosis, 'Filtro saturado.');
+  await fillTextarea(actionsDone, 'Limpeza e substituicao preventiva.');
+  await fillInput(nextMaintenance as HTMLInputElement, '2026-06-10');
+
+  await clickButton(host, /^Revisar$/i);
+
+  expect(host.textContent).toContain('Proxima manutencao');
+  expect(host.textContent).toContain('10/06/2026');
+
+  await clickButton(host, /^Concluir servi/i);
+  await clickButton(host, /^Ver relatorio$/i);
+
+  expect(host.textContent).toContain('Proxima manutencao');
+  expect(host.textContent).toContain('10/06/2026');
+
+  await clickButton(host, /Voltar para Servi/i);
+
+  expect(host.textContent).toContain('10/06');
+  expect(host.textContent).not.toContain('Calendario');
 });

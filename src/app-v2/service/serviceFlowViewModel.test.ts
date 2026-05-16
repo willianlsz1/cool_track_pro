@@ -205,3 +205,26 @@ it('mantem custos opcionais no resumo tecnico sem exigir orcamento', () => {
     laborCost: 'Nao informado',
   });
 });
+
+it('mantem proxima manutencao como campo opcional no resumo tecnico', () => {
+  const draft: ServiceDraft = {
+    equipmentId: 'eq-1',
+    kind: 'preventiva',
+    customKind: '',
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    nextMaintenanceDate: '2026-06-10',
+    finalStatus: 'ok',
+  };
+
+  expect(buildServiceReviewViewModel(input, draft)).toMatchObject({
+    nextMaintenanceLabel: '10/06/2026',
+  });
+  expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(
+    expect.arrayContaining(['Proxima manutencao: 10/06/2026']),
+  );
+  expect(buildServiceReviewViewModel(input, { ...draft, nextMaintenanceDate: '' })).toMatchObject({
+    nextMaintenanceLabel: 'Nao informada',
+  });
+});

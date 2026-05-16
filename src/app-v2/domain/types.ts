@@ -57,6 +57,8 @@ export interface RegistroServico {
   tipoDescricao?: string;
   status: ServiceRecordStatus;
   tecnico: string;
+  diagnostico?: string;
+  acoesExecutadas?: string;
   observacoes?: string;
   pecas?: string;
   custoPecas?: string;

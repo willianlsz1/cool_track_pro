@@ -22,6 +22,7 @@ export interface ServiceDraft {
   partsUsed?: string;
   partsCost?: string;
   laborCost?: string;
+  nextMaintenanceDate?: string;
   finalStatus: ServiceRecordStatus;
 }
 
@@ -68,6 +69,7 @@ export interface ServiceReviewViewModel {
   partsUsed: string;
   partsCost: string;
   laborCost: string;
+  nextMaintenanceLabel: string;
   finalStatusLabel: string;
   finalStatusTone: ServiceTone;
 }
@@ -131,6 +133,7 @@ export function createServiceDraft(
     partsUsed: '',
     partsCost: '',
     laborCost: '',
+    nextMaintenanceDate: '',
     finalStatus: 'ok',
   };
 }
@@ -184,6 +187,7 @@ export function buildServiceReviewViewModel(
     partsUsed: draft.partsUsed?.trim() || 'Sem pecas informadas',
     partsCost: draft.partsCost?.trim() || 'Nao informado',
     laborCost: draft.laborCost?.trim() || 'Nao informado',
+    nextMaintenanceLabel: formatOptionalFullDateLabel(draft.nextMaintenanceDate),
     finalStatusLabel: formatStatusLabel(draft.finalStatus),
     finalStatusTone: mapStatusTone(draft.finalStatus),
   };
@@ -206,6 +210,7 @@ export function buildServiceDoneViewModel(
       `Pecas usadas: ${review.partsUsed}`,
       `Custo de pecas: ${review.partsCost}`,
       `Custo de mao de obra: ${review.laborCost}`,
+      `Proxima manutencao: ${review.nextMaintenanceLabel}`,
       `Status final: ${review.finalStatusLabel}`,
     ],
     disabledOutputs: ['Orçamento', 'Próximo compromisso'],
@@ -339,4 +344,20 @@ function mapStatusTone(status: EquipmentStatus): ServiceTone {
 function formatDateLabel(date: string): string {
   const [, month, day] = date.split('-');
   return `${day}/${month}`;
+}
+
+function formatOptionalFullDateLabel(date: string | undefined): string {
+  const normalizedDate = date?.trim();
+
+  if (!normalizedDate) {
+    return 'Nao informada';
+  }
+
+  const [year, month, day] = normalizedDate.split('-');
+
+  if (!year || !month || !day) {
+    return normalizedDate;
+  }
+
+  return `${day}/${month}/${year}`;
 }

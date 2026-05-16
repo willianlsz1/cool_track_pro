@@ -8,11 +8,17 @@ import type { ServiceReviewViewModel } from './serviceFlowViewModel';
 
 interface ServiceStepReviewProps {
   review: ServiceReviewViewModel;
+  errorMessage?: string | null;
   onBack: () => void;
   onComplete: () => void;
 }
 
-export function ServiceStepReview({ review, onBack, onComplete }: ServiceStepReviewProps) {
+export function ServiceStepReview({
+  review,
+  errorMessage,
+  onBack,
+  onComplete,
+}: ServiceStepReviewProps) {
   return (
     <ServiceStepCard
       eyebrow="Etapa 4"
@@ -37,7 +43,17 @@ export function ServiceStepReview({ review, onBack, onComplete }: ServiceStepRev
         <ServiceInfoBlock label="Pecas usadas" value={review.partsUsed} />
         <ServiceInfoBlock label="Custo de pecas" value={review.partsCost} />
         <ServiceInfoBlock label="Custo de mao de obra" value={review.laborCost} />
+        <ServiceInfoBlock label="Proxima manutencao" value={review.nextMaintenanceLabel} />
       </div>
+
+      {errorMessage ? (
+        <p
+          role="alert"
+          className="tw-m-0 tw-mt-5 tw-rounded-xl tw-border tw-border-[#FCA5A5] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-leading-6 tw-text-[#B91C1C]"
+        >
+          {errorMessage}
+        </p>
+      ) : null}
 
       <ServiceActions
         primaryLabel="Concluir servico"

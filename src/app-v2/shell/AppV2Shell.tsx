@@ -10,6 +10,7 @@ import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNa
 import {
   completeService,
   startServiceFromEquipment as startServiceFlowAction,
+  validateServiceCompletion,
   type AppV2FlowState,
 } from '../data/appV2Actions';
 import { createAppV2MockSnapshot, type AppV2MockSnapshot } from '../data/appV2MockStore';
@@ -121,6 +122,28 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     );
   }
 
+  function validateCurrentService(draft: ServiceDraft): string | null {
+    try {
+      validateServiceCompletion(
+        {
+          ...appState,
+          serviceDraft: draft,
+        },
+        {
+          id: `reg-shell-${appState.registros.length + 1}`,
+          date: appState.today,
+          technician: draft.technician,
+          diagnosis: draft.diagnosis,
+          actionsDone: draft.actionsDone,
+          finalStatus: draft.finalStatus,
+        },
+      );
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel concluir o servico.';
+    }
+  }
+
   return (
     <div className="tw-min-h-screen tw-bg-[#061635] tw-font-sans tw-text-[#061635]">
       <DesktopSidebar activeTab={activeTab} onSelectTab={selectTab} />
@@ -192,6 +215,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             onBackToServices={() => setIsServiceFlowOpen(false)}
             onDraftChange={updateServiceDraft}
             onCompleteService={completeCurrentService}
+            onValidateService={validateCurrentService}
             onOpenEquipment={openEquipment}
           />
         ) : null}

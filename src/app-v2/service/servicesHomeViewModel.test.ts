@@ -193,3 +193,29 @@ it('exibe custos opcionais em registro recente quando informados', () => {
     laborCost: '250,00',
   });
 });
+
+it('exibe proxima manutencao em registro recente quando informada', () => {
+  const input: BuildServicesHomeInput = {
+    ...baseInput,
+    registros: [
+      {
+        id: 'registro-proxima',
+        equipamentoId: 'eq-1',
+        data: '2026-05-10',
+        tipo: 'preventiva',
+        status: 'ok',
+        tecnico: 'Ana Tecnica',
+        observacoes: 'Limpeza preventiva.',
+        proximaData: '2026-06-10',
+      },
+    ],
+  };
+
+  const viewModel = buildServicesHomeViewModel(input, null);
+
+  expect(viewModel.recentServices[0]).toMatchObject({
+    id: 'registro-proxima',
+    nextMaintenanceLabel: '10/06',
+    outputStatus: 'proximo_compromisso_sugerido',
+  });
+});

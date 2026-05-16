@@ -52,6 +52,7 @@ export interface RecentServiceViewModel {
   partsUsed?: string;
   partsCost?: string;
   laborCost?: string;
+  nextMaintenanceLabel?: string;
   outputStatus: ServiceOutputStatus;
 }
 
@@ -110,6 +111,7 @@ function mapRecentService(
     partsUsed: registro.pecas?.trim() || undefined,
     partsCost: registro.custoPecas?.trim() || undefined,
     laborCost: registro.custoMaoObra?.trim() || undefined,
+    nextMaintenanceLabel: registro.proximaData ? formatDateLabel(registro.proximaData) : undefined,
     outputStatus: getOutputStatus(registro),
   };
 }

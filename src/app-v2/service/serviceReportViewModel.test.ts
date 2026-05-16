@@ -102,6 +102,33 @@ describe('serviceReportViewModel', () => {
     );
   });
 
+  it('reabre relatorio usando diagnostico e acoes separados quando o registro possui esses campos', () => {
+    const input = createAppV2MockSnapshot();
+    const report = buildServiceReportViewModelFromRecord(input, {
+      id: 'registro-execucao-separada',
+      equipamentoId: 'eq-1',
+      data: input.today,
+      tipo: 'preventiva',
+      status: 'ok',
+      tecnico: 'Ana Tecnica',
+      diagnostico: 'Serpentina com sujeira acumulada.',
+      acoesExecutadas: 'Limpeza preventiva e teste operacional.',
+      observacoes: 'Serpentina com sujeira acumulada. Limpeza preventiva e teste operacional.',
+    });
+    const flatFields = report.sections.flatMap((section) => section.fields);
+
+    expect(flatFields).toEqual(
+      expect.arrayContaining([
+        { label: 'Diagnostico', value: 'Serpentina com sujeira acumulada.' },
+        { label: 'Acoes executadas', value: 'Limpeza preventiva e teste operacional.' },
+        {
+          label: 'Observacoes',
+          value: 'Serpentina com sujeira acumulada. Limpeza preventiva e teste operacional.',
+        },
+      ]),
+    );
+  });
+
   it('preserva descricao customizada de Outro no relatorio imediato e reaberto', () => {
     const input = createAppV2MockSnapshot();
     const draft = {
@@ -216,5 +243,40 @@ it('exibe custos opcionais no relatorio imediato e reaberto', () => {
       { label: 'Custo de pecas', value: '120,00' },
       { label: 'Custo de mao de obra', value: '250,00' },
     ]),
+  );
+});
+
+it('exibe proxima manutencao no relatorio imediato e reaberto', () => {
+  const input = createAppV2MockSnapshot();
+  const draft = {
+    ...createServiceDraft(input, 'eq-1', 'compromisso-1'),
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    nextMaintenanceDate: '2026-06-10',
+    finalStatus: 'ok' as const,
+  };
+
+  const immediateFields = buildServiceReportViewModel(input, draft).sections.flatMap(
+    (section) => section.fields,
+  );
+
+  expect(immediateFields).toEqual(
+    expect.arrayContaining([{ label: 'Proxima manutencao', value: '10/06/2026' }]),
+  );
+
+  const reopenedFields = buildServiceReportViewModelFromRecord(input, {
+    id: 'registro-proxima',
+    equipamentoId: 'eq-1',
+    data: input.today,
+    tipo: 'preventiva',
+    status: 'ok',
+    tecnico: 'Ana Tecnica',
+    observacoes: 'Limpeza e substituicao preventiva.',
+    proximaData: '2026-06-10',
+  }).sections.flatMap((section) => section.fields);
+
+  expect(reopenedFields).toEqual(
+    expect.arrayContaining([{ label: 'Proxima manutencao', value: '10/06/2026' }]),
   );
 });

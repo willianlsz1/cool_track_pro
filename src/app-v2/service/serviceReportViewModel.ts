@@ -50,6 +50,7 @@ export function buildServiceReportViewModel(
     partsUsed: draft.partsUsed,
     partsCost: draft.partsCost,
     laborCost: draft.laborCost,
+    nextMaintenanceDate: draft.nextMaintenanceDate,
     equipamento,
     cliente,
   });
@@ -67,11 +68,13 @@ export function buildServiceReportViewModelFromRecord(
     kindLabel: registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo),
     status: registro.status,
     technician: registro.tecnico,
-    diagnosis: registro.observacoes ?? '',
-    actionsDone: registro.observacoes ?? '',
+    diagnosis: registro.diagnostico ?? registro.observacoes ?? '',
+    actionsDone: registro.acoesExecutadas ?? registro.observacoes ?? '',
+    observations: registro.observacoes,
     partsUsed: registro.pecas,
     partsCost: registro.custoPecas,
     laborCost: registro.custoMaoObra,
+    nextMaintenanceDate: registro.proximaData,
     equipamento,
     cliente,
   });
@@ -85,9 +88,11 @@ function buildReport({
   technician,
   diagnosis,
   actionsDone,
+  observations,
   partsUsed,
   partsCost,
   laborCost,
+  nextMaintenanceDate,
   equipamento,
   cliente,
 }: {
@@ -98,9 +103,11 @@ function buildReport({
   technician: string;
   diagnosis: string;
   actionsDone: string;
+  observations?: string;
   partsUsed?: string;
   partsCost?: string;
   laborCost?: string;
+  nextMaintenanceDate?: string;
   equipamento: Equipamento;
   cliente?: Cliente;
 }): ServiceReportViewModel {
@@ -162,7 +169,14 @@ function buildReport({
           { label: 'Pecas usadas', value: normalizeText(partsUsed ?? '', 'Nao informado') },
           { label: 'Custo de pecas', value: normalizeText(partsCost ?? '', 'Nao informado') },
           { label: 'Custo de mao de obra', value: normalizeText(laborCost ?? '', 'Nao informado') },
-          { label: 'Observacoes', value: normalizeText(diagnosis, 'Nao informado') },
+          {
+            label: 'Proxima manutencao',
+            value: formatOptionalDateLabel(nextMaintenanceDate),
+          },
+          {
+            label: 'Observacoes',
+            value: normalizeText(observations ?? diagnosis, 'Nao informado'),
+          },
           { label: 'Recomendacoes', value: 'Nao informado' },
         ],
       },
@@ -218,6 +232,16 @@ function mapStatusTone(status: ServiceRecordStatus): ServiceTone {
 function formatDateLabel(date: string): string {
   const [year, month, day] = date.split('-');
   return `${day}/${month}/${year}`;
+}
+
+function formatOptionalDateLabel(date: string | undefined): string {
+  const normalizedDate = date?.trim();
+
+  if (!normalizedDate) {
+    return 'Nao informado';
+  }
+
+  return formatDateLabel(normalizedDate);
 }
 
 function normalizeText(value: string, fallback: string): string {
