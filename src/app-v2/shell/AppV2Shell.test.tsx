@@ -64,6 +64,15 @@ async function fillInput(input: HTMLInputElement, value: string) {
   });
 }
 
+async function selectOption(select: HTMLSelectElement, value: string) {
+  const valueSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
+
+  await act(async () => {
+    valueSetter?.call(select, value);
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+}
+
 describe('AppV2Shell', () => {
   const forbiddenRegulatoryTerm = ['P', 'MOC'].join('');
 
@@ -217,41 +226,36 @@ describe('AppV2Shell', () => {
     expect(host.textContent).not.toContain('Registro de Servico Tecnico');
   });
 
-  it('abre Orcamentos dentro de Servicos com lista mockada sem acoes sensiveis', async () => {
-    const host = await renderShell(
-      createAppV2MockSnapshot({
-        orcamentos: [
-          {
-            id: 'orc-1',
-            numero: 'ORC-2026-001',
-            status: 'rascunho',
-            clienteId: 'cliente-1',
-            equipamentoId: 'eq-1',
-            registroId: 'registro-2',
-            titulo: 'Troca de controlador',
-            total: 1250,
-          },
-        ],
-      }),
-    );
-    const sidebar = host.querySelector('aside[aria-label="Navegacao principal"]');
-    const bottomNav = host.querySelector('nav[aria-label="Navegacao principal"]');
-
-    expect(sidebar?.textContent).not.toContain('Orcamentos');
-    expect(bottomNav?.textContent).not.toContain('Orcamentos');
+  it('filtra Relatorios por periodo, cliente e equipamento com resumo consolidado local', async () => {
+    const host = await renderShell();
 
     await clickButton(host, /^Servi/i);
-    await clickButton(host, /^Orcamentos$/i);
+    await clickButton(host, /^Relatorios$/i);
 
-    expect(host.textContent).toContain('Pipeline local');
-    expect(host.textContent).toContain('ORC-2026-001');
-    expect(host.textContent).toContain('Troca de controlador');
-    expect(host.textContent).toContain('Mercado Bom');
-    expect(host.textContent).toContain('Split 24.000 BTU');
-    expect(host.textContent).toContain('R$ 1.250,00');
+    const period = host.querySelector('select[name="service-report-period-filter"]');
+    const client = host.querySelector('select[name="service-report-client-filter"]');
+    const equipment = host.querySelector('select[name="service-report-equipment-filter"]');
+    expect(period).toBeInstanceOf(HTMLSelectElement);
+    expect(client).toBeInstanceOf(HTMLSelectElement);
+    expect(equipment).toBeInstanceOf(HTMLSelectElement);
+
+    await selectOption(equipment as HTMLSelectElement, 'eq-2');
+
+    const summary = host.querySelector('[data-testid="service-report-summary"]');
+    const list = host.querySelector('[data-testid="service-report-list"]');
+    expect(summary?.textContent).toContain('Resumo consolidado');
+    expect(summary?.textContent).toContain('1');
+    expect(list?.textContent).toContain('REL-REGISTRO-2');
+    expect(list?.textContent).not.toContain('REL-REGISTRO-1');
+
+    await selectOption(equipment as HTMLSelectElement, 'all');
+    await selectOption(client as HTMLSelectElement, 'cliente-2');
+
+    expect(host.querySelector('[data-testid="service-report-list"]')?.textContent).toContain(
+      'REL-REGISTRO-3',
+    );
+    expect(host.textContent).not.toContain('PMOC');
     expect(host.textContent).not.toContain('WhatsApp');
-    expect(host.textContent).not.toContain('PDF');
-    expect(host.textContent).not.toContain('Assinatura');
   });
 
   it('filtra registros recentes em Servicos por busca local', async () => {
@@ -264,12 +268,47 @@ describe('AppV2Shell', () => {
 
     await fillInput(search as HTMLInputElement, 'camara');
 
-    expect(host.textContent).toMatch(/C.mara fria/);
-    expect(host.textContent).not.toContain('Split 24.000 BTU');
+    const results = host.querySelector('[data-testid="service-record-results"]');
+    expect(results?.textContent).toMatch(/C.mara fria/);
+    expect(results?.textContent).not.toContain('Split 24.000 BTU');
 
     await fillInput(search as HTMLInputElement, 'sem resultado');
 
-    expect(host.textContent).toContain('Nenhum registro encontrado');
+    expect(host.querySelector('[data-testid="service-record-results"]')?.textContent).toContain(
+      'Nenhum registro encontrado',
+    );
+  });
+
+  it('filtra registros recentes em Servicos por equipamento, tipo e status', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Servi/i);
+
+    const status = host.querySelector('select[name="service-status-filter"]');
+    const kind = host.querySelector('select[name="service-kind-filter"]');
+    const equipment = host.querySelector('select[name="service-equipment-filter"]');
+    expect(status).toBeInstanceOf(HTMLSelectElement);
+    expect(kind).toBeInstanceOf(HTMLSelectElement);
+    expect(equipment).toBeInstanceOf(HTMLSelectElement);
+
+    await selectOption(status as HTMLSelectElement, 'warn');
+
+    const results = host.querySelector('[data-testid="service-record-results"]');
+    expect(results?.textContent).toMatch(/C.mara fria/);
+    expect(results?.textContent).not.toContain('Split 24.000 BTU');
+
+    await selectOption(status as HTMLSelectElement, 'all');
+    await selectOption(kind as HTMLSelectElement, 'preventiva');
+
+    expect(results?.textContent).toContain('Split 24.000 BTU');
+    expect(results?.textContent).not.toMatch(/C.mara fria/);
+
+    await selectOption(kind as HTMLSelectElement, 'all');
+    await selectOption(equipment as HTMLSelectElement, 'eq-2');
+
+    expect(results?.textContent).toMatch(/C.mara fria/);
+    expect(results?.textContent).not.toContain('Split 24.000 BTU');
+    expect(results?.textContent).not.toContain('Supabase');
   });
 
   it('abre o detalhe de equipamento a partir da lista', async () => {
@@ -489,6 +528,45 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Balcao refrigerado');
     expect(host.textContent).toContain('Padaria Central');
     expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('consulta clientes por busca e filtros operacionais sem criar area global', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+
+    const clientSearch = host.querySelector('input[name="client-search"]');
+    expect(clientSearch).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(clientSearch as HTMLInputElement, 'CAM-001');
+
+    expect(host.textContent).toContain('1 cliente');
+    expect(host.textContent).toContain('Mercado Bom');
+    expect(host.textContent).not.toContain('Industria Frio Sul');
+
+    await fillInput(clientSearch as HTMLInputElement, '');
+    await clickButton(host, /^Com pendencia$/i);
+
+    expect(host.textContent).toContain('1 cliente');
+    expect(host.textContent).toContain('Mercado Bom');
+    expect(host.textContent).not.toContain('Industria Frio Sul');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('mostra relatorio local do cliente sem PMOC, PDF ou WhatsApp real', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Clientes$/i);
+    await clickButton(host, /Mercado Bom/i);
+
+    expect(host.textContent).toContain('Resumo local do cliente');
+    expect(host.textContent).toContain('2 pendencias operacionais');
+    expect(host.textContent).toContain('09/05 - Camara fria');
+    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
+    expect(host.textContent).not.toContain('Enviar WhatsApp');
+    expect(host.textContent).not.toContain('Exportar PDF');
   });
 
   it('inicia e retoma um servico em andamento pelo shell', async () => {
@@ -796,6 +874,40 @@ it('permite registrar custos opcionais sem criar orcamento real', async () => {
   expect(host.textContent).toContain('Custo de mao de obra');
   expect(host.textContent).toContain('250,00');
   expect(host.textContent).not.toContain('Orcamento real');
+});
+
+it('cria orcamento mockado a partir do fechamento do servico', async () => {
+  const host = await renderShell();
+
+  await clickButton(host, /Iniciar servi/i);
+  await clickButton(host, /^Continuar$/i);
+  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Continuar$/i);
+
+  const technician = host.querySelector('input[name="service-technician"]');
+  const partsCost = host.querySelector('input[name="service-parts-cost"]');
+  const laborCost = host.querySelector('input[name="service-labor-cost"]');
+  expect(technician).toBeInstanceOf(HTMLInputElement);
+  expect(partsCost).toBeInstanceOf(HTMLInputElement);
+  expect(laborCost).toBeInstanceOf(HTMLInputElement);
+
+  const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+  await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
+  await fillTextarea(diagnosis, 'Filtro saturado.');
+  await fillTextarea(actionsDone, 'Limpeza e substituicao preventiva.');
+  await fillInput(partsCost as HTMLInputElement, '120,00');
+  await fillInput(laborCost as HTMLInputElement, '250,00');
+
+  await clickButton(host, /^Revisar$/i);
+  await clickButton(host, /^Concluir servi/i);
+  await clickButton(host, /^Criar orcamento mockado$/i);
+
+  expect(host.textContent).toContain('Pipeline local');
+  expect(host.textContent).toMatch(/Orcamento mockado - C.mara fria/);
+  expect(host.textContent).toContain('R$ 370,00');
+  expect(host.textContent).not.toContain('Billing');
+  expect(host.textContent).not.toContain('Supabase');
+  expect(host.textContent).not.toContain('WhatsApp');
 });
 
 it('permite registrar proxima manutencao sem abrir calendario real', async () => {

@@ -7,10 +7,19 @@ import {
 import type { RegistroServico } from '../domain/types';
 import { formatServiceRecordKind } from '../service/serviceFlowViewModel';
 
+export type ClientFilter = 'all' | 'with_pending' | 'critical' | 'without_first_service';
+
+export interface BuildEquipmentClientsListOptions {
+  query?: string;
+  filter?: ClientFilter;
+}
+
 export interface EquipmentClientsListViewModel {
   title: 'Clientes';
   subtitle: 'Base instalada por cliente';
   totalLabel: string;
+  query: string;
+  activeFilter: ClientFilter;
   items: EquipmentClientListItemViewModel[];
 }
 
@@ -20,6 +29,8 @@ export interface EquipmentClientListItemViewModel {
   detailLine: string;
   contactLine: string;
   equipmentCountLabel: string;
+  pendingCountLabel: string;
+  lastServiceLabel: string;
   statusLabel: string;
   statusTone: EquipmentTone;
 }
@@ -36,6 +47,7 @@ export interface EquipmentClientDetailViewModel {
   equipments: EquipmentListItemViewModel[];
   servicesCountLabel: string;
   services: EquipmentClientServiceViewModel[];
+  localReport: EquipmentClientLocalReportViewModel;
 }
 
 export interface EquipmentClientServiceViewModel {
@@ -48,18 +60,31 @@ export interface EquipmentClientServiceViewModel {
   summary: string;
 }
 
+export interface EquipmentClientLocalReportViewModel {
+  title: 'Resumo local do cliente';
+  facts: Array<{ label: string; value: string }>;
+}
+
 export function buildEquipmentClientsListViewModel(
   input: BuildEquipmentViewModelInput,
+  options: BuildEquipmentClientsListOptions = {},
 ): EquipmentClientsListViewModel {
+  const query = options.query?.trim() ?? '';
+  const activeFilter = options.filter ?? 'all';
   const equipmentItems = buildEquipmentListViewModel(input).items;
 
-  const items = input.clientes.map((cliente) => {
+  const allItems = input.clientes.map((cliente) => {
     const equipments = equipmentItems.filter((equipment) =>
       input.equipamentos.some(
         (rawEquipment) => rawEquipment.id === equipment.id && rawEquipment.clienteId === cliente.id,
       ),
     );
+    const rawEquipments = input.equipamentos.filter(
+      (equipment) => equipment.clienteId === cliente.id,
+    );
+    const services = getClientServices(input, equipments);
     const statusTone = getClientStatusTone(equipments);
+    const pendingCount = countOperationalPending(equipments);
 
     return {
       id: cliente.id,
@@ -67,15 +92,52 @@ export function buildEquipmentClientsListViewModel(
       detailLine: cliente.razaoSocial ?? cliente.endereco ?? 'Cliente sem endereco informado',
       contactLine: cliente.contato ?? 'Sem contato informado',
       equipmentCountLabel: formatCount(equipments.length, 'equipamento', 'equipamentos'),
+      pendingCountLabel: formatCount(pendingCount, 'pendencia', 'pendencias'),
+      lastServiceLabel: formatLastServiceLabel(services[0]),
       statusLabel: formatClientStatus(statusTone, equipments.length),
       statusTone,
+      searchText: normalizeSearch(
+        [
+          cliente.nome,
+          cliente.razaoSocial,
+          cliente.documento,
+          cliente.contato,
+          cliente.endereco,
+          ...rawEquipments.flatMap((equipment) => [
+            equipment.nome,
+            equipment.local,
+            equipment.tag,
+            equipment.tipo,
+          ]),
+          ...services.map((service) => service.observacoes),
+        ].join(' '),
+      ),
+      hasPending: pendingCount > 0,
+      hasCritical: equipments.some((equipment) => equipment.statusTone === 'danger'),
+      hasWithoutFirstService: equipments.some(
+        (equipment) => equipment.nextActionTone === 'primary',
+      ),
     };
   });
+  const items = allItems
+    .filter((item) => matchesClientQuery(item, query))
+    .filter((item) => matchesClientFilter(item, activeFilter))
+    .map(
+      ({
+        searchText: _searchText,
+        hasPending: _hasPending,
+        hasCritical: _hasCritical,
+        hasWithoutFirstService: _hasWithoutFirstService,
+        ...item
+      }) => item,
+    );
 
   return {
     title: 'Clientes',
     subtitle: 'Base instalada por cliente',
     totalLabel: formatCount(items.length, 'cliente', 'clientes'),
+    query,
+    activeFilter,
     items,
   };
 }
@@ -96,12 +158,11 @@ export function buildEquipmentClientDetailViewModel(
     ),
   );
   const clientEquipmentIds = new Set(equipmentItems.map((equipment) => equipment.id));
-  const services = input.registros
-    .filter((registro) => clientEquipmentIds.has(registro.equipamentoId))
-    .slice()
-    .sort((a, b) => b.data.localeCompare(a.data))
-    .map((registro) => mapClientService(input, registro));
+  const rawServices = getClientServices(input, equipmentItems);
+  const services = rawServices.map((registro) => mapClientService(input, registro));
   const statusTone = getClientStatusTone(equipmentItems);
+  const pendingCount = countOperationalPending(equipmentItems);
+  const lastService = rawServices[0];
 
   return {
     id: cliente.id,
@@ -123,7 +184,44 @@ export function buildEquipmentClientDetailViewModel(
       'servicos relacionados',
     ),
     services,
+    localReport: {
+      title: 'Resumo local do cliente',
+      facts: [
+        {
+          label: 'Equipamentos',
+          value: formatCount(
+            equipmentItems.length,
+            'equipamento vinculado',
+            'equipamentos vinculados',
+          ),
+        },
+        {
+          label: 'Servicos',
+          value: formatCount(services.length, 'servico relacionado', 'servicos relacionados'),
+        },
+        {
+          label: 'Pendencias',
+          value: formatCount(pendingCount, 'pendencia operacional', 'pendencias operacionais'),
+        },
+        {
+          label: 'Ultimo servico',
+          value: formatLastServiceFact(input, lastService),
+        },
+      ],
+    },
   };
+}
+
+function getClientServices(
+  input: BuildEquipmentViewModelInput,
+  equipmentItems: EquipmentListItemViewModel[],
+): RegistroServico[] {
+  const clientEquipmentIds = new Set(equipmentItems.map((equipment) => equipment.id));
+
+  return input.registros
+    .filter((registro) => clientEquipmentIds.has(registro.equipamentoId))
+    .slice()
+    .sort((a, b) => b.data.localeCompare(a.data));
 }
 
 function mapClientService(
@@ -157,6 +255,43 @@ function getClientStatusTone(equipments: EquipmentListItemViewModel[]): Equipmen
   return 'success';
 }
 
+function countOperationalPending(equipments: EquipmentListItemViewModel[]): number {
+  return equipments.filter(
+    (item) =>
+      item.statusTone === 'danger' ||
+      item.statusTone === 'warning' ||
+      item.nextActionTone === 'danger' ||
+      item.nextActionTone === 'warning',
+  ).length;
+}
+
+function matchesClientQuery(item: { searchText: string }, query: string): boolean {
+  return !query || item.searchText.includes(normalizeSearch(query));
+}
+
+function matchesClientFilter(
+  item: {
+    hasPending: boolean;
+    hasCritical: boolean;
+    hasWithoutFirstService: boolean;
+  },
+  filter: ClientFilter,
+): boolean {
+  if (filter === 'all') {
+    return true;
+  }
+
+  if (filter === 'with_pending') {
+    return item.hasPending;
+  }
+
+  if (filter === 'critical') {
+    return item.hasCritical;
+  }
+
+  return item.hasWithoutFirstService;
+}
+
 function formatClientStatus(tone: EquipmentTone, equipmentCount: number): string {
   if (equipmentCount === 0) {
     return 'Sem equipamentos';
@@ -177,9 +312,39 @@ function formatCount(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+function formatLastServiceLabel(registro: RegistroServico | undefined): string {
+  if (!registro) {
+    return 'Sem servico registrado';
+  }
+
+  return `Ultimo servico em ${formatDateLabel(registro.data)}`;
+}
+
+function formatLastServiceFact(
+  input: BuildEquipmentViewModelInput,
+  registro: RegistroServico | undefined,
+): string {
+  if (!registro) {
+    return 'Sem servico registrado';
+  }
+
+  const equipamento = input.equipamentos.find((item) => item.id === registro.equipamentoId);
+  return `${formatDateLabel(registro.data)} - ${stripDiacritics(
+    equipamento?.nome ?? 'Equipamento nao encontrado',
+  )}`;
+}
+
 function formatDateLabel(date: string): string {
   const [, month, day] = date.split('-');
   return `${day}/${month}`;
+}
+
+function normalizeSearch(value: string): string {
+  return stripDiacritics(value).toLocaleLowerCase('pt-BR');
+}
+
+function stripDiacritics(value: string): string {
+  return value.normalize('NFD').replace(/\p{Diacritic}/gu, '');
 }
 
 function formatServiceStatus(status: RegistroServico['status']): string {

@@ -4,6 +4,7 @@ import { ClientForm } from './ClientForm';
 import type { SaveClientDraft } from './clientActions';
 import {
   buildEquipmentClientsListViewModel,
+  type ClientFilter,
   type EquipmentClientsListViewModel,
 } from './equipmentClientsViewModel';
 import { EquipmentSubViewNav, type EquipmentSubView } from './EquipmentSubViewNav';
@@ -34,6 +35,13 @@ const defaultEquipmentInput: BuildEquipmentViewModelInput = {
   registros: mockEquipmentRegistros,
 };
 
+const clientFilters: Array<{ id: ClientFilter; label: string }> = [
+  { id: 'all', label: 'Todos' },
+  { id: 'with_pending', label: 'Com pendencia' },
+  { id: 'critical', label: 'Criticos' },
+  { id: 'without_first_service', label: 'Sem primeiro servico' },
+];
+
 export function ClientList({
   input,
   activeView,
@@ -42,9 +50,11 @@ export function ClientList({
   onSaveClient,
 }: ClientListProps) {
   const [isCreating, setIsCreating] = useState(false);
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<ClientFilter>('all');
   const viewModel = useMemo<EquipmentClientsListViewModel>(
-    () => buildEquipmentClientsListViewModel(input ?? defaultEquipmentInput),
-    [input],
+    () => buildEquipmentClientsListViewModel(input ?? defaultEquipmentInput, { query, filter }),
+    [filter, input, query],
   );
   const clients = input?.clientes ?? defaultEquipmentInput.clientes;
 
@@ -99,25 +109,72 @@ export function ClientList({
       ) : null}
 
       <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="clients-list-title">
-        <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-5">
-          <div className="tw-min-w-0">
-            <h2
-              id="clients-list-title"
-              className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
-            >
-              Clientes
-            </h2>
-            <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
-              Detalhe do cliente e equipamentos vinculados.
-            </p>
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-p-5">
+          <div className="tw-flex tw-items-center tw-justify-between tw-gap-4">
+            <div className="tw-min-w-0">
+              <h2
+                id="clients-list-title"
+                className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
+              >
+                Clientes
+              </h2>
+              <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+                Detalhe do cliente, equipamentos vinculados e resumo operacional local.
+              </p>
+            </div>
+            <ActionButton onClick={() => setIsCreating(true)}>Novo cliente</ActionButton>
           </div>
-          <ActionButton onClick={() => setIsCreating(true)}>Novo cliente</ActionButton>
+
+          <div className="tw-min-w-0">
+            <label
+              htmlFor="client-search"
+              className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+            >
+              Consulta
+            </label>
+            <input
+              id="client-search"
+              name="client-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar cliente, documento ou equipamento"
+              className={`tw-mt-2 tw-w-full tw-rounded-lg tw-border tw-border-[#D7DEE8] tw-bg-white tw-px-3 tw-py-2 tw-text-sm tw-font-medium ${appV2Tone.text} ${appV2Tone.focus}`}
+            />
+          </div>
+
+          <div className="tw-flex tw-flex-wrap tw-gap-2">
+            {clientFilters.map((item) => {
+              const isActive = item.id === viewModel.activeFilter;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setFilter(item.id)}
+                  className={`tw-rounded-full tw-border tw-px-3 tw-py-2 tw-text-xs tw-font-bold ${appV2Tone.focus} ${
+                    isActive
+                      ? 'tw-border-[#2563EB] tw-bg-[#2563EB] tw-text-white'
+                      : 'tw-border-[#D7DEE8] tw-bg-white tw-text-[#41536B]'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {clients.length === 0 ? (
           <ListRow>
             <p className={`tw-m-0 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
               Nenhum cliente disponivel.
+            </p>
+          </ListRow>
+        ) : viewModel.items.length === 0 ? (
+          <ListRow>
+            <p className={`tw-m-0 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
+              Nenhum cliente encontrado para a consulta atual.
             </p>
           </ListRow>
         ) : (
@@ -134,11 +191,19 @@ export function ClientList({
                   <p className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-medium ${appV2Tone.subtleText}`}>
                     {item.contactLine}
                   </p>
+                  <p
+                    className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-semibold ${appV2Tone.subtleText}`}
+                  >
+                    {item.lastServiceLabel}
+                  </p>
                 </div>
                 <div className="tw-flex tw-shrink-0 tw-flex-col tw-items-end tw-gap-2">
                   <StatusBadge tone={item.statusTone}>{item.statusLabel}</StatusBadge>
                   <span className={`tw-text-xs tw-font-semibold ${appV2Tone.mutedText}`}>
                     {item.equipmentCountLabel}
+                  </span>
+                  <span className={`tw-text-xs tw-font-semibold ${appV2Tone.mutedText}`}>
+                    {item.pendingCountLabel}
                   </span>
                 </div>
               </div>

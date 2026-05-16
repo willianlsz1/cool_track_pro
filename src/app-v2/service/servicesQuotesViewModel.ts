@@ -18,10 +18,21 @@ export interface ServicesQuoteListItemViewModel {
   id: string;
   number: string;
   title: string;
+  status: QuoteStatus;
   customerLine: string;
   equipmentLine: string;
   statusLabel: string;
   statusTone: ServiceHomeTone;
+  totalLabel: string;
+  itemsLabel: string;
+  items: ServicesQuoteItemViewModel[];
+  canEdit: boolean;
+}
+
+export interface ServicesQuoteItemViewModel {
+  description: string;
+  quantity: string;
+  unitValue: string;
   totalLabel: string;
 }
 
@@ -76,6 +87,7 @@ function mapQuoteItem(
     id: orcamento.id,
     number: orcamento.numero,
     title: orcamento.titulo.trim() || 'Orcamento sem titulo',
+    status: orcamento.status,
     customerLine: cliente?.nome ?? 'Sem cliente vinculado',
     equipmentLine: equipamento
       ? `${equipamento.nome} - ${equipamento.local}`
@@ -83,6 +95,15 @@ function mapQuoteItem(
     statusLabel: statusMeta.label,
     statusTone: statusMeta.tone,
     totalLabel: formatCurrency(orcamento.total),
+    itemsLabel: formatItemsLabel(orcamento.itens?.length ?? 0),
+    items:
+      orcamento.itens?.map((item) => ({
+        description: item.descricao,
+        quantity: String(item.quantidade).replace('.', ','),
+        unitValue: formatNumberInput(item.valorUnitario),
+        totalLabel: formatCurrency(item.total),
+      })) ?? [],
+    canEdit: orcamento.status === 'rascunho',
   };
 }
 
@@ -142,4 +163,19 @@ function formatCurrency(value: number): string {
       currency: 'BRL',
     })
     .replace(/\u00a0/g, ' ');
+}
+
+function formatItemsLabel(count: number): string {
+  if (count === 0) {
+    return 'Sem itens locais';
+  }
+
+  return `${count} ${count === 1 ? 'item local' : 'itens locais'}`;
+}
+
+function formatNumberInput(value: number): string {
+  return value.toLocaleString('pt-BR', {
+    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
 }

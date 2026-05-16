@@ -856,3 +856,276 @@ Testes executados neste checkpoint:
 > Clientes fase 5: mapear filtros/consulta dedicada por Cliente ou relatorio
 > local por Cliente antes de qualquer nova UI, sem PMOC, storage real,
 > Supabase/RLS, router novo, PDF/share ou WhatsApp real.
+
+## 54. Checkpoint concluido - Clientes fase 5 consulta e relatorio local
+
+O app-v2 passou a cobrir a fatia segura de consulta operacional por Cliente:
+
+- contrato documental criado em
+  `docs/rewrite/clientes-fase-5-consulta-relatorio-local.md`;
+- `Equipamentos > Clientes` ganhou busca local por Cliente, documento, contato,
+  endereco, equipamento vinculado e texto de servico relacionado;
+- filtros locais adicionados: todos, com pendencia, criticos e sem primeiro
+  servico;
+- detalhe de Cliente ganhou `Resumo local do cliente` com equipamentos,
+  servicos, pendencias e ultimo servico;
+- Cliente continua subvisao forte dentro de Equipamentos, sem virar quinta area
+  global;
+- nenhuma integracao sensivel foi tocada: PMOC, storage real, Supabase/RLS,
+  migrations, PDF/share, WhatsApp real, billing, upload e CSS legado ficaram
+  fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/equipment/equipmentClientsViewModel.test.ts --run`
+  falhou por ausencia de `query`, filtros e `localReport`.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou por ausencia
+  de `client-search` e do resumo local.
+- GREEN:
+  `npm test -- src/app-v2/equipment/equipmentClientsViewModel.test.ts --run`
+  passou com 6 testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 31
+  testes.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/equipment/equipmentClientsViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 37 testes.
+- Validacao geral:
+  `npm run typecheck -- --pretty false`, `git diff --check` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 55. Proximo checkpoint recomendado
+
+> Historico/filtros em `Servicos > Registros`, ainda mock/local, sem storage
+> real, PMOC, PDF/share ou WhatsApp real.
+
+## 56. Checkpoint concluido - Servicos Registros filtros locais
+
+O app-v2 passou a cobrir a fatia segura de filtros locais do historico de
+servicos:
+
+- contrato documental criado em
+  `docs/rewrite/servicos-registros-filtros-app-v2.md`;
+- `servicesHomeViewModel` filtra registros por periodo, cliente, equipamento,
+  tipo/status e busca textual;
+- `ServicesHome` exibe controles simples para esses filtros dentro de
+  `Servicos > Registros`;
+- as opcoes de cliente/equipamento sao derivadas do snapshot mockado atual;
+- nenhuma integracao sensivel foi tocada: storage real, Supabase/RLS,
+  migrations, PMOC, PDF/share real, WhatsApp real, billing, assinatura e quotas
+  ficaram fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/service/servicesHomeViewModel.test.ts --run` falhou
+  por ausencia do contrato de filtros.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou por ausencia
+  dos selects de filtro.
+- GREEN:
+  `npm test -- src/app-v2/service/servicesHomeViewModel.test.ts --run` passou
+  com 10 testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 32
+  testes.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/service/servicesHomeViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 42 testes.
+- Validacao geral:
+  `npm run typecheck -- --pretty false`, `git diff --check` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 57. Proximo checkpoint recomendado
+
+> Relatorios locais consolidados por periodo/equipamento/cliente, ainda
+> mock/local, sem PDF/share real, storage real, Supabase/RLS, PMOC ou WhatsApp
+> real.
+
+## 58. Checkpoint concluido - Relatorios consolidados locais
+
+O app-v2 passou a cobrir a fatia segura de relatorios consolidados locais:
+
+- contrato documental criado em
+  `docs/rewrite/relatorios-consolidados-locais-app-v2.md`;
+- `servicesReportsViewModel` aceita filtros por periodo, cliente e equipamento;
+- `ServiceReportsHome` exibe controles simples para esses filtros dentro de
+  `Servicos > Relatorios`;
+- o resumo consolidado local reflete somente o recorte filtrado;
+- preview e impressao local por registro foram preservados;
+- nenhuma integracao sensivel foi tocada: PDF/share real, WhatsApp real,
+  storage real, Supabase/RLS, migrations, PMOC, billing, assinatura e quotas
+  ficaram fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/service/servicesReportsViewModel.test.ts --run`
+  falhou porque o view model ainda tratava filtros como string de busca.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou por ausencia
+  dos selects de filtro em Relatorios.
+- GREEN:
+  `npm test -- src/app-v2/service/servicesReportsViewModel.test.ts --run`
+  passou com 8 testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 33
+  testes.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/service/servicesReportsViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 41 testes.
+- Validacao geral:
+  `npm run typecheck -- --pretty false`, `git diff --check` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 59. Proximo checkpoint recomendado
+
+> Orcamentos mock/action a partir do fechamento de servico, ainda local e sem
+> billing, assinatura, PDF/share real, WhatsApp real, storage real ou Supabase.
+
+## 60. Checkpoint concluido - Orcamentos mock/action pos-fechamento
+
+O app-v2 passou a cobrir a primeira acao mockada de orcamento a partir do
+fechamento de servico:
+
+- contrato documental criado em
+  `docs/rewrite/orcamentos-mock-action-pos-fechamento-app-v2.md`;
+- `createQuoteFromServiceRecord` cria orcamento local em rascunho a partir de
+  registro concluido;
+- o orcamento fica vinculado a registro, equipamento e cliente quando
+  disponiveis;
+- o total inicial soma custos locais de pecas e mao de obra;
+- `Servico concluido` ganhou CTA `Criar orcamento mockado`;
+- apos criar, o shell abre `Servicos > Orcamentos` com o novo item no pipeline
+  local;
+- nenhuma integracao sensivel foi tocada: billing, assinatura, PDF/share real,
+  WhatsApp real, storage real, Supabase/RLS, migrations e PMOC ficaram fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` falhou porque
+  `createQuoteFromServiceRecord` ainda nao existia.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou por ausencia
+  do botao `Criar orcamento mockado`.
+- GREEN:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` passou com 21 testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 34
+  testes.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/servicesQuotesViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 67 testes.
+- Validacao geral:
+  `npm run typecheck -- --pretty false`, `git diff --check` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 61. Proximo checkpoint recomendado
+
+> Orcamentos fase 2: edicao local basica do rascunho mockado, ainda sem
+> billing, assinatura, PDF/share real, WhatsApp real, storage real,
+> Supabase/RLS, PMOC ou migrations.
+
+## 62. Checkpoint concluido - Orcamentos fase 2 edicao local basica
+
+O app-v2 passou a cobrir a edicao local basica de rascunho de orcamento:
+
+- contrato documental criado em
+  `docs/rewrite/orcamentos-fase-2-edicao-local-app-v2.md`;
+- `updateQuoteDraft` atualiza titulo, total e status de um orcamento local em
+  `rascunho`;
+- a action rejeita orcamento inexistente, titulo vazio e orcamento que ja nao
+  esteja em `rascunho`;
+- `servicesQuotesViewModel` passou a indicar quais itens podem ser editados;
+- `Servicos > Orcamentos` ganhou formulario minimo para editar rascunhos locais;
+- nenhuma integracao sensivel foi tocada: billing, assinatura, PDF/share real,
+  WhatsApp real, storage real, Supabase/RLS, migrations e PMOC ficaram fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` falhou porque
+  `updateQuoteDraft` ainda nao existia.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou por ausencia
+  do botao `Editar orcamento`.
+- GREEN:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` passou com 22 testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 35
+  testes.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/servicesQuotesViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx --run`
+  passou com 69 testes.
+- Validacao geral:
+  `npm run typecheck -- --pretty false`, `git diff --check` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 63. Proximo checkpoint recomendado
+
+> Orcamentos fase 3: itens locais simples do rascunho mockado, ainda sem
+> billing, assinatura, PDF/share real, WhatsApp real, storage real,
+> Supabase/RLS, PMOC ou migrations.
+
+## 64. Checkpoint concluido - Orcamentos fase 3 itens locais simples
+
+O app-v2 passou a cobrir itens locais simples em rascunho de orcamento:
+
+- contrato documental criado em
+  `docs/rewrite/orcamentos-fase-3-itens-locais-app-v2.md`;
+- `Orcamento` passou a aceitar `itens` locais simples no contrato mockado;
+- `updateQuoteDraft` normaliza descricao, quantidade, valor unitario e total do
+  item;
+- o total do rascunho passa a ser recalculado pela soma dos itens quando houver
+  itens;
+- `servicesQuotesViewModel` expõe contagem e itens formatados para a UI;
+- `Servicos > Orcamentos` permite adicionar item local no formulario de edicao
+  de rascunho;
+- testes de shell de Orcamentos foram separados em
+  `src/app-v2/shell/AppV2ShellQuotes.test.tsx` para manter
+  `AppV2Shell.test.tsx` abaixo de 1000 linhas;
+- nenhuma integracao sensivel foi tocada: billing, assinatura, PDF/share real,
+  WhatsApp real, storage real, Supabase/RLS, migrations e PMOC ficaram fora.
+
+Testes executados neste checkpoint:
+
+- RED:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` falhou porque
+  `updateQuoteDraft` ainda ignorava `items` e nao recalculava o total.
+- RED:
+  `npm test -- src/app-v2/service/servicesQuotesViewModel.test.ts --run`
+  falhou porque o view model ainda nao expunha `itemsLabel`.
+- RED:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` falhou por ausencia
+  dos inputs de item local.
+- GREEN:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts --run` passou com 23 testes.
+- GREEN:
+  `npm test -- src/app-v2/service/servicesQuotesViewModel.test.ts --run`
+  passou com 2 testes.
+- GREEN:
+  `npm test -- src/app-v2/shell/AppV2Shell.test.tsx --run` passou com 36
+  testes.
+- Validacao parcial:
+  `npm run typecheck -- --pretty false` passou.
+- Validacao focada pos-formatacao:
+  `npm test -- src/app-v2/data/appV2Flow.test.ts src/app-v2/service/serviceFlowViewModel.test.ts src/app-v2/service/servicesQuotesViewModel.test.ts src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/shell/AppV2ShellQuotes.test.tsx --run`
+  passou com 71 testes.
+- Validacao geral:
+  `npm run typecheck -- --pretty false`, `git diff --check` e
+  `npm run check` passaram. `npm run check` manteve 1 warning ESLint conhecido
+  em `src/domain/pdf/shareReport.js` e warnings Vite/chunk conhecidos.
+
+## 65. Proximo checkpoint recomendado
+
+> Configuracoes/Conta fase 1: mapear preferencias operacionais simples e
+> documentar contrato mock/local antes de implementar a UI, ainda sem billing,
+> assinatura, storage real, Supabase/RLS, PMOC, PDF/share ou migrations.

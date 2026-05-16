@@ -1,9 +1,11 @@
 import { createAppV2MockSnapshot } from './appV2MockStore';
 import {
   completeService,
+  createQuoteFromServiceRecord,
   registerEquipment,
   scheduleNextCommitment,
   startServiceFromEquipment,
+  updateQuoteDraft,
   updateServiceRecord,
 } from './appV2Actions';
 import {
@@ -525,6 +527,109 @@ it('preserva custos opcionais quando conclui servico sem criar orcamento', () =>
     custoMaoObra: '250,00',
   });
   expect(completed.orcamentos).toHaveLength(started.orcamentos.length);
+});
+
+it('cria orcamento mockado a partir de registro concluido sem billing ou storage real', () => {
+  const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
+  const withCosts = {
+    ...started,
+    serviceDraft: {
+      ...started.serviceDraft!,
+      partsCost: '120,00',
+      laborCost: '250,00',
+    },
+  };
+  const completed = completeService(withCosts, {
+    id: 'registro-orcamento',
+    date: started.today,
+    technician: 'Ana Tecnica',
+    diagnosis: 'Filtro saturado.',
+    actionsDone: 'Limpeza e substituicao preventiva.',
+    finalStatus: 'warn',
+  });
+
+  const quoted = createQuoteFromServiceRecord(completed, {
+    id: 'orcamento-registro-orcamento',
+    recordId: 'registro-orcamento',
+  });
+
+  expect(quoted.orcamentos[0]).toMatchObject({
+    id: 'orcamento-registro-orcamento',
+    numero: 'ORC-2026-002',
+    status: 'rascunho',
+    clienteId: 'cliente-1',
+    equipamentoId: 'eq-1',
+    registroId: 'registro-orcamento',
+    titulo: 'Orcamento mockado - Split 24.000 BTU',
+    total: 370,
+  });
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('Supabase');
+});
+
+it('edita rascunho de orcamento mockado sem tocar billing ou storage real', () => {
+  const state = createAppV2MockSnapshot();
+
+  const edited = updateQuoteDraft(state, {
+    id: 'orcamento-1',
+    title: 'Troca revisada do controlador',
+    total: '1480,50',
+    status: 'enviado',
+  });
+
+  expect(edited.orcamentos.find((item) => item.id === 'orcamento-1')).toMatchObject({
+    id: 'orcamento-1',
+    titulo: 'Troca revisada do controlador',
+    total: 1480.5,
+    status: 'enviado',
+  });
+  expect(JSON.stringify(edited.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(edited.orcamentos[0])).not.toContain('Supabase');
+});
+
+it('recalcula rascunho de orcamento mockado a partir de itens locais simples', () => {
+  const state = createAppV2MockSnapshot();
+
+  const edited = updateQuoteDraft(state, {
+    id: 'orcamento-1',
+    title: 'Troca de controlador com itens',
+    total: '0',
+    status: 'rascunho',
+    items: [
+      {
+        description: 'Controlador digital',
+        quantity: '1',
+        unitValue: '980,00',
+      },
+      {
+        description: 'Mao de obra',
+        quantity: '2',
+        unitValue: '150,00',
+      },
+    ],
+  });
+
+  expect(edited.orcamentos.find((item) => item.id === 'orcamento-1')).toMatchObject({
+    id: 'orcamento-1',
+    titulo: 'Troca de controlador com itens',
+    total: 1280,
+    itens: [
+      {
+        descricao: 'Controlador digital',
+        quantidade: 1,
+        valorUnitario: 980,
+        total: 980,
+      },
+      {
+        descricao: 'Mao de obra',
+        quantidade: 2,
+        valorUnitario: 150,
+        total: 300,
+      },
+    ],
+  });
+  expect(JSON.stringify(edited.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(edited.orcamentos[0])).not.toContain('Supabase');
 });
 
 it('preserva proxima manutencao e cria compromisso mockado ao concluir servico', () => {

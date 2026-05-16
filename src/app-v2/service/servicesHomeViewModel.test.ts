@@ -54,6 +54,15 @@ const baseInput: BuildServicesHomeInput = {
       tecnico: 'Técnico',
       observacoes: 'Ruído no compressor e orientação ao cliente.',
     },
+    {
+      id: 'registro-3',
+      equipamentoId: 'eq-1',
+      data: '2026-04-20',
+      tipo: 'visita',
+      status: 'danger',
+      tecnico: 'Técnico',
+      observacoes: 'Visita antiga com falha recorrente.',
+    },
   ] satisfies RegistroServico[],
   orcamentos: [],
 };
@@ -111,17 +120,52 @@ describe('servicesHomeViewModel', () => {
     expect(viewModel.recentServices.map((item) => item.outputStatus)).toEqual([
       'proximo_compromisso_sugerido',
       'orcamento_sugerido',
+      'orcamento_sugerido',
     ]);
   });
 
   it('filtra registros por equipamento, cliente, tecnico e texto', () => {
-    expect(buildServicesHomeViewModel(baseInput, null, 'camara').recentServices).toHaveLength(1);
-    expect(buildServicesHomeViewModel(baseInput, null, 'ruido').recentServices[0]?.id).toBe(
-      'registro-2',
-    );
-    expect(buildServicesHomeViewModel(baseInput, null, 'mercado').recentServices).toHaveLength(2);
-    expect(buildServicesHomeViewModel(baseInput, null, 'tecnico').recentServices).toHaveLength(2);
-    expect(buildServicesHomeViewModel(baseInput, null, 'sem resultado').recentServices).toEqual([]);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { query: 'camara' }).recentServices,
+    ).toHaveLength(1);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { query: 'ruido' }).recentServices[0]?.id,
+    ).toBe('registro-2');
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { query: 'mercado' }).recentServices,
+    ).toHaveLength(3);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { query: 'tecnico' }).recentServices,
+    ).toHaveLength(3);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { query: 'sem resultado' }).recentServices,
+    ).toEqual([]);
+  });
+
+  it('filtra registros por periodo, cliente, equipamento, tipo e status', () => {
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { period: 'last_7_days' }).recentServices.map(
+        (item) => item.id,
+      ),
+    ).toEqual(['registro-1', 'registro-2']);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { clientId: 'cliente-1' }).recentServices,
+    ).toHaveLength(3);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { equipmentId: 'eq-2' }).recentServices.map(
+        (item) => item.id,
+      ),
+    ).toEqual(['registro-2']);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { kind: 'visita' }).recentServices.map(
+        (item) => item.id,
+      ),
+    ).toEqual(['registro-3']);
+    expect(
+      buildServicesHomeViewModel(baseInput, null, { status: 'warn' }).recentServices.map(
+        (item) => item.id,
+      ),
+    ).toEqual(['registro-2']);
   });
 
   it('usa descricao customizada de Outro nos registros recentes', () => {

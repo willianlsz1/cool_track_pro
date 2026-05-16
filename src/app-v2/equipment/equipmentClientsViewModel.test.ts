@@ -32,6 +32,41 @@ describe('buildEquipmentClientsListViewModel', () => {
       statusTone: 'danger',
     });
   });
+
+  it('filtra clientes por busca operacional incluindo documento e equipamento vinculado', () => {
+    const input = createInput();
+    const viewModel = buildEquipmentClientsListViewModel(
+      {
+        ...input,
+        clientes: input.clientes.map((cliente) =>
+          cliente.id === 'cliente-1' ? { ...cliente, documento: '12.345.678/0001-90' } : cliente,
+        ),
+      },
+      { query: 'CAM-001' },
+    );
+
+    expect(viewModel.query).toBe('CAM-001');
+    expect(viewModel.totalLabel).toBe('1 cliente');
+    expect(viewModel.items.map((item) => item.id)).toEqual(['cliente-1']);
+    expect(viewModel.items[0]).toMatchObject({
+      pendingCountLabel: '2 pendencias',
+      lastServiceLabel: 'Ultimo servico em 09/05',
+    });
+  });
+
+  it('filtra clientes por pendencia, criticidade e equipamento sem primeiro servico', () => {
+    const input = createInput();
+
+    const pending = buildEquipmentClientsListViewModel(input, { filter: 'with_pending' });
+    const critical = buildEquipmentClientsListViewModel(input, { filter: 'critical' });
+    const firstService = buildEquipmentClientsListViewModel(input, {
+      filter: 'without_first_service',
+    });
+
+    expect(pending.items.map((item) => item.id)).toEqual(['cliente-1']);
+    expect(critical.items.map((item) => item.id)).toEqual(['cliente-1']);
+    expect(firstService.items.map((item) => item.id)).toEqual(['cliente-1']);
+  });
 });
 
 describe('buildEquipmentClientDetailViewModel', () => {
@@ -55,5 +90,19 @@ describe('buildEquipmentClientDetailViewModel', () => {
       summary: 'Alarme intermitente no controlador.',
     });
     expect(detail.servicesCountLabel).toBe('2 servicos relacionados');
+  });
+
+  it('monta resumo operacional local do cliente sem PMOC ou integracao sensivel', () => {
+    const detail = buildEquipmentClientDetailViewModel(createInput(), 'cliente-1');
+
+    expect(detail.localReport.title).toBe('Resumo local do cliente');
+    expect(detail.localReport.facts).toEqual([
+      { label: 'Equipamentos', value: '3 equipamentos vinculados' },
+      { label: 'Servicos', value: '2 servicos relacionados' },
+      { label: 'Pendencias', value: '2 pendencias operacionais' },
+      { label: 'Ultimo servico', value: '09/05 - Camara fria' },
+    ]);
+    expect(JSON.stringify(detail.localReport)).not.toContain('PMOC');
+    expect(JSON.stringify(detail.localReport)).not.toContain('Supabase');
   });
 });

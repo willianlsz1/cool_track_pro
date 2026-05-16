@@ -51,6 +51,8 @@ const input: BuildServicesHomeInput = {
       status: 'ok',
       tecnico: 'Tecnico',
       observacoes: 'Limpeza preventiva concluida.',
+      custoPecas: '120,00',
+      custoMaoObra: '250,00',
     },
     {
       id: 'registro-2',
@@ -60,6 +62,8 @@ const input: BuildServicesHomeInput = {
       status: 'warn',
       tecnico: 'Tecnico',
       observacoes: 'Ruido no compressor.',
+      custoPecas: '30,50',
+      custoMaoObra: '100,00',
     },
     {
       id: 'registro-3',
@@ -114,6 +118,41 @@ describe('servicesReportsViewModel', () => {
     expect(buildServicesReportsViewModel(input, 'corretiva').items.map((item) => item.id)).toEqual([
       'registro-2',
     ]);
+  });
+
+  it('filtra relatorios por periodo, cliente e equipamento com resumo consolidado local', () => {
+    const currentMonthForClient = buildServicesReportsViewModel(input, {
+      period: 'current_month',
+      clientId: 'cliente-1',
+    });
+
+    expect(currentMonthForClient.items.map((item) => item.id)).toEqual([
+      'registro-1',
+      'registro-2',
+    ]);
+    expect(currentMonthForClient.summary).toMatchObject({
+      title: 'Resumo consolidado',
+      totalReports: 2,
+      readyReports: 1,
+      attentionReports: 1,
+      pendingReports: 0,
+      partsCostTotal: 'R$ 150,50',
+      laborCostTotal: 'R$ 350,00',
+    });
+    expect(currentMonthForClient.filterOptions.clients).toEqual([
+      { id: 'cliente-1', label: 'Mercado Bom Preco' },
+      { id: 'cliente-2', label: 'Industria Frio Sul' },
+    ]);
+    expect(currentMonthForClient.activeFilters).toMatchObject({
+      period: 'current_month',
+      clientId: 'cliente-1',
+      equipmentId: 'all',
+      query: '',
+    });
+
+    expect(
+      buildServicesReportsViewModel(input, { equipmentId: 'eq-3' }).items.map((item) => item.id),
+    ).toEqual(['registro-3']);
   });
 
   it('usa descricao customizada de Outro na lista e na busca de relatorios', () => {

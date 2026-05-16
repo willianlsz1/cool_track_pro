@@ -111,6 +111,31 @@ export function ClientDetail({
         </div>
       )}
 
+      <SectionCard labelledBy="client-local-report-title">
+        <div className="tw-flex tw-items-start tw-justify-between tw-gap-4">
+          <div className="tw-min-w-0">
+            <h2
+              id="client-local-report-title"
+              className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
+            >
+              {detail.localReport.title}
+            </h2>
+            <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+              Leitura operacional mockada, sem exportacao ou integracao real.
+            </p>
+          </div>
+          <StatusBadge tone={detail.statusTone} className="tw-shrink-0">
+            {detail.statusLabel}
+          </StatusBadge>
+        </div>
+
+        <dl className="tw-mt-5 tw-grid tw-gap-3 sm:tw-grid-cols-2">
+          {detail.localReport.facts.map((fact) => (
+            <InfoRow key={fact.label} label={fact.label} value={fact.value} />
+          ))}
+        </dl>
+      </SectionCard>
+
       <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="client-equipment-title">
         <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-p-5">
           <div className="tw-min-w-0">

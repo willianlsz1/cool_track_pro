@@ -4,30 +4,48 @@ import { appV2Tone } from '../styles/tokens';
 import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
 import { RecentServiceCard } from './RecentServiceCard';
 import { ServiceInProgressCard } from './ServiceInProgressCard';
-import { ServicesQuotesHome } from './ServicesQuotesHome';
+import { ServicesQuotesHome, type QuoteEditDraft } from './ServicesQuotesHome';
 import { ServiceReportsHome } from './ServiceReportsHome';
 import type { ServiceDraft } from './serviceFlowViewModel';
-import { buildServicesHomeViewModel, type BuildServicesHomeInput } from './servicesHomeViewModel';
+import {
+  buildServicesHomeViewModel,
+  type BuildServicesHomeFilters,
+  type BuildServicesHomeInput,
+} from './servicesHomeViewModel';
 import { ServicesSubViewNav, type ServicesSubView } from './ServicesSubViewNav';
 
 interface ServicesHomeProps {
   draft: ServiceDraft | null;
+  initialView?: ServicesSubView;
   input: BuildServicesHomeInput;
   onResumeService: () => void;
   onStartService: () => void;
   onEditService?: (serviceId: string) => void;
+  onSaveQuote?: (draft: QuoteEditDraft) => string | null;
 }
 
 export function ServicesHome({
   draft,
+  initialView = 'registros',
   input,
   onResumeService,
   onStartService,
   onEditService,
+  onSaveQuote,
 }: ServicesHomeProps) {
-  const [activeView, setActiveView] = useState<ServicesSubView>('registros');
-  const [serviceQuery, setServiceQuery] = useState('');
-  const viewModel = buildServicesHomeViewModel(input, draft, serviceQuery);
+  const [activeView, setActiveView] = useState<ServicesSubView>(initialView);
+  const [serviceFilters, setServiceFilters] = useState<BuildServicesHomeFilters>({});
+  const viewModel = buildServicesHomeViewModel(input, draft, serviceFilters);
+
+  function updateServiceFilter<Key extends keyof BuildServicesHomeFilters>(
+    key: Key,
+    value: BuildServicesHomeFilters[Key],
+  ) {
+    setServiceFilters((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  }
 
   if (activeView === 'relatorios') {
     return (
@@ -42,7 +60,12 @@ export function ServicesHome({
 
   if (activeView === 'orcamentos') {
     return (
-      <ServicesQuotesHome activeView={activeView} input={input} onSelectView={setActiveView} />
+      <ServicesQuotesHome
+        activeView={activeView}
+        input={input}
+        onSaveQuote={onSaveQuote}
+        onSelectView={setActiveView}
+      />
     );
   }
 
@@ -107,27 +130,101 @@ export function ServicesHome({
           <span className="tw-sr-only">Buscar registros</span>
           <input
             aria-label="Buscar registros"
-            value={serviceQuery}
-            onChange={(event) => setServiceQuery(event.target.value)}
+            value={viewModel.activeFilters.query}
+            onChange={(event) => updateServiceFilter('query', event.target.value)}
             placeholder="Buscar equipamento, cliente, tecnico ou registro"
             className={`tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
           />
         </label>
 
+        <div className="tw-mt-4 tw-grid tw-gap-3 sm:tw-grid-cols-2 lg:tw-grid-cols-5">
+          <FilterSelect
+            label="Periodo"
+            name="service-period-filter"
+            value={viewModel.activeFilters.period}
+            onChange={(value) =>
+              updateServiceFilter('period', value as BuildServicesHomeFilters['period'])
+            }
+            options={[
+              { value: 'all', label: 'Todo periodo' },
+              { value: 'last_7_days', label: 'Ultimos 7 dias' },
+              { value: 'current_month', label: 'Mes atual' },
+            ]}
+          />
+          <FilterSelect
+            label="Cliente"
+            name="service-client-filter"
+            value={viewModel.activeFilters.clientId}
+            onChange={(value) => updateServiceFilter('clientId', value)}
+            options={[
+              { value: 'all', label: 'Todos clientes' },
+              ...viewModel.filterOptions.clients.map((client) => ({
+                value: client.id,
+                label: client.label,
+              })),
+            ]}
+          />
+          <FilterSelect
+            label="Equipamento"
+            name="service-equipment-filter"
+            value={viewModel.activeFilters.equipmentId}
+            onChange={(value) => updateServiceFilter('equipmentId', value)}
+            options={[
+              { value: 'all', label: 'Todos equipamentos' },
+              ...viewModel.filterOptions.equipments.map((equipment) => ({
+                value: equipment.id,
+                label: equipment.label,
+              })),
+            ]}
+          />
+          <FilterSelect
+            label="Tipo"
+            name="service-kind-filter"
+            value={viewModel.activeFilters.kind}
+            onChange={(value) =>
+              updateServiceFilter('kind', value as BuildServicesHomeFilters['kind'])
+            }
+            options={[
+              { value: 'all', label: 'Todos tipos' },
+              { value: 'preventiva', label: 'Preventiva' },
+              { value: 'corretiva', label: 'Corretiva' },
+              { value: 'instalacao', label: 'Instalacao' },
+              { value: 'visita', label: 'Visita' },
+              { value: 'outro', label: 'Outro' },
+            ]}
+          />
+          <FilterSelect
+            label="Status"
+            name="service-status-filter"
+            value={viewModel.activeFilters.status}
+            onChange={(value) =>
+              updateServiceFilter('status', value as BuildServicesHomeFilters['status'])
+            }
+            options={[
+              { value: 'all', label: 'Todos status' },
+              { value: 'ok', label: 'Operacional' },
+              { value: 'warn', label: 'Atencao' },
+              { value: 'danger', label: 'Critico' },
+            ]}
+          />
+        </div>
+
         {viewModel.recentServices.length > 0 ? (
-          <div className="tw-mt-4 tw-grid tw-gap-3">
+          <div data-testid="service-record-results" className="tw-mt-4 tw-grid tw-gap-3">
             {viewModel.recentServices.map((service) => (
               <RecentServiceCard key={service.id} service={service} onEditService={onEditService} />
             ))}
           </div>
-        ) : serviceQuery.trim() ? (
+        ) : hasActiveServiceFilters(viewModel.activeFilters) ? (
           <p
+            data-testid="service-record-results"
             className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
           >
             Nenhum registro encontrado.
           </p>
         ) : (
           <p
+            data-testid="service-record-results"
             className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
           >
             Registros recentes aparecerão aqui depois do primeiro atendimento.
@@ -135,6 +232,53 @@ export function ServicesHome({
         )}
       </SectionCard>
     </PageShell>
+  );
+}
+
+function hasActiveServiceFilters(filters: Required<BuildServicesHomeFilters>): boolean {
+  return (
+    filters.query.trim().length > 0 ||
+    filters.period !== 'all' ||
+    filters.clientId !== 'all' ||
+    filters.equipmentId !== 'all' ||
+    filters.kind !== 'all' ||
+    filters.status !== 'all'
+  );
+}
+
+function FilterSelect({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <label className="tw-block">
+      <span
+        className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+      >
+        {label}
+      </span>
+      <select
+        name={name}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`tw-mt-2 tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 

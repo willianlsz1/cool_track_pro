@@ -25,6 +25,7 @@ interface ServiceFlowProps {
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
   onCompleteService: (draft: ServiceDraft) => void;
+  onCreateQuoteFromCompletedService: (draft: ServiceDraft) => void;
   onValidateService?: (draft: ServiceDraft) => string | null;
   onChangeEquipment?: () => void;
   onOpenEquipment: (equipmentId: string) => void;
@@ -38,6 +39,7 @@ export function ServiceFlow({
   onBackToServices,
   onDraftChange,
   onCompleteService,
+  onCreateQuoteFromCompletedService,
   onValidateService,
   onChangeEquipment,
   onOpenEquipment,
@@ -95,6 +97,10 @@ export function ServiceFlow({
   function finishAndOpenEquipment() {
     onCompleteService(draft);
     onOpenEquipment(draft.equipmentId);
+  }
+
+  function finishAndCreateQuote() {
+    onCreateQuoteFromCompletedService(draft);
   }
 
   return (
@@ -169,6 +175,7 @@ export function ServiceFlow({
           done={buildServiceDoneViewModel(input, draft)}
           report={buildServiceReportViewModel(input, draft)}
           onBackToServices={finishAndBackToServices}
+          onCreateQuote={finishAndCreateQuote}
           onOpenEquipment={finishAndOpenEquipment}
         />
       ) : null}

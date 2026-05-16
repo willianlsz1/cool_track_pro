@@ -36,6 +36,22 @@ const baseInput: BuildServicesQuotesInput = {
       registroId: 'registro-2',
       titulo: 'Troca de controlador',
       total: 1250,
+      itens: [
+        {
+          id: 'item-1',
+          descricao: 'Controlador digital',
+          quantidade: 1,
+          valorUnitario: 980,
+          total: 980,
+        },
+        {
+          id: 'item-2',
+          descricao: 'Mao de obra',
+          quantidade: 2,
+          valorUnitario: 135,
+          total: 270,
+        },
+      ],
     },
     {
       id: 'orc-2',
@@ -70,6 +86,7 @@ describe('servicesQuotesViewModel', () => {
       equipmentLine: 'Split 24.000 BTU - Recepcao',
       statusLabel: 'Rascunho',
       totalLabel: 'R$ 1.250,00',
+      itemsLabel: '2 itens locais',
     });
     expect(viewModel.items[1]).toMatchObject({
       id: 'orc-2',

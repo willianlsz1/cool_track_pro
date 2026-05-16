@@ -1,6 +1,9 @@
 import type {
   CompromissoServico,
   Equipamento,
+  Orcamento,
+  OrcamentoItem,
+  QuoteStatus,
   RegistroServico,
   ServiceCommitmentKind,
   ServiceRecordStatus,
@@ -31,6 +34,25 @@ export interface ScheduleNextCommitmentInput {
   kind: ServiceCommitmentKind;
   targetDate: string;
   origin: CompromissoServico['origem'];
+}
+
+export interface CreateQuoteFromServiceRecordInput {
+  id: string;
+  recordId: string;
+}
+
+export interface UpdateQuoteDraftInput {
+  id: string;
+  title: string;
+  total: string;
+  status: QuoteStatus;
+  items?: UpdateQuoteDraftItemInput[];
+}
+
+export interface UpdateQuoteDraftItemInput {
+  description: string;
+  quantity: string;
+  unitValue: string;
 }
 
 export function registerEquipment(
@@ -163,6 +185,82 @@ export function scheduleNextCommitment(
   };
 }
 
+export function createQuoteFromServiceRecord(
+  state: AppV2MockSnapshot,
+  input: CreateQuoteFromServiceRecordInput,
+): AppV2FlowState {
+  const registro = state.registros.find((item) => item.id === input.recordId);
+
+  if (!registro) {
+    throw new Error('Registro nao encontrado para gerar orcamento mockado.');
+  }
+
+  const existingQuote = state.orcamentos.find((item) => item.registroId === input.recordId);
+
+  if (existingQuote) {
+    return {
+      ...cloneSnapshot(state),
+      serviceDraft: getExistingDraft(state),
+    };
+  }
+
+  const equipamento = state.equipamentos.find((item) => item.id === registro.equipamentoId);
+  const quote: Orcamento = {
+    id: input.id,
+    numero: createNextQuoteNumber(state),
+    status: 'rascunho',
+    clienteId: equipamento?.clienteId,
+    equipamentoId: registro.equipamentoId,
+    registroId: registro.id,
+    titulo: `Orcamento mockado - ${equipamento?.nome ?? 'Equipamento nao encontrado'}`,
+    total: parseCurrencyValue(registro.custoPecas) + parseCurrencyValue(registro.custoMaoObra),
+  };
+
+  return {
+    ...cloneSnapshot(state),
+    orcamentos: [quote, ...state.orcamentos.map((item) => ({ ...item }))],
+    serviceDraft: getExistingDraft(state),
+  };
+}
+
+export function updateQuoteDraft(
+  state: AppV2MockSnapshot,
+  input: UpdateQuoteDraftInput,
+): AppV2FlowState {
+  const currentQuote = state.orcamentos.find((item) => item.id === input.id);
+
+  if (!currentQuote) {
+    throw new Error('Orcamento nao encontrado para edicao local.');
+  }
+
+  if (currentQuote.status !== 'rascunho') {
+    throw new Error('Apenas orcamentos em rascunho podem ser editados nesta etapa.');
+  }
+
+  const title = input.title.trim();
+  const items = normalizeQuoteItems(input);
+
+  if (!title) {
+    throw new Error('Informe um titulo para o orcamento.');
+  }
+
+  return {
+    ...cloneSnapshot(state),
+    orcamentos: state.orcamentos.map((orcamento) =>
+      orcamento.id === input.id
+        ? {
+            ...orcamento,
+            titulo: title,
+            total: items.length > 0 ? sumQuoteItems(items) : parseCurrencyValue(input.total),
+            status: input.status,
+            itens: items.length > 0 ? items : undefined,
+          }
+        : { ...orcamento },
+    ),
+    serviceDraft: getExistingDraft(state),
+  };
+}
+
 function getExistingDraft(state: AppV2MockSnapshot): ServiceDraft | null {
   return 'serviceDraft' in state ? (state as AppV2FlowState).serviceDraft : null;
 }
@@ -175,7 +273,10 @@ function cloneSnapshot(state: AppV2MockSnapshot): AppV2MockSnapshot {
     compromissos: state.compromissos.map((item) => ({ ...item })),
     registros: state.registros.map((item) => ({ ...item })),
     tecnicos: [...state.tecnicos],
-    orcamentos: state.orcamentos.map((item) => ({ ...item })),
+    orcamentos: state.orcamentos.map((item) => ({
+      ...item,
+      itens: item.itens?.map((quoteItem) => ({ ...quoteItem })),
+    })),
   };
 }
 
@@ -187,6 +288,63 @@ function appendTechnician(tecnicos: string[], technician: string): string[] {
   }
 
   return [...tecnicos, normalized];
+}
+
+function createNextQuoteNumber(state: AppV2MockSnapshot): string {
+  const year = state.today.slice(0, 4);
+  const nextSequence = state.orcamentos.length + 1;
+  return `ORC-${year}-${String(nextSequence).padStart(3, '0')}`;
+}
+
+function parseCurrencyValue(value: string | undefined): number {
+  if (!value) {
+    return 0;
+  }
+
+  const normalized = value
+    .replace(/\./g, '')
+    .replace(',', '.')
+    .replace(/[^\d.-]/g, '');
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizeQuoteItems(input: UpdateQuoteDraftInput): OrcamentoItem[] {
+  return (input.items ?? [])
+    .map((item, index) => {
+      const descricao = item.description.trim();
+      const quantidade = parseCurrencyValue(item.quantity);
+      const valorUnitario = parseCurrencyValue(item.unitValue);
+
+      if (!descricao && quantidade === 0 && valorUnitario === 0) {
+        return null;
+      }
+
+      if (!descricao) {
+        throw new Error('Informe a descricao do item do orcamento.');
+      }
+
+      if (quantidade <= 0) {
+        throw new Error('Informe uma quantidade valida para o item do orcamento.');
+      }
+
+      if (valorUnitario < 0) {
+        throw new Error('Informe um valor valido para o item do orcamento.');
+      }
+
+      return {
+        id: `item-${input.id}-${index + 1}`,
+        descricao,
+        quantidade,
+        valorUnitario,
+        total: quantidade * valorUnitario,
+      };
+    })
+    .filter((item): item is OrcamentoItem => Boolean(item));
+}
+
+function sumQuoteItems(items: OrcamentoItem[]): number {
+  return items.reduce((sum, item) => sum + item.total, 0);
 }
 
 function buildServiceRecord(

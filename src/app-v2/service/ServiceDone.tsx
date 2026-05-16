@@ -10,10 +10,17 @@ interface ServiceDoneProps {
   done: ServiceDoneViewModel;
   report: ServiceReportViewModel;
   onBackToServices: () => void;
+  onCreateQuote: () => void;
   onOpenEquipment: () => void;
 }
 
-export function ServiceDone({ done, report, onBackToServices, onOpenEquipment }: ServiceDoneProps) {
+export function ServiceDone({
+  done,
+  report,
+  onBackToServices,
+  onCreateQuote,
+  onOpenEquipment,
+}: ServiceDoneProps) {
   const [isReportOpen, setIsReportOpen] = useState(false);
 
   function printReport() {
@@ -85,6 +92,13 @@ export function ServiceDone({ done, report, onBackToServices, onOpenEquipment }:
           Saídas futuras
         </h2>
         <div className="tw-mt-4 tw-grid tw-gap-2 sm:tw-grid-cols-3">
+          <button
+            type="button"
+            className={`tw-min-h-11 tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            onClick={onCreateQuote}
+          >
+            Criar orcamento mockado
+          </button>
           {done.disabledOutputs.map((output) => (
             <button
               key={output}

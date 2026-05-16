@@ -109,7 +109,7 @@ describe('serviceFlowViewModel', () => {
       title: 'Serviço concluído',
       summary: 'Corretiva registrada para Split 24.000 BTU.',
       technicalSummary: expect.arrayContaining(['Tecnico: Bruno Tecnico']),
-      disabledOutputs: ['Orçamento', 'Próximo compromisso'],
+      disabledOutputs: ['Próximo compromisso'],
     });
   });
 

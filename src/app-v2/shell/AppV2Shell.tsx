@@ -11,7 +11,9 @@ import { HomeToday } from '../home/HomeToday';
 import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNav';
 import {
   completeService,
+  createQuoteFromServiceRecord,
   startServiceFromEquipment as startServiceFlowAction,
+  updateQuoteDraft,
   updateServiceRecord,
   validateServiceCompletion,
   type AppV2FlowState,
@@ -21,6 +23,8 @@ import { selectAppV2OperationalState } from '../data/appV2Selectors';
 import { ServiceFlow } from '../service/ServiceFlow';
 import { ServiceEquipmentChoice } from '../service/ServiceEquipmentChoice';
 import { ServicesHome } from '../service/ServicesHome';
+import type { QuoteEditDraft } from '../service/ServicesQuotesHome';
+import type { ServicesSubView } from '../service/ServicesSubViewNav';
 import { createServiceDraftFromRecord, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
 import { PageShell, SectionCard } from '../ui/primitives';
@@ -41,6 +45,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   const [isServiceFlowOpen, setIsServiceFlowOpen] = useState(false);
   const [isServiceEquipmentChoiceOpen, setIsServiceEquipmentChoiceOpen] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [servicesInitialView, setServicesInitialView] = useState<ServicesSubView>('registros');
   const [startServiceAfterEquipmentCreate, setStartServiceAfterEquipmentCreate] = useState(false);
   const [equipmentFormClientId, setEquipmentFormClientId] = useState<string | null>(null);
   const operationalState = selectAppV2OperationalState(appState);
@@ -208,25 +213,37 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   }
 
   function completeCurrentService(draft: ServiceDraft) {
-    setAppState((current) => {
-      const completion = {
-        id: editingServiceId ?? `reg-shell-${current.registros.length + 1}`,
-        date: draft.serviceDate ?? current.today,
-        technician: draft.technician,
-        diagnosis: draft.diagnosis,
-        actionsDone: draft.actionsDone,
-        finalStatus: draft.finalStatus,
-      };
-      const stateWithDraft = {
-        ...current,
-        serviceDraft: draft,
-      };
+    setAppState((current) => completeServiceDraft(current, draft, editingServiceId).nextState);
+    setEditingServiceId(null);
+  }
 
-      return editingServiceId
-        ? updateServiceRecord(stateWithDraft, completion)
-        : completeService(stateWithDraft, completion);
+  function createQuoteFromCompletedService(draft: ServiceDraft) {
+    setAppState((current) => {
+      const { nextState, recordId } = completeServiceDraft(current, draft, editingServiceId);
+
+      return createQuoteFromServiceRecord(nextState, {
+        id: `orcamento-${recordId}`,
+        recordId,
+      });
     });
     setEditingServiceId(null);
+    setIsServiceFlowOpen(false);
+    setIsServiceEquipmentChoiceOpen(false);
+    setServicesInitialView('orcamentos');
+    setActiveTab('servicos');
+  }
+
+  function saveQuoteDraft(draft: QuoteEditDraft): string | null {
+    try {
+      const nextState = updateQuoteDraft(appState, draft);
+      setAppState({
+        ...nextState,
+        serviceDraft: appState.serviceDraft,
+      });
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel salvar o orcamento.';
+    }
   }
 
   function validateCurrentService(draft: ServiceDraft): string | null {
@@ -345,6 +362,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             initialDraft={serviceDraft}
             onBackToServices={() => setIsServiceFlowOpen(false)}
             onDraftChange={updateServiceDraft}
+            onCreateQuoteFromCompletedService={createQuoteFromCompletedService}
             onCompleteService={completeCurrentService}
             onValidateService={validateCurrentService}
             onChangeEquipment={editingServiceId ? changeEditingEquipment : undefined}
@@ -357,10 +375,12 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
         (!isServiceFlowOpen || !serviceDraft) ? (
           <ServicesHome
             draft={serviceDraft}
+            initialView={servicesInitialView}
             input={operationalState.servicesInput}
             onResumeService={() => setIsServiceFlowOpen(true)}
             onStartService={startFallbackService}
             onEditService={editServiceRecord}
+            onSaveQuote={saveQuoteDraft}
           />
         ) : null}
 
@@ -397,6 +417,33 @@ function createNextClientId(seed: number, snapshot: AppV2MockSnapshot): string {
   }
 
   return nextId;
+}
+
+function completeServiceDraft(
+  current: AppV2FlowState,
+  draft: ServiceDraft,
+  editingServiceId?: string | null,
+): { nextState: AppV2FlowState; recordId: string } {
+  const recordId = editingServiceId ?? `reg-shell-${current.registros.length + 1}`;
+  const completion = {
+    id: recordId,
+    date: draft.serviceDate ?? current.today,
+    technician: draft.technician,
+    diagnosis: draft.diagnosis,
+    actionsDone: draft.actionsDone,
+    finalStatus: draft.finalStatus,
+  };
+  const stateWithDraft = {
+    ...current,
+    serviceDraft: draft,
+  };
+
+  return {
+    recordId,
+    nextState: editingServiceId
+      ? updateServiceRecord(stateWithDraft, completion)
+      : completeService(stateWithDraft, completion),
+  };
 }
 
 function Placeholder({ title, description }: { title: string; description: string }) {

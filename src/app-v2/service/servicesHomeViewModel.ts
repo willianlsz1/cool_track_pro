@@ -3,6 +3,7 @@ import type {
   Equipamento,
   Orcamento,
   RegistroServico,
+  ServiceRecordKind,
   ServiceRecordStatus,
 } from '../domain/types';
 import { formatServiceRecordKind, type ServiceDraft } from './serviceFlowViewModel';
@@ -23,13 +24,31 @@ export interface BuildServicesHomeInput {
   orcamentos: Orcamento[];
 }
 
+export type ServicePeriodFilter = 'all' | 'last_7_days' | 'current_month';
+
+export interface BuildServicesHomeFilters {
+  query?: string;
+  period?: ServicePeriodFilter;
+  clientId?: string;
+  equipmentId?: string;
+  kind?: ServiceRecordKind | 'all';
+  status?: ServiceRecordStatus | 'all';
+}
+
 export interface ServicesHomeViewModel {
   title: 'Serviços';
   subtitle: 'Trabalho técnico';
   description: string;
   emptyState: ServicesEmptyStateViewModel;
   inProgress: ServiceInProgressViewModel | null;
+  activeFilters: Required<BuildServicesHomeFilters>;
+  filterOptions: ServicesHomeFilterOptions;
   recentServices: RecentServiceViewModel[];
+}
+
+export interface ServicesHomeFilterOptions {
+  clients: Array<{ id: string; label: string }>;
+  equipments: Array<{ id: string; label: string }>;
 }
 
 export interface ServicesEmptyStateViewModel {
@@ -67,13 +86,15 @@ export interface RecentServiceViewModel {
 export function buildServicesHomeViewModel(
   input: BuildServicesHomeInput,
   draft: ServiceDraft | null,
-  query = '',
+  filtersOrQuery: BuildServicesHomeFilters | string = {},
 ): ServicesHomeViewModel {
+  const activeFilters = normalizeFilters(filtersOrQuery);
   const allRecentServices = input.registros
     .slice()
     .sort((a, b) => b.data.localeCompare(a.data))
+    .filter((registro) => matchesRecordFilters(input, registro, activeFilters))
     .map((registro) => mapRecentService(input, registro));
-  const normalizedQuery = normalizeSearch(query);
+  const normalizedQuery = normalizeSearch(activeFilters.query);
   const recentServices = normalizedQuery
     ? allRecentServices.filter((service) => service.searchText.includes(normalizedQuery))
     : allRecentServices;
@@ -88,8 +109,71 @@ export function buildServicesHomeViewModel(
       actionLabel: 'Iniciar registro',
     },
     inProgress: draft ? buildInProgress(input, draft) : null,
+    activeFilters,
+    filterOptions: {
+      clients: input.clientes.map((cliente) => ({ id: cliente.id, label: cliente.nome })),
+      equipments: input.equipamentos.map((equipamento) => ({
+        id: equipamento.id,
+        label: equipamento.nome,
+      })),
+    },
     recentServices,
   };
+}
+
+function normalizeFilters(filtersOrQuery: BuildServicesHomeFilters | string) {
+  const filters = typeof filtersOrQuery === 'string' ? { query: filtersOrQuery } : filtersOrQuery;
+
+  return {
+    query: filters.query ?? '',
+    period: filters.period ?? 'all',
+    clientId: filters.clientId ?? 'all',
+    equipmentId: filters.equipmentId ?? 'all',
+    kind: filters.kind ?? 'all',
+    status: filters.status ?? 'all',
+  };
+}
+
+function matchesRecordFilters(
+  input: BuildServicesHomeInput,
+  registro: RegistroServico,
+  filters: Required<BuildServicesHomeFilters>,
+): boolean {
+  const equipamento = input.equipamentos.find((item) => item.id === registro.equipamentoId);
+
+  if (filters.period !== 'all' && !matchesPeriod(registro.data, input.today, filters.period)) {
+    return false;
+  }
+
+  if (filters.clientId !== 'all' && equipamento?.clienteId !== filters.clientId) {
+    return false;
+  }
+
+  if (filters.equipmentId !== 'all' && registro.equipamentoId !== filters.equipmentId) {
+    return false;
+  }
+
+  if (filters.kind !== 'all' && registro.tipo !== filters.kind) {
+    return false;
+  }
+
+  if (filters.status !== 'all' && registro.status !== filters.status) {
+    return false;
+  }
+
+  return true;
+}
+
+function matchesPeriod(date: string, today: string, period: ServicePeriodFilter): boolean {
+  if (period === 'current_month') {
+    return date.slice(0, 7) === today.slice(0, 7);
+  }
+
+  const dateValue = new Date(`${date}T00:00:00`);
+  const todayValue = new Date(`${today}T00:00:00`);
+  const diffMs = todayValue.getTime() - dateValue.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 7;
 }
 
 function buildInProgress(

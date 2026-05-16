@@ -75,4 +75,13 @@ export interface Orcamento {
   registroId?: string;
   titulo: string;
   total: number;
+  itens?: OrcamentoItem[];
+}
+
+export interface OrcamentoItem {
+  id: string;
+  descricao: string;
+  quantidade: number;
+  valorUnitario: number;
+  total: number;
 }
