@@ -95,6 +95,22 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Equipamento fora de operacao');
     expect(host.textContent).toContain('Status atual marcado como critico');
     expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
+
+    const asideAlertButtons = Array.from(host.querySelectorAll('button')).filter((button) =>
+      /Critico|Atencao/.test(button.textContent ?? ''),
+    );
+
+    expect(asideAlertButtons.length).toBeGreaterThan(0);
+    for (const button of asideAlertButtons) {
+      expect(button.className).toContain('tw-border-0');
+    }
+
+    const asideAlertList = Array.from(host.querySelectorAll('div')).find(
+      (item) =>
+        item.className.includes('tw-divide-y') && item.textContent?.includes('Preventiva vencida'),
+    );
+
+    expect(asideAlertList?.className).toContain('tw-divide-[#E5EAF0]');
   });
 
   it('aplica a conclusao do servico na store mockada exibida pela Central', async () => {
@@ -180,8 +196,8 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Registros recentes');
 
     await clickButton(host, /^Conta$/i);
-    expect(host.textContent).toContain('Em breve');
     expect(host.textContent).toContain('Conta');
+    expect(host.textContent).toContain('Painel local');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
   });
@@ -342,6 +358,147 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('Self contained loja');
     expect(host.textContent).toContain('Refrigeracao');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('cria equipamento com setor mock/local e filtra a lista por setor sem storage real', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Novo equipamento$/i);
+
+    const name = host.querySelector('input[name="equipment-name"]');
+    const location = host.querySelector('input[name="equipment-location"]');
+    const sector = host.querySelector('select[name="equipment-sector"]');
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(location).toBeInstanceOf(HTMLInputElement);
+    expect(sector).toBeInstanceOf(HTMLSelectElement);
+
+    await fillInput(name as HTMLInputElement, 'Self contained loja');
+    await fillInput(location as HTMLInputElement, 'Area de vendas');
+    await selectOption(sector as HTMLSelectElement, 'setor-2');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Self contained loja');
+    expect(host.textContent).toContain('Setor: Camara fria');
+    expect(host.textContent).not.toContain('Upload');
+    expect(host.textContent).not.toContain('Supabase');
+
+    const sectorFilter = host.querySelector('select[name="equipment-sector-filter"]');
+    expect(sectorFilter).toBeInstanceOf(HTMLSelectElement);
+    await selectOption(sectorFilter as HTMLSelectElement, 'setor-2');
+
+    expect(host.textContent).toContain('Self contained loja');
+    expect(host.textContent).toMatch(/C.mara fria/);
+    expect(host.textContent).not.toContain('Split 24.000 BTU');
+  });
+
+  it('cria e edita setor mock/local na lista de equipamentos sem storage real', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Novo setor$/i);
+
+    const sectorName = host.querySelector('input[name="equipment-sector-name"]');
+    const sectorClient = host.querySelector('select[name="equipment-sector-client"]');
+    const sectorColor = host.querySelector('input[name="equipment-sector-color"]');
+    expect(sectorName).toBeInstanceOf(HTMLInputElement);
+    expect(sectorClient).toBeInstanceOf(HTMLSelectElement);
+    expect(sectorColor).toBeInstanceOf(HTMLInputElement);
+
+    await fillInput(sectorName as HTMLInputElement, 'Casa de maquinas');
+    await selectOption(sectorClient as HTMLSelectElement, 'cliente-1');
+    await fillInput(sectorColor as HTMLInputElement, '#0F766E');
+    await clickButton(host, /^Salvar setor$/i);
+
+    expect(host.textContent).toContain('Casa de maquinas');
+    expect(host.textContent).not.toContain('Supabase');
+    expect(host.textContent).not.toContain('Upload');
+
+    await clickButton(host, /^Editar setor Casa de maquinas$/i);
+
+    const editSectorName = host.querySelector('input[name="equipment-sector-name"]');
+    expect(editSectorName).toBeInstanceOf(HTMLInputElement);
+    await fillInput(editSectorName as HTMLInputElement, 'Casa de maquinas revisada');
+    await clickButton(host, /^Salvar setor$/i);
+
+    expect(host.textContent).toContain('Casa de maquinas revisada');
+    expect(host.textContent).not.toContain('Casa de maquinasCasa de maquinas');
+  });
+
+  it('remove setor mock/local preservando equipamentos, registros e relatorios locais', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Remover setor Recepcao$/i);
+    await clickButton(host, /^Confirmar remover setor Recepcao$/i);
+
+    expect(host.textContent).not.toContain('Editar setor Recepcao');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Sem setor');
+    expect(host.textContent).not.toContain('Storage');
+    expect(host.textContent).not.toContain('Supabase');
+
+    await clickButton(host, /^Servi/i);
+
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Limpeza de filtros e teste de temperatura.');
+  });
+
+  it('arquiva equipamento mock/local preservando registros, relatorios e orcamentos locais', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Arquivar equipamento$/i);
+    await clickButton(host, /^Confirmar arquivar equipamento$/i);
+
+    expect(host.textContent).toContain('Arquivado em');
+    expect(host.textContent).toContain('Preventiva em');
+    expect(host.textContent).not.toContain('Storage');
+    expect(host.textContent).not.toContain('Supabase');
+
+    await clickButton(host, /^Voltar para equipamentos$/i);
+
+    expect(host.textContent).not.toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('3 equipamentos');
+
+    await clickButton(host, /^Servi/i);
+
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Limpeza de filtros e teste de temperatura.');
+
+    await clickButton(host, /^Relatorios$/i);
+
+    expect(host.textContent).toContain('REL-REGISTRO-1');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
+  });
+
+  it('desarquiva equipamento mock/local sem reativar compromissos cancelados', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Arquivar equipamento$/i);
+    await clickButton(host, /^Confirmar arquivar equipamento$/i);
+
+    expect(host.textContent).toContain('Arquivado em');
+    expect(host.textContent).toContain('Desarquivar equipamento');
+
+    await clickButton(host, /^Desarquivar equipamento$/i);
+
+    expect(host.textContent).not.toContain('Arquivado em');
+    expect(host.textContent).toContain('Iniciar servi');
+
+    await clickButton(host, /^Voltar para equipamentos$/i);
+
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('4 equipamentos');
+
+    await clickButton(host, /^Hoje$/i);
+
+    expect(host.textContent).not.toContain('Preventiva vencida');
     expect(host.textContent).not.toContain('Supabase');
   });
 

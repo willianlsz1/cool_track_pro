@@ -1,20 +1,33 @@
 import { useState } from 'react';
 
+import { AccountHome } from '../account/AccountHome';
+import type {
+  AccountPreferencesState,
+  AccountShortcutId,
+  AccountStartTabPreference,
+} from '../account/accountViewModel';
 import { ClientDetail } from '../equipment/ClientDetail';
 import { ClientList } from '../equipment/ClientList';
 import { EquipmentDetail } from '../equipment/EquipmentDetail';
 import { EquipmentList } from '../equipment/EquipmentList';
 import { saveClient, type SaveClientDraft } from '../equipment/clientActions';
-import { saveEquipment, type SaveEquipmentDraft } from '../equipment/equipmentActions';
+import {
+  archiveEquipment,
+  deleteEquipmentSector,
+  saveEquipment,
+  saveEquipmentAttachment,
+  saveEquipmentSector,
+  type SaveEquipmentDraft,
+  type SaveEquipmentSectorDraft,
+  unarchiveEquipment,
+} from '../equipment/equipmentActions';
 import type { EquipmentSubView } from '../equipment/EquipmentSubViewNav';
 import { HomeToday } from '../home/HomeToday';
 import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNav';
 import {
-  completeService,
   createQuoteFromServiceRecord,
   startServiceFromEquipment as startServiceFlowAction,
   updateQuoteDraft,
-  updateServiceRecord,
   validateServiceCompletion,
   type AppV2FlowState,
 } from '../data/appV2Actions';
@@ -27,7 +40,13 @@ import type { QuoteEditDraft } from '../service/ServicesQuotesHome';
 import type { ServicesSubView } from '../service/ServicesSubViewNav';
 import { createServiceDraftFromRecord, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
-import { PageShell, SectionCard } from '../ui/primitives';
+import {
+  completeServiceDraft,
+  createNextClientId,
+  createNextEquipmentId,
+  createNextSectorId,
+  preserveCurrentServiceDraft,
+} from './appV2ShellState';
 
 interface AppV2ShellProps {
   initialSnapshot?: AppV2MockSnapshot;
@@ -46,6 +65,11 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   const [isServiceEquipmentChoiceOpen, setIsServiceEquipmentChoiceOpen] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [servicesInitialView, setServicesInitialView] = useState<ServicesSubView>('registros');
+  const [accountPreferences, setAccountPreferences] = useState<AccountPreferencesState>({
+    density: 'confortavel',
+    startTab: 'hoje',
+    reminderEnabled: false,
+  });
   const [startServiceAfterEquipmentCreate, setStartServiceAfterEquipmentCreate] = useState(false);
   const [equipmentFormClientId, setEquipmentFormClientId] = useState<string | null>(null);
   const operationalState = selectAppV2OperationalState(appState);
@@ -175,10 +199,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
         return null;
       }
 
-      setAppState({
-        ...nextState,
-        serviceDraft: appState.serviceDraft,
-      });
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
       setStartServiceAfterEquipmentCreate(false);
       return null;
     } catch (error) {
@@ -194,13 +215,81 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
         id: clientId,
       });
 
-      setAppState({
-        ...nextState,
-        serviceDraft: appState.serviceDraft,
-      });
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
       return error instanceof Error ? error.message : 'Nao foi possivel salvar o cliente.';
+    }
+  }
+
+  function saveSectorDraft(draft: SaveEquipmentSectorDraft): string | null {
+    try {
+      const sectorId = draft.id || createNextSectorId(appState.setores.length + 1, appState);
+      const nextState = saveEquipmentSector(appState, {
+        ...draft,
+        id: sectorId,
+      });
+
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel salvar o setor.';
+    }
+  }
+
+  function deleteSectorDraft(sectorId: string): string | null {
+    try {
+      const nextState = deleteEquipmentSector(appState, sectorId);
+
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel remover o setor.';
+    }
+  }
+
+  function archiveEquipmentDraft(equipmentId: string): string | null {
+    try {
+      const nextState = archiveEquipment(appState, equipmentId, appState.today);
+
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel arquivar o equipamento.';
+    }
+  }
+
+  function unarchiveEquipmentDraft(equipmentId: string): string | null {
+    try {
+      const nextState = unarchiveEquipment(appState, equipmentId);
+
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel desarquivar o equipamento.';
+    }
+  }
+
+  function addPlaceholderAttachmentDraft(equipmentId: string): string | null {
+    const equipment = appState.equipamentos.find((item) => item.id === equipmentId);
+    const attachmentCount = equipment?.anexos?.length ?? 0;
+    const nextIndex = attachmentCount + 1;
+    const kind = nextIndex === 1 ? 'foto' : 'documento';
+
+    try {
+      const nextState = saveEquipmentAttachment(appState, equipmentId, {
+        id: `anexo-${equipmentId}-${nextIndex}`,
+        kind,
+        label: kind === 'foto' ? 'Foto local de referencia' : `Documento local ${nextIndex}`,
+        source: 'placeholder',
+        createdAt: appState.today,
+        cover: nextIndex === 1,
+      });
+
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Nao foi possivel adicionar o anexo.';
     }
   }
 
@@ -236,10 +325,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   function saveQuoteDraft(draft: QuoteEditDraft): string | null {
     try {
       const nextState = updateQuoteDraft(appState, draft);
-      setAppState({
-        ...nextState,
-        serviceDraft: appState.serviceDraft,
-      });
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
       return error instanceof Error ? error.message : 'Nao foi possivel salvar o orcamento.';
@@ -285,6 +371,53 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     setActiveTab('servicos');
   }
 
+  function runAccountShortcut(shortcut: AccountShortcutId) {
+    if (shortcut === 'start-service') {
+      startFallbackService();
+      return;
+    }
+
+    if (shortcut === 'open-clients') {
+      setSelectedEquipmentId(null);
+      setSelectedClientId(null);
+      setEquipmentSubView('clients');
+      setEquipmentFormClientId(null);
+      setActiveTab('equipamento');
+      return;
+    }
+
+    if (shortcut === 'open-quotes') {
+      setServicesInitialView('orcamentos');
+      setIsServiceEquipmentChoiceOpen(false);
+      setIsServiceFlowOpen(false);
+      setActiveTab('servicos');
+      return;
+    }
+
+    setActiveTab('hoje');
+  }
+
+  function openAccountStartTab(tab: AccountStartTabPreference) {
+    if (tab === 'equipamento') {
+      setSelectedEquipmentId(null);
+      setSelectedClientId(null);
+      setEquipmentSubView('equipments');
+      setEquipmentFormClientId(null);
+      setActiveTab('equipamento');
+      return;
+    }
+
+    if (tab === 'servicos') {
+      setServicesInitialView('registros');
+      setIsServiceEquipmentChoiceOpen(false);
+      setIsServiceFlowOpen(false);
+      setActiveTab('servicos');
+      return;
+    }
+
+    setActiveTab('hoje');
+  }
+
   return (
     <div className="tw-min-h-screen tw-bg-[#061635] tw-font-sans tw-text-[#061635]">
       <DesktopSidebar activeTab={activeTab} onSelectTab={selectTab} />
@@ -308,6 +441,9 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             onOpenClient={openClient}
             onStartService={startServiceFromEquipment}
             onSaveEquipment={saveEquipmentDraft}
+            onArchiveEquipment={archiveEquipmentDraft}
+            onUnarchiveEquipment={unarchiveEquipmentDraft}
+            onAddPlaceholderAttachment={addPlaceholderAttachmentDraft}
           />
         ) : null}
 
@@ -338,6 +474,8 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
               onSelectView={selectEquipmentSubView}
               onOpenEquipment={openEquipment}
               onSaveEquipment={saveEquipmentDraft}
+              onSaveSector={saveSectorDraft}
+              onDeleteSector={deleteSectorDraft}
               initialClientId={equipmentFormClientId}
               onInitialClientHandled={() => setEquipmentFormClientId(null)}
             />
@@ -385,85 +523,16 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
         ) : null}
 
         {activeTab === 'conta' ? (
-          <Placeholder
-            title="Conta"
-            description="Preferências e dados da conta ficam fora desta fundação."
+          <AccountHome
+            preferences={accountPreferences}
+            onShortcut={runAccountShortcut}
+            onOpenStartTab={openAccountStartTab}
+            onChangePreferences={setAccountPreferences}
           />
         ) : null}
       </div>
 
       <BottomNav activeTab={activeTab} onSelectTab={selectTab} />
     </div>
-  );
-}
-
-function createNextEquipmentId(seed: number, snapshot: AppV2MockSnapshot): string {
-  let nextId = `eq-shell-${seed}`;
-
-  while (snapshot.equipamentos.some((item) => item.id === nextId)) {
-    seed += 1;
-    nextId = `eq-shell-${seed}`;
-  }
-
-  return nextId;
-}
-
-function createNextClientId(seed: number, snapshot: AppV2MockSnapshot): string {
-  let nextId = `cliente-shell-${seed}`;
-
-  while (snapshot.clientes.some((item) => item.id === nextId)) {
-    seed += 1;
-    nextId = `cliente-shell-${seed}`;
-  }
-
-  return nextId;
-}
-
-function completeServiceDraft(
-  current: AppV2FlowState,
-  draft: ServiceDraft,
-  editingServiceId?: string | null,
-): { nextState: AppV2FlowState; recordId: string } {
-  const recordId = editingServiceId ?? `reg-shell-${current.registros.length + 1}`;
-  const completion = {
-    id: recordId,
-    date: draft.serviceDate ?? current.today,
-    technician: draft.technician,
-    diagnosis: draft.diagnosis,
-    actionsDone: draft.actionsDone,
-    finalStatus: draft.finalStatus,
-  };
-  const stateWithDraft = {
-    ...current,
-    serviceDraft: draft,
-  };
-
-  return {
-    recordId,
-    nextState: editingServiceId
-      ? updateServiceRecord(stateWithDraft, completion)
-      : completeService(stateWithDraft, completion),
-  };
-}
-
-function Placeholder({ title, description }: { title: string; description: string }) {
-  return (
-    <PageShell className="tw-gap-0">
-      <SectionCard className="sm:tw-p-6">
-        <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-          Em breve
-        </p>
-        <h1
-          className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
-        >
-          {title}
-        </h1>
-        <p
-          className={`tw-m-0 tw-mt-3 tw-max-w-[560px] tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}
-        >
-          {description}
-        </p>
-      </SectionCard>
-    </PageShell>
   );
 }
