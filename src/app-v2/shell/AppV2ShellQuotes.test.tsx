@@ -69,8 +69,8 @@ describe('AppV2Shell Orcamentos', () => {
 
   it('abre Orcamentos dentro de Servicos com lista mockada sem acoes sensiveis', async () => {
     const host = await renderShell(createQuoteSnapshot());
-    const sidebar = host.querySelector('aside[aria-label="Navegacao principal"]');
-    const bottomNav = host.querySelector('nav[aria-label="Navegacao principal"]');
+    const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
+    const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
 
     expect(sidebar?.textContent).not.toContain('Orcamentos');
     expect(bottomNav?.textContent).not.toContain('Orcamentos');

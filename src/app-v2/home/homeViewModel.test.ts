@@ -37,7 +37,7 @@ const registroSplit: RegistroServico = {
 };
 
 describe('buildHomeTodayViewModel', () => {
-  it('prioriza alerta critico e expoe contador de alertas operacionais', () => {
+  it('prioriza alerta crítico e expõe contador de alertas operacionais', () => {
     const compromissos: CompromissoServico[] = [
       {
         id: 'compromisso-1',
@@ -66,12 +66,12 @@ describe('buildHomeTodayViewModel', () => {
     });
 
     expect(viewModel.context).toBe('Atendimentos de hoje');
-    expect(viewModel.nextAction.title).toBe('Equipamento fora de operacao');
+    expect(viewModel.nextAction.title).toBe('Equipamento fora de operação');
     expect(viewModel.nextAction.equipmentId).toBe('eq-2');
     expect(viewModel.nextAction.equipmentName).toBe('Câmara fria');
     expect(viewModel.nextAction.customerLine).toBe('Mercado Bom Preço · Estoque');
-    expect(viewModel.nextAction.reason).toBe('Status atual marcado como critico');
-    expect(viewModel.nextAction.primaryCta).toBe('Registrar servico');
+    expect(viewModel.nextAction.reason).toBe('Status atual marcado como crítico');
+    expect(viewModel.nextAction.primaryCta).toBe('Registrar serviço');
     expect(viewModel.nextAction.secondaryAction).toBe('Ver equipamento');
     expect(viewModel.nextAction.tone).toBe('danger');
     expect(viewModel.nextAction.equipmentVisual).toEqual({
@@ -108,12 +108,12 @@ describe('buildHomeTodayViewModel', () => {
     expect(viewModel.queue[0]?.equipmentId).toBe('eq-1');
     expect(viewModel.queue[0]?.title).toBe('Preventiva · Split 24.000 BTU');
     expect(viewModel.alerts.map((alert) => alert.title)).toEqual([
-      'Equipamento fora de operacao',
+      'Equipamento fora de operação',
       'Preventiva vencida',
     ]);
     expect(viewModel.alerts[0]).toMatchObject({
       equipmentName: 'Câmara fria',
-      detail: 'Status atual marcado como critico',
+      detail: 'Status atual marcado como crítico',
       tone: 'danger',
     });
     expect(viewModel.aside.nextInQueue?.title).toBe('Corretiva · Câmara fria');

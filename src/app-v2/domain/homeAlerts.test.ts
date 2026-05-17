@@ -41,7 +41,7 @@ function record(input: Partial<RegistroServico> = {}): RegistroServico {
 }
 
 describe('buildHomeAlerts', () => {
-  it('prioriza equipamento fora de operacao acima de preventiva vencida', () => {
+  it('prioriza equipamento fora de operação acima de preventiva vencida', () => {
     const alerts = buildHomeAlerts({
       today,
       equipamentos: [
@@ -65,11 +65,11 @@ describe('buildHomeAlerts', () => {
     expect(alerts[0]).toMatchObject({
       equipamentoId: 'eq-critical',
       severity: 'danger',
-      title: 'Equipamento fora de operacao',
+      title: 'Equipamento fora de operação',
     });
   });
 
-  it('nao duplica compromisso quando equipamento ja esta fora de operacao', () => {
+  it('não duplica compromisso quando equipamento já está fora de operação', () => {
     const alerts = buildHomeAlerts({
       today,
       equipamentos: [equipment({ id: 'eq-critical', status: 'danger', criticidade: 'critica' })],
@@ -86,7 +86,7 @@ describe('buildHomeAlerts', () => {
     expect(alerts.map((alert) => alert.kind)).toEqual(['critical_status']);
   });
 
-  it('gera alertas para preventiva vencida e preventiva proxima', () => {
+  it('gera alertas para preventiva vencida e preventiva próxima', () => {
     const alerts = buildHomeAlerts({
       today,
       equipamentos: [equipment({ id: 'eq-overdue' }), equipment({ id: 'eq-upcoming' })],
@@ -106,7 +106,7 @@ describe('buildHomeAlerts', () => {
     ]);
     expect(alerts[0]).toMatchObject({
       compromissoId: 'comp-overdue',
-      detail: 'Preventiva vencida ha 1 dia',
+      detail: 'Preventiva vencida há 1 dia',
     });
     expect(alerts[1]).toMatchObject({
       compromissoId: 'comp-upcoming',
@@ -114,7 +114,7 @@ describe('buildHomeAlerts', () => {
     });
   });
 
-  it('alerta equipamento critico sem historico tecnico', () => {
+  it('alerta equipamento crítico sem histórico técnico', () => {
     const alerts = buildHomeAlerts({
       today,
       equipamentos: [
@@ -133,7 +133,7 @@ describe('buildHomeAlerts', () => {
       kind: 'critical_without_history',
       equipamentoId: 'eq-new',
       severity: 'warning',
-      title: 'Equipamento critico sem historico',
+      title: 'Equipamento crítico sem histórico',
     });
   });
 

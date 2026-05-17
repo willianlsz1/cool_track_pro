@@ -423,7 +423,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       <DesktopSidebar activeTab={activeTab} onSelectTab={selectTab} />
 
       <div
-        className={`tw-min-h-screen ${appV2Tone.page} lg:tw-ml-[248px] lg:tw-rounded-l-[28px] lg:tw-shadow-[-22px_0_50px_-44px_rgba(0,0,0,0.85)]`}
+        className={`tw-min-h-screen ${appV2Tone.page} lg:tw-ml-[260px] lg:tw-rounded-l-[28px] lg:tw-shadow-[-22px_0_50px_-44px_rgba(0,0,0,0.85)]`}
       >
         {activeTab === 'hoje' ? (
           <HomeToday

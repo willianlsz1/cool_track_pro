@@ -92,12 +92,12 @@ describe('AppV2Shell', () => {
     const host = await renderShell();
 
     expect(host.textContent).toContain('Alertas ativos');
-    expect(host.textContent).toContain('Equipamento fora de operacao');
-    expect(host.textContent).toContain('Status atual marcado como critico');
+    expect(host.textContent).toContain('Equipamento fora de operação');
+    expect(host.textContent).toContain('Status atual marcado como crítico');
     expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
 
     const asideAlertButtons = Array.from(host.querySelectorAll('button')).filter((button) =>
-      /Critico|Atencao/.test(button.textContent ?? ''),
+      /Crítico|Atenção/.test(button.textContent ?? ''),
     );
 
     expect(asideAlertButtons.length).toBeGreaterThan(0);
@@ -171,11 +171,11 @@ describe('AppV2Shell', () => {
 
   it('renderiza sidebar desktop e bottom nav mobile com as quatro areas existentes', async () => {
     const host = await renderShell();
-    const sidebar = host.querySelector('aside[aria-label="Navegacao principal"]');
-    const bottomNav = host.querySelector('nav[aria-label="Navegacao principal"]');
+    const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
+    const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
     const officialIcon = sidebar?.querySelector('img');
 
-    expect(sidebar?.className).toContain('tw-w-[248px]');
+    expect(sidebar?.className).toContain('tw-w-[260px]');
     expect(sidebar?.className).toContain('lg:tw-flex');
     expect(bottomNav?.className).toContain('lg:tw-hidden');
     expect(officialIcon?.getAttribute('src')).toBe('/icons/icon-192x192.png');
@@ -204,8 +204,8 @@ describe('AppV2Shell', () => {
 
   it('abre Relatorios dentro de Servicos com busca e preview dedicado', async () => {
     const host = await renderShell();
-    const sidebar = host.querySelector('aside[aria-label="Navegacao principal"]');
-    const bottomNav = host.querySelector('nav[aria-label="Navegacao principal"]');
+    const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
+    const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
 
     expect(sidebar?.textContent).not.toContain('Relatorios');
     expect(bottomNav?.textContent).not.toContain('Relatorios');

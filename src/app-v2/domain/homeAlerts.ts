@@ -85,8 +85,8 @@ function buildEquipmentAlerts({
       kind: 'critical_status',
       severity: 'danger',
       equipamentoId: equipamento.id,
-      title: 'Equipamento fora de operacao',
-      detail: 'Status atual marcado como critico',
+      title: 'Equipamento fora de operação',
+      detail: 'Status atual marcado como crítico',
       sortScore: 220 + operationalScore,
     });
 
@@ -106,9 +106,9 @@ function buildEquipmentAlerts({
       severity: isOverdue ? 'danger' : 'warning',
       equipamentoId: equipamento.id,
       compromissoId: urgentCommitment.id,
-      title: isOverdue ? `${kindLabel} vencida` : `${kindLabel} proxima`,
+      title: isOverdue ? `${kindLabel} vencida` : `${kindLabel} próxima`,
       detail: isOverdue
-        ? `${kindLabel} vencida ha ${daysOverdue} ${daysOverdue === 1 ? 'dia' : 'dias'}`
+        ? `${kindLabel} vencida há ${daysOverdue} ${daysOverdue === 1 ? 'dia' : 'dias'}`
         : `${kindLabel} prevista para ${formatShortDate(urgentCommitment.dataAlvo)}`,
       sortScore: (isOverdue ? 180 : 120) + operationalScore + (isOverdue ? daysOverdue : 0),
     });
@@ -120,8 +120,8 @@ function buildEquipmentAlerts({
       kind: 'critical_without_history',
       severity: 'warning',
       equipamentoId: equipamento.id,
-      title: 'Equipamento critico sem historico',
-      detail: 'Cadastre o primeiro servico para iniciar a rotina',
+      title: 'Equipamento crítico sem histórico',
+      detail: 'Cadastre o primeiro serviço para iniciar a rotina',
       sortScore: 115 + operationalScore,
     });
   }

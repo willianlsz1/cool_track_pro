@@ -1,6 +1,14 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-import { appV2Tone } from '../styles/tokens';
+import {
+  appV2Border,
+  appV2Interactive,
+  appV2Shadow,
+  appV2Status,
+  appV2Surface,
+  appV2Text,
+  appV2Tone,
+} from '../styles/tokens';
 
 type PageShellProps = {
   children: ReactNode;
@@ -10,7 +18,7 @@ type PageShellProps = {
 export function PageShell({ children, className = '' }: PageShellProps) {
   return (
     <main
-      className={`tw-mx-auto tw-box-border tw-flex tw-min-h-screen tw-w-full tw-max-w-[1280px] tw-flex-col tw-gap-5 tw-px-4 tw-pb-36 tw-pt-5 sm:tw-px-6 lg:tw-px-7 lg:tw-pb-8 lg:tw-pt-7 xl:tw-px-8 ${className}`}
+      className={`tw-mx-auto tw-box-border tw-flex tw-min-h-screen tw-w-full tw-max-w-none tw-flex-col tw-gap-5 tw-px-4 tw-pb-36 tw-pt-5 sm:tw-px-6 lg:tw-px-7 lg:tw-pb-8 lg:tw-pt-7 xl:tw-px-8 ${className}`}
     >
       {children}
     </main>
@@ -38,7 +46,7 @@ export function SectionCard({
     <section
       aria-label={label}
       aria-labelledby={labelledBy}
-      className={`tw-rounded-2xl tw-border tw-bg-white ${paddingClass} tw-shadow-[0_20px_52px_-40px_rgba(15,23,42,0.46)] ${appV2Tone.border} ${className}`}
+      className={`tw-rounded-2xl tw-border ${appV2Surface.card} ${paddingClass} ${appV2Shadow.card} ${appV2Border.default} ${className}`}
     >
       {children}
     </section>
@@ -48,11 +56,11 @@ export function SectionCard({
 export type StatusBadgeTone = 'danger' | 'warning' | 'success' | 'primary' | 'muted';
 
 const statusBadgeToneClass: Record<StatusBadgeTone, string> = {
-  danger: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
-  warning: 'tw-bg-[#FFF7ED] tw-text-[#D97706]',
-  success: 'tw-bg-[#F0FDF4] tw-text-[#16A34A]',
-  primary: 'tw-bg-[#EFF6FF] tw-text-[#2563EB]',
-  muted: `tw-border tw-bg-[#F8FAFC] ${appV2Tone.border} ${appV2Tone.mutedText}`,
+  danger: `${appV2Status.danger.surface} ${appV2Status.danger.text}`,
+  warning: `${appV2Status.warning.surface} ${appV2Status.warning.text}`,
+  success: `${appV2Status.success.surface} ${appV2Status.success.text}`,
+  primary: `${appV2Status.primary.surface} ${appV2Status.primary.text}`,
+  muted: `tw-border ${appV2Status.muted.surface} ${appV2Status.muted.border} ${appV2Status.muted.text}`,
 };
 
 type StatusBadgeProps = {
@@ -79,8 +87,8 @@ type ListRowProps = {
 };
 
 export function ListRow({ children, className = '', interactive = false, onClick }: ListRowProps) {
-  const rowClass = `tw-min-w-0 tw-border-t tw-bg-white tw-px-5 tw-py-4 first:tw-border-t-0 ${appV2Tone.border} ${
-    interactive ? `tw-transition hover:tw-bg-[#F8FAFC] ${appV2Tone.focus}` : ''
+  const rowClass = `tw-min-w-0 tw-border-t ${appV2Surface.card} tw-px-5 tw-py-4 first:tw-border-t-0 ${appV2Border.default} ${
+    interactive ? `tw-transition ${appV2Interactive.hoverMuted} ${appV2Tone.focus}` : ''
   } ${className}`;
 
   if (onClick) {
@@ -103,9 +111,9 @@ type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const actionButtonVariantClass = {
-  primary: `${appV2Tone.action} tw-border-0 tw-shadow-[0_20px_34px_-22px_rgba(37,99,235,0.95)]`,
-  secondary: `tw-border tw-bg-white tw-text-[#2563EB] ${appV2Tone.border}`,
-  ghost: `tw-border tw-bg-[#F8FAFC] ${appV2Tone.border} ${appV2Tone.text}`,
+  primary: `${appV2Tone.action} tw-border-0 ${appV2Shadow.action}`,
+  secondary: `tw-border ${appV2Surface.card} ${appV2Text.action} ${appV2Border.default}`,
+  ghost: `tw-border ${appV2Surface.muted} ${appV2Border.default} ${appV2Text.primary}`,
 };
 
 export function ActionButton({
@@ -119,7 +127,7 @@ export function ActionButton({
     <button
       {...props}
       type={type}
-      className={`tw-inline-flex tw-min-h-12 tw-items-center tw-justify-center tw-rounded-xl tw-px-5 tw-py-3 tw-text-sm tw-font-bold disabled:tw-cursor-not-allowed disabled:tw-border-[#D7E3F2] disabled:tw-bg-[#E8EEF7] disabled:tw-text-[#7A8AA6] disabled:tw-shadow-none ${actionButtonVariantClass[variant]} ${appV2Tone.focus} ${className}`}
+      className={`tw-inline-flex tw-min-h-12 tw-items-center tw-justify-center tw-rounded-xl tw-px-5 tw-py-3 tw-text-sm tw-font-bold disabled:tw-cursor-not-allowed ${appV2Interactive.disabledControl} ${actionButtonVariantClass[variant]} ${appV2Tone.focus} ${className}`}
     >
       {children}
     </button>

@@ -1,3 +1,10 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCalendarDays,
+  faCircleUser,
+  faMicrochip,
+  faWrench,
+} from '@fortawesome/free-solid-svg-icons';
 import { useAutoHideNav } from './useAutoHideNav';
 import { appV2Tone } from '../styles/tokens';
 
@@ -22,7 +29,7 @@ export function BottomNav({ activeTab = 'hoje', onSelectTab }: BottomNavProps) {
     <nav
       className={`tw-fixed tw-inset-x-0 tw-bottom-0 tw-z-20 tw-border-t tw-bg-white/95 tw-px-3 tw-pb-[calc(10px+env(safe-area-inset-bottom))] tw-pt-2 tw-shadow-[0_-18px_42px_-32px_rgba(15,23,42,0.28)] tw-backdrop-blur tw-transition-transform tw-duration-200 lg:tw-hidden ${appV2Tone.border}`}
       style={{ transform: visible ? 'translateY(0)' : 'translateY(100%)' }}
-      aria-label="Navegacao principal"
+      aria-label="Navegação principal"
     >
       <div className="tw-mx-auto tw-grid tw-max-w-[520px] tw-grid-cols-4 tw-gap-1">
         {navItems.map((item) => {
@@ -64,10 +71,10 @@ interface DesktopSidebarProps {
 export function DesktopSidebar({ activeTab = 'hoje', onSelectTab }: DesktopSidebarProps) {
   return (
     <aside
-      className="tw-fixed tw-inset-y-0 tw-left-0 tw-z-20 tw-hidden tw-box-border tw-w-[248px] tw-border-r tw-border-[#163157] tw-bg-[#061635] tw-px-5 tw-py-7 lg:tw-flex lg:tw-flex-col"
-      aria-label="Navegacao principal"
+      className="tw-fixed tw-inset-y-0 tw-left-0 tw-z-20 tw-hidden tw-box-border tw-w-[260px] tw-shrink-0 tw-bg-[#071D3A] tw-px-5 tw-py-7 tw-shadow-[1px_0_0_rgba(0,0,0,0.05)] lg:tw-flex lg:tw-flex-col"
+      aria-label="Navegação principal"
     >
-      <div className="tw-flex tw-items-center tw-gap-3">
+      <div className="tw-flex tw-items-center tw-gap-3 tw-pl-2">
         <img
           src="/icons/icon-192x192.png"
           alt=""
@@ -75,12 +82,16 @@ export function DesktopSidebar({ activeTab = 'hoje', onSelectTab }: DesktopSideb
           aria-hidden="true"
         />
         <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-truncate tw-text-sm tw-font-bold tw-text-white">CoolTrack Pro</p>
-          <p className="tw-m-0 tw-mt-0.5 tw-text-xs tw-font-semibold tw-text-[#46C8F0]">app-v2</p>
+          <p className="tw-m-0 tw-truncate tw-text-xl tw-font-bold tw-tracking-tight tw-text-white">
+            CoolTrack Pro
+          </p>
+          <p className="tw-m-0 tw-mt-0.5 tw-text-[0.65rem] tw-font-medium tw-text-[#7C9BCB]">
+            app-v2
+          </p>
         </div>
       </div>
 
-      <nav className="tw-mt-12 tw-flex tw-flex-col tw-gap-2">
+      <nav className="tw-mt-10 tw-flex tw-flex-col tw-gap-1.5">
         {navItems.map((item) => {
           const isActive = item.id === activeTab;
 
@@ -89,16 +100,16 @@ export function DesktopSidebar({ activeTab = 'hoje', onSelectTab }: DesktopSideb
               key={item.id}
               type="button"
               onClick={() => onSelectTab?.(item.id)}
-              className={`tw-flex tw-min-h-12 tw-items-center tw-gap-3 tw-rounded-xl tw-border tw-px-3 tw-text-left tw-text-sm tw-font-semibold tw-transition-colors ${appV2Tone.focus} ${
+              className={`tw-flex tw-min-h-10 tw-items-center tw-gap-3 tw-rounded-xl tw-border-0 tw-px-4 tw-text-left tw-text-sm tw-font-medium tw-transition-colors ${appV2Tone.focus} ${
                 isActive
-                  ? 'tw-border-[#67E8F9] tw-bg-[#2CC7EA] tw-text-[#041329] tw-shadow-[0_18px_34px_-22px_rgba(44,199,234,0.8)]'
-                  : 'tw-border-transparent tw-bg-[#0A1D3A] tw-text-[#B7C4DE] hover:tw-border-[#244466] hover:tw-bg-[#102B4D] hover:tw-text-white'
+                  ? 'tw-bg-[#10345E] tw-text-white'
+                  : 'tw-bg-transparent tw-text-[#CFE3FF] hover:tw-bg-[#0F2A4A] hover:tw-text-white'
               }`}
               aria-current={isActive ? 'page' : undefined}
             >
               <span
-                className={`tw-grid tw-h-7 tw-w-7 tw-shrink-0 tw-place-items-center ${
-                  isActive ? 'tw-text-[#041329]' : 'tw-text-[#85A4C8]'
+                className={`tw-grid tw-h-6 tw-w-6 tw-shrink-0 tw-place-items-center ${
+                  isActive ? 'tw-text-[#60A5FA]' : 'tw-text-[#7C9BCB]'
                 }`}
                 aria-hidden="true"
               >
@@ -115,70 +126,16 @@ export function DesktopSidebar({ activeTab = 'hoje', onSelectTab }: DesktopSideb
 
 function NavIcon({ name }: { name: (typeof navItems)[number]['marker'] }) {
   if (name === 'home') {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        className="tw-h-5 tw-w-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="m3 11 9-8 9 8" />
-        <path d="M5 10v10h14V10" />
-        <path d="M9 20v-6h6v6" />
-      </svg>
-    );
+    return <FontAwesomeIcon icon={faCalendarDays} className="tw-h-5 tw-w-5" />;
   }
 
   if (name === 'equipment') {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        className="tw-h-5 tw-w-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="6" y="4" width="12" height="16" rx="2" />
-        <path d="M9 8h6" />
-        <path d="M9 12h6" />
-        <path d="M10 17h4" />
-      </svg>
-    );
+    return <FontAwesomeIcon icon={faMicrochip} className="tw-h-5 tw-w-5" />;
   }
 
   if (name === 'service') {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        className="tw-h-5 tw-w-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-3 1.5-1.5-1.5 1.5-3z" />
-      </svg>
-    );
+    return <FontAwesomeIcon icon={faWrench} className="tw-h-5 tw-w-5" />;
   }
 
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="tw-h-5 tw-w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
-    </svg>
-  );
+  return <FontAwesomeIcon icon={faCircleUser} className="tw-h-5 tw-w-5" />;
 }

@@ -215,7 +215,7 @@ function mapAlertNextAction({
     equipmentName: equipamento?.nome,
     customerLine: formatCustomerLine(equipamento, clientesById),
     reason: alert.detail,
-    primaryCta: 'Registrar servico',
+    primaryCta: 'Registrar serviço',
     secondaryAction: 'Ver equipamento',
     tone: 'danger',
     equipmentVisual: buildEquipmentVisual(equipamento),
