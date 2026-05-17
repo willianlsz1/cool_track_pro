@@ -615,15 +615,27 @@ it('edita rascunho de orcamento local sem tocar billing ou storage real', () => 
 
   const edited = updateQuoteDraft(state, {
     id: 'orcamento-1',
+    templateId: 'manutencao-corretiva',
     title: 'Troca revisada do controlador',
+    description: 'Substituicao do controlador com testes finais.',
     total: '1480,50',
+    discount: '80,50',
+    validityDays: '15',
+    paymentTerms: '50% entrada, 50% na conclusao',
+    notes: 'Garantia de execucao tecnica local.',
     status: 'enviado',
   });
 
   expect(edited.orcamentos.find((item) => item.id === 'orcamento-1')).toMatchObject({
     id: 'orcamento-1',
+    modeloId: 'manutencao-corretiva',
     titulo: 'Troca revisada do controlador',
-    total: 1480.5,
+    descricao: 'Substituicao do controlador com testes finais.',
+    total: 1400,
+    desconto: 80.5,
+    validadeDias: 15,
+    formaPagamento: '50% entrada, 50% na conclusao',
+    observacoes: 'Garantia de execucao tecnica local.',
     status: 'enviado',
   });
   expect(JSON.stringify(edited.orcamentos[0])).not.toContain('billing');
@@ -637,6 +649,7 @@ it('recalcula rascunho de orcamento local a partir de itens locais simples', () 
     id: 'orcamento-1',
     title: 'Troca de controlador com itens',
     total: '0',
+    discount: '80,00',
     status: 'rascunho',
     items: [
       {
@@ -655,7 +668,8 @@ it('recalcula rascunho de orcamento local a partir de itens locais simples', () 
   expect(edited.orcamentos.find((item) => item.id === 'orcamento-1')).toMatchObject({
     id: 'orcamento-1',
     titulo: 'Troca de controlador com itens',
-    total: 1280,
+    total: 1200,
+    desconto: 80,
     itens: [
       {
         descricao: 'Controlador digital',

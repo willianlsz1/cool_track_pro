@@ -106,8 +106,14 @@ export interface Orcamento {
   clienteId?: string;
   equipamentoId?: string;
   registroId?: string;
+  modeloId?: string;
   titulo: string;
+  descricao?: string;
   total: number;
+  desconto?: number;
+  validadeDias?: number;
+  formaPagamento?: string;
+  observacoes?: string;
   itens?: OrcamentoItem[];
 }
 

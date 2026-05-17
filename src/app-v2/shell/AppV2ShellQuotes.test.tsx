@@ -36,8 +36,9 @@ async function clickButton(host: HTMLElement, label: RegExp) {
   });
 }
 
-async function fillInput(input: HTMLInputElement, value: string) {
-  const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+async function fillTextControl(input: HTMLInputElement | HTMLTextAreaElement, value: string) {
+  const prototype = input instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
+  const valueSetter = Object.getOwnPropertyDescriptor(prototype.prototype, 'value')?.set;
 
   await act(async () => {
     valueSetter?.call(input, value);
@@ -101,17 +102,66 @@ describe('AppV2Shell Orçamentos', () => {
 
     expect(host.textContent).toContain('Orçamentos · Acompanhamento');
     expect(host.textContent).toContain('Edição local · Controle de itens e valores');
-    expect(host.textContent).toContain('Itens locais · Descrição');
-    expect(host.textContent).toContain('Qtd. itens');
-    expect(host.textContent).toContain('Nenhum item local adicionado.');
+    expect(host.textContent).toContain('Modelos de orçamento');
+    expect(host.textContent).toContain('Itens do orçamento');
+    expect(host.textContent).toContain('Instalação split');
+    expect(
+      (host.querySelector('input[name="quote-item-0-description"]') as HTMLInputElement).value,
+    ).toBe('Equipamento split (especificar modelo)');
+    expect(
+      (host.querySelector('input[name="quote-item-0-unit-value"]') as HTMLInputElement).value,
+    ).toBe('0,00');
+    expect(
+      (host.querySelector('input[name="quote-validity-days"]') as HTMLInputElement).value,
+    ).toBe('');
+    expect(
+      (host.querySelector('input[name="quote-payment-terms"]') as HTMLInputElement).value,
+    ).toBe('');
 
-    await fillInput(title as HTMLInputElement, 'Troca revisada do controlador');
+    await clickButton(host, /Manutenção corretiva/i);
+    expect(host.textContent).toContain('Diagnóstico técnico');
+    expect(host.textContent).toContain('Modelo aplicado: Manutenção corretiva');
+    expect(host.textContent).toContain('Aplicado');
+    expect(
+      (host.querySelector('input[name="quote-item-0-unit-value"]') as HTMLInputElement).value,
+    ).toBe('0,00');
+
+    await fillTextControl(title as HTMLInputElement, 'Troca revisada do controlador');
+    await fillTextControl(
+      host.querySelector('textarea[name="quote-description"]') as HTMLTextAreaElement,
+      'Substituicao do controlador com testes finais.',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-item-0-description"]') as HTMLInputElement,
+      'Sensor NTC',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-item-0-unit-value"]') as HTMLInputElement,
+      '210,00',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-discount"]') as HTMLInputElement,
+      '30,00',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-validity-days"]') as HTMLInputElement,
+      '12',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-payment-terms"]') as HTMLInputElement,
+      'Pagamento na aprovacao',
+    );
+    await fillTextControl(
+      host.querySelector('textarea[name="quote-notes"]') as HTMLTextAreaElement,
+      'Garantia tecnica local.',
+    );
     await selectOption(status as HTMLSelectElement, 'enviado');
-    await clickButton(host, /^Salvar orçamento$/i);
+    await clickButton(host, /^Salvar rascunho$/i);
 
     expect(host.textContent).toContain('Troca revisada do controlador');
     expect(host.textContent).toContain('Enviado');
-    expect(host.textContent).toContain('R$ 1.250,00');
+    expect(host.textContent).toContain('R$ 180,00');
+    expect(host.textContent).toContain('3 itens locais');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
@@ -122,30 +172,68 @@ describe('AppV2Shell Orçamentos', () => {
 
     await openQuoteEditor(host);
 
-    await fillInput(
+    await fillTextControl(
       host.querySelector('input[name="quote-item-description"]') as HTMLInputElement,
       'Controlador digital',
     );
-    await fillInput(
+    await fillTextControl(
       host.querySelector('input[name="quote-item-quantity"]') as HTMLInputElement,
       '1',
     );
-    await fillInput(
+    await fillTextControl(
       host.querySelector('input[name="quote-item-unit-value"]') as HTMLInputElement,
       '980,00',
     );
     await clickButton(host, /^Adicionar$/i);
 
-    expect(host.textContent).toContain('Controlador digital');
+    expect(
+      (host.querySelector('input[name="quote-item-4-description"]') as HTMLInputElement).value,
+    ).toBe('Controlador digital');
     expect(host.textContent).toContain('R$ 980,00');
 
-    await clickButton(host, /^Salvar orçamento$/i);
+    await clickButton(host, /^Salvar rascunho$/i);
 
-    expect(host.textContent).toContain('1 item local');
+    expect(host.textContent).toContain('5 itens locais');
     expect(host.textContent).toContain('R$ 980,00');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
+  });
+
+  it('filtra letras em quantidade e valores do editor de Orcamento', async () => {
+    const host = await renderShell(createQuoteSnapshot());
+
+    await openQuoteEditor(host);
+
+    await fillTextControl(
+      host.querySelector('input[name="quote-item-0-quantity"]') as HTMLInputElement,
+      'abc12',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-item-0-unit-value"]') as HTMLInputElement,
+      'R$ 9x8,7z6',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-discount"]') as HTMLInputElement,
+      'd1e0,00',
+    );
+    await fillTextControl(
+      host.querySelector('input[name="quote-validity-days"]') as HTMLInputElement,
+      '7 dias',
+    );
+
+    expect(
+      (host.querySelector('input[name="quote-item-0-quantity"]') as HTMLInputElement).value,
+    ).toBe('12');
+    expect(
+      (host.querySelector('input[name="quote-item-0-unit-value"]') as HTMLInputElement).value,
+    ).toBe('98,76');
+    expect((host.querySelector('input[name="quote-discount"]') as HTMLInputElement).value).toBe(
+      '10,00',
+    );
+    expect(
+      (host.querySelector('input[name="quote-validity-days"]') as HTMLInputElement).value,
+    ).toBe('7');
   });
 });
 

@@ -34,8 +34,14 @@ const baseInput: BuildServicesQuotesInput = {
       clienteId: 'cliente-1',
       equipamentoId: 'eq-1',
       registroId: 'registro-2',
+      modeloId: 'manutencao-corretiva',
       titulo: 'Troca de controlador',
+      descricao: 'Substituicao do controlador com testes finais.',
       total: 1250,
+      desconto: 50,
+      validadeDias: 15,
+      formaPagamento: '50% entrada, 50% na conclusao',
+      observacoes: 'Garantia de execucao tecnica local.',
       itens: [
         {
           id: 'item-1',
@@ -82,10 +88,17 @@ describe('servicesQuotesViewModel', () => {
       id: 'orc-1',
       number: 'ORC-2026-001',
       title: 'Troca de controlador',
+      templateId: 'manutencao-corretiva',
+      description: 'Substituicao do controlador com testes finais.',
       customerLine: 'Mercado Bom Preco',
       equipmentLine: 'Split 24.000 BTU - Recepcao',
       statusLabel: 'Rascunho',
       totalLabel: 'R$ 1.250,00',
+      discountValue: 50,
+      discountLabel: 'R$ 50,00',
+      validityDays: 15,
+      paymentTerms: '50% entrada, 50% na conclusao',
+      notes: 'Garantia de execucao tecnica local.',
       itemsLabel: '2 itens locais',
     });
     expect(viewModel.items[1]).toMatchObject({

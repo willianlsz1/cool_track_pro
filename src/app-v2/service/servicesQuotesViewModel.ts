@@ -18,12 +18,19 @@ export interface ServicesQuoteListItemViewModel {
   id: string;
   number: string;
   title: string;
+  templateId?: string;
+  description: string;
   status: QuoteStatus;
   customerLine: string;
   equipmentLine: string;
   statusLabel: string;
   statusTone: ServiceHomeTone;
   totalLabel: string;
+  discountValue: number;
+  discountLabel: string;
+  validityDays?: number;
+  paymentTerms: string;
+  notes: string;
   itemsLabel: string;
   items: ServicesQuoteItemViewModel[];
   canEdit: boolean;
@@ -87,6 +94,8 @@ function mapQuoteItem(
     id: orcamento.id,
     number: orcamento.numero,
     title: orcamento.titulo.trim() || 'Orçamento sem título',
+    templateId: orcamento.modeloId,
+    description: orcamento.descricao ?? '',
     status: orcamento.status,
     customerLine: cliente?.nome ?? 'Sem cliente vinculado',
     equipmentLine: equipamento
@@ -95,6 +104,11 @@ function mapQuoteItem(
     statusLabel: statusMeta.label,
     statusTone: statusMeta.tone,
     totalLabel: formatCurrency(orcamento.total),
+    discountValue: orcamento.desconto ?? 0,
+    discountLabel: formatCurrency(orcamento.desconto ?? 0),
+    validityDays: orcamento.validadeDias,
+    paymentTerms: orcamento.formaPagamento ?? '',
+    notes: orcamento.observacoes ?? '',
     itemsLabel: formatItemsLabel(orcamento.itens?.length ?? 0),
     items:
       orcamento.itens?.map((item) => ({

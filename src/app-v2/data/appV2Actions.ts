@@ -46,6 +46,12 @@ export interface UpdateQuoteDraftInput {
   title: string;
   total: string;
   status: QuoteStatus;
+  templateId?: string;
+  description?: string;
+  discount?: string;
+  validityDays?: string;
+  paymentTerms?: string;
+  notes?: string;
   items?: UpdateQuoteDraftItemInput[];
 }
 
@@ -256,8 +262,14 @@ export function updateQuoteDraft(
       orcamento.id === input.id
         ? {
             ...orcamento,
+            modeloId: input.templateId?.trim() || undefined,
             titulo: title,
-            total: items.length > 0 ? sumQuoteItems(items) : parseCurrencyValue(input.total),
+            descricao: input.description?.trim() || undefined,
+            total: getQuoteTotal(input, items),
+            desconto: normalizeOptionalCurrency(input.discount),
+            validadeDias: normalizeOptionalPositiveInteger(input.validityDays),
+            formaPagamento: input.paymentTerms?.trim() || undefined,
+            observacoes: input.notes?.trim() || undefined,
             status: input.status,
             itens: items.length > 0 ? items : undefined,
           }
@@ -352,6 +364,31 @@ function normalizeQuoteItems(input: UpdateQuoteDraftInput): OrcamentoItem[] {
 
 function sumQuoteItems(items: OrcamentoItem[]): number {
   return items.reduce((sum, item) => sum + item.total, 0);
+}
+
+function normalizeOptionalCurrency(value: string | undefined): number | undefined {
+  if (!value?.trim()) {
+    return undefined;
+  }
+
+  const parsed = parseCurrencyValue(value);
+  return parsed > 0 ? parsed : undefined;
+}
+
+function normalizeOptionalPositiveInteger(value: string | undefined): number | undefined {
+  if (!value?.trim()) {
+    return undefined;
+  }
+
+  const parsed = Math.trunc(parseCurrencyValue(value));
+  return parsed > 0 ? parsed : undefined;
+}
+
+function getQuoteTotal(input: UpdateQuoteDraftInput, items: OrcamentoItem[]): number {
+  const subtotal = items.length > 0 ? sumQuoteItems(items) : parseCurrencyValue(input.total);
+  const discount = normalizeOptionalCurrency(input.discount) ?? 0;
+
+  return Math.max(0, subtotal - discount);
 }
 
 function buildServiceRecord(
