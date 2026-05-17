@@ -217,6 +217,32 @@ describe('serviceFlowViewModel', () => {
       canContinue: false,
     });
   });
+
+  it('limpa customKind antigo ao trocar para outro atendimento', () => {
+    const draft = applyServiceQuickSuggestion(
+      {
+        ...createServiceDraft(input, 'eq-1'),
+        kind: 'outro',
+        customKind: 'Higienizacao',
+        diagnosis: 'Texto anterior',
+        actionsDone: 'Acao anterior',
+      },
+      'outro-atendimento',
+    );
+
+    expect(draft).toMatchObject({
+      kind: 'outro',
+      customKind: '',
+      quickSuggestionId: 'outro-atendimento',
+      diagnosis: '',
+      actionsDone: '',
+    });
+    expect(buildServiceTypeViewModel(draft)).toMatchObject({
+      selectedKind: 'outro',
+      customKind: '',
+      canContinue: false,
+    });
+  });
 });
 
 it('reidrata draft de edicao a partir de registro existente com campos migrados', () => {

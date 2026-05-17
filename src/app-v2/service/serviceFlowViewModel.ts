@@ -310,10 +310,16 @@ export function applyServiceQuickSuggestion(
     return draft;
   }
 
+  let customKind = '';
+
+  if (suggestion.kind === 'outro' && suggestion.id !== 'outro-atendimento') {
+    customKind = draft.customKind;
+  }
+
   return {
     ...draft,
     kind: suggestion.kind,
-    customKind: suggestion.kind === 'outro' ? draft.customKind : '',
+    customKind,
     quickSuggestionId: suggestion.id,
     diagnosis: suggestion.diagnosis,
     actionsDone: suggestion.actionsDone,
