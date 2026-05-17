@@ -23,14 +23,14 @@ export function ServiceStepReview({
     <ServiceStepCard
       eyebrow="Etapa 4"
       title={review.title}
-      description="Confira as informacoes antes de concluir o servico."
+      description="Confira as informações antes de concluir o serviço."
     >
       <div className="tw-grid tw-gap-5 lg:tw-grid-cols-2">
         <ServiceInfoBlock label="Equipamento" value={review.equipmentName} />
         <ServiceInfoBlock label="Cliente/local" value={review.customerLine} />
         <ServiceInfoBlock label="Data" value={review.serviceDateLabel} />
         <ServiceInfoBlock label="Tipo" value={review.kindLabel} />
-        <ServiceInfoBlock label="Tecnico" value={review.technician} />
+        <ServiceInfoBlock label="Técnico" value={review.technician} />
         <div>
           <p className="tw-m-0 tw-mb-2 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#7A8AA6]">
             Status final
@@ -39,12 +39,12 @@ export function ServiceStepReview({
             {review.finalStatusLabel}
           </ServiceStatusBadge>
         </div>
-        <ServiceInfoBlock label="Diagnostico" value={review.diagnosis} />
-        <ServiceInfoBlock label="Acoes" value={review.actionsDone} />
-        <ServiceInfoBlock label="Pecas usadas" value={review.partsUsed} />
-        <ServiceInfoBlock label="Custo de pecas" value={review.partsCost} />
-        <ServiceInfoBlock label="Custo de mao de obra" value={review.laborCost} />
-        <ServiceInfoBlock label="Proxima manutencao" value={review.nextMaintenanceLabel} />
+        <ServiceInfoBlock label="Diagnóstico" value={review.diagnosis} />
+        <ServiceInfoBlock label="Ações" value={review.actionsDone} />
+        <ServiceInfoBlock label="Peças usadas" value={review.partsUsed} />
+        <ServiceInfoBlock label="Custo de peças" value={review.partsCost} />
+        <ServiceInfoBlock label="Custo de mão de obra" value={review.laborCost} />
+        <ServiceInfoBlock label="Próxima manutenção" value={review.nextMaintenanceLabel} />
       </div>
 
       {errorMessage ? (
@@ -57,7 +57,7 @@ export function ServiceStepReview({
       ) : null}
 
       <ServiceActions
-        primaryLabel="Concluir servico"
+        primaryLabel="Concluir serviço"
         onPrimary={onComplete}
         secondaryLabel="Voltar"
         onSecondary={onBack}

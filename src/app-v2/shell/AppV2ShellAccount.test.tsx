@@ -64,13 +64,13 @@ describe('AppV2Shell Conta', () => {
     await clickButton(host, /^Conta$/i);
 
     expect(host.textContent).toContain('Painel local');
-    expect(host.textContent).toContain('Atalhos e preferencias operacionais locais desta sessao.');
-    expect(host.textContent).toContain('Sem pendencias locais');
+    expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
+    expect(host.textContent).toContain('Sem pendências locais');
     expect(host.textContent).toContain('Somente local');
     expect(host.textContent).toContain('Atalhos operacionais');
-    expect(host.textContent).toContain('Registrar servico');
+    expect(host.textContent).toContain('Registrar serviço');
     expect(host.textContent).toContain('Clientes');
-    expect(host.textContent).toContain('Orcamentos');
+    expect(host.textContent).toContain('Orçamentos');
     expect(host.textContent).toContain('Densidade visual');
     expect(host.textContent).not.toContain('PMOC');
     expect(host.textContent).not.toContain('Billing');
@@ -80,7 +80,7 @@ describe('AppV2Shell Conta', () => {
     expect(host.textContent).not.toContain('mockadas');
   });
 
-  it('navega por atalhos locais de Conta para Clientes e Orcamentos', async () => {
+  it('navega por atalhos locais de Conta para Clientes e Orçamentos', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Conta$/i);
@@ -89,9 +89,9 @@ describe('AppV2Shell Conta', () => {
     expect(host.textContent).toContain('Base instalada por cliente');
 
     await clickButton(host, /^Conta$/i);
-    await clickButton(host, /^Orcamentos/i);
+    await clickButton(host, /^Orçamentos/i);
 
-    expect(host.textContent).toContain('Pipeline local');
+    expect(host.textContent).toContain('Orçamentos locais');
   });
 
   it('mantem preferencias de Conta apenas em memoria', async () => {
@@ -108,7 +108,7 @@ describe('AppV2Shell Conta', () => {
     await selectOption(startTab as HTMLSelectElement, 'servicos');
 
     expect(host.textContent).toContain('Compacta');
-    expect(host.textContent).toContain('Servicos');
+    expect(host.textContent).toContain('Serviços');
     expect(host.textContent).not.toContain('localStorage');
     expect(host.textContent).not.toContain('Supabase');
   });
@@ -128,9 +128,9 @@ describe('AppV2Shell Conta', () => {
     await clickButton(host, /^Desligado$/i);
 
     expect(host.querySelector('[data-account-density="compacta"]')).toBeTruthy();
-    expect(host.textContent).toContain('Lembrete local ativo nesta sessao.');
+    expect(host.textContent).toContain('Lembrete local ativo nesta sessão.');
 
-    await clickButton(host, /^Abrir Servicos$/i);
+    await clickButton(host, /^Abrir Serviços$/i);
 
     expect(host.textContent).toContain('Registros recentes');
     expect(host.textContent).not.toContain('localStorage');

@@ -181,7 +181,7 @@ export function buildEquipmentClientDetailViewModel(
     servicesCountLabel: formatCount(
       services.length,
       'servico relacionado',
-      'servicos relacionados',
+      'serviços relacionados',
     ),
     services,
     localReport: {
@@ -196,8 +196,8 @@ export function buildEquipmentClientDetailViewModel(
           ),
         },
         {
-          label: 'Servicos',
-          value: formatCount(services.length, 'servico relacionado', 'servicos relacionados'),
+          label: 'Serviços',
+          value: formatCount(services.length, 'serviço relacionado', 'serviços relacionados'),
         },
         {
           label: 'Pendencias',
@@ -353,7 +353,7 @@ function formatServiceStatus(status: RegistroServico['status']): string {
   }
 
   if (status === 'warn') {
-    return 'AtenÃ§Ã£o';
+    return 'Atenção';
   }
 
   return 'Operacional';

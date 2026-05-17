@@ -23,7 +23,7 @@ export interface ServicesReportListItemViewModel {
   date: string;
   dateLabel: string;
   status: ServiceReportListStatus;
-  statusLabel: 'Pronto' | 'Pendente de revisao' | 'Atencao';
+  statusLabel: 'Pronto' | 'Pendente de revisão' | 'Atenção';
   statusTone: ServiceHomeTone;
   partsUsed?: string;
   partsCost?: string;
@@ -54,8 +54,8 @@ export interface ServicesReportsSummaryViewModel {
 }
 
 export interface ServicesReportsViewModel {
-  title: 'Relatorios';
-  subtitle: 'Documentos tecnicos';
+  title: 'Relatórios';
+  subtitle: 'Documentos técnicos';
   description: string;
   searchPlaceholder: string;
   emptyState: {
@@ -87,15 +87,15 @@ export function buildServicesReportsViewModel(
   const hasActiveFilters = isActiveFilters(activeFilters);
 
   return {
-    title: 'Relatorios',
-    subtitle: 'Documentos tecnicos',
-    description: 'Relatorios simples gerados a partir dos registros concluidos.',
+    title: 'Relatórios',
+    subtitle: 'Documentos técnicos',
+    description: 'Relatórios simples gerados a partir dos registros concluídos.',
     searchPlaceholder: 'Buscar atendimento, cliente ou equipamento',
     emptyState: {
-      title: hasActiveFilters ? 'Nenhum relatorio encontrado' : 'Nenhum relatorio gerado',
+      title: hasActiveFilters ? 'Nenhum relatório encontrado' : 'Nenhum relatório gerado',
       description: hasActiveFilters
         ? 'Ajuste os filtros para localizar outro atendimento.'
-        : 'Conclua um registro de servico para gerar o primeiro relatorio.',
+        : 'Conclua um registro de serviço para gerar o primeiro relatório.',
     },
     kpis: buildKpis(input.today, items),
     activeFilters,
@@ -175,7 +175,7 @@ function mapReportItem(
   const status = mapReportStatus(registro);
   const statusMeta = getStatusMeta(status);
   const customerName = cliente?.nome ?? 'Sem cliente vinculado';
-  const equipmentName = equipamento?.nome ?? 'Equipamento nao encontrado';
+  const equipmentName = equipamento?.nome ?? 'Equipamento não encontrado';
   const reportId = `REL-${registro.id.toUpperCase()}`;
 
   return {
@@ -234,11 +234,11 @@ function getStatusMeta(status: ServiceReportListStatus): {
   tone: ServiceHomeTone;
 } {
   if (status === 'atencao') {
-    return { label: 'Atencao', tone: 'warning' };
+    return { label: 'Atenção', tone: 'warning' };
   }
 
   if (status === 'pendente') {
-    return { label: 'Pendente de revisao', tone: 'muted' };
+    return { label: 'Pendente de revisão', tone: 'muted' };
   }
 
   return { label: 'Pronto', tone: 'success' };
@@ -252,12 +252,12 @@ function buildKpis(
 
   return [
     {
-      label: 'Relatorios prontos',
+      label: 'Relatórios prontos',
       value: items.filter((item) => item.status === 'pronto').length,
       tone: 'success',
     },
     {
-      label: 'Com atencao',
+      label: 'Com atenção',
       value: items.filter((item) => item.status === 'atencao').length,
       tone: 'warning',
     },
@@ -267,7 +267,7 @@ function buildKpis(
       tone: 'muted',
     },
     {
-      label: 'Este mes',
+      label: 'Este mês',
       value: items.filter((item) => item.date.startsWith(currentMonth)).length,
       tone: 'primary',
     },

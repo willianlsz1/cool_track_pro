@@ -65,17 +65,17 @@ const baseInput: BuildServicesQuotesInput = {
 };
 
 describe('servicesQuotesViewModel', () => {
-  it('lista orcamentos mockados com cliente, equipamento, status e total', () => {
+  it('lista orcamentos locais com cliente, equipamento, status e total', () => {
     const viewModel = buildServicesQuotesViewModel(baseInput);
 
     expect(viewModel).toMatchObject({
-      title: 'Orcamentos',
-      subtitle: 'Pipeline local',
+      title: 'Orçamentos',
+      subtitle: 'Orçamentos locais',
       totalItems: 2,
       kpis: [
         { label: 'Ativos', value: 1 },
         { label: 'Aprovados', value: 1 },
-        { label: 'Pipeline', valueLabel: 'R$ 1.250,00' },
+        { label: 'Valor em aberto', valueLabel: 'R$ 1.250,00' },
       ],
     });
     expect(viewModel.items[0]).toMatchObject({
@@ -104,8 +104,8 @@ describe('servicesQuotesViewModel', () => {
 
     expect(viewModel.items).toEqual([]);
     expect(viewModel.emptyState).toEqual({
-      title: 'Nenhum orcamento mockado',
-      description: 'Orcamentos locais aparecerao aqui quando a etapa mockada for habilitada.',
+      title: 'Nenhum orçamento local',
+      description: 'Orçamentos locais aparecerão aqui quando houver um rascunho cadastrado.',
     });
   });
 });

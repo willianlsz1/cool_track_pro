@@ -56,7 +56,7 @@ export function ServiceStepType({
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
-            Descricao do tipo
+            Descrição do tipo
           </span>
           <input
             type="text"
@@ -65,10 +65,10 @@ export function ServiceStepType({
             maxLength={viewModel.customKindMaxLength}
             onChange={(event) => onCustomKindChange(event.target.value)}
             className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-            placeholder="Ex.: Higienizacao"
+            placeholder="Ex.: Higienização"
           />
           <span className={`tw-text-xs tw-font-medium ${appV2Tone.mutedText}`}>
-            Informe ate {viewModel.customKindMaxLength} caracteres para identificar o atendimento.
+            Informe até {viewModel.customKindMaxLength} caracteres para identificar o atendimento.
           </span>
         </label>
       ) : null}

@@ -25,28 +25,28 @@ describe('serviceReportViewModel', () => {
     const flatFields = report.sections.flatMap((section) => section.fields);
 
     expect(report.reportId).toBe('CTP-20260510-COMPROMISSO-1');
-    expect(report.title).toBe('Registro de Servico Tecnico');
+    expect(report.title).toBe('Registro de Serviço Técnico');
     expect(report.subtitle).toContain('Preventiva');
     expect(report.subtitle).toContain('Split 24.000 BTU');
     expect(report.generatedAtLabel).toBe('10/05/2026');
     expect(report.statusLabel).toBe('Operacional');
     expect(report.statusTone).toBe('success');
     expect(report.sections.map((section) => section.title)).toEqual([
-      'Cabecalho',
+      'Cabeçalho',
       'Cliente',
       'Equipamento',
-      'Servico',
-      'Execucao',
+      'Serviço',
+      'Execução',
     ]);
-    expect(report.signatureFields).toEqual(['Tecnico/responsavel', 'Cliente/responsavel']);
+    expect(report.signatureFields).toEqual(['Técnico/responsável', 'Cliente/responsável']);
     expect(flatFields).toEqual(
       expect.arrayContaining([
         { label: 'Cliente', value: 'Mercado Bom Preço' },
         { label: 'Equipamento', value: 'Split 24.000 BTU' },
-        { label: 'Tipo de servico', value: 'Preventiva' },
-        { label: 'Tecnico/responsavel', value: 'Ana Tecnica' },
-        { label: 'Diagnostico', value: 'Filtro saturado e serpentina com sujeira.' },
-        { label: 'Acoes executadas', value: 'Limpeza preventiva e teste operacional.' },
+        { label: 'Tipo de serviço', value: 'Preventiva' },
+        { label: 'Técnico/responsável', value: 'Ana Tecnica' },
+        { label: 'Diagnóstico', value: 'Filtro saturado e serpentina com sujeira.' },
+        { label: 'Ações executadas', value: 'Limpeza preventiva e teste operacional.' },
       ]),
     );
   });
@@ -60,8 +60,8 @@ describe('serviceReportViewModel', () => {
 
     expect(flatFields).toEqual(
       expect.arrayContaining([
-        { label: 'Diagnostico', value: 'Nao informado' },
-        { label: 'Acoes executadas', value: 'Nao informado' },
+        { label: 'Diagnóstico', value: 'Não informado' },
+        { label: 'Ações executadas', value: 'Não informado' },
       ]),
     );
   });
@@ -95,9 +95,9 @@ describe('serviceReportViewModel', () => {
       expect.arrayContaining([
         { label: 'Cliente', value: 'Mercado Bom Preço' },
         { label: 'Equipamento', value: 'Split 24.000 BTU' },
-        { label: 'Tipo de servico', value: 'Preventiva' },
-        { label: 'Tecnico/responsavel', value: 'Técnico' },
-        { label: 'Acoes executadas', value: 'Limpeza de filtros e teste de temperatura.' },
+        { label: 'Tipo de serviço', value: 'Preventiva' },
+        { label: 'Técnico/responsável', value: 'Técnico' },
+        { label: 'Ações executadas', value: 'Limpeza de filtros e teste de temperatura.' },
       ]),
     );
   });
@@ -119,10 +119,10 @@ describe('serviceReportViewModel', () => {
 
     expect(flatFields).toEqual(
       expect.arrayContaining([
-        { label: 'Diagnostico', value: 'Serpentina com sujeira acumulada.' },
-        { label: 'Acoes executadas', value: 'Limpeza preventiva e teste operacional.' },
+        { label: 'Diagnóstico', value: 'Serpentina com sujeira acumulada.' },
+        { label: 'Ações executadas', value: 'Limpeza preventiva e teste operacional.' },
         {
-          label: 'Observacoes',
+          label: 'Observações',
           value: 'Serpentina com sujeira acumulada. Limpeza preventiva e teste operacional.',
         },
       ]),
@@ -146,7 +146,7 @@ describe('serviceReportViewModel', () => {
 
     expect(immediateReport.subtitle).toContain('Outro · Higienizacao');
     expect(immediateFields).toEqual(
-      expect.arrayContaining([{ label: 'Tipo de servico', value: 'Outro · Higienizacao' }]),
+      expect.arrayContaining([{ label: 'Tipo de serviço', value: 'Outro · Higienizacao' }]),
     );
 
     const reopenedReport = buildServiceReportViewModelFromRecord(input, {
@@ -163,7 +163,7 @@ describe('serviceReportViewModel', () => {
 
     expect(reopenedReport.subtitle).toContain('Outro · Higienizacao');
     expect(reopenedFields).toEqual(
-      expect.arrayContaining([{ label: 'Tipo de servico', value: 'Outro · Higienizacao' }]),
+      expect.arrayContaining([{ label: 'Tipo de serviço', value: 'Outro · Higienizacao' }]),
     );
   });
 });
@@ -184,7 +184,7 @@ it('exibe pecas usadas no relatorio imediato e reaberto', () => {
   );
 
   expect(immediateFields).toEqual(
-    expect.arrayContaining([{ label: 'Pecas usadas', value: 'Filtro de ar, capacitor 35uF' }]),
+    expect.arrayContaining([{ label: 'Peças usadas', value: 'Filtro de ar, capacitor 35uF' }]),
   );
 
   const reopenedFields = buildServiceReportViewModelFromRecord(input, {
@@ -199,7 +199,7 @@ it('exibe pecas usadas no relatorio imediato e reaberto', () => {
   }).sections.flatMap((section) => section.fields);
 
   expect(reopenedFields).toEqual(
-    expect.arrayContaining([{ label: 'Pecas usadas', value: 'Filtro de ar, capacitor 35uF' }]),
+    expect.arrayContaining([{ label: 'Peças usadas', value: 'Filtro de ar, capacitor 35uF' }]),
   );
 });
 
@@ -221,8 +221,8 @@ it('exibe custos opcionais no relatorio imediato e reaberto', () => {
 
   expect(immediateFields).toEqual(
     expect.arrayContaining([
-      { label: 'Custo de pecas', value: '120,00' },
-      { label: 'Custo de mao de obra', value: '250,00' },
+      { label: 'Custo de peças', value: '120,00' },
+      { label: 'Custo de mão de obra', value: '250,00' },
     ]),
   );
 
@@ -240,8 +240,8 @@ it('exibe custos opcionais no relatorio imediato e reaberto', () => {
 
   expect(reopenedFields).toEqual(
     expect.arrayContaining([
-      { label: 'Custo de pecas', value: '120,00' },
-      { label: 'Custo de mao de obra', value: '250,00' },
+      { label: 'Custo de peças', value: '120,00' },
+      { label: 'Custo de mão de obra', value: '250,00' },
     ]),
   );
 });
@@ -262,7 +262,7 @@ it('exibe proxima manutencao no relatorio imediato e reaberto', () => {
   );
 
   expect(immediateFields).toEqual(
-    expect.arrayContaining([{ label: 'Proxima manutencao', value: '10/06/2026' }]),
+    expect.arrayContaining([{ label: 'Próxima manutenção', value: '10/06/2026' }]),
   );
 
   const reopenedFields = buildServiceReportViewModelFromRecord(input, {
@@ -277,7 +277,7 @@ it('exibe proxima manutencao no relatorio imediato e reaberto', () => {
   }).sections.flatMap((section) => section.fields);
 
   expect(reopenedFields).toEqual(
-    expect.arrayContaining([{ label: 'Proxima manutencao', value: '10/06/2026' }]),
+    expect.arrayContaining([{ label: 'Próxima manutenção', value: '10/06/2026' }]),
   );
 });
 
@@ -300,7 +300,7 @@ it('usa a data editada do draft no relatorio imediato', () => {
     expect.arrayContaining([
       { label: 'Data', value: '12/05/2026' },
       { label: 'Inicio', value: '12/05/2026' },
-      { label: 'Conclusao', value: '12/05/2026' },
+      { label: 'Conclusão', value: '12/05/2026' },
     ]),
   );
 });

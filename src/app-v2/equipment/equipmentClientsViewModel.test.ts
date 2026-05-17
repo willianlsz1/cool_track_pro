@@ -86,10 +86,10 @@ describe('buildEquipmentClientDetailViewModel', () => {
       equipmentName: 'Câmara fria',
       kindLabel: 'Corretiva',
       dateLabel: '09/05',
-      statusLabel: 'AtenÃ§Ã£o',
+      statusLabel: 'Atenção',
       summary: 'Alarme intermitente no controlador.',
     });
-    expect(detail.servicesCountLabel).toBe('2 servicos relacionados');
+    expect(detail.servicesCountLabel).toBe('2 serviços relacionados');
   });
 
   it('monta resumo operacional local do cliente sem PMOC ou integracao sensivel', () => {
@@ -98,7 +98,7 @@ describe('buildEquipmentClientDetailViewModel', () => {
     expect(detail.localReport.title).toBe('Resumo local do cliente');
     expect(detail.localReport.facts).toEqual([
       { label: 'Equipamentos', value: '3 equipamentos vinculados' },
-      { label: 'Servicos', value: '2 servicos relacionados' },
+      { label: 'Serviços', value: '2 serviços relacionados' },
       { label: 'Pendencias', value: '2 pendencias operacionais' },
       { label: 'Ultimo servico', value: '09/05 - Camara fria' },
     ]);

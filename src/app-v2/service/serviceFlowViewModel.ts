@@ -206,9 +206,9 @@ export function buildServiceReviewViewModel(
     technician: draft.technician.trim() || 'Técnico não informado',
     diagnosis: draft.diagnosis.trim() || 'Diagnóstico não informado',
     actionsDone: draft.actionsDone.trim() || 'Ações executadas não informadas',
-    partsUsed: draft.partsUsed?.trim() || 'Sem pecas informadas',
-    partsCost: draft.partsCost?.trim() || 'Nao informado',
-    laborCost: draft.laborCost?.trim() || 'Nao informado',
+    partsUsed: draft.partsUsed?.trim() || 'Sem peças informadas',
+    partsCost: draft.partsCost?.trim() || 'Não informado',
+    laborCost: draft.laborCost?.trim() || 'Não informado',
     nextMaintenanceLabel: formatOptionalFullDateLabel(draft.nextMaintenanceDate),
     finalStatusLabel: formatStatusLabel(draft.finalStatus),
     finalStatusTone: mapStatusTone(draft.finalStatus),
@@ -226,13 +226,13 @@ export function buildServiceDoneViewModel(
     summary: `${review.kindLabel} registrada para ${review.equipmentName}.`,
     technicalSummary: [
       `Cliente/local: ${review.customerLine}`,
-      `Tecnico: ${review.technician}`,
+      `Técnico: ${review.technician}`,
       `Diagnóstico: ${review.diagnosis}`,
       `Ações: ${review.actionsDone}`,
-      `Pecas usadas: ${review.partsUsed}`,
-      `Custo de pecas: ${review.partsCost}`,
-      `Custo de mao de obra: ${review.laborCost}`,
-      `Proxima manutencao: ${review.nextMaintenanceLabel}`,
+      `Peças usadas: ${review.partsUsed}`,
+      `Custo de peças: ${review.partsCost}`,
+      `Custo de mão de obra: ${review.laborCost}`,
+      `Próxima manutenção: ${review.nextMaintenanceLabel}`,
       `Status final: ${review.finalStatusLabel}`,
     ],
     disabledOutputs: ['Próximo compromisso'],
@@ -325,7 +325,7 @@ function canContinueServiceType(draft: ServiceDraft): boolean {
 function formatRecordKind(kind: ServiceRecordKind | undefined, customKind?: string): string {
   if (kind === 'outro') {
     const normalizedCustomKind = customKind?.trim();
-    return normalizedCustomKind ? `Outro · ${normalizedCustomKind}` : 'ServiÃ§o';
+    return normalizedCustomKind ? `Outro · ${normalizedCustomKind}` : 'Serviço';
   }
 
   const labels: Record<ServiceRecordKind, string> = {
@@ -387,7 +387,7 @@ function formatOptionalFullDateLabel(date: string | undefined): string {
   const normalizedDate = date?.trim();
 
   if (!normalizedDate) {
-    return 'Nao informada';
+    return 'Não informada';
   }
 
   const [year, month, day] = normalizedDate.split('-');

@@ -37,8 +37,8 @@ export interface ServicesQuoteItemViewModel {
 }
 
 export interface ServicesQuotesViewModel {
-  title: 'Orcamentos';
-  subtitle: 'Pipeline local';
+  title: 'Orçamentos';
+  subtitle: 'Orçamentos locais';
   description: string;
   emptyState: {
     title: string;
@@ -50,7 +50,7 @@ export interface ServicesQuotesViewModel {
 }
 
 const openStatuses = new Set<QuoteStatus>(['rascunho', 'enviado', 'aguardando_assinatura']);
-const pipelineStatuses = new Set<QuoteStatus>(['rascunho', 'enviado']);
+const openValueStatuses = new Set<QuoteStatus>(['rascunho', 'enviado']);
 
 export function buildServicesQuotesViewModel(
   input: BuildServicesQuotesInput,
@@ -58,12 +58,12 @@ export function buildServicesQuotesViewModel(
   const items = input.orcamentos.map((orcamento) => mapQuoteItem(input, orcamento));
 
   return {
-    title: 'Orcamentos',
-    subtitle: 'Pipeline local',
-    description: 'Orcamentos mockados vinculados a cliente, equipamento ou registro.',
+    title: 'Orçamentos',
+    subtitle: 'Orçamentos locais',
+    description: 'Orçamentos vinculados a cliente, equipamento ou registro técnico.',
     emptyState: {
-      title: 'Nenhum orcamento mockado',
-      description: 'Orcamentos locais aparecerao aqui quando a etapa mockada for habilitada.',
+      title: 'Nenhum orçamento local',
+      description: 'Orçamentos locais aparecerão aqui quando houver um rascunho cadastrado.',
     },
     kpis: buildKpis(input.orcamentos),
     items,
@@ -86,7 +86,7 @@ function mapQuoteItem(
   return {
     id: orcamento.id,
     number: orcamento.numero,
-    title: orcamento.titulo.trim() || 'Orcamento sem titulo',
+    title: orcamento.titulo.trim() || 'Orçamento sem título',
     status: orcamento.status,
     customerLine: cliente?.nome ?? 'Sem cliente vinculado',
     equipmentLine: equipamento
@@ -108,8 +108,8 @@ function mapQuoteItem(
 }
 
 function buildKpis(orcamentos: Orcamento[]): ServicesQuotesKpiViewModel[] {
-  const pipelineValue = orcamentos
-    .filter((orcamento) => pipelineStatuses.has(orcamento.status))
+  const openValue = orcamentos
+    .filter((orcamento) => openValueStatuses.has(orcamento.status))
     .reduce((sum, orcamento) => sum + orcamento.total, 0);
 
   return [
@@ -124,9 +124,9 @@ function buildKpis(orcamentos: Orcamento[]): ServicesQuotesKpiViewModel[] {
       tone: 'success',
     },
     {
-      label: 'Pipeline',
-      value: pipelineValue,
-      valueLabel: formatCurrency(pipelineValue),
+      label: 'Valor em aberto',
+      value: openValue,
+      valueLabel: formatCurrency(openValue),
       tone: 'warning',
     },
   ];

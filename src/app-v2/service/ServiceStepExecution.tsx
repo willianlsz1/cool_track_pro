@@ -92,7 +92,7 @@ export function ServiceStepExecution({
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
-            Pecas usadas
+            Peças usadas
           </span>
           <textarea
             name="service-parts-used"
@@ -100,7 +100,7 @@ export function ServiceStepExecution({
             onChange={(event) => onChangeDraft({ ...draft, partsUsed: event.target.value })}
             rows={3}
             className={`tw-w-full tw-resize-none tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-            placeholder="Opcional: informe pecas substituidas ou utilizadas"
+            placeholder="Opcional: informe peças substituídas ou utilizadas"
           />
         </label>
 
@@ -109,7 +109,7 @@ export function ServiceStepExecution({
             <span
               className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
             >
-              Custo de pecas
+              Custo de peças
             </span>
             <input
               type="text"
@@ -126,7 +126,7 @@ export function ServiceStepExecution({
             <span
               className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
             >
-              Custo de mao de obra
+              Custo de mão de obra
             </span>
             <input
               type="text"
@@ -144,7 +144,7 @@ export function ServiceStepExecution({
           <span
             className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
-            Proxima manutencao
+            Próxima manutenção
           </span>
           <input
             type="date"

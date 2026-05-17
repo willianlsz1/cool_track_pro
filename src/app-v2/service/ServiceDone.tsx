@@ -54,7 +54,7 @@ export function ServiceDone({
         </div>
 
         <div className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-3">
-          <ActionButton onClick={() => setIsReportOpen(true)}>Ver relatorio</ActionButton>
+          <ActionButton onClick={() => setIsReportOpen(true)}>Ver relatório</ActionButton>
           <ActionButton variant="secondary" onClick={onOpenEquipment}>
             Ver equipamento
           </ActionButton>
@@ -97,7 +97,7 @@ export function ServiceDone({
             className={`tw-min-h-11 tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
             onClick={onCreateQuote}
           >
-            Criar orcamento mockado
+            Criar orçamento local
           </button>
           {done.disabledOutputs.map((output) => (
             <button

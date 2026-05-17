@@ -203,7 +203,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setStartServiceAfterEquipmentCreate(false);
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel salvar o equipamento.';
+      return error instanceof Error ? error.message : 'Não foi possível salvar o equipamento.';
     }
   }
 
@@ -218,7 +218,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel salvar o cliente.';
+      return error instanceof Error ? error.message : 'Não foi possível salvar o cliente.';
     }
   }
 
@@ -233,7 +233,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel salvar o setor.';
+      return error instanceof Error ? error.message : 'Não foi possível salvar o setor.';
     }
   }
 
@@ -244,7 +244,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel remover o setor.';
+      return error instanceof Error ? error.message : 'Não foi possível remover o setor.';
     }
   }
 
@@ -255,7 +255,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel arquivar o equipamento.';
+      return error instanceof Error ? error.message : 'Não foi possível arquivar o equipamento.';
     }
   }
 
@@ -266,7 +266,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel desarquivar o equipamento.';
+      return error instanceof Error ? error.message : 'Não foi possível desarquivar o equipamento.';
     }
   }
 
@@ -289,7 +289,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel adicionar o anexo.';
+      return error instanceof Error ? error.message : 'Não foi possível adicionar o anexo.';
     }
   }
 
@@ -328,7 +328,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel salvar o orcamento.';
+      return error instanceof Error ? error.message : 'Não foi possível salvar o orçamento.';
     }
   }
 
@@ -350,7 +350,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       );
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Nao foi possivel concluir o servico.';
+      return error instanceof Error ? error.message : 'Não foi possível concluir o serviço.';
     }
   }
 

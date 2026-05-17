@@ -108,7 +108,7 @@ describe('serviceFlowViewModel', () => {
     expect(buildServiceDoneViewModel(input, draft)).toMatchObject({
       title: 'Serviço concluído',
       summary: 'Corretiva registrada para Split 24.000 BTU.',
-      technicalSummary: expect.arrayContaining(['Tecnico: Bruno Tecnico']),
+      technicalSummary: expect.arrayContaining(['Técnico: Bruno Tecnico']),
       disabledOutputs: ['Próximo compromisso'],
     });
   });
@@ -161,7 +161,7 @@ it('reidrata draft de edicao a partir de registro existente com campos migrados'
     equipamentoId: 'eq-1',
     data: '2026-05-11',
     tipo: 'outro',
-    tipoDescricao: 'Outro Â· Higienizacao',
+    tipoDescricao: 'Outro · Higienizacao',
     status: 'warn',
     tecnico: 'Ana Tecnica',
     diagnostico: 'Serpentina com sujeira acumulada.',
@@ -226,10 +226,10 @@ it('mantem pecas usadas como campo opcional no resumo tecnico', () => {
     partsUsed: 'Filtro de ar, capacitor 35uF',
   });
   expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(
-    expect.arrayContaining(['Pecas usadas: Filtro de ar, capacitor 35uF']),
+    expect.arrayContaining(['Peças usadas: Filtro de ar, capacitor 35uF']),
   );
   expect(buildServiceReviewViewModel(input, { ...draft, partsUsed: '' })).toMatchObject({
-    partsUsed: 'Sem pecas informadas',
+    partsUsed: 'Sem peças informadas',
   });
 });
 
@@ -252,13 +252,13 @@ it('mantem custos opcionais no resumo tecnico sem exigir orcamento', () => {
     laborCost: '250,00',
   });
   expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(
-    expect.arrayContaining(['Custo de pecas: 120,00', 'Custo de mao de obra: 250,00']),
+    expect.arrayContaining(['Custo de peças: 120,00', 'Custo de mão de obra: 250,00']),
   );
   expect(
     buildServiceReviewViewModel(input, { ...draft, partsCost: '', laborCost: '' }),
   ).toMatchObject({
-    partsCost: 'Nao informado',
-    laborCost: 'Nao informado',
+    partsCost: 'Não informado',
+    laborCost: 'Não informado',
   });
 });
 
@@ -280,9 +280,9 @@ it('mantem proxima manutencao como campo opcional no resumo tecnico', () => {
     nextMaintenanceLabel: '10/06/2026',
   });
   expect(buildServiceDoneViewModel(input, draft).technicalSummary).toEqual(
-    expect.arrayContaining(['Proxima manutencao: 10/06/2026']),
+    expect.arrayContaining(['Próxima manutenção: 10/06/2026']),
   );
   expect(buildServiceReviewViewModel(input, { ...draft, nextMaintenanceDate: '' })).toMatchObject({
-    nextMaintenanceLabel: 'Nao informada',
+    nextMaintenanceLabel: 'Não informada',
   });
 });

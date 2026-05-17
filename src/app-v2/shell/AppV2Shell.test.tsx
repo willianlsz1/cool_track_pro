@@ -118,7 +118,7 @@ describe('AppV2Shell', () => {
     const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
 
     await clickButton(host, /Iniciar serviço/i);
-    expect(host.textContent).not.toContain('Ver relatorio');
+    expect(host.textContent).not.toContain('Ver relatório');
 
     await clickButton(host, /^Continuar$/i);
     await clickButton(host, /^Preventiva/i);
@@ -138,11 +138,11 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Serviço concluído');
     expect(host.textContent).toContain('Resumo do serviço');
     expect(host.textContent).toContain('Concluído');
-    expect(host.textContent).toContain('Ver relatorio');
+    expect(host.textContent).toContain('Ver relatório');
 
-    await clickButton(host, /^Ver relatorio$/i);
+    await clickButton(host, /^Ver relatório$/i);
 
-    expect(host.textContent).toContain('Registro de Servico Tecnico');
+    expect(host.textContent).toContain('Registro de Serviço Técnico');
     expect(host.textContent).toContain('CoolTrack Pro app-v2');
     expect(host.textContent).toContain('Mercado Bom');
     expect(host.textContent).toContain('Câmara fria');
@@ -151,11 +151,11 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('QA diagnóstico shell store.');
     expect(host.textContent).toContain('QA ações shell store.');
 
-    expect(host.textContent).toContain('Tecnico/responsavel');
-    expect(host.textContent).toContain('Cliente/responsavel');
+    expect(host.textContent).toContain('Técnico/responsável');
+    expect(host.textContent).toContain('Cliente/responsável');
     expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
 
-    await clickButton(host, /^Imprimir relatorio$/i);
+    await clickButton(host, /^Imprimir relatório$/i);
 
     expect(printSpy).toHaveBeenCalledTimes(1);
     printSpy.mockRestore();
@@ -207,20 +207,20 @@ describe('AppV2Shell', () => {
     const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
     const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
 
-    expect(sidebar?.textContent).not.toContain('Relatorios');
-    expect(bottomNav?.textContent).not.toContain('Relatorios');
+    expect(sidebar?.textContent).not.toContain('Relatórios');
+    expect(bottomNav?.textContent).not.toContain('Relatórios');
 
     await clickButton(host, /^Servi/i);
-    await clickButton(host, /^Relatorios$/i);
+    await clickButton(host, /^Relatórios$/i);
 
-    expect(host.textContent).toContain('Relatorios prontos');
-    expect(host.textContent).toContain('Com atencao');
+    expect(host.textContent).toContain('Relatórios prontos');
+    expect(host.textContent).toContain('Com atenção');
     expect(host.textContent).toContain('Pendentes');
-    expect(host.textContent).toContain('Este mes');
+    expect(host.textContent).toContain('Este mês');
     expect(host.textContent).toContain('REL-REGISTRO-1');
     expect(host.textContent).toContain('Câmara fria');
 
-    const search = host.querySelector('input[aria-label="Buscar relatorios"]');
+    const search = host.querySelector('input[aria-label="Buscar relatórios"]');
     expect(search).toBeInstanceOf(HTMLInputElement);
     await fillInput(search as HTMLInputElement, 'camara');
 
@@ -228,25 +228,25 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('REL-REGISTRO-2');
     expect(host.textContent).toMatch(/C.mara fria/);
 
-    await clickButton(host, /^Ver relatorio$/i);
+    await clickButton(host, /^Ver relatório$/i);
 
-    expect(host.textContent).toContain('Voltar para relatorios');
-    expect(host.textContent).toContain('Registro de Servico Tecnico');
+    expect(host.textContent).toContain('Voltar para relatórios');
+    expect(host.textContent).toContain('Registro de Serviço Técnico');
     expect(host.textContent).toMatch(/C.mara fria/);
     expect(host.querySelector('[data-app-v2-print-scope="service-report"]')).toBeTruthy();
     expect(host.querySelector('[data-app-v2-print-hidden="true"]')).toBeTruthy();
 
-    await clickButton(host, /^Voltar para relatorios$/i);
+    await clickButton(host, /^Voltar para relatórios$/i);
 
     expect(host.textContent).toContain('REL-REGISTRO-2');
-    expect(host.textContent).not.toContain('Registro de Servico Tecnico');
+    expect(host.textContent).not.toContain('Registro de Serviço Técnico');
   });
 
   it('filtra Relatorios por periodo, cliente e equipamento com resumo consolidado local', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Servi/i);
-    await clickButton(host, /^Relatorios$/i);
+    await clickButton(host, /^Relatórios$/i);
 
     const period = host.querySelector('select[name="service-report-period-filter"]');
     const client = host.querySelector('select[name="service-report-client-filter"]');
@@ -468,7 +468,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Split 24.000 BTU');
     expect(host.textContent).toContain('Limpeza de filtros e teste de temperatura.');
 
-    await clickButton(host, /^Relatorios$/i);
+    await clickButton(host, /^Relatórios$/i);
 
     expect(host.textContent).toContain('REL-REGISTRO-1');
     expect(host.textContent).toContain('Split 24.000 BTU');
@@ -582,8 +582,8 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Clientes$/i);
     await clickButton(host, /Mercado Bom/i);
 
-    expect(host.textContent).toContain('Servicos relacionados');
-    expect(host.textContent).toContain('2 servicos relacionados');
+    expect(host.textContent).toContain('Serviços relacionados');
+    expect(host.textContent).toContain('2 serviços relacionados');
     expect(host.textContent).toMatch(/C.mara fria/);
     expect(host.textContent).toContain('Alarme intermitente no controlador.');
     expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
@@ -769,15 +769,15 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('Outro · Higienizacao');
 
-    await clickButton(host, /^Concluir serviÃ§o$/i);
+    await clickButton(host, /^Concluir serviço$/i);
 
     expect(host.textContent).toContain('Outro · Higienizacao registrada para');
 
-    await clickButton(host, /^Ver relatorio$/i);
+    await clickButton(host, /^Ver relatório$/i);
 
     expect(host.textContent).toContain('Outro · Higienizacao');
 
-    await clickButton(host, /Voltar para ServiÃ§os/i);
+    await clickButton(host, /Voltar para Serviços/i);
 
     expect(host.textContent).toContain('Outro · Higienizacao');
     expect(host.textContent).toContain('Higienizacao completa registrada.');
@@ -872,7 +872,7 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Revisar$/i);
     await clickButton(host, /^Concluir servi/i);
 
-    expect(host.textContent).toContain('Informe uma data valida para concluir o servico.');
+    expect(host.textContent).toContain('Informe uma data válida para concluir o serviço.');
     expect(host.textContent).toContain('Etapa 4');
     expect(host.textContent).not.toContain('Servico concluido');
   });
@@ -941,9 +941,9 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('12/05/2026');
 
     await clickButton(host, /^Concluir servi/i);
-    await clickButton(host, /^Ver relatorio$/i);
+    await clickButton(host, /^Ver relatório$/i);
 
-    expect(host.textContent).toContain('Registro de Servico Tecnico');
+    expect(host.textContent).toContain('Registro de Serviço Técnico');
     expect(host.textContent).toContain('Câmara fria');
     expect(host.textContent).toContain('12/05/2026');
     expect(host.textContent).toContain('Diagnostico editado com troca de equipamento.');
@@ -987,9 +987,9 @@ it('permite registrar pecas usadas sem exigir custo ou orcamento', async () => {
   expect(host.textContent).toContain('Filtro de ar, capacitor 35uF');
 
   await clickButton(host, /^Concluir servi/i);
-  await clickButton(host, /^Ver relatorio$/i);
+  await clickButton(host, /^Ver relatório$/i);
 
-  expect(host.textContent).toContain('Pecas usadas');
+  expect(host.textContent).toContain('Peças usadas');
   expect(host.textContent).toContain('Filtro de ar, capacitor 35uF');
 });
 
@@ -1018,22 +1018,22 @@ it('permite registrar custos opcionais sem criar orcamento real', async () => {
 
   await clickButton(host, /^Revisar$/i);
 
-  expect(host.textContent).toContain('Custo de pecas');
+  expect(host.textContent).toContain('Custo de peças');
   expect(host.textContent).toContain('120,00');
-  expect(host.textContent).toContain('Custo de mao de obra');
+  expect(host.textContent).toContain('Custo de mão de obra');
   expect(host.textContent).toContain('250,00');
 
   await clickButton(host, /^Concluir servi/i);
-  await clickButton(host, /^Ver relatorio$/i);
+  await clickButton(host, /^Ver relatório$/i);
 
-  expect(host.textContent).toContain('Custo de pecas');
+  expect(host.textContent).toContain('Custo de peças');
   expect(host.textContent).toContain('120,00');
-  expect(host.textContent).toContain('Custo de mao de obra');
+  expect(host.textContent).toContain('Custo de mão de obra');
   expect(host.textContent).toContain('250,00');
   expect(host.textContent).not.toContain('Orcamento real');
 });
 
-it('cria orcamento mockado a partir do fechamento do servico', async () => {
+it('cria orcamento local a partir do fechamento do servico', async () => {
   const host = await renderShell();
 
   await clickButton(host, /Iniciar servi/i);
@@ -1057,10 +1057,10 @@ it('cria orcamento mockado a partir do fechamento do servico', async () => {
 
   await clickButton(host, /^Revisar$/i);
   await clickButton(host, /^Concluir servi/i);
-  await clickButton(host, /^Criar orcamento mockado$/i);
+  await clickButton(host, /^Criar orçamento local$/i);
 
-  expect(host.textContent).toContain('Pipeline local');
-  expect(host.textContent).toMatch(/Orcamento mockado - C.mara fria/);
+  expect(host.textContent).toContain('Orçamentos locais');
+  expect(host.textContent).toMatch(/Orçamento local - C.mara fria/);
   expect(host.textContent).toContain('R$ 370,00');
   expect(host.textContent).not.toContain('Billing');
   expect(host.textContent).not.toContain('Supabase');
@@ -1089,13 +1089,13 @@ it('permite registrar proxima manutencao sem abrir calendario real', async () =>
 
   await clickButton(host, /^Revisar$/i);
 
-  expect(host.textContent).toContain('Proxima manutencao');
+  expect(host.textContent).toContain('Próxima manutenção');
   expect(host.textContent).toContain('10/06/2026');
 
   await clickButton(host, /^Concluir servi/i);
-  await clickButton(host, /^Ver relatorio$/i);
+  await clickButton(host, /^Ver relatório$/i);
 
-  expect(host.textContent).toContain('Proxima manutencao');
+  expect(host.textContent).toContain('Próxima manutenção');
   expect(host.textContent).toContain('10/06/2026');
 
   await clickButton(host, /Voltar para Servi/i);

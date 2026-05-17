@@ -54,7 +54,7 @@ async function selectOption(select: HTMLSelectElement, value: string) {
   });
 }
 
-describe('AppV2Shell Orcamentos', () => {
+describe('AppV2Shell Orçamentos', () => {
   afterEach(async () => {
     if (root) {
       await act(async () => {
@@ -67,18 +67,18 @@ describe('AppV2Shell Orcamentos', () => {
     vi.restoreAllMocks();
   });
 
-  it('abre Orcamentos dentro de Servicos com lista mockada sem acoes sensiveis', async () => {
+  it('abre Orçamentos dentro de Serviços com lista mockada sem ações sensíveis', async () => {
     const host = await renderShell(createQuoteSnapshot());
     const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
     const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
 
-    expect(sidebar?.textContent).not.toContain('Orcamentos');
-    expect(bottomNav?.textContent).not.toContain('Orcamentos');
+    expect(sidebar?.textContent).not.toContain('Orçamentos');
+    expect(bottomNav?.textContent).not.toContain('Orçamentos');
 
     await clickButton(host, /^Servi/i);
-    await clickButton(host, /^Orcamentos$/i);
+    await clickButton(host, /^Orçamentos$/i);
 
-    expect(host.textContent).toContain('Pipeline local');
+    expect(host.textContent).toContain('Orçamentos locais');
     expect(host.textContent).toContain('ORC-2026-001');
     expect(host.textContent).toContain('Troca de controlador');
     expect(host.textContent).toContain('Mercado Bom');
@@ -104,7 +104,7 @@ describe('AppV2Shell Orcamentos', () => {
     await fillInput(title as HTMLInputElement, 'Troca revisada do controlador');
     await fillInput(total as HTMLInputElement, '1480,50');
     await selectOption(status as HTMLSelectElement, 'enviado');
-    await clickButton(host, /^Salvar orcamento$/i);
+    await clickButton(host, /^Salvar orçamento$/i);
 
     expect(host.textContent).toContain('Troca revisada do controlador');
     expect(host.textContent).toContain('Enviado');
@@ -136,7 +136,7 @@ describe('AppV2Shell Orcamentos', () => {
     expect(host.textContent).toContain('Controlador digital');
     expect(host.textContent).toContain('R$ 980,00');
 
-    await clickButton(host, /^Salvar orcamento$/i);
+    await clickButton(host, /^Salvar orçamento$/i);
 
     expect(host.textContent).toContain('1 item local');
     expect(host.textContent).toContain('R$ 980,00');
@@ -165,6 +165,6 @@ function createQuoteSnapshot(): AppV2MockSnapshot {
 
 async function openQuoteEditor(host: HTMLElement) {
   await clickButton(host, /^Servi/i);
-  await clickButton(host, /^Orcamentos$/i);
-  await clickButton(host, /^Editar orcamento$/i);
+  await clickButton(host, /^Orçamentos$/i);
+  await clickButton(host, /^Editar orçamento$/i);
 }

@@ -35,7 +35,7 @@ export function ServiceReportPreview({ report, onPrint }: ServiceReportPreviewPr
             {report.statusLabel}
           </StatusBadge>
           <ActionButton onClick={onPrint} className="tw-min-h-11">
-            Imprimir relatorio
+            Imprimir relatório
           </ActionButton>
         </div>
       </div>

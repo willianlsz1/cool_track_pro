@@ -24,7 +24,7 @@ export interface ServiceReportSectionViewModel {
 
 export interface ServiceReportViewModel {
   reportId: string;
-  title: 'Registro de Servico Tecnico';
+  title: 'Registro de Serviço Técnico';
   subtitle: string;
   generatedAtLabel: string;
   statusLabel: string;
@@ -116,29 +116,29 @@ function buildReport({
 
   return {
     reportId,
-    title: 'Registro de Servico Tecnico',
+    title: 'Registro de Serviço Técnico',
     subtitle: `${kindLabel} - ${equipamento.nome}`,
     generatedAtLabel: formatDateLabel(date),
     statusLabel,
     statusTone: mapStatusTone(status),
     sections: [
       {
-        title: 'Cabecalho',
+        title: 'Cabeçalho',
         fields: [
           { label: 'App', value: 'CoolTrack Pro app-v2' },
           { label: 'Registro', value: reportId },
           { label: 'Data', value: formatDateLabel(date) },
           { label: 'Status', value: statusLabel },
-          { label: 'Tecnico/responsavel', value: normalizeText(technician, 'Nao informado') },
+          { label: 'Técnico/responsável', value: normalizeText(technician, 'Não informado') },
         ],
       },
       {
         title: 'Cliente',
         fields: [
           { label: 'Cliente', value: cliente?.nome ?? 'Sem cliente vinculado' },
-          { label: 'Documento', value: cliente?.documento ?? 'Nao informado' },
-          { label: 'Contato', value: cliente?.contato ?? 'Nao informado' },
-          { label: 'Endereco', value: cliente?.endereco ?? 'Nao informado' },
+          { label: 'Documento', value: cliente?.documento ?? 'Não informado' },
+          { label: 'Contato', value: cliente?.contato ?? 'Não informado' },
+          { label: 'Endereço', value: cliente?.endereco ?? 'Não informado' },
           { label: 'Local de atendimento', value: equipamento.local },
         ],
       },
@@ -146,43 +146,43 @@ function buildReport({
         title: 'Equipamento',
         fields: [
           { label: 'Equipamento', value: equipamento.nome },
-          { label: 'Tipo/categoria', value: equipamento.tipo ?? 'Nao informado' },
-          { label: 'Marca/modelo', value: 'Nao informado' },
-          { label: 'Identificador', value: equipamento.tag ?? 'Nao informado' },
-          { label: 'Local de instalacao', value: equipamento.local },
+          { label: 'Tipo/categoria', value: equipamento.tipo ?? 'Não informado' },
+          { label: 'Marca/modelo', value: 'Não informado' },
+          { label: 'Identificador', value: equipamento.tag ?? 'Não informado' },
+          { label: 'Local de instalação', value: equipamento.local },
         ],
       },
       {
-        title: 'Servico',
+        title: 'Serviço',
         fields: [
-          { label: 'Tipo de servico', value: kindLabel },
+          { label: 'Tipo de serviço', value: kindLabel },
           { label: 'Status', value: statusLabel },
           { label: 'Inicio', value: formatDateLabel(date) },
-          { label: 'Conclusao', value: formatDateLabel(date) },
+          { label: 'Conclusão', value: formatDateLabel(date) },
           { label: 'Resultado', value: statusLabel },
         ],
       },
       {
-        title: 'Execucao',
+        title: 'Execução',
         fields: [
-          { label: 'Diagnostico', value: normalizeText(diagnosis, 'Nao informado') },
-          { label: 'Acoes executadas', value: normalizeText(actionsDone, 'Nao informado') },
-          { label: 'Pecas usadas', value: normalizeText(partsUsed ?? '', 'Nao informado') },
-          { label: 'Custo de pecas', value: normalizeText(partsCost ?? '', 'Nao informado') },
-          { label: 'Custo de mao de obra', value: normalizeText(laborCost ?? '', 'Nao informado') },
+          { label: 'Diagnóstico', value: normalizeText(diagnosis, 'Não informado') },
+          { label: 'Ações executadas', value: normalizeText(actionsDone, 'Não informado') },
+          { label: 'Peças usadas', value: normalizeText(partsUsed ?? '', 'Não informado') },
+          { label: 'Custo de peças', value: normalizeText(partsCost ?? '', 'Não informado') },
+          { label: 'Custo de mão de obra', value: normalizeText(laborCost ?? '', 'Não informado') },
           {
-            label: 'Proxima manutencao',
+            label: 'Próxima manutenção',
             value: formatOptionalDateLabel(nextMaintenanceDate),
           },
           {
-            label: 'Observacoes',
-            value: normalizeText(observations ?? diagnosis, 'Nao informado'),
+            label: 'Observações',
+            value: normalizeText(observations ?? diagnosis, 'Não informado'),
           },
-          { label: 'Recomendacoes', value: 'Nao informado' },
+          { label: 'Recomendações', value: 'Não informado' },
         ],
       },
     ],
-    signatureFields: ['Tecnico/responsavel', 'Cliente/responsavel'],
+    signatureFields: ['Técnico/responsável', 'Cliente/responsável'],
   };
 }
 
@@ -190,7 +190,7 @@ function getReportEntities(input: ServiceReportDataInput, equipmentId: string) {
   const equipamento = input.equipamentos.find((item) => item.id === equipmentId);
 
   if (!equipamento) {
-    throw new Error(`Equipamento nao encontrado: ${equipmentId}`);
+    throw new Error(`Equipamento não encontrado: ${equipmentId}`);
   }
 
   const cliente = equipamento.clienteId
@@ -208,11 +208,11 @@ function buildReportId(today: string, draft: ServiceDraft): string {
 
 function formatStatusLabel(status: ServiceRecordStatus): string {
   if (status === 'danger') {
-    return 'Critico';
+    return 'Crítico';
   }
 
   if (status === 'warn') {
-    return 'Atencao';
+    return 'Atenção';
   }
 
   return 'Operacional';
@@ -239,7 +239,7 @@ function formatOptionalDateLabel(date: string | undefined): string {
   const normalizedDate = date?.trim();
 
   if (!normalizedDate) {
-    return 'Nao informado';
+    return 'Não informado';
   }
 
   return formatDateLabel(normalizedDate);

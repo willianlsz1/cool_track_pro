@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding, faEdit, faMicrochip } from '@fortawesome/free-solid-svg-icons';
 
 import type { QuoteStatus } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import { ActionButton, PageShell, SectionCard } from '../ui/primitives';
 import { ServicesSubViewNav, type ServicesSubView } from './ServicesSubViewNav';
 import {
   buildServicesQuotesViewModel,
@@ -66,7 +68,7 @@ export function ServicesQuotesHome({
     const description = itemDraft.description.trim();
 
     if (!description) {
-      setErrorMessage('Informe a descricao do item do orcamento.');
+      setErrorMessage('Informe a descrição do item do orçamento.');
       return;
     }
 
@@ -102,65 +104,40 @@ export function ServicesQuotesHome({
     <PageShell>
       <ServicesSubViewNav activeView={activeView} onSelectView={onSelectView} />
 
-      <header className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)] lg:tw-items-end">
+      <header className="tw-min-w-0">
         <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
+          <p className="tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.04em] tw-text-[#1E4F8A]">
             {viewModel.subtitle}
           </p>
           <h1
-            className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-none sm:tw-text-[2rem] ${appV2Tone.text}`}
+            className={`tw-m-0 tw-mt-3 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-[-0.01em] ${appV2Tone.text}`}
           >
             {viewModel.title}
           </h1>
-          <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+          <p className={`tw-m-0 tw-mt-1.5 tw-text-[0.85rem] tw-font-normal ${appV2Tone.mutedText}`}>
             {viewModel.description}
           </p>
         </div>
-        <SectionCard padding="sm">
-          <span className={`tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
-            Orcamentos mockados
-          </span>
-          <span className={`tw-mt-1 tw-block tw-text-2xl tw-font-bold ${appV2Tone.text}`}>
-            {viewModel.totalItems}
-          </span>
-        </SectionCard>
       </header>
 
-      <section className="tw-grid tw-gap-3 sm:tw-grid-cols-3">
-        {viewModel.kpis.map((kpi) => (
-          <SectionCard key={kpi.label} padding="sm">
-            <span
-              className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-            >
-              {kpi.label}
-            </span>
-            <span className={`tw-mt-2 tw-block tw-text-xl tw-font-bold ${appV2Tone.text}`}>
-              {kpi.valueLabel ?? kpi.value}
-            </span>
-          </SectionCard>
-        ))}
-      </section>
+      <SectionCard>
+        <div className="tw-flex tw-flex-wrap tw-gap-4">
+          {viewModel.kpis.map((kpi) => (
+            <KpiCard key={kpi.label} label={kpi.label} value={kpi.valueLabel ?? kpi.value} />
+          ))}
+        </div>
+      </SectionCard>
 
       <SectionCard className="sm:tw-p-5" labelledBy="quotes-title" padding="sm">
-        <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
-          <div>
-            <p
-              className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-            >
-              Orçamentos
-            </p>
-            <h2
-              id="quotes-title"
-              className={`tw-m-0 tw-mt-1 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
-            >
-              Acompanhamento
-            </h2>
-          </div>
-          <StatusBadge>{viewModel.totalItems}</StatusBadge>
-        </div>
+        <h2
+          id="quotes-title"
+          className={`tw-m-0 tw-text-[0.8rem] tw-font-semibold tw-uppercase ${appV2Tone.text}`}
+        >
+          Orçamentos · Acompanhamento
+        </h2>
 
         {viewModel.items.length > 0 ? (
-          <div className="tw-mt-4 tw-grid tw-gap-3">
+          <div className="tw-mt-4 tw-grid tw-gap-4">
             {viewModel.items.map((quote) => (
               <QuoteCard
                 key={quote.id}
@@ -185,13 +162,13 @@ export function ServicesQuotesHome({
               <p
                 className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
               >
-                Edicao local
+                Edição local
               </p>
               <h2
                 id="quote-edit-title"
                 className={`tw-m-0 tw-mt-1 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
               >
-                Editar orcamento
+                Editar orçamento
               </h2>
             </div>
             <ActionButton variant="secondary" onClick={() => setEditingQuote(null)}>
@@ -201,7 +178,7 @@ export function ServicesQuotesHome({
 
           <div className="tw-mt-4 tw-grid tw-gap-3 md:tw-grid-cols-[minmax(0,1fr)_160px_190px]">
             <label className="tw-block">
-              <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">Titulo</span>
+              <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">Título</span>
               <input
                 name="quote-title"
                 value={editingQuote.title}
@@ -252,7 +229,7 @@ export function ServicesQuotesHome({
             </p>
             <div className="tw-mt-3 tw-grid tw-gap-3 md:tw-grid-cols-[minmax(0,1fr)_120px_160px_auto] md:tw-items-end">
               <label className="tw-block">
-                <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">Descricao</span>
+                <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">Descrição</span>
                 <input
                   name="quote-item-description"
                   value={itemDraft.description}
@@ -324,7 +301,7 @@ export function ServicesQuotesHome({
           ) : null}
 
           <div className="tw-mt-4 tw-flex tw-justify-end">
-            <ActionButton onClick={saveEditingQuote}>Salvar orcamento</ActionButton>
+            <ActionButton onClick={saveEditingQuote}>Salvar orçamento</ActionButton>
           </div>
         </SectionCard>
       ) : null}
@@ -340,37 +317,63 @@ function QuoteCard({
   onEdit?: () => void;
 }) {
   return (
-    <article className={`tw-rounded-2xl tw-border tw-bg-white tw-p-4 ${appV2Tone.border}`}>
-      <div className="tw-flex tw-items-start tw-justify-between tw-gap-3">
+    <article className="tw-rounded-2xl tw-border tw-border-[#EDF2F7] tw-bg-white tw-p-4">
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3">
         <div className="tw-min-w-0">
-          <p
-            className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
+          <p className="tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-2.5 tw-py-1 tw-text-[0.85rem] tw-font-bold tw-text-[#1E4F8A]">
             {quote.number}
           </p>
-          <h3 className={`tw-m-0 tw-mt-1 tw-text-base tw-font-bold ${appV2Tone.text}`}>
-            {quote.title}
-          </h3>
         </div>
-        <StatusBadge tone={quote.statusTone}>{quote.statusLabel}</StatusBadge>
+        <span className="tw-text-[0.9rem] tw-font-bold tw-text-[#16A34A]">
+          Total: {quote.totalLabel}
+        </span>
       </div>
 
-      <dl className="tw-m-0 tw-mt-4 tw-grid tw-gap-3 sm:tw-grid-cols-3">
-        <QuoteFact label="Cliente" value={quote.customerLine} />
-        <QuoteFact label="Equipamento" value={quote.equipmentLine} />
-        <QuoteFact label="Total" value={quote.totalLabel} />
+      <h3 className={`tw-m-0 tw-mt-2 tw-text-[0.9rem] tw-font-semibold ${appV2Tone.text}`}>
+        {quote.title}
+      </h3>
+
+      <dl className={`tw-m-0 tw-mt-3 tw-grid tw-gap-1 tw-text-[0.7rem] ${appV2Tone.mutedText}`}>
+        <QuoteFact icon={faBuilding} label="Cliente" value={quote.customerLine} />
+        <QuoteFact icon={faMicrochip} label="Equipamento" value={quote.equipmentLine} />
       </dl>
-      <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-semibold ${appV2Tone.mutedText}`}>
-        {quote.itemsLabel}
+      <p className={`tw-m-0 tw-mt-3 tw-text-[0.7rem] tw-font-medium ${appV2Tone.mutedText}`}>
+        {quote.statusLabel} · {quote.itemsLabel}
       </p>
       {onEdit ? (
-        <div className="tw-mt-4 tw-flex tw-justify-end">
-          <ActionButton variant="secondary" onClick={onEdit}>
-            Editar orcamento
-          </ActionButton>
+        <div className="tw-mt-4 tw-flex">
+          <button
+            type="button"
+            className={`tw-inline-flex tw-w-fit tw-items-center tw-gap-1.5 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-[0.65rem] tw-font-semibold tw-text-[#1E4F8A] ${appV2Tone.focus}`}
+            onClick={onEdit}
+          >
+            <FontAwesomeIcon icon={faEdit} className="tw-text-[0.7rem]" />
+            Editar orçamento
+          </button>
         </div>
       ) : null}
     </article>
+  );
+}
+
+function KpiCard({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="tw-min-w-[120px] tw-flex-1 tw-rounded-2xl tw-bg-[#F8FAFE] tw-p-3 tw-text-center">
+      <p
+        className={`tw-m-0 tw-font-extrabold tw-leading-tight ${
+          typeof value === 'string' && value.startsWith('R$')
+            ? 'tw-text-[1.4rem]'
+            : 'tw-text-[1.8rem]'
+        } ${appV2Tone.text}`}
+      >
+        {value}
+      </p>
+      <p
+        className={`tw-m-0 tw-mt-1 tw-text-[0.7rem] tw-font-medium tw-uppercase ${appV2Tone.mutedText}`}
+      >
+        {label}
+      </p>
+    </div>
   );
 }
 
@@ -392,15 +395,22 @@ function formatCurrency(value: number): string {
     .replace(/\u00a0/g, ' ');
 }
 
-function QuoteFact({ label, value }: { label: string; value: string }) {
+function QuoteFact({
+  icon,
+  label,
+  value,
+}: {
+  icon: typeof faBuilding;
+  label: string;
+  value: string;
+}) {
   return (
-    <div>
-      <dt
-        className={`tw-text-[0.65rem] tw-font-bold tw-uppercase tw-tracking-[0.12em] ${appV2Tone.subtleText}`}
-      >
-        {label}
+    <div className="tw-flex tw-items-start tw-gap-2">
+      <dt className="tw-min-w-[112px] tw-font-semibold tw-uppercase tw-text-[#52677F]">
+        <FontAwesomeIcon icon={icon} className="tw-mr-1.5 tw-w-4 tw-text-[#8BA0BC]" />
+        {label}:
       </dt>
-      <dd className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-semibold ${appV2Tone.text}`}>{value}</dd>
+      <dd className={`tw-m-0 tw-font-medium ${appV2Tone.mutedText}`}>{value}</dd>
     </div>
   );
 }

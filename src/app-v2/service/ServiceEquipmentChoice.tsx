@@ -22,7 +22,7 @@ export function ServiceEquipmentChoice({
           <p
             className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
           >
-            Registro de servico
+            Registro de serviço
           </p>
           <h1
             className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
@@ -46,7 +46,7 @@ export function ServiceEquipmentChoice({
     <PageShell>
       <header>
         <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-          Registro de servico
+          Registro de serviço
         </p>
         <h1
           className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight sm:tw-text-[2rem] ${appV2Tone.text}`}

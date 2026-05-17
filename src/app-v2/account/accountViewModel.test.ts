@@ -13,22 +13,22 @@ describe('accountViewModel', () => {
     expect(viewModel).toMatchObject({
       title: 'Conta',
       subtitle: 'Painel local',
-      description: 'Atalhos e preferencias operacionais locais desta sessao.',
+      description: 'Atalhos e preferências operacionais locais desta sessão.',
       emptyState: {
-        title: 'Sem pendencias locais',
-        description: 'Preferencias e atalhos estao prontos para uso nesta sessao.',
+        title: 'Sem pendências locais',
+        description: 'Preferências e atalhos estão prontos para uso nesta sessão.',
       },
       localBoundary: {
         title: 'Somente local',
-        description: 'Dados reais e integracoes ficam para etapas dedicadas.',
+        description: 'Dados reais e integrações ficam para etapas dedicadas.',
       },
       shortcutGroups: [
         {
           title: 'Atalhos operacionais',
           items: [
-            { id: 'start-service', label: 'Registrar servico' },
+            { id: 'start-service', label: 'Registrar serviço' },
             { id: 'open-clients', label: 'Clientes' },
-            { id: 'open-quotes', label: 'Orcamentos' },
+            { id: 'open-quotes', label: 'Orçamentos' },
             { id: 'open-alerts', label: 'Alertas' },
           ],
         },
@@ -36,7 +36,7 @@ describe('accountViewModel', () => {
       preferences: {
         density: {
           label: 'Densidade visual',
-          valueLabel: 'Confortavel',
+          valueLabel: 'Confortável',
           layoutClassName: 'tw-gap-5',
         },
         startTab: {
@@ -71,12 +71,12 @@ describe('accountViewModel', () => {
       layoutClassName: 'tw-gap-3',
     });
     expect(viewModel.preferences.startTab).toMatchObject({
-      valueLabel: 'Servicos',
-      actionLabel: 'Abrir Servicos',
+      valueLabel: 'Serviços',
+      actionLabel: 'Abrir Serviços',
     });
     expect(viewModel.preferences.reminder).toMatchObject({
       valueLabel: 'Ligado',
-      banner: 'Lembrete local ativo nesta sessao.',
+      banner: 'Lembrete local ativo nesta sessão.',
     });
   });
 });

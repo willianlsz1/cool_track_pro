@@ -191,7 +191,7 @@ export function ClientDetail({
               id="client-services-title"
               className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
             >
-              Servicos relacionados
+              Serviços relacionados
             </h2>
             <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
               {detail.servicesCountLabel}

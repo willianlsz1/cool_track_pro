@@ -74,7 +74,7 @@ export function startServiceFromEquipment(
   const equipamento = state.equipamentos.find((item) => item.id === equipmentId);
 
   if (equipamento?.archivedAt) {
-    throw new Error('Equipamento arquivado nao pode iniciar servico.');
+    throw new Error('Equipamento arquivado não pode iniciar serviço.');
   }
 
   return {
@@ -131,7 +131,7 @@ export function updateServiceRecord(
   validateServiceCompletion(state, completion);
 
   if (!state.registros.some((registro) => registro.id === completion.id)) {
-    throw new Error('Registro nao encontrado para edicao.');
+    throw new Error('Registro não encontrado para edição.');
   }
 
   const draft = state.serviceDraft!;
@@ -163,11 +163,11 @@ export function validateServiceCompletion(
   const draft = state.serviceDraft;
 
   if (!state.equipamentos.some((equipamento) => equipamento.id === draft.equipmentId)) {
-    throw new Error('Equipamento nao encontrado. Escolha um equipamento valido antes de concluir.');
+    throw new Error('Equipamento não encontrado. Escolha um equipamento válido antes de concluir.');
   }
 
   if (!isValidServiceDate(completion.date)) {
-    throw new Error('Informe uma data valida para concluir o servico.');
+    throw new Error('Informe uma data válida para concluir o serviço.');
   }
 }
 
@@ -198,7 +198,7 @@ export function createQuoteFromServiceRecord(
   const registro = state.registros.find((item) => item.id === input.recordId);
 
   if (!registro) {
-    throw new Error('Registro nao encontrado para gerar orcamento mockado.');
+    throw new Error('Registro não encontrado para gerar orçamento local.');
   }
 
   const existingQuote = state.orcamentos.find((item) => item.registroId === input.recordId);
@@ -218,7 +218,7 @@ export function createQuoteFromServiceRecord(
     clienteId: equipamento?.clienteId,
     equipamentoId: registro.equipamentoId,
     registroId: registro.id,
-    titulo: `Orcamento mockado - ${equipamento?.nome ?? 'Equipamento nao encontrado'}`,
+    titulo: `Orçamento local - ${equipamento?.nome ?? 'Equipamento não encontrado'}`,
     total: parseCurrencyValue(registro.custoPecas) + parseCurrencyValue(registro.custoMaoObra),
   };
 
@@ -236,18 +236,18 @@ export function updateQuoteDraft(
   const currentQuote = state.orcamentos.find((item) => item.id === input.id);
 
   if (!currentQuote) {
-    throw new Error('Orcamento nao encontrado para edicao local.');
+    throw new Error('Orçamento não encontrado para edição local.');
   }
 
   if (currentQuote.status !== 'rascunho') {
-    throw new Error('Apenas orcamentos em rascunho podem ser editados nesta etapa.');
+    throw new Error('Apenas orçamentos em rascunho podem ser editados nesta etapa.');
   }
 
   const title = input.title.trim();
   const items = normalizeQuoteItems(input);
 
   if (!title) {
-    throw new Error('Informe um titulo para o orcamento.');
+    throw new Error('Informe um título para o orçamento.');
   }
 
   return {
@@ -328,15 +328,15 @@ function normalizeQuoteItems(input: UpdateQuoteDraftInput): OrcamentoItem[] {
       }
 
       if (!descricao) {
-        throw new Error('Informe a descricao do item do orcamento.');
+        throw new Error('Informe a descrição do item do orçamento.');
       }
 
       if (quantidade <= 0) {
-        throw new Error('Informe uma quantidade valida para o item do orcamento.');
+        throw new Error('Informe uma quantidade válida para o item do orçamento.');
       }
 
       if (valorUnitario < 0) {
-        throw new Error('Informe um valor valido para o item do orcamento.');
+        throw new Error('Informe um valor válido para o item do orçamento.');
       }
 
       return {

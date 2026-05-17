@@ -49,7 +49,7 @@ describe('app-v2 flow actions', () => {
     });
 
     expect(() => startServiceFromEquipment(state, 'eq-archived')).toThrow(
-      'Equipamento arquivado nao pode iniciar servico.',
+      'Equipamento arquivado não pode iniciar serviço.',
     );
   });
 
@@ -191,7 +191,7 @@ describe('app-v2 flow actions', () => {
     };
 
     expect(() => updateServiceRecord(started, { ...completion, date: '' })).toThrow(
-      'Informe uma data valida para concluir o servico.',
+      'Informe uma data válida para concluir o serviço.',
     );
 
     expect(() =>
@@ -202,7 +202,7 @@ describe('app-v2 flow actions', () => {
         },
         { ...completion, date: '2026-05-11' },
       ),
-    ).toThrow('Equipamento nao encontrado. Escolha um equipamento valido antes de concluir.');
+    ).toThrow('Equipamento não encontrado. Escolha um equipamento válido antes de concluir.');
   });
 
   it('starts a service from an explicit commitment', () => {
@@ -323,7 +323,7 @@ describe('app-v2 flow actions', () => {
         actionsDone: 'Acoes registradas.',
         finalStatus: 'ok',
       }),
-    ).toThrow('Equipamento nao encontrado. Escolha um equipamento valido antes de concluir.');
+    ).toThrow('Equipamento não encontrado. Escolha um equipamento válido antes de concluir.');
   });
 
   it('bloqueia conclusao quando a data do registro esta ausente ou invalida', () => {
@@ -337,10 +337,10 @@ describe('app-v2 flow actions', () => {
     };
 
     expect(() => completeService(state, { ...completion, date: '' })).toThrow(
-      'Informe uma data valida para concluir o servico.',
+      'Informe uma data válida para concluir o serviço.',
     );
     expect(() => completeService(state, { ...completion, date: '16/05/2026' })).toThrow(
-      'Informe uma data valida para concluir o servico.',
+      'Informe uma data válida para concluir o serviço.',
     );
   });
 
@@ -572,7 +572,7 @@ it('preserva custos opcionais quando conclui servico sem criar orcamento', () =>
   expect(completed.orcamentos).toHaveLength(started.orcamentos.length);
 });
 
-it('cria orcamento mockado a partir de registro concluido sem billing ou storage real', () => {
+it('cria orcamento local a partir de registro concluido sem billing ou storage real', () => {
   const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
   const withCosts = {
     ...started,
@@ -603,14 +603,14 @@ it('cria orcamento mockado a partir de registro concluido sem billing ou storage
     clienteId: 'cliente-1',
     equipamentoId: 'eq-1',
     registroId: 'registro-orcamento',
-    titulo: 'Orcamento mockado - Split 24.000 BTU',
+    titulo: 'Orçamento local - Split 24.000 BTU',
     total: 370,
   });
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('billing');
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('Supabase');
 });
 
-it('edita rascunho de orcamento mockado sem tocar billing ou storage real', () => {
+it('edita rascunho de orcamento local sem tocar billing ou storage real', () => {
   const state = createAppV2MockSnapshot();
 
   const edited = updateQuoteDraft(state, {
@@ -630,7 +630,7 @@ it('edita rascunho de orcamento mockado sem tocar billing ou storage real', () =
   expect(JSON.stringify(edited.orcamentos[0])).not.toContain('Supabase');
 });
 
-it('recalcula rascunho de orcamento mockado a partir de itens locais simples', () => {
+it('recalcula rascunho de orcamento local a partir de itens locais simples', () => {
   const state = createAppV2MockSnapshot();
 
   const edited = updateQuoteDraft(state, {

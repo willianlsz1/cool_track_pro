@@ -9,15 +9,15 @@ interface ServicesSubViewNavProps {
 
 const subViews: Array<{ id: ServicesSubView; label: string }> = [
   { id: 'registros', label: 'Registros' },
-  { id: 'relatorios', label: 'Relatorios' },
-  { id: 'orcamentos', label: 'Orcamentos' },
+  { id: 'relatorios', label: 'Relatórios' },
+  { id: 'orcamentos', label: 'Orçamentos' },
 ];
 
 export function ServicesSubViewNav({ activeView, onSelectView }: ServicesSubViewNavProps) {
   return (
     <div
       className={`tw-flex tw-gap-2 tw-overflow-x-auto tw-rounded-2xl tw-border tw-bg-white tw-p-1 ${appV2Tone.border}`}
-      aria-label="Subvisoes de servicos"
+      aria-label="Subvisões de serviços"
     >
       {subViews.map((view) => {
         const isActive = activeView === view.id;

@@ -45,9 +45,9 @@ export function AccountHome({
               {viewModel.description}
             </p>
           </div>
-          <SectionCard padding="sm" label="Resumo das preferencias locais">
+          <SectionCard padding="sm" label="Resumo das preferências locais">
             <span className={`tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
-              Preferencias locais
+              Preferências locais
             </span>
             <span className={`tw-mt-1 tw-block tw-text-2xl tw-font-bold ${appV2Tone.text}`}>
               {viewModel.preferences.density.valueLabel}
@@ -133,7 +133,7 @@ export function AccountHome({
             id="account-preferences-title"
             className={`tw-m-0 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
           >
-            Preferencias
+            Preferências
           </h2>
           <div className="tw-mt-4 tw-grid tw-gap-3 md:tw-grid-cols-3">
             <label className="tw-block">
@@ -152,7 +152,7 @@ export function AccountHome({
                 }
                 className={`tw-mt-2 tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
               >
-                <option value="confortavel">Confortavel</option>
+                <option value="confortavel">Confortável</option>
                 <option value="compacta">Compacta</option>
               </select>
               <span
@@ -181,7 +181,7 @@ export function AccountHome({
               >
                 <option value="hoje">Hoje</option>
                 <option value="equipamento">Equipamentos</option>
-                <option value="servicos">Servicos</option>
+                <option value="servicos">Serviços</option>
               </select>
               <span
                 id="account-start-tab-help"

@@ -62,14 +62,14 @@ export function buildAccountViewModel(preferences: AccountPreferencesState): Acc
   return {
     title: 'Conta',
     subtitle: 'Painel local',
-    description: 'Atalhos e preferencias operacionais locais desta sessao.',
+    description: 'Atalhos e preferências operacionais locais desta sessão.',
     emptyState: {
-      title: 'Sem pendencias locais',
-      description: 'Preferencias e atalhos estao prontos para uso nesta sessao.',
+      title: 'Sem pendências locais',
+      description: 'Preferências e atalhos estão prontos para uso nesta sessão.',
     },
     localBoundary: {
       title: 'Somente local',
-      description: 'Dados reais e integracoes ficam para etapas dedicadas.',
+      description: 'Dados reais e integrações ficam para etapas dedicadas.',
     },
     shortcutGroups: [
       {
@@ -77,7 +77,7 @@ export function buildAccountViewModel(preferences: AccountPreferencesState): Acc
         items: [
           {
             id: 'start-service',
-            label: 'Registrar servico',
+            label: 'Registrar serviço',
             description: 'Abre o fluxo local de registro no app-v2.',
           },
           {
@@ -87,8 +87,8 @@ export function buildAccountViewModel(preferences: AccountPreferencesState): Acc
           },
           {
             id: 'open-quotes',
-            label: 'Orcamentos',
-            description: 'Abre Servicos > Orcamentos.',
+            label: 'Orçamentos',
+            description: 'Abre Serviços > Orçamentos.',
           },
           {
             id: 'open-alerts',
@@ -101,7 +101,7 @@ export function buildAccountViewModel(preferences: AccountPreferencesState): Acc
     preferences: {
       density: {
         label: 'Densidade visual',
-        valueLabel: preferences.density === 'compacta' ? 'Compacta' : 'Confortavel',
+        valueLabel: preferences.density === 'compacta' ? 'Compacta' : 'Confortável',
         layoutClassName: preferences.density === 'compacta' ? 'tw-gap-3' : 'tw-gap-5',
       },
       startTab: {
@@ -112,13 +112,13 @@ export function buildAccountViewModel(preferences: AccountPreferencesState): Acc
       reminder: {
         label: 'Lembrete visual',
         valueLabel: preferences.reminderEnabled ? 'Ligado' : 'Desligado',
-        banner: preferences.reminderEnabled ? 'Lembrete local ativo nesta sessao.' : null,
+        banner: preferences.reminderEnabled ? 'Lembrete local ativo nesta sessão.' : null,
       },
     },
     helpItems: [
-      'Hoje concentra alertas e proximas acoes.',
+      'Hoje concentra alertas e próximas ações.',
       'Equipamentos organiza parque, clientes e detalhes locais.',
-      'Servicos concentra registros, relatorios e orcamentos locais.',
+      'Serviços concentra registros, relatórios e orçamentos locais.',
     ],
   };
 }
@@ -129,7 +129,7 @@ function getStartTabLabel(tab: AccountStartTabPreference): string {
   }
 
   if (tab === 'servicos') {
-    return 'Servicos';
+    return 'Serviços';
   }
 
   return 'Hoje';

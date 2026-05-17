@@ -82,7 +82,7 @@ describe('servicesReportsViewModel', () => {
   it('deriva relatorios a partir dos registros concluidos com dados relacionados', () => {
     const viewModel = buildServicesReportsViewModel(input);
 
-    expect(viewModel.title).toBe('Relatorios');
+    expect(viewModel.title).toBe('Relatórios');
     expect(viewModel.items).toHaveLength(3);
     expect(viewModel.items[0]).toMatchObject({
       id: 'registro-1',
@@ -98,10 +98,10 @@ describe('servicesReportsViewModel', () => {
 
   it('calcula KPIs locais de prontos, atencao, pendentes e este mes', () => {
     expect(buildServicesReportsViewModel(input).kpis).toEqual([
-      { label: 'Relatorios prontos', value: 1, tone: 'success' },
-      { label: 'Com atencao', value: 1, tone: 'warning' },
+      { label: 'Relatórios prontos', value: 1, tone: 'success' },
+      { label: 'Com atenção', value: 1, tone: 'warning' },
       { label: 'Pendentes', value: 1, tone: 'muted' },
-      { label: 'Este mes', value: 2, tone: 'primary' },
+      { label: 'Este mês', value: 2, tone: 'primary' },
     ]);
   });
 
@@ -199,8 +199,8 @@ describe('servicesReportsViewModel', () => {
 
     expect(viewModel.items[0]).toMatchObject({
       customerName: 'Sem cliente vinculado',
-      equipmentName: 'Equipamento nao encontrado',
-      statusLabel: 'Pendente de revisao',
+      equipmentName: 'Equipamento não encontrado',
+      statusLabel: 'Pendente de revisão',
     });
     expect(JSON.stringify(viewModel)).not.toContain(['P', 'MOC'].join(''));
     expect(JSON.stringify(viewModel)).not.toContain(['share', 'Report'].join(''));
