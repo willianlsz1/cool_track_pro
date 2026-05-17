@@ -72,8 +72,8 @@ export function EquipmentCard({ item, onOpen }: EquipmentCardProps) {
         {item.attachmentLabel ? (
           <span className={`tw-block tw-truncate tw-text-xs tw-font-semibold ${appV2Text.subtle}`}>
             {item.coverAttachmentLabel
-              ? `Capa local: ${item.coverAttachmentLabel}`
-              : `Anexos: ${item.attachmentLabel}`}
+              ? `Foto principal: ${item.coverAttachmentLabel}`
+              : `Fotos: ${item.attachmentLabel}`}
           </span>
         ) : null}
       </span>

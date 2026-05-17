@@ -35,7 +35,16 @@ async function clickButton(host: HTMLElement, label: RegExp) {
   });
 }
 
-describe('AppV2Shell equipment attachments', () => {
+async function fillInput(input: HTMLInputElement, value: string) {
+  const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+
+  await act(async () => {
+    valueSetter?.call(input, value);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+describe('AppV2Shell equipment photos', () => {
   afterEach(async () => {
     if (root) {
       await act(async () => {
@@ -47,22 +56,41 @@ describe('AppV2Shell equipment attachments', () => {
     document.body.innerHTML = '';
   });
 
-  it('mostra e adiciona anexos locais no detalhe sem input de arquivo', async () => {
+  it('mostra e adiciona fotos locais no detalhe sem input de arquivo', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Equipamentos$/i);
     await clickButton(host, /Split 24\.000 BTU/i);
 
-    expect(host.textContent).toContain('Anexos locais');
-    expect(host.textContent).toContain('1/3 anexos locais');
+    expect(host.textContent).toContain('Fotos do equipamento');
+    expect(host.textContent).toContain('1/3 fotos locais');
     expect(host.textContent).toContain('Foto local evaporadora');
     expect(host.querySelector('input[type="file"]')).toBeNull();
 
-    await clickButton(host, /^Adicionar anexo local$/i);
+    await clickButton(host, /^Adicionar foto local$/i);
 
-    expect(host.textContent).toContain('2/3 anexos locais');
-    expect(host.textContent).toContain('Documento local 2');
+    expect(host.textContent).toContain('2/3 fotos locais');
+    expect(host.textContent).toContain('Foto local 2');
     expect(host.textContent).not.toContain('Upload');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('agenda preventiva local pelo detalhe do equipamento sem calendario externo', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Cassete recep/i);
+    await clickButton(host, /^Agendar preventiva local$/i);
+
+    expect(host.textContent).toContain('Cria um compromisso mockado');
+
+    const date = host.querySelector('input[name="equipment-preventive-date"]');
+    expect(date).toBeInstanceOf(HTMLInputElement);
+    await fillInput(date as HTMLInputElement, '2026-06-10');
+    await clickButton(host, /^Salvar preventiva$/i);
+
+    expect(host.textContent).toMatch(/Pr.xima preventiva em 10\/06/);
+    expect(host.textContent).not.toContain('Calendario');
     expect(host.textContent).not.toContain('Supabase');
   });
 });

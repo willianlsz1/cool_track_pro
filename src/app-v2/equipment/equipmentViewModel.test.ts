@@ -196,7 +196,7 @@ describe('buildEquipmentListViewModel', () => {
       statusTone: 'warning',
       nextActionLabel: 'Preventiva vencida',
       nextActionTone: 'danger',
-      attachmentLabel: '1 anexo',
+      attachmentLabel: '1 foto',
       coverAttachmentLabel: 'Foto local evaporadora',
     });
   });
@@ -287,19 +287,19 @@ describe('buildEquipmentDetailViewModel', () => {
       location: 'Recepção',
       priorityLabel: 'Prioridade normal',
       primaryActionLabel: 'Iniciar serviço',
-      secondaryActionLabel: 'Agendar preventiva',
+      secondaryActionLabel: 'Agendar preventiva local',
       customerActionLabel: 'Ver cliente',
       lastServiceLabel: 'Preventiva em 07/05',
       nextPreventiveLabel: 'Preventiva vencida desde 08/05',
       note: 'Limpeza de filtros e teste de temperatura.',
-      attachmentSummaryLabel: '1/3 anexos locais',
+      attachmentSummaryLabel: '1/3 fotos locais',
       attachments: [
         {
           id: 'anexo-1',
           kindLabel: 'Foto',
           label: 'Foto local evaporadora',
           sourceLabel: 'Placeholder local',
-          coverLabel: 'Capa local',
+          coverLabel: 'Foto principal',
         },
       ],
     });

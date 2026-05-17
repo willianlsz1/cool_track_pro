@@ -26,6 +26,7 @@ import { HomeToday } from '../home/HomeToday';
 import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNav';
 import {
   createQuoteFromServiceRecord,
+  scheduleNextCommitment,
   startServiceFromEquipment as startServiceFlowAction,
   updateQuoteDraft,
   validateServiceCompletion,
@@ -274,13 +275,12 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     const equipment = appState.equipamentos.find((item) => item.id === equipmentId);
     const attachmentCount = equipment?.anexos?.length ?? 0;
     const nextIndex = attachmentCount + 1;
-    const kind = nextIndex === 1 ? 'foto' : 'documento';
 
     try {
       const nextState = saveEquipmentAttachment(appState, equipmentId, {
-        id: `anexo-${equipmentId}-${nextIndex}`,
-        kind,
-        label: kind === 'foto' ? 'Foto local de referencia' : `Documento local ${nextIndex}`,
+        id: `foto-${equipmentId}-${nextIndex}`,
+        kind: 'foto',
+        label: nextIndex === 1 ? 'Foto principal local' : `Foto local ${nextIndex}`,
         source: 'placeholder',
         createdAt: appState.today,
         cover: nextIndex === 1,
@@ -289,7 +289,28 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Não foi possível adicionar o anexo.';
+      return error instanceof Error ? error.message : 'Não foi possível adicionar a foto.';
+    }
+  }
+
+  function schedulePreventiveDraft(equipmentId: string, targetDate: string): string | null {
+    try {
+      if (!isValidLocalIsoDate(targetDate)) {
+        return 'Informe uma data válida para agendar a preventiva.';
+      }
+
+      const nextState = scheduleNextCommitment(appState, {
+        id: `compromisso-local-${equipmentId}-${appState.compromissos.length + 1}`,
+        equipmentId,
+        kind: 'preventiva',
+        targetDate,
+        origin: 'periodicidade',
+      });
+
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Não foi possível agendar a preventiva.';
     }
   }
 
@@ -444,6 +465,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             onArchiveEquipment={archiveEquipmentDraft}
             onUnarchiveEquipment={unarchiveEquipmentDraft}
             onAddPlaceholderAttachment={addPlaceholderAttachmentDraft}
+            onSchedulePreventive={schedulePreventiveDraft}
           />
         ) : null}
 
@@ -534,5 +556,20 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
 
       <BottomNav activeTab={activeTab} onSelectTab={selectTab} />
     </div>
+  );
+}
+
+function isValidLocalIsoDate(date: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return false;
+  }
+
+  const [year, month, day] = date.split('-').map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
   );
 }

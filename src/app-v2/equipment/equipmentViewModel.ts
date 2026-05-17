@@ -73,7 +73,7 @@ export interface EquipmentAttachmentViewModel {
   kindLabel: string;
   label: string;
   sourceLabel: string;
-  coverLabel?: 'Capa local';
+  coverLabel?: 'Foto principal';
 }
 
 export interface EquipmentDetailViewModel {
@@ -93,7 +93,7 @@ export interface EquipmentDetailViewModel {
   priorityLabel?: string;
   technicalDetails: Array<{ label: string; value: string }>;
   primaryActionLabel: string;
-  secondaryActionLabel: 'Agendar preventiva';
+  secondaryActionLabel: 'Agendar preventiva local';
   customerActionLabel: 'Ver cliente';
   lastServiceLabel: string;
   nextPreventiveLabel: string;
@@ -170,13 +170,16 @@ export function buildEquipmentDetailViewModel(
   const nextAction = getNextAction({ equipamento, compromissos, registros, today: input.today });
   const lastRecord = registros[0];
   const isArchived = Boolean(equipamento.archivedAt);
-  const attachments = (equipamento.anexos ?? []).slice(0, 3).map((anexo) => ({
-    id: anexo.id,
-    kindLabel: formatAttachmentKind(anexo.kind),
-    label: anexo.label,
-    sourceLabel: formatAttachmentSource(anexo.source),
-    coverLabel: anexo.cover ? ('Capa local' as const) : undefined,
-  }));
+  const attachments = (equipamento.anexos ?? [])
+    .filter((anexo) => anexo.kind === 'foto')
+    .slice(0, 3)
+    .map((anexo) => ({
+      id: anexo.id,
+      kindLabel: formatAttachmentKind(anexo.kind),
+      label: anexo.label,
+      sourceLabel: formatAttachmentSource(anexo.source),
+      coverLabel: anexo.cover ? ('Foto principal' as const) : undefined,
+    }));
 
   return {
     id: equipamento.id,
@@ -201,7 +204,7 @@ export function buildEquipmentDetailViewModel(
       : registros.length === 0
         ? 'Registrar primeiro serviço'
         : 'Iniciar serviço',
-    secondaryActionLabel: 'Agendar preventiva',
+    secondaryActionLabel: 'Agendar preventiva local',
     customerActionLabel: 'Ver cliente',
     lastServiceLabel: lastRecord ? formatLastService(lastRecord) : 'Sem histórico técnico',
     nextPreventiveLabel: formatNextPreventive(compromissos, input.today),
@@ -240,8 +243,11 @@ function mapEquipmentItem({
     statusTone: mapStatusTone(equipamento.status),
     nextActionLabel: nextAction.label,
     nextActionTone: nextAction.tone,
-    attachmentLabel: formatAttachmentCount(equipamento.anexos?.length ?? 0),
-    coverAttachmentLabel: equipamento.anexos?.find((anexo) => anexo.cover)?.label,
+    attachmentLabel: formatAttachmentCount(
+      equipamento.anexos?.filter((anexo) => anexo.kind === 'foto').length ?? 0,
+    ),
+    coverAttachmentLabel: equipamento.anexos?.find((anexo) => anexo.kind === 'foto' && anexo.cover)
+      ?.label,
   };
 }
 
@@ -482,11 +488,11 @@ function formatAttachmentCount(count: number): string | undefined {
     return undefined;
   }
 
-  return `${count} ${count === 1 ? 'anexo' : 'anexos'}`;
+  return `${count} ${count === 1 ? 'foto' : 'fotos'}`;
 }
 
 function formatAttachmentSummary(count: number): string {
-  return `${count}/3 anexos locais`;
+  return `${count}/3 fotos locais`;
 }
 
 function formatAttachmentKind(kind: 'foto' | 'documento'): string {
