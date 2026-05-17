@@ -1,4 +1,4 @@
-import { appV2Tone } from '../styles/tokens';
+import { appV2Tabs } from '../styles/tokens';
 
 export type ServicesSubView = 'registros' | 'relatorios' | 'orcamentos';
 
@@ -15,10 +15,7 @@ const subViews: Array<{ id: ServicesSubView; label: string }> = [
 
 export function ServicesSubViewNav({ activeView, onSelectView }: ServicesSubViewNavProps) {
   return (
-    <div
-      className={`tw-flex tw-gap-2 tw-overflow-x-auto tw-rounded-2xl tw-border tw-bg-white tw-p-1 ${appV2Tone.border}`}
-      aria-label="Subvisões de serviços"
-    >
+    <div className={appV2Tabs.group} aria-label="Subvisões de serviços">
       {subViews.map((view) => {
         const isActive = activeView === view.id;
 
@@ -28,11 +25,7 @@ export function ServicesSubViewNav({ activeView, onSelectView }: ServicesSubView
             type="button"
             onClick={() => onSelectView(view.id)}
             aria-pressed={isActive}
-            className={`tw-min-h-10 tw-shrink-0 tw-rounded-xl tw-px-4 tw-text-sm tw-font-bold ${
-              isActive
-                ? 'tw-bg-[#2563EB] tw-text-white'
-                : `${appV2Tone.mutedText} hover:tw-bg-[#F8FAFC]`
-            } ${appV2Tone.focus}`}
+            className={`${appV2Tabs.item} ${isActive ? appV2Tabs.active : appV2Tabs.inactive}`}
           >
             {view.label}
           </button>

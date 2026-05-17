@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 import {
   appV2Border,
+  appV2Button,
   appV2Interactive,
   appV2Shadow,
   appV2Status,
@@ -122,18 +123,27 @@ export function ListRow({ children, className = '', interactive = false, onClick
 }
 
 type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'default' | 'compact';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'tertiary' | 'danger';
 };
 
 const actionButtonVariantClass = {
-  primary: `${appV2Tone.action} tw-border-0 ${appV2Shadow.action}`,
-  secondary: `tw-border ${appV2Surface.card} ${appV2Text.action} ${appV2Border.default}`,
+  primary: `${appV2Button.primary} ${appV2Shadow.action}`,
+  secondary: appV2Button.secondary,
   ghost: `tw-border ${appV2Surface.muted} ${appV2Border.default} ${appV2Text.primary}`,
+  tertiary: appV2Button.tertiary,
+  danger: appV2Button.danger,
+};
+
+const actionButtonSizeClass = {
+  default: 'tw-min-h-12 tw-px-5 tw-py-3 tw-font-bold',
+  compact: `${appV2Button.compact} tw-font-semibold`,
 };
 
 export function ActionButton({
   children,
   className = '',
+  size = 'default',
   type = 'button',
   variant = 'primary',
   ...props
@@ -142,7 +152,7 @@ export function ActionButton({
     <button
       {...props}
       type={type}
-      className={`tw-inline-flex tw-min-h-12 tw-items-center tw-justify-center tw-rounded-xl tw-px-5 tw-py-3 tw-text-sm tw-font-bold disabled:tw-cursor-not-allowed ${appV2Interactive.disabledControl} ${actionButtonVariantClass[variant]} ${appV2Tone.focus} ${className}`}
+      className={`${appV2Button.base} ${actionButtonSizeClass[size]} ${appV2Button.disabled} ${actionButtonVariantClass[variant]} ${className}`}
     >
       {children}
     </button>

@@ -52,10 +52,10 @@ export function ServiceActions({
 }: ServiceActionsProps) {
   return (
     <div className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-[minmax(0,1fr)_minmax(0,180px)]">
-      <ActionButton onClick={onPrimary} disabled={primaryDisabled}>
+      <ActionButton size="compact" onClick={onPrimary} disabled={primaryDisabled}>
         {primaryLabel}
       </ActionButton>
-      <ActionButton variant="secondary" onClick={onSecondary}>
+      <ActionButton size="compact" variant="secondary" onClick={onSecondary}>
         {secondaryLabel}
       </ActionButton>
     </div>

@@ -87,3 +87,22 @@ export const appV2Tone = {
   danger: `${appV2Status.danger.surface} ${appV2Status.danger.text} ${appV2Status.danger.border}`,
   success: `${appV2Status.success.surface} ${appV2Status.success.text} ${appV2Status.success.border}`,
 } as const;
+
+export const appV2Button = {
+  base: `tw-inline-flex tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-text-sm tw-font-semibold tw-transition ${appV2Focus}`,
+  compact: 'tw-min-h-10 tw-px-4 tw-py-2',
+  primary: `${appV2Tone.action} tw-border-0 tw-shadow-sm`,
+  secondary: 'tw-border tw-border-[#CBD5E1] tw-bg-white tw-text-[#1E4F8A]',
+  tertiary: 'tw-border-0 tw-bg-transparent tw-px-3 tw-py-1 tw-text-[#2563EB] hover:tw-bg-[#EFF6FF]',
+  danger: 'tw-border tw-border-[#FECACA] tw-bg-white tw-text-[#DC2626]',
+  disabled:
+    'disabled:tw-cursor-not-allowed disabled:tw-border-[#D7E3F2] disabled:tw-bg-[#E8EEF7] disabled:tw-text-[#7A8AA6] disabled:tw-shadow-none',
+} as const;
+
+export const appV2Tabs = {
+  group:
+    'tw-inline-flex tw-w-full tw-gap-1 tw-overflow-x-auto tw-rounded-full tw-border tw-border-[#E2E8F0] tw-bg-white tw-p-1 sm:tw-w-auto',
+  item: `tw-min-h-9 tw-shrink-0 tw-rounded-full tw-border-0 tw-px-5 tw-py-1.5 tw-text-sm tw-font-semibold tw-transition ${appV2Focus}`,
+  active: 'tw-bg-[#1E4F8A] tw-text-white tw-shadow-sm',
+  inactive: 'tw-bg-transparent tw-text-[#52677F] hover:tw-bg-gray-100',
+} as const;

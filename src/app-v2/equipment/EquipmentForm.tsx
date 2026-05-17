@@ -12,7 +12,7 @@ import type {
   OperationalPriority,
   SetorEquipamento,
 } from '../domain/types';
-import { appV2Border, appV2Focus, appV2Shadow, appV2Text } from '../styles/tokens';
+import { appV2Border, appV2Button, appV2Shadow, appV2Text } from '../styles/tokens';
 import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
 import { SectionEyebrow } from '../ui/primitives';
 
@@ -166,7 +166,7 @@ export function EquipmentForm({
           <button
             type="button"
             onClick={applyLocalLabelSuggestion}
-            className={`tw-inline-flex tw-min-h-10 tw-shrink-0 tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border tw-border-[#2563EB] tw-bg-white tw-px-4 tw-text-xs tw-font-bold tw-text-[#2563EB] ${appV2Focus}`}
+            className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.secondary} tw-shrink-0`}
           >
             <FontAwesomeIcon icon={faWandMagicSparkles} aria-hidden="true" />
             Usar exemplo local
@@ -411,14 +411,14 @@ export function EquipmentForm({
         <button
           type="button"
           onClick={onCancel}
-          className={`tw-min-h-10 tw-rounded-xl tw-border tw-border-[#CBD5E1] tw-bg-transparent tw-px-5 tw-text-xs tw-font-medium ${appV2Text.muted} ${appV2Focus}`}
+          className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.secondary}`}
         >
           Cancelar
         </button>
         <button
           type="button"
           onClick={submit}
-          className={`tw-inline-flex tw-min-h-10 tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border tw-border-[#2563EB] tw-bg-[#2563EB] tw-px-5 tw-text-xs tw-font-semibold tw-text-white ${appV2Focus}`}
+          className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.primary}`}
         >
           <FontAwesomeIcon icon={faSave} aria-hidden="true" className="tw-text-[0.8rem]" />
           Salvar equipamento

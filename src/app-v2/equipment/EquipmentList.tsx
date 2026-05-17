@@ -30,7 +30,14 @@ import {
   mockEquipmentSetores,
   mockEquipmentToday,
 } from './mockEquipmentData';
-import { appV2Border, appV2Focus, appV2Shadow, appV2Text, appV2Tone } from '../styles/tokens';
+import {
+  appV2Border,
+  appV2Button,
+  appV2Focus,
+  appV2Shadow,
+  appV2Text,
+  appV2Tone,
+} from '../styles/tokens';
 import {
   FieldGroup,
   FormGrid,
@@ -223,7 +230,7 @@ export function EquipmentList({
           <button
             type="button"
             onClick={() => openCreateForm()}
-            className={`tw-inline-flex tw-min-h-10 tw-shrink-0 tw-items-center tw-gap-2 tw-rounded-lg tw-border-0 tw-bg-[#2563EB] tw-px-5 tw-text-sm tw-font-bold tw-text-white ${appV2Focus}`}
+            className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.primary} tw-shrink-0`}
           >
             <FontAwesomeIcon icon={faPlus} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
             Novo equipamento
@@ -272,7 +279,7 @@ export function EquipmentList({
             <button
               type="button"
               onClick={openNewSectorForm}
-              className={`tw-inline-flex tw-min-h-8 tw-shrink-0 tw-items-center tw-gap-2 tw-rounded-full tw-border tw-bg-[#F1F5F9] tw-px-4 tw-text-xs tw-font-bold tw-text-[#1E4F8A] ${appV2Border.default} ${appV2Focus}`}
+              className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.secondary} tw-shrink-0`}
             >
               <FontAwesomeIcon icon={faCirclePlus} className="tw-h-3 tw-w-3" aria-hidden="true" />
               Novo setor
@@ -539,7 +546,7 @@ export function EquipmentList({
                     <button
                       type="button"
                       onClick={() => setSelectedSectorId(setor.id)}
-                      className={`tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#1E4F8A] ${appV2Focus}`}
+                      className={`${appV2Button.base} ${appV2Button.secondary} tw-min-h-9 tw-px-3 tw-py-2 tw-text-xs`}
                     >
                       Abrir setor<span className="tw-sr-only"> {setor.name}</span>
                     </button>
@@ -547,7 +554,7 @@ export function EquipmentList({
                       type="button"
                       onClick={() => openEditSectorForm(setor.id)}
                       aria-label={`Editar setor ${setor.name}`}
-                      className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-semibold tw-text-[#2563EB] ${appV2Focus}`}
+                      className={`${appV2Button.base} ${appV2Button.tertiary} tw-text-xs`}
                     >
                       <FontAwesomeIcon
                         icon={faPenToSquare}
@@ -563,14 +570,14 @@ export function EquipmentList({
                             type="button"
                             onClick={() => confirmSectorRemoval(setor.id)}
                             aria-label={`Confirmar remover setor ${setor.name}`}
-                            className={`tw-rounded-lg tw-bg-[#B91C1C] tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-white ${appV2Focus}`}
+                            className={`${appV2Button.base} tw-min-h-9 tw-border-0 tw-bg-[#B91C1C] tw-px-3 tw-py-2 tw-text-xs tw-text-white`}
                           >
                             Confirmar<span className="tw-sr-only"> remover setor {setor.name}</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => setSectorPendingRemovalId(null)}
-                            className={`tw-rounded-lg tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold ${appV2Border.default} ${appV2Text.muted} ${appV2Focus}`}
+                            className={`${appV2Button.base} ${appV2Button.secondary} tw-min-h-9 tw-px-3 tw-py-2 tw-text-xs`}
                           >
                             Cancelar remoção
                           </button>
@@ -580,7 +587,7 @@ export function EquipmentList({
                           type="button"
                           onClick={() => requestSectorRemoval(setor.id)}
                           aria-label={`Remover setor ${setor.name}`}
-                          className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-semibold tw-text-[#DC2626] ${appV2Focus}`}
+                          className={`${appV2Button.base} ${appV2Button.tertiary} tw-text-xs tw-text-[#DC2626] hover:tw-bg-[#FEF2F2]`}
                         >
                           <FontAwesomeIcon
                             icon={faTrashCan}
@@ -623,7 +630,7 @@ export function EquipmentList({
                           clientId: selectedSector.clientId,
                         })
                       }
-                      className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-lg tw-border-0 tw-bg-[#2563EB] tw-px-4 tw-text-xs tw-font-bold tw-text-white ${appV2Focus}`}
+                      className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.primary} tw-text-xs`}
                     >
                       <FontAwesomeIcon icon={faPlus} className="tw-h-3 tw-w-3" aria-hidden="true" />
                       Adicionar equipamento neste setor
@@ -632,14 +639,14 @@ export function EquipmentList({
                   <button
                     type="button"
                     onClick={() => openEditSectorForm(selectedSector.id)}
-                    className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-4 tw-text-xs tw-font-bold tw-text-[#1E4F8A] ${appV2Focus}`}
+                    className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.secondary} tw-text-xs`}
                   >
                     Editar setor
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedSectorId(null)}
-                    className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-4 tw-text-xs tw-font-bold ${appV2Text.muted} ${appV2Focus}`}
+                    className={`${appV2Button.base} ${appV2Button.compact} ${appV2Button.secondary} tw-text-xs`}
                   >
                     Voltar para setores
                   </button>
