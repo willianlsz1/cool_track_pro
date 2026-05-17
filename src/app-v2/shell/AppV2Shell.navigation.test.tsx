@@ -110,6 +110,18 @@ describe('AppV2Shell navigation and alerts', () => {
     expect(sidebar?.textContent).toContain('Servi');
     expect(sidebar?.textContent).toContain('Conta');
     expect(sidebar?.textContent).not.toContain('Clientes');
+    expect(bottomNav?.querySelector('button[aria-label="Equipamentos"]')).toBeTruthy();
+  });
+
+  it('abre Alertas a partir da Home sem passar por Conta', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Ver alertas$/i);
+
+    expect(host.textContent).toContain('Alertas e Anormalidades');
+    expect(host.textContent).toContain('Alertas operacionais');
+    expect(host.textContent).toContain('Equipamento fora de operação');
+    expect(host.textContent).not.toContain('Atalhos e preferências operacionais locais');
   });
 
   it('troca entre as abas principais sem criar novas areas', async () => {

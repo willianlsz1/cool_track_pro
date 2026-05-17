@@ -102,6 +102,10 @@ export interface ServiceDoneViewModel {
   summary: string;
   technicalSummary: string[];
   disabledOutputs: ['Próximo compromisso'];
+  postDiagnosticQuote: {
+    label: 'Criar orçamento pós-diagnóstico';
+    detail: string;
+  } | null;
 }
 
 const serviceTypeOptions: ServiceTypeOptionViewModel[] = [
@@ -377,6 +381,13 @@ export function buildServiceDoneViewModel(
       `Status final: ${review.finalStatusLabel}`,
     ],
     disabledOutputs: ['Próximo compromisso'],
+    postDiagnosticQuote:
+      draft.finalStatus === 'warn' || draft.finalStatus === 'danger'
+        ? {
+            label: 'Criar orçamento pós-diagnóstico',
+            detail: 'Use quando o atendimento indicar peça, retorno ou reparo a aprovar.',
+          }
+        : null,
   };
 }
 

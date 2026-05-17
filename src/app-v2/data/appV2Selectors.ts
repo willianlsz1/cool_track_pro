@@ -12,6 +12,7 @@ interface HomeTodayInput {
   equipamentos: AppV2MockSnapshot['equipamentos'];
   compromissos: AppV2MockSnapshot['compromissos'];
   registros: AppV2MockSnapshot['registros'];
+  orcamentos: AppV2MockSnapshot['orcamentos'];
 }
 
 export interface AppV2OperationalState {
@@ -31,6 +32,7 @@ export function selectHomeTodayInput(state: AppV2MockSnapshot): HomeTodayInput {
     equipamentos: state.equipamentos,
     compromissos: state.compromissos,
     registros: state.registros,
+    orcamentos: state.orcamentos,
   };
 }
 

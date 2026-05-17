@@ -39,11 +39,26 @@ export interface ServicesHomeViewModel {
   title: 'Serviços';
   subtitle: 'Trabalho técnico';
   description: string;
+  dominantCta: ServicesDominantCtaViewModel;
   emptyState: ServicesEmptyStateViewModel;
   inProgress: ServiceInProgressViewModel | null;
   activeFilters: Required<BuildServicesHomeFilters>;
   filterOptions: ServicesHomeFilterOptions;
   recentServices: RecentServiceViewModel[];
+}
+
+export type ServicesDominantCtaKind =
+  | 'resume_service'
+  | 'review_quote'
+  | 'view_recent_report'
+  | 'start_service';
+
+export interface ServicesDominantCtaViewModel {
+  kind: ServicesDominantCtaKind;
+  label: string;
+  title: string;
+  detail: string;
+  targetView: 'registros' | 'relatorios' | 'orcamentos';
 }
 
 export interface ServicesHomeFilterOptions {
@@ -104,6 +119,7 @@ export function buildServicesHomeViewModel(
     title: 'Serviços',
     subtitle: 'Trabalho técnico',
     description: 'Registros recentes e saídas técnicas planejadas.',
+    dominantCta: buildDominantCta(input, draft, recentServices),
     emptyState: {
       title: 'Nenhum serviço em andamento',
       description: 'Comece por um equipamento para registrar o primeiro atendimento.',
@@ -132,6 +148,58 @@ function normalizeFilters(filtersOrQuery: BuildServicesHomeFilters | string) {
     equipmentId: filters.equipmentId ?? 'all',
     kind: filters.kind ?? 'all',
     status: filters.status ?? 'all',
+  };
+}
+
+function buildDominantCta(
+  input: BuildServicesHomeInput,
+  draft: ServiceDraft | null,
+  recentServices: RecentServiceViewModel[],
+): ServicesDominantCtaViewModel {
+  if (draft) {
+    const { equipamento, cliente } = getServiceEntities(input, draft.equipmentId);
+
+    return {
+      kind: 'resume_service',
+      label: 'Retomar registro',
+      title: 'Atendimento em andamento',
+      detail: formatCustomerLine(equipamento, cliente),
+      targetView: 'registros',
+    };
+  }
+
+  const openQuote = input.orcamentos.find((quote) =>
+    ['rascunho', 'enviado'].includes(quote.status),
+  );
+
+  if (openQuote) {
+    return {
+      kind: 'review_quote',
+      label: 'Revisar orçamento em aberto',
+      title: 'Orçamento aguardando revisão',
+      detail: `${openQuote.numero} - ${openQuote.titulo}`,
+      targetView: 'orcamentos',
+    };
+  }
+
+  const latestService = recentServices[0];
+
+  if (latestService) {
+    return {
+      kind: 'view_recent_report',
+      label: 'Ver relatório recente',
+      title: 'Último atendimento registrado',
+      detail: `${latestService.kindLabel} - ${latestService.equipmentName}`,
+      targetView: 'relatorios',
+    };
+  }
+
+  return {
+    kind: 'start_service',
+    label: 'Iniciar registro',
+    title: 'Nenhum atendimento em andamento',
+    detail: 'Comece por um equipamento para registrar o próximo serviço.',
+    targetView: 'registros',
   };
 }
 

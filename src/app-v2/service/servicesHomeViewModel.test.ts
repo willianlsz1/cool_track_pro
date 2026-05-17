@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Cliente, Equipamento, RegistroServico } from '../domain/types';
+import type { Cliente, Equipamento, Orcamento, RegistroServico } from '../domain/types';
 import type { ServiceDraft } from './serviceFlowViewModel';
 import { buildServicesHomeViewModel, type BuildServicesHomeInput } from './servicesHomeViewModel';
 
@@ -92,12 +92,49 @@ describe('servicesHomeViewModel', () => {
       finalStatus: 'ok',
     };
 
-    expect(buildServicesHomeViewModel(baseInput, draft).inProgress).toMatchObject({
+    const viewModel = buildServicesHomeViewModel(baseInput, draft);
+
+    expect(viewModel.inProgress).toMatchObject({
       equipmentName: 'Split 24.000 BTU',
       customerLine: 'Mercado Bom Preço - Recepção',
       kindLabel: 'Preventiva',
       progressLabel: 'Diagnóstico preenchido',
       actionLabel: 'Retomar registro',
+    });
+    expect(viewModel.dominantCta).toMatchObject({
+      kind: 'resume_service',
+      label: 'Retomar registro',
+      targetView: 'registros',
+    });
+  });
+
+  it('prioriza revisar orcamento em aberto quando nao ha registro em andamento', () => {
+    const openQuote: Orcamento = {
+      id: 'orcamento-1',
+      numero: 'ORC-2026-001',
+      status: 'rascunho',
+      clienteId: 'cliente-1',
+      equipamentoId: 'eq-2',
+      titulo: 'Troca de controlador',
+      total: 1250,
+    };
+
+    expect(
+      buildServicesHomeViewModel({ ...baseInput, orcamentos: [openQuote] }, null).dominantCta,
+    ).toMatchObject({
+      kind: 'review_quote',
+      label: 'Revisar orçamento em aberto',
+      targetView: 'orcamentos',
+      detail: 'ORC-2026-001 - Troca de controlador',
+    });
+  });
+
+  it('sugere relatorio recente quando nao ha rascunho de orcamento', () => {
+    expect(buildServicesHomeViewModel(baseInput, null).dominantCta).toMatchObject({
+      kind: 'view_recent_report',
+      label: 'Ver relatório recente',
+      targetView: 'relatorios',
+      detail: 'Preventiva - Split 24.000 BTU',
     });
   });
 

@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileInvoiceDollar, faPlus } from '@fortawesome/free-solid-svg-icons';
 
+import type { Equipamento } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
+import { FieldGroup, fieldSelectClass } from '../ui/FieldGroup';
 import { PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 import { QuoteCard } from './QuoteCard';
 import { QuoteEditor } from './QuoteEditor';
@@ -29,6 +31,13 @@ interface ServicesQuotesHomeProps {
   input: BuildServicesQuotesInput;
   onSelectView: (view: ServicesSubView) => void;
   onSaveQuote?: (draft: QuoteEditDraft) => string | null;
+  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => string | null;
+}
+
+export interface PreServiceQuoteCreateDraft {
+  id: string;
+  equipmentId: string;
+  templateId: string;
 }
 
 export function ServicesQuotesHome({
@@ -36,17 +45,39 @@ export function ServicesQuotesHome({
   input,
   onSelectView,
   onSaveQuote,
+  onCreatePreServiceQuote,
 }: ServicesQuotesHomeProps) {
   const viewModel = buildServicesQuotesViewModel(input);
-  const firstEditableQuote = viewModel.items.find((quote) => quote.canEdit);
+  const firstAvailableEquipment = input.equipamentos.find((equipment) => !equipment.archivedAt);
   const [editingQuote, setEditingQuote] = useState<QuoteEditDraft | null>(null);
   const [editingSummary, setEditingSummary] = useState<ServicesQuoteListItemViewModel | null>(null);
+  const [isCreatingPreServiceQuote, setIsCreatingPreServiceQuote] = useState(false);
+  const [createdQuoteId, setCreatedQuoteId] = useState<string | null>(null);
+  const [createDraft, setCreateDraft] = useState<PreServiceQuoteCreateDraft>({
+    id: createLocalQuoteId(viewModel.totalItems),
+    equipmentId: firstAvailableEquipment?.id ?? '',
+    templateId: quoteTemplates[0]?.id ?? '',
+  });
   const [itemDraft, setItemDraft] = useState<QuoteEditItemDraft>({
     description: '',
     quantity: '1',
     unitValue: '',
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!createdQuoteId) {
+      return;
+    }
+
+    const createdQuote = viewModel.items.find((quote) => quote.id === createdQuoteId);
+
+    if (createdQuote?.canEdit) {
+      setCreatedQuoteId(null);
+      setIsCreatingPreServiceQuote(false);
+      startEditingQuote(createdQuote);
+    }
+  }, [createdQuoteId, viewModel.items]);
 
   function startEditingQuote(quote: ServicesQuoteListItemViewModel) {
     const template =
@@ -122,6 +153,37 @@ export function ServicesQuotesHome({
     cancelEditingQuote();
   }
 
+  function startCreatingPreServiceQuote() {
+    setErrorMessage(null);
+    setIsCreatingPreServiceQuote(true);
+    setCreateDraft({
+      id: createLocalQuoteId(viewModel.totalItems),
+      equipmentId: firstAvailableEquipment?.id ?? '',
+      templateId: quoteTemplates[0]?.id ?? '',
+    });
+  }
+
+  function cancelCreatingPreServiceQuote() {
+    setErrorMessage(null);
+    setIsCreatingPreServiceQuote(false);
+  }
+
+  function savePreServiceQuoteDraft() {
+    if (!onCreatePreServiceQuote) {
+      return;
+    }
+
+    const error = onCreatePreServiceQuote(createDraft);
+
+    if (error) {
+      setErrorMessage(error);
+      return;
+    }
+
+    setCreatedQuoteId(createDraft.id);
+    setErrorMessage(null);
+  }
+
   if (editingQuote && editingSummary) {
     return (
       <QuoteEditor
@@ -134,6 +196,19 @@ export function ServicesQuotesHome({
         onChangeDraft={setEditingQuote}
         onChangeItemDraft={setItemDraft}
         onSave={saveEditingQuote}
+      />
+    );
+  }
+
+  if (isCreatingPreServiceQuote) {
+    return (
+      <PreServiceQuoteCreatePanel
+        draft={createDraft}
+        equipments={input.equipamentos}
+        errorMessage={errorMessage}
+        onCancel={cancelCreatingPreServiceQuote}
+        onChange={setCreateDraft}
+        onSave={savePreServiceQuoteDraft}
       />
     );
   }
@@ -158,10 +233,10 @@ export function ServicesQuotesHome({
           </p>
         </div>
 
-        {firstEditableQuote && onSaveQuote ? (
+        {onCreatePreServiceQuote ? (
           <button
             type="button"
-            onClick={() => startEditingQuote(firstEditableQuote)}
+            onClick={startCreatingPreServiceQuote}
             className={`tw-inline-flex tw-min-h-10 tw-items-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-[#2563EB] tw-px-4 tw-text-sm tw-font-semibold tw-text-white tw-shadow-sm ${appV2Tone.focus}`}
           >
             <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
@@ -212,6 +287,100 @@ export function ServicesQuotesHome({
   );
 }
 
+function PreServiceQuoteCreatePanel({
+  draft,
+  equipments,
+  errorMessage,
+  onCancel,
+  onChange,
+  onSave,
+}: {
+  draft: PreServiceQuoteCreateDraft;
+  equipments: Equipamento[];
+  errorMessage: string | null;
+  onCancel: () => void;
+  onChange: (draft: PreServiceQuoteCreateDraft) => void;
+  onSave: () => void;
+}) {
+  const availableEquipments = equipments.filter((equipment) => !equipment.archivedAt);
+
+  return (
+    <PageShell>
+      <header className="tw-min-w-0">
+        <SectionEyebrow>Orçamento pré-serviço</SectionEyebrow>
+        <h1
+          className={`tw-m-0 tw-mt-3 tw-text-[1.8rem] tw-font-extrabold tw-leading-tight tw-tracking-[-0.02em] ${appV2Tone.text}`}
+        >
+          Novo orçamento pré-serviço
+        </h1>
+        <p className={`tw-m-0 tw-mt-1.5 tw-text-[0.85rem] ${appV2Tone.mutedText}`}>
+          Crie um rascunho local antes da execução. Aprovação, envio e integrações ficam para etapas
+          futuras.
+        </p>
+      </header>
+
+      <SectionCard padding="md">
+        <div className="tw-grid tw-gap-4 md:tw-grid-cols-2">
+          <FieldGroup label="Equipamento">
+            <select
+              name="quote-create-equipment"
+              value={draft.equipmentId}
+              onChange={(event) => onChange({ ...draft, equipmentId: event.target.value })}
+              className={fieldSelectClass}
+            >
+              <option value="">Selecione um equipamento</option>
+              {availableEquipments.map((equipment) => (
+                <option key={equipment.id} value={equipment.id}>
+                  {equipment.nome} - {equipment.local}
+                </option>
+              ))}
+            </select>
+          </FieldGroup>
+
+          <FieldGroup label="Modelo">
+            <select
+              name="quote-create-template"
+              value={draft.templateId}
+              onChange={(event) => onChange({ ...draft, templateId: event.target.value })}
+              className={fieldSelectClass}
+            >
+              {quoteTemplates.map((template) => (
+                <option key={template.id} value={template.id}>
+                  {template.title}
+                </option>
+              ))}
+            </select>
+          </FieldGroup>
+        </div>
+
+        {errorMessage ? (
+          <p className="tw-m-0 tw-mt-4 tw-text-sm tw-font-semibold tw-text-[#DC2626]">
+            {errorMessage}
+          </p>
+        ) : null}
+
+        <div className="tw-mt-6 tw-flex tw-flex-wrap tw-justify-end tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className={`tw-inline-flex tw-min-h-10 tw-items-center tw-justify-center tw-rounded-xl tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-4 tw-text-xs tw-font-medium tw-text-[#1E4F8A] ${appV2Tone.focus}`}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            className={`tw-inline-flex tw-min-h-10 tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border-0 tw-bg-[#2563EB] tw-px-4 tw-text-xs tw-font-semibold tw-text-white ${appV2Tone.focus}`}
+          >
+            <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+            Criar rascunho
+          </button>
+        </div>
+      </SectionCard>
+    </PageShell>
+  );
+}
+
 function KpiCard({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="tw-rounded-xl tw-border tw-border-[#E2E8F0] tw-bg-white tw-p-4 tw-text-center tw-shadow-sm">
@@ -229,4 +398,8 @@ function KpiCard({ label, value }: { label: string; value: number | string }) {
       </p>
     </div>
   );
+}
+
+function createLocalQuoteId(seed: number): string {
+  return `orcamento-pre-servico-${seed + 1}`;
 }

@@ -1,6 +1,7 @@
 import { createAppV2MockSnapshot } from './appV2MockStore';
 import {
   completeService,
+  createPreServiceQuoteDraft,
   createQuoteFromServiceRecord,
   registerEquipment,
   scheduleNextCommitment,
@@ -608,6 +609,32 @@ it('cria orcamento local a partir de registro concluido sem billing ou storage r
   });
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('billing');
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('Supabase');
+});
+
+it('cria rascunho de orcamento pre-servico vinculado ao equipamento sem exigir registro', () => {
+  const state = createAppV2MockSnapshot();
+
+  const quoted = createPreServiceQuoteDraft(state, {
+    id: 'orcamento-local-2',
+    equipmentId: 'eq-1',
+    templateId: 'instalacao-split',
+  });
+
+  expect(quoted.orcamentos[0]).toMatchObject({
+    id: 'orcamento-local-2',
+    numero: 'ORC-2026-002',
+    status: 'rascunho',
+    clienteId: 'cliente-1',
+    equipamentoId: 'eq-1',
+    modeloId: 'instalacao-split',
+    titulo: 'Orçamento pré-serviço - Split 24.000 BTU',
+    total: 0,
+  });
+  expect(quoted.orcamentos[0].registroId).toBeUndefined();
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('Supabase');
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('PDF');
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('WhatsApp');
 });
 
 it('edita rascunho de orcamento local sem tocar billing ou storage real', () => {

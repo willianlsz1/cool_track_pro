@@ -1,6 +1,12 @@
 import { pickNextHomeAction } from '../domain/homePriority';
 import { buildHomeAlerts, type HomeAlert } from '../domain/homeAlerts';
-import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '../domain/types';
+import type {
+  Cliente,
+  CompromissoServico,
+  Equipamento,
+  Orcamento,
+  RegistroServico,
+} from '../domain/types';
 
 type HomeActionTone = 'danger' | 'warning' | 'primary' | 'calm';
 type QueueTone = 'danger' | 'warning' | 'primary';
@@ -50,6 +56,21 @@ export interface HomeTodayViewModel {
     detail: string;
     tone: QueueTone;
   }>;
+  alertTriage: {
+    total: number;
+    criticalTotal: number;
+    label: 'Ver alertas';
+    detail: string;
+    tone: 'danger' | 'warning' | 'calm';
+    hasActiveAlerts: boolean;
+  };
+  openQuoteReminder?: {
+    quoteId: string;
+    label: 'Revisar orçamento';
+    title: 'Orçamento em aberto';
+    detail: string;
+    equipmentName?: string;
+  };
   aside: {
     summary: Array<{
       id: string;
@@ -73,6 +94,7 @@ export interface BuildHomeTodayViewModelInput {
   equipamentos: Equipamento[];
   compromissos: CompromissoServico[];
   registros: RegistroServico[];
+  orcamentos?: Orcamento[];
 }
 
 export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): HomeTodayViewModel {
@@ -160,6 +182,8 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
         tone: alert.severity === 'danger' ? 'danger' : 'warning',
       };
     }),
+    alertTriage: buildAlertTriage(alerts.length, dangerAlertCount),
+    openQuoteReminder: buildOpenQuoteReminder(input.orcamentos ?? [], equipamentosById),
     aside: {
       summary: [
         {
@@ -191,6 +215,55 @@ export function buildHomeTodayViewModel(input: BuildHomeTodayViewModelInput): Ho
         : undefined,
       note: 'Verifique o histórico do equipamento antes de iniciar o atendimento.',
     },
+  };
+}
+
+function buildAlertTriage(total: number, criticalTotal: number): HomeTodayViewModel['alertTriage'] {
+  if (total === 0) {
+    return {
+      total: 0,
+      criticalTotal: 0,
+      label: 'Ver alertas',
+      detail: 'Tudo em dia',
+      tone: 'calm',
+      hasActiveAlerts: false,
+    };
+  }
+
+  const criticalLabel =
+    criticalTotal > 0 ? `${criticalTotal} ${criticalTotal === 1 ? 'crítico' : 'críticos'} · ` : '';
+  const alertLabel = `${total} ${total === 1 ? 'alerta ativo' : 'alertas ativos'}`;
+
+  return {
+    total,
+    criticalTotal,
+    label: 'Ver alertas',
+    detail: `${criticalLabel}${alertLabel}`,
+    tone: criticalTotal > 0 ? 'danger' : 'warning',
+    hasActiveAlerts: true,
+  };
+}
+
+function buildOpenQuoteReminder(
+  orcamentos: Orcamento[],
+  equipamentosById: Map<string, Equipamento>,
+): HomeTodayViewModel['openQuoteReminder'] {
+  const openQuote = orcamentos.find((quote) => ['rascunho', 'enviado'].includes(quote.status));
+
+  if (!openQuote) {
+    return undefined;
+  }
+
+  const equipamento = openQuote.equipamentoId
+    ? equipamentosById.get(openQuote.equipamentoId)
+    : undefined;
+
+  return {
+    quoteId: openQuote.id,
+    label: 'Revisar orçamento',
+    title: 'Orçamento em aberto',
+    detail: `${openQuote.numero} - ${openQuote.titulo}`,
+    equipmentName: equipamento?.nome,
   };
 }
 

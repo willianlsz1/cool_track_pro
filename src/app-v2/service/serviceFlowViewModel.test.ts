@@ -111,6 +111,24 @@ describe('serviceFlowViewModel', () => {
       summary: 'Corretiva registrada para Split 24.000 BTU.',
       technicalSummary: expect.arrayContaining(['Técnico: Bruno Tecnico']),
       disabledOutputs: ['Próximo compromisso'],
+      postDiagnosticQuote: null,
+    });
+  });
+
+  it('sugere orcamento pos-diagnostico somente quando status final pede atencao', () => {
+    const draft: ServiceDraft = {
+      equipmentId: 'eq-1',
+      kind: 'corretiva',
+      customKind: '',
+      technician: 'Bruno Tecnico',
+      diagnosis: 'Compressor com ruido acima do normal.',
+      actionsDone: 'Ajuste temporario e orientacao ao cliente.',
+      finalStatus: 'warn',
+    };
+
+    expect(buildServiceDoneViewModel(input, draft).postDiagnosticQuote).toEqual({
+      label: 'Criar orçamento pós-diagnóstico',
+      detail: 'Use quando o atendimento indicar peça, retorno ou reparo a aprovar.',
     });
   });
 

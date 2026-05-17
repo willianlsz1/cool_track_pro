@@ -13,7 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { EquipmentCard } from './EquipmentCard';
-import { EquipmentForm } from './EquipmentForm';
+import { EquipmentForm, type EquipmentFormProps } from './EquipmentForm';
 import { EquipmentSubViewNav, type EquipmentSubView } from './EquipmentSubViewNav';
 import type { SaveEquipmentDraft, SaveEquipmentSectorDraft } from './equipmentActions';
 import {
@@ -56,6 +56,7 @@ interface EquipmentListProps {
   onSaveSector?: (draft: SaveEquipmentSectorDraft) => string | null;
   onDeleteSector?: (sectorId: string) => string | null;
   initialClientId?: string | null;
+  contextBanner?: EquipmentFormProps['contextBanner'];
   onInitialClientHandled?: () => void;
 }
 
@@ -84,6 +85,7 @@ export function EquipmentList({
   onSaveSector,
   onDeleteSector,
   initialClientId,
+  contextBanner,
   onInitialClientHandled,
 }: EquipmentListProps) {
   const [query, setQuery] = useState('');
@@ -247,6 +249,7 @@ export function EquipmentList({
             setores={equipmentInput.setores}
             initialClientId={equipmentCreateContext?.clientId ?? initialClientId ?? undefined}
             initialSectorId={equipmentCreateContext?.sectorId}
+            contextBanner={contextBanner}
             onCancel={closeCreateForm}
             onSave={(draft) => {
               const result = onSaveEquipment(draft);

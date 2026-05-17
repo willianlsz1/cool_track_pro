@@ -8,6 +8,7 @@ import {
   faChartSimple,
   faClipboardList,
   faEye,
+  faFileInvoiceDollar,
   faForwardStep,
   faInfoCircle,
   faLightbulb,
@@ -55,6 +56,8 @@ interface HomeTodayProps {
   input?: BuildHomeTodayViewModelInput;
   onOpenEquipment?: (equipmentId: string) => void;
   onStartService?: (equipmentId: string) => void;
+  onOpenAlerts?: () => void;
+  onOpenQuotes?: () => void;
 }
 
 const quickStatToneClass = {
@@ -63,7 +66,13 @@ const quickStatToneClass = {
   primary: appV2Status.primary,
 } as const;
 
-export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayProps) {
+export function HomeToday({
+  input,
+  onOpenEquipment,
+  onStartService,
+  onOpenAlerts,
+  onOpenQuotes,
+}: HomeTodayProps) {
   const viewModel = useMemo(() => buildHomeTodayViewModel(input ?? defaultHomeInput), [input]);
 
   function openNextEquipment() {
@@ -84,6 +93,8 @@ export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayP
         <div className="tw-flex tw-min-w-0 tw-flex-col tw-gap-6">
           <HomeHeader viewModel={viewModel} />
           <QuickStats stats={viewModel.quickStats} />
+          <AlertTriageCallout triage={viewModel.alertTriage} onOpenAlerts={onOpenAlerts} />
+          <OpenQuoteCallout reminder={viewModel.openQuoteReminder} onOpenQuotes={onOpenQuotes} />
           <NextActionPanel
             action={viewModel.nextAction}
             onPrimaryAction={startNextService}
@@ -99,6 +110,120 @@ export function HomeToday({ input, onOpenEquipment, onStartService }: HomeTodayP
         />
       </div>
     </PageShell>
+  );
+}
+
+function OpenQuoteCallout({
+  reminder,
+  onOpenQuotes,
+}: {
+  reminder?: HomeTodayViewModel['openQuoteReminder'];
+  onOpenQuotes?: () => void;
+}) {
+  if (!reminder) {
+    return null;
+  }
+
+  return (
+    <section
+      className={`tw-flex tw-flex-col tw-gap-3 tw-rounded-2xl tw-border tw-bg-white tw-p-4 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between ${appV2Border.default} ${appV2Shadow.card}`}
+      aria-label="Orçamento em aberto"
+    >
+      <div className="tw-flex tw-min-w-0 tw-gap-3">
+        <span
+          className="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-[#EFF6FF] tw-text-[#2563EB]"
+          aria-hidden="true"
+        >
+          <FontAwesomeIcon icon={faFileInvoiceDollar} className="tw-h-4 tw-w-4" />
+        </span>
+        <span className="tw-min-w-0">
+          <span className={`tw-block tw-text-sm tw-font-bold ${appV2Text.primary}`}>
+            {reminder.title}
+          </span>
+          <span className={`tw-mt-0.5 tw-block tw-text-xs tw-font-semibold ${appV2Text.muted}`}>
+            {reminder.detail}
+          </span>
+          {reminder.equipmentName ? (
+            <span className={`tw-mt-0.5 tw-block tw-text-[0.68rem] ${appV2Text.subtle}`}>
+              {reminder.equipmentName}
+            </span>
+          ) : null}
+        </span>
+      </div>
+      <ActionButton
+        type="button"
+        variant="secondary"
+        onClick={onOpenQuotes}
+        className="tw-min-h-10 tw-gap-2 tw-rounded-lg tw-px-4 tw-py-2 tw-text-xs"
+      >
+        <FontAwesomeIcon
+          icon={faFileInvoiceDollar}
+          className="tw-h-3.5 tw-w-3.5"
+          aria-hidden="true"
+        />
+        {reminder.label}
+      </ActionButton>
+    </section>
+  );
+}
+
+function AlertTriageCallout({
+  triage,
+  onOpenAlerts,
+}: {
+  triage: HomeTodayViewModel['alertTriage'];
+  onOpenAlerts?: () => void;
+}) {
+  if (!triage.hasActiveAlerts) {
+    return null;
+  }
+
+  const tone =
+    triage.tone === 'danger'
+      ? {
+          border: 'tw-border-[#FCA5A5]',
+          surface: 'tw-bg-[#FEF2F2]',
+          icon: 'tw-bg-white tw-text-[#DC2626]',
+          text: 'tw-text-[#991B1B]',
+        }
+      : {
+          border: 'tw-border-[#FDE68A]',
+          surface: 'tw-bg-[#FFFBEB]',
+          icon: 'tw-bg-white tw-text-[#D97706]',
+          text: 'tw-text-[#92400E]',
+        };
+
+  return (
+    <section
+      className={`tw-flex tw-flex-col tw-gap-3 tw-rounded-2xl tw-border tw-p-4 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between ${tone.border} ${tone.surface}`}
+      aria-label="Triagem de alertas"
+    >
+      <div className="tw-flex tw-min-w-0 tw-gap-3">
+        <span
+          className={`tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl ${tone.icon}`}
+          aria-hidden="true"
+        >
+          <FontAwesomeIcon icon={faBell} className="tw-h-4 tw-w-4" />
+        </span>
+        <span className="tw-min-w-0">
+          <span className={`tw-block tw-text-sm tw-font-bold ${appV2Text.primary}`}>
+            Alertas pedem triagem
+          </span>
+          <span className={`tw-mt-0.5 tw-block tw-text-xs tw-font-semibold ${tone.text}`}>
+            {triage.detail}
+          </span>
+        </span>
+      </div>
+      <ActionButton
+        type="button"
+        variant="secondary"
+        onClick={onOpenAlerts}
+        className="tw-min-h-10 tw-gap-2 tw-rounded-lg tw-px-4 tw-py-2 tw-text-xs"
+      >
+        <FontAwesomeIcon icon={faBell} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
+        {triage.label}
+      </ActionButton>
+    </section>
   );
 }
 

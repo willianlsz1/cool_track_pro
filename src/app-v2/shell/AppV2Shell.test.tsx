@@ -100,6 +100,29 @@ describe('AppV2Shell', () => {
     expect(results?.textContent).not.toContain('Supabase');
   });
 
+  it('abre Orcamentos pelo CTA contextual de Servicos quando ha rascunho em aberto', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Servi/i);
+
+    expect(host.textContent).toContain('Revisar orçamento em aberto');
+    await clickButton(host, /^Revisar orçamento em aberto$/i);
+
+    expect(host.textContent).toContain('Orçamentos locais');
+    expect(host.textContent).toContain('ORC-2026-001');
+    expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('abre Orcamentos pela chamada discreta da Home para rascunho em aberto', async () => {
+    const host = await renderShell();
+
+    expect(host.textContent).toContain('Orçamento em aberto');
+    await clickButton(host, /^Revisar orçamento$/i);
+
+    expect(host.textContent).toContain('Orçamentos locais');
+    expect(host.textContent).toContain('ORC-2026-001');
+  });
+
   it('abre o detalhe de equipamento a partir da lista', async () => {
     const host = await renderShell();
 
@@ -712,6 +735,11 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Ir para Equipamentos$/i);
     await clickButton(host, /^Novo equipamento$/i);
 
+    expect(host.textContent).toContain('Cadastro para continuar o registro');
+    expect(host.textContent).toContain(
+      'Salve este equipamento para retomar o Registro de serviço automaticamente.',
+    );
+
     const name = host.querySelector('input[name="equipment-name"]');
     const location = host.querySelector('input[name="equipment-location"]');
     expect(name).toBeInstanceOf(HTMLInputElement);
@@ -929,9 +957,11 @@ it('cria orcamento local a partir do fechamento do servico', async () => {
   await fillInput(partsCost as HTMLInputElement, '120,00');
   await fillInput(laborCost as HTMLInputElement, '250,00');
 
+  await clickButton(host, /^Aten/i);
+
   await clickButton(host, /^Revisar$/i);
   await clickButton(host, /^Concluir servi/i);
-  await clickButton(host, /^Criar orçamento local$/i);
+  await clickButton(host, /^Criar orçamento pós-diagnóstico$/i);
 
   expect(host.textContent).toContain('Orçamentos locais');
   expect(host.textContent).toMatch(/Orçamento local - C.mara fria/);

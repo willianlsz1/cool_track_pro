@@ -87,18 +87,21 @@ export function ServiceDone({
             Saídas futuras
           </h2>
           <div className="tw-flex tw-flex-wrap tw-gap-4">
-            <button
-              type="button"
-              className="tw-inline-flex tw-min-h-12 tw-items-center tw-gap-2.5 tw-rounded-[14px] tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-4 tw-py-3 tw-text-xs tw-font-semibold tw-text-[#071A33] tw-transition focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-[#2563EB]"
-              onClick={onCreateQuote}
-            >
-              <FontAwesomeIcon
-                icon={faFileInvoiceDollar}
-                className="tw-h-4 tw-w-4 tw-text-[#2563EB]"
-                aria-hidden="true"
-              />
-              Criar orçamento local
-            </button>
+            {done.postDiagnosticQuote ? (
+              <button
+                type="button"
+                title={done.postDiagnosticQuote.detail}
+                className="tw-inline-flex tw-min-h-12 tw-items-center tw-gap-2.5 tw-rounded-[14px] tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-4 tw-py-3 tw-text-xs tw-font-semibold tw-text-[#071A33] tw-transition focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-[#2563EB]"
+                onClick={onCreateQuote}
+              >
+                <FontAwesomeIcon
+                  icon={faFileInvoiceDollar}
+                  className="tw-h-4 tw-w-4 tw-text-[#2563EB]"
+                  aria-hidden="true"
+                />
+                {done.postDiagnosticQuote.label}
+              </button>
+            ) : null}
             {done.disabledOutputs.map((output) => (
               <button
                 key={output}

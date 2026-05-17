@@ -41,6 +41,12 @@ export interface CreateQuoteFromServiceRecordInput {
   recordId: string;
 }
 
+export interface CreatePreServiceQuoteDraftInput {
+  id: string;
+  equipmentId: string;
+  templateId?: string;
+}
+
 export interface UpdateQuoteDraftInput {
   id: string;
   title: string;
@@ -226,6 +232,38 @@ export function createQuoteFromServiceRecord(
     registroId: registro.id,
     titulo: `Orçamento local - ${equipamento?.nome ?? 'Equipamento não encontrado'}`,
     total: parseCurrencyValue(registro.custoPecas) + parseCurrencyValue(registro.custoMaoObra),
+  };
+
+  return {
+    ...cloneSnapshot(state),
+    orcamentos: [quote, ...state.orcamentos.map((item) => ({ ...item }))],
+    serviceDraft: getExistingDraft(state),
+  };
+}
+
+export function createPreServiceQuoteDraft(
+  state: AppV2MockSnapshot,
+  input: CreatePreServiceQuoteDraftInput,
+): AppV2FlowState {
+  const equipamento = state.equipamentos.find((item) => item.id === input.equipmentId);
+
+  if (!equipamento) {
+    throw new Error('Equipamento não encontrado para criar orçamento pré-serviço.');
+  }
+
+  if (equipamento.archivedAt) {
+    throw new Error('Equipamento arquivado não pode receber orçamento pré-serviço.');
+  }
+
+  const quote: Orcamento = {
+    id: input.id,
+    numero: createNextQuoteNumber(state),
+    status: 'rascunho',
+    clienteId: equipamento.clienteId,
+    equipamentoId: equipamento.id,
+    modeloId: input.templateId?.trim() || undefined,
+    titulo: `Orçamento pré-serviço - ${equipamento.nome}`,
+    total: 0,
   };
 
   return {

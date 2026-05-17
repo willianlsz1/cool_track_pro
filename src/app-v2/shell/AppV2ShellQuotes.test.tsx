@@ -200,6 +200,42 @@ describe('AppV2Shell Orçamentos', () => {
     expect(host.textContent).not.toContain('WhatsApp');
   });
 
+  it('cria rascunho pre-servico por equipamento sem registro concluido', async () => {
+    const host = await renderShell(createQuoteSnapshot({ orcamentos: [] }));
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Orçamentos$/i);
+    await clickButton(host, /^Novo orçamento local$/i);
+
+    expect(host.textContent).toContain('Novo orçamento pré-serviço');
+
+    const equipment = host.querySelector('select[name="quote-create-equipment"]');
+    const template = host.querySelector('select[name="quote-create-template"]');
+    expect(equipment).toBeInstanceOf(HTMLSelectElement);
+    expect(template).toBeInstanceOf(HTMLSelectElement);
+
+    await selectOption(equipment as HTMLSelectElement, 'eq-1');
+    await selectOption(template as HTMLSelectElement, 'instalacao-split');
+    await clickButton(host, /^Criar rascunho$/i);
+
+    expect(host.textContent).toContain('Orçamentos · Acompanhamento');
+    expect(host.textContent).toContain('ORC-2026-001');
+    expect(host.textContent).toContain('Mercado Bom');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Rascunho local');
+    expect(host.textContent).toContain('Instalação split');
+    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain('Supabase');
+    expect(host.textContent).not.toContain('WhatsApp');
+    expect(host.textContent).not.toContain('Exportar PDF');
+
+    await clickButton(host, /^Salvar rascunho$/i);
+
+    expect(host.textContent).toContain('Orçamento pré-serviço - Split 24.000 BTU');
+    expect(host.textContent).toContain('ORC-2026-001');
+    expect(host.textContent).toContain('4 itens locais');
+  });
+
   it('filtra letras em quantidade e valores do editor de Orcamento', async () => {
     const host = await renderShell(createQuoteSnapshot());
 
@@ -237,9 +273,10 @@ describe('AppV2Shell Orçamentos', () => {
   });
 });
 
-function createQuoteSnapshot(): AppV2MockSnapshot {
+function createQuoteSnapshot(overrides: Partial<AppV2MockSnapshot> = {}): AppV2MockSnapshot {
   return createAppV2MockSnapshot({
-    orcamentos: [
+    ...overrides,
+    orcamentos: overrides.orcamentos ?? [
       {
         id: 'orc-1',
         numero: 'ORC-2026-001',

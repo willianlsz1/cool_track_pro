@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildHomeTodayViewModel } from './homeViewModel';
-import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '../domain/types';
+import type {
+  Cliente,
+  CompromissoServico,
+  Equipamento,
+  Orcamento,
+  RegistroServico,
+} from '../domain/types';
 
 const cliente: Cliente = {
   id: 'cliente-1',
@@ -116,6 +122,14 @@ describe('buildHomeTodayViewModel', () => {
       detail: 'Status atual marcado como crítico',
       tone: 'danger',
     });
+    expect(viewModel.alertTriage).toEqual({
+      total: 2,
+      criticalTotal: 2,
+      label: 'Ver alertas',
+      detail: '2 críticos · 2 alertas ativos',
+      tone: 'danger',
+      hasActiveAlerts: true,
+    });
     expect(viewModel.aside.nextInQueue?.title).toBe('Corretiva · Câmara fria');
     expect(viewModel.aside.summary.map((item) => item.id)).not.toContain('estimated-time');
   });
@@ -135,6 +149,43 @@ describe('buildHomeTodayViewModel', () => {
     expect(viewModel.nextAction.secondaryAction).toBe('Ver fila');
     expect(viewModel.nextAction.tone).toBe('calm');
     expect(viewModel.queue).toEqual([]);
+    expect(viewModel.alertTriage).toEqual({
+      total: 0,
+      criticalTotal: 0,
+      label: 'Ver alertas',
+      detail: 'Tudo em dia',
+      tone: 'calm',
+      hasActiveAlerts: false,
+    });
+  });
+
+  it('expoe chamada discreta para rascunho de orcamento em aberto', () => {
+    const quote: Orcamento = {
+      id: 'orcamento-1',
+      numero: 'ORC-2026-001',
+      status: 'rascunho',
+      clienteId: cliente.id,
+      equipamentoId: split.id,
+      titulo: 'Instalacao de split',
+      total: 1250,
+    };
+
+    const viewModel = buildHomeTodayViewModel({
+      today: '2026-05-10',
+      clientes: [cliente],
+      equipamentos: [split],
+      compromissos: [],
+      registros: [registroSplit],
+      orcamentos: [quote],
+    });
+
+    expect(viewModel.openQuoteReminder).toEqual({
+      quoteId: 'orcamento-1',
+      label: 'Revisar orçamento',
+      title: 'Orçamento em aberto',
+      detail: 'ORC-2026-001 - Instalacao de split',
+      equipmentName: 'Split 24.000 BTU',
+    });
   });
 
   it('nao conta compromissos de equipamento arquivado na Home operacional', () => {

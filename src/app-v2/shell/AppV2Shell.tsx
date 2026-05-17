@@ -27,6 +27,7 @@ import { HomeToday } from '../home/HomeToday';
 import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNav';
 import {
   createQuoteFromServiceRecord,
+  createPreServiceQuoteDraft,
   scheduleNextCommitment,
   startServiceFromEquipment as startServiceFlowAction,
   updateQuoteDraft,
@@ -38,7 +39,7 @@ import { selectAppV2OperationalState } from '../data/appV2Selectors';
 import { ServiceFlow } from '../service/ServiceFlow';
 import { ServiceEquipmentChoice } from '../service/ServiceEquipmentChoice';
 import { ServicesHome } from '../service/ServicesHome';
-import type { QuoteEditDraft } from '../service/ServicesQuotesHome';
+import type { PreServiceQuoteCreateDraft, QuoteEditDraft } from '../service/ServicesQuotesHome';
 import type { ServicesSubView } from '../service/ServicesSubViewNav';
 import { createServiceDraftFromRecord, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
@@ -359,6 +360,16 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     }
   }
 
+  function createPreServiceQuote(draft: PreServiceQuoteCreateDraft): string | null {
+    try {
+      const nextState = createPreServiceQuoteDraft(appState, draft);
+      setAppState(preserveCurrentServiceDraft(appState, nextState));
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Não foi possível criar o orçamento.';
+    }
+  }
+
   function validateCurrentService(draft: ServiceDraft): string | null {
     try {
       validateServiceCompletion(
@@ -467,6 +478,13 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             input={operationalState.homeInput}
             onOpenEquipment={openEquipment}
             onStartService={startServiceFromEquipment}
+            onOpenAlerts={() => setHomeView('alerts')}
+            onOpenQuotes={() => {
+              setServicesInitialView('orcamentos');
+              setIsServiceEquipmentChoiceOpen(false);
+              setIsServiceFlowOpen(false);
+              setActiveTab('servicos');
+            }}
           />
         ) : null}
 
@@ -523,6 +541,15 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
               onSaveSector={saveSectorDraft}
               onDeleteSector={deleteSectorDraft}
               initialClientId={equipmentFormClientId}
+              contextBanner={
+                startServiceAfterEquipmentCreate
+                  ? {
+                      title: 'Cadastro para continuar o registro',
+                      description:
+                        'Salve este equipamento para retomar o Registro de serviço automaticamente.',
+                    }
+                  : undefined
+              }
               onInitialClientHandled={() => setEquipmentFormClientId(null)}
             />
           )
@@ -565,6 +592,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
             onStartService={startFallbackService}
             onEditService={editServiceRecord}
             onSaveQuote={saveQuoteDraft}
+            onCreatePreServiceQuote={createPreServiceQuote}
           />
         ) : null}
 

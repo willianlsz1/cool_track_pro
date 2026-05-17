@@ -18,7 +18,11 @@ import { appV2Border, appV2Focus, appV2Text, appV2Tone } from '../styles/tokens'
 import { ActionButton, PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 import { RecentServiceCard } from './RecentServiceCard';
 import { ServiceInProgressCard } from './ServiceInProgressCard';
-import { ServicesQuotesHome, type QuoteEditDraft } from './ServicesQuotesHome';
+import {
+  ServicesQuotesHome,
+  type PreServiceQuoteCreateDraft,
+  type QuoteEditDraft,
+} from './ServicesQuotesHome';
 import { ServiceReportsHome } from './ServiceReportsHome';
 import type { ServiceDraft } from './serviceFlowViewModel';
 import {
@@ -37,6 +41,7 @@ interface ServicesHomeProps {
   onStartService: () => void;
   onEditService?: (serviceId: string) => void;
   onSaveQuote?: (draft: QuoteEditDraft) => string | null;
+  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => string | null;
 }
 
 export function ServicesHome({
@@ -47,6 +52,7 @@ export function ServicesHome({
   onStartService,
   onEditService,
   onSaveQuote,
+  onCreatePreServiceQuote,
 }: ServicesHomeProps) {
   const [activeView, setActiveView] = useState<ServicesSubView>(initialView);
   const [serviceFilters, setServiceFilters] = useState<BuildServicesHomeFilters>({});
@@ -60,6 +66,20 @@ export function ServicesHome({
       ...current,
       [key]: value,
     }));
+  }
+
+  function runDominantCta() {
+    if (viewModel.dominantCta.kind === 'resume_service') {
+      onResumeService();
+      return;
+    }
+
+    if (viewModel.dominantCta.kind === 'start_service') {
+      onStartService();
+      return;
+    }
+
+    setActiveView(viewModel.dominantCta.targetView);
   }
 
   if (activeView === 'relatorios') {
@@ -78,6 +98,7 @@ export function ServicesHome({
       <ServicesQuotesHome
         activeView={activeView}
         input={input}
+        onCreatePreServiceQuote={onCreatePreServiceQuote}
         onSaveQuote={onSaveQuote}
         onSelectView={setActiveView}
       />
@@ -116,6 +137,8 @@ export function ServicesHome({
               onStartService={onStartService}
             />
           )}
+
+          <DominantActionCard cta={viewModel.dominantCta} onAction={runDominantCta} />
 
           <SectionCard className="sm:tw-p-5" labelledBy="recent-services-title" padding="sm">
             <h2
@@ -244,6 +267,38 @@ export function ServicesHome({
         <ServicesAside recentServices={viewModel.recentServices} />
       </div>
     </PageShell>
+  );
+}
+
+function DominantActionCard({
+  cta,
+  onAction,
+}: {
+  cta: ReturnType<typeof buildServicesHomeViewModel>['dominantCta'];
+  onAction: () => void;
+}) {
+  return (
+    <SectionCard
+      className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between"
+      labelledBy="services-dominant-cta-title"
+      padding="sm"
+    >
+      <span className="tw-min-w-0">
+        <span
+          id="services-dominant-cta-title"
+          className={`tw-block tw-text-sm tw-font-bold ${appV2Tone.text}`}
+        >
+          {cta.title}
+        </span>
+        <span className={`tw-mt-1 tw-block tw-text-xs tw-font-medium ${appV2Tone.mutedText}`}>
+          {cta.detail}
+        </span>
+      </span>
+      <ActionButton onClick={onAction} className="tw-min-h-10 tw-gap-2 tw-px-4 tw-py-2">
+        <FontAwesomeIcon icon={faPlay} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
+        {cta.label}
+      </ActionButton>
+    </SectionCard>
   );
 }
 

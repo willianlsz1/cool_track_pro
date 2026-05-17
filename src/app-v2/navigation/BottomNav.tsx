@@ -12,7 +12,7 @@ export type AppV2Tab = 'hoje' | 'equipamento' | 'servicos' | 'conta';
 
 const navItems = [
   { id: 'hoje', label: 'Hoje', desktopLabel: 'Hoje', marker: 'home' },
-  { id: 'equipamento', label: 'Equipamento', desktopLabel: 'Equipamentos', marker: 'equipment' },
+  { id: 'equipamento', label: 'Equipamentos', desktopLabel: 'Equipamentos', marker: 'equipment' },
   { id: 'servicos', label: 'Serviços', desktopLabel: 'Serviços', marker: 'service' },
   { id: 'conta', label: 'Conta', desktopLabel: 'Conta', marker: 'account' },
 ] as const;

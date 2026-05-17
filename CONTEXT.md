@@ -64,6 +64,12 @@ _Avoid_: dashboard primeiro, tela demonstrativa, vitrine visual
 Unidade operacional principal atendida pelo tecnico no novo app.
 _Avoid_: item secundario do cliente, detalhe escondido
 
+**Equipamentos**:
+Area fixa do Novo app que concentra lista, detalhe e organizacao de
+Equipamentos, Clientes e Setores.
+_Avoid_: usar o nome da area no singular, esconder o Equipamento dentro do
+Cliente, criar uma area global separada para Setores
+
 **Etiqueta do Equipamento**:
 Fonte tecnica auxiliar usada para preencher dados como tag, modelo, fluido, serie e capacidade. No app-v2 inicial, deve entrar como rascunho revisavel e local/mock antes de qualquer camera, upload, storage ou IA real.
 _Avoid_: salvar automaticamente, exigir foto para cadastrar, misturar cadastro com storage real, tratar reconhecimento como verdade sem revisao
@@ -109,8 +115,17 @@ _Avoid_: campo solto, lembrete sem fluxo, evento desconectado do registro
 Fluxo por etapas curto usado pelo tecnico para documentar o atendimento de um Equipamento.
 _Avoid_: formulario longo unico, checklist escondido, anotacao solta
 
+**Criacao contextual de equipamento**:
+Criacao de Equipamento iniciada porque o tecnico tentou registrar servico sem
+um Equipamento adequado. A experiencia deve explicar que salvar o Equipamento
+retoma o Registro de servico na mesma sessao local.
+_Avoid_: wizard novo, router novo, persistencia real da intencao, cadastro
+desconectado do atendimento
+
 **Fechamento de servico**:
-Etapa final do Registro de servico que oferece gerar relatorio, criar orcamento ou agendar proximo compromisso.
+Etapa final do Registro de servico que oferece gerar relatorio, criar Orcamento
+pos-diagnostico quando houver proxima etapa a aprovar, ou agendar proximo
+compromisso.
 _Avoid_: salvar e abandonar, historico como CTA principal
 
 **Agendamento de proximo compromisso**:
@@ -122,8 +137,32 @@ Saida primaria de compartilhamento do relatorio tecnico para o cliente.
 _Avoid_: PDF como unico destino, download sem envio, canal secundario escondido
 
 **Orcamento**:
-Proposta comercial ligada preferencialmente ao Fechamento de servico, podendo tambem nascer de um Equipamento como demanda avulsa.
-_Avoid_: aba isolada, documento sem contexto operacional
+Proposta comercial vinculada ao contexto operacional de Cliente, Equipamento ou
+Servico. O fluxo principal e o Orcamento pre-servico; o Orcamento
+pos-diagnostico e excecao contextual quando uma visita ou diagnostico indicar
+proxima etapa a aprovar.
+_Avoid_: aba isolada, documento sem contexto operacional, tratar todo Orcamento
+como saida de servico ja concluido
+
+**Orcamento pre-servico**:
+Proposta comercial criada antes da execucao, normalmente a partir de um
+Equipamento, Cliente ou demanda de instalacao/troca/reparo. Quando aprovado,
+pode originar um Registro de servico contextualizado.
+_Avoid_: tratar todo orcamento como saida de servico ja executado
+
+**Orcamento pos-diagnostico**:
+Proposta comercial criada depois de uma visita, diagnostico ou corretiva
+incompleta indicar reparo maior, peca ou proxima etapa que ainda nao deve ser
+executada sem aprovacao.
+_Avoid_: cobrar como se o servico ja estivesse concluido, gerar orcamento
+generico apos qualquer fechamento de servico
+
+**Ciclo de Orcamento**:
+Estados de produto de um Orcamento: rascunho, enviado, aprovado e recusado.
+No app-v2 local, a primeira etapa pode cobrir rascunho e preparar a transicao
+para aprovacao mockada futura sem envio real, billing ou storage real.
+_Avoid_: envio real implicito, aprovacao comercial sem estado explicito,
+misturar ciclo de Orcamento com conclusao de Registro de servico
 
 **PMOC**:
 Modulo futuro de servico especializado, fora do nucleo da Etapa zero.
@@ -194,14 +233,32 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - Um **Compromisso de servico** pode virar **Proxima acao** ou item da **Fila do dia**.
 - Ao ser iniciado, um **Compromisso de servico** vira **Registro de servico** dentro de **Servicos**.
 - Um **Registro de servico** pertence a um **Equipamento**.
+- Quando o tecnico tenta iniciar um **Registro de servico** sem um
+  **Equipamento** adequado, o Novo app pode acionar a **Criacao contextual de
+  equipamento**.
+- A **Criacao contextual de equipamento** deve retornar ao **Registro de
+  servico** apos salvar o **Equipamento**, sem criar uma area nova nem depender
+  de storage real.
 - Um **Registro de servico** termina em **Fechamento de servico**.
-- **Fechamento de servico** pode gerar **Relatorio por WhatsApp**, criar orcamento ou agendar novo **Compromisso de servico**.
+- **Fechamento de servico** pode gerar **Relatorio por WhatsApp**, criar
+  **Orcamento pos-diagnostico** quando houver proxima etapa a aprovar, ou
+  agendar novo **Compromisso de servico**.
 - **Agendamento de proximo compromisso** cria um **Compromisso de servico** para o mesmo **Equipamento** do **Registro de servico** concluido.
-- Um **Orcamento** nasce preferencialmente do **Fechamento de servico**.
-- Um **Orcamento** pode nascer de um **Equipamento** quando nao houver servico anterior.
+- O **Orcamento pre-servico** e o fluxo principal de Orcamentos quando a
+  aprovacao comercial vem antes da execucao.
+- Um **Orcamento pre-servico** pode nascer de um **Equipamento**, de um
+  **Cliente** ou de `Servicos > Orcamentos`.
+- Um **Orcamento pos-diagnostico** nasce do **Fechamento de servico** apenas
+  quando o atendimento serviu para diagnosticar ou levantar uma proxima etapa.
+- Um **Orcamento** aprovado pode futuramente originar um **Registro de servico**
+  contextualizado.
+- O **Ciclo de Orcamento** separa proposta em rascunho, enviada, aprovada ou
+  recusada antes de originar um **Registro de servico**.
 - **PMOC** pertence a etapas futuras do **Rewrite zero**, nao ao nucleo da **Etapa zero**.
-- O **Novo app** tem quatro areas fixas: **Hoje**, **Equipamento**, **Servicos** e **Conta**.
-- A area **Equipamento** contem uma visao de **Equipamentos** e uma visao de **Clientes**.
+- O **Novo app** tem quatro areas fixas: **Hoje**, **Equipamentos**,
+  **Servicos** e **Conta**.
+- A area **Equipamentos** contem uma visao de **Equipamentos** e uma visao de
+  **Clientes**.
 - A visao de **Clientes** mostra detalhes do **Cliente** e seus **Equipamentos** vinculados.
 - O detalhe de **Cliente** pode futuramente concentrar servicos relacionados e
   **PMOC** contextual, sem tornar **Cliente** uma area global do **Novo app**.
@@ -289,8 +346,8 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 > **Dev:** "Relatorio significa baixar PDF?"
 > **Domain expert:** "Nao como padrao. Para tecnicos, a saida mais usada e Relatorio por WhatsApp."
 
-> **Dev:** "Orcamento fica solto em uma area propria?"
-> **Domain expert:** "Nao. Orcamento nasce principalmente do Fechamento de servico e fica acompanhado em Servicos."
+> **Dev:** "Orcamento nasce sempre depois do atendimento?"
+> **Domain expert:** "Nao. O fluxo principal e Orcamento pre-servico; Orcamento pos-diagnostico so aparece quando uma visita ou diagnostico indicar proxima etapa a aprovar."
 
 > **Dev:** "PMOC precisa entrar no primeiro fluxo?"
 > **Domain expert:** "Nao. PMOC e plano de outra etapa; a Etapa zero deve resolver o fluxo tecnico comum primeiro."

@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCamera, faSave, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCamera,
+  faInfoCircle,
+  faSave,
+  faWandMagicSparkles,
+} from '@fortawesome/free-solid-svg-icons';
 
 import type { SaveEquipmentDraft } from './equipmentActions';
 import type {
@@ -16,13 +21,17 @@ import { appV2Border, appV2Button, appV2Shadow, appV2Text } from '../styles/toke
 import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
 import { SectionEyebrow } from '../ui/primitives';
 
-interface EquipmentFormProps {
+export interface EquipmentFormProps {
   title: string;
   clientes: Cliente[];
   setores?: SetorEquipamento[];
   initialEquipment?: Equipamento;
   initialClientId?: string;
   initialSectorId?: string;
+  contextBanner?: {
+    title: string;
+    description: string;
+  };
   error?: string | null;
   onCancel: () => void;
   onSave: (draft: SaveEquipmentDraft) => string | null;
@@ -35,6 +44,7 @@ export function EquipmentForm({
   initialEquipment,
   initialClientId,
   initialSectorId,
+  contextBanner,
   error,
   onCancel,
   onSave,
@@ -141,6 +151,27 @@ export function EquipmentForm({
           preenchidos agora ou revisados depois.
         </p>
       </div>
+
+      {contextBanner ? (
+        <div className="tw-mt-6 tw-rounded-2xl tw-border tw-border-[#BFDBFE] tw-bg-[#EFF6FF] tw-p-4">
+          <div className="tw-flex tw-gap-3">
+            <span
+              className="tw-flex tw-h-10 tw-w-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-xl tw-bg-white tw-text-[#2563EB]"
+              aria-hidden="true"
+            >
+              <FontAwesomeIcon icon={faInfoCircle} />
+            </span>
+            <div className="tw-min-w-0">
+              <p className="tw-m-0 tw-text-sm tw-font-bold tw-text-[#071A33]">
+                {contextBanner.title}
+              </p>
+              <p className="tw-m-0 tw-mt-1 tw-text-xs tw-font-medium tw-leading-5 tw-text-[#52677F]">
+                {contextBanner.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="tw-mt-6 tw-rounded-2xl tw-border tw-border-[#BFDBFE] tw-bg-[#EFF6FF] tw-p-4">
         <div className="tw-flex tw-flex-col tw-gap-4 md:tw-flex-row md:tw-items-center md:tw-justify-between">
