@@ -1,4 +1,5 @@
 node_modules/
+/moon-bridge/
 # Saídas do Vite — a única "verdadeira" é `dist/`. Qualquer outra pasta
 # `dist-<qualquer-coisa>/` é artefato de build ou verificação local e
 # nunca deve ser commitada.
