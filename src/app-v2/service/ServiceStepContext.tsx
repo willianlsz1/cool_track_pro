@@ -1,11 +1,11 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import type { ReactNode } from 'react';
+
 import type { ServiceContextViewModel } from './serviceFlowViewModel';
-import { ActionButton } from '../ui/primitives';
-import {
-  ServiceActions,
-  ServiceInfoBlock,
-  ServiceStatusBadge,
-  ServiceStepCard,
-} from './ServiceFlowPrimitives';
+import { ActionButton, SectionCard } from '../ui/primitives';
+import { appV2Tone } from '../styles/tokens';
+import { ServiceStatusBadge } from './ServiceFlowPrimitives';
 
 interface ServiceStepContextProps {
   context: ServiceContextViewModel;
@@ -25,65 +25,91 @@ export function ServiceStepContext({
   onContinue,
 }: ServiceStepContextProps) {
   return (
-    <ServiceStepCard
-      eyebrow="Etapa 1"
-      title={context.title}
-      description="Confirme o equipamento, cliente e motivo do atendimento antes de iniciar o registro."
-    >
-      <div className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(260px,0.56fr)]">
-        <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#2563EB]">
-            Equipamento
-          </p>
-          <p className="tw-m-0 tw-mt-2 tw-text-xl tw-font-bold tw-leading-tight tw-text-[#061635]">
-            {context.equipmentName}
-          </p>
-          <p className="tw-m-0 tw-mt-2 tw-text-sm tw-font-medium tw-leading-6 tw-text-[#31476A]">
-            {context.equipmentLine}
-          </p>
-          {onChangeEquipment ? (
-            <ActionButton
-              variant="secondary"
-              className="tw-mt-4 tw-min-h-10 tw-px-4 tw-py-2"
-              onClick={onChangeEquipment}
-            >
-              Alterar equipamento
-            </ActionButton>
-          ) : null}
-        </div>
+    <SectionCard className="tw-rounded-[20px] tw-p-6">
+      <h1 className={`tw-m-0 tw-text-base tw-font-bold ${appV2Tone.text}`}>
+        Etapa 1 · {context.title}
+      </h1>
+      <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
+        Confirme o equipamento, cliente e motivo do atendimento antes de iniciar o registro.
+      </p>
 
-        <div className="tw-grid tw-gap-4">
-          {onServiceDateChange ? (
-            <label className="tw-grid tw-gap-2">
-              <span className="tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#7A8AA6]">
-                Data do registro
+      <div className="tw-mt-5 tw-grid tw-gap-5 lg:tw-grid-cols-2">
+        <InfoField
+          label="Equipamento"
+          value={
+            <>
+              <span className="tw-block tw-font-bold">{context.equipmentName}</span>
+              <span className={`tw-mt-1 tw-block tw-text-xs ${appV2Tone.subtleText}`}>
+                {context.equipmentLine}
               </span>
-              <input
-                type="date"
-                name="service-date"
-                value={serviceDate ?? ''}
-                onChange={(event) => onServiceDateChange(event.target.value)}
-                className="tw-w-full tw-rounded-2xl tw-border tw-border-[#D7E3F2] tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 tw-text-[#061635] focus:tw-border-[#38BDF8] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#BAE6FD]"
-              />
-            </label>
-          ) : null}
-          <ServiceInfoBlock label="Cliente/local" value={context.customerLine} />
-          <ServiceInfoBlock label="Motivo" value={context.reason} />
+              {onChangeEquipment ? (
+                <button
+                  type="button"
+                  onClick={onChangeEquipment}
+                  className="tw-mt-3 tw-inline-flex tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-transparent tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#1E4F8A]"
+                >
+                  Alterar equipamento
+                </button>
+              ) : null}
+            </>
+          }
+        />
+
+        <InfoField label="Cliente / Local" value={context.customerLine} />
+        <InfoField label="Motivo" value={context.reason} />
+
+        <div className="tw-flex tw-flex-col tw-gap-2">
+          <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-text-[#1E4F8A]">
+            Status atual
+          </span>
           <div>
-            <p className="tw-m-0 tw-mb-2 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#7A8AA6]">
-              Status atual
-            </p>
             <ServiceStatusBadge tone={context.statusTone}>{context.statusLabel}</ServiceStatusBadge>
           </div>
         </div>
+
+        {onServiceDateChange ? (
+          <label className="tw-flex tw-flex-col tw-gap-2">
+            <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-text-[#1E4F8A]">
+              Data do registro
+            </span>
+            <input
+              type="date"
+              name="service-date"
+              value={serviceDate ?? ''}
+              onChange={(event) => onServiceDateChange(event.target.value)}
+              className="tw-w-full tw-rounded-xl tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-3 tw-py-2 tw-text-sm tw-font-semibold tw-text-[#071A33] focus:tw-border-[#38BDF8] focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-[#BAE6FD]"
+            />
+          </label>
+        ) : null}
       </div>
 
-      <ServiceActions
-        primaryLabel="Continuar"
-        onPrimary={onContinue}
-        secondaryLabel="Voltar para Serviços"
-        onSecondary={onCancel}
-      />
-    </ServiceStepCard>
+      <div className="tw-mt-6 tw-flex tw-flex-col tw-justify-end tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-5 sm:tw-flex-row">
+        <ActionButton
+          variant="secondary"
+          onClick={onCancel}
+          className="tw-min-h-10 tw-rounded-[10px] tw-px-5 tw-py-2 tw-text-xs"
+        >
+          Voltar para Serviços
+        </ActionButton>
+        <ActionButton
+          onClick={onContinue}
+          className="tw-min-h-10 tw-rounded-[10px] tw-px-6 tw-py-2 tw-text-xs"
+        >
+          <FontAwesomeIcon icon={faArrowRight} className="tw-h-3 tw-w-3" aria-hidden="true" />
+          Continuar
+        </ActionButton>
+      </div>
+    </SectionCard>
+  );
+}
+
+function InfoField({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-2">
+      <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-text-[#1E4F8A]">{label}</span>
+      <div className="tw-rounded-xl tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-3 tw-py-2 tw-text-sm tw-font-semibold tw-text-[#071A33]">
+        {value}
+      </div>
+    </div>
   );
 }

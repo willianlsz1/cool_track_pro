@@ -1,3 +1,19 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBell,
+  faBolt,
+  faCheckCircle,
+  faCircleInfo,
+  faClipboardList,
+  faFileInvoiceDollar,
+  faHome,
+  faMicrochip,
+  faQuestionCircle,
+  faSliders,
+  faUsers,
+  faWrench,
+} from '@fortawesome/free-solid-svg-icons';
+
 import type {
   AccountDensityPreference,
   AccountPreferencesState,
@@ -6,7 +22,7 @@ import type {
 } from './accountViewModel';
 import { buildAccountViewModel } from './accountViewModel';
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import { PageShell, SectionCard } from '../ui/primitives';
 
 interface AccountHomeProps {
   preferences: AccountPreferencesState;
@@ -29,37 +45,21 @@ export function AccountHome({
         className={`tw-grid ${viewModel.preferences.density.layoutClassName}`}
         data-account-density={preferences.density}
       >
-        <header className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(280px,0.36fr)] lg:tw-items-end">
-          <div className="tw-min-w-0">
-            <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-              {viewModel.subtitle}
-            </p>
-            <h1
-              className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-none sm:tw-text-[2rem] ${appV2Tone.text}`}
-            >
-              {viewModel.title}
-            </h1>
-            <p
-              className={`tw-m-0 tw-mt-3 tw-break-words tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}
-            >
-              {viewModel.description}
-            </p>
-          </div>
-          <SectionCard padding="sm" label="Resumo das preferências locais">
-            <span className={`tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
-              Preferências locais
-            </span>
-            <span className={`tw-mt-1 tw-block tw-text-2xl tw-font-bold ${appV2Tone.text}`}>
-              {viewModel.preferences.density.valueLabel}
-            </span>
-            <ActionButton
-              variant="ghost"
-              className="tw-mt-4 tw-w-full"
-              onClick={() => onOpenStartTab(preferences.startTab)}
-            >
-              {viewModel.preferences.startTab.actionLabel}
-            </ActionButton>
-          </SectionCard>
+        <header className="tw-min-w-0">
+          <h1
+            className={`tw-m-0 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-[-0.01em] ${appV2Tone.text}`}
+          >
+            {viewModel.title}
+          </h1>
+          <p className={`tw-m-0 tw-mt-1 tw-break-words tw-text-sm ${appV2Tone.mutedText}`}>
+            {viewModel.description}
+          </p>
+          <p
+            className={`tw-m-0 tw-mt-1 tw-flex tw-items-center tw-gap-1.5 tw-break-words tw-text-xs ${appV2Tone.subtleText}`}
+          >
+            <FontAwesomeIcon icon={faCircleInfo} className="tw-h-3 tw-w-3" aria-hidden="true" />
+            Configurações de interface e navegação rápida.
+          </p>
         </header>
 
         {viewModel.preferences.reminder.banner ? (
@@ -71,42 +71,27 @@ export function AccountHome({
         ) : null}
 
         <SectionCard padding="sm" labelledBy="account-empty-state-title">
-          <div className="tw-grid tw-gap-2 sm:tw-grid-cols-[minmax(0,1fr)_minmax(220px,0.42fr)] sm:tw-items-center">
-            <div className="tw-min-w-0">
-              <h2
-                id="account-empty-state-title"
-                className={`tw-m-0 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
-              >
-                {viewModel.emptyState.title}
-              </h2>
-              <p className={`tw-m-0 tw-mt-1 tw-break-words tw-text-sm ${appV2Tone.mutedText}`}>
-                {viewModel.emptyState.description}
-              </p>
-            </div>
-            <div
-              className={`tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-3 tw-text-sm ${appV2Tone.border}`}
+          <div className="tw-rounded-2xl tw-bg-[#F8FAFE] tw-p-4 tw-text-center">
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              className="tw-mb-2 tw-h-6 tw-w-6 tw-text-[#16A34A]"
+              aria-hidden="true"
+            />
+            <h2
+              id="account-empty-state-title"
+              className={`tw-m-0 tw-text-sm tw-font-semibold ${appV2Tone.text}`}
             >
-              <span className={`tw-block tw-font-bold ${appV2Tone.text}`}>
-                {viewModel.localBoundary.title}
-              </span>
-              <span className={`tw-mt-1 tw-block tw-break-words ${appV2Tone.mutedText}`}>
-                {viewModel.localBoundary.description}
-              </span>
-            </div>
+              {viewModel.emptyState.title}
+            </h2>
+            <p className={`tw-m-0 tw-mt-1 tw-break-words tw-text-xs ${appV2Tone.mutedText}`}>
+              {viewModel.emptyState.description}
+            </p>
           </div>
         </SectionCard>
 
         {viewModel.shortcutGroups.map((group) => (
           <SectionCard key={group.title} labelledBy="account-shortcuts-title" padding="sm">
-            <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
-              <h2
-                id="account-shortcuts-title"
-                className={`tw-m-0 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
-              >
-                {group.title}
-              </h2>
-              <StatusBadge>{group.items.length}</StatusBadge>
-            </div>
+            <CardTitle id="account-shortcuts-title" icon={faBolt} title={group.title} />
             <div className="tw-mt-4 tw-grid tw-gap-3 sm:tw-grid-cols-2">
               {group.items.map((item) => (
                 <button
@@ -114,12 +99,19 @@ export function AccountHome({
                   type="button"
                   data-account-shortcut={item.id}
                   onClick={() => onShortcut(item.id)}
-                  className={`tw-min-w-0 tw-break-words tw-rounded-xl tw-border tw-bg-white tw-p-4 tw-text-left ${appV2Tone.border} ${appV2Tone.focus}`}
+                  className={`tw-min-w-0 tw-break-words tw-rounded-xl tw-border tw-bg-[#F8FAFE] tw-p-3 tw-text-left ${appV2Tone.border} ${appV2Tone.focus}`}
                 >
-                  <span className={`tw-block tw-text-sm tw-font-bold ${appV2Tone.text}`}>
+                  <span
+                    className={`tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-semibold ${appV2Tone.text}`}
+                  >
+                    <FontAwesomeIcon
+                      icon={shortcutIconById[item.id]}
+                      className="tw-h-3.5 tw-w-3.5"
+                      aria-hidden="true"
+                    />
                     {item.label}
                   </span>
-                  <span className={`tw-mt-1 tw-block tw-text-sm ${appV2Tone.mutedText}`}>
+                  <span className={`tw-mt-1 tw-block tw-text-xs ${appV2Tone.mutedText}`}>
                     {item.description}
                   </span>
                 </button>
@@ -128,16 +120,11 @@ export function AccountHome({
           </SectionCard>
         ))}
 
-        <SectionCard labelledBy="account-preferences-title">
-          <h2
-            id="account-preferences-title"
-            className={`tw-m-0 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
-          >
-            Preferências
-          </h2>
-          <div className="tw-mt-4 tw-grid tw-gap-3 md:tw-grid-cols-3">
-            <label className="tw-block">
-              <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">
+        <SectionCard labelledBy="account-preferences-title" padding="sm">
+          <CardTitle id="account-preferences-title" icon={faSliders} title="Preferências" />
+          <div className="tw-mt-3 tw-divide-y tw-divide-[#EDF2F7]">
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-py-3">
+              <span className={`tw-text-sm tw-font-medium ${appV2Tone.text}`}>
                 {viewModel.preferences.density.label}
               </span>
               <select
@@ -150,85 +137,146 @@ export function AccountHome({
                     density: event.target.value as AccountDensityPreference,
                   })
                 }
-                className={`tw-mt-2 tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+                className={`tw-min-h-8 tw-rounded-full tw-border-0 tw-bg-[#EFF6FF] tw-px-3 tw-text-xs tw-font-medium tw-text-[#1E4F8A] ${appV2Tone.focus}`}
               >
                 <option value="confortavel">Confortável</option>
                 <option value="compacta">Compacta</option>
               </select>
-              <span
-                id="account-density-help"
-                className={`tw-mt-2 tw-block tw-break-words tw-text-sm ${appV2Tone.mutedText}`}
-              >
+              <span id="account-density-help" className="tw-sr-only">
                 {viewModel.preferences.density.valueLabel}
               </span>
-            </label>
+            </div>
 
-            <label className="tw-block">
-              <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">
-                {viewModel.preferences.startTab.label}
-              </span>
-              <select
-                name="account-start-tab"
-                value={preferences.startTab}
-                aria-describedby="account-start-tab-help"
-                onChange={(event) =>
-                  onChangePreferences({
-                    ...preferences,
-                    startTab: event.target.value as AccountStartTabPreference,
-                  })
-                }
-                className={`tw-mt-2 tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-              >
-                <option value="hoje">Hoje</option>
-                <option value="equipamento">Equipamentos</option>
-                <option value="servicos">Serviços</option>
-              </select>
-              <span
-                id="account-start-tab-help"
-                className={`tw-mt-2 tw-block tw-break-words tw-text-sm ${appV2Tone.mutedText}`}
-              >
-                {viewModel.preferences.startTab.valueLabel}
-              </span>
-            </label>
-
-            <div className="tw-block">
-              <span className="tw-text-sm tw-font-semibold tw-text-[#334155]">
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-py-3">
+              <span className={`tw-text-sm tw-font-medium ${appV2Tone.text}`}>
                 {viewModel.preferences.reminder.label}
               </span>
-              <div className="tw-mt-2">
-                <ActionButton
-                  variant="secondary"
-                  aria-pressed={preferences.reminderEnabled}
-                  onClick={() =>
-                    onChangePreferences({
-                      ...preferences,
-                      reminderEnabled: !preferences.reminderEnabled,
-                    })
-                  }
-                >
-                  {viewModel.preferences.reminder.valueLabel}
-                </ActionButton>
-              </div>
+              <button
+                type="button"
+                aria-pressed={preferences.reminderEnabled}
+                onClick={() =>
+                  onChangePreferences({
+                    ...preferences,
+                    reminderEnabled: !preferences.reminderEnabled,
+                  })
+                }
+                className={`tw-relative tw-h-[18px] tw-w-8 tw-rounded-full tw-border-0 ${
+                  preferences.reminderEnabled ? 'tw-bg-[#2563EB]' : 'tw-bg-[#CBD5E1]'
+                } ${appV2Tone.focus}`}
+                aria-label={`${viewModel.preferences.reminder.label}: ${viewModel.preferences.reminder.valueLabel}`}
+              >
+                <span
+                  className={`tw-absolute tw-top-0.5 tw-h-3.5 tw-w-3.5 tw-rounded-full tw-bg-white tw-transition ${
+                    preferences.reminderEnabled ? 'tw-right-0.5' : 'tw-left-0.5'
+                  }`}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-4 tw-py-3">
+              <span className={`tw-text-sm tw-font-medium ${appV2Tone.text}`}>Modo escuro</span>
+              <span
+                className="tw-relative tw-h-[18px] tw-w-8 tw-rounded-full tw-bg-[#CBD5E1]"
+                aria-label="Modo escuro indisponível nesta etapa"
+                role="img"
+              >
+                <span
+                  className="tw-absolute tw-left-0.5 tw-top-0.5 tw-h-3.5 tw-w-3.5 tw-rounded-full tw-bg-white"
+                  aria-hidden="true"
+                />
+              </span>
             </div>
           </div>
         </SectionCard>
 
         <SectionCard labelledBy="account-help-title" padding="sm">
-          <h2
-            id="account-help-title"
-            className={`tw-m-0 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
-          >
-            Ajuda local
-          </h2>
+          <CardTitle id="account-help-title" icon={faQuestionCircle} title="Ajuda local" />
           <ul
-            className={`tw-m-0 tw-mt-3 tw-grid tw-gap-2 tw-break-words tw-pl-5 tw-text-sm ${appV2Tone.mutedText}`}
+            className={`tw-m-0 tw-mt-3 tw-grid tw-list-none tw-gap-2 tw-break-words tw-p-0 tw-text-xs ${appV2Tone.mutedText}`}
           >
             {viewModel.helpItems.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={item} className="tw-flex tw-items-start tw-gap-2">
+                <FontAwesomeIcon
+                  icon={helpIconByText(item)}
+                  className="tw-mt-0.5 tw-h-3 tw-w-3 tw-shrink-0 tw-text-[#2563EB]"
+                  aria-hidden="true"
+                />
+                <span>{item}</span>
+              </li>
             ))}
           </ul>
+        </SectionCard>
+
+        <SectionCard labelledBy="account-sidebar-title" padding="sm">
+          <CardTitle id="account-sidebar-title" icon={faClipboardList} title="Sidebar" />
+          <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-3">
+            {startTabOptions.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                name="account-start-tab"
+                value={item.value}
+                aria-pressed={preferences.startTab === item.value}
+                onClick={() => {
+                  onChangePreferences({ ...preferences, startTab: item.value });
+                  onOpenStartTab(item.value);
+                }}
+                className={`tw-rounded-full tw-px-3 tw-py-1 tw-text-xs tw-font-medium ${
+                  preferences.startTab === item.value
+                    ? 'tw-bg-[#1E4F8A] tw-text-white'
+                    : 'tw-bg-[#EFF6FF] tw-text-[#1E4F8A]'
+                } ${appV2Tone.focus}`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </SectionCard>
       </div>
     </PageShell>
   );
+}
+
+const shortcutIconById: Record<AccountShortcutId, typeof faClipboardList> = {
+  'start-service': faClipboardList,
+  'open-clients': faUsers,
+  'open-quotes': faFileInvoiceDollar,
+  'open-alerts': faBell,
+};
+
+const startTabOptions: Array<{ value: AccountStartTabPreference; label: string }> = [
+  { value: 'hoje', label: 'Hoje' },
+  { value: 'equipamento', label: 'Equipamentos' },
+  { value: 'servicos', label: 'Serviços' },
+];
+
+interface CardTitleProps {
+  id: string;
+  icon: typeof faClipboardList;
+  title: string;
+}
+
+function CardTitle({ id, icon, title }: CardTitleProps) {
+  return (
+    <h2
+      id={id}
+      className={`tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-bold ${appV2Tone.text}`}
+    >
+      <FontAwesomeIcon icon={icon} className="tw-h-3.5 tw-w-3.5 tw-text-[#2563EB]" />
+      {title}
+    </h2>
+  );
+}
+
+function helpIconByText(item: string) {
+  if (item.startsWith('Hoje')) {
+    return faHome;
+  }
+
+  if (item.startsWith('Equipamentos')) {
+    return faMicrochip;
+  }
+
+  return faWrench;
 }

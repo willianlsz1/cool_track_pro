@@ -17,7 +17,7 @@ export function saveClient(snapshot: AppV2MockSnapshot, draft: SaveClientDraft):
   const shouldEdit = draft.mode === 'edit' || currentIndex >= 0;
 
   if (shouldEdit && currentIndex < 0) {
-    throw new Error('Cliente nao encontrado para edicao.');
+    throw new Error('Cliente não encontrado para edição.');
   }
 
   const clientes = shouldEdit
@@ -35,7 +35,7 @@ function buildClientPayload(draft: SaveClientDraft): Cliente {
   const nome = draft.nome.trim();
 
   if (!id) {
-    throw new Error('Nao foi possivel identificar o cliente.');
+    throw new Error('Não foi possível identificar o cliente.');
   }
 
   if (!nome) {

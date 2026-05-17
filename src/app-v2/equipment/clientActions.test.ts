@@ -73,6 +73,6 @@ describe('saveClient', () => {
         nome: 'Cliente revisado',
         mode: 'edit',
       }),
-    ).toThrow('Cliente nao encontrado para edicao.');
+    ).toThrow('Cliente não encontrado para edição.');
   });
 });

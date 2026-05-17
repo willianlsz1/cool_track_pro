@@ -1,7 +1,17 @@
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import type { ServiceRecordStatus } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
-import { ServiceActions, ServiceStepCard } from './ServiceFlowPrimitives';
-import type { ServiceDraft, ServiceTone } from './serviceFlowViewModel';
+import {
+  FieldGroup,
+  FormRow,
+  FormStack,
+  fieldInputClass,
+  fieldTextareaClass,
+} from '../ui/FieldGroup';
+import { ActionButton, SectionCard } from '../ui/primitives';
+import type { ServiceDraft } from './serviceFlowViewModel';
 
 interface ServiceStepExecutionProps {
   draft: ServiceDraft;
@@ -10,18 +20,11 @@ interface ServiceStepExecutionProps {
   onContinue: () => void;
 }
 
-const statusOptions: Array<{ status: ServiceRecordStatus; label: string; tone: ServiceTone }> = [
-  { status: 'ok', label: 'Operacional', tone: 'success' },
-  { status: 'warn', label: 'Atenção', tone: 'warning' },
-  { status: 'danger', label: 'Crítico', tone: 'danger' },
+const statusOptions: Array<{ status: ServiceRecordStatus; label: string }> = [
+  { status: 'ok', label: 'Operacional' },
+  { status: 'warn', label: 'Atenção' },
+  { status: 'danger', label: 'Crítico' },
 ];
-
-const selectedToneClasses: Record<ServiceTone, string> = {
-  danger: 'tw-border-[#DC2626] tw-bg-[#FEF2F2] tw-text-[#DC2626]',
-  warning: 'tw-border-[#D97706] tw-bg-[#FFF7ED] tw-text-[#D97706]',
-  success: 'tw-border-[#16A34A] tw-bg-[#F0FDF4] tw-text-[#16A34A]',
-  primary: 'tw-border-[#2563EB] tw-bg-[#EFF6FF] tw-text-[#2563EB]',
-};
 
 export function ServiceStepExecution({
   draft,
@@ -35,135 +38,107 @@ export function ServiceStepExecution({
     draft.actionsDone.trim().length > 0;
 
   return (
-    <ServiceStepCard
-      eyebrow="Etapa 3"
-      title="Execução"
-      description="Registre o diagnóstico, as ações executadas e o estado final do equipamento."
-    >
-      <div className="tw-grid tw-gap-5">
-        <label className="tw-grid tw-gap-5">
-          <span
-            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Técnico responsável
-          </span>
+    <SectionCard className="tw-overflow-hidden tw-rounded-[20px] tw-border-[#E2E8F0] tw-bg-white tw-p-6 tw-shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+      <h1 className={`tw-m-0 tw-text-base tw-font-bold ${appV2Tone.text}`}>Etapa 3 · Execução</h1>
+      <p className={`tw-m-0 tw-mt-2 tw-text-xs tw-font-medium ${appV2Tone.mutedText}`}>
+        Registre o diagnóstico, as ações executadas e o estado final do equipamento.
+      </p>
+
+      <FormStack className="tw-mt-7">
+        <FieldGroup label="Técnico responsável" htmlFor="service-technician">
           <input
+            id="service-technician"
             type="text"
             name="service-technician"
             value={draft.technician}
             onChange={(event) => onChangeDraft({ ...draft, technician: event.target.value })}
-            className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            className={fieldInputClass}
             placeholder="Informe o técnico responsável"
             autoComplete="name"
           />
-        </label>
+        </FieldGroup>
 
-        <label className="tw-grid tw-gap-5">
-          <span
-            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Diagnóstico
-          </span>
+        <FieldGroup label="Diagnóstico" htmlFor="service-diagnosis">
           <textarea
+            id="service-diagnosis"
+            name="service-diagnosis"
             value={draft.diagnosis}
             onChange={(event) => onChangeDraft({ ...draft, diagnosis: event.target.value })}
-            rows={5}
-            className={`tw-w-full tw-resize-none tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            rows={4}
+            className={fieldTextareaClass}
             placeholder="Descreva o que foi encontrado"
           />
-        </label>
+        </FieldGroup>
 
-        <label className="tw-grid tw-gap-5">
-          <span
-            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Ações executadas
-          </span>
+        <FieldGroup label="Ações executadas" htmlFor="service-actions-done">
           <textarea
+            id="service-actions-done"
+            name="service-actions-done"
             value={draft.actionsDone}
             onChange={(event) => onChangeDraft({ ...draft, actionsDone: event.target.value })}
-            rows={5}
-            className={`tw-w-full tw-resize-none tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
+            rows={4}
+            className={fieldTextareaClass}
             placeholder="Informe o que foi feito"
           />
-        </label>
+        </FieldGroup>
 
-        <label className="tw-grid tw-gap-5">
-          <span
-            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Peças usadas
-          </span>
-          <textarea
-            name="service-parts-used"
-            value={draft.partsUsed ?? ''}
-            onChange={(event) => onChangeDraft({ ...draft, partsUsed: event.target.value })}
-            rows={3}
-            className={`tw-w-full tw-resize-none tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-            placeholder="Opcional: informe peças substituídas ou utilizadas"
-          />
-        </label>
+        <FormRow>
+          <FieldGroup label="Peças usadas" htmlFor="service-parts-used" optional>
+            <textarea
+              id="service-parts-used"
+              name="service-parts-used"
+              value={draft.partsUsed ?? ''}
+              onChange={(event) => onChangeDraft({ ...draft, partsUsed: event.target.value })}
+              rows={2}
+              className={fieldTextareaClass}
+              placeholder="Informe peças substituídas ou utilizadas"
+            />
+          </FieldGroup>
 
-        <div className="tw-grid tw-gap-x-3 tw-gap-y-5 sm:tw-grid-cols-2">
-          <label className="tw-grid tw-gap-5">
-            <span
-              className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-            >
-              Custo de peças
-            </span>
+          <FieldGroup label="Custo de peças" htmlFor="service-parts-cost" optional>
             <input
+              id="service-parts-cost"
               type="text"
               name="service-parts-cost"
               value={draft.partsCost ?? ''}
               onChange={(event) => onChangeDraft({ ...draft, partsCost: event.target.value })}
-              className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-              placeholder="Opcional"
+              className={fieldInputClass}
+              placeholder="R$ 0,00"
               inputMode="decimal"
             />
-          </label>
+          </FieldGroup>
+        </FormRow>
 
-          <label className="tw-grid tw-gap-5">
-            <span
-              className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-            >
-              Custo de mão de obra
-            </span>
+        <FormRow>
+          <FieldGroup label="Custo de mão de obra" htmlFor="service-labor-cost" optional>
             <input
+              id="service-labor-cost"
               type="text"
               name="service-labor-cost"
               value={draft.laborCost ?? ''}
               onChange={(event) => onChangeDraft({ ...draft, laborCost: event.target.value })}
-              className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-              placeholder="Opcional"
+              className={fieldInputClass}
+              placeholder="R$ 0,00"
               inputMode="decimal"
             />
-          </label>
-        </div>
+          </FieldGroup>
 
-        <label className="tw-grid tw-gap-5">
-          <span
-            className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Próxima manutenção
-          </span>
-          <input
-            type="date"
-            name="service-next-maintenance"
-            value={draft.nextMaintenanceDate ?? ''}
-            onChange={(event) =>
-              onChangeDraft({ ...draft, nextMaintenanceDate: event.target.value })
-            }
-            className={`tw-w-full tw-rounded-2xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-          />
-        </label>
+          <FieldGroup label="Próxima manutenção" htmlFor="service-next-maintenance">
+            <input
+              id="service-next-maintenance"
+              type="date"
+              name="service-next-maintenance"
+              value={draft.nextMaintenanceDate ?? ''}
+              onChange={(event) =>
+                onChangeDraft({ ...draft, nextMaintenanceDate: event.target.value })
+              }
+              className={fieldInputClass}
+            />
+          </FieldGroup>
+        </FormRow>
 
-        <div>
-          <p
-            className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Status final
-          </p>
-          <div className="tw-mt-5 tw-grid tw-grid-cols-1 tw-gap-2 sm:tw-grid-cols-3">
+        <FieldGroup label="Status final">
+          <div className="tw-flex tw-flex-wrap tw-gap-2.5">
             {statusOptions.map((option) => {
               const selected = option.status === draft.finalStatus;
 
@@ -172,10 +147,10 @@ export function ServiceStepExecution({
                   key={option.status}
                   type="button"
                   onClick={() => onChangeDraft({ ...draft, finalStatus: option.status })}
-                  className={`tw-min-h-12 tw-rounded-xl tw-border tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.focus} ${
+                  className={`tw-rounded-full tw-border tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-transition ${appV2Tone.focus} ${
                     selected
-                      ? selectedToneClasses[option.tone]
-                      : `${appV2Tone.border} tw-bg-white ${appV2Tone.mutedText}`
+                      ? 'tw-border-[#2563EB] tw-bg-[#2563EB] tw-text-white'
+                      : 'tw-border-[#E2E8F0] tw-bg-[#F1F5F9] tw-text-[#52677F] hover:tw-border-[#BFDBFE] hover:tw-bg-[#EFF6FF] hover:tw-text-[#1E4F8A]'
                   }`}
                   aria-pressed={selected}
                 >
@@ -184,16 +159,26 @@ export function ServiceStepExecution({
               );
             })}
           </div>
-        </div>
-      </div>
+        </FieldGroup>
+      </FormStack>
 
-      <ServiceActions
-        primaryLabel="Revisar"
-        onPrimary={onContinue}
-        primaryDisabled={!canContinue}
-        secondaryLabel="Voltar"
-        onSecondary={onBack}
-      />
-    </ServiceStepCard>
+      <div className="tw-mt-6 tw-flex tw-flex-wrap tw-justify-end tw-gap-4 tw-border-t tw-border-[#EDF2F7] tw-pt-5">
+        <ActionButton
+          variant="secondary"
+          onClick={onBack}
+          className="tw-min-h-10 tw-px-5 tw-py-2.5 tw-text-xs tw-font-semibold"
+        >
+          Voltar
+        </ActionButton>
+        <ActionButton
+          onClick={onContinue}
+          disabled={!canContinue}
+          className="tw-min-h-10 tw-gap-2 tw-px-6 tw-py-2.5 tw-text-xs tw-font-semibold"
+        >
+          Revisar
+          <FontAwesomeIcon icon={faArrowRight} className="tw-h-3 tw-w-3" aria-hidden="true" />
+        </ActionButton>
+      </div>
+    </SectionCard>
   );
 }

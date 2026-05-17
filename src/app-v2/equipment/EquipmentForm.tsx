@@ -1,10 +1,11 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 import type { SaveEquipmentDraft } from './equipmentActions';
 import type { Cliente, EquipmentStatus, Equipamento, SetorEquipamento } from '../domain/types';
 import { appV2Border, appV2Focus, appV2Shadow, appV2Text } from '../styles/tokens';
+import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
 
 interface EquipmentFormProps {
   title: string;
@@ -80,54 +81,54 @@ export function EquipmentForm({
         </p>
       ) : null}
 
-      <div className="tw-mt-6 tw-grid tw-gap-x-7 tw-gap-y-5 lg:tw-grid-cols-2">
-        <Field label="Nome" htmlFor="equipment-name">
+      <FormGrid className="tw-mt-6">
+        <FieldGroup label="Nome" htmlFor="equipment-name">
           <input
             id="equipment-name"
             name="equipment-name"
             value={nome}
             onChange={(event) => setNome(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: Split 24.000 BTU"
           />
-        </Field>
-        <Field label="Local" htmlFor="equipment-location">
+        </FieldGroup>
+        <FieldGroup label="Local" htmlFor="equipment-location">
           <input
             id="equipment-location"
             name="equipment-location"
             value={local}
             onChange={(event) => setLocal(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: Recepção"
           />
-        </Field>
-        <Field label="Tipo" htmlFor="equipment-type">
+        </FieldGroup>
+        <FieldGroup label="Tipo" htmlFor="equipment-type">
           <input
             id="equipment-type"
             name="equipment-type"
             value={tipo}
             onChange={(event) => setTipo(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: Refrigeração"
           />
-        </Field>
-        <Field label="Tag" htmlFor="equipment-tag">
+        </FieldGroup>
+        <FieldGroup label="Tag" htmlFor="equipment-tag">
           <input
             id="equipment-tag"
             name="equipment-tag"
             value={tag}
             onChange={(event) => setTag(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: SPL-024"
           />
-        </Field>
-        <Field label="Cliente" htmlFor="equipment-client">
+        </FieldGroup>
+        <FieldGroup label="Cliente" htmlFor="equipment-client">
           <select
             id="equipment-client"
             name="equipment-client"
             value={clienteId}
             onChange={(event) => setClienteId(event.target.value)}
-            className={inputClass}
+            className={fieldSelectClass}
           >
             <option value="">Sem cliente vinculado</option>
             {clientes.map((cliente) => (
@@ -136,14 +137,14 @@ export function EquipmentForm({
               </option>
             ))}
           </select>
-        </Field>
-        <Field label="Setor" htmlFor="equipment-sector">
+        </FieldGroup>
+        <FieldGroup label="Setor" htmlFor="equipment-sector">
           <select
             id="equipment-sector"
             name="equipment-sector"
             value={setorId}
             onChange={(event) => setSetorId(event.target.value)}
-            className={inputClass}
+            className={fieldSelectClass}
           >
             <option value="">Sem setor</option>
             {setores.map((setor) => (
@@ -152,21 +153,21 @@ export function EquipmentForm({
               </option>
             ))}
           </select>
-        </Field>
-        <Field label="Status" htmlFor="equipment-status">
+        </FieldGroup>
+        <FieldGroup label="Status" htmlFor="equipment-status">
           <select
             id="equipment-status"
             name="equipment-status"
             value={status}
             onChange={(event) => setStatus(event.target.value as EquipmentStatus)}
-            className={inputClass}
+            className={fieldSelectClass}
           >
             <option value="ok">Operacional</option>
             <option value="warn">Atenção</option>
             <option value="danger">Crítico</option>
           </select>
-        </Field>
-      </div>
+        </FieldGroup>
+      </FormGrid>
 
       <div className="tw-mt-6 tw-flex tw-flex-col-reverse tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-5 sm:tw-flex-row sm:tw-justify-end">
         <button
@@ -188,25 +189,3 @@ export function EquipmentForm({
     </section>
   );
 }
-
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  children: ReactNode;
-}) {
-  return (
-    <label
-      className="tw-grid tw-gap-1.5 tw-text-[0.7rem] tw-font-semibold tw-uppercase tw-tracking-[0.03em] tw-text-[#1E4F8A]"
-      htmlFor={htmlFor}
-    >
-      {label}
-      {children}
-    </label>
-  );
-}
-
-const inputClass = `tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-border-[#E2E8F0] tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-normal-case tw-tracking-normal tw-text-[#071A33] placeholder:tw-font-normal placeholder:tw-text-[#9AADCA] ${appV2Focus}`;

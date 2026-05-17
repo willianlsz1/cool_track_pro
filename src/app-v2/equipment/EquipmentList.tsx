@@ -31,6 +31,7 @@ import {
   mockEquipmentToday,
 } from './mockEquipmentData';
 import { appV2Border, appV2Focus, appV2Shadow, appV2Text, appV2Tone } from '../styles/tokens';
+import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
 import { PageShell, SectionCard } from '../ui/primitives';
 
 interface EquipmentListProps {
@@ -272,29 +273,23 @@ export function EquipmentList({
                 {sectorForm.mode === 'edit' ? 'Editar setor' : 'Novo setor'}
               </h3>
 
-              <div className="tw-mt-4 tw-grid tw-gap-5 sm:tw-grid-cols-2">
-                <label className="tw-grid tw-gap-1.5">
-                  <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.08em] tw-text-[#1E4F8A]">
-                    Nome do setor
-                  </span>
+              <FormGrid className="tw-mt-5">
+                <FieldGroup label="Nome do setor">
                   <input
                     name="equipment-sector-name"
                     value={sectorForm.nome}
                     onChange={(event) => updateSectorForm('nome', event.target.value)}
                     placeholder="Ex.: Depósito, Loja, Escritório"
-                    className={`tw-min-h-10 tw-rounded-xl tw-border tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-text-[#071A33] placeholder:tw-text-[#9AADCA] ${appV2Border.default} ${appV2Focus}`}
+                    className={fieldInputClass}
                   />
-                </label>
+                </FieldGroup>
 
-                <label className="tw-grid tw-gap-1.5">
-                  <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.08em] tw-text-[#1E4F8A]">
-                    Cliente
-                  </span>
+                <FieldGroup label="Cliente">
                   <select
                     name="equipment-sector-client"
                     value={sectorForm.clienteId ?? ''}
                     onChange={(event) => updateSectorForm('clienteId', event.target.value)}
-                    className={`tw-min-h-10 tw-rounded-xl tw-border tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-text-[#071A33] ${appV2Border.default} ${appV2Focus}`}
+                    className={fieldSelectClass}
                   >
                     <option value="">Selecione um cliente</option>
                     {equipmentInput.clientes.map((cliente) => (
@@ -306,12 +301,9 @@ export function EquipmentList({
                   <span className={`tw-text-[0.65rem] tw-font-medium ${appV2Text.subtle}`}>
                     Sem cliente fixo pode ser usado como modelo.
                   </span>
-                </label>
+                </FieldGroup>
 
-                <label className="tw-grid tw-gap-1.5">
-                  <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.08em] tw-text-[#1E4F8A]">
-                    Cor
-                  </span>
+                <FieldGroup label="Cor">
                   <span className="tw-flex tw-items-center tw-gap-3">
                     <span
                       className="tw-h-10 tw-w-10 tw-shrink-0 tw-rounded-xl tw-border tw-border-[#E2E8F0]"
@@ -322,7 +314,7 @@ export function EquipmentList({
                       name="equipment-sector-color"
                       value={sectorForm.cor ?? ''}
                       onChange={(event) => updateSectorForm('cor', event.target.value)}
-                      className={`tw-h-10 tw-w-[112px] tw-rounded-xl tw-border tw-bg-[#F8FAFD] tw-px-3 tw-font-mono tw-text-sm tw-font-semibold tw-text-[#2563EB] ${appV2Border.default} ${appV2Focus}`}
+                      className={`${fieldInputClass} tw-h-10 tw-w-[112px] tw-font-mono tw-font-semibold tw-text-[#2563EB]`}
                     />
                     <input
                       type="color"
@@ -332,21 +324,18 @@ export function EquipmentList({
                       className={`tw-h-10 tw-w-10 tw-rounded-xl tw-border tw-border-[#E2E8F0] tw-bg-white tw-p-1 ${appV2Focus}`}
                     />
                   </span>
-                </label>
+                </FieldGroup>
 
-                <label className="tw-grid tw-gap-1.5">
-                  <span className="tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.08em] tw-text-[#1E4F8A]">
-                    Responsável
-                  </span>
+                <FieldGroup label="Responsável">
                   <input
                     name="equipment-sector-owner"
                     value={sectorForm.responsavel ?? ''}
                     onChange={(event) => updateSectorForm('responsavel', event.target.value)}
                     placeholder="Nome do responsável"
-                    className={`tw-min-h-10 tw-rounded-xl tw-border tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-text-[#071A33] placeholder:tw-text-[#9AADCA] ${appV2Border.default} ${appV2Focus}`}
+                    className={fieldInputClass}
                   />
-                </label>
-              </div>
+                </FieldGroup>
+              </FormGrid>
 
               {sectorError ? (
                 <p className="tw-m-0 tw-rounded-xl tw-border tw-border-[#FECACA] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#991B1B] sm:tw-col-span-2">

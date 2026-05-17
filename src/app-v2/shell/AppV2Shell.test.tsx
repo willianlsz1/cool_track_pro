@@ -135,9 +135,10 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Revisar$/i);
     await clickButton(host, /^Concluir serviço$/i);
 
+    expect(host.textContent).toContain('Atendimento concluído');
     expect(host.textContent).toContain('Serviço concluído');
     expect(host.textContent).toContain('Resumo do serviço');
-    expect(host.textContent).toContain('Concluído');
+    expect(host.textContent).toContain('Saídas futuras');
     expect(host.textContent).toContain('Ver relatório');
 
     await clickButton(host, /^Ver relatório$/i);
@@ -197,7 +198,7 @@ describe('AppV2Shell', () => {
 
     await clickButton(host, /^Conta$/i);
     expect(host.textContent).toContain('Conta');
-    expect(host.textContent).toContain('Painel local');
+    expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
   });
@@ -703,7 +704,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).not.toContain('Industria Frio Sul');
 
     await fillInput(clientSearch as HTMLInputElement, '');
-    await clickButton(host, /^Com pendencia$/i);
+    await clickButton(host, /^Com pendência$/i);
 
     expect(host.textContent).toContain('1 cliente');
     expect(host.textContent).toContain('Mercado Bom');
@@ -719,7 +720,7 @@ describe('AppV2Shell', () => {
     await clickButton(host, /Mercado Bom/i);
 
     expect(host.textContent).toContain('Resumo local do cliente');
-    expect(host.textContent).toContain('2 pendencias operacionais');
+    expect(host.textContent).toContain('2 pendências operacionais');
     expect(host.textContent).toContain('09/05 - Camara fria');
     expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
     expect(host.textContent).not.toContain('Enviar WhatsApp');
@@ -730,7 +731,7 @@ describe('AppV2Shell', () => {
     const host = await renderShell();
 
     await clickButton(host, /Iniciar servi/i);
-    expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Registrar serviço');
     expect(host.textContent).toContain('Atendimento em andamento');
     expect(host.textContent).toContain('Câmara fria');
     expect(host.textContent).toContain('Mercado Bom');
@@ -740,7 +741,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Em andamento');
 
     await clickButton(host, /Retomar registro/i);
-    expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Registrar serviço');
     expect(host.textContent).toContain('Atendimento em andamento');
   });
 
@@ -767,6 +768,7 @@ describe('AppV2Shell', () => {
 
     await clickButton(host, /^Revisar$/i);
 
+    expect(host.textContent).toContain('Etapa 4 · Revisar');
     expect(host.textContent).toContain('Outro · Higienizacao');
 
     await clickButton(host, /^Concluir serviço$/i);
@@ -796,7 +798,7 @@ describe('AppV2Shell', () => {
 
     await clickButton(host, /C.mara fria/i);
 
-    expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Registrar serviço');
     expect(host.textContent).toContain('Câmara fria');
     expect(host.textContent).toContain('Atendimento em andamento');
   });
@@ -847,7 +849,7 @@ describe('AppV2Shell', () => {
     await fillInput(location as HTMLInputElement, 'Area de vendas');
     await clickButton(host, /^Salvar equipamento$/i);
 
-    expect(host.textContent).toContain('Registro de servi');
+    expect(host.textContent).toContain('Registrar serviço');
     expect(host.textContent).toContain('Atendimento em andamento');
     expect(host.textContent).toContain('Self contained inicial');
     expect(host.textContent).toContain('Area de vendas');

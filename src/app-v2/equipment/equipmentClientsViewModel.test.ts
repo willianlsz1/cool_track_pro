@@ -28,7 +28,7 @@ describe('buildEquipmentClientsListViewModel', () => {
     expect(viewModel.items[0]).toMatchObject({
       id: 'cliente-1',
       equipmentCountLabel: '3 equipamentos',
-      statusLabel: 'Atencao critica',
+      statusLabel: 'Atenção crítica',
       statusTone: 'danger',
     });
   });
@@ -49,8 +49,8 @@ describe('buildEquipmentClientsListViewModel', () => {
     expect(viewModel.totalLabel).toBe('1 cliente');
     expect(viewModel.items.map((item) => item.id)).toEqual(['cliente-1']);
     expect(viewModel.items[0]).toMatchObject({
-      pendingCountLabel: '2 pendencias',
-      lastServiceLabel: 'Ultimo servico em 09/05',
+      pendingCountLabel: '2 pendências',
+      lastServiceLabel: 'Último serviço em 09/05',
     });
   });
 
@@ -99,8 +99,8 @@ describe('buildEquipmentClientDetailViewModel', () => {
     expect(detail.localReport.facts).toEqual([
       { label: 'Equipamentos', value: '3 equipamentos vinculados' },
       { label: 'Serviços', value: '2 serviços relacionados' },
-      { label: 'Pendencias', value: '2 pendencias operacionais' },
-      { label: 'Ultimo servico', value: '09/05 - Camara fria' },
+      { label: 'Pendências', value: '2 pendências operacionais' },
+      { label: 'Último serviço', value: '09/05 - Camara fria' },
     ]);
     expect(JSON.stringify(detail.localReport)).not.toContain('PMOC');
     expect(JSON.stringify(detail.localReport)).not.toContain('Supabase');

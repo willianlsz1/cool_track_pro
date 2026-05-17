@@ -1,5 +1,8 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleInfo, faMicrochip, faPlay } from '@fortawesome/free-solid-svg-icons';
+
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, ListRow, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import { ActionButton, PageShell, SectionCard } from '../ui/primitives';
 import type { Cliente, Equipamento } from '../domain/types';
 
 interface ServiceEquipmentChoiceProps {
@@ -43,59 +46,70 @@ export function ServiceEquipmentChoice({
   }
 
   return (
-    <PageShell>
+    <PageShell className="tw-gap-6 lg:tw-gap-7">
       <header>
-        <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-          Registro de serviço
-        </p>
         <h1
-          className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight sm:tw-text-[2rem] ${appV2Tone.text}`}
+          className={`tw-m-0 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-tight ${appV2Tone.text}`}
         >
           Escolher equipamento
         </h1>
-        <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+        <p className={`tw-m-0 tw-mt-1.5 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
           Selecione o equipamento antes de iniciar o atendimento.
+        </p>
+        <p
+          className={`tw-m-0 tw-mt-1 tw-flex tw-items-center tw-gap-1.5 tw-text-xs tw-font-medium ${appV2Tone.subtleText}`}
+        >
+          <FontAwesomeIcon icon={faCircleInfo} className="tw-h-3 tw-w-3" aria-hidden="true" />
+          Equipamentos disponíveis para serviço hoje
         </p>
       </header>
 
-      <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="service-equipment-choice">
-        <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-border-b tw-border-[#E5EAF0] tw-px-4 tw-py-4">
+      <SectionCard className="tw-rounded-[20px] tw-p-5" labelledBy="service-equipment-choice">
+        <div className="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-gap-3">
           <h2
             id="service-equipment-choice"
-            className={`tw-m-0 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
+            className={`tw-m-0 tw-text-xs tw-font-bold tw-uppercase tw-tracking-wide ${appV2Tone.text}`}
           >
-            Equipamentos disponiveis
+            Equipamentos disponíveis
           </h2>
-          <StatusBadge>{equipamentos.length}</StatusBadge>
         </div>
 
-        {equipamentos.map((equipamento) => {
-          const cliente = equipamento.clienteId
-            ? clientes.find((item) => item.id === equipamento.clienteId)
-            : undefined;
+        <div className="tw-flex tw-flex-col tw-gap-4">
+          {equipamentos.map((equipamento) => {
+            const cliente = equipamento.clienteId
+              ? clientes.find((item) => item.id === equipamento.clienteId)
+              : undefined;
 
-          return (
-            <ListRow key={equipamento.id} className="tw-px-4 tw-py-4">
-              <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between">
-                <div className="tw-min-w-0">
+            return (
+              <div
+                key={equipamento.id}
+                className="tw-flex tw-flex-col tw-gap-4 tw-rounded-[18px] tw-border tw-border-[#EDF2F7] tw-p-4 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between"
+              >
+                <div className="tw-min-w-0 tw-flex-1">
                   <p className={`tw-m-0 tw-text-base tw-font-bold ${appV2Tone.text}`}>
                     {equipamento.nome}
                   </p>
-                  <p className={`tw-m-0 tw-mt-1 tw-text-sm ${appV2Tone.mutedText}`}>
-                    {cliente?.nome ?? 'Sem cliente vinculado'} - {equipamento.local}
+                  <p className={`tw-m-0 tw-mt-1 tw-text-xs ${appV2Tone.mutedText}`}>
+                    {cliente?.nome ?? 'Sem cliente vinculado'} · {equipamento.local}
                   </p>
                 </div>
                 <ActionButton
-                  variant="secondary"
-                  className="tw-min-h-10 tw-w-full tw-px-4 tw-py-2 sm:tw-w-auto"
+                  className="tw-min-h-10 tw-w-full tw-rounded-[10px] tw-px-5 tw-py-2 tw-text-xs sm:tw-w-auto"
                   onClick={() => onSelectEquipment(equipamento.id)}
                 >
+                  <FontAwesomeIcon icon={faPlay} className="tw-h-3 tw-w-3" aria-hidden="true" />
                   Iniciar {equipamento.nome}
                 </ActionButton>
               </div>
-            </ListRow>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        <div className="tw-mt-4 tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-xs tw-font-bold tw-text-[#1E4F8A]">
+          <FontAwesomeIcon icon={faMicrochip} className="tw-h-3 tw-w-3" aria-hidden="true" />
+          {equipamentos.length}{' '}
+          {equipamentos.length === 1 ? 'equipamento disponível' : 'equipamentos disponíveis'}
+        </div>
       </SectionCard>
     </PageShell>
   );

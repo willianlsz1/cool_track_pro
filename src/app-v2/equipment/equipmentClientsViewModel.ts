@@ -89,10 +89,10 @@ export function buildEquipmentClientsListViewModel(
     return {
       id: cliente.id,
       name: cliente.nome,
-      detailLine: cliente.razaoSocial ?? cliente.endereco ?? 'Cliente sem endereco informado',
+      detailLine: cliente.razaoSocial ?? cliente.endereco ?? 'Cliente sem endereço informado',
       contactLine: cliente.contato ?? 'Sem contato informado',
       equipmentCountLabel: formatCount(equipments.length, 'equipamento', 'equipamentos'),
-      pendingCountLabel: formatCount(pendingCount, 'pendencia', 'pendencias'),
+      pendingCountLabel: formatCount(pendingCount, 'pendência', 'pendências'),
       lastServiceLabel: formatLastServiceLabel(services[0]),
       statusLabel: formatClientStatus(statusTone, equipments.length),
       statusTone,
@@ -149,7 +149,7 @@ export function buildEquipmentClientDetailViewModel(
   const cliente = input.clientes.find((item) => item.id === clientId);
 
   if (!cliente) {
-    throw new Error(`Cliente nao encontrado: ${clientId}`);
+    throw new Error(`Cliente não encontrado: ${clientId}`);
   }
 
   const equipmentItems = buildEquipmentListViewModel(input).items.filter((equipment) =>
@@ -168,7 +168,7 @@ export function buildEquipmentClientDetailViewModel(
     id: cliente.id,
     name: cliente.nome,
     contactLine: cliente.contato ?? 'Sem contato informado',
-    addressLine: cliente.endereco ?? 'Sem endereco informado',
+    addressLine: cliente.endereco ?? 'Sem endereço informado',
     documentLine: cliente.documento ?? 'Sem documento informado',
     equipmentCountLabel: formatCount(
       equipmentItems.length,
@@ -180,7 +180,7 @@ export function buildEquipmentClientDetailViewModel(
     equipments: equipmentItems,
     servicesCountLabel: formatCount(
       services.length,
-      'servico relacionado',
+      'serviço relacionado',
       'serviços relacionados',
     ),
     services,
@@ -200,11 +200,11 @@ export function buildEquipmentClientDetailViewModel(
           value: formatCount(services.length, 'serviço relacionado', 'serviços relacionados'),
         },
         {
-          label: 'Pendencias',
-          value: formatCount(pendingCount, 'pendencia operacional', 'pendencias operacionais'),
+          label: 'Pendências',
+          value: formatCount(pendingCount, 'pendência operacional', 'pendências operacionais'),
         },
         {
-          label: 'Ultimo servico',
+          label: 'Último serviço',
           value: formatLastServiceFact(input, lastService),
         },
       ],
@@ -232,12 +232,12 @@ function mapClientService(
 
   return {
     id: registro.id,
-    equipmentName: equipamento?.nome ?? 'Equipamento nao encontrado',
+    equipmentName: equipamento?.nome ?? 'Equipamento não encontrado',
     kindLabel: registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo),
     dateLabel: formatDateLabel(registro.data),
     statusLabel: formatServiceStatus(registro.status),
     statusTone: mapServiceStatusTone(registro.status),
-    summary: registro.observacoes?.trim() || 'Sem resumo tecnico informado.',
+    summary: registro.observacoes?.trim() || 'Sem resumo técnico informado.',
   };
 }
 
@@ -298,11 +298,11 @@ function formatClientStatus(tone: EquipmentTone, equipmentCount: number): string
   }
 
   if (tone === 'danger') {
-    return 'Atencao critica';
+    return 'Atenção crítica';
   }
 
   if (tone === 'warning') {
-    return 'Com pendencias';
+    return 'Com pendências';
   }
 
   return 'Operacional';
@@ -314,10 +314,10 @@ function formatCount(count: number, singular: string, plural: string): string {
 
 function formatLastServiceLabel(registro: RegistroServico | undefined): string {
   if (!registro) {
-    return 'Sem servico registrado';
+    return 'Sem serviço registrado';
   }
 
-  return `Ultimo servico em ${formatDateLabel(registro.data)}`;
+  return `Último serviço em ${formatDateLabel(registro.data)}`;
 }
 
 function formatLastServiceFact(
@@ -325,12 +325,12 @@ function formatLastServiceFact(
   registro: RegistroServico | undefined,
 ): string {
   if (!registro) {
-    return 'Sem servico registrado';
+    return 'Sem serviço registrado';
   }
 
   const equipamento = input.equipamentos.find((item) => item.id === registro.equipamentoId);
   return `${formatDateLabel(registro.data)} - ${stripDiacritics(
-    equipamento?.nome ?? 'Equipamento nao encontrado',
+    equipamento?.nome ?? 'Equipamento não encontrado',
   )}`;
 }
 
@@ -349,7 +349,7 @@ function stripDiacritics(value: string): string {
 
 function formatServiceStatus(status: RegistroServico['status']): string {
   if (status === 'danger') {
-    return 'Critico';
+    return 'Crítico';
   }
 
   if (status === 'warn') {

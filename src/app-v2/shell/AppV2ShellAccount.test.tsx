@@ -63,15 +63,17 @@ describe('AppV2Shell Conta', () => {
 
     await clickButton(host, /^Conta$/i);
 
-    expect(host.textContent).toContain('Painel local');
     expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
+    expect(host.textContent).toContain('Configurações de interface e navegação rápida.');
     expect(host.textContent).toContain('Sem pendências locais');
-    expect(host.textContent).toContain('Somente local');
     expect(host.textContent).toContain('Atalhos operacionais');
     expect(host.textContent).toContain('Registrar serviço');
     expect(host.textContent).toContain('Clientes');
     expect(host.textContent).toContain('Orçamentos');
     expect(host.textContent).toContain('Densidade visual');
+    expect(host.textContent).toContain('Modo escuro');
+    expect(host.textContent).toContain('Ajuda local');
+    expect(host.textContent).toContain('Sidebar');
     expect(host.textContent).not.toContain('PMOC');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
@@ -100,15 +102,23 @@ describe('AppV2Shell Conta', () => {
     await clickButton(host, /^Conta$/i);
 
     const density = host.querySelector('select[name="account-density"]');
-    const startTab = host.querySelector('select[name="account-start-tab"]');
+    const startTab = host.querySelector('button[name="account-start-tab"][value="servicos"]');
     expect(density).toBeInstanceOf(HTMLSelectElement);
-    expect(startTab).toBeInstanceOf(HTMLSelectElement);
+    expect(startTab).toBeInstanceOf(HTMLButtonElement);
 
     await selectOption(density as HTMLSelectElement, 'compacta');
-    await selectOption(startTab as HTMLSelectElement, 'servicos');
+    await act(async () => {
+      (startTab as HTMLButtonElement).click();
+    });
+
+    await clickButton(host, /^Conta$/i);
 
     expect(host.textContent).toContain('Compacta');
-    expect(host.textContent).toContain('Serviços');
+    expect(
+      host
+        .querySelector('button[name="account-start-tab"][value="servicos"]')
+        ?.getAttribute('aria-pressed'),
+    ).toBe('true');
     expect(host.textContent).not.toContain('localStorage');
     expect(host.textContent).not.toContain('Supabase');
   });
@@ -119,18 +129,23 @@ describe('AppV2Shell Conta', () => {
     await clickButton(host, /^Conta$/i);
 
     const density = host.querySelector('select[name="account-density"]');
-    const startTab = host.querySelector('select[name="account-start-tab"]');
+    const startTab = host.querySelector('button[name="account-start-tab"][value="servicos"]');
+    const reminderButton = host.querySelector('button[aria-label^="Lembrete visual"]');
     expect(density).toBeInstanceOf(HTMLSelectElement);
-    expect(startTab).toBeInstanceOf(HTMLSelectElement);
+    expect(startTab).toBeInstanceOf(HTMLButtonElement);
+    expect(reminderButton).toBeInstanceOf(HTMLButtonElement);
 
     await selectOption(density as HTMLSelectElement, 'compacta');
-    await selectOption(startTab as HTMLSelectElement, 'servicos');
-    await clickButton(host, /^Desligado$/i);
+    await act(async () => {
+      (reminderButton as HTMLButtonElement).click();
+    });
 
     expect(host.querySelector('[data-account-density="compacta"]')).toBeTruthy();
     expect(host.textContent).toContain('Lembrete local ativo nesta sessão.');
 
-    await clickButton(host, /^Abrir Serviços$/i);
+    await act(async () => {
+      (startTab as HTMLButtonElement).click();
+    });
 
     expect(host.textContent).toContain('Registros recentes');
     expect(host.textContent).not.toContain('localStorage');
@@ -143,21 +158,20 @@ describe('AppV2Shell Conta', () => {
     await clickButton(host, /^Conta$/i);
 
     const density = host.querySelector('select[name="account-density"]');
-    const startTab = host.querySelector('select[name="account-start-tab"]');
+    const startTabButtons = host.querySelectorAll('button[name="account-start-tab"]');
     const shortcutTitles = host.querySelectorAll('#account-shortcuts-title');
     const shortcutButtons = host.querySelectorAll('[data-account-shortcut]');
-    const reminderButton = Array.from(host.querySelectorAll('button')).find((item) =>
-      /^Desligado$/i.test(item.textContent ?? ''),
-    );
+    const reminderButton = host.querySelector('button[aria-label^="Lembrete visual"]');
 
     expect(density).toBeInstanceOf(HTMLSelectElement);
-    expect(startTab).toBeInstanceOf(HTMLSelectElement);
+    expect(startTabButtons).toHaveLength(3);
     expect(density?.getAttribute('aria-describedby')).toBe('account-density-help');
-    expect(startTab?.getAttribute('aria-describedby')).toBe('account-start-tab-help');
     expect(shortcutTitles).toHaveLength(1);
     expect(reminderButton?.getAttribute('aria-pressed')).toBe('false');
 
-    await clickButton(host, /^Desligado$/i);
+    await act(async () => {
+      (reminderButton as HTMLButtonElement).click();
+    });
 
     expect(reminderButton?.getAttribute('aria-pressed')).toBe('true');
     expect(shortcutButtons.length).toBeGreaterThan(0);

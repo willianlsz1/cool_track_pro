@@ -87,7 +87,7 @@ export function ClientDetail({
 
         <dl className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-2">
           <InfoRow label="Contato" value={detail.contactLine} />
-          <InfoRow label="Endereco" value={detail.addressLine} />
+          <InfoRow label="Endereço" value={detail.addressLine} />
           <InfoRow label="Documento" value={detail.documentLine} />
           <InfoRow label="Status" value={detail.statusLabel} />
         </dl>
@@ -121,7 +121,7 @@ export function ClientDetail({
               {detail.localReport.title}
             </h2>
             <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
-              Leitura operacional mockada, sem exportacao ou integracao real.
+              Leitura operacional local, sem exportação ou integração real.
             </p>
           </div>
           <StatusBadge tone={detail.statusTone} className="tw-shrink-0">
@@ -202,7 +202,7 @@ export function ClientDetail({
         {detail.services.length === 0 ? (
           <ListRow>
             <p className={`tw-m-0 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
-              Nenhum servico relacionado.
+              Nenhum serviço relacionado.
             </p>
           </ListRow>
         ) : (

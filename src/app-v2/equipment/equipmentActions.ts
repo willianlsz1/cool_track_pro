@@ -53,7 +53,7 @@ export function saveEquipment(
   const shouldEdit = draft.mode === 'edit' || currentIndex >= 0;
 
   if (shouldEdit && currentIndex < 0) {
-    throw new Error('Equipamento nao encontrado para edicao.');
+    throw new Error('Equipamento não encontrado para edição.');
   }
 
   const equipamentos = shouldEdit
@@ -79,7 +79,7 @@ export function saveEquipmentAttachment(
   );
 
   if (!currentEquipment) {
-    throw new Error('Equipamento nao encontrado para anexar.');
+    throw new Error('Equipamento não encontrado para anexar.');
   }
 
   const attachment = buildEquipmentAttachmentPayload(draft);
@@ -121,7 +121,7 @@ export function saveEquipmentSector(
   const shouldEdit = draft.mode === 'edit' || currentIndex >= 0;
 
   if (shouldEdit && currentIndex < 0) {
-    throw new Error('Setor nao encontrado para edicao.');
+    throw new Error('Setor não encontrado para edição.');
   }
 
   const setores = shouldEdit
@@ -141,11 +141,11 @@ export function deleteEquipmentSector(
   const normalizedSectorId = sectorId.trim();
 
   if (normalizedSectorId === '__sem_setor__') {
-    throw new Error('Nao e possivel remover o agrupamento Sem setor.');
+    throw new Error('Não é possível remover o agrupamento Sem setor.');
   }
 
   if (!snapshot.setores.some((setor) => setor.id === normalizedSectorId)) {
-    throw new Error('Setor nao encontrado para remocao.');
+    throw new Error('Setor não encontrado para remoção.');
   }
 
   return {
@@ -175,7 +175,7 @@ export function archiveEquipment(
   const normalizedEquipmentId = equipmentId.trim();
 
   if (!snapshot.equipamentos.some((equipamento) => equipamento.id === normalizedEquipmentId)) {
-    throw new Error('Equipamento nao encontrado para arquivamento.');
+    throw new Error('Equipamento não encontrado para arquivamento.');
   }
 
   return {
@@ -208,7 +208,7 @@ export function unarchiveEquipment(
   const normalizedEquipmentId = equipmentId.trim();
 
   if (!snapshot.equipamentos.some((equipamento) => equipamento.id === normalizedEquipmentId)) {
-    throw new Error('Equipamento nao encontrado para desarquivamento.');
+    throw new Error('Equipamento não encontrado para desarquivamento.');
   }
 
   return {
@@ -236,7 +236,7 @@ function buildEquipmentPayload(draft: SaveEquipmentDraft): Equipamento {
   const local = draft.local.trim();
 
   if (!id) {
-    throw new Error('Nao foi possivel identificar o equipamento.');
+    throw new Error('Não foi possível identificar o equipamento.');
   }
 
   if (!nome) {
@@ -280,7 +280,7 @@ function buildEquipmentAttachmentPayload(draft: SaveEquipmentAttachmentDraft): E
   const forbiddenKeys = ['file', 'blob', 'url', 'path', 'dataUrl', 'signedUrl', 'bucket', 'userId'];
 
   if (forbiddenKeys.some((key) => rawDraft[key] !== undefined)) {
-    throw new Error('Anexo local nao aceita arquivo, URL ou storage real.');
+    throw new Error('Anexo local não aceita arquivo, URL ou storage real.');
   }
 
   const id = draft.id.trim();
@@ -289,7 +289,7 @@ function buildEquipmentAttachmentPayload(draft: SaveEquipmentAttachmentDraft): E
   const source = draft.source ?? 'placeholder';
 
   if (!id) {
-    throw new Error('Nao foi possivel identificar o anexo.');
+    throw new Error('Não foi possível identificar o anexo.');
   }
 
   if (!label) {
@@ -319,7 +319,7 @@ function buildEquipmentSectorPayload(draft: SaveEquipmentSectorDraft): SetorEqui
   const nome = draft.nome.trim();
 
   if (!id) {
-    throw new Error('Nao foi possivel identificar o setor.');
+    throw new Error('Não foi possível identificar o setor.');
   }
 
   if (!nome) {

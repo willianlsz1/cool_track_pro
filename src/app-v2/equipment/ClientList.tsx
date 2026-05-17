@@ -50,7 +50,7 @@ const defaultEquipmentInput: BuildEquipmentViewModelInput = {
 
 const clientFilters: Array<{ id: ClientFilter; label: string }> = [
   { id: 'all', label: 'Todos' },
-  { id: 'with_pending', label: 'Com pendencia' },
+  { id: 'with_pending', label: 'Com pendência' },
   { id: 'critical', label: 'Críticos' },
   { id: 'without_first_service', label: 'Sem primeiro serviço' },
 ];
@@ -213,15 +213,15 @@ export function ClientList({
                         </div>
                         <p className="tw-m-0 tw-mt-2 tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-bg-[#F0FDF4] tw-px-2.5 tw-py-1 tw-text-xs tw-font-semibold tw-text-[#16A34A]">
                           <FontAwesomeIcon icon={faCalendarCheck} aria-hidden="true" />
-                          {formatDisplayServiceLabel(item.lastServiceLabel)}
+                          {item.lastServiceLabel}
                         </p>
                       </div>
                       <div className="tw-flex tw-shrink-0 tw-flex-col tw-items-end tw-gap-1.5 tw-text-xs tw-font-semibold tw-text-[#52677F]">
                         <span className={getClientStatusClass(item.statusTone)}>
-                          {formatClientStatusLabel(item.statusLabel)}
+                          {item.statusLabel}
                         </span>
                         <span>{item.equipmentCountLabel}</span>
-                        <span>{formatPendingLabel(item.pendingCountLabel)}</span>
+                        <span>{item.pendingCountLabel}</span>
                       </div>
                     </div>
                   </button>
@@ -378,22 +378,6 @@ function SummaryRow({
 
 function sumCountLabels(labels: string[]): number {
   return labels.reduce((total, label) => total + (Number.parseInt(label, 10) || 0), 0);
-}
-
-function formatDisplayServiceLabel(label: string): string {
-  return label
-    .replace('Ultimo servico', 'Último serviço')
-    .replace('Sem servico registrado', 'Sem serviço registrado');
-}
-
-function formatClientStatusLabel(label: string): string {
-  return label
-    .replace('Atencao critica', 'Atenção crítica')
-    .replace('Com pendencias', 'Com pendências');
-}
-
-function formatPendingLabel(label: string): string {
-  return label.replace('pendencia', 'pendência').replace('pendencias', 'pendências');
 }
 
 function getClientStatusClass(tone: EquipmentClientsListViewModel['items'][number]['statusTone']) {

@@ -153,7 +153,7 @@ describe('saveEquipment', () => {
         local: 'Sala principal',
         mode: 'edit',
       }),
-    ).toThrow('Equipamento nao encontrado para edicao.');
+    ).toThrow('Equipamento não encontrado para edição.');
   });
 });
 
@@ -312,7 +312,7 @@ describe('saveEquipmentAttachment', () => {
         createdAt: '2026-05-10',
         url: 'https://storage.example/anexo-1',
       } as never),
-    ).toThrow('Anexo local nao aceita arquivo, URL ou storage real.');
+    ).toThrow('Anexo local não aceita arquivo, URL ou storage real.');
   });
 });
 
@@ -354,7 +354,7 @@ describe('deleteEquipmentSector', () => {
     const snapshot = createAppV2MockSnapshot();
 
     expect(() => deleteEquipmentSector(snapshot, '__sem_setor__')).toThrow(
-      'Nao e possivel remover o agrupamento Sem setor.',
+      'Não é possível remover o agrupamento Sem setor.',
     );
   });
 });
@@ -488,7 +488,7 @@ describe('archiveEquipment', () => {
     const snapshot = createAppV2MockSnapshot({ equipamentos: [] });
 
     expect(() => archiveEquipment(snapshot, 'eq-inexistente', '2026-05-16')).toThrow(
-      'Equipamento nao encontrado para arquivamento.',
+      'Equipamento não encontrado para arquivamento.',
     );
   });
 });
@@ -529,7 +529,7 @@ describe('unarchiveEquipment', () => {
     const snapshot = createAppV2MockSnapshot({ equipamentos: [] });
 
     expect(() => unarchiveEquipment(snapshot, 'eq-inexistente')).toThrow(
-      'Equipamento nao encontrado para desarquivamento.',
+      'Equipamento não encontrado para desarquivamento.',
     );
   });
 

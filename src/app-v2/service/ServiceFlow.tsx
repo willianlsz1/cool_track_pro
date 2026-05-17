@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faCheckCircle, faTools } from '@fortawesome/free-solid-svg-icons';
 
 import type { ServiceRecordKind } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
-import { PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import { PageShell } from '../ui/primitives';
 import { ServiceDone } from './ServiceDone';
 import { ServiceStepContext } from './ServiceStepContext';
 import { ServiceStepExecution } from './ServiceStepExecution';
@@ -103,31 +105,23 @@ export function ServiceFlow({
     onCreateQuoteFromCompletedService(draft);
   }
 
+  const isDone = step === 'done';
+  const headerIcon = isDone ? faCheckCircle : faTools;
+  const headerLabel = isDone ? 'Atendimento concluído' : 'Atendimento em andamento';
+
   return (
-    <PageShell className="tw-max-w-none">
-      <SectionCard className="sm:tw-p-6">
-        <div className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
-          <div className="tw-min-w-0">
-            <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-              Registro de serviço
-            </p>
-            <h1
-              className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight sm:tw-text-[2rem] ${appV2Tone.text}`}
-            >
-              Atendimento em andamento
-            </h1>
-            <p
-              className={`tw-m-0 tw-mt-2 tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}
-            >
-              {context.equipmentName} - {context.customerLine}
-            </p>
-          </div>
-          <StatusBadge tone={context.statusTone} className="tw-w-fit tw-shrink-0 tw-border">
-            {context.statusLabel}
-          </StatusBadge>
-        </div>
-        <Progress currentStep={step} />
-      </SectionCard>
+    <PageShell className="tw-max-w-none tw-gap-6 lg:tw-gap-7">
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3 tw-rounded-2xl tw-border tw-border-[#E2E8F0] tw-bg-white tw-px-5 tw-py-3 tw-shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <span className="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-xs tw-font-bold tw-text-[#1E4F8A]">
+          <FontAwesomeIcon icon={headerIcon} className="tw-h-3 tw-w-3" aria-hidden="true" />
+          {headerLabel}
+        </span>
+        <span className={`tw-text-sm tw-font-semibold ${appV2Tone.text}`}>
+          {context.equipmentName} - {context.customerLine}
+        </span>
+      </div>
+
+      <Progress currentStep={step} />
 
       {step === 'context' ? (
         <ServiceStepContext
@@ -188,32 +182,54 @@ function Progress({ currentStep }: { currentStep: ServiceFlowStep }) {
   const labels: Record<ServiceFlowStep, string> = {
     context: 'Contexto',
     type: 'Tipo',
-    execution: 'Execucao',
-    review: 'Revisao',
+    execution: 'Execução',
+    review: 'Revisão',
     done: 'Finalizado',
   };
 
   return (
-    <div className="tw-mt-5" aria-label="Progresso do registro">
-      <div className="tw-grid tw-grid-cols-5 tw-gap-2">
-        {stepOrder.map((step, index) => (
-          <span
+    <div
+      className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3 tw-rounded-[20px] tw-border tw-border-[#E2E8F0] tw-bg-white tw-px-6 tw-py-3 tw-shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+      aria-label="Progresso do registro"
+    >
+      {stepOrder.map((step, index) => {
+        const isCompleted = currentStep === 'done' ? index <= activeIndex : index < activeIndex;
+        const isActive = step === currentStep && currentStep !== 'done';
+
+        return (
+          <div
             key={step}
-            className={`tw-h-2 tw-rounded-full ${
-              index <= activeIndex ? 'tw-bg-[#2563EB]' : 'tw-bg-[#D7E3F2]'
-            }`}
-          />
-        ))}
-      </div>
-      <div
-        className={`tw-mt-3 tw-flex tw-items-center tw-justify-between tw-gap-2 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.12em] ${appV2Tone.subtleText}`}
-      >
-        {stepOrder.map((step) => (
-          <span key={step} className={step === currentStep ? 'tw-text-[#2563EB]' : ''}>
-            {labels[step]}
-          </span>
-        ))}
-      </div>
+            className="tw-flex tw-min-w-[92px] tw-flex-1 tw-flex-col tw-items-center tw-text-center"
+          >
+            <span
+              className={`tw-flex tw-h-8 tw-w-8 tw-items-center tw-justify-center tw-rounded-full tw-text-xs tw-font-bold ${
+                isCompleted
+                  ? 'tw-bg-[#16A34A] tw-text-white'
+                  : isActive
+                    ? 'tw-bg-[#2563EB] tw-text-white tw-shadow-[0_2px_6px_rgba(37,99,235,0.2)]'
+                    : 'tw-bg-[#F1F5F9] tw-text-[#52677F]'
+              }`}
+            >
+              {isCompleted ? (
+                <FontAwesomeIcon icon={faCheck} className="tw-h-3 tw-w-3" aria-hidden="true" />
+              ) : (
+                index + 1
+              )}
+            </span>
+            <span
+              className={`tw-mt-1.5 tw-text-[0.7rem] tw-font-bold tw-uppercase ${
+                isCompleted
+                  ? 'tw-text-[#16A34A]'
+                  : isActive
+                    ? 'tw-text-[#2563EB]'
+                    : 'tw-text-[#52677F]'
+              }`}
+            >
+              {labels[step]}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

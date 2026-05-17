@@ -1,10 +1,11 @@
-import { useState, type ReactNode } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFloppyDisk, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState } from 'react';
 
-import type { SaveClientDraft } from './clientActions';
 import type { Cliente } from '../domain/types';
 import { appV2Border, appV2Focus, appV2Shadow, appV2Text } from '../styles/tokens';
+import { FieldGroup, FormGrid, fieldInputClass } from '../ui/FieldGroup';
+import type { SaveClientDraft } from './clientActions';
 
 interface ClientFormProps {
   title: string;
@@ -57,63 +58,63 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
       </div>
 
       {visibleError ? (
-        <p className="tw-m-0 tw-rounded-xl tw-border tw-border-[#FCA5A5] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#B91C1C]">
+        <p className="tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-border-[#FCA5A5] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#B91C1C]">
           {visibleError}
         </p>
       ) : null}
 
-      <div className="tw-mt-4 tw-grid tw-gap-4 sm:tw-grid-cols-2">
-        <Field label="Nome" htmlFor="client-name">
+      <FormGrid className="tw-mt-5">
+        <FieldGroup label="Nome" htmlFor="client-name">
           <input
             id="client-name"
             name="client-name"
             value={nome}
             onChange={(event) => setNome(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: Mercado Bom"
           />
-        </Field>
-        <Field label="Razão social" htmlFor="client-legal-name">
+        </FieldGroup>
+        <FieldGroup label="Razão social" htmlFor="client-legal-name">
           <input
             id="client-legal-name"
             name="client-legal-name"
             value={razaoSocial}
             onChange={(event) => setRazaoSocial(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: Mercado Bom LTDA"
           />
-        </Field>
-        <Field label="Documento" htmlFor="client-document">
+        </FieldGroup>
+        <FieldGroup label="Documento" htmlFor="client-document">
           <input
             id="client-document"
             name="client-document"
             value={documento}
             onChange={(event) => setDocumento(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: CNPJ"
           />
-        </Field>
-        <Field label="Contato" htmlFor="client-contact">
+        </FieldGroup>
+        <FieldGroup label="Contato" htmlFor="client-contact">
           <input
             id="client-contact"
             name="client-contact"
             value={contato}
             onChange={(event) => setContato(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: (11) 99999-0000"
           />
-        </Field>
-        <Field label="Endereço" htmlFor="client-address">
+        </FieldGroup>
+        <FieldGroup label="Endereço" htmlFor="client-address" fullWidth>
           <input
             id="client-address"
             name="client-address"
             value={endereco}
             onChange={(event) => setEndereco(event.target.value)}
-            className={inputClass}
+            className={fieldInputClass}
             placeholder="Ex.: Rua Central, 42"
           />
-        </Field>
-      </div>
+        </FieldGroup>
+      </FormGrid>
 
       <div className="tw-mt-5 tw-flex tw-flex-col-reverse tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-4 sm:tw-flex-row sm:tw-justify-end">
         <button
@@ -135,25 +136,3 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
     </section>
   );
 }
-
-function Field({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  children: ReactNode;
-}) {
-  return (
-    <label
-      className="tw-grid tw-gap-1.5 tw-text-[0.7rem] tw-font-semibold tw-uppercase tw-text-[#1E4F8A]"
-      htmlFor={htmlFor}
-    >
-      {label}
-      {children}
-    </label>
-  );
-}
-
-const inputClass = `tw-min-h-10 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-normal-case tw-text-[#071A33] placeholder:tw-font-normal placeholder:tw-text-[#9AADCA] ${appV2Border.default} ${appV2Focus}`;

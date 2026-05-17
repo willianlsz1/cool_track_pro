@@ -1,7 +1,16 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowLeft,
+  faCalendarTimes,
+  faCheckCircle,
+  faFileAlt,
+  faFileInvoiceDollar,
+  faMicrochip,
+} from '@fortawesome/free-solid-svg-icons';
 
-import { appV2Tone } from '../styles/tokens';
-import { ActionButton, ListRow, SectionCard, StatusBadge } from '../ui/primitives';
+import { SectionCard } from '../ui/primitives';
 import { ServiceReportPreview } from './ServiceReportPreview';
 import type { ServiceDoneViewModel } from './serviceFlowViewModel';
 import type { ServiceReportViewModel } from './serviceReportViewModel';
@@ -22,6 +31,7 @@ export function ServiceDone({
   onOpenEquipment,
 }: ServiceDoneProps) {
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const summaryItems = buildSummaryItems(done.technicalSummary);
 
   function printReport() {
     window.print();
@@ -29,88 +39,163 @@ export function ServiceDone({
 
   return (
     <div className="tw-grid tw-gap-5">
-      <SectionCard className="sm:tw-p-6">
-        <div className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
-          <div className="tw-min-w-0">
-            <p
-              className={`tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] ${appV2Tone.subtleText}`}
-            >
-              Finalizado
-            </p>
-            <h1
-              className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
-            >
-              {done.title}
-            </h1>
-            <p
-              className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}
-            >
-              {done.summary}
-            </p>
+      <SectionCard className="tw-rounded-[20px] tw-border-[#E2E8F0] tw-bg-white tw-p-6 tw-shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <div className="tw-text-center">
+          <div className="tw-mx-auto tw-mb-3 tw-flex tw-h-14 tw-w-14 tw-items-center tw-justify-center tw-rounded-full tw-bg-[#F0FDF4]">
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              className="tw-h-8 tw-w-8 tw-text-[#16A34A]"
+              aria-hidden="true"
+            />
           </div>
-          <StatusBadge tone="success" className="tw-w-fit tw-shrink-0 tw-border">
-            Concluído
-          </StatusBadge>
+          <h1 className="tw-m-0 tw-text-xl tw-font-bold tw-leading-tight tw-text-[#071A33]">
+            {done.title}
+          </h1>
+          <p className="tw-m-0 tw-mt-1 tw-text-sm tw-font-normal tw-leading-5 tw-text-[#52677F]">
+            {done.summary}
+          </p>
         </div>
 
-        <div className="tw-mt-6 tw-grid tw-gap-3 sm:tw-grid-cols-3">
-          <ActionButton onClick={() => setIsReportOpen(true)}>Ver relatório</ActionButton>
-          <ActionButton variant="secondary" onClick={onOpenEquipment}>
+        <div className="tw-mt-6 tw-flex tw-flex-wrap tw-justify-center tw-gap-4">
+          <DoneButton variant="outline" onClick={() => setIsReportOpen(true)}>
+            <FontAwesomeIcon icon={faFileAlt} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
+            Ver relatório
+          </DoneButton>
+          <DoneButton variant="outline" onClick={onOpenEquipment}>
+            <FontAwesomeIcon icon={faMicrochip} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
             Ver equipamento
-          </ActionButton>
-          <ActionButton variant="secondary" onClick={onBackToServices}>
+          </DoneButton>
+          <DoneButton variant="primary" onClick={onBackToServices}>
+            <FontAwesomeIcon icon={faArrowLeft} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
             Voltar para Serviços
-          </ActionButton>
+          </DoneButton>
         </div>
-      </SectionCard>
 
-      <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="service-summary-title">
-        <div className="tw-p-5">
-          <h2
-            id="service-summary-title"
-            className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
-          >
-            Resumo do serviço
-          </h2>
+        <hr className="tw-my-6 tw-h-px tw-border-0 tw-bg-[#EDF2F7]" />
+
+        <h2 className="tw-m-0 tw-mb-3 tw-text-sm tw-font-bold tw-text-[#071A33]">
+          Resumo do serviço
+        </h2>
+        <div className="tw-grid tw-gap-3 lg:tw-grid-cols-2 lg:tw-gap-x-4">
+          {summaryItems.map((item) => (
+            <SummaryItem key={item.label} item={item} />
+          ))}
         </div>
-        {done.technicalSummary.map((item) => (
-          <ListRow key={item}>
-            <p className={`tw-m-0 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.text}`}>
-              {item}
-            </p>
-          </ListRow>
-        ))}
+
+        <div className="tw-mt-6">
+          <h2 className="tw-m-0 tw-mb-3 tw-text-sm tw-font-bold tw-text-[#071A33]">
+            Saídas futuras
+          </h2>
+          <div className="tw-flex tw-flex-wrap tw-gap-4">
+            <button
+              type="button"
+              className="tw-inline-flex tw-min-h-12 tw-items-center tw-gap-2.5 tw-rounded-[14px] tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-4 tw-py-3 tw-text-xs tw-font-semibold tw-text-[#071A33] tw-transition focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-[#2563EB]"
+              onClick={onCreateQuote}
+            >
+              <FontAwesomeIcon
+                icon={faFileInvoiceDollar}
+                className="tw-h-4 tw-w-4 tw-text-[#2563EB]"
+                aria-hidden="true"
+              />
+              Criar orçamento local
+            </button>
+            {done.disabledOutputs.map((output) => (
+              <button
+                key={output}
+                type="button"
+                disabled
+                className="tw-inline-flex tw-min-h-12 tw-items-center tw-gap-2.5 tw-rounded-[14px] tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-4 tw-py-3 tw-text-xs tw-font-semibold tw-text-[#8BA0BC] tw-opacity-60"
+              >
+                <FontAwesomeIcon
+                  icon={faCalendarTimes}
+                  className="tw-h-4 tw-w-4"
+                  aria-hidden="true"
+                />
+                {output} indisponível
+              </button>
+            ))}
+          </div>
+        </div>
       </SectionCard>
 
       {isReportOpen ? <ServiceReportPreview report={report} onPrint={printReport} /> : null}
-
-      <SectionCard labelledBy="service-next-outputs-title">
-        <h2
-          id="service-next-outputs-title"
-          className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
-        >
-          Saídas futuras
-        </h2>
-        <div className="tw-mt-4 tw-grid tw-gap-2 sm:tw-grid-cols-3">
-          <button
-            type="button"
-            className={`tw-min-h-11 tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-            onClick={onCreateQuote}
-          >
-            Criar orçamento local
-          </button>
-          {done.disabledOutputs.map((output) => (
-            <button
-              key={output}
-              type="button"
-              disabled
-              className={`tw-min-h-11 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-3 tw-text-sm tw-font-semibold tw-text-[#64748B] ${appV2Tone.border}`}
-            >
-              {output} indisponível
-            </button>
-          ))}
-        </div>
-      </SectionCard>
     </div>
   );
+}
+
+function DoneButton({
+  children,
+  onClick,
+  variant,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  variant: 'outline' | 'primary';
+}) {
+  const classes =
+    variant === 'primary'
+      ? 'tw-border-[#2563EB] tw-bg-[#2563EB] tw-text-white'
+      : 'tw-border-[#CBD5E1] tw-bg-transparent tw-text-[#1E4F8A]';
+
+  return (
+    <button
+      type="button"
+      className={`tw-inline-flex tw-min-h-10 tw-items-center tw-gap-2 tw-rounded-[10px] tw-border tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-transition focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-[#2563EB] ${classes}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
+interface SummaryItemView {
+  label: string;
+  value: string;
+  fullWidth?: boolean;
+}
+
+function SummaryItem({ item }: { item: SummaryItemView }) {
+  const empty = isEmptySummaryValue(item.value);
+
+  return (
+    <div
+      className={`tw-rounded-xl tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-px-3 tw-py-2 ${
+        item.fullWidth ? 'lg:tw-col-span-2' : ''
+      }`}
+    >
+      <div className="tw-text-[0.65rem] tw-font-bold tw-uppercase tw-text-[#1E4F8A]">
+        {item.label}
+      </div>
+      <div
+        className={`tw-mt-1 tw-break-words tw-text-[0.8rem] tw-font-semibold tw-leading-5 ${
+          empty ? 'tw-italic tw-text-[#8BA0BC]' : 'tw-text-[#071A33]'
+        }`}
+      >
+        {item.value}
+      </div>
+    </div>
+  );
+}
+
+function buildSummaryItems(technicalSummary: string[]): SummaryItemView[] {
+  return technicalSummary.map((item) => {
+    const separatorIndex = item.indexOf(':');
+
+    if (separatorIndex === -1) {
+      return { label: 'Resumo', value: item };
+    }
+
+    const label = item.slice(0, separatorIndex).trim();
+    const value = item.slice(separatorIndex + 1).trim();
+
+    return {
+      label,
+      value,
+      fullWidth: label === 'Status final',
+    };
+  });
+}
+
+function isEmptySummaryValue(value: string): boolean {
+  return ['Sem peças informadas', 'Não informado', 'Não informada'].includes(value);
 }

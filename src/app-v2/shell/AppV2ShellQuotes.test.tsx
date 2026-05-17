@@ -95,20 +95,23 @@ describe('AppV2Shell Orçamentos', () => {
     await openQuoteEditor(host);
 
     const title = host.querySelector('input[name="quote-title"]');
-    const total = host.querySelector('input[name="quote-total"]');
     const status = host.querySelector('select[name="quote-status"]');
     expect(title).toBeInstanceOf(HTMLInputElement);
-    expect(total).toBeInstanceOf(HTMLInputElement);
     expect(status).toBeInstanceOf(HTMLSelectElement);
 
+    expect(host.textContent).toContain('Orçamentos · Acompanhamento');
+    expect(host.textContent).toContain('Edição local · Controle de itens e valores');
+    expect(host.textContent).toContain('Itens locais · Descrição');
+    expect(host.textContent).toContain('Qtd. itens');
+    expect(host.textContent).toContain('Nenhum item local adicionado.');
+
     await fillInput(title as HTMLInputElement, 'Troca revisada do controlador');
-    await fillInput(total as HTMLInputElement, '1480,50');
     await selectOption(status as HTMLSelectElement, 'enviado');
     await clickButton(host, /^Salvar orçamento$/i);
 
     expect(host.textContent).toContain('Troca revisada do controlador');
     expect(host.textContent).toContain('Enviado');
-    expect(host.textContent).toContain('R$ 1.480,50');
+    expect(host.textContent).toContain('R$ 1.250,00');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
@@ -131,7 +134,7 @@ describe('AppV2Shell Orçamentos', () => {
       host.querySelector('input[name="quote-item-unit-value"]') as HTMLInputElement,
       '980,00',
     );
-    await clickButton(host, /^Adicionar item$/i);
+    await clickButton(host, /^Adicionar$/i);
 
     expect(host.textContent).toContain('Controlador digital');
     expect(host.textContent).toContain('R$ 980,00');
