@@ -221,8 +221,8 @@ it('exibe custos opcionais no relatorio imediato e reaberto', () => {
 
   expect(immediateFields).toEqual(
     expect.arrayContaining([
-      { label: 'Custo de peças', value: '120,00' },
-      { label: 'Custo de mão de obra', value: '250,00' },
+      { label: 'Custo de peças', value: 'R$ 120,00' },
+      { label: 'Custo de mão de obra', value: 'R$ 250,00' },
     ]),
   );
 
@@ -240,8 +240,8 @@ it('exibe custos opcionais no relatorio imediato e reaberto', () => {
 
   expect(reopenedFields).toEqual(
     expect.arrayContaining([
-      { label: 'Custo de peças', value: '120,00' },
-      { label: 'Custo de mão de obra', value: '250,00' },
+      { label: 'Custo de peças', value: 'R$ 120,00' },
+      { label: 'Custo de mão de obra', value: 'R$ 250,00' },
     ]),
   );
 });
@@ -299,7 +299,7 @@ it('usa a data editada do draft no relatorio imediato', () => {
   expect(fields).toEqual(
     expect.arrayContaining([
       { label: 'Data', value: '12/05/2026' },
-      { label: 'Inicio', value: '12/05/2026' },
+      { label: 'Início', value: '12/05/2026' },
       { label: 'Conclusão', value: '12/05/2026' },
     ]),
   );

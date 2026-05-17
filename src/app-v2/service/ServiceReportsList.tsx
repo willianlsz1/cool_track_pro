@@ -50,12 +50,12 @@ export function ServiceReportsList({
             item.status,
           )} ${selectedReportId === item.id ? 'tw-ring-2 tw-ring-[#2563EB]/20' : ''}`}
         >
-          <button
-            type="button"
-            className="tw-w-full tw-border-0 tw-bg-transparent tw-p-0 tw-text-left"
-            onClick={() => onSelectReport(item.id)}
-          >
-            <div className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
+          <div className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
+            <button
+              type="button"
+              className="tw-min-w-0 tw-flex-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-left"
+              onClick={() => onSelectReport(item.id)}
+            >
               <div className="tw-min-w-0">
                 <ReportStatusBadge item={item} />
                 <h3 className={`tw-m-0 tw-mt-2 tw-text-lg tw-font-bold ${appV2Tone.text}`}>
@@ -67,11 +67,15 @@ export function ServiceReportsList({
                   {item.kindLabel} · {item.equipmentLine} · {item.customerName}
                 </p>
               </div>
-              <span className="tw-inline-flex tw-rounded-xl tw-bg-[#2563EB] tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white">
-                Abrir relatório
-              </span>
-            </div>
-          </button>
+            </button>
+            <button
+              type="button"
+              className={`tw-inline-flex tw-rounded-xl tw-border-0 tw-bg-[#2563EB] tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white ${appV2Tone.focus}`}
+              onClick={() => onOpenReport(item.id)}
+            >
+              Abrir relatório
+            </button>
+          </div>
 
           <div
             className={`tw-mt-3 tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-2 tw-border-t tw-border-[#EDF2F7] tw-pt-3 tw-text-sm ${appV2Tone.mutedText}`}

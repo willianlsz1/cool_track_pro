@@ -22,6 +22,25 @@ export interface ServiceReportSectionViewModel {
   fields: ServiceReportFieldViewModel[];
 }
 
+export interface ServiceReportInfoCardViewModel {
+  title: string;
+  fields: ServiceReportFieldViewModel[];
+}
+
+export interface ServiceReportExecutionViewModel {
+  diagnosis: string;
+  actionsDone: string;
+  details: ServiceReportFieldViewModel[];
+  recommendation: string;
+}
+
+export interface ServiceReportFooterViewModel {
+  technicianName: string;
+  clientName: string;
+  statusSummary: string;
+  generatedAtLabel: string;
+}
+
 export interface ServiceReportViewModel {
   reportId: string;
   title: 'Registro de Serviço Técnico';
@@ -29,6 +48,9 @@ export interface ServiceReportViewModel {
   generatedAtLabel: string;
   statusLabel: string;
   statusTone: ServiceTone;
+  infoCards: ServiceReportInfoCardViewModel[];
+  execution: ServiceReportExecutionViewModel;
+  footer: ServiceReportFooterViewModel;
   sections: ServiceReportSectionViewModel[];
   signatureFields: string[];
 }
@@ -113,73 +135,114 @@ function buildReport({
   cliente?: Cliente;
 }): ServiceReportViewModel {
   const statusLabel = formatStatusLabel(status);
+  const technicianName = normalizeText(technician, 'Não informado');
+  const clientName = cliente?.nome ?? 'Sem cliente vinculado';
+  const formattedDate = formatDateLabel(date);
+  const normalizedDiagnosis = normalizeText(diagnosis, 'Não informado');
+  const normalizedActions = normalizeText(actionsDone, 'Não informado');
+  const normalizedPartsUsed = normalizeText(partsUsed ?? '', 'Nenhuma peça substituída');
+  const normalizedPartsCost = normalizeCurrencyText(partsCost, 'R$ 0,00');
+  const normalizedLaborCost = normalizeCurrencyText(laborCost, 'Não informado');
+  const normalizedNextMaintenance = formatOptionalDateLabel(nextMaintenanceDate);
+  const normalizedObservations = normalizeText(observations ?? diagnosis, 'Não informado');
+  const recommendation = buildRecommendation(status, normalizedObservations);
+
+  const headerFields: ServiceReportFieldViewModel[] = [
+    { label: 'App', value: 'CoolTrack Pro app-v2' },
+    { label: 'Registro', value: reportId },
+    { label: 'Data', value: formattedDate },
+    { label: 'Status', value: statusLabel },
+    { label: 'Técnico/responsável', value: technicianName },
+  ];
+
+  const clientFields: ServiceReportFieldViewModel[] = [
+    { label: 'Cliente', value: clientName },
+    { label: 'Documento', value: cliente?.documento ?? 'Não informado' },
+    { label: 'Contato', value: cliente?.contato ?? 'Não informado' },
+    { label: 'Endereço', value: cliente?.endereco ?? 'Não informado' },
+    { label: 'Local atendimento', value: equipamento.local },
+  ];
+
+  const equipmentFields: ServiceReportFieldViewModel[] = [
+    { label: 'Equipamento', value: equipamento.nome },
+    { label: 'Tipo / categoria', value: equipamento.tipo ?? 'Não informado' },
+    { label: 'Marca / modelo', value: equipamento.marcaModelo ?? 'Não informado' },
+    { label: 'Identificador', value: equipamento.tag ?? 'Não informado' },
+    { label: 'Local instalação', value: equipamento.local },
+  ];
+
+  const serviceFields: ServiceReportFieldViewModel[] = [
+    { label: 'Tipo', value: kindLabel },
+    { label: 'Status', value: statusLabel },
+    { label: 'Início', value: formattedDate },
+    { label: 'Conclusão', value: formattedDate },
+    { label: 'Técnico', value: technicianName },
+  ];
+
+  const executionFields: ServiceReportFieldViewModel[] = [
+    { label: 'Diagnóstico', value: normalizedDiagnosis },
+    { label: 'Ações executadas', value: normalizedActions },
+    { label: 'Peças usadas', value: normalizedPartsUsed },
+    { label: 'Custo de peças', value: normalizedPartsCost },
+    { label: 'Custo de mão de obra', value: normalizedLaborCost },
+    { label: 'Próxima manutenção', value: normalizedNextMaintenance },
+    { label: 'Observações', value: normalizedObservations },
+    { label: 'Recomendações', value: recommendation },
+  ];
 
   return {
     reportId,
     title: 'Registro de Serviço Técnico',
     subtitle: `${kindLabel} - ${equipamento.nome}`,
-    generatedAtLabel: formatDateLabel(date),
+    generatedAtLabel: formattedDate,
     statusLabel,
     statusTone: mapStatusTone(status),
+    infoCards: [
+      { title: 'Cliente', fields: clientFields },
+      { title: 'Equipamento', fields: equipmentFields },
+      { title: 'Serviço', fields: serviceFields },
+    ],
+    execution: {
+      diagnosis: normalizedDiagnosis,
+      actionsDone: normalizedActions,
+      details: [
+        { label: 'Peças usadas', value: normalizedPartsUsed },
+        { label: 'Custo de peças', value: normalizedPartsCost },
+        { label: 'Custo de mão de obra', value: normalizedLaborCost },
+        { label: 'Próxima manutenção', value: normalizedNextMaintenance },
+      ],
+      recommendation,
+    },
+    footer: {
+      technicianName,
+      clientName,
+      statusSummary: buildStatusSummary(status),
+      generatedAtLabel: formattedDate,
+    },
     sections: [
       {
         title: 'Cabeçalho',
-        fields: [
-          { label: 'App', value: 'CoolTrack Pro app-v2' },
-          { label: 'Registro', value: reportId },
-          { label: 'Data', value: formatDateLabel(date) },
-          { label: 'Status', value: statusLabel },
-          { label: 'Técnico/responsável', value: normalizeText(technician, 'Não informado') },
-        ],
+        fields: headerFields,
       },
       {
         title: 'Cliente',
-        fields: [
-          { label: 'Cliente', value: cliente?.nome ?? 'Sem cliente vinculado' },
-          { label: 'Documento', value: cliente?.documento ?? 'Não informado' },
-          { label: 'Contato', value: cliente?.contato ?? 'Não informado' },
-          { label: 'Endereço', value: cliente?.endereco ?? 'Não informado' },
-          { label: 'Local de atendimento', value: equipamento.local },
-        ],
+        fields: clientFields,
       },
       {
         title: 'Equipamento',
-        fields: [
-          { label: 'Equipamento', value: equipamento.nome },
-          { label: 'Tipo/categoria', value: equipamento.tipo ?? 'Não informado' },
-          { label: 'Marca/modelo', value: 'Não informado' },
-          { label: 'Identificador', value: equipamento.tag ?? 'Não informado' },
-          { label: 'Local de instalação', value: equipamento.local },
-        ],
+        fields: equipmentFields,
       },
       {
         title: 'Serviço',
         fields: [
           { label: 'Tipo de serviço', value: kindLabel },
-          { label: 'Status', value: statusLabel },
-          { label: 'Inicio', value: formatDateLabel(date) },
-          { label: 'Conclusão', value: formatDateLabel(date) },
+          ...serviceFields.filter((field) => field.label !== 'Tipo'),
           { label: 'Resultado', value: statusLabel },
         ],
       },
       {
         title: 'Execução',
-        fields: [
-          { label: 'Diagnóstico', value: normalizeText(diagnosis, 'Não informado') },
-          { label: 'Ações executadas', value: normalizeText(actionsDone, 'Não informado') },
-          { label: 'Peças usadas', value: normalizeText(partsUsed ?? '', 'Não informado') },
-          { label: 'Custo de peças', value: normalizeText(partsCost ?? '', 'Não informado') },
-          { label: 'Custo de mão de obra', value: normalizeText(laborCost ?? '', 'Não informado') },
-          {
-            label: 'Próxima manutenção',
-            value: formatOptionalDateLabel(nextMaintenanceDate),
-          },
-          {
-            label: 'Observações',
-            value: normalizeText(observations ?? diagnosis, 'Não informado'),
-          },
-          { label: 'Recomendações', value: 'Não informado' },
-        ],
+        fields: executionFields,
       },
     ],
     signatureFields: ['Técnico/responsável', 'Cliente/responsável'],
@@ -230,6 +293,34 @@ function mapStatusTone(status: ServiceRecordStatus): ServiceTone {
   return 'success';
 }
 
+function buildStatusSummary(status: ServiceRecordStatus): string {
+  if (status === 'danger') {
+    return 'Crítico - Intervenção necessária';
+  }
+
+  if (status === 'warn') {
+    return 'Atenção - Acompanhar';
+  }
+
+  return 'Operacional - Em funcionamento';
+}
+
+function buildRecommendation(status: ServiceRecordStatus, observations: string): string {
+  if (observations !== 'Não informado') {
+    return observations;
+  }
+
+  if (status === 'danger') {
+    return 'Recomenda-se priorizar nova avaliação técnica e acompanhar o equipamento.';
+  }
+
+  if (status === 'warn') {
+    return 'Recomenda-se acompanhar o equipamento e programar nova verificação técnica.';
+  }
+
+  return 'Equipamento liberado para operação normal. Manter rotina de acompanhamento.';
+}
+
 function formatDateLabel(date: string): string {
   const [year, month, day] = date.split('-');
   return `${day}/${month}/${year}`;
@@ -246,5 +337,32 @@ function formatOptionalDateLabel(date: string | undefined): string {
 }
 
 function normalizeText(value: string, fallback: string): string {
-  return value.trim() || fallback;
+  return normalizeDisplayText(value).trim() || fallback;
+}
+
+function normalizeCurrencyText(value: string | undefined, fallback: string): string {
+  const normalizedValue = normalizeDisplayText(value ?? '').trim();
+
+  if (!normalizedValue) {
+    return fallback;
+  }
+
+  return normalizedValue.startsWith('R$') ? normalizedValue : `R$ ${normalizedValue}`;
+}
+
+function normalizeDisplayText(value: string): string {
+  return value
+    .replace(/Ã§/g, 'ç')
+    .replace(/Ã£/g, 'ã')
+    .replace(/Ã¡/g, 'á')
+    .replace(/Ã©/g, 'é')
+    .replace(/Ãª/g, 'ê')
+    .replace(/Ã³/g, 'ó')
+    .replace(/Ãº/g, 'ú')
+    .replace(/Ã­/g, 'í')
+    .replace(/Ã¢/g, 'â')
+    .replace(/Ã‡/g, 'Ç')
+    .replace(/Ã‰/g, 'É')
+    .replace(/Ãš/g, 'Ú')
+    .replace(/Â·/g, '·');
 }

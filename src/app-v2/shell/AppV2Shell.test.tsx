@@ -241,6 +241,12 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('REL-REGISTRO-2');
     expect(host.textContent).not.toContain('Registro de Serviço Técnico');
+
+    await clickButton(host, /^Abrir relatório$/i);
+
+    expect(host.textContent).toContain('Voltar para relatórios');
+    expect(host.textContent).toContain('Registro de Serviço Técnico');
+    expect(host.querySelector('[data-app-v2-print-scope="service-report"]')).toBeTruthy();
   });
 
   it('filtra Relatorios por periodo, cliente e equipamento com resumo consolidado local', async () => {
