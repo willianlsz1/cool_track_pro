@@ -1,4 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faChevronDown,
+  faCirclePlus,
+  faInfoCircle,
+  faLocationDot,
+  faMagnifyingGlass,
+  faPenToSquare,
+  faPlus,
+  faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { EquipmentCard } from './EquipmentCard';
 import { EquipmentForm } from './EquipmentForm';
@@ -18,7 +29,7 @@ import {
   mockEquipmentSetores,
   mockEquipmentToday,
 } from './mockEquipmentData';
-import { appV2Tone } from '../styles/tokens';
+import { appV2Border, appV2Focus, appV2Shadow, appV2Text, appV2Tone } from '../styles/tokens';
 import { PageShell, SectionCard } from '../ui/primitives';
 
 interface EquipmentListProps {
@@ -160,31 +171,38 @@ export function EquipmentList({
   }
 
   return (
-    <PageShell>
-      <header className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(420px,0.72fr)] lg:tw-items-end">
+    <PageShell className="tw-gap-6 lg:tw-gap-7">
+      <header className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
         <div className="tw-min-w-0">
           <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
             Equipamentos em CoolTrack
           </p>
           <h1
-            className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-none sm:tw-text-[2rem] ${appV2Tone.text}`}
+            className={`tw-m-0 tw-mt-2 tw-text-[1.8rem] tw-font-bold tw-leading-none tw-tracking-tight sm:tw-text-[2rem] ${appV2Text.primary}`}
           >
             {viewModel.title}
           </h1>
-          <p className={`tw-m-0 tw-mt-5 tw-text-base tw-font-semibold ${appV2Tone.text}`}>
-            {viewModel.subtitle}
+          <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-semibold ${appV2Text.primary}`}>
+            {viewModel.subtitle} · {viewModel.totalLabel}
           </p>
-          <p className={`tw-m-0 tw-mt-2 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+          <p
+            className={`tw-m-0 tw-mt-1 tw-flex tw-items-center tw-gap-2 tw-text-xs tw-font-medium ${appV2Text.subtle}`}
+          >
+            <FontAwesomeIcon icon={faInfoCircle} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
             Localize o equipamento e avance para a ação técnica correta.
           </p>
         </div>
 
-        <SectionCard padding="sm">
-          <span className={`tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>Parque técnico</span>
-          <span className={`tw-mt-1 tw-block tw-text-2xl tw-font-bold ${appV2Tone.text}`}>
-            {viewModel.totalLabel}
-          </span>
-        </SectionCard>
+        {onSaveEquipment && !isCreating ? (
+          <button
+            type="button"
+            onClick={() => setIsCreating(true)}
+            className={`tw-inline-flex tw-min-h-10 tw-shrink-0 tw-items-center tw-gap-2 tw-rounded-lg tw-border-0 tw-bg-[#2563EB] tw-px-5 tw-text-sm tw-font-bold tw-text-white ${appV2Focus}`}
+          >
+            <FontAwesomeIcon icon={faPlus} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
+            Novo equipamento
+          </button>
+        ) : null}
       </header>
 
       {onSaveEquipment ? (
@@ -206,31 +224,24 @@ export function EquipmentList({
               return result;
             }}
           />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setIsCreating(true)}
-            className={`tw-self-start tw-rounded-xl tw-border tw-bg-white tw-px-4 tw-py-3 tw-text-sm tw-font-bold tw-text-[#2563EB] ${appV2Tone.border} ${appV2Tone.focus}`}
-          >
-            Novo equipamento
-          </button>
-        )
+        ) : null
       ) : null}
 
       {onSaveSector ? (
-        <SectionCard label="Setores mockados" padding="sm">
+        <SectionCard label="Setores" padding="sm" className="tw-rounded-[20px] tw-px-5 tw-py-5">
           <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
             <div className="tw-min-w-0">
-              <h2 className={`tw-m-0 tw-text-base tw-font-bold ${appV2Tone.text}`}>Setores</h2>
-              <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
-                Organize equipamentos por area operacional local.
+              <h2 className={`tw-m-0 tw-text-lg tw-font-bold ${appV2Text.primary}`}>Setores</h2>
+              <p className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-medium ${appV2Text.subtle}`}>
+                Organize equipamentos por área operacional local.
               </p>
             </div>
             <button
               type="button"
               onClick={openNewSectorForm}
-              className={`tw-shrink-0 tw-rounded-xl tw-border tw-bg-white tw-px-4 tw-py-3 tw-text-sm tw-font-bold tw-text-[#2563EB] ${appV2Tone.border} ${appV2Tone.focus}`}
+              className={`tw-inline-flex tw-min-h-8 tw-shrink-0 tw-items-center tw-gap-2 tw-rounded-full tw-border tw-bg-[#F1F5F9] tw-px-4 tw-text-xs tw-font-bold tw-text-[#1E4F8A] ${appV2Border.default} ${appV2Focus}`}
             >
+              <FontAwesomeIcon icon={faCirclePlus} className="tw-h-3 tw-w-3" aria-hidden="true" />
               Novo setor
             </button>
           </div>
@@ -281,7 +292,7 @@ export function EquipmentList({
               </label>
 
               <label className={`tw-grid tw-gap-2 tw-text-sm tw-font-semibold ${appV2Tone.text}`}>
-                Responsavel
+                Responsável
                 <input
                   name="equipment-sector-owner"
                   value={sectorForm.responsavel ?? ''}
@@ -317,64 +328,81 @@ export function EquipmentList({
             </form>
           ) : null}
 
-          <div className="tw-mt-4 tw-grid tw-gap-2 md:tw-grid-cols-2">
+          <div className="tw-mt-3 tw-divide-y tw-divide-[#EDF2F7]">
             {equipmentInput.setores?.map((setor) => (
               <div
                 key={setor.id}
-                className={`tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-3 ${appV2Tone.border}`}
+                className="tw-flex tw-flex-col tw-gap-3 tw-py-3 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between"
               >
-                <div className="tw-flex tw-items-start tw-justify-between tw-gap-3">
-                  <div className="tw-min-w-0">
-                    <p className={`tw-m-0 tw-text-sm tw-font-bold ${appV2Tone.text}`}>
-                      {setor.nome}
-                    </p>
-                    <p
-                      className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-semibold ${appV2Tone.mutedText}`}
-                    >
-                      {formatSectorClientName(setor.clienteId, equipmentInput.clientes)}
-                    </p>
-                  </div>
+                <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
                   <span
-                    className="tw-h-5 tw-w-5 tw-shrink-0 tw-rounded-full tw-border tw-border-white tw-shadow-sm"
+                    className="tw-h-3 tw-w-3 tw-shrink-0 tw-rounded-full"
                     style={{ backgroundColor: setor.cor ?? '#2563EB' }}
                     aria-hidden="true"
                   />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => openEditSectorForm(setor.id)}
-                  className={`tw-mt-3 tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#2563EB] ${appV2Tone.border} ${appV2Tone.focus}`}
-                >
-                  Editar setor {setor.nome}
-                </button>
-                {onDeleteSector ? (
-                  sectorPendingRemovalId === setor.id ? (
-                    <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
-                      <button
-                        type="button"
-                        onClick={() => confirmSectorRemoval(setor.id)}
-                        className={`tw-rounded-xl tw-bg-[#B91C1C] tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-white ${appV2Tone.focus}`}
-                      >
-                        Confirmar remover setor {setor.nome}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSectorPendingRemovalId(null)}
-                        className={`tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold ${appV2Tone.border} ${appV2Tone.mutedText} ${appV2Tone.focus}`}
-                      >
-                        Cancelar remocao
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => requestSectorRemoval(setor.id)}
-                      className={`tw-mt-3 tw-rounded-xl tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#B91C1C] ${appV2Tone.border} ${appV2Tone.focus}`}
+                  <span className="tw-min-w-0">
+                    <span
+                      className={`tw-block tw-truncate tw-text-sm tw-font-bold ${appV2Text.primary}`}
                     >
-                      Remover setor {setor.nome}
-                    </button>
-                  )
-                ) : null}
+                      {setor.nome}
+                    </span>
+                    <span
+                      className={`tw-mt-0.5 tw-block tw-truncate tw-text-xs tw-font-medium ${appV2Text.muted}`}
+                    >
+                      {formatSectorClientName(setor.clienteId, equipmentInput.clientes)}
+                    </span>
+                  </span>
+                </div>
+                <div className="tw-flex tw-flex-wrap tw-gap-4 sm:tw-justify-end">
+                  <button
+                    type="button"
+                    onClick={() => openEditSectorForm(setor.id)}
+                    aria-label={`Editar setor ${setor.nome}`}
+                    className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-[#2563EB] ${appV2Focus}`}
+                  >
+                    <FontAwesomeIcon
+                      icon={faPenToSquare}
+                      className="tw-h-3 tw-w-3"
+                      aria-hidden="true"
+                    />
+                    Editar setor<span className="tw-sr-only"> {setor.nome}</span>
+                  </button>
+                  {onDeleteSector ? (
+                    sectorPendingRemovalId === setor.id ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => confirmSectorRemoval(setor.id)}
+                          aria-label={`Confirmar remover setor ${setor.nome}`}
+                          className={`tw-rounded-lg tw-bg-[#B91C1C] tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-white ${appV2Focus}`}
+                        >
+                          Confirmar<span className="tw-sr-only"> remover setor {setor.nome}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSectorPendingRemovalId(null)}
+                          className={`tw-rounded-lg tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold ${appV2Border.default} ${appV2Text.muted} ${appV2Focus}`}
+                        >
+                          Cancelar remoção
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => requestSectorRemoval(setor.id)}
+                        aria-label={`Remover setor ${setor.nome}`}
+                        className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-bold tw-text-[#DC2626] ${appV2Focus}`}
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrashCan}
+                          className="tw-h-3 tw-w-3"
+                          aria-hidden="true"
+                        />
+                        Remover setor<span className="tw-sr-only"> {setor.nome}</span>
+                      </button>
+                    )
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>
@@ -384,7 +412,7 @@ export function EquipmentList({
       <EquipmentSubViewNav activeView={activeView} onSelectView={onSelectView} />
 
       <SectionCard
-        className="tw-overflow-hidden sm:tw-p-5"
+        className={`tw-overflow-hidden tw-rounded-[20px] tw-px-5 tw-py-4 ${appV2Shadow.card}`}
         label="Controles da lista de equipamentos"
         padding="sm"
       >
@@ -394,14 +422,23 @@ export function EquipmentList({
         >
           Buscar
         </label>
-        <input
-          id="equipment-search"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Nome, cliente, local ou tag"
-          className={`tw-mt-2 tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-base tw-font-medium tw-text-[#061635] placeholder:tw-text-[#697A99] ${appV2Tone.border} ${appV2Tone.focus}`}
-        />
+        <div
+          className={`tw-mt-2 tw-flex tw-min-h-11 tw-items-center tw-gap-3 tw-rounded-full tw-border tw-bg-[#F8FAFE] tw-px-4 ${appV2Border.default}`}
+        >
+          <FontAwesomeIcon
+            icon={faMagnifyingGlass}
+            className="tw-h-3.5 tw-w-3.5 tw-text-[#8BA0BC]"
+            aria-hidden="true"
+          />
+          <input
+            id="equipment-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Nome, cliente, local ou tag"
+            className={`tw-min-h-10 tw-min-w-0 tw-flex-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-sm tw-font-medium tw-text-[#061635] placeholder:tw-text-[#697A99] focus:tw-outline-none`}
+          />
+        </div>
 
         <div
           className="tw-mt-4 tw-flex tw-w-full tw-min-w-0 tw-flex-wrap tw-gap-2 tw-pb-1"
@@ -417,8 +454,8 @@ export function EquipmentList({
                 onClick={() => setFilter(item.id)}
                 className={`tw-shrink-0 tw-rounded-xl tw-border tw-px-3 tw-py-2 tw-text-sm tw-font-semibold ${appV2Tone.focus} ${
                   isActive
-                    ? 'tw-border-[#2563EB] tw-bg-[#EFF6FF] tw-text-[#2563EB]'
-                    : `tw-bg-white ${appV2Tone.border} ${appV2Tone.mutedText}`
+                    ? 'tw-border-[#1E4F8A] tw-bg-[#1E4F8A] tw-text-white'
+                    : `tw-border-transparent tw-bg-[#F1F5F9] tw-text-[#1E4F8A]`
                 }`}
                 aria-pressed={isActive}
               >
@@ -429,29 +466,43 @@ export function EquipmentList({
         </div>
 
         <label
-          className={`tw-mt-4 tw-block tw-text-sm tw-font-semibold ${appV2Tone.text}`}
+          className={`tw-mt-4 tw-block tw-text-sm tw-font-semibold ${appV2Text.primary}`}
           htmlFor="equipment-sector-filter"
         >
           Setor
         </label>
-        <select
-          id="equipment-sector-filter"
-          name="equipment-sector-filter"
-          value={sectorId}
-          onChange={(event) => setSectorId(event.target.value)}
-          className={`tw-mt-2 tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-base tw-font-medium tw-text-[#061635] ${appV2Tone.border} ${appV2Tone.focus}`}
+        <div
+          className={`tw-mt-2 tw-inline-flex tw-w-full tw-items-center tw-gap-2 tw-rounded-full tw-border tw-bg-[#F8FAFE] tw-px-4 sm:tw-w-auto ${appV2Border.default}`}
         >
-          <option value="all">Todos os setores</option>
-          <option value="__sem_setor__">Sem setor</option>
-          {equipmentInput.setores?.map((setor) => (
-            <option key={setor.id} value={setor.id}>
-              {setor.nome}
-            </option>
-          ))}
-        </select>
+          <FontAwesomeIcon
+            icon={faLocationDot}
+            className="tw-h-3.5 tw-w-3.5 tw-text-[#1E4F8A]"
+            aria-hidden="true"
+          />
+          <select
+            id="equipment-sector-filter"
+            name="equipment-sector-filter"
+            value={sectorId}
+            onChange={(event) => setSectorId(event.target.value)}
+            className={`tw-min-h-9 tw-min-w-0 tw-flex-1 tw-appearance-none tw-border-0 tw-bg-transparent tw-pr-6 tw-text-sm tw-font-semibold tw-text-[#071A33] focus:tw-outline-none sm:tw-flex-none`}
+          >
+            <option value="all">Todos os setores</option>
+            <option value="__sem_setor__">Sem setor</option>
+            {equipmentInput.setores?.map((setor) => (
+              <option key={setor.id} value={setor.id}>
+                {setor.nome}
+              </option>
+            ))}
+          </select>
+          <FontAwesomeIcon
+            icon={faChevronDown}
+            className="tw-h-3 tw-w-3 tw-text-[#1E4F8A]"
+            aria-hidden="true"
+          />
+        </div>
       </SectionCard>
 
-      <section className="tw-grid tw-gap-3 xl:tw-grid-cols-2" aria-label="Lista de equipamentos">
+      <section className="tw-grid tw-gap-5 xl:tw-grid-cols-2" aria-label="Lista de equipamentos">
         {viewModel.items.length === 0 ? (
           <SectionCard
             className={`tw-text-sm tw-font-medium tw-leading-6 xl:tw-col-span-2 ${appV2Tone.mutedText}`}

@@ -1,9 +1,10 @@
 import { useState, type ReactNode } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 
 import type { SaveEquipmentDraft } from './equipmentActions';
 import type { Cliente, EquipmentStatus, Equipamento, SetorEquipamento } from '../domain/types';
-import { appV2Tone } from '../styles/tokens';
-import { ActionButton, SectionCard } from '../ui/primitives';
+import { appV2Border, appV2Focus, appV2Shadow, appV2Text } from '../styles/tokens';
 
 interface EquipmentFormProps {
   title: string;
@@ -54,26 +55,32 @@ export function EquipmentForm({
   const visibleError = localError ?? error;
 
   return (
-    <SectionCard labelledBy="equipment-form-title" className="tw-grid tw-gap-4">
+    <section
+      aria-labelledby="equipment-form-title"
+      className={`tw-mb-6 tw-rounded-[20px] tw-border tw-bg-white tw-p-6 ${appV2Border.default} ${appV2Shadow.card}`}
+    >
       <div>
-        <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
+        <p className="tw-m-0 tw-mb-3 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-semibold tw-uppercase tw-tracking-[0.05em] tw-text-[#1E4F8A]">
           Cadastro local
         </p>
         <h2
           id="equipment-form-title"
-          className={`tw-m-0 tw-mt-2 tw-text-xl tw-font-bold ${appV2Tone.text}`}
+          className={`tw-m-0 tw-text-xl tw-font-bold ${appV2Text.primary}`}
         >
           {title}
         </h2>
+        <p className={`tw-m-0 tw-mt-1 tw-text-xs tw-leading-relaxed ${appV2Text.muted}`}>
+          Preencha os dados básicos para adicionar o equipamento ao parque técnico.
+        </p>
       </div>
 
       {visibleError ? (
-        <p className="tw-m-0 tw-rounded-xl tw-border tw-border-[#FCA5A5] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#B91C1C]">
+        <p className="tw-m-0 tw-mt-6 tw-rounded-xl tw-border tw-border-[#FCA5A5] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#B91C1C]">
           {visibleError}
         </p>
       ) : null}
 
-      <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
+      <div className="tw-mt-6 tw-grid tw-gap-x-7 tw-gap-y-5 lg:tw-grid-cols-2">
         <Field label="Nome" htmlFor="equipment-name">
           <input
             id="equipment-name"
@@ -91,7 +98,7 @@ export function EquipmentForm({
             value={local}
             onChange={(event) => setLocal(event.target.value)}
             className={inputClass}
-            placeholder="Ex.: Recepcao"
+            placeholder="Ex.: Recepção"
           />
         </Field>
         <Field label="Tipo" htmlFor="equipment-type">
@@ -101,7 +108,7 @@ export function EquipmentForm({
             value={tipo}
             onChange={(event) => setTipo(event.target.value)}
             className={inputClass}
-            placeholder="Ex.: Refrigeracao"
+            placeholder="Ex.: Refrigeração"
           />
         </Field>
         <Field label="Tag" htmlFor="equipment-tag">
@@ -155,19 +162,30 @@ export function EquipmentForm({
             className={inputClass}
           >
             <option value="ok">Operacional</option>
-            <option value="warn">Atencao</option>
-            <option value="danger">Critico</option>
+            <option value="warn">Atenção</option>
+            <option value="danger">Crítico</option>
           </select>
         </Field>
       </div>
 
-      <div className="tw-flex tw-flex-col-reverse tw-gap-3 sm:tw-flex-row sm:tw-justify-end">
-        <ActionButton variant="secondary" onClick={onCancel}>
+      <div className="tw-mt-6 tw-flex tw-flex-col-reverse tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-5 sm:tw-flex-row sm:tw-justify-end">
+        <button
+          type="button"
+          onClick={onCancel}
+          className={`tw-min-h-10 tw-rounded-xl tw-border tw-border-[#CBD5E1] tw-bg-transparent tw-px-5 tw-text-xs tw-font-medium ${appV2Text.muted} ${appV2Focus}`}
+        >
           Cancelar
-        </ActionButton>
-        <ActionButton onClick={submit}>Salvar equipamento</ActionButton>
+        </button>
+        <button
+          type="button"
+          onClick={submit}
+          className={`tw-inline-flex tw-min-h-10 tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border tw-border-[#2563EB] tw-bg-[#2563EB] tw-px-5 tw-text-xs tw-font-semibold tw-text-white ${appV2Focus}`}
+        >
+          <FontAwesomeIcon icon={faSave} aria-hidden="true" className="tw-text-[0.8rem]" />
+          Salvar equipamento
+        </button>
       </div>
-    </SectionCard>
+    </section>
   );
 }
 
@@ -182,7 +200,7 @@ function Field({
 }) {
   return (
     <label
-      className={`tw-grid tw-gap-2 tw-text-sm tw-font-semibold ${appV2Tone.text}`}
+      className="tw-grid tw-gap-1.5 tw-text-[0.7rem] tw-font-semibold tw-uppercase tw-tracking-[0.03em] tw-text-[#1E4F8A]"
       htmlFor={htmlFor}
     >
       {label}
@@ -191,4 +209,4 @@ function Field({
   );
 }
 
-const inputClass = `tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-base tw-font-medium tw-text-[#061635] placeholder:tw-text-[#697A99] ${appV2Tone.border} ${appV2Tone.focus}`;
+const inputClass = `tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-border-[#E2E8F0] tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-normal-case tw-tracking-normal tw-text-[#071A33] placeholder:tw-font-normal placeholder:tw-text-[#9AADCA] ${appV2Focus}`;
