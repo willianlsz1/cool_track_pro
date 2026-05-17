@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faCheckCircle, faTools } from '@fortawesome/free-solid-svg-icons';
 
-import type { ServiceRecordKind } from '../domain/types';
 import { appV2Tone } from '../styles/tokens';
 import { PageShell } from '../ui/primitives';
 import { ServiceDone } from './ServiceDone';
@@ -11,6 +10,7 @@ import { ServiceStepExecution } from './ServiceStepExecution';
 import { ServiceStepReview } from './ServiceStepReview';
 import { ServiceStepType } from './ServiceStepType';
 import {
+  applyServiceQuickSuggestion,
   buildServiceContextViewModel,
   buildServiceDoneViewModel,
   buildServiceReviewViewModel,
@@ -18,6 +18,7 @@ import {
   type BuildServiceFlowInput,
   type ServiceDraft,
   type ServiceFlowStep,
+  type ServiceQuickSuggestionId,
 } from './serviceFlowViewModel';
 import { buildServiceReportViewModel } from './serviceReportViewModel';
 
@@ -57,12 +58,8 @@ export function ServiceFlow({
     onDraftChange(nextDraft);
   }
 
-  function selectKind(kind: ServiceRecordKind) {
-    updateDraft({
-      ...draft,
-      kind,
-      customKind: kind === 'outro' ? draft.customKind : '',
-    });
+  function selectQuickSuggestion(suggestionId: ServiceQuickSuggestionId) {
+    updateDraft(applyServiceQuickSuggestion(draft, suggestionId));
   }
 
   function updateCustomKind(customKind: string) {
@@ -142,7 +139,7 @@ export function ServiceFlow({
           onBack={previousStep}
           onContinue={nextStep}
           onCustomKindChange={updateCustomKind}
-          onSelectKind={selectKind}
+          onSelectQuickSuggestion={selectQuickSuggestion}
         />
       ) : null}
 

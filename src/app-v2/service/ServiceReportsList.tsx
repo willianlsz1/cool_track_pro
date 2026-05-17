@@ -1,16 +1,34 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCalendarAlt,
+  faCheckCircle,
+  faClock,
+  faExclamationTriangle,
+  faFileAlt,
+  faFlagCheckered,
+  faTimesCircle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { appV2Tone } from '../styles/tokens';
 import { SectionCard } from '../ui/primitives';
-import type { ServicesReportListItemViewModel } from './servicesReportsViewModel';
+import type {
+  ServicesReportListItemViewModel,
+  ServiceReportListStatus,
+} from './servicesReportsViewModel';
 
 interface ServiceReportsListProps {
   items: ServicesReportListItemViewModel[];
+  selectedReportId?: string | null;
   onOpenReport: (reportId: string) => void;
+  onSelectReport: (reportId: string) => void;
 }
 
-export function ServiceReportsList({ items, onOpenReport }: ServiceReportsListProps) {
+export function ServiceReportsList({
+  items,
+  selectedReportId,
+  onOpenReport,
+  onSelectReport,
+}: ServiceReportsListProps) {
   if (items.length === 0) {
     return (
       <div data-testid="service-report-list">
@@ -24,83 +42,110 @@ export function ServiceReportsList({ items, onOpenReport }: ServiceReportsListPr
   }
 
   return (
-    <div data-testid="service-report-list">
-      <SectionCard className="tw-overflow-hidden tw-p-0" labelledBy="service-reports-list-title">
-        <div className="tw-px-5 tw-py-4">
-          <h2
-            id="service-reports-list-title"
-            className={`tw-m-0 tw-text-[0.8rem] tw-font-semibold tw-uppercase ${appV2Tone.text}`}
+    <div data-testid="service-report-list" className="tw-grid tw-gap-4">
+      {items.map((item) => (
+        <article
+          key={item.id}
+          className={`tw-rounded-2xl tw-border tw-border-l-[6px] tw-bg-white tw-p-5 tw-shadow-sm tw-transition hover:tw--translate-y-0.5 hover:tw-shadow-lg ${getStatusBorderClass(
+            item.status,
+          )} ${selectedReportId === item.id ? 'tw-ring-2 tw-ring-[#2563EB]/20' : ''}`}
+        >
+          <button
+            type="button"
+            className="tw-w-full tw-border-0 tw-bg-transparent tw-p-0 tw-text-left"
+            onClick={() => onSelectReport(item.id)}
           >
-            Relatórios · Lista operacional
-          </h2>
-        </div>
-
-        <div className="tw-hidden tw-grid-cols-[1fr_1.05fr_1.05fr_0.72fr_0.72fr_0.78fr] tw-gap-4 tw-bg-[#F8FAFE] tw-px-5 tw-py-3 tw-text-[0.75rem] tw-font-semibold tw-uppercase tw-text-[#1E4F8A] lg:tw-grid">
-          <span>Relatório</span>
-          <span>Cliente</span>
-          <span>Equipamento</span>
-          <span>Tipo</span>
-          <span>Status</span>
-          <span className="tw-text-right">Ação</span>
-        </div>
-
-        <div>
-          {items.map((item) => (
-            <article
-              key={item.id}
-              className="tw-grid tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-px-5 tw-py-4 first:tw-border-t-0 lg:tw-grid-cols-[1fr_1.05fr_1.05fr_0.72fr_0.72fr_0.78fr] lg:tw-items-start lg:tw-gap-4"
-            >
-              <div>
-                <p className={`tw-m-0 tw-text-[0.75rem] tw-font-bold ${appV2Tone.text}`}>
-                  {item.reportId}
-                </p>
-                <p className={`tw-m-0 tw-mt-1 tw-text-[0.65rem] ${appV2Tone.subtleText}`}>
-                  {item.dateLabel}
-                </p>
-              </div>
-              <p className={`tw-m-0 tw-text-[0.75rem] tw-font-normal ${appV2Tone.text}`}>
-                {item.customerName}
-              </p>
-              <p className={`tw-m-0 tw-text-[0.75rem] tw-font-normal ${appV2Tone.text}`}>
-                {item.equipmentName}
-              </p>
-              <p className={`tw-m-0 tw-text-[0.75rem] tw-font-normal ${appV2Tone.text}`}>
-                {item.kindLabel}
-              </p>
-              <div>
+            <div className="tw-flex tw-flex-wrap tw-items-start tw-justify-between tw-gap-3">
+              <div className="tw-min-w-0">
                 <ReportStatusBadge item={item} />
-              </div>
-              <div className="tw-flex lg:tw-justify-start">
-                <button
-                  type="button"
-                  className={`tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border-0 tw-bg-transparent tw-p-0 tw-text-[0.7rem] tw-font-semibold tw-text-[#2563EB] ${appV2Tone.focus}`}
-                  onClick={() => onOpenReport(item.id)}
+                <h3 className={`tw-m-0 tw-mt-2 tw-text-lg tw-font-bold ${appV2Tone.text}`}>
+                  {item.reportId}
+                </h3>
+                <p
+                  className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-medium tw-leading-5 ${appV2Tone.mutedText}`}
                 >
-                  <FontAwesomeIcon icon={faFileAlt} className="tw-text-[0.72rem]" />
-                  Ver relatório
-                </button>
+                  {item.kindLabel} · {item.equipmentLine} · {item.customerName}
+                </p>
               </div>
-            </article>
-          ))}
-        </div>
-      </SectionCard>
+              <span className="tw-inline-flex tw-rounded-xl tw-bg-[#2563EB] tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-white">
+                Abrir relatório
+              </span>
+            </div>
+          </button>
+
+          <div
+            className={`tw-mt-3 tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-2 tw-border-t tw-border-[#EDF2F7] tw-pt-3 tw-text-sm ${appV2Tone.mutedText}`}
+          >
+            <span className="tw-inline-flex tw-items-center tw-gap-1">
+              <FontAwesomeIcon icon={faCalendarAlt} aria-hidden="true" />
+              {item.dateLabel}
+            </span>
+            <span>Técnico: {item.technicianName}</span>
+            <span className="tw-inline-flex tw-items-center tw-gap-1">
+              <FontAwesomeIcon
+                icon={item.status === 'atencao' ? faExclamationTriangle : faFlagCheckered}
+                className={item.status === 'atencao' ? 'tw-text-[#D97706]' : ''}
+                aria-hidden="true"
+              />
+              {item.statusHint}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className={`tw-mt-4 tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-[#1E4F8A] ${appV2Tone.focus}`}
+            onClick={() => onOpenReport(item.id)}
+          >
+            <FontAwesomeIcon icon={faFileAlt} aria-hidden="true" />
+            Ver relatório
+          </button>
+        </article>
+      ))}
     </div>
   );
 }
 
 function ReportStatusBadge({ item }: { item: ServicesReportListItemViewModel }) {
-  const statusClass = {
-    atencao: 'tw-bg-[#FFFBEB] tw-text-[#D97706]',
-    pendente: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
-    pronto: 'tw-bg-[#F0FDF4] tw-text-[#16A34A]',
-  }[item.status];
-  const statusLabel = item.status === 'pendente' ? 'Pendente' : item.statusLabel;
+  const statusMeta: Record<
+    ServiceReportListStatus,
+    { className: string; icon: typeof faCheckCircle; label: string }
+  > = {
+    atencao: {
+      className: 'tw-bg-[#FFFBEB] tw-text-[#D97706]',
+      icon: faClock,
+      label: 'Atenção',
+    },
+    pendente: {
+      className: 'tw-bg-[#FEF2F2] tw-text-[#DC2626]',
+      icon: faTimesCircle,
+      label: 'Pendente',
+    },
+    pronto: {
+      className: 'tw-bg-[#F0FDF4] tw-text-[#16A34A]',
+      icon: faCheckCircle,
+      label: 'Pronto',
+    },
+  };
+  const meta = statusMeta[item.status];
 
   return (
     <span
-      className={`tw-inline-flex tw-rounded-full tw-px-2.5 tw-py-1 tw-text-[0.65rem] tw-font-semibold ${statusClass}`}
+      className={`tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold ${meta.className}`}
     >
-      {statusLabel}
+      <FontAwesomeIcon icon={meta.icon} aria-hidden="true" />
+      {meta.label}
     </span>
   );
+}
+
+function getStatusBorderClass(status: ServiceReportListStatus): string {
+  if (status === 'atencao') {
+    return 'tw-border-l-[#D97706]';
+  }
+
+  if (status === 'pendente') {
+    return 'tw-border-l-[#DC2626]';
+  }
+
+  return 'tw-border-l-[#16A34A]';
 }

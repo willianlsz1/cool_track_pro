@@ -11,6 +11,13 @@ import type {
 
 export type ServiceFlowStep = 'context' | 'type' | 'execution' | 'review' | 'done';
 export type ServiceTone = 'danger' | 'warning' | 'success' | 'primary';
+export type ServiceQuickSuggestionId =
+  | 'limpeza-preventiva'
+  | 'recarga-gas'
+  | 'troca-filtro'
+  | 'inspecao-tecnica'
+  | 'instalacao'
+  | 'outro-atendimento';
 
 export interface ServiceDraft {
   equipmentId: string;
@@ -18,6 +25,7 @@ export interface ServiceDraft {
   commitmentId?: string;
   kind?: ServiceRecordKind;
   customKind: string;
+  quickSuggestionId?: ServiceQuickSuggestionId;
   technician: string;
   diagnosis: string;
   actionsDone: string;
@@ -51,11 +59,23 @@ export interface ServiceTypeOptionViewModel {
   description: string;
 }
 
+export interface ServiceQuickSuggestionViewModel {
+  id: ServiceQuickSuggestionId;
+  title: string;
+  kind: ServiceRecordKind;
+  kindLabel: string;
+  tone: ServiceTone;
+  summary: string;
+  suggestedActions: string;
+  selected: boolean;
+}
+
 export interface ServiceTypeViewModel {
   title: 'Tipo de serviço';
   selectedKind?: ServiceRecordKind;
   customKind: string;
   customKindMaxLength: 40;
+  quickSuggestions: ServiceQuickSuggestionViewModel[];
   canContinue: boolean;
   options: ServiceTypeOptionViewModel[];
 }
@@ -114,6 +134,83 @@ const serviceTypeOptions: ServiceTypeOptionViewModel[] = [
 
 export const serviceCustomKindMaxLength = 40;
 
+const serviceQuickSuggestions = [
+  {
+    id: 'limpeza-preventiva',
+    title: 'Limpeza preventiva',
+    kind: 'preventiva',
+    tone: 'success',
+    summary: 'Preventiva - filtros, inspeção visual e teste funcional.',
+    diagnosis:
+      'Acúmulo de sujeira nos filtros e necessidade de limpeza preventiva para manter o fluxo de ar adequado.',
+    actionsDone:
+      'Limpeza dos filtros de ar, inspeção visual do equipamento e teste funcional após o atendimento.',
+    suggestedActions: 'Limpeza de filtros, inspeção visual e teste funcional.',
+  },
+  {
+    id: 'recarga-gas',
+    title: 'Recarga de gás',
+    kind: 'corretiva',
+    tone: 'danger',
+    summary: 'Corretiva - baixo rendimento e verificação de pressão.',
+    diagnosis:
+      'Baixo rendimento do equipamento, com suspeita de carga insuficiente de fluido refrigerante.',
+    actionsDone:
+      'Verificação de pressão, correção da carga de fluido conforme necessidade e teste de funcionamento.',
+    suggestedActions: 'Verificação de pressão, recarga e teste de estanqueidade.',
+  },
+  {
+    id: 'troca-filtro',
+    title: 'Troca de filtro',
+    kind: 'preventiva',
+    tone: 'success',
+    summary: 'Preventiva - filtro saturado ou com acúmulo de impurezas.',
+    diagnosis: 'Filtro saturado ou com acúmulo de impurezas, reduzindo o fluxo de ar.',
+    actionsDone: 'Substituição ou limpeza do filtro e teste de fluxo de ar após o atendimento.',
+    suggestedActions: 'Substituição ou limpeza do filtro e teste de fluxo.',
+  },
+  {
+    id: 'inspecao-tecnica',
+    title: 'Inspeção técnica',
+    kind: 'visita',
+    tone: 'warning',
+    summary: 'Visita - avaliação técnica sem manutenção completa.',
+    diagnosis: 'Avaliação técnica solicitada para verificar a condição operacional do equipamento.',
+    actionsDone: 'Inspeção visual, checagens básicas e orientação técnica ao cliente.',
+    suggestedActions: 'Inspeção visual, medições e orientação técnica.',
+  },
+  {
+    id: 'instalacao',
+    title: 'Instalação',
+    kind: 'instalacao',
+    tone: 'primary',
+    summary: 'Instalação ou substituição de equipamento.',
+    diagnosis:
+      'Equipamento preparado para instalação ou substituição conforme necessidade do cliente.',
+    actionsDone: 'Montagem, conexão, verificações iniciais e teste final de funcionamento.',
+    suggestedActions: 'Montagem, conexão, carga e teste final.',
+  },
+  {
+    id: 'outro-atendimento',
+    title: 'Outro atendimento',
+    kind: 'outro',
+    tone: 'primary',
+    summary: 'Manual - use quando nenhuma sugestão rápida descrever o serviço.',
+    diagnosis: '',
+    actionsDone: '',
+    suggestedActions: 'Não preenche diagnóstico nem ações.',
+  },
+] satisfies Array<{
+  id: ServiceQuickSuggestionId;
+  title: string;
+  kind: ServiceRecordKind;
+  tone: ServiceTone;
+  summary: string;
+  diagnosis: string;
+  actionsDone: string;
+  suggestedActions: string;
+}>;
+
 export function createServiceDraft(
   input: BuildServiceFlowInput,
   equipmentId: string,
@@ -131,6 +228,7 @@ export function createServiceDraft(
     commitmentId: commitment?.id,
     kind: commitment?.tipo,
     customKind: '',
+    quickSuggestionId: undefined,
     technician: '',
     diagnosis: '',
     actionsDone: '',
@@ -148,6 +246,7 @@ export function createServiceDraftFromRecord(registro: RegistroServico): Service
     serviceDate: registro.data,
     kind: registro.tipo,
     customKind: normalizeCustomRecordKind(registro),
+    quickSuggestionId: undefined,
     technician: registro.tecnico,
     diagnosis: registro.diagnostico ?? registro.observacoes ?? '',
     actionsDone: registro.acoesExecutadas ?? registro.observacoes ?? '',
@@ -186,9 +285,45 @@ export function buildServiceTypeViewModel(draft: ServiceDraft): ServiceTypeViewM
     selectedKind: draft.kind,
     customKind: draft.customKind,
     customKindMaxLength: serviceCustomKindMaxLength,
+    quickSuggestions: serviceQuickSuggestions.map((suggestion) => ({
+      id: suggestion.id,
+      title: suggestion.title,
+      kind: suggestion.kind,
+      kindLabel: formatRecordKind(suggestion.kind, ''),
+      tone: suggestion.tone,
+      summary: suggestion.summary,
+      suggestedActions: suggestion.suggestedActions,
+      selected: draft.quickSuggestionId === suggestion.id,
+    })),
     canContinue: canContinueServiceType(draft),
     options: serviceTypeOptions,
   };
+}
+
+export function applyServiceQuickSuggestion(
+  draft: ServiceDraft,
+  suggestionId: ServiceQuickSuggestionId,
+): ServiceDraft {
+  const suggestion = serviceQuickSuggestions.find((item) => item.id === suggestionId);
+
+  if (!suggestion) {
+    return draft;
+  }
+
+  return {
+    ...draft,
+    kind: suggestion.kind,
+    customKind: suggestion.kind === 'outro' ? draft.customKind : '',
+    quickSuggestionId: suggestion.id,
+    diagnosis: suggestion.diagnosis,
+    actionsDone: suggestion.actionsDone,
+  };
+}
+
+export function getServiceQuickSuggestionTitle(
+  suggestionId: ServiceQuickSuggestionId | undefined,
+): string | undefined {
+  return serviceQuickSuggestions.find((item) => item.id === suggestionId)?.title;
 }
 
 export function buildServiceReviewViewModel(

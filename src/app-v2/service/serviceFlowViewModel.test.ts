@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { Cliente, CompromissoServico, Equipamento, RegistroServico } from '../domain/types';
 import {
+  applyServiceQuickSuggestion,
   buildServiceContextViewModel,
   buildServiceDoneViewModel,
   buildServiceReviewViewModel,
@@ -152,6 +153,69 @@ describe('serviceFlowViewModel', () => {
     expect(buildServiceDoneViewModel(input, validCustomDraft).summary).toBe(
       'Outro · Higienizacao registrada para Split 24.000 BTU.',
     );
+  });
+
+  it('lista sugestoes rapidas e marca a sugestao selecionada', () => {
+    const draft = applyServiceQuickSuggestion(
+      createServiceDraft(input, 'eq-1'),
+      'limpeza-preventiva',
+    );
+    const viewModel = buildServiceTypeViewModel(draft);
+
+    expect(viewModel.quickSuggestions).toHaveLength(6);
+    expect(viewModel.quickSuggestions[0]).toMatchObject({
+      id: 'limpeza-preventiva',
+      title: 'Limpeza preventiva',
+      kind: 'preventiva',
+      kindLabel: 'Preventiva',
+      selected: true,
+    });
+    expect(viewModel.quickSuggestions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'outro-atendimento',
+          title: 'Outro atendimento',
+          kind: 'outro',
+          suggestedActions: 'Não preenche diagnóstico nem ações.',
+        }),
+      ]),
+    );
+  });
+
+  it('aplica sugestao rapida preenchendo tipo, diagnostico e acoes editaveis', () => {
+    const draft = applyServiceQuickSuggestion(createServiceDraft(input, 'eq-1'), 'recarga-gas');
+
+    expect(draft).toMatchObject({
+      kind: 'corretiva',
+      customKind: '',
+      quickSuggestionId: 'recarga-gas',
+      diagnosis:
+        'Baixo rendimento do equipamento, com suspeita de carga insuficiente de fluido refrigerante.',
+      actionsDone:
+        'Verificação de pressão, correção da carga de fluido conforme necessidade e teste de funcionamento.',
+    });
+  });
+
+  it('aplica outro atendimento sem preencher diagnostico nem acoes', () => {
+    const draft = applyServiceQuickSuggestion(
+      {
+        ...createServiceDraft(input, 'eq-1'),
+        diagnosis: 'Texto anterior',
+        actionsDone: 'Acao anterior',
+      },
+      'outro-atendimento',
+    );
+
+    expect(draft).toMatchObject({
+      kind: 'outro',
+      quickSuggestionId: 'outro-atendimento',
+      diagnosis: '',
+      actionsDone: '',
+    });
+    expect(buildServiceTypeViewModel(draft)).toMatchObject({
+      selectedKind: 'outro',
+      canContinue: false,
+    });
   });
 });
 

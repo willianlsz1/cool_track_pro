@@ -19,12 +19,18 @@ export interface ServicesReportListItemViewModel {
   reportId: string;
   customerName: string;
   equipmentName: string;
+  equipmentLine: string;
   kindLabel: string;
   date: string;
   dateLabel: string;
   status: ServiceReportListStatus;
   statusLabel: 'Pronto' | 'Pendente de revisão' | 'Atenção';
   statusTone: ServiceHomeTone;
+  technicianName: string;
+  diagnosisText: string;
+  actionsText: string;
+  nextMaintenanceLabel: string;
+  statusHint: string;
   partsUsed?: string;
   partsCost?: string;
   laborCost?: string;
@@ -36,6 +42,7 @@ export interface BuildServicesReportsFilters {
   period?: ServicePeriodFilter;
   clientId?: string;
   equipmentId?: string;
+  status?: ServiceReportListStatus | 'all';
 }
 
 export interface ServicesReportsFilterOptions {
@@ -120,6 +127,7 @@ function normalizeFilters(filtersOrQuery: BuildServicesReportsFilters | string) 
     period: filters.period ?? 'all',
     clientId: filters.clientId ?? 'all',
     equipmentId: filters.equipmentId ?? 'all',
+    status: filters.status ?? 'all',
   };
 }
 
@@ -128,7 +136,8 @@ function isActiveFilters(filters: Required<BuildServicesReportsFilters>): boolea
     filters.query.trim().length > 0 ||
     filters.period !== 'all' ||
     filters.clientId !== 'all' ||
-    filters.equipmentId !== 'all'
+    filters.equipmentId !== 'all' ||
+    filters.status !== 'all'
   );
 }
 
@@ -148,6 +157,10 @@ function matchesReportFilters(
   }
 
   if (filters.equipmentId !== 'all' && registro.equipamentoId !== filters.equipmentId) {
+    return false;
+  }
+
+  if (filters.status !== 'all' && mapReportStatus(registro) !== filters.status) {
     return false;
   }
 
@@ -176,19 +189,36 @@ function mapReportItem(
   const statusMeta = getStatusMeta(status);
   const customerName = cliente?.nome ?? 'Sem cliente vinculado';
   const equipmentName = equipamento?.nome ?? 'Equipamento não encontrado';
+  const equipmentLine = equipamento
+    ? [equipmentName, equipamento.local].filter(Boolean).join(' · ')
+    : equipmentName;
   const reportId = `REL-${registro.id.toUpperCase()}`;
+  const diagnosisText =
+    registro.diagnostico?.trim() || registro.observacoes?.trim() || 'Diagnóstico não informado.';
+  const actionsText =
+    registro.acoesExecutadas?.trim() ||
+    registro.observacoes?.trim() ||
+    'Ações executadas não informadas.';
 
   return {
     id: registro.id,
     reportId,
     customerName,
     equipmentName,
+    equipmentLine,
     kindLabel,
     date: registro.data,
     dateLabel: formatDateLabel(registro.data),
     status,
     statusLabel: statusMeta.label,
     statusTone: statusMeta.tone,
+    technicianName: registro.tecnico?.trim() || 'Técnico não informado',
+    diagnosisText,
+    actionsText,
+    nextMaintenanceLabel: registro.proximaData
+      ? formatDateLabel(registro.proximaData)
+      : 'Não informada',
+    statusHint: buildStatusHint(registro, status),
     partsUsed: registro.pecas?.trim() || undefined,
     partsCost: registro.custoPecas?.trim() || undefined,
     laborCost: registro.custoMaoObra?.trim() || undefined,
@@ -199,6 +229,10 @@ function mapReportItem(
         customerName,
         equipmentName,
         kindLabel,
+        registro.tecnico,
+        registro.diagnostico,
+        registro.acoesExecutadas,
+        registro.observacoes,
         registro.pecas,
         registro.custoPecas,
         registro.custoMaoObra,
@@ -215,6 +249,20 @@ function getReportEntities(input: BuildServicesHomeInput, equipmentId: string) {
       : undefined;
 
   return { equipamento, cliente };
+}
+
+function buildStatusHint(registro: RegistroServico, status: ServiceReportListStatus): string {
+  if (status === 'pendente') {
+    return 'Pendência: sem resumo técnico';
+  }
+
+  if (status === 'atencao') {
+    return registro.observacoes?.trim() || 'Requer atenção no acompanhamento';
+  }
+
+  return registro.proximaData
+    ? `Próxima manutenção: ${formatDateLabel(registro.proximaData)}`
+    : 'Relatório pronto para consulta local';
 }
 
 function mapReportStatus(registro: RegistroServico): ServiceReportListStatus {

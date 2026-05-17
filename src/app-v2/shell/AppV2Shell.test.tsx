@@ -121,7 +121,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).not.toContain('Ver relatório');
 
     await clickButton(host, /^Continuar$/i);
-    await clickButton(host, /^Preventiva/i);
+    await clickButton(host, /^Limpeza preventiva/i);
     await clickButton(host, /^Continuar$/i);
 
     const technician = host.querySelector('input[name="service-technician"]');
@@ -960,7 +960,7 @@ describe('AppV2Shell', () => {
 
     await clickButton(host, /Iniciar servi/i);
     await clickButton(host, /^Continuar$/i);
-    await clickButton(host, /^Preventiva/i);
+    await clickButton(host, /^Limpeza preventiva/i);
     await clickButton(host, /^Continuar$/i);
 
     const technician = host.querySelector('input[name="service-technician"]');
@@ -1064,7 +1064,7 @@ it('permite registrar pecas usadas sem exigir custo ou orcamento', async () => {
 
   await clickButton(host, /Iniciar servi/i);
   await clickButton(host, /^Continuar$/i);
-  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Limpeza preventiva/i);
   await clickButton(host, /^Continuar$/i);
 
   const technician = host.querySelector('input[name="service-technician"]');
@@ -1100,7 +1100,7 @@ it('permite registrar custos opcionais sem criar orcamento real', async () => {
 
   await clickButton(host, /Iniciar servi/i);
   await clickButton(host, /^Continuar$/i);
-  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Limpeza preventiva/i);
   await clickButton(host, /^Continuar$/i);
 
   const technician = host.querySelector('input[name="service-technician"]');
@@ -1140,7 +1140,7 @@ it('cria orcamento local a partir do fechamento do servico', async () => {
 
   await clickButton(host, /Iniciar servi/i);
   await clickButton(host, /^Continuar$/i);
-  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Limpeza preventiva/i);
   await clickButton(host, /^Continuar$/i);
 
   const technician = host.querySelector('input[name="service-technician"]');
@@ -1174,7 +1174,7 @@ it('permite registrar proxima manutencao sem abrir calendario real', async () =>
 
   await clickButton(host, /Iniciar servi/i);
   await clickButton(host, /^Continuar$/i);
-  await clickButton(host, /^Preventiva/i);
+  await clickButton(host, /^Limpeza preventiva/i);
   await clickButton(host, /^Continuar$/i);
 
   const technician = host.querySelector('input[name="service-technician"]');
