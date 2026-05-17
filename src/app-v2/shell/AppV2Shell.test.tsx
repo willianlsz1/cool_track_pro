@@ -1,253 +1,19 @@
-import { act } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { createAppV2MockSnapshot, type AppV2MockSnapshot } from '../data/appV2MockStore';
-import { AppV2Shell } from './AppV2Shell';
-
-(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
-  true;
-
-let root: Root | null = null;
-
-async function renderShell(initialSnapshot?: AppV2MockSnapshot) {
-  const host = document.createElement('div');
-  document.body.appendChild(host);
-
-  root = createRoot(host);
-  await act(async () => {
-    root?.render(<AppV2Shell initialSnapshot={initialSnapshot} />);
-  });
-
-  return host;
-}
-
-async function clickButton(host: HTMLElement, label: RegExp) {
-  const button = Array.from(host.querySelectorAll('button')).find((item) =>
-    label.test(item.textContent ?? ''),
-  );
-
-  const fallbackButton =
-    button ??
-    Array.from(host.querySelectorAll('button')).find((item) => {
-      const text = item.textContent ?? '';
-      return (
-        (label.source.includes('Concluir') && /Concluir servi/i.test(text)) ||
-        (label.source.includes('Voltar') && /Voltar para Servi/i.test(text))
-      );
-    });
-
-  if (!fallbackButton) {
-    throw new Error(`Botao nao encontrado: ${label}`);
-  }
-
-  await act(async () => {
-    fallbackButton.click();
-  });
-}
-
-async function fillTextarea(textarea: HTMLTextAreaElement, value: string) {
-  const valueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
-
-  await act(async () => {
-    valueSetter?.call(textarea, value);
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-}
-
-async function fillInput(input: HTMLInputElement, value: string) {
-  const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-
-  await act(async () => {
-    valueSetter?.call(input, value);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-}
-
-async function selectOption(select: HTMLSelectElement, value: string) {
-  const valueSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
-
-  await act(async () => {
-    valueSetter?.call(select, value);
-    select.dispatchEvent(new Event('change', { bubbles: true }));
-  });
-}
+import {
+  cleanupShell,
+  clickButton,
+  createAppV2MockSnapshot,
+  fillInput,
+  fillTextarea,
+  renderShell,
+  selectOption,
+} from './AppV2Shell.testUtils';
 
 describe('AppV2Shell', () => {
   const forbiddenRegulatoryTerm = ['P', 'MOC'].join('');
 
-  afterEach(async () => {
-    if (root) {
-      await act(async () => {
-        root?.unmount();
-      });
-    }
-
-    root = null;
-    document.body.innerHTML = '';
-    vi.restoreAllMocks();
-  });
-
-  it('mostra lista curta de alertas ativos na Home sem abrir area sensivel', async () => {
-    const host = await renderShell();
-
-    expect(host.textContent).toContain('Alertas ativos');
-    expect(host.textContent).toContain('Equipamento fora de operação');
-    expect(host.textContent).toContain('Status atual marcado como crítico');
-    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
-
-    const asideAlertButtons = Array.from(host.querySelectorAll('button')).filter((button) =>
-      /Crítico|Atenção/.test(button.textContent ?? ''),
-    );
-
-    expect(asideAlertButtons.length).toBeGreaterThan(0);
-    for (const button of asideAlertButtons) {
-      expect(button.className).toContain('tw-border-0');
-    }
-
-    const asideAlertList = Array.from(host.querySelectorAll('div')).find(
-      (item) =>
-        item.className.includes('tw-divide-y') && item.textContent?.includes('Preventiva vencida'),
-    );
-
-    expect(asideAlertList?.className).toContain('tw-divide-[#E5EAF0]');
-  });
-
-  it('aplica a conclusao do servico na store mockada exibida pela Central', async () => {
-    const host = await renderShell();
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => undefined);
-
-    await clickButton(host, /Iniciar serviço/i);
-    expect(host.textContent).not.toContain('Ver relatório');
-
-    await clickButton(host, /^Continuar$/i);
-    await clickButton(host, /^Limpeza preventiva/i);
-    await clickButton(host, /^Continuar$/i);
-
-    const technician = host.querySelector('input[name="service-technician"]');
-    expect(technician).toBeInstanceOf(HTMLInputElement);
-    await fillInput(technician as HTMLInputElement, 'Ana Tecnica');
-
-    const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
-    await fillTextarea(diagnosis, 'QA diagnóstico shell store.');
-    await fillTextarea(actionsDone, 'QA ações shell store.');
-
-    await clickButton(host, /^Revisar$/i);
-    await clickButton(host, /^Concluir serviço$/i);
-
-    expect(host.textContent).toContain('Atendimento concluído');
-    expect(host.textContent).toContain('Serviço concluído');
-    expect(host.textContent).toContain('Resumo do serviço');
-    expect(host.textContent).toContain('Saídas futuras');
-    expect(host.textContent).toContain('Ver relatório');
-
-    await clickButton(host, /^Ver relatório$/i);
-
-    expect(host.textContent).toContain('Registro de Serviço Técnico');
-    expect(host.textContent).toContain('CoolTrack Pro app-v2');
-    expect(host.textContent).toContain('Mercado Bom');
-    expect(host.textContent).toContain('Câmara fria');
-    expect(host.textContent).toContain('Ana Tecnica');
-    expect(host.textContent).not.toContain('Técnico app-v2');
-    expect(host.textContent).toContain('QA diagnóstico shell store.');
-    expect(host.textContent).toContain('QA ações shell store.');
-
-    expect(host.textContent).toContain('Técnico/responsável');
-    expect(host.textContent).toContain('Cliente/responsável');
-    expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
-
-    await clickButton(host, /^Imprimir relatório$/i);
-
-    expect(printSpy).toHaveBeenCalledTimes(1);
-    printSpy.mockRestore();
-
-    await clickButton(host, /Voltar para Serviços/i);
-
-    expect(host.textContent).not.toContain('EM ANDAMENTO');
-    expect(host.textContent).not.toContain('Pronto para revisão');
-    expect(host.textContent).toContain('Ana Tecnica');
-    expect(host.textContent).toContain('QA diagnóstico shell store.');
-    expect(host.textContent).toContain('QA ações shell store.');
-  });
-
-  it('renderiza sidebar desktop e bottom nav mobile com as quatro areas existentes', async () => {
-    const host = await renderShell();
-    const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
-    const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
-    const officialIcon = sidebar?.querySelector('img');
-
-    expect(sidebar?.className).toContain('tw-w-[260px]');
-    expect(sidebar?.className).toContain('lg:tw-flex');
-    expect(bottomNav?.className).toContain('lg:tw-hidden');
-    expect(officialIcon?.getAttribute('src')).toBe('/icons/icon-192x192.png');
-    expect(sidebar?.textContent).toContain('Hoje');
-    expect(sidebar?.textContent).toContain('Equipamentos');
-    expect(sidebar?.textContent).toContain('Servi');
-    expect(sidebar?.textContent).toContain('Conta');
-    expect(sidebar?.textContent).not.toContain('Clientes');
-  });
-
-  it('troca entre as abas principais sem criar novas areas', async () => {
-    const host = await renderShell();
-
-    await clickButton(host, /^Equipamentos$/i);
-    expect(host.textContent).toContain('Parque');
-
-    await clickButton(host, /^Servi/i);
-    expect(host.textContent).toContain('Registros recentes');
-
-    await clickButton(host, /^Conta$/i);
-    expect(host.textContent).toContain('Conta');
-    expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
-    expect(host.textContent).not.toContain('Billing');
-    expect(host.textContent).not.toContain('Supabase');
-  });
-
-  it('abre Relatorios dentro de Servicos com busca e preview dedicado', async () => {
-    const host = await renderShell();
-    const sidebar = host.querySelector('aside[aria-label="Navegação principal"]');
-    const bottomNav = host.querySelector('nav[aria-label="Navegação principal"]');
-
-    expect(sidebar?.textContent).not.toContain('Relatórios');
-    expect(bottomNav?.textContent).not.toContain('Relatórios');
-
-    await clickButton(host, /^Servi/i);
-    await clickButton(host, /^Relatórios$/i);
-
-    expect(host.textContent).toContain('Relatórios prontos');
-    expect(host.textContent).toContain('Com atenção');
-    expect(host.textContent).toContain('Pendentes');
-    expect(host.textContent).toContain('Este mês');
-    expect(host.textContent).toContain('REL-REGISTRO-1');
-    expect(host.textContent).toContain('Câmara fria');
-
-    const search = host.querySelector('input[aria-label="Buscar relatórios"]');
-    expect(search).toBeInstanceOf(HTMLInputElement);
-    await fillInput(search as HTMLInputElement, 'camara');
-
-    expect(host.textContent).not.toContain('REL-REGISTRO-1');
-    expect(host.textContent).toContain('REL-REGISTRO-2');
-    expect(host.textContent).toMatch(/C.mara fria/);
-
-    await clickButton(host, /^Ver relatório$/i);
-
-    expect(host.textContent).toContain('Voltar para relatórios');
-    expect(host.textContent).toContain('Registro de Serviço Técnico');
-    expect(host.textContent).toMatch(/C.mara fria/);
-    expect(host.querySelector('[data-app-v2-print-scope="service-report"]')).toBeTruthy();
-    expect(host.querySelector('[data-app-v2-print-hidden="true"]')).toBeTruthy();
-
-    await clickButton(host, /^Voltar para relatórios$/i);
-
-    expect(host.textContent).toContain('REL-REGISTRO-2');
-    expect(host.textContent).not.toContain('Registro de Serviço Técnico');
-
-    await clickButton(host, /^Abrir relatório$/i);
-
-    expect(host.textContent).toContain('Voltar para relatórios');
-    expect(host.textContent).toContain('Registro de Serviço Técnico');
-    expect(host.querySelector('[data-app-v2-print-scope="service-report"]')).toBeTruthy();
-  });
+  afterEach(cleanupShell);
 
   it('filtra Relatorios por periodo, cliente e equipamento com resumo consolidado local', async () => {
     const host = await renderShell();
@@ -397,7 +163,7 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Salvar equipamento$/i);
 
     expect(host.textContent).toContain('Self contained loja');
-    expect(host.textContent).toContain('Setor: Camara fria');
+    expect(host.textContent).toContain('Setor: Câmara fria');
     expect(host.textContent).not.toContain('Upload');
     expect(host.textContent).not.toContain('Supabase');
 
@@ -460,10 +226,10 @@ describe('AppV2Shell', () => {
     const host = await renderShell();
 
     await clickButton(host, /^Equipamentos$/i);
-    await clickButton(host, /^Abrir setor Recepcao$/i);
+    await clickButton(host, /^Abrir setor Recepção$/i);
 
     expect(host.textContent).toContain('Painel do setor');
-    expect(host.textContent).toContain('Recepcao');
+    expect(host.textContent).toContain('Recepção');
     expect(host.textContent).toContain('Split 24.000 BTU');
     expect(host.querySelector('[data-sector-card="setor-1"]')?.textContent).toContain('Aberto');
     const sectorPanel = host.querySelector('[data-sector-panel="setor-1"]');
@@ -499,17 +265,17 @@ describe('AppV2Shell', () => {
 
     await clickButton(host, /Self contained recepcao/i);
     expect(host.textContent).toContain('Indústria Frio Sul');
-    expect(host.textContent).toContain('Setor: Recepcao');
+    expect(host.textContent).toContain('Setor: Recepção');
   });
 
   it('remove setor mock/local preservando equipamentos, registros e relatorios locais', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Equipamentos$/i);
-    await clickButton(host, /^Remover setor Recepcao$/i);
-    await clickButton(host, /^Confirmar remover setor Recepcao$/i);
+    await clickButton(host, /^Remover setor Recepção$/i);
+    await clickButton(host, /^Confirmar remover setor Recepção$/i);
 
-    expect(host.textContent).not.toContain('Editar setor Recepcao');
+    expect(host.textContent).not.toContain('Editar setor Recepção');
     expect(host.textContent).toContain('Split 24.000 BTU');
     expect(host.textContent).toContain('Sem setor');
     expect(host.textContent).not.toContain('Storage');
@@ -639,11 +405,11 @@ describe('AppV2Shell', () => {
     await clickButton(host, /^Salvar equipamento$/i);
 
     expect(host.textContent).toContain('Split 24.000 BTU');
-    expect(host.textContent).toContain('Setor: Producao');
+    expect(host.textContent).toContain('Setor: Produção');
     expect(host.textContent).toContain('Ind');
 
     await clickButton(host, /^Voltar para equipamentos$/i);
-    await clickButton(host, /^Abrir setor Producao$/i);
+    await clickButton(host, /^Abrir setor Produção$/i);
 
     const sectorPanel = host.querySelector('[data-sector-panel="setor-3"]');
     expect(sectorPanel?.textContent).toContain('Split 24.000 BTU');
@@ -827,7 +593,7 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('Resumo local do cliente');
     expect(host.textContent).toContain('2 pendências operacionais');
-    expect(host.textContent).toContain('09/05 - Camara fria');
+    expect(host.textContent).toContain('09/05 - Câmara fria');
     expect(host.textContent).not.toContain(forbiddenRegulatoryTerm);
     expect(host.textContent).not.toContain('Enviar WhatsApp');
     expect(host.textContent).not.toContain('Exportar PDF');

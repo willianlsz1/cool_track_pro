@@ -608,7 +608,7 @@ function QuoteEditor({
                 value={draft.paymentTerms}
                 onChange={(event) => onChangeDraft({ ...draft, paymentTerms: event.target.value })}
                 className={fieldInputClass}
-                placeholder="Ex: 50% entrada, 50% na conclusao"
+                placeholder="Ex: 50% entrada, 50% na conclusão"
               />
             </FieldGroup>
             <FieldGroup label="Observacoes" className="md:tw-col-span-2">

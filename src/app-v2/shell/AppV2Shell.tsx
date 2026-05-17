@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { AccountHome } from '../account/AccountHome';
+import { AlertsHome } from '../alerts/AlertsHome';
 import type {
   AccountPreferencesState,
   AccountShortcutId,
@@ -59,6 +60,7 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
     serviceDraft: null,
   }));
   const [activeTab, setActiveTab] = useState<AppV2Tab>('hoje');
+  const [homeView, setHomeView] = useState<'overview' | 'alerts'>('overview');
   const [equipmentSubView, setEquipmentSubView] = useState<EquipmentSubView>('equipments');
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -78,6 +80,10 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
 
   function selectTab(tab: AppV2Tab) {
     setActiveTab(tab);
+
+    if (tab === 'hoje') {
+      setHomeView('overview');
+    }
 
     if (tab === 'equipamento') {
       setSelectedEquipmentId(null);
@@ -415,7 +421,17 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       return;
     }
 
+    setHomeView('alerts');
     setActiveTab('hoje');
+  }
+
+  function openEquipmentList() {
+    setSelectedEquipmentId(null);
+    setSelectedClientId(null);
+    setEquipmentSubView('equipments');
+    setEquipmentFormClientId(null);
+    setActiveTab('equipamento');
+    setHomeView('overview');
   }
 
   function openAccountStartTab(tab: AccountStartTabPreference) {
@@ -446,11 +462,19 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
       <div
         className={`tw-min-h-screen ${appV2Tone.page} lg:tw-ml-[260px] lg:tw-rounded-l-[28px] lg:tw-shadow-[-22px_0_50px_-44px_rgba(0,0,0,0.85)]`}
       >
-        {activeTab === 'hoje' ? (
+        {activeTab === 'hoje' && homeView === 'overview' ? (
           <HomeToday
             input={operationalState.homeInput}
             onOpenEquipment={openEquipment}
             onStartService={startServiceFromEquipment}
+          />
+        ) : null}
+
+        {activeTab === 'hoje' && homeView === 'alerts' ? (
+          <AlertsHome
+            input={operationalState.homeInput}
+            onOpenEquipment={openEquipment}
+            onOpenEquipmentList={openEquipmentList}
           />
         ) : null}
 

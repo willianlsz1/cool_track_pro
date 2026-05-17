@@ -357,9 +357,7 @@ function formatLastServiceFact(
   }
 
   const equipamento = input.equipamentos.find((item) => item.id === registro.equipamentoId);
-  return `${formatDateLabel(registro.data)} - ${stripDiacritics(
-    equipamento?.nome ?? 'Equipamento não encontrado',
-  )}`;
+  return `${formatDateLabel(registro.data)} - ${equipamento?.nome ?? 'Equipamento não encontrado'}`;
 }
 
 function formatDateLabel(date: string): string {

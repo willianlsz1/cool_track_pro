@@ -93,7 +93,7 @@ export function buildAccountViewModel(preferences: AccountPreferencesState): Acc
           {
             id: 'open-alerts',
             label: 'Alertas',
-            description: 'Volta para a Home operacional.',
+            description: 'Abre a tela local de alertas operacionais.',
           },
         ],
       },
