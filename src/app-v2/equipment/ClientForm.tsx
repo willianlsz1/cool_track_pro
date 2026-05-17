@@ -1,9 +1,10 @@
 import { useState, type ReactNode } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFloppyDisk, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 import type { SaveClientDraft } from './clientActions';
 import type { Cliente } from '../domain/types';
-import { appV2Tone } from '../styles/tokens';
-import { ActionButton, SectionCard } from '../ui/primitives';
+import { appV2Border, appV2Focus, appV2Shadow, appV2Text } from '../styles/tokens';
 
 interface ClientFormProps {
   title: string;
@@ -38,15 +39,19 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
   const visibleError = localError ?? error;
 
   return (
-    <SectionCard labelledBy="client-form-title" className="tw-grid tw-gap-4">
+    <section
+      aria-labelledby="client-form-title"
+      className={`tw-rounded-[20px] tw-border tw-bg-white tw-p-5 ${appV2Border.default} ${appV2Shadow.card}`}
+    >
       <div>
-        <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
+        <p className="tw-m-0 tw-mb-3 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-2.5 tw-py-1 tw-text-[0.7rem] tw-font-semibold tw-uppercase tw-tracking-[0.05em] tw-text-[#1E4F8A]">
           Cadastro local
         </p>
         <h2
           id="client-form-title"
-          className={`tw-m-0 tw-mt-2 tw-text-xl tw-font-bold ${appV2Tone.text}`}
+          className={`tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-base tw-font-bold ${appV2Text.primary}`}
         >
+          <FontAwesomeIcon icon={faUserPlus} className="tw-h-4 tw-w-4 tw-text-[#2563EB]" />
           {title}
         </h2>
       </div>
@@ -57,7 +62,7 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
         </p>
       ) : null}
 
-      <div className="tw-grid tw-gap-3 sm:tw-grid-cols-2">
+      <div className="tw-mt-4 tw-grid tw-gap-4 sm:tw-grid-cols-2">
         <Field label="Nome" htmlFor="client-name">
           <input
             id="client-name"
@@ -68,7 +73,7 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
             placeholder="Ex.: Mercado Bom"
           />
         </Field>
-        <Field label="Razao social" htmlFor="client-legal-name">
+        <Field label="Razão social" htmlFor="client-legal-name">
           <input
             id="client-legal-name"
             name="client-legal-name"
@@ -98,7 +103,7 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
             placeholder="Ex.: (11) 99999-0000"
           />
         </Field>
-        <Field label="Endereco" htmlFor="client-address">
+        <Field label="Endereço" htmlFor="client-address">
           <input
             id="client-address"
             name="client-address"
@@ -110,13 +115,24 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
         </Field>
       </div>
 
-      <div className="tw-flex tw-flex-col-reverse tw-gap-3 sm:tw-flex-row sm:tw-justify-end">
-        <ActionButton variant="secondary" onClick={onCancel}>
+      <div className="tw-mt-5 tw-flex tw-flex-col-reverse tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-4 sm:tw-flex-row sm:tw-justify-end">
+        <button
+          type="button"
+          onClick={onCancel}
+          className={`tw-min-h-9 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-transparent tw-px-5 tw-text-xs tw-font-semibold ${appV2Text.muted} ${appV2Focus}`}
+        >
           Cancelar
-        </ActionButton>
-        <ActionButton onClick={submit}>Salvar cliente</ActionButton>
+        </button>
+        <button
+          type="button"
+          onClick={submit}
+          className={`tw-inline-flex tw-min-h-9 tw-items-center tw-justify-center tw-gap-2 tw-rounded-lg tw-border-0 tw-bg-[#2563EB] tw-px-5 tw-text-xs tw-font-semibold tw-text-white ${appV2Focus}`}
+        >
+          <FontAwesomeIcon icon={faFloppyDisk} className="tw-h-3 tw-w-3" aria-hidden="true" />
+          Salvar cliente
+        </button>
       </div>
-    </SectionCard>
+    </section>
   );
 }
 
@@ -131,7 +147,7 @@ function Field({
 }) {
   return (
     <label
-      className={`tw-grid tw-gap-2 tw-text-sm tw-font-semibold ${appV2Tone.text}`}
+      className="tw-grid tw-gap-1.5 tw-text-[0.7rem] tw-font-semibold tw-uppercase tw-text-[#1E4F8A]"
       htmlFor={htmlFor}
     >
       {label}
@@ -140,4 +156,4 @@ function Field({
   );
 }
 
-const inputClass = `tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-base tw-font-medium tw-text-[#061635] placeholder:tw-text-[#697A99] ${appV2Tone.border} ${appV2Tone.focus}`;
+const inputClass = `tw-min-h-10 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFD] tw-px-3.5 tw-text-sm tw-font-medium tw-normal-case tw-text-[#071A33] placeholder:tw-font-normal placeholder:tw-text-[#9AADCA] ${appV2Border.default} ${appV2Focus}`;

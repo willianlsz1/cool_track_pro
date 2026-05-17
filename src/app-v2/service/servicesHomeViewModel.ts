@@ -72,6 +72,7 @@ export interface RecentServiceViewModel {
   kindLabel: string;
   technician: string;
   dateLabel: string;
+  relativeDateLabel: string;
   statusLabel: string;
   statusTone: ServiceHomeTone;
   summary: string;
@@ -202,8 +203,9 @@ function mapRecentService(
     equipmentName: equipamento.nome,
     customerLine: formatCustomerLine(equipamento, cliente),
     kindLabel: registro.tipoDescricao ?? formatServiceRecordKind(registro.tipo),
-    technician: registro.tecnico.trim() || 'TÃ©cnico nÃ£o informado',
+    technician: registro.tecnico.trim() || 'Técnico não informado',
     dateLabel: formatDateLabel(registro.data),
+    relativeDateLabel: formatRelativeDateLabel(input.today, registro.data),
     statusLabel: formatStatusLabel(registro.status),
     statusTone: mapStatusTone(registro.status),
     summary: registro.observacoes?.trim() || 'Sem resumo técnico informado.',
@@ -308,6 +310,26 @@ function getOutputStatus(registro: RegistroServico): ServiceOutputStatus {
 function formatDateLabel(date: string): string {
   const [, month, day] = date.split('-');
   return `${day}/${month}`;
+}
+
+function formatRelativeDateLabel(today: string, date: string): string {
+  const todayValue = new Date(`${today}T00:00:00`);
+  const dateValue = new Date(`${date}T00:00:00`);
+  const diffDays = Math.round((todayValue.getTime() - dateValue.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (!Number.isFinite(diffDays)) {
+    return '';
+  }
+
+  if (diffDays <= 0) {
+    return 'hoje';
+  }
+
+  if (diffDays === 1) {
+    return 'há 1 dia';
+  }
+
+  return `há ${diffDays} dias`;
 }
 
 function normalizeSearch(value: string): string {

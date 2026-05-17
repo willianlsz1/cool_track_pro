@@ -178,7 +178,7 @@ export const appV2MockData: AppV2MockData = {
       proximaData: '2026-05-16',
     },
   ],
-  tecnicos: ['TÃ©cnico'],
+  tecnicos: ['Técnico'],
   orcamentos: [
     {
       id: 'orcamento-1',

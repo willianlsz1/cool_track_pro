@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay } from '@fortawesome/free-solid-svg-icons';
+
 import { appV2Tone } from '../styles/tokens';
 import { ActionButton, SectionCard } from '../ui/primitives';
 import type { ServiceInProgressViewModel } from './servicesHomeViewModel';
@@ -9,18 +12,14 @@ interface ServiceInProgressCardProps {
 
 export function ServiceInProgressCard({ service, onResumeService }: ServiceInProgressCardProps) {
   return (
-    <SectionCard className="tw-relative tw-overflow-hidden sm:tw-p-6">
-      <span
-        className="tw-absolute tw-inset-y-0 tw-left-0 tw-w-1 tw-bg-[#2563EB]"
-        aria-hidden="true"
-      />
-      <div className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(260px,0.34fr)] lg:tw-items-end">
+    <SectionCard className="tw-relative tw-overflow-hidden tw-border-l-4 tw-border-l-[#2563EB] sm:tw-p-6">
+      <div className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(220px,0.28fr)] lg:tw-items-end">
         <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#2563EB]">
+          <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#52677F]">
             Em andamento
           </p>
           <h2
-            className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
+            className={`tw-m-0 tw-mt-2 tw-text-xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
           >
             {service.equipmentName}
           </h2>
@@ -29,8 +28,9 @@ export function ServiceInProgressCard({ service, onResumeService }: ServiceInPro
           </p>
         </div>
 
-        <ActionButton onClick={onResumeService} className="tw-w-full">
-          {service.actionLabel}
+        <ActionButton onClick={onResumeService} className="tw-min-h-10 tw-w-full tw-px-5 tw-py-2">
+          <FontAwesomeIcon icon={faPlay} aria-hidden="true" />
+          <span className="tw-ml-2">{service.actionLabel}</span>
         </ActionButton>
       </div>
 

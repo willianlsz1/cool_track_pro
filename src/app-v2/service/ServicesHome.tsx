@@ -1,7 +1,21 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBuilding,
+  faCalendarAlt,
+  faCalendarWeek,
+  faChartSimple,
+  faCheckCircle,
+  faClipboardList,
+  faFileInvoiceDollar,
+  faMicrochip,
+  faPlay,
+  faTag,
+} from '@fortawesome/free-solid-svg-icons';
 
-import { appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import { appV2Border, appV2Focus, appV2Text, appV2Tone } from '../styles/tokens';
+import { ActionButton, PageShell, SectionCard } from '../ui/primitives';
 import { RecentServiceCard } from './RecentServiceCard';
 import { ServiceInProgressCard } from './ServiceInProgressCard';
 import { ServicesQuotesHome, type QuoteEditDraft } from './ServicesQuotesHome';
@@ -11,6 +25,7 @@ import {
   buildServicesHomeViewModel,
   type BuildServicesHomeFilters,
   type BuildServicesHomeInput,
+  type RecentServiceViewModel,
 } from './servicesHomeViewModel';
 import { ServicesSubViewNav, type ServicesSubView } from './ServicesSubViewNav';
 
@@ -70,167 +85,166 @@ export function ServicesHome({
   }
 
   return (
-    <PageShell>
-      <ServicesSubViewNav activeView={activeView} onSelectView={setActiveView} />
-
-      <header className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)] lg:tw-items-end">
-        <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-            {viewModel.subtitle}
-          </p>
-          <h1
-            className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-none sm:tw-text-[2rem] ${appV2Tone.text}`}
-          >
-            {viewModel.title}
-          </h1>
-          <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
-            {viewModel.description}
-          </p>
+    <PageShell className="tw-gap-6">
+      <header className="tw-min-w-0">
+        <p className="tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] tw-text-[#1E4F8A]">
+          {viewModel.subtitle}
+        </p>
+        <h1
+          className={`tw-m-0 tw-mt-3 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-[-0.3px] ${appV2Tone.text}`}
+        >
+          Registros &middot; Relatórios &middot; Orçamentos
+        </h1>
+        <p className={`tw-m-0 tw-mt-2 tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
+          {viewModel.description}
+        </p>
+        <div className="tw-mt-4">
+          <ServicesSubViewNav activeView={activeView} onSelectView={setActiveView} />
         </div>
-        <SectionCard padding="sm">
-          <span className={`tw-text-sm tw-font-medium ${appV2Tone.mutedText}`}>
-            Registros recentes
-          </span>
-          <span className={`tw-mt-1 tw-block tw-text-2xl tw-font-bold ${appV2Tone.text}`}>
-            {viewModel.recentServices.length}
-          </span>
-        </SectionCard>
       </header>
 
-      {viewModel.inProgress ? (
-        <ServiceInProgressCard service={viewModel.inProgress} onResumeService={onResumeService} />
-      ) : (
-        <EmptyServicesCard
-          title={viewModel.emptyState.title}
-          description={viewModel.emptyState.description}
-          actionLabel={viewModel.emptyState.actionLabel}
-          onStartService={onStartService}
-        />
-      )}
+      <div className="tw-grid tw-gap-7 xl:tw-grid-cols-[minmax(0,1fr)_320px]">
+        <div className="tw-grid tw-min-w-0 tw-gap-6">
+          {viewModel.inProgress ? (
+            <ServiceInProgressCard
+              service={viewModel.inProgress}
+              onResumeService={onResumeService}
+            />
+          ) : (
+            <EmptyServicesCard
+              title={viewModel.emptyState.title}
+              description={viewModel.emptyState.description}
+              actionLabel={viewModel.emptyState.actionLabel}
+              onStartService={onStartService}
+            />
+          )}
 
-      <SectionCard className="sm:tw-p-5" labelledBy="recent-services-title" padding="sm">
-        <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
-          <div>
-            <p
-              className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-            >
-              Registros
-            </p>
+          <SectionCard className="sm:tw-p-5" labelledBy="recent-services-title" padding="sm">
             <h2
               id="recent-services-title"
-              className={`tw-m-0 tw-mt-1 tw-text-lg tw-font-semibold ${appV2Tone.text}`}
+              className={`tw-m-0 tw-text-base tw-font-bold tw-uppercase ${appV2Tone.text}`}
             >
-              Recentes
+              Registros recentes
             </h2>
-          </div>
-          <StatusBadge>{viewModel.recentServices.length}</StatusBadge>
+
+            <label className="tw-sr-only">
+              <span className="tw-sr-only">Buscar registros</span>
+              <input
+                aria-label="Buscar registros"
+                value={viewModel.activeFilters.query}
+                onChange={(event) => updateServiceFilter('query', event.target.value)}
+                placeholder="Buscar equipamento, cliente, técnico ou registro"
+                className="tw-sr-only"
+              />
+            </label>
+
+            <div className="tw-mt-4 tw-flex tw-flex-wrap tw-gap-3">
+              <FilterSelect
+                label="Período"
+                icon={faCalendarAlt}
+                name="service-period-filter"
+                value={viewModel.activeFilters.period}
+                onChange={(value) =>
+                  updateServiceFilter('period', value as BuildServicesHomeFilters['period'])
+                }
+                options={[
+                  { value: 'all', label: 'Todo período' },
+                  { value: 'last_7_days', label: 'Últimos 7 dias' },
+                  { value: 'current_month', label: 'Mês atual' },
+                ]}
+              />
+              <FilterSelect
+                label="Cliente"
+                icon={faBuilding}
+                name="service-client-filter"
+                value={viewModel.activeFilters.clientId}
+                onChange={(value) => updateServiceFilter('clientId', value)}
+                options={[
+                  { value: 'all', label: 'Todos os clientes' },
+                  ...viewModel.filterOptions.clients.map((client) => ({
+                    value: client.id,
+                    label: client.label,
+                  })),
+                ]}
+              />
+              <FilterSelect
+                label="Equipamento"
+                icon={faMicrochip}
+                name="service-equipment-filter"
+                value={viewModel.activeFilters.equipmentId}
+                onChange={(value) => updateServiceFilter('equipmentId', value)}
+                options={[
+                  { value: 'all', label: 'Todos os equipamentos' },
+                  ...viewModel.filterOptions.equipments.map((equipment) => ({
+                    value: equipment.id,
+                    label: equipment.label,
+                  })),
+                ]}
+              />
+              <FilterSelect
+                label="Tipo"
+                icon={faTag}
+                name="service-kind-filter"
+                value={viewModel.activeFilters.kind}
+                onChange={(value) =>
+                  updateServiceFilter('kind', value as BuildServicesHomeFilters['kind'])
+                }
+                options={[
+                  { value: 'all', label: 'Todos os tipos' },
+                  { value: 'preventiva', label: 'Preventiva' },
+                  { value: 'corretiva', label: 'Corretiva' },
+                  { value: 'instalacao', label: 'Instalação' },
+                  { value: 'visita', label: 'Visita' },
+                  { value: 'outro', label: 'Outro' },
+                ]}
+              />
+              <FilterSelect
+                label="Status"
+                icon={faChartSimple}
+                name="service-status-filter"
+                value={viewModel.activeFilters.status}
+                onChange={(value) =>
+                  updateServiceFilter('status', value as BuildServicesHomeFilters['status'])
+                }
+                options={[
+                  { value: 'all', label: 'Todos os status' },
+                  { value: 'ok', label: 'Operacional' },
+                  { value: 'warn', label: 'Atenção' },
+                  { value: 'danger', label: 'Crítico' },
+                ]}
+              />
+            </div>
+
+            {viewModel.recentServices.length > 0 ? (
+              <div data-testid="service-record-results" className="tw-mt-4 tw-grid tw-gap-4">
+                {viewModel.recentServices.map((service) => (
+                  <RecentServiceCard
+                    key={service.id}
+                    service={service}
+                    onEditService={onEditService}
+                  />
+                ))}
+              </div>
+            ) : hasActiveServiceFilters(viewModel.activeFilters) ? (
+              <p
+                data-testid="service-record-results"
+                className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
+              >
+                Nenhum registro encontrado.
+              </p>
+            ) : (
+              <p
+                data-testid="service-record-results"
+                className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
+              >
+                Registros recentes aparecerão aqui depois do primeiro atendimento.
+              </p>
+            )}
+          </SectionCard>
         </div>
 
-        <label className="tw-mt-4 tw-block">
-          <span className="tw-sr-only">Buscar registros</span>
-          <input
-            aria-label="Buscar registros"
-            value={viewModel.activeFilters.query}
-            onChange={(event) => updateServiceFilter('query', event.target.value)}
-            placeholder="Buscar equipamento, cliente, tecnico ou registro"
-            className={`tw-box-border tw-min-h-12 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-          />
-        </label>
-
-        <div className="tw-mt-4 tw-grid tw-gap-3 sm:tw-grid-cols-2 lg:tw-grid-cols-5">
-          <FilterSelect
-            label="Periodo"
-            name="service-period-filter"
-            value={viewModel.activeFilters.period}
-            onChange={(value) =>
-              updateServiceFilter('period', value as BuildServicesHomeFilters['period'])
-            }
-            options={[
-              { value: 'all', label: 'Todo periodo' },
-              { value: 'last_7_days', label: 'Ultimos 7 dias' },
-              { value: 'current_month', label: 'Mes atual' },
-            ]}
-          />
-          <FilterSelect
-            label="Cliente"
-            name="service-client-filter"
-            value={viewModel.activeFilters.clientId}
-            onChange={(value) => updateServiceFilter('clientId', value)}
-            options={[
-              { value: 'all', label: 'Todos clientes' },
-              ...viewModel.filterOptions.clients.map((client) => ({
-                value: client.id,
-                label: client.label,
-              })),
-            ]}
-          />
-          <FilterSelect
-            label="Equipamento"
-            name="service-equipment-filter"
-            value={viewModel.activeFilters.equipmentId}
-            onChange={(value) => updateServiceFilter('equipmentId', value)}
-            options={[
-              { value: 'all', label: 'Todos equipamentos' },
-              ...viewModel.filterOptions.equipments.map((equipment) => ({
-                value: equipment.id,
-                label: equipment.label,
-              })),
-            ]}
-          />
-          <FilterSelect
-            label="Tipo"
-            name="service-kind-filter"
-            value={viewModel.activeFilters.kind}
-            onChange={(value) =>
-              updateServiceFilter('kind', value as BuildServicesHomeFilters['kind'])
-            }
-            options={[
-              { value: 'all', label: 'Todos tipos' },
-              { value: 'preventiva', label: 'Preventiva' },
-              { value: 'corretiva', label: 'Corretiva' },
-              { value: 'instalacao', label: 'Instalacao' },
-              { value: 'visita', label: 'Visita' },
-              { value: 'outro', label: 'Outro' },
-            ]}
-          />
-          <FilterSelect
-            label="Status"
-            name="service-status-filter"
-            value={viewModel.activeFilters.status}
-            onChange={(value) =>
-              updateServiceFilter('status', value as BuildServicesHomeFilters['status'])
-            }
-            options={[
-              { value: 'all', label: 'Todos status' },
-              { value: 'ok', label: 'Operacional' },
-              { value: 'warn', label: 'Atencao' },
-              { value: 'danger', label: 'Critico' },
-            ]}
-          />
-        </div>
-
-        {viewModel.recentServices.length > 0 ? (
-          <div data-testid="service-record-results" className="tw-mt-4 tw-grid tw-gap-3">
-            {viewModel.recentServices.map((service) => (
-              <RecentServiceCard key={service.id} service={service} onEditService={onEditService} />
-            ))}
-          </div>
-        ) : hasActiveServiceFilters(viewModel.activeFilters) ? (
-          <p
-            data-testid="service-record-results"
-            className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
-          >
-            Nenhum registro encontrado.
-          </p>
-        ) : (
-          <p
-            data-testid="service-record-results"
-            className={`tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-p-4 tw-text-sm tw-font-medium ${appV2Tone.border} ${appV2Tone.mutedText}`}
-          >
-            Registros recentes aparecerão aqui depois do primeiro atendimento.
-          </p>
-        )}
-      </SectionCard>
+        <ServicesAside recentServices={viewModel.recentServices} />
+      </div>
     </PageShell>
   );
 }
@@ -248,12 +262,14 @@ function hasActiveServiceFilters(filters: Required<BuildServicesHomeFilters>): b
 
 function FilterSelect({
   label,
+  icon,
   name,
   value,
   onChange,
   options,
 }: {
   label: string;
+  icon: IconDefinition;
   name: string;
   value: string;
   onChange: (value: string) => void;
@@ -261,23 +277,24 @@ function FilterSelect({
 }) {
   return (
     <label className="tw-block">
+      <span className="tw-sr-only">{label}</span>
       <span
-        className={`tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
+        className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-full tw-border tw-bg-[#F8FAFD] tw-px-4 tw-text-[0.7rem] tw-font-semibold ${appV2Text.action} ${appV2Border.default} ${appV2Focus}`}
       >
-        {label}
+        <FontAwesomeIcon icon={icon} className="tw-text-[#8BA0BC]" aria-hidden="true" />
+        <select
+          name={name}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="tw-border-0 tw-bg-transparent tw-p-0 tw-text-[0.7rem] tw-font-semibold tw-text-[#1E4F8A] focus:tw-outline-none"
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </span>
-      <select
-        name={name}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={`tw-mt-2 tw-min-h-11 tw-w-full tw-rounded-xl tw-border tw-bg-[#F8FAFC] tw-px-3 tw-text-sm tw-font-semibold ${appV2Tone.border} ${appV2Tone.text} ${appV2Tone.focus}`}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
     </label>
   );
 }
@@ -294,21 +311,145 @@ function EmptyServicesCard({
   onStartService: () => void;
 }) {
   return (
-    <SectionCard>
-      <p
-        className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-      >
+    <SectionCard className="tw-text-center sm:tw-p-8">
+      <div className="tw-mx-auto tw-mb-4 tw-flex tw-h-12 tw-w-12 tw-items-center tw-justify-center tw-text-[2.5rem] tw-text-[#CBD5E1]">
+        <FontAwesomeIcon icon={faClipboardList} aria-hidden="true" />
+      </div>
+      <h2 className={`tw-m-0 tw-text-sm tw-font-bold tw-uppercase ${appV2Tone.text}`}>
         Sem andamento
-      </p>
-      <h2 className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}>
-        {title}
       </h2>
-      <p className={`tw-m-0 tw-mt-3 tw-text-sm tw-font-normal tw-leading-6 ${appV2Tone.mutedText}`}>
+      <p className={`tw-m-0 tw-mt-2 tw-text-sm tw-font-semibold ${appV2Tone.mutedText}`}>{title}</p>
+      <p className={`tw-m-0 tw-mt-2 tw-text-xs tw-font-medium tw-leading-5 ${appV2Tone.mutedText}`}>
         {description}
       </p>
-      <ActionButton onClick={onStartService} className="tw-mt-5 tw-w-full sm:tw-w-auto">
-        {actionLabel}
+      <ActionButton onClick={onStartService} className="tw-mt-5 tw-min-h-10 tw-px-5 tw-py-2">
+        <FontAwesomeIcon icon={faPlay} aria-hidden="true" />
+        <span className="tw-ml-2">{actionLabel}</span>
       </ActionButton>
     </SectionCard>
+  );
+}
+
+function ServicesAside({ recentServices }: { recentServices: RecentServiceViewModel[] }) {
+  const { quoteSuggestion, nextCommitment, operational } = pickAsideItems(recentServices);
+
+  return (
+    <aside className="tw-grid tw-h-fit tw-gap-5">
+      <AsideCard
+        icon={faFileInvoiceDollar}
+        title="Orçamento sugerido"
+        iconClass="tw-text-[#2563EB]"
+      >
+        {quoteSuggestion ? (
+          <AsideServiceItem service={quoteSuggestion} detail={quoteSuggestion.summary} />
+        ) : (
+          <AsideEmpty>Nenhum orçamento sugerido.</AsideEmpty>
+        )}
+      </AsideCard>
+
+      <AsideCard icon={faCalendarWeek} title="Próximo compromisso" iconClass="tw-text-[#2563EB]">
+        {nextCommitment ? (
+          <AsideServiceItem
+            service={nextCommitment}
+            detail={nextCommitment.summary}
+            nextLabel={nextCommitment.nextMaintenanceLabel}
+          />
+        ) : (
+          <AsideEmpty>Nenhum compromisso sugerido.</AsideEmpty>
+        )}
+      </AsideCard>
+
+      <AsideCard icon={faCheckCircle} title="Operacional" iconClass="tw-text-[#16A34A]">
+        {operational ? (
+          <AsideServiceItem
+            service={operational}
+            detail={`${operational.kindLabel} em ${operational.dateLabel}`}
+            nextLabel="em dia"
+          />
+        ) : (
+          <AsideEmpty>Nenhum registro operacional recente.</AsideEmpty>
+        )}
+      </AsideCard>
+    </aside>
+  );
+}
+
+function pickAsideItems(recentServices: RecentServiceViewModel[]) {
+  return {
+    quoteSuggestion:
+      recentServices.find((service) => service.outputStatus === 'orcamento_sugerido') ?? null,
+    nextCommitment:
+      recentServices.find((service) => service.nextMaintenanceLabel) ??
+      recentServices.find((service) => service.outputStatus === 'proximo_compromisso_sugerido') ??
+      null,
+    operational: recentServices.find((service) => service.statusTone === 'success') ?? null,
+  };
+}
+
+function AsideCard({
+  icon,
+  iconClass,
+  title,
+  children,
+}: {
+  icon: IconDefinition;
+  iconClass: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <SectionCard padding="sm">
+      <h2
+        className={`tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-sm tw-font-bold ${appV2Tone.text}`}
+      >
+        <FontAwesomeIcon icon={icon} className={iconClass} aria-hidden="true" />
+        {title}
+      </h2>
+      <div className="tw-mt-3">{children}</div>
+    </SectionCard>
+  );
+}
+
+function AsideServiceItem({
+  service,
+  detail,
+  nextLabel,
+}: {
+  service: RecentServiceViewModel;
+  detail: string;
+  nextLabel?: string | null;
+}) {
+  return (
+    <div className="tw-border-t tw-border-[#EDF2F7] tw-pt-3 first:tw-border-t-0 first:tw-pt-0">
+      <p className="tw-m-0 tw-text-xs tw-font-bold tw-text-[#2563EB]">
+        {service.kindLabel} - {service.dateLabel}
+      </p>
+      <h3 className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-bold ${appV2Tone.text}`}>
+        {service.equipmentName}
+      </h3>
+      <p className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-medium ${appV2Tone.mutedText}`}>
+        {service.customerLine}
+      </p>
+      <p
+        className={`tw-m-0 tw-mt-2 tw-text-xs tw-font-medium tw-leading-5 ${appV2Tone.subtleText}`}
+      >
+        {detail || 'Sem resumo técnico informado.'}
+      </p>
+      {nextLabel ? (
+        <span className="tw-mt-2 tw-inline-flex tw-rounded-full tw-bg-[#F0FDF4] tw-px-2 tw-py-1 tw-text-[0.65rem] tw-font-semibold tw-text-[#16A34A]">
+          {nextLabel === 'em dia' ? 'Status: em dia' : `Próxima manutenção: ${nextLabel}`}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function AsideEmpty({ children }: { children: ReactNode }) {
+  return (
+    <p
+      className={`tw-m-0 tw-rounded-xl tw-bg-[#F8FAFE] tw-p-3 tw-text-xs tw-font-medium ${appV2Tone.mutedText}`}
+    >
+      {children}
+    </p>
   );
 }

@@ -110,118 +110,126 @@ export function ClientList({
 
       <EquipmentSubViewNav activeView={activeView} onSelectView={onSelectView} />
 
-      {isCreating ? (
-        <ClientForm
-          title="Novo cliente"
-          onCancel={() => setIsCreating(false)}
-          onSave={saveClientDraft}
-        />
-      ) : null}
-
       <div className="tw-grid tw-gap-7 xl:tw-grid-cols-[minmax(0,1fr)_320px]">
-        <section
-          aria-labelledby="clients-list-title"
-          className={`tw-rounded-[20px] tw-border tw-bg-white tw-p-5 ${appV2Border.default} ${appV2Shadow.card}`}
-        >
-          <h2 id="clients-list-title" className="tw-sr-only">
-            Clientes
-          </h2>
-
-          <label className="tw-sr-only" htmlFor="client-search">
-            Buscar cliente, documento ou equipamento
-          </label>
-          <div className="tw-mb-5 tw-flex tw-items-center tw-gap-2.5 tw-rounded-full tw-border tw-border-[#E2E8F0] tw-bg-[#F8FAFE] tw-px-5 tw-py-3">
-            <FontAwesomeIcon
-              icon={faMagnifyingGlass}
-              aria-hidden="true"
-              className="tw-text-sm tw-text-[#8BA0BC]"
+        <div className="tw-grid tw-gap-5">
+          {isCreating ? (
+            <ClientForm
+              title="Novo cliente"
+              onCancel={() => setIsCreating(false)}
+              onSave={saveClientDraft}
             />
-            <input
-              id="client-search"
-              name="client-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar cliente, documento ou equipamento"
-              className={`tw-min-w-0 tw-flex-1 tw-border-0 tw-bg-transparent tw-text-sm tw-font-medium tw-outline-none placeholder:tw-font-normal placeholder:tw-text-[#8BA0BC] ${appV2Text.primary}`}
-            />
-          </div>
+          ) : null}
 
-          <div className="tw-mb-6 tw-flex tw-flex-wrap tw-gap-2.5">
-            {clientFilters.map((item) => {
-              const isActive = item.id === viewModel.activeFilter;
+          <section
+            aria-labelledby="clients-list-title"
+            className={`tw-rounded-[20px] tw-border tw-bg-white tw-p-5 ${appV2Border.default} ${appV2Shadow.card}`}
+          >
+            <h2 id="clients-list-title" className="tw-sr-only">
+              Clientes
+            </h2>
 
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setFilter(item.id)}
-                  className={`tw-rounded-full tw-px-4 tw-py-2 tw-text-xs tw-font-medium ${appV2Focus} ${
-                    isActive ? 'tw-bg-[#1E4F8A] tw-text-white' : 'tw-bg-[#F1F5F9] tw-text-[#1E4F8A]'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
+            {!isCreating ? (
+              <>
+                <label className="tw-sr-only" htmlFor="client-search">
+                  Buscar cliente, documento ou equipamento
+                </label>
+                <div className="tw-mb-5 tw-flex tw-items-center tw-gap-2.5 tw-rounded-full tw-border tw-border-[#E2E8F0] tw-bg-[#F8FAFE] tw-px-5 tw-py-3">
+                  <FontAwesomeIcon
+                    icon={faMagnifyingGlass}
+                    aria-hidden="true"
+                    className="tw-text-sm tw-text-[#8BA0BC]"
+                  />
+                  <input
+                    id="client-search"
+                    name="client-search"
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Buscar cliente, documento ou equipamento"
+                    className={`tw-min-w-0 tw-flex-1 tw-border-0 tw-bg-transparent tw-text-sm tw-font-medium tw-outline-none placeholder:tw-font-normal placeholder:tw-text-[#8BA0BC] ${appV2Text.primary}`}
+                  />
+                </div>
+              </>
+            ) : null}
 
-          <div className="tw-flex tw-flex-col tw-gap-4">
-            {clients.length === 0 ? (
-              <EmptyClientMessage>Nenhum cliente disponível.</EmptyClientMessage>
-            ) : viewModel.items.length === 0 ? (
-              <EmptyClientMessage>
-                Nenhum cliente encontrado para a consulta atual.
-              </EmptyClientMessage>
-            ) : (
-              viewModel.items.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onOpenClient(item.id)}
-                  className={`tw-w-full tw-rounded-[18px] tw-border tw-border-[#E2E8F0] tw-bg-white tw-px-5 tw-py-4 tw-text-left tw-transition hover:tw-bg-[#F8FAFE] ${appV2Focus}`}
-                >
-                  <div className="tw-flex tw-min-w-0 tw-items-start tw-justify-between tw-gap-4">
-                    <div className="tw-min-w-0">
-                      <p className={`tw-m-0 tw-text-base tw-font-bold ${appV2Text.primary}`}>
-                        {item.name}
-                      </p>
-                      <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-1 tw-text-xs tw-font-medium tw-text-[#52677F]">
-                        <span className="tw-inline-flex tw-items-center tw-gap-1.5">
-                          <FontAwesomeIcon
-                            icon={faLocationDot}
-                            aria-hidden="true"
-                            className="tw-w-3.5 tw-text-[#8BA0BC]"
-                          />
-                          {item.detailLine}
-                        </span>
-                        <span className="tw-inline-flex tw-items-center tw-gap-1.5">
-                          <FontAwesomeIcon
-                            icon={faPhone}
-                            aria-hidden="true"
-                            className="tw-w-3.5 tw-text-[#8BA0BC]"
-                          />
-                          {item.contactLine}
-                        </span>
+            <div className="tw-mb-6 tw-flex tw-flex-wrap tw-gap-2.5">
+              {clientFilters.map((item) => {
+                const isActive = item.id === viewModel.activeFilter;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setFilter(item.id)}
+                    className={`tw-rounded-full tw-px-4 tw-py-2 tw-text-xs tw-font-medium ${appV2Focus} ${
+                      isActive
+                        ? 'tw-bg-[#1E4F8A] tw-text-white'
+                        : 'tw-bg-[#F1F5F9] tw-text-[#1E4F8A]'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="tw-flex tw-flex-col tw-gap-4">
+              {clients.length === 0 ? (
+                <EmptyClientMessage>Nenhum cliente disponível.</EmptyClientMessage>
+              ) : viewModel.items.length === 0 ? (
+                <EmptyClientMessage>
+                  Nenhum cliente encontrado para a consulta atual.
+                </EmptyClientMessage>
+              ) : (
+                viewModel.items.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onOpenClient(item.id)}
+                    className={`tw-w-full tw-rounded-[18px] tw-border tw-border-[#E2E8F0] tw-bg-white tw-px-5 tw-py-4 tw-text-left tw-transition hover:tw-bg-[#F8FAFE] ${appV2Focus}`}
+                  >
+                    <div className="tw-flex tw-min-w-0 tw-items-start tw-justify-between tw-gap-4">
+                      <div className="tw-min-w-0">
+                        <p className={`tw-m-0 tw-text-base tw-font-bold ${appV2Text.primary}`}>
+                          {item.name}
+                        </p>
+                        <div className="tw-mt-2 tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-1 tw-text-xs tw-font-medium tw-text-[#52677F]">
+                          <span className="tw-inline-flex tw-items-center tw-gap-1.5">
+                            <FontAwesomeIcon
+                              icon={faLocationDot}
+                              aria-hidden="true"
+                              className="tw-w-3.5 tw-text-[#8BA0BC]"
+                            />
+                            {item.detailLine}
+                          </span>
+                          <span className="tw-inline-flex tw-items-center tw-gap-1.5">
+                            <FontAwesomeIcon
+                              icon={faPhone}
+                              aria-hidden="true"
+                              className="tw-w-3.5 tw-text-[#8BA0BC]"
+                            />
+                            {item.contactLine}
+                          </span>
+                        </div>
+                        <p className="tw-m-0 tw-mt-2 tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-bg-[#F0FDF4] tw-px-2.5 tw-py-1 tw-text-xs tw-font-semibold tw-text-[#16A34A]">
+                          <FontAwesomeIcon icon={faCalendarCheck} aria-hidden="true" />
+                          {formatDisplayServiceLabel(item.lastServiceLabel)}
+                        </p>
                       </div>
-                      <p className="tw-m-0 tw-mt-2 tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-full tw-bg-[#F0FDF4] tw-px-2.5 tw-py-1 tw-text-xs tw-font-semibold tw-text-[#16A34A]">
-                        <FontAwesomeIcon icon={faCalendarCheck} aria-hidden="true" />
-                        {formatDisplayServiceLabel(item.lastServiceLabel)}
-                      </p>
+                      <div className="tw-flex tw-shrink-0 tw-flex-col tw-items-end tw-gap-1.5 tw-text-xs tw-font-semibold tw-text-[#52677F]">
+                        <span className={getClientStatusClass(item.statusTone)}>
+                          {formatClientStatusLabel(item.statusLabel)}
+                        </span>
+                        <span>{item.equipmentCountLabel}</span>
+                        <span>{formatPendingLabel(item.pendingCountLabel)}</span>
+                      </div>
                     </div>
-                    <div className="tw-flex tw-shrink-0 tw-flex-col tw-items-end tw-gap-1.5 tw-text-xs tw-font-semibold tw-text-[#52677F]">
-                      <span className={getClientStatusClass(item.statusTone)}>
-                        {formatClientStatusLabel(item.statusLabel)}
-                      </span>
-                      <span>{item.equipmentCountLabel}</span>
-                      <span>{formatPendingLabel(item.pendingCountLabel)}</span>
-                    </div>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        </section>
+                  </button>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
 
         <aside className="tw-flex tw-flex-col tw-gap-5">
           <SummaryCard
@@ -229,14 +237,16 @@ export function ClientList({
             icon={faChartLine}
             iconClass="tw-text-[#2563EB]"
             action={
-              <button
-                type="button"
-                onClick={() => setIsCreating(true)}
-                className={`tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-[#2563EB] tw-px-3 tw-py-2 tw-text-xs tw-font-semibold tw-text-white ${appV2Focus}`}
-              >
-                <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
-                Novo cliente
-              </button>
+              !isCreating ? (
+                <button
+                  type="button"
+                  onClick={() => setIsCreating(true)}
+                  className={`tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-xl tw-bg-[#2563EB] tw-px-3 tw-py-2 tw-text-xs tw-font-semibold tw-text-white ${appV2Focus}`}
+                >
+                  <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+                  Novo cliente
+                </button>
+              ) : null
             }
           >
             <div className={`tw-text-3xl tw-font-extrabold ${appV2Text.primary}`}>
