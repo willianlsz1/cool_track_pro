@@ -19,6 +19,12 @@ recorte local. Novos ciclos visuais dessas areas exigem achado objetivo ou novo
 fluxo funcional que altere densidade/hierarquia; preferencia estetica isolada
 nao reabre visual.
 
+Atualizacao 2026-05-17 pos segunda passada visual: as cores, superficies,
+bordas, tipografia, densidade e hierarquia aprovadas na segunda passada passam a
+ser a linha visual oficial do app-v2. Mudancas futuras devem preservar essa
+linguagem por padrao. Qualquer desvio deve declarar achado objetivo, papel
+visual do novo valor e validacao executada.
+
 ## Contexto
 
 O `app-v2` ja possui fundacao mockada, shell operacional, navegacao principal e
@@ -65,6 +71,47 @@ templates ou padroes problematicos do legado.
 - Nao misturar classes do CSS legado com componentes do app-v2.
 - Apos mudanca visual bem-sucedida, CSS obsoleto da area afetada deve ser
   removido quando comprovadamente seguro.
+- A paleta aprovada na segunda passada e oficial. Nao introduzir nova familia de
+  cores, novo gradiente, novo tom dominante ou nova superficie sem registrar o
+  papel visual esperado.
+- Valores arbitrarios do Tailwind so devem ser usados quando reproduzirem valor
+  aprovado ou resolverem caso pontual claramente isolado. Se aparecerem em mais
+  de uma tela, devem virar token, helper ou componente.
+- Nao usar margem negativa, `position: absolute`, `z-index` crescente ou
+  `overflow-hidden` para esconder erro de espacamento, colisao ou tamanho.
+- Nao usar seletores por profundidade de DOM, nomes genericos ou regras amplas
+  que possam vazar entre telas.
+- Todo campo, seletor, textarea e botao de largura fluida deve ter box sizing
+  previsivel por classe Tailwind ou componente base. O layout nao deve depender
+  do comportamento padrao do navegador.
+- Se um conjunto de classes corrige o mesmo problema em duas telas, ele deve ser
+  consolidado em primitivo, helper local ou token antes de se espalhar.
+
+## Regras para formularios e densidade
+
+- Formularios devem usar uma estrutura explicita de pilha e linhas: grupo de
+  campo, label, controle e ajuda/erro. Nao montar espacamento por labels soltas
+  em grids improvisados.
+- Labels precisam ter respiro vertical fixo antes do controle e respiro entre
+  linhas de campos. Um label de uma coluna nunca deve parecer colado ao campo ou
+  label da coluna vizinha.
+- Grids de formulario devem ter `gap` horizontal e vertical suficientes. Quando
+  houver risco de compressao, preferir pilhas verticais ou pares de campos
+  agrupados em linhas, como no fluxo de atendimento.
+- Apos validacao visual do cadastro de clientes em 2026-05-17, formularios de
+  cadastro/edicao com muitos dados devem preferir o padrao de foco vertical:
+  uma pilha de campos por secao, pares somente quando a relacao entre campos for
+  obvia e sem disputa visual entre labels.
+- Campos de texto longo devem ocupar linha inteira quando a leitura for mais
+  importante que densidade. Diagnostico, acoes executadas, observacoes e resumo
+  tecnico nao devem competir com campos curtos na mesma altura.
+- Inputs, selects e textareas devem manter altura, padding, borda e raio
+  consistentes com a linha oficial da segunda passada visual.
+- Chips de status, botoes de acao e campos financeiros devem preservar
+  alinhamento, quebra de linha e largura minima previsivel em mobile e desktop.
+- A solucao padrao para formulario novo ou ajustado e reaproveitar primitivos do
+  app-v2 quando existirem. Se ainda nao existir primitivo adequado, criar um
+  pequeno componente coeso no app-v2 em vez de repetir markup fragil por tela.
 
 ## Regras de tokens
 
@@ -124,6 +171,10 @@ Antes de considerar qualquer mudanca visual concluida:
 - validar estado com muitos itens;
 - validar contraste de texto principal e secundario;
 - validar foco de teclado quando houver input ou botao;
+- validar que labels, campos, botoes e chips nao colidem, nao parecem
+  espremidos e nao geram overflow horizontal;
+- validar formularios em mobile estreito e desktop largo quando a mudanca tocar
+  grid, gap, campo, label, textarea, select ou botoes;
 - confirmar que nenhum CSS legado foi importado ou copiado;
 - confirmar que nao houve mudanca funcional fora do escopo visual.
 
@@ -136,6 +187,11 @@ Todo checkpoint visual futuro deve declarar antes de editar codigo:
 - tokens, helpers ou classes novas esperadas;
 - estados obrigatorios de validacao: vazio, carregado, muitos itens, texto
   longo, foco, mobile estreito e desktop largo;
+- se a mudanca altera cor, superficie, borda, sombra, raio ou tipografia:
+  declarar se reutiliza a linha oficial da segunda passada ou justificar o novo
+  papel visual;
+- se a mudanca altera formulario, grid ou campo: declarar o primitivo ou padrao
+  de layout usado e validar box sizing, gaps, quebra de linha e overflow;
 - comandos/testes de verificacao;
 - escopo proibido preservado.
 

@@ -25,6 +25,11 @@ export interface Cliente {
   documento?: string;
   contato?: string;
   endereco?: string;
+  inscricaoEstadual?: string;
+  inscricaoMunicipal?: string;
+  canalChamados?: string;
+  finalidadeAmbiente?: string;
+  observacoesInternas?: string;
 }
 
 export interface SetorEquipamento {
@@ -54,6 +59,11 @@ export interface Equipamento {
   setorId?: string;
   tag?: string;
   tipo?: string;
+  componente?: string;
+  fluidoRefrigerante?: string;
+  marcaModelo?: string;
+  numeroSerie?: string;
+  capacidadeBtuh?: string;
   criticidade?: EquipmentCriticality;
   prioridadeOperacional?: OperationalPriority;
   periodicidadePreventivaDias?: number;

@@ -16,7 +16,13 @@ import {
   mockEquipmentToday,
 } from './mockEquipmentData';
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import {
+  ActionButton,
+  PageShell,
+  SectionCard,
+  SectionEyebrow,
+  StatusBadge,
+} from '../ui/primitives';
 
 interface EquipmentDetailProps {
   equipmentId: string;
@@ -131,9 +137,7 @@ export function EquipmentDetail({
           />
           <div className="tw-flex tw-items-start tw-justify-between tw-gap-4">
             <div className="tw-min-w-0">
-              <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-                Equipamento
-              </p>
+              <SectionEyebrow>Equipamento</SectionEyebrow>
               <h1
                 className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight sm:tw-text-[2rem] ${appV2Tone.text}`}
               >
@@ -256,7 +260,7 @@ export function EquipmentDetail({
                   onClick={addPlaceholderAttachment}
                   className={`tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#2563EB] ${appV2Tone.focus}`}
                 >
-                  Adicionar anexo placeholder
+                  Adicionar anexo local
                 </button>
               ) : null}
             </div>
@@ -301,6 +305,9 @@ export function EquipmentDetail({
               Resumo técnico
             </h2>
             <dl className="tw-mt-5 tw-grid tw-gap-4">
+              {detail.technicalDetails.map((item) => (
+                <InfoRow key={item.label} label={item.label} value={item.value} />
+              ))}
               <InfoRow label="Último serviço" value={detail.lastServiceLabel} />
               <InfoRow label="Preventiva" value={detail.nextPreventiveLabel} />
               <InfoRow label="Observação" value={detail.note} />

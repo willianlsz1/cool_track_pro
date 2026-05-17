@@ -12,7 +12,14 @@ import {
   mockEquipmentToday,
 } from './mockEquipmentData';
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, ListRow, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import {
+  ActionButton,
+  ListRow,
+  PageShell,
+  SectionCard,
+  SectionEyebrow,
+  StatusBadge,
+} from '../ui/primitives';
 
 interface ClientDetailProps {
   clientId: string;
@@ -67,9 +74,7 @@ export function ClientDetail({
       <SectionCard labelledBy="client-detail-title">
         <div className="tw-flex tw-items-start tw-justify-between tw-gap-4">
           <div className="tw-min-w-0">
-            <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-              Cliente
-            </p>
+            <SectionEyebrow>Cliente</SectionEyebrow>
             <h1
               id="client-detail-title"
               className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight sm:tw-text-[2rem] ${appV2Tone.text}`}
@@ -89,8 +94,31 @@ export function ClientDetail({
           <InfoRow label="Contato" value={detail.contactLine} />
           <InfoRow label="Endereço" value={detail.addressLine} />
           <InfoRow label="Documento" value={detail.documentLine} />
+          <InfoRow label="Razão social" value={detail.legalNameLine} />
+          <InfoRow label="Finalidade" value={detail.environmentLine} />
+          <InfoRow label="Canal de chamados" value={detail.ticketChannelLine} />
+          {detail.registrationDetails.map((item) => (
+            <InfoRow key={item.label} label={item.label} value={item.value} />
+          ))}
           <InfoRow label="Status" value={detail.statusLabel} />
         </dl>
+      </SectionCard>
+
+      <SectionCard labelledBy="client-internal-notes-title">
+        <h2
+          id="client-internal-notes-title"
+          className={`tw-m-0 tw-text-base tw-font-semibold ${appV2Tone.text}`}
+        >
+          Observações internas
+        </h2>
+        <p className={`tw-m-0 tw-mt-1 tw-text-sm tw-font-normal ${appV2Tone.mutedText}`}>
+          Notas locais para a equipe técnica. Não entram em relatório enviado ao cliente.
+        </p>
+        <p
+          className={`tw-m-0 tw-mt-4 tw-rounded-2xl tw-border tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-p-4 tw-text-sm tw-font-medium tw-leading-6 ${appV2Tone.text}`}
+        >
+          {detail.internalNotesLine}
+        </p>
       </SectionCard>
 
       {isEditing && client ? (

@@ -35,7 +35,21 @@ export interface EquipmentListViewModel {
   totalLabel: string;
   activeFilter: EquipmentFilter;
   query: string;
+  sectors: EquipmentSectorViewModel[];
   items: EquipmentListItemViewModel[];
+}
+
+export interface EquipmentSectorViewModel {
+  id: string;
+  name: string;
+  clientId?: string;
+  clientName: string;
+  equipmentCount: number;
+  equipmentCountLabel: string;
+  attentionCount: number;
+  attentionLabel: string;
+  nextCommitmentLabel: string;
+  equipmentIds: string[];
 }
 
 export interface EquipmentListItemViewModel {
@@ -77,6 +91,7 @@ export interface EquipmentDetailViewModel {
   location: string;
   criticalityLabel?: string;
   priorityLabel?: string;
+  technicalDetails: Array<{ label: string; value: string }>;
   primaryActionLabel: string;
   secondaryActionLabel: 'Agendar preventiva';
   customerActionLabel: 'Ver cliente';
@@ -97,9 +112,16 @@ export function buildEquipmentListViewModel(
   const setoresById = new Map((input.setores ?? []).map((setor) => [setor.id, setor]));
   const registrosByEquipment = groupByEquipment(input.registros);
   const commitmentsByEquipment = groupByEquipment(input.compromissos);
+  const activeEquipments = input.equipamentos.filter((equipamento) => !equipamento.archivedAt);
+  const sectors = buildSectorViewModels({
+    setores: input.setores ?? [],
+    clientesById,
+    equipamentos: activeEquipments,
+    commitmentsByEquipment,
+    today: input.today,
+  });
 
-  const items = input.equipamentos
-    .filter((equipamento) => !equipamento.archivedAt)
+  const items = activeEquipments
     .map((equipamento) =>
       mapEquipmentItem({
         equipamento,
@@ -120,6 +142,7 @@ export function buildEquipmentListViewModel(
     totalLabel: `${items.length} ${items.length === 1 ? 'equipamento' : 'equipamentos'}`,
     activeFilter,
     query,
+    sectors,
     items,
   };
 }
@@ -172,6 +195,7 @@ export function buildEquipmentDetailViewModel(
     location: equipamento.local,
     criticalityLabel: formatCriticality(equipamento.criticidade),
     priorityLabel: formatPriority(equipamento.prioridadeOperacional),
+    technicalDetails: buildTechnicalDetails(equipamento),
     primaryActionLabel: isArchived
       ? 'Equipamento arquivado'
       : registros.length === 0
@@ -340,6 +364,77 @@ function matchesFilter(item: EquipmentListItemViewModel, filter: EquipmentFilter
   return item.nextActionLabel === 'Registrar primeiro serviço';
 }
 
+function buildSectorViewModels({
+  setores,
+  clientesById,
+  equipamentos,
+  commitmentsByEquipment,
+  today,
+}: {
+  setores: SetorEquipamento[];
+  clientesById: Map<string, Cliente>;
+  equipamentos: Equipamento[];
+  commitmentsByEquipment: Map<string, CompromissoServico[]>;
+  today: string;
+}): EquipmentSectorViewModel[] {
+  return setores.map((setor) => {
+    const sectorEquipments = equipamentos.filter((equipamento) => equipamento.setorId === setor.id);
+    const attentionCount = sectorEquipments.filter((equipamento) =>
+      ['warn', 'danger'].includes(equipamento.status),
+    ).length;
+
+    return {
+      id: setor.id,
+      name: setor.nome,
+      clientId: setor.clienteId,
+      clientName: setor.clienteId
+        ? (clientesById.get(setor.clienteId)?.nome ?? 'Cliente não encontrado')
+        : 'Sem cliente fixo',
+      equipmentCount: sectorEquipments.length,
+      equipmentCountLabel: `${sectorEquipments.length} ${
+        sectorEquipments.length === 1 ? 'equipamento' : 'equipamentos'
+      }`,
+      attentionCount,
+      attentionLabel: attentionCount > 0 ? `${attentionCount} em atenção` : 'Sem atenção',
+      nextCommitmentLabel: formatSectorNextCommitment(
+        sectorEquipments,
+        commitmentsByEquipment,
+        today,
+      ),
+      equipmentIds: sectorEquipments.map((equipamento) => equipamento.id),
+    };
+  });
+}
+
+function formatSectorNextCommitment(
+  equipamentos: Equipamento[],
+  commitmentsByEquipment: Map<string, CompromissoServico[]>,
+  today: string,
+): string {
+  const commitments = equipamentos
+    .flatMap((equipamento) => commitmentsByEquipment.get(equipamento.id) ?? [])
+    .filter((compromisso) => compromisso.status === 'agendado')
+    .sort((a, b) => a.dataAlvo.localeCompare(b.dataAlvo));
+  const nextCommitment =
+    commitments.find((compromisso) => compromisso.dataAlvo < today) ?? commitments[0];
+
+  if (!nextCommitment) {
+    return 'Sem compromisso agendado';
+  }
+
+  const kind = formatCommitmentKind(nextCommitment.tipo);
+
+  if (nextCommitment.dataAlvo < today) {
+    return `${kind} vencida desde ${formatDateLabel(nextCommitment.dataAlvo)}`;
+  }
+
+  if (nextCommitment.dataAlvo === today) {
+    return `${kind} para hoje`;
+  }
+
+  return `${kind} em ${formatDateLabel(nextCommitment.dataAlvo)}`;
+}
+
 function groupByEquipment<T extends { equipamentoId: string }>(items: T[]): Map<string, T[]> {
   const grouped = new Map<string, T[]>();
 
@@ -364,6 +459,22 @@ function formatSectorLabel(setor: SetorEquipamento | undefined): string {
 function formatTypeLine(equipamento: Equipamento): string {
   const parts = [equipamento.tipo, equipamento.tag].filter(Boolean);
   return parts.length > 0 ? parts.join(' - ') : 'Sem tipo definido';
+}
+
+function buildTechnicalDetails(equipamento: Equipamento): Array<{ label: string; value: string }> {
+  return [
+    { label: 'Componente', value: equipamento.componente },
+    { label: 'Fluido', value: equipamento.fluidoRefrigerante },
+    { label: 'Marca/modelo', value: equipamento.marcaModelo },
+    { label: 'Número de série', value: equipamento.numeroSerie },
+    { label: 'Capacidade', value: equipamento.capacidadeBtuh },
+    {
+      label: 'Preventiva',
+      value: equipamento.periodicidadePreventivaDias
+        ? `${equipamento.periodicidadePreventivaDias} dias`
+        : undefined,
+    },
+  ].filter((item): item is { label: string; value: string } => Boolean(item.value));
 }
 
 function formatAttachmentCount(count: number): string | undefined {

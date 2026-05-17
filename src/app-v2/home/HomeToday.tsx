@@ -35,7 +35,13 @@ import {
   appV2Surface,
   appV2Text,
 } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard, StatusBadge } from '../ui/primitives';
+import {
+  ActionButton,
+  PageShell,
+  SectionCard,
+  SectionEyebrow,
+  StatusBadge,
+} from '../ui/primitives';
 
 const defaultHomeInput: BuildHomeTodayViewModelInput = {
   today: mockHomeToday,
@@ -100,11 +106,7 @@ function HomeHeader({ viewModel }: { viewModel: HomeTodayViewModel }) {
   return (
     <header className="tw-min-w-0">
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-        <span
-          className={`tw-inline-flex tw-items-center tw-rounded-full tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.12em] ${appV2Surface.actionSoft} ${appV2Text.action}`}
-        >
-          Hoje em CoolTrack
-        </span>
+        <SectionEyebrow>Hoje em CoolTrack</SectionEyebrow>
         <span
           className={`tw-inline-flex tw-items-center tw-gap-2 tw-rounded-full tw-border tw-bg-white tw-px-3 tw-py-1 tw-text-sm tw-font-semibold ${appV2Border.default} ${appV2Text.action}`}
         >
@@ -190,11 +192,7 @@ function NextActionPanel({
     >
       <div className="tw-min-w-0">
         <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-          <span
-            className={`tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.08em] ${appV2Text.muted}`}
-          >
-            Próxima ação
-          </span>
+          <SectionEyebrow>Próxima ação</SectionEyebrow>
           <StatusBadge
             tone={isDanger ? 'danger' : action.tone === 'warning' ? 'warning' : 'primary'}
           >

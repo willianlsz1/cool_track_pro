@@ -36,6 +36,17 @@ qualquer refinamento visual amplo ou mudanca em CSS/componentes.
 - Texto longo, estado vazio, muitos itens, foco de teclado, mobile estreito e
   desktop largo entram no criterio minimo de validacao visual.
 
+## Atualizacao 2026-05-17 - segunda passada visual
+
+A segunda passada visual aprovada passa a ser a linha oficial do app-v2 para
+cores, superficies, bordas, tipografia, densidade e hierarquia. O documento
+`docs/rewrite/etapa-10-regras-design-system-ui-app-v2.md` concentra as regras
+anti-regressao para CSS, Tailwind, formularios, espacamento e validacao visual.
+
+Novas mudancas visuais devem partir dessa linha oficial, nao de preferencias
+isoladas e nao de padroes do v1. Qualquer desvio deve ser justificado por achado
+objetivo, novo fluxo funcional ou necessidade de acessibilidade.
+
 ## Erros do v1 que esta fase bloqueia
 
 - CSS global acumulado e dificil de rastrear.

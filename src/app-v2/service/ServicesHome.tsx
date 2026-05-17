@@ -15,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { appV2Border, appV2Focus, appV2Text, appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard } from '../ui/primitives';
+import { ActionButton, PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 import { RecentServiceCard } from './RecentServiceCard';
 import { ServiceInProgressCard } from './ServiceInProgressCard';
 import { ServicesQuotesHome, type QuoteEditDraft } from './ServicesQuotesHome';
@@ -87,9 +87,7 @@ export function ServicesHome({
   return (
     <PageShell className="tw-gap-6">
       <header className="tw-min-w-0">
-        <p className="tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] tw-text-[#1E4F8A]">
-          {viewModel.subtitle}
-        </p>
+        <SectionEyebrow>{viewModel.subtitle}</SectionEyebrow>
         <h1
           className={`tw-m-0 tw-mt-3 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-[-0.3px] ${appV2Tone.text}`}
         >

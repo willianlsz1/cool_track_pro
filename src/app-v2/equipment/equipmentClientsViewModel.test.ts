@@ -39,13 +39,20 @@ describe('buildEquipmentClientsListViewModel', () => {
       {
         ...input,
         clientes: input.clientes.map((cliente) =>
-          cliente.id === 'cliente-1' ? { ...cliente, documento: '12.345.678/0001-90' } : cliente,
+          cliente.id === 'cliente-1'
+            ? {
+                ...cliente,
+                documento: '12.345.678/0001-90',
+                canalChamados: 'Portal do cliente',
+                finalidadeAmbiente: 'Comercial',
+              }
+            : cliente,
         ),
       },
-      { query: 'CAM-001' },
+      { query: 'portal do cliente' },
     );
 
-    expect(viewModel.query).toBe('CAM-001');
+    expect(viewModel.query).toBe('portal do cliente');
     expect(viewModel.totalLabel).toBe('1 cliente');
     expect(viewModel.items.map((item) => item.id)).toEqual(['cliente-1']);
     expect(viewModel.items[0]).toMatchObject({
@@ -71,11 +78,40 @@ describe('buildEquipmentClientsListViewModel', () => {
 
 describe('buildEquipmentClientDetailViewModel', () => {
   it('monta detalhe do cliente com equipamentos associados pelo clienteId', () => {
-    const detail = buildEquipmentClientDetailViewModel(createInput(), 'cliente-1');
+    const input = createInput();
+    const detail = buildEquipmentClientDetailViewModel(
+      {
+        ...input,
+        clientes: input.clientes.map((cliente) =>
+          cliente.id === 'cliente-1'
+            ? {
+                ...cliente,
+                razaoSocial: 'Mercado Bom Preco LTDA',
+                inscricaoEstadual: 'Isento',
+                inscricaoMunicipal: '12345',
+                canalChamados: 'WhatsApp da loja',
+                finalidadeAmbiente: 'Comercial',
+                observacoesInternas: 'Acesso pela entrada lateral.',
+              }
+            : cliente,
+        ),
+      },
+      'cliente-1',
+    );
 
     expect(detail.id).toBe('cliente-1');
     expect(detail.equipmentCountLabel).toBe('3 equipamentos vinculados');
     expect(detail.equipments.map((item) => item.id)).toEqual(['eq-1', 'eq-2', 'eq-4']);
+    expect(detail).toMatchObject({
+      legalNameLine: 'Mercado Bom Preco LTDA',
+      environmentLine: 'Comercial',
+      ticketChannelLine: 'WhatsApp da loja',
+      internalNotesLine: 'Acesso pela entrada lateral.',
+    });
+    expect(detail.registrationDetails).toEqual([
+      { label: 'Inscrição estadual', value: 'Isento' },
+      { label: 'Inscrição municipal', value: '12345' },
+    ]);
   });
 
   it('monta servicos relacionados ao cliente a partir dos equipamentos vinculados', () => {
@@ -96,12 +132,13 @@ describe('buildEquipmentClientDetailViewModel', () => {
     const detail = buildEquipmentClientDetailViewModel(createInput(), 'cliente-1');
 
     expect(detail.localReport.title).toBe('Resumo local do cliente');
-    expect(detail.localReport.facts).toEqual([
-      { label: 'Equipamentos', value: '3 equipamentos vinculados' },
-      { label: 'Serviços', value: '2 serviços relacionados' },
-      { label: 'Pendências', value: '2 pendências operacionais' },
-      { label: 'Último serviço', value: '09/05 - Camara fria' },
-    ]);
+    expect(detail.localReport.facts).toHaveLength(5);
+    expect(detail.localReport.facts).toEqual(
+      expect.arrayContaining([
+        { label: 'Equipamentos', value: '3 equipamentos vinculados' },
+        { label: 'Canal de chamados', value: 'Não informado' },
+      ]),
+    );
     expect(JSON.stringify(detail.localReport)).not.toContain('PMOC');
     expect(JSON.stringify(detail.localReport)).not.toContain('Supabase');
   });

@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
 
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, SectionCard } from '../ui/primitives';
+import { ActionButton, SectionCard, SectionEyebrow } from '../ui/primitives';
 import type { ServiceInProgressViewModel } from './servicesHomeViewModel';
 
 interface ServiceInProgressCardProps {
@@ -15,9 +15,7 @@ export function ServiceInProgressCard({ service, onResumeService }: ServiceInPro
     <SectionCard className="tw-relative tw-overflow-hidden tw-border-l-4 tw-border-l-[#2563EB] sm:tw-p-6">
       <div className="tw-grid tw-gap-5 lg:tw-grid-cols-[minmax(0,1fr)_minmax(220px,0.28fr)] lg:tw-items-end">
         <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] tw-text-[#52677F]">
-            Em andamento
-          </p>
+          <SectionEyebrow>Em andamento</SectionEyebrow>
           <h2
             className={`tw-m-0 tw-mt-2 tw-text-xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
           >

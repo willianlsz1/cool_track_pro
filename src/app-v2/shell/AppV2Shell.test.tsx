@@ -378,6 +378,16 @@ describe('AppV2Shell', () => {
     await fillInput(name as HTMLInputElement, 'Self contained loja');
     await fillInput(location as HTMLInputElement, 'Area de vendas');
     await selectOption(sector as HTMLSelectElement, 'setor-2');
+
+    const client = host.querySelector('select[name="equipment-client"]');
+    expect(client).toBeInstanceOf(HTMLSelectElement);
+    expect((client as HTMLSelectElement).value).toBe('cliente-1');
+    expect(host.textContent).toContain('Cliente herdado do setor: Mercado Bom');
+
+    await selectOption(sector as HTMLSelectElement, '');
+    expect(host.textContent).not.toContain('Cliente herdado do setor');
+    await selectOption(sector as HTMLSelectElement, 'setor-2');
+
     await clickButton(host, /^Salvar equipamento$/i);
 
     expect(host.textContent).toContain('Self contained loja');
@@ -389,30 +399,43 @@ describe('AppV2Shell', () => {
     expect(sectorFilter).toBeInstanceOf(HTMLSelectElement);
     await selectOption(sectorFilter as HTMLSelectElement, 'setor-2');
 
-    expect(host.textContent).toContain('Self contained loja');
-    expect(host.textContent).toMatch(/C.mara fria/);
-    expect(host.textContent).not.toContain('Split 24.000 BTU');
+    const equipmentList = host.querySelector('section[aria-label="Lista de equipamentos"]');
+    expect(equipmentList?.textContent).toContain('Self contained loja');
+    expect(equipmentList?.textContent).toMatch(/C.mara fria/);
+    expect(equipmentList?.textContent).not.toContain('Split 24.000 BTU');
   });
 
   it('cria e edita setor mock/local na lista de equipamentos sem storage real', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Equipamentos$/i);
+
+    expect(host.querySelector('input[name="equipment-sector-name"]')).toBeNull();
+    expect(host.textContent).toContain('Preventiva vencida');
+    expect(host.querySelector('[data-sector-card="setor-1"]')?.textContent).toContain(
+      'Split 24.000 BTU',
+    );
+
     await clickButton(host, /^Novo setor$/i);
 
     const sectorName = host.querySelector('input[name="equipment-sector-name"]');
     const sectorClient = host.querySelector('select[name="equipment-sector-client"]');
-    const sectorColor = host.querySelector('input[name="equipment-sector-color"]');
+    const sectorDescription = host.querySelector('textarea[name="equipment-sector-description"]');
     expect(sectorName).toBeInstanceOf(HTMLInputElement);
     expect(sectorClient).toBeInstanceOf(HTMLSelectElement);
-    expect(sectorColor).toBeInstanceOf(HTMLInputElement);
+    expect(sectorDescription).toBeInstanceOf(HTMLTextAreaElement);
+    expect(host.querySelector('input[name="equipment-sector-color"]')).toBeNull();
 
     await fillInput(sectorName as HTMLInputElement, 'Casa de maquinas');
     await selectOption(sectorClient as HTMLSelectElement, 'cliente-1');
-    await fillInput(sectorColor as HTMLInputElement, '#0F766E');
+    await fillTextarea(sectorDescription as HTMLTextAreaElement, 'Sala tecnica com condensadoras.');
     await clickButton(host, /^Salvar setor$/i);
 
     expect(host.textContent).toContain('Casa de maquinas');
+    expect(host.textContent).toContain('0 equipamentos');
+    expect(host.querySelector('[data-sector-card="setor-shell-4"]')?.textContent).toContain(
+      'Setor vazio',
+    );
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('Upload');
 
@@ -425,6 +448,52 @@ describe('AppV2Shell', () => {
 
     expect(host.textContent).toContain('Casa de maquinas revisada');
     expect(host.textContent).not.toContain('Casa de maquinasCasa de maquinas');
+  });
+
+  it('abre painel de setor e cria equipamento herdando setor e cliente localmente', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Abrir setor Recepcao$/i);
+
+    expect(host.textContent).toContain('Painel do setor');
+    expect(host.textContent).toContain('Recepcao');
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.querySelector('[data-sector-card="setor-1"]')?.textContent).toContain('Aberto');
+    const sectorPanel = host.querySelector('[data-sector-panel="setor-1"]');
+    expect(sectorPanel?.textContent).toContain('Split 24.000 BTU');
+    expect(sectorPanel?.textContent).not.toContain('Central de refrigera');
+    expect(sectorPanel?.textContent).toContain('Resumo operacional');
+
+    await clickButton(host, /^Adicionar equipamento neste setor$/i);
+
+    const sector = host.querySelector('select[name="equipment-sector"]');
+    const client = host.querySelector('select[name="equipment-client"]');
+    const name = host.querySelector('input[name="equipment-name"]');
+    const location = host.querySelector('input[name="equipment-location"]');
+    expect(sector).toBeInstanceOf(HTMLSelectElement);
+    expect(client).toBeInstanceOf(HTMLSelectElement);
+    expect(name).toBeInstanceOf(HTMLInputElement);
+    expect(location).toBeInstanceOf(HTMLInputElement);
+    expect((sector as HTMLSelectElement).value).toBe('setor-1');
+    expect((client as HTMLSelectElement).value).toBe('cliente-1');
+    expect(host.textContent).toContain('Cliente herdado do setor: Mercado Bom');
+
+    await selectOption(client as HTMLSelectElement, 'cliente-2');
+    expect(host.textContent).toContain(
+      'Cliente alterado neste equipamento. O setor pertence a Mercado Bom',
+    );
+    await fillInput(name as HTMLInputElement, 'Self contained recepcao');
+    await fillInput(location as HTMLInputElement, 'Recepcao tecnica');
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Self contained recepcao');
+    expect(host.textContent).toContain('2 equipamentos');
+    expect(host.textContent).toContain('Mercado Bom Preço');
+
+    await clickButton(host, /Self contained recepcao/i);
+    expect(host.textContent).toContain('Indústria Frio Sul');
+    expect(host.textContent).toContain('Setor: Recepcao');
   });
 
   it('remove setor mock/local preservando equipamentos, registros e relatorios locais', async () => {
@@ -541,6 +610,37 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Split recepcao revisado');
     expect(host.textContent).not.toContain('Split 24.000 BTU');
     expect(host.textContent).toContain('4 equipamentos');
+  });
+
+  it('move equipamento entre setores pela edicao e atualiza cliente herdado localmente', async () => {
+    const host = await renderShell();
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Editar equipamento$/i);
+
+    const sector = host.querySelector('select[name="equipment-sector"]');
+    const client = host.querySelector('select[name="equipment-client"]');
+    expect(sector).toBeInstanceOf(HTMLSelectElement);
+    expect(client).toBeInstanceOf(HTMLSelectElement);
+
+    await selectOption(sector as HTMLSelectElement, 'setor-3');
+
+    expect((sector as HTMLSelectElement).value).toBe('setor-3');
+    expect((client as HTMLSelectElement).value).toBe('cliente-2');
+    expect(host.textContent).toContain('Cliente herdado do setor: Ind');
+
+    await clickButton(host, /^Salvar equipamento$/i);
+
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Setor: Producao');
+    expect(host.textContent).toContain('Ind');
+
+    await clickButton(host, /^Voltar para equipamentos$/i);
+    await clickButton(host, /^Abrir setor Producao$/i);
+
+    const sectorPanel = host.querySelector('[data-sector-panel="setor-3"]');
+    expect(sectorPanel?.textContent).toContain('Split 24.000 BTU');
   });
 
   it('abre Clientes como subvisao dentro de Equipamentos e retorna para a lista', async () => {

@@ -53,6 +53,21 @@ export function SectionCard({
   );
 }
 
+type SectionEyebrowProps = {
+  children: ReactNode;
+  className?: string;
+};
+
+export function SectionEyebrow({ children, className = '' }: SectionEyebrowProps) {
+  return (
+    <p
+      className={`tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-leading-4 tw-tracking-[0.04em] tw-text-[#1E4F8A] ${className}`}
+    >
+      {children}
+    </p>
+  );
+}
+
 export type StatusBadgeTone = 'danger' | 'warning' | 'success' | 'primary' | 'muted';
 
 const statusBadgeToneClass: Record<StatusBadgeTone, string> = {

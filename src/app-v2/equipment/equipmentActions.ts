@@ -20,6 +20,11 @@ export interface SaveEquipmentDraft {
   setorId?: string;
   tag?: string;
   tipo?: string;
+  componente?: string;
+  fluidoRefrigerante?: string;
+  marcaModelo?: string;
+  numeroSerie?: string;
+  capacidadeBtuh?: string;
   criticidade?: EquipmentCriticality;
   prioridadeOperacional?: OperationalPriority;
   periodicidadePreventivaDias?: number | string;
@@ -48,7 +53,13 @@ export function saveEquipment(
   snapshot: AppV2MockSnapshot,
   draft: SaveEquipmentDraft,
 ): AppV2MockSnapshot {
-  const equipment = buildEquipmentPayload(draft);
+  const sectorClientId = trimOptional(draft.setorId)
+    ? snapshot.setores.find((setor) => setor.id === trimOptional(draft.setorId))?.clienteId
+    : undefined;
+  const equipment = buildEquipmentPayload({
+    ...draft,
+    clienteId: trimOptional(draft.clienteId) ?? trimOptional(sectorClientId),
+  });
   const currentIndex = snapshot.equipamentos.findIndex((item) => item.id === equipment.id);
   const shouldEdit = draft.mode === 'edit' || currentIndex >= 0;
 
@@ -256,6 +267,15 @@ function buildEquipmentPayload(draft: SaveEquipmentDraft): Equipamento {
     ...(trimOptional(draft.setorId) ? { setorId: trimOptional(draft.setorId) } : {}),
     ...(trimOptional(draft.tag) ? { tag: trimOptional(draft.tag) } : {}),
     ...(trimOptional(draft.tipo) ? { tipo: trimOptional(draft.tipo) } : {}),
+    ...(trimOptional(draft.componente) ? { componente: trimOptional(draft.componente) } : {}),
+    ...(trimOptional(draft.fluidoRefrigerante)
+      ? { fluidoRefrigerante: trimOptional(draft.fluidoRefrigerante) }
+      : {}),
+    ...(trimOptional(draft.marcaModelo) ? { marcaModelo: trimOptional(draft.marcaModelo) } : {}),
+    ...(trimOptional(draft.numeroSerie) ? { numeroSerie: trimOptional(draft.numeroSerie) } : {}),
+    ...(trimOptional(draft.capacidadeBtuh)
+      ? { capacidadeBtuh: trimOptional(draft.capacidadeBtuh) }
+      : {}),
     ...(draft.criticidade ? { criticidade: draft.criticidade } : {}),
     ...(draft.prioridadeOperacional ? { prioridadeOperacional: draft.prioridadeOperacional } : {}),
     ...(normalizePreventiveInterval(draft.periodicidadePreventivaDias)

@@ -20,6 +20,11 @@ describe('saveEquipment', () => {
       local: 'Area de vendas',
       tipo: 'Refrigeracao',
       tag: 'SELF-001',
+      componente: 'Evaporadora',
+      fluidoRefrigerante: 'R-410A',
+      marcaModelo: 'Carrier 24.000 BTU',
+      numeroSerie: '312KAKY3F817',
+      capacidadeBtuh: '24000',
       clienteId: 'cliente-1',
       status: 'warn',
       criticidade: 'alta',
@@ -34,6 +39,11 @@ describe('saveEquipment', () => {
       local: 'Area de vendas',
       tipo: 'Refrigeracao',
       tag: 'SELF-001',
+      componente: 'Evaporadora',
+      fluidoRefrigerante: 'R-410A',
+      marcaModelo: 'Carrier 24.000 BTU',
+      numeroSerie: '312KAKY3F817',
+      capacidadeBtuh: '24000',
       clienteId: 'cliente-1',
       status: 'warn',
       criticidade: 'alta',
@@ -57,6 +67,46 @@ describe('saveEquipment', () => {
       setorId: 'setor-1',
     });
     expect(result.equipamentos[0]).not.toHaveProperty('fotos');
+  });
+
+  it('herda cliente do setor quando o equipamento novo nao informa cliente', () => {
+    const snapshot = createAppV2MockSnapshot({
+      setores: [{ id: 'setor-1', nome: 'Recepcao', clienteId: 'cliente-1' }],
+      equipamentos: [],
+    });
+
+    const result = saveEquipment(snapshot, {
+      id: 'eq-novo',
+      nome: 'Self contained loja',
+      local: 'Area de vendas',
+      setorId: 'setor-1',
+    });
+
+    expect(result.equipamentos[0]).toMatchObject({
+      id: 'eq-novo',
+      setorId: 'setor-1',
+      clienteId: 'cliente-1',
+    });
+  });
+
+  it('preserva cliente escolhido no equipamento mesmo quando o setor tem outro cliente', () => {
+    const snapshot = createAppV2MockSnapshot({
+      setores: [{ id: 'setor-1', nome: 'Recepcao', clienteId: 'cliente-1' }],
+      equipamentos: [],
+    });
+
+    const result = saveEquipment(snapshot, {
+      id: 'eq-novo',
+      nome: 'Self contained loja',
+      local: 'Area de vendas',
+      clienteId: 'cliente-2',
+      setorId: 'setor-1',
+    });
+
+    expect(result.equipamentos[0]).toMatchObject({
+      clienteId: 'cliente-2',
+      setorId: 'setor-1',
+    });
   });
 
   it('bloqueia criacao sem nome com mensagem amigavel', () => {
@@ -122,6 +172,11 @@ describe('saveEquipment', () => {
           criticidade: 'alta',
           prioridadeOperacional: 'alta',
           periodicidadePreventivaDias: 30,
+          componente: 'Condensadora',
+          fluidoRefrigerante: 'R-410A',
+          marcaModelo: 'York 30 TR',
+          numeroSerie: 'SERIE-123',
+          capacidadeBtuh: '360000',
           setorId: 'setor-1',
         },
       ],
@@ -139,6 +194,11 @@ describe('saveEquipment', () => {
       criticidade: 'alta',
       prioridadeOperacional: 'alta',
       periodicidadePreventivaDias: 30,
+      componente: 'Condensadora',
+      fluidoRefrigerante: 'R-410A',
+      marcaModelo: 'York 30 TR',
+      numeroSerie: 'SERIE-123',
+      capacidadeBtuh: '360000',
       setorId: 'setor-1',
     });
   });

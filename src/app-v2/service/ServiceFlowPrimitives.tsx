@@ -1,7 +1,13 @@
 import type { ReactNode } from 'react';
 
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, SectionCard, StatusBadge, type StatusBadgeTone } from '../ui/primitives';
+import {
+  ActionButton,
+  SectionCard,
+  SectionEyebrow,
+  StatusBadge,
+  type StatusBadgeTone,
+} from '../ui/primitives';
 
 interface ServiceStepCardProps {
   children: ReactNode;
@@ -13,11 +19,7 @@ interface ServiceStepCardProps {
 export function ServiceStepCard({ children, eyebrow, title, description }: ServiceStepCardProps) {
   return (
     <SectionCard className="tw-overflow-hidden sm:tw-p-6">
-      <p
-        className={`tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] ${appV2Tone.subtleText}`}
-      >
-        {eyebrow}
-      </p>
+      <SectionEyebrow>{eyebrow}</SectionEyebrow>
       <h1 className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}>
         {title}
       </h1>

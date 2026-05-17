@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleInfo, faMicrochip, faPlay } from '@fortawesome/free-solid-svg-icons';
 
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard } from '../ui/primitives';
+import { ActionButton, PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 import type { Cliente, Equipamento } from '../domain/types';
 
 interface ServiceEquipmentChoiceProps {
@@ -22,11 +22,7 @@ export function ServiceEquipmentChoice({
     return (
       <PageShell>
         <SectionCard>
-          <p
-            className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-          >
-            Registro de serviço
-          </p>
+          <SectionEyebrow>Registro de serviço</SectionEyebrow>
           <h1
             className={`tw-m-0 tw-mt-2 tw-text-2xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}
           >

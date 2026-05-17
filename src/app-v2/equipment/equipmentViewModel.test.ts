@@ -37,8 +37,14 @@ const equipamentos: Equipamento[] = [
     clienteId: 'cliente-1',
     tag: 'SPL-024',
     tipo: 'Ar condicionado',
+    componente: 'Evaporadora',
+    fluidoRefrigerante: 'R-410A',
+    marcaModelo: 'Carrier 24.000 BTU',
+    numeroSerie: '312KAKY3F817',
+    capacidadeBtuh: '24000',
     criticidade: 'media',
     prioridadeOperacional: 'normal',
+    periodicidadePreventivaDias: 105,
     setorId: 'setor-1',
     anexos: [
       {
@@ -192,6 +198,31 @@ describe('buildEquipmentListViewModel', () => {
       nextActionTone: 'danger',
       attachmentLabel: '1 anexo',
       coverAttachmentLabel: 'Foto local evaporadora',
+    });
+  });
+
+  it('resume setores como agrupadores operacionais locais', () => {
+    const viewModel = buildEquipmentListViewModel(input);
+
+    expect(viewModel.sectors[0]).toMatchObject({
+      id: 'setor-1',
+      name: 'Recepcao',
+      clientName: 'Mercado Bom Preço',
+      equipmentCount: 1,
+      equipmentCountLabel: '1 equipamento',
+      attentionCount: 1,
+      attentionLabel: '1 em atenção',
+      nextCommitmentLabel: 'Preventiva vencida desde 08/05',
+      equipmentIds: ['eq-1'],
+    });
+    expect(viewModel.sectors[1]).toMatchObject({
+      id: 'setor-2',
+      name: 'Camara fria',
+      clientName: 'Mercado Bom Preço',
+      equipmentCount: 1,
+      attentionCount: 1,
+      nextCommitmentLabel: 'Corretiva para hoje',
+      equipmentIds: ['eq-2'],
     });
   });
 

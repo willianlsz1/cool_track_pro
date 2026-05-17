@@ -41,6 +41,11 @@ export interface EquipmentClientDetailViewModel {
   contactLine: string;
   addressLine: string;
   documentLine: string;
+  legalNameLine: string;
+  environmentLine: string;
+  ticketChannelLine: string;
+  registrationDetails: Array<{ label: string; value: string }>;
+  internalNotesLine: string;
   equipmentCountLabel: string;
   statusLabel: string;
   statusTone: EquipmentTone;
@@ -103,6 +108,11 @@ export function buildEquipmentClientsListViewModel(
           cliente.documento,
           cliente.contato,
           cliente.endereco,
+          cliente.inscricaoEstadual,
+          cliente.inscricaoMunicipal,
+          cliente.canalChamados,
+          cliente.finalidadeAmbiente,
+          cliente.observacoesInternas,
           ...rawEquipments.flatMap((equipment) => [
             equipment.nome,
             equipment.local,
@@ -170,6 +180,11 @@ export function buildEquipmentClientDetailViewModel(
     contactLine: cliente.contato ?? 'Sem contato informado',
     addressLine: cliente.endereco ?? 'Sem endereço informado',
     documentLine: cliente.documento ?? 'Sem documento informado',
+    legalNameLine: cliente.razaoSocial ?? 'Sem razao social informada',
+    environmentLine: cliente.finalidadeAmbiente ?? 'Sem finalidade informada',
+    ticketChannelLine: cliente.canalChamados ?? 'Sem canal de chamados informado',
+    registrationDetails: buildClientRegistrationDetails(cliente),
+    internalNotesLine: cliente.observacoesInternas ?? 'Sem observações internas',
     equipmentCountLabel: formatCount(
       equipmentItems.length,
       'equipamento vinculado',
@@ -207,9 +222,22 @@ export function buildEquipmentClientDetailViewModel(
           label: 'Último serviço',
           value: formatLastServiceFact(input, lastService),
         },
+        {
+          label: 'Canal de chamados',
+          value: cliente.canalChamados ?? 'Não informado',
+        },
       ],
     },
   };
+}
+
+function buildClientRegistrationDetails(
+  cliente: BuildEquipmentViewModelInput['clientes'][number],
+): Array<{ label: string; value: string }> {
+  return [
+    { label: 'Inscrição estadual', value: cliente.inscricaoEstadual ?? 'Não informado' },
+    { label: 'Inscrição municipal', value: cliente.inscricaoMunicipal ?? 'Não informado' },
+  ];
 }
 
 function getClientServices(

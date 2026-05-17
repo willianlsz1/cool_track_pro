@@ -64,9 +64,22 @@ _Avoid_: dashboard primeiro, tela demonstrativa, vitrine visual
 Unidade operacional principal atendida pelo tecnico no novo app.
 _Avoid_: item secundario do cliente, detalhe escondido
 
+**Etiqueta do Equipamento**:
+Fonte tecnica auxiliar usada para preencher dados como tag, modelo, fluido, serie e capacidade. No app-v2 inicial, deve entrar como rascunho revisavel e local/mock antes de qualquer camera, upload, storage ou IA real.
+_Avoid_: salvar automaticamente, exigir foto para cadastrar, misturar cadastro com storage real, tratar reconhecimento como verdade sem revisao
+
 **Cliente**:
 Organizacao ou pessoa responsavel por um ou mais equipamentos, com detalhe proprio no novo app.
-_Avoid_: campo auxiliar, ponto de partida obrigatorio do atendimento
+O cadastro pode conter dados formais e operacionais opcionais para apoiar relatorios futuros, como documento, inscricoes, contato, canal de chamados, finalidade do ambiente e observacoes internas.
+_Avoid_: campo auxiliar, ponto de partida obrigatorio do atendimento, PMOC real acoplado ao cadastro local
+
+**Setor**:
+Agrupamento operacional de Equipamentos por area fisica ou funcional. Pode existir sem Cliente para uso como modelo ou organizacao local, mas o fluxo principal deve incentivar vinculo com Cliente.
+_Avoid_: cor decorativa como valor principal, modulo separado de carteira, grupo que apaga historico ao ser removido
+
+**Painel de Setor**:
+Detalhe contextual de um Setor dentro da area Equipamentos, usado para ver resumo, equipamentos vinculados e acoes locais sem criar uma area global nova.
+_Avoid_: tela global de setor, modulo administrativo separado, detalhe mais forte que Equipamento
 
 **Vinculo equipamento-cliente**:
 Associacao feita a partir do Equipamento para indicar qual Cliente e responsavel por ele.
@@ -151,6 +164,27 @@ _Avoid_: area operacional, menu de atalhos do tecnico
 - O **Equipamento** e o centro do **Fluxo tecnico principal**.
 - Um **Cliente** pode ter um ou mais **Equipamentos**.
 - Um **Equipamento** pertence a um **Cliente** quando ha cliente cadastrado.
+- Um **Setor** agrupa **Equipamentos** por area fisica ou funcional.
+- Um **Setor** pode estar vinculado a um **Cliente**, mas tambem pode existir sem
+  Cliente para uso local ou como modelo.
+- O fluxo principal de **Setor** deve favorecer o vinculo com **Cliente** e a
+  gestao dos **Equipamentos** dentro do agrupamento.
+- O **Painel de Setor** vive dentro da area **Equipamento** e nao cria uma area
+  global propria.
+- O **Painel de Setor** pode listar **Equipamentos** vinculados, resumir status e
+  oferecer criacao de **Equipamento** ja contextualizada pelo **Setor**.
+- A primeira fatia do **Painel de Setor** deve priorizar equipamentos do setor,
+  resumo operacional, proximo compromisso relevante, edicao do **Setor** e
+  criacao de **Equipamento** ja vinculado ao **Setor**.
+- Criar **Equipamento** a partir do **Painel de Setor** deve preencher o
+  **Setor** automaticamente e tambem o **Cliente** quando o **Setor** tiver
+  Cliente vinculado.
+- Alterar o **Cliente** no formulario de **Equipamento** nao altera o
+  **Cliente** do **Setor** automaticamente.
+- A cor do **Setor** nao deve ser informacao principal na UI do app-v2. Ela pode
+  permanecer no contrato local por compatibilidade, mas a primeira fatia do
+  fluxo deve remover a cor do formulario e nao depender de cor para comunicar
+  organizacao.
 - O **Vinculo equipamento-cliente** acontece no contexto do **Equipamento**.
 - A **Home operacional** abre o **Novo app** e direciona o tecnico para o proximo **Equipamento** ou servico relevante.
 - A **Home operacional** apresenta uma **Proxima acao** como foco principal.

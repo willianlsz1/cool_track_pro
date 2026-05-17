@@ -9,6 +9,11 @@ export interface SaveClientDraft {
   documento?: string;
   contato?: string;
   endereco?: string;
+  inscricaoEstadual?: string;
+  inscricaoMunicipal?: string;
+  canalChamados?: string;
+  finalidadeAmbiente?: string;
+  observacoesInternas?: string;
 }
 
 export function saveClient(snapshot: AppV2MockSnapshot, draft: SaveClientDraft): AppV2MockSnapshot {
@@ -49,6 +54,21 @@ function buildClientPayload(draft: SaveClientDraft): Cliente {
     ...(trimOptional(draft.documento) ? { documento: trimOptional(draft.documento) } : {}),
     ...(trimOptional(draft.contato) ? { contato: trimOptional(draft.contato) } : {}),
     ...(trimOptional(draft.endereco) ? { endereco: trimOptional(draft.endereco) } : {}),
+    ...(trimOptional(draft.inscricaoEstadual)
+      ? { inscricaoEstadual: trimOptional(draft.inscricaoEstadual) }
+      : {}),
+    ...(trimOptional(draft.inscricaoMunicipal)
+      ? { inscricaoMunicipal: trimOptional(draft.inscricaoMunicipal) }
+      : {}),
+    ...(trimOptional(draft.canalChamados)
+      ? { canalChamados: trimOptional(draft.canalChamados) }
+      : {}),
+    ...(trimOptional(draft.finalidadeAmbiente)
+      ? { finalidadeAmbiente: trimOptional(draft.finalidadeAmbiente) }
+      : {}),
+    ...(trimOptional(draft.observacoesInternas)
+      ? { observacoesInternas: trimOptional(draft.observacoesInternas) }
+      : {}),
   };
 }
 

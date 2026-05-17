@@ -47,7 +47,7 @@ describe('AppV2Shell equipment attachments', () => {
     document.body.innerHTML = '';
   });
 
-  it('mostra e adiciona anexos placeholder locais no detalhe sem input de arquivo', async () => {
+  it('mostra e adiciona anexos locais no detalhe sem input de arquivo', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Equipamentos$/i);
@@ -58,7 +58,7 @@ describe('AppV2Shell equipment attachments', () => {
     expect(host.textContent).toContain('Foto local evaporadora');
     expect(host.querySelector('input[type="file"]')).toBeNull();
 
-    await clickButton(host, /^Adicionar anexo placeholder$/i);
+    await clickButton(host, /^Adicionar anexo local$/i);
 
     expect(host.textContent).toContain('2/3 anexos locais');
     expect(host.textContent).toContain('Documento local 2');

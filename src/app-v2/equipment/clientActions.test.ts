@@ -14,6 +14,11 @@ describe('saveClient', () => {
       documento: '12.345.678/0001-90',
       contato: '(11) 97777-0000',
       endereco: 'Rua Central, 42',
+      inscricaoEstadual: 'Isento',
+      inscricaoMunicipal: '12345',
+      canalChamados: 'Portal do cliente',
+      finalidadeAmbiente: 'Comercial',
+      observacoesInternas: 'Recepcao solicita aviso antes da visita.',
     });
 
     expect(result.clientes).toHaveLength(1);
@@ -24,6 +29,11 @@ describe('saveClient', () => {
       documento: '12.345.678/0001-90',
       contato: '(11) 97777-0000',
       endereco: 'Rua Central, 42',
+      inscricaoEstadual: 'Isento',
+      inscricaoMunicipal: '12345',
+      canalChamados: 'Portal do cliente',
+      finalidadeAmbiente: 'Comercial',
+      observacoesInternas: 'Recepcao solicita aviso antes da visita.',
     });
   });
 

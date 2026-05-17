@@ -22,7 +22,7 @@ import {
   fieldInputClass,
   fieldSelectClass,
 } from '../ui/FieldGroup';
-import { PageShell, SectionCard } from '../ui/primitives';
+import { PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 import { ServicesSubViewNav, type ServicesSubView } from './ServicesSubViewNav';
 import {
   buildServicesQuotesViewModel,
@@ -152,9 +152,7 @@ export function ServicesQuotesHome({
       <ServicesSubViewNav activeView={activeView} onSelectView={onSelectView} />
 
       <header className="tw-min-w-0">
-        <p className="tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.04em] tw-text-[#1E4F8A]">
-          {viewModel.subtitle}
-        </p>
+        <SectionEyebrow>{viewModel.subtitle}</SectionEyebrow>
         <h1
           className={`tw-m-0 tw-mt-3 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-[-0.01em] ${appV2Tone.text}`}
         >

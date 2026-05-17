@@ -1,5 +1,5 @@
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, ListRow, SectionCard, StatusBadge } from '../ui/primitives';
+import { ActionButton, ListRow, SectionCard, SectionEyebrow, StatusBadge } from '../ui/primitives';
 import type { ServiceReportViewModel } from './serviceReportViewModel';
 
 interface ServiceReportPreviewProps {
@@ -15,11 +15,7 @@ export function ServiceReportPreview({ report, onPrint }: ServiceReportPreviewPr
         data-app-v2-print-hidden="true"
       >
         <div className="tw-min-w-0">
-          <p
-            className={`tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.16em] ${appV2Tone.subtleText}`}
-          >
-            Previa imprimivel
-          </p>
+          <SectionEyebrow>Prévia imprimível</SectionEyebrow>
           <h2
             id="service-report-title"
             className={`tw-m-0 tw-mt-2 tw-text-xl tw-font-bold tw-leading-tight ${appV2Tone.text}`}

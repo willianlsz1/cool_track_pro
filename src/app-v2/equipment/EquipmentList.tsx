@@ -31,8 +31,14 @@ import {
   mockEquipmentToday,
 } from './mockEquipmentData';
 import { appV2Border, appV2Focus, appV2Shadow, appV2Text, appV2Tone } from '../styles/tokens';
-import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
-import { PageShell, SectionCard } from '../ui/primitives';
+import {
+  FieldGroup,
+  FormGrid,
+  fieldInputClass,
+  fieldSelectClass,
+  fieldTextareaClass,
+} from '../ui/FieldGroup';
+import { PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 
 interface EquipmentListProps {
   input?: BuildEquipmentViewModelInput;
@@ -77,24 +83,44 @@ export function EquipmentList({
   const [filter, setFilter] = useState<EquipmentFilter>('all');
   const [sectorId, setSectorId] = useState('all');
   const [isCreating, setIsCreating] = useState(Boolean(initialClientId));
+  const [equipmentCreateContext, setEquipmentCreateContext] = useState<{
+    clientId?: string;
+    sectorId?: string;
+  } | null>(initialClientId ? { clientId: initialClientId } : null);
   const [sectorForm, setSectorForm] = useState<SaveEquipmentSectorDraft | null>(null);
   const [sectorError, setSectorError] = useState<string | null>(null);
   const [sectorPendingRemovalId, setSectorPendingRemovalId] = useState<string | null>(null);
+  const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
   const equipmentInput = input ?? defaultEquipmentInput;
   const viewModel = useMemo<EquipmentListViewModel>(
     () => buildEquipmentListViewModel(equipmentInput, { query, filter, sectorId }),
     [equipmentInput, filter, query, sectorId],
   );
+  const selectedSector = viewModel.sectors.find((sector) => sector.id === selectedSectorId);
+  const selectedSectorItems = useMemo(
+    () =>
+      selectedSector
+        ? buildEquipmentListViewModel(equipmentInput, { sectorId: selectedSector.id }).items
+        : [],
+    [equipmentInput, selectedSector],
+  );
 
   useEffect(() => {
     if (initialClientId) {
       setIsCreating(true);
+      setEquipmentCreateContext({ clientId: initialClientId });
     }
   }, [initialClientId]);
 
   function closeCreateForm() {
     setIsCreating(false);
+    setEquipmentCreateContext(null);
     onInitialClientHandled?.();
+  }
+
+  function openCreateForm(context?: { clientId?: string; sectorId?: string }) {
+    setEquipmentCreateContext(context ?? null);
+    setIsCreating(true);
   }
 
   function openNewSectorForm() {
@@ -176,9 +202,7 @@ export function EquipmentList({
     <PageShell className="tw-gap-6 lg:tw-gap-7">
       <header className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
         <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.18em] tw-text-[#2563EB]">
-            Equipamentos em CoolTrack
-          </p>
+          <SectionEyebrow>Equipamentos em CoolTrack</SectionEyebrow>
           <h1
             className={`tw-m-0 tw-mt-2 tw-text-[1.8rem] tw-font-bold tw-leading-none tw-tracking-tight sm:tw-text-[2rem] ${appV2Text.primary}`}
           >
@@ -198,7 +222,7 @@ export function EquipmentList({
         {onSaveEquipment && !isCreating ? (
           <button
             type="button"
-            onClick={() => setIsCreating(true)}
+            onClick={() => openCreateForm()}
             className={`tw-inline-flex tw-min-h-10 tw-shrink-0 tw-items-center tw-gap-2 tw-rounded-lg tw-border-0 tw-bg-[#2563EB] tw-px-5 tw-text-sm tw-font-bold tw-text-white ${appV2Focus}`}
           >
             <FontAwesomeIcon icon={faPlus} className="tw-h-3.5 tw-w-3.5" aria-hidden="true" />
@@ -214,7 +238,8 @@ export function EquipmentList({
             title="Novo equipamento"
             clientes={equipmentInput.clientes}
             setores={equipmentInput.setores}
-            initialClientId={initialClientId ?? undefined}
+            initialClientId={equipmentCreateContext?.clientId ?? initialClientId ?? undefined}
+            initialSectorId={equipmentCreateContext?.sectorId}
             onCancel={closeCreateForm}
             onSave={(draft) => {
               const result = onSaveEquipment(draft);
@@ -303,27 +328,14 @@ export function EquipmentList({
                   </span>
                 </FieldGroup>
 
-                <FieldGroup label="Cor">
-                  <span className="tw-flex tw-items-center tw-gap-3">
-                    <span
-                      className="tw-h-10 tw-w-10 tw-shrink-0 tw-rounded-xl tw-border tw-border-[#E2E8F0]"
-                      style={{ backgroundColor: normalizeSectorColor(sectorForm.cor) }}
-                      aria-hidden="true"
-                    />
-                    <input
-                      name="equipment-sector-color"
-                      value={sectorForm.cor ?? ''}
-                      onChange={(event) => updateSectorForm('cor', event.target.value)}
-                      className={`${fieldInputClass} tw-h-10 tw-w-[112px] tw-font-mono tw-font-semibold tw-text-[#2563EB]`}
-                    />
-                    <input
-                      type="color"
-                      value={normalizeSectorColor(sectorForm.cor)}
-                      onChange={(event) => updateSectorForm('cor', event.target.value)}
-                      aria-label="Selecionar cor do setor"
-                      className={`tw-h-10 tw-w-10 tw-rounded-xl tw-border tw-border-[#E2E8F0] tw-bg-white tw-p-1 ${appV2Focus}`}
-                    />
-                  </span>
+                <FieldGroup label="Descrição" optional fullWidth>
+                  <textarea
+                    name="equipment-sector-description"
+                    value={sectorForm.descricao ?? ''}
+                    onChange={(event) => updateSectorForm('descricao', event.target.value)}
+                    placeholder="Ex.: Bloco A, térreo, equipamentos de frente de loja."
+                    className={fieldTextareaClass}
+                  />
                 </FieldGroup>
 
                 <FieldGroup label="Responsável">
@@ -369,84 +381,332 @@ export function EquipmentList({
             </form>
           ) : null}
 
-          <div className="tw-mt-5 tw-rounded-[20px] tw-border tw-border-[#E2E8F0] tw-bg-white tw-px-5 tw-py-2">
-            {equipmentInput.setores?.map((setor) => (
+          <div className="tw-mt-5 tw-flex tw-flex-wrap tw-gap-2" aria-label="Filtros de setores">
+            {[
+              ['Todos', viewModel.sectors.length.toString(), true],
+              [
+                'Em atenção',
+                viewModel.sectors.filter((setor) => setor.attentionCount > 0).length.toString(),
+                false,
+              ],
+              [
+                'Vazios',
+                viewModel.sectors.filter((setor) => setor.equipmentCount === 0).length.toString(),
+                false,
+              ],
+              [
+                'Preventiva vencida',
+                viewModel.sectors
+                  .filter((setor) => setor.nextCommitmentLabel.includes('vencida'))
+                  .length.toString(),
+                false,
+              ],
+            ].map(([label, count, active]) => (
+              <button
+                key={String(label)}
+                type="button"
+                className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-full tw-border tw-px-3 tw-text-xs tw-font-bold ${appV2Focus} ${
+                  active
+                    ? 'tw-border-[#BFDBFE] tw-bg-[#EFF6FF] tw-text-[#1D4ED8]'
+                    : 'tw-border-[#E2E8F0] tw-bg-[#F8FAFE] tw-text-[#1E4F8A]'
+                }`}
+                aria-pressed={Boolean(active)}
+              >
+                {label}
+                <span className="tw-rounded-full tw-bg-[#DBEAFE] tw-px-2 tw-py-0.5 tw-text-[0.65rem] tw-font-black tw-text-[#1D4ED8]">
+                  {count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="tw-mt-5 tw-grid tw-gap-4 lg:tw-grid-cols-2 2xl:tw-grid-cols-3">
+            {viewModel.sectors.map((setor) => (
               <div
                 key={setor.id}
-                className="tw-flex tw-flex-col tw-gap-3 tw-border-b tw-border-[#EDF2F7] tw-py-3 last:tw-border-b-0 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between"
+                data-sector-card={setor.id}
+                className={`tw-flex tw-min-h-[250px] tw-flex-col tw-gap-4 tw-rounded-[18px] tw-border tw-bg-white tw-p-4 ${
+                  selectedSectorId === setor.id
+                    ? 'tw-border-[#93C5FD] tw-shadow-[inset_4px_0_0_#2563EB,0_14px_28px_rgba(37,99,235,0.10)]'
+                    : setor.attentionCount > 0
+                      ? 'tw-border-[#E2E8F0] tw-shadow-[inset_4px_0_0_#D97706,0_8px_22px_rgba(7,26,51,0.04)]'
+                      : setor.equipmentCount === 0
+                        ? 'tw-border-dashed tw-border-[#CBD5E1]'
+                        : 'tw-border-[#E2E8F0] tw-shadow-[0_8px_22px_rgba(7,26,51,0.04)]'
+                }`}
               >
-                <div className="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
+                <div className="tw-flex tw-justify-end">
                   <span
-                    className="tw-h-3 tw-w-3 tw-shrink-0 tw-rounded-full"
-                    style={{ backgroundColor: setor.cor ?? '#2563EB' }}
-                    aria-hidden="true"
-                  />
-                  <span className="tw-min-w-0">
+                    className={`tw-rounded-full tw-px-2.5 tw-py-1 tw-text-[0.65rem] tw-font-black ${
+                      selectedSectorId === setor.id
+                        ? 'tw-bg-[#EFF6FF] tw-text-[#2563EB]'
+                        : setor.equipmentCount === 0
+                          ? 'tw-bg-[#F1F5F9] tw-text-[#52677F]'
+                          : setor.attentionCount > 0
+                            ? 'tw-bg-[#FFFBEB] tw-text-[#D97706]'
+                            : 'tw-bg-[#F0FDF4] tw-text-[#16A34A]'
+                    }`}
+                  >
+                    {selectedSectorId === setor.id
+                      ? 'Aberto'
+                      : setor.equipmentCount === 0
+                        ? 'Vazio'
+                        : setor.attentionCount > 0
+                          ? 'Atenção'
+                          : 'Em dia'}
+                  </span>
+                </div>
+                <div className="tw-flex tw-min-w-0 tw-items-start tw-justify-between tw-gap-3">
+                  <div className="tw-min-w-0">
                     <span
                       className={`tw-block tw-truncate tw-text-sm tw-font-bold ${appV2Text.primary}`}
                     >
-                      {setor.nome}
+                      {setor.name}
                     </span>
                     <span
-                      className={`tw-mt-0.5 tw-block tw-truncate tw-text-xs tw-font-medium ${appV2Text.muted}`}
+                      className={`tw-mt-0.5 tw-block tw-whitespace-normal tw-break-words tw-text-xs tw-font-medium tw-leading-5 ${appV2Text.muted}`}
                     >
-                      {formatSectorClientName(setor.clienteId, equipmentInput.clientes)}
+                      {setor.clientName} · {setor.equipmentCountLabel} · {setor.attentionLabel} ·{' '}
+                      {setor.nextCommitmentLabel}
                     </span>
-                  </span>
+                  </div>
                 </div>
-                <div className="tw-flex tw-flex-wrap tw-gap-4 sm:tw-justify-end">
-                  <button
-                    type="button"
-                    onClick={() => openEditSectorForm(setor.id)}
-                    aria-label={`Editar setor ${setor.nome}`}
-                    className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-semibold tw-text-[#2563EB] ${appV2Focus}`}
+                {setor.equipmentCount > 0 ? (
+                  <>
+                    <div className="tw-grid tw-overflow-hidden tw-rounded-2xl tw-border tw-border-[#EDF2F7] sm:tw-grid-cols-3">
+                      <div className="tw-border-b tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-p-3 sm:tw-border-b-0 sm:tw-border-r">
+                        <span className="tw-block tw-text-[0.62rem] tw-font-black tw-uppercase tw-text-[#1E4F8A]">
+                          Equip.
+                        </span>
+                        <span
+                          className={`tw-mt-1 tw-block tw-text-xl tw-font-black ${appV2Text.primary}`}
+                        >
+                          {setor.equipmentCount}
+                        </span>
+                      </div>
+                      <div className="tw-border-b tw-border-[#EDF2F7] tw-bg-[#F8FAFE] tw-p-3 sm:tw-border-b-0 sm:tw-border-r">
+                        <span className="tw-block tw-text-[0.62rem] tw-font-black tw-uppercase tw-text-[#1E4F8A]">
+                          Atenção
+                        </span>
+                        <span
+                          className={`tw-mt-1 tw-block tw-text-xl tw-font-black ${
+                            setor.attentionCount > 0 ? 'tw-text-[#D97706]' : 'tw-text-[#16A34A]'
+                          }`}
+                        >
+                          {setor.attentionCount}
+                        </span>
+                      </div>
+                      <div className="tw-bg-[#F8FAFE] tw-p-3">
+                        <span className="tw-block tw-text-[0.62rem] tw-font-black tw-uppercase tw-text-[#1E4F8A]">
+                          Próximo
+                        </span>
+                        <span
+                          className={`tw-mt-1 tw-block tw-text-xs tw-font-black ${appV2Text.primary}`}
+                        >
+                          {setor.nextCommitmentLabel}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="tw-flex tw-min-h-8 tw-flex-wrap tw-gap-2">
+                      {getSectorEquipmentNames(equipmentInput.equipamentos, setor.equipmentIds)
+                        .slice(0, 3)
+                        .map((name) => (
+                          <span
+                            key={name}
+                            className="tw-max-w-full tw-truncate tw-rounded-full tw-border tw-border-[#BFDBFE] tw-bg-[#EFF6FF] tw-px-2.5 tw-py-1.5 tw-text-[0.7rem] tw-font-bold tw-text-[#17447F]"
+                          >
+                            {name}
+                          </span>
+                        ))}
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    className={`tw-flex tw-gap-3 tw-rounded-2xl tw-bg-[#F8FAFE] tw-p-4 tw-text-xs tw-font-medium tw-leading-5 ${appV2Text.muted}`}
                   >
-                    <FontAwesomeIcon
-                      icon={faPenToSquare}
-                      className="tw-h-3 tw-w-3"
-                      aria-hidden="true"
-                    />
-                    Editar setor<span className="tw-sr-only"> {setor.nome}</span>
-                  </button>
-                  {onDeleteSector ? (
-                    sectorPendingRemovalId === setor.id ? (
-                      <>
+                    <span aria-hidden="true">□</span>
+                    <span>
+                      Setor vazio. Adicione equipamentos aqui ou use como modelo operacional.
+                    </span>
+                  </div>
+                )}
+
+                <div className="tw-mt-auto tw-flex tw-flex-col tw-gap-3 tw-border-t tw-border-[#EDF2F7] tw-pt-3 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between">
+                  <span className={`tw-text-xs tw-font-semibold tw-italic ${appV2Text.muted}`}>
+                    {getSectorOwner(equipmentInput.setores, setor.id) || 'Sem responsável'}
+                  </span>
+                  <div className="tw-flex tw-flex-wrap tw-gap-4 sm:tw-justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSectorId(setor.id)}
+                      className={`tw-inline-flex tw-items-center tw-gap-1 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-[#1E4F8A] ${appV2Focus}`}
+                    >
+                      Abrir setor<span className="tw-sr-only"> {setor.name}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openEditSectorForm(setor.id)}
+                      aria-label={`Editar setor ${setor.name}`}
+                      className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-semibold tw-text-[#2563EB] ${appV2Focus}`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faPenToSquare}
+                        className="tw-h-3 tw-w-3"
+                        aria-hidden="true"
+                      />
+                      Editar setor<span className="tw-sr-only"> {setor.name}</span>
+                    </button>
+                    {onDeleteSector ? (
+                      sectorPendingRemovalId === setor.id ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => confirmSectorRemoval(setor.id)}
+                            aria-label={`Confirmar remover setor ${setor.name}`}
+                            className={`tw-rounded-lg tw-bg-[#B91C1C] tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-white ${appV2Focus}`}
+                          >
+                            Confirmar<span className="tw-sr-only"> remover setor {setor.name}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSectorPendingRemovalId(null)}
+                            className={`tw-rounded-lg tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold ${appV2Border.default} ${appV2Text.muted} ${appV2Focus}`}
+                          >
+                            Cancelar remoção
+                          </button>
+                        </>
+                      ) : (
                         <button
                           type="button"
-                          onClick={() => confirmSectorRemoval(setor.id)}
-                          aria-label={`Confirmar remover setor ${setor.nome}`}
-                          className={`tw-rounded-lg tw-bg-[#B91C1C] tw-px-3 tw-py-2 tw-text-xs tw-font-bold tw-text-white ${appV2Focus}`}
+                          onClick={() => requestSectorRemoval(setor.id)}
+                          aria-label={`Remover setor ${setor.name}`}
+                          className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-semibold tw-text-[#DC2626] ${appV2Focus}`}
                         >
-                          Confirmar<span className="tw-sr-only"> remover setor {setor.nome}</span>
+                          <FontAwesomeIcon
+                            icon={faTrashCan}
+                            className="tw-h-3 tw-w-3"
+                            aria-hidden="true"
+                          />
+                          Remover setor<span className="tw-sr-only"> {setor.name}</span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setSectorPendingRemovalId(null)}
-                          className={`tw-rounded-lg tw-border tw-bg-white tw-px-3 tw-py-2 tw-text-xs tw-font-bold ${appV2Border.default} ${appV2Text.muted} ${appV2Focus}`}
-                        >
-                          Cancelar remoção
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => requestSectorRemoval(setor.id)}
-                        aria-label={`Remover setor ${setor.nome}`}
-                        className={`tw-inline-flex tw-items-center tw-gap-1 tw-border-0 tw-bg-transparent tw-p-0 tw-text-xs tw-font-semibold tw-text-[#DC2626] ${appV2Focus}`}
-                      >
-                        <FontAwesomeIcon
-                          icon={faTrashCan}
-                          className="tw-h-3 tw-w-3"
-                          aria-hidden="true"
-                        />
-                        Remover setor<span className="tw-sr-only"> {setor.nome}</span>
-                      </button>
-                    )
-                  ) : null}
+                      )
+                    ) : null}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {selectedSector ? (
+            <div
+              data-sector-panel={selectedSector.id}
+              className="tw-mt-5 tw-rounded-[20px] tw-border tw-border-[#D9E4F2] tw-bg-[#F8FAFE] tw-p-5"
+            >
+              <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">
+                <div className="tw-min-w-0">
+                  <SectionEyebrow>Painel do setor</SectionEyebrow>
+                  <h3 className={`tw-m-0 tw-mt-1 tw-text-lg tw-font-bold ${appV2Text.primary}`}>
+                    {selectedSector.name}
+                  </h3>
+                  <p className={`tw-m-0 tw-mt-1 tw-text-xs tw-font-medium ${appV2Text.muted}`}>
+                    {selectedSector.clientName} · {selectedSector.equipmentCountLabel} ·{' '}
+                    {selectedSector.attentionLabel}
+                  </p>
+                </div>
+                <div className="tw-flex tw-flex-wrap tw-gap-3 sm:tw-justify-end">
+                  {onSaveEquipment ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openCreateForm({
+                          sectorId: selectedSector.id,
+                          clientId: selectedSector.clientId,
+                        })
+                      }
+                      className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-lg tw-border-0 tw-bg-[#2563EB] tw-px-4 tw-text-xs tw-font-bold tw-text-white ${appV2Focus}`}
+                    >
+                      <FontAwesomeIcon icon={faPlus} className="tw-h-3 tw-w-3" aria-hidden="true" />
+                      Adicionar equipamento neste setor
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => openEditSectorForm(selectedSector.id)}
+                    className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-4 tw-text-xs tw-font-bold tw-text-[#1E4F8A] ${appV2Focus}`}
+                  >
+                    Editar setor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSectorId(null)}
+                    className={`tw-inline-flex tw-min-h-9 tw-items-center tw-gap-2 tw-rounded-lg tw-border tw-border-[#CBD5E1] tw-bg-white tw-px-4 tw-text-xs tw-font-bold ${appV2Text.muted} ${appV2Focus}`}
+                  >
+                    Voltar para setores
+                  </button>
+                </div>
+              </div>
+
+              <div className="tw-mt-4 tw-grid tw-gap-3">
+                {selectedSectorItems.length > 0 ? (
+                  selectedSectorItems.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => onOpenEquipment(item.id)}
+                      className={`tw-rounded-2xl tw-border tw-border-[#E2E8F0] tw-bg-white tw-p-4 tw-text-left ${appV2Focus}`}
+                    >
+                      <span className={`tw-block tw-text-sm tw-font-bold ${appV2Text.primary}`}>
+                        {item.name}
+                      </span>
+                      <span
+                        className={`tw-mt-1 tw-block tw-text-xs tw-font-medium ${appV2Text.muted}`}
+                      >
+                        {item.customerLine} · {item.statusLabel} · {item.nextActionLabel}
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <p
+                    className={`tw-m-0 tw-rounded-2xl tw-bg-white tw-p-4 tw-text-sm tw-font-medium ${appV2Text.muted}`}
+                  >
+                    Nenhum equipamento vinculado a este setor.
+                  </p>
+                )}
+              </div>
+
+              <div className="tw-mt-4 tw-rounded-2xl tw-border tw-border-[#E2E8F0] tw-bg-white tw-p-4">
+                <h4 className={`tw-m-0 tw-text-sm tw-font-black ${appV2Text.primary}`}>
+                  Resumo operacional
+                </h4>
+                <div className="tw-mt-3 tw-grid tw-gap-3 sm:tw-grid-cols-2 xl:tw-grid-cols-4">
+                  <span className="tw-text-xs tw-font-semibold tw-text-[#52677F]">
+                    Cliente
+                    <strong className={`tw-mt-1 tw-block tw-text-sm ${appV2Text.primary}`}>
+                      {selectedSector.clientName}
+                    </strong>
+                  </span>
+                  <span className="tw-text-xs tw-font-semibold tw-text-[#52677F]">
+                    Equipamentos
+                    <strong className={`tw-mt-1 tw-block tw-text-sm ${appV2Text.primary}`}>
+                      {selectedSector.equipmentCountLabel}
+                    </strong>
+                  </span>
+                  <span className="tw-text-xs tw-font-semibold tw-text-[#52677F]">
+                    Atenção
+                    <strong className={`tw-mt-1 tw-block tw-text-sm ${appV2Text.primary}`}>
+                      {selectedSector.attentionLabel}
+                    </strong>
+                  </span>
+                  <span className="tw-text-xs tw-font-semibold tw-text-[#52677F]">
+                    Próximo compromisso
+                    <strong className={`tw-mt-1 tw-block tw-text-sm ${appV2Text.primary}`}>
+                      {selectedSector.nextCommitmentLabel}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </SectionCard>
       ) : null}
 
@@ -558,18 +818,30 @@ export function EquipmentList({
   );
 }
 
+function getSectorDescription(
+  setores: BuildEquipmentViewModelInput['setores'],
+  sectorIdToFind: string,
+): string {
+  return setores?.find((setor) => setor.id === sectorIdToFind)?.descricao?.trim() ?? '';
+}
+
+function getSectorOwner(
+  setores: BuildEquipmentViewModelInput['setores'],
+  sectorIdToFind: string,
+): string {
+  return setores?.find((setor) => setor.id === sectorIdToFind)?.responsavel?.trim() ?? '';
+}
+
+function getSectorEquipmentNames(
+  equipamentos: BuildEquipmentViewModelInput['equipamentos'],
+  equipmentIds: string[],
+): string[] {
+  const ids = new Set(equipmentIds);
+  return equipamentos
+    .filter((equipamento) => ids.has(equipamento.id) && !equipamento.archivedAt)
+    .map((equipamento) => equipamento.nome);
+}
+
 function createLocalSectorId(seed: number): string {
   return `setor-shell-${seed + 1}`;
-}
-
-function formatSectorClientName(
-  clienteId: string | undefined,
-  clientes: BuildEquipmentViewModelInput['clientes'],
-): string {
-  const cliente = clientes.find((item) => item.id === clienteId);
-  return cliente ? cliente.nome : 'Sem cliente fixo';
-}
-
-function normalizeSectorColor(color: string | undefined): string {
-  return /^#[0-9A-Fa-f]{6}$/.test(color ?? '') ? (color as string) : '#2563EB';
 }

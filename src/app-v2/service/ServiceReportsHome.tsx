@@ -9,7 +9,7 @@ import {
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 import { appV2Tone } from '../styles/tokens';
-import { ActionButton, PageShell, SectionCard } from '../ui/primitives';
+import { ActionButton, PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
 import { ServiceReportPreview } from './ServiceReportPreview';
 import { ServiceReportsList } from './ServiceReportsList';
 import { buildServiceReportViewModelFromRecord } from './serviceReportViewModel';
@@ -68,11 +68,7 @@ export function ServiceReportsHome({
           className="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between"
         >
           <div className="tw-min-w-0">
-            <p
-              className={`tw-m-0 tw-text-[0.68rem] tw-font-bold tw-uppercase tw-tracking-[0.14em] ${appV2Tone.subtleText}`}
-            >
-              Serviços &gt; Relatórios
-            </p>
+            <SectionEyebrow>Serviços &gt; Relatórios</SectionEyebrow>
             <h1 className={`tw-m-0 tw-mt-1 tw-text-2xl tw-font-bold ${appV2Tone.text}`}>
               {report.reportId}
             </h1>
@@ -97,9 +93,7 @@ export function ServiceReportsHome({
 
       <header className="tw-min-w-0">
         <div className="tw-min-w-0">
-          <p className="tw-m-0 tw-inline-flex tw-rounded-full tw-bg-[#EFF6FF] tw-px-3 tw-py-1 tw-text-[0.7rem] tw-font-bold tw-uppercase tw-tracking-[0.04em] tw-text-[#1E4F8A]">
-            {viewModel.subtitle}
-          </p>
+          <SectionEyebrow>{viewModel.subtitle}</SectionEyebrow>
           <h1
             className={`tw-m-0 tw-mt-3 tw-text-[1.8rem] tw-font-bold tw-leading-tight tw-tracking-[-0.01em] ${appV2Tone.text}`}
           >
