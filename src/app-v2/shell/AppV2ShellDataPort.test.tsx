@@ -397,6 +397,106 @@ describe('AppV2Shell dataPort', () => {
       HTMLInputElement,
     );
   });
+
+  it('salva rascunho de orcamento pela dataPort injetada', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const updateQuoteDraft = vi.spyOn(dataPort, 'updateQuoteDraft');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Or/i);
+    await clickButton(host, /^Editar or/i);
+
+    await fillInput(
+      host.querySelector('input[name="quote-title"]') as HTMLInputElement,
+      'CP-P orcamento revisado',
+    );
+    await clickButton(host, /^Salvar rascunho$/i);
+    await flushPromises();
+
+    expect(updateQuoteDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'orcamento-1',
+        title: 'CP-P orcamento revisado',
+      }),
+    );
+    expect(host.textContent).toContain('CP-P orcamento revisado');
+    expect(host.querySelector('input[name="quote-title"]')).toBeNull();
+  });
+
+  it('mantem editor de orcamento aberto e mostra erro quando updateQuoteDraft rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'updateQuoteDraft').mockRejectedValueOnce(new Error('Falha quote CP-P'));
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Or/i);
+    await clickButton(host, /^Editar or/i);
+
+    await fillInput(
+      host.querySelector('input[name="quote-title"]') as HTMLInputElement,
+      'CP-P quote com erro',
+    );
+    await clickButton(host, /^Salvar rascunho$/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha quote CP-P');
+    expect(host.querySelector('input[name="quote-title"]')).toBeInstanceOf(HTMLInputElement);
+    expect((host.querySelector('input[name="quote-title"]') as HTMLInputElement).value).toBe(
+      'CP-P quote com erro',
+    );
+  });
+
+  it('cria orcamento pre-servico pela dataPort injetada e abre o rascunho criado', async () => {
+    const initialSnapshot = createAppV2MockSnapshot({ orcamentos: [] });
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const createPreServiceQuote = vi.spyOn(dataPort, 'createPreServiceQuote');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Or/i);
+    await clickButton(host, /^Novo or/i);
+    await selectOption(
+      host.querySelector('select[name="quote-create-equipment"]') as HTMLSelectElement,
+      'eq-1',
+    );
+    await selectOption(
+      host.querySelector('select[name="quote-create-template"]') as HTMLSelectElement,
+      'instalacao-split',
+    );
+    await clickButton(host, /^Criar rascunho$/i);
+    await flushPromises();
+
+    expect(createPreServiceQuote).toHaveBeenCalledWith({
+      id: 'orcamento-pre-servico-1',
+      equipmentId: 'eq-1',
+      templateId: 'instalacao-split',
+    });
+    expect(host.textContent).toContain('ORC-2026-001');
+    expect(host.querySelector('input[name="quote-title"]')).toBeInstanceOf(HTMLInputElement);
+  });
+
+  it('mantem painel de criacao aberto e mostra erro quando createPreServiceQuote rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot({ orcamentos: [] });
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'createPreServiceQuote').mockRejectedValueOnce(
+      new Error('Falha criar quote CP-P'),
+    );
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Or/i);
+    await clickButton(host, /^Novo or/i);
+    await clickButton(host, /^Criar rascunho$/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha criar quote CP-P');
+    expect(host.querySelector('select[name="quote-create-equipment"]')).toBeInstanceOf(
+      HTMLSelectElement,
+    );
+  });
 });
 
 async function renderShellWithDataPort(

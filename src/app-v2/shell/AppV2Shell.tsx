@@ -496,8 +496,18 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     setActiveTab('servicos');
   }
 
-  function saveQuoteDraft(draft: QuoteEditDraft): string | null {
+  function saveQuoteDraft(draft: QuoteEditDraft): string | null | Promise<string | null> {
     try {
+      if (dataPort) {
+        return dataPort
+          .updateQuoteDraft(draft)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível salvar o orçamento.'));
+      }
+
       const nextState = updateQuoteDraft(appState, draft);
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
@@ -506,8 +516,20 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function createPreServiceQuote(draft: PreServiceQuoteCreateDraft): string | null {
+  function createPreServiceQuote(
+    draft: PreServiceQuoteCreateDraft,
+  ): string | null | Promise<string | null> {
     try {
+      if (dataPort) {
+        return dataPort
+          .createPreServiceQuote(draft)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível criar o orçamento.'));
+      }
+
       const nextState = createPreServiceQuoteDraft(appState, draft);
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;

@@ -30,8 +30,10 @@ interface ServicesQuotesHomeProps {
   activeView: ServicesSubView;
   input: BuildServicesQuotesInput;
   onSelectView: (view: ServicesSubView) => void;
-  onSaveQuote?: (draft: QuoteEditDraft) => string | null;
-  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => string | null;
+  onSaveQuote?: (draft: QuoteEditDraft) => string | null | Promise<string | null>;
+  onCreatePreServiceQuote?: (
+    draft: PreServiceQuoteCreateDraft,
+  ) => string | null | Promise<string | null>;
 }
 
 export interface PreServiceQuoteCreateDraft {
@@ -133,17 +135,19 @@ export function ServicesQuotesHome({
     setEditingSummary(null);
   }
 
-  function saveEditingQuote() {
+  async function saveEditingQuote() {
     if (!editingQuote) {
       return;
     }
 
     const nextSubtotal = getEditingSubtotal(editingQuote);
-    const error =
+    const error = await resolveQuoteActionResult(
       onSaveQuote?.({
         ...editingQuote,
         total: formatNumberInput(nextSubtotal),
-      }) ?? null;
+      }) ?? null,
+      'Não foi possível salvar o orçamento.',
+    );
 
     if (error) {
       setErrorMessage(error);
@@ -168,12 +172,15 @@ export function ServicesQuotesHome({
     setIsCreatingPreServiceQuote(false);
   }
 
-  function savePreServiceQuoteDraft() {
+  async function savePreServiceQuoteDraft() {
     if (!onCreatePreServiceQuote) {
       return;
     }
 
-    const error = onCreatePreServiceQuote(createDraft);
+    const error = await resolveQuoteActionResult(
+      onCreatePreServiceQuote(createDraft),
+      'Não foi possível criar o orçamento.',
+    );
 
     if (error) {
       setErrorMessage(error);
@@ -402,4 +409,15 @@ function KpiCard({ label, value }: { label: string; value: number | string }) {
 
 function createLocalQuoteId(seed: number): string {
   return `orcamento-pre-servico-${seed + 1}`;
+}
+
+async function resolveQuoteActionResult(
+  result: string | null | Promise<string | null>,
+  fallbackMessage: string,
+): Promise<string | null> {
+  try {
+    return await result;
+  } catch (error) {
+    return error instanceof Error ? error.message : fallbackMessage;
+  }
 }

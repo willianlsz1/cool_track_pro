@@ -40,8 +40,10 @@ interface ServicesHomeProps {
   onResumeService: () => void;
   onStartService: () => void;
   onEditService?: (serviceId: string) => void;
-  onSaveQuote?: (draft: QuoteEditDraft) => string | null;
-  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => string | null;
+  onSaveQuote?: (draft: QuoteEditDraft) => string | null | Promise<string | null>;
+  onCreatePreServiceQuote?: (
+    draft: PreServiceQuoteCreateDraft,
+  ) => string | null | Promise<string | null>;
 }
 
 export function ServicesHome({
