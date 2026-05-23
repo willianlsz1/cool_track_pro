@@ -2424,3 +2424,34 @@ Fora de escopo:
 - `manualChunks`;
 - runtime v1;
 - storage, router, Supabase/RLS, billing, WhatsApp, upload/storage e PMOC.
+
+## 142. Checkpoint concluido - CP-AH E2E do PR de corte principal
+
+CP-AH alinhou o workflow E2E do PR de corte ao app-v2 como root principal.
+
+Arquivos:
+
+- `.github/workflows/e2e.yml`
+- `e2e/specs/app-v2-service-layout.spec.js`
+- `src/app-v2/service/ServiceStepExecution.tsx`
+- `docs/rewrite/app-v2-primary-e2e-suite-cp-ah.md`
+- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
+- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+
+Resultado:
+
+- o workflow E2E passou a executar as specs app-v2 relevantes para o PR de
+  corte;
+- `app-v2-service-layout.spec.js` passou a clicar no card `Limpeza preventiva`,
+  que corresponde ao accessible name atual;
+- `ServiceStepExecution` aumentou o respiro entre labels e campos compactos de
+  execucao para cumprir a regra visual coberta pelo E2E;
+- specs legadas continuam no repositorio como referencia, mas nao sao gate
+  adequado para o PR em que `/` monta app-v2.
+
+Fora de escopo:
+
+- migrar ou remover specs legadas;
+- runtime v1;
+- PDF/share, WhatsApp, billing, upload/storage, PMOC, Supabase/RLS e
+  dependencias.

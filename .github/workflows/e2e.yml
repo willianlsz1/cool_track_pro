@@ -1,6 +1,6 @@
 name: E2E
 
-# Roda os testes Playwright em PRs contra main e em pushes pra main.
+# Roda os testes Playwright app-v2 em PRs contra main e em pushes pra main.
 # Playwright usa webServer (npm run dev) configurado em e2e/playwright.config.js,
 # então não precisa de step de build separado — o ci.yml já cobre build.
 
@@ -41,7 +41,11 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright
-        run: npm run test:e2e:ci
+        run: >
+          npm run test:e2e:ci --
+          e2e/specs/app-v2-primary-entrypoint.spec.js
+          e2e/specs/app-v2-authenticated-primary.spec.js
+          e2e/specs/app-v2-service-layout.spec.js
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets['VITE_SUPABASE_ANON_KEY'] }}

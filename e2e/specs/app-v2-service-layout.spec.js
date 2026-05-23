@@ -18,11 +18,11 @@ test.describe('App-v2 service layout', () => {
 
     await assertFieldGroupSpacing(page, {
       previousFieldSelector: 'input[name="service-parts-cost"]',
-      nextLabelText: 'Custo de mao de obra',
+      nextLabelText: 'Custo de mão de obra',
     });
     await assertFieldGroupSpacing(page, {
       previousFieldSelector: 'input[name="service-labor-cost"]',
-      nextLabelText: 'Proxima manutencao',
+      nextLabelText: 'Próxima manutenção',
     });
     await assertFieldGroupSpacing(page, {
       previousFieldSelector: 'input[name="service-next-maintenance"]',
@@ -41,17 +41,17 @@ async function openServiceExecutionStep(page) {
     .first()
     .click();
   await page.getByRole('button', { name: /^Continuar$/i }).click();
-  await page.getByRole('button', { name: /^Preventiva/i }).click();
+  await page.getByRole('button', { name: /^Limpeza preventiva/i }).click();
   await page.getByRole('button', { name: /^Continuar$/i }).click();
 }
 
 async function assertFieldLabelSpacing(page, fieldSelector) {
-  const metrics = await page.locator(fieldSelector).evaluate((field) => {
-    const label = field.closest('label');
+  const metrics = await page.locator(fieldSelector).evaluate((field, selector) => {
+    const label = field.id ? document.querySelector(`label[for="${field.id}"]`) : null;
     const labelText = label?.querySelector('span');
 
     if (!label || !labelText) {
-      throw new Error(`Campo sem label estruturado: ${fieldSelector}`);
+      throw new Error(`Campo sem label estruturado: ${selector}`);
     }
 
     const labelRect = labelText.getBoundingClientRect();
@@ -63,7 +63,7 @@ async function assertFieldLabelSpacing(page, fieldSelector) {
       labelBottom: labelRect.bottom,
       fieldTop: fieldRect.top,
     };
-  });
+  }, fieldSelector);
 
   expect(metrics.gap, `${metrics.label} deve manter respiro antes do campo`).toBeGreaterThanOrEqual(
     20,
@@ -75,7 +75,7 @@ async function assertFieldLabelSpacing(page, fieldSelector) {
 
 async function assertStatusLabelSpacing(page) {
   const metrics = await page.getByText('Status final', { exact: true }).evaluate((labelText) => {
-    const buttons = labelText.parentElement?.querySelector('div');
+    const buttons = labelText.parentElement?.nextElementSibling;
 
     if (!buttons) {
       throw new Error('Status final sem grupo de botoes');
@@ -101,7 +101,7 @@ async function assertStatusLabelSpacing(page) {
 
 async function assertFieldGroupSpacing(page, { previousFieldSelector, nextLabelText }) {
   const metrics = await page.locator(previousFieldSelector).evaluate((previousField, labelText) => {
-    const labels = Array.from(document.querySelectorAll('label span, p'));
+    const labels = Array.from(document.querySelectorAll('label span, div span, p'));
     const nextLabel = labels.find((element) => element.textContent?.trim() === labelText);
 
     if (!nextLabel) {

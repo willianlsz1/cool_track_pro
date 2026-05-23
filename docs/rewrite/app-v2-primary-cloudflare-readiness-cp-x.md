@@ -437,6 +437,26 @@ Limite:
 - nao valida PDF/share real e nao altera a estrategia de chunks do Vite;
 - PDF/share permanece etapa sensivel propria se entrar no primeiro corte.
 
+### CP-AH - E2E do PR de corte principal
+
+Objetivo:
+
+Alinhar o workflow E2E do PR de corte ao app-v2 como root principal.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-primary-e2e-suite-cp-ah.md`;
+- `.github/workflows/e2e.yml` roda as specs app-v2 relevantes para o PR de
+  corte;
+- `app-v2-service-layout.spec.js` foi ajustado para selecionar o card
+  `Limpeza preventiva`, que e o accessible name atual.
+
+Limite:
+
+- specs legadas continuam no repositorio como referencia do v1;
+- migracao ou arquivamento formal das specs legadas fica para etapa propria de
+  harness E2E.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
@@ -459,9 +479,10 @@ O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
 O app-v2 ja e a entrada principal local desta branch apos a CP-AB. CP-AD cobriu
 rotas principais; CP-AE/CP-AF cobriram leitura/escrita autenticada de cliente e
 equipamento com Supabase fake no root principal. CP-AG corrigiu a medicao de
-bundle-size para o bundle emitido pelo app-v2 principal. Ele ainda nao deve
-virar principal no Cloudflare ate passar por sessao real, leitura/escrita minima
-real, smoke mobile/desktop e Cloudflare Pages preview.
+bundle-size para o bundle emitido pelo app-v2 principal. CP-AH alinhou o E2E do
+PR de corte as specs app-v2 relevantes. Ele ainda nao deve virar principal no
+Cloudflare ate passar por sessao real, leitura/escrita minima real, smoke
+mobile/desktop e Cloudflare Pages preview.
 
 O proximo passo recomendado depende do ambiente disponivel: validar URL externa
 do Cloudflare Pages preview ou executar CP-Y com sessao Supabase real.

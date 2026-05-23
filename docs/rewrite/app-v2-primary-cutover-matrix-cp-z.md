@@ -67,6 +67,7 @@ Classificação usada nesta matriz:
 | PMOC real                | Fora                                                                      | Etapa sensível própria                             | AGENTS e matriz                                                         | Manter fora ou abrir CP própria                               |
 | Cloudflare Pages preview | Smoke local de producao estatica passou; preview externo pendente         | Obrigatório para trocar                            | `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`                 | Reexecutar smoke na URL Cloudflare Pages preview              |
 | Bundle size              | Medicao local ajustada para chunks emitidos pelo app-v2 principal         | Obrigatorio para PR de corte                       | `docs/rewrite/app-v2-primary-size-limit-cp-ag.md`                       | Confirmar check externo verde no PR                           |
+| E2E do PR de corte       | Workflow alinhado para specs app-v2 relevantes                            | Obrigatorio para PR de corte                       | `docs/rewrite/app-v2-primary-e2e-suite-cp-ah.md`                        | Confirmar Playwright verde no PR                              |
 | Rollback                 | Documentado em CP-AB                                                      | Obrigatório para trocar                            | `docs/rewrite/app-v2-primary-cutover-cp-ab.md`                          | Validar reversão se necessário                                |
 
 ## Primeiro corte recomendado
@@ -110,7 +111,8 @@ Fora do primeiro corte, se aprovado explicitamente:
 5. Publicar Cloudflare Pages preview da branch com v2 como root e reexecutar
    smoke E2E.
 6. Confirmar Bundle Size verde no PR.
-7. Aprovar explicitamente as áreas fora do primeiro corte.
+7. Confirmar Playwright/E2E verde no PR.
+8. Aprovar explicitamente as áreas fora do primeiro corte.
 
 ## Próxima CP recomendada
 
@@ -124,7 +126,8 @@ leitura/escrita de cliente no root principal com sessao Supabase fake
 interceptada por Playwright. CP-AF validou escrita de equipamento vinculado a
 cliente no mesmo root principal fake-autenticado. CP-AG ajustou o contrato de
 bundle-size para o bundle real do app-v2 principal, sem tocar em PDF/share ou
-`manualChunks`.
+`manualChunks`. CP-AH alinhou o workflow E2E do PR de corte para as specs app-v2
+relevantes.
 
 O próximo checkpoint recomendado é publicar/validar a URL externa do Cloudflare
 Pages preview da branch antes da promoção final.
