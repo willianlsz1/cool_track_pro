@@ -65,6 +65,7 @@ type EquipmentAttachmentResult = string | null | Promise<string | null>;
 type EquipmentSectorResult = string | null | Promise<string | null>;
 type PreventiveScheduleResult = string | null | Promise<string | null>;
 type ServiceCompletionResult = string | null | Promise<string | null>;
+type ServiceQuoteResult = string | null | Promise<string | null>;
 
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [appState, setAppState] = useState<AppV2FlowState>(() => ({
@@ -79,6 +80,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [isServiceFlowOpen, setIsServiceFlowOpen] = useState(false);
   const [isServiceEquipmentChoiceOpen, setIsServiceEquipmentChoiceOpen] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [completedServiceRecordId, setCompletedServiceRecordId] = useState<string | null>(null);
   const [servicesInitialView, setServicesInitialView] = useState<ServicesSubView>('registros');
   const [accountPreferences, setAccountPreferences] = useState<AccountPreferencesState>({
     density: 'confortavel',
@@ -488,6 +490,16 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
 
   function completeCurrentService(draft: ServiceDraft): ServiceCompletionResult {
     try {
+      if (completedServiceRecordId) {
+        setAppState((current) => ({
+          ...current,
+          serviceDraft: null,
+        }));
+        setCompletedServiceRecordId(null);
+        setEditingServiceId(null);
+        return null;
+      }
+
       if (dataPort) {
         const input = buildCompleteServiceInput(appState, draft, editingServiceId);
         const completion = editingServiceId
@@ -500,6 +512,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
               ...nextState,
               serviceDraft: nextState.serviceDraft ?? null,
             });
+            setCompletedServiceRecordId(null);
             setEditingServiceId(null);
             return null;
           })
@@ -514,15 +527,57 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function createQuoteFromCompletedService(draft: ServiceDraft) {
-    setAppState((current) => {
-      const { nextState, recordId } = completeServiceDraft(current, draft, editingServiceId);
+  function createQuoteFromCompletedService(draft: ServiceDraft): ServiceQuoteResult {
+    try {
+      if (dataPort) {
+        const input = buildCompleteServiceInput(appState, draft, editingServiceId);
+        const recordId = completedServiceRecordId ?? input.id;
+        const completion = completedServiceRecordId
+          ? Promise.resolve(appState)
+          : editingServiceId
+            ? dataPort.updateServiceRecord(input)
+            : dataPort.completeService(input);
 
-      return createQuoteFromServiceRecord(nextState, {
-        id: `orcamento-${recordId}`,
-        recordId,
+        return completion
+          .then((completedState) => {
+            if (!completedServiceRecordId) {
+              setAppState(preserveCurrentServiceDraft(appState, completedState));
+              setCompletedServiceRecordId(recordId);
+            }
+
+            return dataPort.createQuoteFromServiceRecord({
+              id: `orcamento-${recordId}`,
+              recordId,
+            });
+          })
+          .then((nextState) => {
+            setAppState({
+              ...nextState,
+              serviceDraft: nextState.serviceDraft ?? null,
+            });
+            setCompletedServiceRecordId(null);
+            openPostServiceQuoteView();
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível criar o orçamento.'));
+      }
+
+      setAppState((current) => {
+        const { nextState, recordId } = completeServiceDraft(current, draft, editingServiceId);
+
+        return createQuoteFromServiceRecord(nextState, {
+          id: `orcamento-${recordId}`,
+          recordId,
+        });
       });
-    });
+      openPostServiceQuoteView();
+      return null;
+    } catch (error) {
+      return getSaveErrorMessage(error, 'Não foi possível criar o orçamento.');
+    }
+  }
+
+  function openPostServiceQuoteView() {
     setEditingServiceId(null);
     setIsServiceFlowOpen(false);
     setIsServiceEquipmentChoiceOpen(false);

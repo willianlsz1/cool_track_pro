@@ -586,6 +586,76 @@ describe('AppV2Shell dataPort', () => {
     expect(host.textContent).toContain('CP-Q diagnostico editado CP-Q acoes editadas');
     expect(host.textContent).toContain('Registros recentes');
   });
+
+  it('conclui servico e cria orcamento pos-diagnostico pela dataPort injetada', async () => {
+    const initialSnapshot = createAppV2MockSnapshot({ orcamentos: [] });
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const completeService = vi.spyOn(dataPort, 'completeService');
+    const createQuoteFromServiceRecord = vi.spyOn(dataPort, 'createQuoteFromServiceRecord');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /Iniciar servi/i);
+    await flushPromises();
+    await completeCurrentServiceFlow(
+      host,
+      'CP-R diagnostico para orcamento',
+      'CP-R acoes para orcamento',
+      'warn',
+    );
+    await clickButton(host, /^Criar or/i);
+    await flushPromises();
+
+    expect(completeService).toHaveBeenCalledWith({
+      id: 'reg-shell-4',
+      date: initialSnapshot.today,
+      technician: 'Ana CP-Q',
+      diagnosis: 'CP-R diagnostico para orcamento',
+      actionsDone: 'CP-R acoes para orcamento',
+      finalStatus: 'warn',
+    });
+    expect(createQuoteFromServiceRecord).toHaveBeenCalledWith({
+      id: 'orcamento-reg-shell-4',
+      recordId: 'reg-shell-4',
+    });
+    expect(completeService.mock.invocationCallOrder[0]).toBeLessThan(
+      createQuoteFromServiceRecord.mock.invocationCallOrder[0],
+    );
+    expect(host.textContent).toContain('ORC-2026-001');
+    expect(host.textContent).not.toContain('Atendimento conclu');
+  });
+
+  it('mantem tela concluida e mostra erro quando createQuoteFromServiceRecord rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot({ orcamentos: [] });
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const completeService = vi.spyOn(dataPort, 'completeService');
+    vi.spyOn(dataPort, 'createQuoteFromServiceRecord').mockRejectedValueOnce(
+      new Error('Falha quote pos CP-R'),
+    );
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /Iniciar servi/i);
+    await flushPromises();
+    await completeCurrentServiceFlow(
+      host,
+      'CP-R diagnostico com falha',
+      'CP-R acoes com falha',
+      'warn',
+    );
+    await clickButton(host, /^Criar or/i);
+    await flushPromises();
+
+    expect(completeService).toHaveBeenCalledTimes(1);
+    expect(host.textContent).toContain('Falha quote pos CP-R');
+    expect(host.textContent).toContain('Atendimento conclu');
+    expect(host.textContent).toContain('Criar or');
+    expect(host.textContent).not.toContain('ORC-2026-001');
+
+    await clickButton(host, /^Voltar para Servi/i);
+    await flushPromises();
+
+    expect(completeService).toHaveBeenCalledTimes(1);
+    expect(host.textContent).toContain('Registros recentes');
+  });
 });
 
 async function renderShellWithDataPort(
@@ -614,6 +684,7 @@ async function completeCurrentServiceFlow(
   host: HTMLElement,
   diagnosisText: string,
   actionsDoneText: string,
+  finalStatus: 'ok' | 'warn' | 'danger' = 'ok',
 ) {
   await clickButton(host, /^Continuar$/i);
   await clickButton(host, /^Limpeza preventiva/i);
@@ -626,6 +697,12 @@ async function completeCurrentServiceFlow(
   const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
   await fillTextarea(diagnosis, diagnosisText);
   await fillTextarea(actionsDone, actionsDoneText);
+
+  if (finalStatus === 'warn') {
+    await clickButton(host, /^Aten/i);
+  } else if (finalStatus === 'danger') {
+    await clickButton(host, /^Cr/i);
+  }
 
   await clickButton(host, /^Revisar$/i);
   await clickButton(host, /^Concluir servi/i);

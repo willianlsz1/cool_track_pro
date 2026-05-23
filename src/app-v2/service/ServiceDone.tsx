@@ -20,7 +20,7 @@ interface ServiceDoneProps {
   report: ServiceReportViewModel;
   errorMessage?: string | null;
   onBackToServices: () => void | Promise<void>;
-  onCreateQuote: () => void;
+  onCreateQuote: () => void | Promise<void>;
   onOpenEquipment: () => void | Promise<void>;
 }
 

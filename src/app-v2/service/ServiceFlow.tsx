@@ -28,7 +28,9 @@ interface ServiceFlowProps {
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
   onCompleteService: (draft: ServiceDraft) => string | null | Promise<string | null>;
-  onCreateQuoteFromCompletedService: (draft: ServiceDraft) => void;
+  onCreateQuoteFromCompletedService: (
+    draft: ServiceDraft,
+  ) => string | null | Promise<string | null>;
   onValidateService?: (draft: ServiceDraft) => string | null;
   onChangeEquipment?: () => void;
   onOpenEquipment: (equipmentId: string) => void;
@@ -112,8 +114,17 @@ export function ServiceFlow({
     onOpenEquipment(draft.equipmentId);
   }
 
-  function finishAndCreateQuote() {
-    onCreateQuoteFromCompletedService(draft);
+  async function finishAndCreateQuote() {
+    const errorMessage = await resolveServiceCompletionResult(
+      onCreateQuoteFromCompletedService(draft),
+    );
+
+    if (errorMessage) {
+      setCompletionError(errorMessage);
+      return;
+    }
+
+    setCompletionError(null);
   }
 
   const isDone = step === 'done';
