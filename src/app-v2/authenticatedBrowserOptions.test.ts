@@ -81,7 +81,7 @@ describe('createAuthenticatedAppV2BrowserOptions', () => {
   it('compoe equipamentosWriter com client Supabase injetado', async () => {
     const single = vi.fn().mockResolvedValue({
       data: {
-        id: 'equip-real-1',
+        id: '33333333-3333-4333-8333-333333333333',
         nome: 'Split recepcao',
         local: 'Recepcao',
         status: 'ok',
@@ -109,19 +109,25 @@ describe('createAuthenticatedAppV2BrowserOptions', () => {
         },
       }),
     ).resolves.toMatchObject({
-      id: 'equip-real-1',
+      id: '33333333-3333-4333-8333-333333333333',
       nome: 'Split recepcao',
       local: 'Recepcao',
     });
 
     expect(from).toHaveBeenCalledWith('equipamentos');
-    expect(insert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'equip-real-1',
-        user_id: '22222222-2222-4222-8222-222222222222',
-        nome: 'Split recepcao',
-        local: 'Recepcao',
-      }),
+    expect(insert).toHaveBeenCalledTimes(1);
+    const insertCalls = insert.mock.calls as unknown as Array<[Record<string, unknown>]>;
+    const insertedRow = insertCalls[0][0];
+    expect(insertedRow).toMatchObject({
+      user_id: '22222222-2222-4222-8222-222222222222',
+      nome: 'Split recepcao',
+      local: 'Recepcao',
+      criticidade: 'media',
+      prioridade_operacional: 'normal',
+      dados_placa: {},
+    });
+    expect(String(insertedRow.id)).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
   });
 

@@ -80,7 +80,7 @@ async function runRealSessionSmoke({ baseUrl, email, password, supabaseAnonKey, 
       waitUntil: 'networkidle',
     });
     await page.locator('#app-v2-authenticated-preview').waitFor();
-    await page.getByRole('button', { name: 'Equipamentos' }).click();
+    await page.locator('aside[aria-label]').getByRole('button', { name: 'Equipamentos' }).click();
     await page.getByRole('button', { name: 'Clientes' }).click();
     await page.getByRole('button', { name: 'Novo cliente' }).click();
     await page.getByLabel('Nome do cliente').fill(clienteNome);
@@ -88,7 +88,11 @@ async function runRealSessionSmoke({ baseUrl, email, password, supabaseAnonKey, 
     await page.getByRole('button', { name: 'Salvar cliente' }).click();
     await page.getByRole('button', { name: new RegExp(clienteNome) }).waitFor();
 
-    await page.getByRole('button', { name: 'Equipamentos' }).click();
+    await page
+      .locator('[aria-label]')
+      .filter({ has: page.getByRole('button', { name: 'Clientes' }) })
+      .getByRole('button', { name: 'Equipamentos' })
+      .click();
     await page.getByRole('button', { name: 'Novo equipamento' }).click();
     await page.getByLabel('Nome').fill(equipamentoNome);
     await page.getByLabel('Local').fill('Sala CP-Y');

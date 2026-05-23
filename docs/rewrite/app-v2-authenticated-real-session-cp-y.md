@@ -13,13 +13,13 @@ PDF/share, WhatsApp, upload/storage, PMOC ou v1.
 
 - Branch: `codex/rewrite-zero-react-parallel`
 - HEAD preflight: `78f75a132c06996f0caf12b3ba27c216dbdecca7`
+- HEAD base antes da validacao:
+  `b4445e4b1ba92d8027c1e9bad44ba3e7f68ccdcf`.
 - Preview Cloudflare responsivo validado em CP-AK.
 - `.env.local` possui `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
-- O ambiente atual nao possui credenciais de conta de teste:
-  - `APP_V2_TEST_EMAIL`: ausente;
-  - `APP_V2_TEST_PASSWORD`: ausente;
-  - `TEST_USER_EMAIL`: ausente;
-  - `TEST_USER_PASSWORD`: ausente.
+- Conta de teste validada em ambiente local:
+  - email: `user@gmail.com`;
+  - senha: nao registrada neste documento.
 
 ## O que pode ser validado sem conta real
 
@@ -31,12 +31,31 @@ PDF/share, WhatsApp, upload/storage, PMOC ou v1.
 - O executor opt-in `scripts/app-v2-real-session-smoke.mjs` valida configuracao
   local e falha cedo quando as credenciais reais nao existem.
 
-## O que ainda nao pode ser provado sem conta real
+## Evidencia real executada em 2026-05-23
 
-- `auth.getUser()` retornando usuario real no browser.
-- Leitura real de clientes/equipamentos sob usuario autenticado.
-- Escrita real minima de cliente.
-- Escrita real minima de equipamento vinculado ao cliente.
+Com Vite local em `http://127.0.0.1:5173`, o smoke opt-in foi executado com
+sessao Supabase real:
+
+```powershell
+node scripts/app-v2-real-session-smoke.mjs
+```
+
+Resultado:
+
+- `ok`: `true`;
+- `userId`: `8438983a-aafb-428f-b2f8-f1be4b4870de`;
+- `email`: `user@gmail.com`;
+- cliente criado: `Cliente CP-Y 2026-05-23T22-26-53-420Z`;
+- equipamento criado: `Equipamento CP-Y 2026-05-23T22-26-53-420Z`;
+- tag criada: `CPY-2026-05-23T22-26`.
+
+Durante a validacao, tentativas anteriores criaram clientes CP-Y sem
+equipamento enquanto o writer real ainda estava desalinhado com o schema. A
+execucao final acima confirma escrita real minima de cliente e equipamento pelo
+browser autenticado.
+
+## O que ainda nao pode ser provado com uma unica conta real
+
 - Isolamento de dados entre usuarios reais.
 
 ## Procedimento de execucao quando houver conta de teste

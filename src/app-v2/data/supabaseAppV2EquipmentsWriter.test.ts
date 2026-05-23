@@ -4,10 +4,10 @@ import { saveAppV2EquipamentoToSupabase } from './supabaseAppV2EquipmentsWriter'
 import type { SupabaseAppV2EquipmentsWriteClient } from './supabaseAppV2EquipmentsWriter';
 
 describe('saveAppV2EquipamentoToSupabase', () => {
-  it('cria equipamento real usando id text do draft e mapeia a linha retornada', async () => {
+  it('cria equipamento real com UUID mesmo quando o shell envia id local e mapeia a linha retornada', async () => {
     const single = vi.fn().mockResolvedValue({
       data: {
-        id: 'equip-local-1',
+        id: '33333333-3333-4333-8333-333333333333',
         user_id: '22222222-2222-4222-8222-222222222222',
         cliente_id: '11111111-1111-4111-8111-111111111111',
         setor_id: null,
@@ -60,7 +60,7 @@ describe('saveAppV2EquipamentoToSupabase', () => {
         },
       }),
     ).resolves.toMatchObject({
-      id: 'equip-local-1',
+      id: '33333333-3333-4333-8333-333333333333',
       nome: 'Split recepcao',
       local: 'Recepcao',
       status: 'warn',
@@ -78,8 +78,10 @@ describe('saveAppV2EquipamentoToSupabase', () => {
     });
 
     expect(client.from).toHaveBeenCalledWith('equipamentos');
-    expect(insert).toHaveBeenCalledWith({
-      id: 'equip-local-1',
+    expect(insert).toHaveBeenCalledTimes(1);
+    const insertCalls = insert.mock.calls as unknown as Array<[Record<string, unknown>]>;
+    const insertedRow = insertCalls[0][0];
+    expect(insertedRow).toMatchObject({
       user_id: '22222222-2222-4222-8222-222222222222',
       cliente_id: '11111111-1111-4111-8111-111111111111',
       nome: 'Split recepcao',
@@ -98,6 +100,10 @@ describe('saveAppV2EquipamentoToSupabase', () => {
         capacidade_btu: '24000',
       },
     });
+    expect(insertedRow.id).toEqual(expect.any(String));
+    expect(String(insertedRow.id)).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
   });
 
   it('edita equipamento real filtrando por id e user_id', async () => {
@@ -140,10 +146,10 @@ describe('saveAppV2EquipamentoToSupabase', () => {
       modelo: null,
       fluido: null,
       componente: null,
-      criticidade: null,
-      prioridade_operacional: null,
+      criticidade: 'media',
+      prioridade_operacional: 'normal',
       periodicidade_preventiva_dias: null,
-      dados_placa: null,
+      dados_placa: {},
     });
     expect(eqId).toHaveBeenCalledWith('id', 'equip-real-1');
     expect(eqUser).toHaveBeenCalledWith('user_id', '22222222-2222-4222-8222-222222222222');
@@ -166,7 +172,7 @@ describe('saveAppV2EquipamentoToSupabase', () => {
       saveAppV2EquipamentoToSupabase({
         client,
         userId: '22222222-2222-4222-8222-222222222222',
-        draft: { id: ' ', mode: 'create', nome: 'Equipamento', local: 'Sala' },
+        draft: { id: ' ', mode: 'edit', nome: 'Equipamento', local: 'Sala' },
       }),
     ).rejects.toThrow('Nao foi possivel identificar o equipamento.');
 

@@ -27,28 +27,28 @@ upload/storage, PMOC ou v1.
 
 ## Gates tecnicos fechados
 
-| Gate                              | Estado | Evidencia                                                       |
-| --------------------------------- | ------ | --------------------------------------------------------------- |
-| `index.html` usa bootstrap app-v2 | Verde  | CP-AB                                                           |
-| Build/test/check do PR            | Verde  | PR #287 em `d8a38ef`                                            |
-| Bundle size                       | Verde  | check `size-limit` no PR #287                                   |
-| E2E app-v2                        | Verde  | check `Playwright` no PR #287                                   |
-| Cloudflare Pages deploy           | Verde  | preview `https://fb80e025.cool-track-pro.pages.dev`             |
-| Rotas principais externas         | Verde  | CP-AJ e CP-AK                                                   |
-| Mobile/desktop externo            | Verde  | CP-AK: 12 combinacoes sem overflow e com navegacao visivel      |
-| Fallback de preview sem env       | Verde  | CP-AI evita tela vazia quando env Supabase nao esta configurada |
-| Rollback documental               | Verde  | CP-AB                                                           |
+| Gate                                    | Estado | Evidencia                                                       |
+| --------------------------------------- | ------ | --------------------------------------------------------------- |
+| `index.html` usa bootstrap app-v2       | Verde  | CP-AB                                                           |
+| Build/test/check do PR                  | Verde  | PR #287 em `d8a38ef`                                            |
+| Bundle size                             | Verde  | check `size-limit` no PR #287                                   |
+| E2E app-v2                              | Verde  | check `Playwright` no PR #287                                   |
+| Cloudflare Pages deploy                 | Verde  | preview `https://fb80e025.cool-track-pro.pages.dev`             |
+| Rotas principais externas               | Verde  | CP-AJ e CP-AK                                                   |
+| Mobile/desktop externo                  | Verde  | CP-AK: 12 combinacoes sem overflow e com navegacao visivel      |
+| Fallback de preview sem env             | Verde  | CP-AI evita tela vazia quando env Supabase nao esta configurada |
+| Rollback documental                     | Verde  | CP-AB                                                           |
+| Sessao Supabase real no browser         | Verde  | CP-Y com conta `user@gmail.com`                                 |
+| Escrita real minima cliente/equipamento | Verde  | CP-Y criou cliente e equipamento reais via browser autenticado  |
+| Aprovacao das areas fora do corte       | Verde  | Usuario aprovou exclusoes do primeiro corte em 2026-05-23       |
 
 ## Gates ainda abertos
 
-| Gate                                    | Estado   | O que falta                                        |
-| --------------------------------------- | -------- | -------------------------------------------------- |
-| Sessao Supabase real no browser         | Aberto   | Conta de teste para executar CP-Y                  |
-| Escrita real minima cliente/equipamento | Aberto   | CP-Y com `scripts/app-v2-real-session-smoke.mjs`   |
-| Isolamento real entre usuarios          | Aberto   | CP-Y ou etapa RLS dedicada com dois usuarios reais |
-| Aprovacao das areas fora do corte       | Pendente | Decisao explicita do usuario/produto               |
-| PR pronto para merge                    | Pendente | Remover draft somente depois dos gates acima       |
-| Runbook de promocao/rollback            | Verde    | CP-AM                                              |
+| Gate                           | Estado   | O que falta                                        |
+| ------------------------------ | -------- | -------------------------------------------------- |
+| Isolamento real entre usuarios | Aberto   | CP-Y ou etapa RLS dedicada com dois usuarios reais |
+| PR pronto para merge           | Pendente | Remover draft somente depois dos gates acima       |
+| Runbook de promocao/rollback   | Verde    | CP-AM                                              |
 
 ## Decisao pendente sobre areas fora do primeiro corte
 
@@ -70,21 +70,21 @@ sensiveis proprias:
 
 Antes de transformar o app-v2 na versao principal final:
 
-- [ ] Executar CP-Y com conta Supabase real de teste.
-- [ ] Confirmar leitura real de cliente/equipamento sob usuario autenticado.
-- [ ] Confirmar escrita real minima de cliente.
-- [ ] Confirmar escrita real minima de equipamento vinculado ao cliente.
+- [x] Executar CP-Y com conta Supabase real de teste.
+- [x] Confirmar leitura real de cliente/equipamento sob usuario autenticado.
+- [x] Confirmar escrita real minima de cliente.
+- [x] Confirmar escrita real minima de equipamento vinculado ao cliente.
 - [ ] Confirmar que dados de outro usuario nao aparecem.
-- [ ] Aprovar explicitamente que PDF/share real fica fora do primeiro corte.
-- [ ] Aprovar explicitamente que WhatsApp real fica fora do primeiro corte.
-- [ ] Aprovar explicitamente que billing/features pagas ficam fora do primeiro
+- [x] Aprovar explicitamente que PDF/share real fica fora do primeiro corte.
+- [x] Aprovar explicitamente que WhatsApp real fica fora do primeiro corte.
+- [x] Aprovar explicitamente que billing/features pagas ficam fora do primeiro
       corte.
-- [ ] Aprovar explicitamente que upload/storage real fica fora do primeiro
+- [x] Aprovar explicitamente que upload/storage real fica fora do primeiro
       corte.
-- [ ] Aprovar explicitamente que PMOC real fica fora do primeiro corte.
-- [ ] Aprovar explicitamente que assinatura digital real fica fora do primeiro
+- [x] Aprovar explicitamente que PMOC real fica fora do primeiro corte.
+- [x] Aprovar explicitamente que assinatura digital real fica fora do primeiro
       corte.
-- [ ] Aprovar explicitamente que orcamento real com aceite/envio externo fica
+- [x] Aprovar explicitamente que orcamento real com aceite/envio externo fica
       fora do primeiro corte.
 - [ ] Tirar PR #287 de draft.
 - [ ] Fazer merge/promocao seguindo o runbook CP-AM.
@@ -102,10 +102,9 @@ Ele deve ser usado somente depois de:
 
 ## Proximo passo
 
-O proximo passo executavel e CP-Y. Para isso, e necessario fornecer ou criar uma
-conta Supabase real de teste no projeto usado por `.env.local`, exportar
-`APP_V2_TEST_EMAIL` e `APP_V2_TEST_PASSWORD`, iniciar o Vite local e executar:
+O proximo passo executavel e decidir como fechar o gate de isolamento real entre
+usuarios:
 
-```powershell
-node scripts/app-v2-real-session-smoke.mjs
-```
+- fornecer uma segunda conta real de teste e executar validacao cruzada; ou
+- deixar isolamento para uma etapa Supabase/RLS dedicada antes de remover o
+  draft do PR.

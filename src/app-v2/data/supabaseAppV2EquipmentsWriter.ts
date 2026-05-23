@@ -50,10 +50,10 @@ interface SupabaseEquipamentoWritableRow {
   modelo: string | null;
   fluido: string | null;
   componente: string | null;
-  criticidade: string | null;
-  prioridade_operacional: string | null;
+  criticidade: string;
+  prioridade_operacional: string;
   periodicidade_preventiva_dias: number | null;
-  dados_placa: SupabaseEquipamentoDadosPlaca | null;
+  dados_placa: SupabaseEquipamentoDadosPlaca;
 }
 
 interface SupabaseEquipamentoDadosPlaca {
@@ -76,17 +76,19 @@ export async function saveAppV2EquipamentoToSupabase({
     throw new Error('Usuario autenticado obrigatorio para salvar equipamento.');
   }
 
-  const equipmentId = normalizeRequired(draft.id);
+  const shouldEdit = draft.mode === 'edit';
+  const equipmentId = shouldEdit
+    ? normalizeRequired(draft.id)
+    : resolveCreateEquipmentId(normalizeRequired(draft.id));
 
-  if (!equipmentId) {
+  if (shouldEdit && !equipmentId) {
     throw new Error('Nao foi possivel identificar o equipamento.');
   }
 
   const writableRow = mapEquipmentDraftToWritableRow(draft);
-  const response =
-    draft.mode === 'edit'
-      ? await updateEquipamento(client, equipmentId, normalizedUserId, writableRow)
-      : await createEquipamento(client, equipmentId, normalizedUserId, writableRow);
+  const response = shouldEdit
+    ? await updateEquipamento(client, equipmentId, normalizedUserId, writableRow)
+    : await createEquipamento(client, equipmentId, normalizedUserId, writableRow);
 
   if (response.error) {
     throw new Error(response.error.message ?? 'Nao foi possivel salvar equipamento.');
@@ -166,14 +168,14 @@ function mapEquipmentDraftToWritableRow(draft: SaveEquipmentDraft): SupabaseEqui
     modelo: normalizeOptional(draft.marcaModelo),
     fluido: normalizeOptional(draft.fluidoRefrigerante),
     componente: normalizeOptional(draft.componente),
-    criticidade: draft.criticidade ?? null,
-    prioridade_operacional: draft.prioridadeOperacional ?? null,
+    criticidade: draft.criticidade ?? 'media',
+    prioridade_operacional: draft.prioridadeOperacional ?? 'normal',
     periodicidade_preventiva_dias: normalizePreventiveInterval(draft.periodicidadePreventivaDias),
     dados_placa: mapDadosPlaca(draft),
   };
 }
 
-function mapDadosPlaca(draft: SaveEquipmentDraft): SupabaseEquipamentoDadosPlaca | null {
+function mapDadosPlaca(draft: SaveEquipmentDraft): SupabaseEquipamentoDadosPlaca {
   const numeroSerie = normalizeOptional(draft.numeroSerie);
   const capacidadeBtu = normalizeOptional(draft.capacidadeBtuh);
   const dadosPlaca = {
@@ -181,7 +183,7 @@ function mapDadosPlaca(draft: SaveEquipmentDraft): SupabaseEquipamentoDadosPlaca
     ...(capacidadeBtu ? { capacidade_btu: capacidadeBtu } : {}),
   };
 
-  return Object.keys(dadosPlaca).length > 0 ? dadosPlaca : null;
+  return dadosPlaca;
 }
 
 function normalizeRequired(value: string | null | undefined): string {
@@ -191,6 +193,20 @@ function normalizeRequired(value: string | null | undefined): string {
 function normalizeOptional(value: string | null | undefined): string | null {
   const normalized = normalizeRequired(value);
   return normalized ? normalized : null;
+}
+
+function resolveCreateEquipmentId(draftId: string): string {
+  if (isUuid(draftId)) {
+    return draftId;
+  }
+
+  const generatedId = globalThis.crypto?.randomUUID?.();
+
+  if (!generatedId) {
+    throw new Error('Nao foi possivel gerar UUID para salvar equipamento real.');
+  }
+
+  return generatedId;
 }
 
 function normalizePreventiveInterval(value: number | string | undefined): number | null {
