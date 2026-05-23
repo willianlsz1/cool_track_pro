@@ -358,6 +358,20 @@ Status CP-R:
   conclusao em nova acao;
 - PDF/share, WhatsApp, billing, router e storage real continuam fora.
 
+Status CP-T:
+
+- documentado em `docs/rewrite/app-v2-auth-profile-real-cp-t.md`;
+- criado contrato `AppV2SessionReader` para ler usuario autenticado por injecao;
+- criado bridge `createAuthenticatedAppV2DataSource` para compor sessao real com
+  a `createAppV2DataSource` existente;
+- ausencia de usuario, `id` vazio ou erro de auth retornam data source local com
+  `reason: 'missing-session'`;
+- preview default continua local com `mountAppV2(root)`;
+- `AppV2Shell`, `index.tsx`, `preview.tsx` e bridge autenticado permanecem sem
+  imports diretos de Supabase/auth/storage;
+- router, storage real amplo, PDF/share, WhatsApp, billing, upload e PMOC
+  continuam fora.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
