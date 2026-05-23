@@ -221,6 +221,47 @@ describe('AppV2Shell dataPort', () => {
     expect(host.textContent).not.toContain('Desarquivar equipamento');
   });
 
+  it('adiciona foto placeholder pela dataPort injetada', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const saveEquipmentAttachment = vi.spyOn(dataPort, 'saveEquipmentAttachment');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Adicionar foto local$/i);
+    await flushPromises();
+
+    expect(saveEquipmentAttachment).toHaveBeenCalledWith('eq-1', {
+      id: 'foto-eq-1-2',
+      kind: 'foto',
+      label: 'Foto local 2',
+      source: 'placeholder',
+      createdAt: initialSnapshot.today,
+      cover: false,
+    });
+    expect(host.textContent).toContain('2/3 fotos locais');
+    expect(host.textContent).toContain('Foto local 2');
+  });
+
+  it('mostra erro e nao adiciona foto quando saveEquipmentAttachment rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'saveEquipmentAttachment').mockRejectedValueOnce(
+      new Error('Falha attachment CP-N'),
+    );
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Adicionar foto local$/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha attachment CP-N');
+    expect(host.textContent).toContain('1/3 fotos locais');
+    expect(host.textContent).not.toContain('Foto local 2');
+  });
+
   it('agenda preventiva pela dataPort injetada e atualiza a proxima preventiva', async () => {
     const initialSnapshot = createAppV2MockSnapshot();
     const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);

@@ -25,6 +25,7 @@ import {
 } from '../ui/primitives';
 
 type EquipmentArchiveResult = string | null | Promise<string | null>;
+type EquipmentAttachmentResult = string | null | Promise<string | null>;
 type PreventiveScheduleResult = string | null | Promise<string | null>;
 
 interface EquipmentDetailProps {
@@ -36,7 +37,7 @@ interface EquipmentDetailProps {
   onSaveEquipment?: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
   onArchiveEquipment?: (equipmentId: string) => EquipmentArchiveResult;
   onUnarchiveEquipment?: (equipmentId: string) => EquipmentArchiveResult;
-  onAddPlaceholderAttachment?: (equipmentId: string) => string | null;
+  onAddPlaceholderAttachment?: (equipmentId: string) => EquipmentAttachmentResult;
   onSchedulePreventive?: (equipmentId: string, targetDate: string) => PreventiveScheduleResult;
 }
 
@@ -118,12 +119,12 @@ export function EquipmentDetail({
     setIsArchivePending(false);
   }
 
-  function addPlaceholderAttachment() {
+  async function addPlaceholderAttachment() {
     if (!onAddPlaceholderAttachment) {
       return;
     }
 
-    const result = onAddPlaceholderAttachment(equipmentId);
+    const result = await resolveEquipmentAttachmentResult(onAddPlaceholderAttachment(equipmentId));
 
     if (result) {
       setAttachmentError(result);
@@ -547,6 +548,16 @@ async function resolveArchiveResult(
     return await result;
   } catch (error) {
     return error instanceof Error ? error.message : fallback;
+  }
+}
+
+async function resolveEquipmentAttachmentResult(
+  result: EquipmentAttachmentResult,
+): Promise<string | null> {
+  try {
+    return await result;
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Não foi possível adicionar a foto.';
   }
 }
 

@@ -60,6 +60,7 @@ interface AppV2ShellProps {
 }
 
 type EquipmentArchiveResult = string | null | Promise<string | null>;
+type EquipmentAttachmentResult = string | null | Promise<string | null>;
 type PreventiveScheduleResult = string | null | Promise<string | null>;
 
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
@@ -374,20 +375,31 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function addPlaceholderAttachmentDraft(equipmentId: string): string | null {
+  function addPlaceholderAttachmentDraft(equipmentId: string): EquipmentAttachmentResult {
     const equipment = appState.equipamentos.find((item) => item.id === equipmentId);
     const attachmentCount = equipment?.anexos?.length ?? 0;
     const nextIndex = attachmentCount + 1;
+    const attachment = {
+      id: `foto-${equipmentId}-${nextIndex}`,
+      kind: 'foto',
+      label: nextIndex === 1 ? 'Foto principal local' : `Foto local ${nextIndex}`,
+      source: 'placeholder',
+      createdAt: appState.today,
+      cover: nextIndex === 1,
+    } as const;
 
     try {
-      const nextState = saveEquipmentAttachment(appState, equipmentId, {
-        id: `foto-${equipmentId}-${nextIndex}`,
-        kind: 'foto',
-        label: nextIndex === 1 ? 'Foto principal local' : `Foto local ${nextIndex}`,
-        source: 'placeholder',
-        createdAt: appState.today,
-        cover: nextIndex === 1,
-      });
+      if (dataPort) {
+        return dataPort
+          .saveEquipmentAttachment(equipmentId, attachment)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível adicionar a foto.'));
+      }
+
+      const nextState = saveEquipmentAttachment(appState, equipmentId, attachment);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
