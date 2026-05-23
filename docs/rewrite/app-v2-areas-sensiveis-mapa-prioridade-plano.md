@@ -270,6 +270,94 @@ Status CP-H:
   apos gravacao real;
 - `preview.tsx` segue local por padrao.
 
+Status CP-I:
+
+- documentado em `docs/rewrite/app-v2-equipamentos-readonly-cp-i.md`;
+- criada leitura relacional minima Cliente -> Equipamentos;
+- criada composicao read-only explicita por `clienteId`;
+- validado que a leitura real de equipamentos exige `userId`, `clienteId` e
+  reader injetado;
+- preview segue local por padrao.
+
+Status CP-I1:
+
+- documentado em
+  `docs/rewrite/app-v2-equipamentos-readonly-mapping-cp-i1.md`;
+- mapeamento de equipamentos reais separado do reader;
+- entradas invalidas sao descartadas antes de chegar ao app-v2;
+- nenhum componente React importa Supabase.
+
+Status CP-J:
+
+- documentado em `docs/rewrite/app-v2-equipamentos-write-cp-j.md`;
+- criado writer real opcional de Equipamento com client injetado;
+- create/edit propagam erro real sem fallback silencioso;
+- escrita real exige `userId`, `id`, `nome`, `local` e `clienteId` valido;
+- `createAppV2DataSource` pode compor escrita real de equipamentos sem ativar
+  runtime default.
+
+Status CP-K:
+
+- documentado em `docs/rewrite/app-v2-data-port-shell-writes-cp-k.md`;
+- `AppV2Shell` passou a rotear `saveClient` e `saveEquipment` pela
+  `AppV2DataPort` quando injetada;
+- fallback local sem `dataPort` foi preservado;
+- erros de porta mantem formulario aberto e mostram mensagem amigavel.
+
+Status CP-L:
+
+- documentado em `docs/rewrite/app-v2-data-port-archive-cp-l.md`;
+- arquivar/desarquivar equipamento usa `dataPort` quando injetada;
+- confirmacoes permanecem abertas em erro;
+- nenhum storage real, upload ou router foi ativado.
+
+Status CP-M:
+
+- documentado em `docs/rewrite/app-v2-data-port-schedule-cp-m.md`;
+- agendamento de preventiva usa `dataPort.scheduleCommitment` quando injetada;
+- validacao local de data continua antes da escrita;
+- falhas preservam o modal e exibem erro.
+
+Status CP-N:
+
+- documentado em `docs/rewrite/app-v2-data-port-attachment-cp-n.md`;
+- foto placeholder/local usa `dataPort.saveEquipmentAttachment` quando injetada;
+- upload/storage real continua fora do escopo;
+- falhas nao adicionam anexo local indevido.
+
+Status CP-O:
+
+- documentado em `docs/rewrite/app-v2-data-port-sectors-cp-o.md`;
+- salvar/remover setor usa `dataPort` quando injetada;
+- equipamentos associados ao setor removido permanecem preservados;
+- erros mantem painel/confirmacao abertos.
+
+Status CP-P:
+
+- documentado em `docs/rewrite/app-v2-data-port-quotes-cp-p.md`;
+- salvar rascunho e criar orcamento pre-servico usam `dataPort` quando
+  injetada;
+- rascunhos continuam locais/mock sem PDF, billing ou envio real;
+- falhas preservam editor/painel aberto com erro.
+
+Status CP-Q:
+
+- documentado em `docs/rewrite/app-v2-data-port-service-completion-cp-q.md`;
+- iniciar, concluir e editar registros de servico usam `dataPort` quando
+  injetada;
+- `ServiceFlow` trata conclusao async sem navegar em erro;
+- fallback local permanece usando actions puras.
+
+Status CP-R:
+
+- documentado em
+  `docs/rewrite/app-v2-data-port-post-service-quote-cp-r.md`;
+- gerar orcamento pos-diagnostico conclui/atualiza o registro via `dataPort`
+  antes de criar o orcamento;
+- erro na criacao do orcamento preserva a tela concluida e evita duplicar a
+  conclusao em nova acao;
+- PDF/share, WhatsApp, billing, router e storage real continuam fora.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
@@ -631,11 +719,32 @@ Depois do adapter em memoria:
    - manteve preview local.
 
 9. **CP-J contrato de escrita real de Equipamento**
-   - impedir `cliente_id` cross-tenant antes de qualquer writer;
-   - documentar payload minimo de create/edit;
-   - decidir continuidade de `equipamentos.id` como `text` ou migracao futura
-     para UUID;
-   - criar teste SQL de insert/update forjado antes de codigo runtime.
+   - concluido em `docs/rewrite/app-v2-equipamentos-write-cp-j.md`;
+   - criou writer real opcional com client injetado;
+   - manteve preview local;
+   - propagou erro real sem fallback silencioso.
+
+10. **CP-K shell writes via AppV2DataPort**
+    - concluido em `docs/rewrite/app-v2-data-port-shell-writes-cp-k.md`;
+    - roteou criacao/edicao de clientes e equipamentos pelo data port quando
+      injetado.
+
+11. **CP-L a CP-R completar mutacoes locais do shell via data port**
+    - CP-L archive/unarchive;
+    - CP-M agendamento;
+    - CP-N anexos placeholder;
+    - CP-O setores;
+    - CP-P orcamentos locais;
+    - CP-Q ciclo de servico;
+    - CP-R orcamento pos-diagnostico.
+
+12. **Proximo checkpoint recomendado**
+    - consolidar tipos/helpers de resultado async fora de dominios especificos,
+      se a duplicacao entre equipamentos, clientes e servicos continuar
+      crescendo;
+    - ou iniciar novo plano dedicado para uma area real seguinte: auth/perfil
+      real ou leitura/escrita adicional persistida, sem misturar router,
+      PDF/share, billing ou upload.
 
 ## 11. Riscos remanescentes
 
@@ -644,9 +753,10 @@ Depois do adapter em memoria:
 - O contrato de `Orcamento` local pode precisar evoluir antes de orcamento real.
 - Auth/perfil real ainda nao existe no app-v2; adapter real precisara de usuario
   atual.
-- Reconciliacao de `clienteId` local para UUID real ainda nao foi implementada.
-- Escrita real de equipamento ainda precisa bloquear `cliente_id` de outro
-  `user_id`; FK simples nao cobre ownership de cliente.
+- Reconciliacao completa de IDs locais para IDs reais ainda nao cobre todas as
+  entidades do app-v2.
+- Escrita real completa de equipamento ainda depende de validacoes/policies
+  permanentes no ambiente Supabase final.
 - Router/deep link continua bloqueado ate IDs persistidos e fallback serem
   definidos.
 - PDF/share/WhatsApp e billing continuam fora ate haver persistencia e quota
