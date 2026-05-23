@@ -9,7 +9,6 @@
  */
 
 import { attachDialogA11y } from '../../core/modal.js';
-import { goTo } from '../../core/router.js';
 
 const OVERLAY_ID = 'pmoc-info-modal-overlay';
 let _a11yCleanup = null;
@@ -157,14 +156,6 @@ function buildHtml() {
         <button type="button" class="btn btn--ghost pmoc-info-modal__btn" id="pmoc-info-ok">
           Entendi
         </button>
-        <button type="button" class="btn btn--primary pmoc-info-modal__btn pmoc-info-modal__btn--upgrade"
-          id="pmoc-info-upgrade" data-action="open-upgrade"
-          data-upgrade-source="pmoc_info_modal" data-highlight-plan="pro">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M3 7l4 4 5-7 5 7 4-4-2 12H5L3 7z"/>
-          </svg>
-          Ver planos Pro
-        </button>
       </footer>
     </div>
   `;
@@ -196,11 +187,6 @@ function open() {
   });
   overlay.querySelector('#pmoc-info-close')?.addEventListener('click', hardClose);
   overlay.querySelector('#pmoc-info-ok')?.addEventListener('click', hardClose);
-  overlay.querySelector('#pmoc-info-upgrade')?.addEventListener('click', () => {
-    hardClose();
-    goTo('pricing', { highlightPlan: 'pro' });
-  });
-
   _a11yCleanup = attachDialogA11y(overlay, { onDismiss: hardClose });
 }
 

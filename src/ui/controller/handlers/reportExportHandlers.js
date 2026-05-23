@@ -6,7 +6,6 @@ import { ErrorCodes, handleError } from '../../../core/errors.js';
 // quando o usuário clica "Gerar PDF".
 import { WhatsAppExport } from '../../../domain/whatsapp.js';
 import { Auth } from '../../../core/auth.js';
-import { goTo } from '../../../core/router.js';
 import { trackEvent } from '../../../core/telemetry.js';
 import { runAsyncAction } from '../../components/actionFeedback.js';
 import { ShareSuccessToast } from '../../components/shareSuccessToast.js';
@@ -79,16 +78,6 @@ function buildPdfLimitMessage(planCode, pdfLimit) {
   return `Você atingiu o limite mensal de ${pdfLimit} PDFs.`;
 }
 
-function buildPdfLimitUpgradeParams(planCode) {
-  if (planCode === PLAN_CODE_FREE) {
-    return { highlightPlan: 'plus', reason: 'pdf_quota_free' };
-  }
-  if (planCode === PLAN_CODE_PLUS) {
-    return { highlightPlan: 'pro', reason: 'pdf_quota_plus' };
-  }
-  return { reason: 'pdf_quota' };
-}
-
 /**
  * ensureReportBudget
  * -------------------
@@ -131,7 +120,7 @@ async function ensureReportBudget({ attemptedEvent, blockedEvent }) {
   ) {
     trackEvent(blockedEvent, { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildPdfLimitMessage(planCode, pdfLimit));
-    goTo('pricing', buildPdfLimitUpgradeParams(planCode));
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
     return { ok: false };
   }
 
@@ -450,7 +439,7 @@ async function resolveWhatsAppShareBudget() {
   ) {
     trackEvent('whatsapp_share_blocked', { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildWhatsAppLimitMessage(planCode, whatsappLimit));
-    goTo('pricing');
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
     return false;
   }
 

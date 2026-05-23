@@ -8,7 +8,6 @@ import { Toast } from '../../../core/toast.js';
 import { Tour } from '../../components/tour.js';
 import { OnboardingChecklist } from '../../components/onboarding/onboardingChecklist.js';
 import { ContextualOnboarding } from '../../components/onboarding/contextualOnboarding.js';
-import { AuthScreen } from '../../components/authscreen.js';
 import {
   clearEditingState as clearEquipEditingState,
   clearForcedEquipContext,
@@ -389,8 +388,7 @@ export function bindNavigationHandlers() {
       if (overlay.id) Modal.close(overlay.id);
     });
 
-    const { goTo: dynamicGoTo } = await import('../../../core/router.js');
-    dynamicGoTo('pricing', { highlightPlan });
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
   });
   on('start-checkout', async (el, event) => {
     event?.preventDefault?.();
@@ -399,78 +397,13 @@ export function bindNavigationHandlers() {
     const plan = ALLOWED_PLANS.includes(rawPlan) ? rawPlan : 'pro';
     const source = el?.dataset?.upgradeSource || 'pricing';
     trackEvent('checkout_start_clicked', { source, plan });
-
-    try {
-      const { startCheckout } = await import('../../../core/plans/monetization.js');
-      const url = await startCheckout({ plan });
-      window.location.href = url;
-    } catch (error) {
-      if (error?.code === 'NO_SESSION') {
-        Toast.warning('Faça login para assinar o plano Pro.');
-        AuthScreen.show();
-        return;
-      }
-
-      if (error?.code === 'INVALID_JWT') {
-        Toast.warning('Sessão expirada. Faça login novamente.');
-        AuthScreen.show();
-        return;
-      }
-
-      Toast.error(error?.message || 'Não foi possível iniciar o checkout.');
-    }
+    Toast.warning('Checkout desativado. Billing sera refeito em uma etapa propria.');
   });
 
   on('manage-subscription', async (el, event) => {
     event?.preventDefault?.();
     trackEvent('manage_subscription_clicked', {});
-
-    const btn = el instanceof HTMLElement ? el : null;
-    const originalText = btn?.textContent ?? '';
-    if (btn) btn.textContent = 'Abrindo...';
-
-    const tryOpenPortal = async () => {
-      const { startBillingPortal } = await import('../../../core/plans/monetization.js');
-      const url = await startBillingPortal();
-      window.location.href = url;
-    };
-
-    try {
-      await tryOpenPortal();
-    } catch (firstError) {
-      // Se a sessão está inválida, tenta um refresh silencioso e repete uma vez
-      if (firstError?.code === 'NO_SESSION' || firstError?.code === 'INVALID_JWT') {
-        try {
-          const { supabase } = await import('../../../core/supabase.js');
-          const { data } = await supabase.auth.refreshSession();
-          if (data?.session) {
-            // Sessão renovada — tenta abrir o portal novamente
-            await tryOpenPortal();
-            return;
-          }
-        } catch (_) {
-          // refresh falhou — segue para o fluxo de login abaixo
-        }
-
-        // Refresh não resolveu: pede login explícito
-        if (btn) btn.textContent = originalText;
-        Toast.warning('Sua sessão expirou. Faça login novamente para gerenciar sua assinatura.');
-        AuthScreen.show();
-        return;
-      }
-
-      if (btn) btn.textContent = originalText;
-
-      if (firstError?.code === 'NO_STRIPE_CUSTOMER') {
-        Toast.warning(firstError.message || 'Nenhuma assinatura ativa encontrada.');
-        return;
-      }
-
-      Toast.error(
-        firstError?.message ||
-          'Não foi possível abrir o portal. Tente novamente ou entre em contato com o suporte.',
-      );
-    }
+    Toast.warning('Portal de assinatura desativado. Billing sera refeito em uma etapa propria.');
   });
 
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"

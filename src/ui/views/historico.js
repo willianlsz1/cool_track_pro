@@ -862,10 +862,7 @@ function _renderSummaryCard(
           <path d="M3 17 9 11l4 4 8-8"/><path d="M14 7h7v7"/>
         </svg>
       </span>
-      <span>Economize 3h/semana com relatórios automáticos</span>
-      <button type="button" class="hist-summary-card__upsell-link" data-hist-action="hist-pricing-link">
-        Ver planos →
-      </button>
+      <span>Relatórios automáticos serão revistos em etapa própria.</span>
     </div>
     <button type="button" class="hist-summary-card__cta" data-nav="relatorio">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1662,12 +1659,6 @@ function attachFilterHandlers(container) {
       });
     });
   };
-
-  // CTA aponta pra Plus (menor tier que destrava histórico completo),
-  // alinhando com o texto do banner.
-  each('[data-hist-action="hist-pricing-link"]', (btn) =>
-    btn.addEventListener('click', () => goTo('pricing', { highlightPlan: 'plus' })),
-  );
 
   each('[data-hist-action="hist-filter-period"]', (btn) =>
     btn.addEventListener('click', () => {

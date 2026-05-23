@@ -941,7 +941,7 @@ function buildRegistroSignatureReactProps() {
     signatureSrc: _registroSignatureDraftSrc,
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
-      goTo('pricing', { highlightPlan: 'plus' });
+      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
     },
   };
 }
@@ -1101,7 +1101,7 @@ function _applyPmocChecklistDiscoveryState() {
 
 function _redirectPmocChecklistUpsell() {
   trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
-  goTo('pricing', { highlightPlan: 'pro' });
+  Toast.warning('Billing e precificacao estao desativados nesta etapa.');
 }
 
 function _ensurePmocChecklistAccess({ redirect = false } = {}) {

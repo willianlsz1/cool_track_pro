@@ -138,7 +138,7 @@ function _planBadgeLabel(planCode, planLabel) {
 
 function _planTagline(planCode, planData) {
   if (planCode === PLAN_CODE_FREE) {
-    return 'Use o fluxo completo no gratuito. Faça upgrade quando precisar de escala.';
+    return 'Use o fluxo operacional sem fluxo comercial nesta etapa.';
   }
   if (planCode === PLAN_CODE_PLUS) {
     return 'Seu plano está ativo e os recursos profissionais liberados.';
@@ -196,8 +196,8 @@ function _renderHeroPlan({ planCode, planData, billingProfile }) {
     )
     .join('');
 
-  // Bottom cards: usage + renewal (somente quando paid). No Free, o slot
-  // de renewal vira CTA de upgrade.
+  // Bottom cards: usage + renewal (somente quando paid). No Free, nao ha CTA
+  // comercial enquanto billing e precificacao estao fora do produto.
   const renewalCardHtml = hasRenew
     ? `
         <div class="conta-hero__stat conta-hero__stat--renew">
@@ -211,13 +211,7 @@ function _renderHeroPlan({ planCode, planData, billingProfile }) {
             </div>
           </div>
         </div>`
-    : isPaid
-      ? ''
-      : `
-        <button type="button" class="conta-hero__upgrade-cta" data-conta-action="upgrade">
-          <span aria-hidden="true">${ICON_CROWN}</span>
-          <span>Conhecer planos pagos</span>
-        </button>`;
+    : '';
 
   return `
     <section class="conta-hero conta-hero--${planCode}" aria-labelledby="conta-hero-title">
@@ -367,7 +361,6 @@ function _renderPlanCard({ planCode }) {
           <li>clientes organizados</li><li>setores por local</li><li>equipamentos ilimitados</li>
           <li>PMOC formal</li><li>suporte prioritário</li>
         </ul>
-        <button type="button" class="btn btn--outline btn--sm" data-conta-action="manage-plan">Gerenciar assinatura</button>
       </section>`;
   }
   if (planCode === PLAN_CODE_PLUS) {
@@ -380,7 +373,6 @@ function _renderPlanCard({ planCode }) {
           <li>até 15 equipamentos</li><li>relatórios profissionais</li><li>assinatura digital</li>
           <li>IA para cadastro por foto</li><li>envio via WhatsApp</li>
         </ul>
-        <button type="button" class="btn btn--outline btn--sm" data-conta-action="upgrade">Ver Pro</button>
       </section>`;
   }
   return `
@@ -392,7 +384,6 @@ function _renderPlanCard({ planCode }) {
         <li>até 3 equipamentos</li><li>registros de serviço</li><li>relatório com marca d'água</li>
         <li>funciona offline</li>
       </ul>
-      <button type="button" class="btn btn--primary btn--sm" data-conta-action="upgrade">Ver planos</button>
     </section>`;
 }
 
@@ -409,7 +400,7 @@ function _renderQuickActions({ planCode }) {
           { icon: ICON_WRENCH, label: 'Registrar serviço', action: 'go-registro' },
           { icon: ICON_PACKAGE, label: 'Ver equipamentos', action: 'go-equipamentos' },
           { icon: ICON_FILE, label: 'Ver relatórios', action: 'go-relatorio' },
-          { icon: ICON_CARD, label: 'Ver planos', action: 'upgrade' },
+          { icon: ICON_USER, label: 'Editar perfil', action: 'conta-edit-profile' },
         ];
   return `<section class="conta-quick" aria-label="Ações rápidas">
       <div class="conta-section__kicker">AÇÕES RÁPIDAS</div>
@@ -457,12 +448,9 @@ function _renderSection({ label, rows }) {
     </section>`;
 }
 
-function _renderAllSections({ planCode }) {
-  const manageLabel = planCode === PLAN_CODE_FREE ? 'Conhecer planos' : 'Gerenciar assinatura';
-  const manageSub =
-    planCode === PLAN_CODE_FREE
-      ? 'Veja todos os planos pagos e o que vem em cada um.'
-      : 'Veja detalhes do plano, cobrança e métodos de pagamento.';
+function _renderAllSections() {
+  const commercialLabel = 'Area comercial indisponivel';
+  const commercialSub = 'Billing e precificacao serao refeitos em uma etapa propria.';
 
   const conta = _renderSection({
     label: 'CONTA',
@@ -480,15 +468,15 @@ function _renderAllSections({ planCode }) {
   });
 
   const assinatura = _renderSection({
-    label: 'ASSINATURA',
+    label: 'AREA COMERCIAL',
     rows: [
       {
         id: 'conta-row-manage',
         icon: ICON_CARD,
         iconTint: 'violet',
-        title: manageLabel,
-        sub: manageSub,
-        action: 'conta-manage-plan',
+        title: commercialLabel,
+        sub: commercialSub,
+        action: 'none',
         tone: 'neutral',
       },
     ],
@@ -611,7 +599,7 @@ function _bindOnce() {
       case 'manage-plan':
       case 'upgrade':
       case 'conta-manage-plan':
-        goTo('pricing');
+        Toast.warning('Billing e precificacao estao desativados nesta etapa.');
         break;
       case 'go-registro':
         goTo('registro');
@@ -811,7 +799,7 @@ export async function renderConta() {
       ${_renderPlanCard({ planCode })}
       ${_renderQuickActions({ planCode })}
       <div class="conta-sections">
-        ${_renderAllSections({ planCode })}
+        ${_renderAllSections()}
       </div>
       ${_renderLgpdFooter()}
     </div>`;

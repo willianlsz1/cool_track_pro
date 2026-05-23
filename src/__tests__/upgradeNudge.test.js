@@ -12,7 +12,7 @@ describe('UpgradeNudge', () => {
       expect(html).toContain('50 PDFs técnicos/mês sem marca');
       expect(html).toContain('Assinatura do cliente no relatório');
       expect(html).toContain('60 aberturas de WhatsApp/mês');
-      expect(html).toContain('Ver plano Plus &rarr;');
+      expect(html).toContain('Area comercial indisponivel');
       expect(html).toContain('data-highlight-plan="plus"');
       // Menciona Pro como caminho futuro
       expect(html).toContain('Pro');
@@ -28,7 +28,7 @@ describe('UpgradeNudge', () => {
       expect(html).toContain('WhatsApp ilimitado');
       expect(html).toContain('Agrupamento por setores');
       expect(html).toContain('Suporte prioritário');
-      expect(html).toContain('Ver plano Pro &rarr;');
+      expect(html).toContain('Area comercial indisponivel');
       expect(html).toContain('data-highlight-plan="pro"');
     });
 
@@ -51,7 +51,7 @@ describe('UpgradeNudge', () => {
       const html = UpgradeNudge.renderInlineHint('<img src=x onerror=alert(1)>');
 
       expect(html).toContain('&lt;img src=x onerror=alert(1)&gt; fica disponível no plano Plus');
-      expect(html).toContain('Ver plano &rarr;');
+      expect(html).toContain('Area comercial indisponivel');
     });
 
     it('usa plano Pro quando requiredPlan é pro', () => {

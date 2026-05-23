@@ -207,13 +207,6 @@ export const OverflowBanner = {
           <path d="M12 10v4M12 17.5v.01" />
         </svg>
         <span class="dash-overflow-banner__text">${safeCopy}</span>
-        <button
-          type="button"
-          class="dash-overflow-banner__cta"
-          data-action="open-upgrade"
-          data-upgrade-source="overflow_banner"
-          data-highlight-plan="plus"
-        >Ver planos &rarr;</button>
       </aside>
     `;
   },
@@ -291,7 +284,7 @@ function buildModalCopy(state) {
     title: 'Você ultrapassou os limites do plano grátis',
     description:
       'Você ultrapassou os limites do plano grátis. O Plus cobre até 15 equipamentos e o Pro cobre frota grande com equipamentos ilimitados.',
-    ctaLabel: 'Ver planos',
+    ctaLabel: 'Area comercial indisponivel',
     highlightPlan: 'plus',
   };
 }

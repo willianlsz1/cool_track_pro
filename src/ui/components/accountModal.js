@@ -11,7 +11,6 @@ import {
   PLAN_CODE_FREE,
   PLAN_CODE_PRO,
 } from '../../core/plans/subscriptionPlans.js';
-import { goTo } from '../../core/router.js';
 import { getState } from '../../core/state.js';
 import { attachDialogA11y } from '../../core/modal.js';
 import { Toast } from '../../core/toast.js';
@@ -204,7 +203,7 @@ export function openAccountModal(user, { onEditProfile, onSignOut, billingProfil
 
   const tierModifier = `account-modal--${planCode}`;
   const renewDate = !isFree ? formatRenewalShort(planProfile.subscription_current_period_end) : '';
-  const manageLabel = isFree ? 'Fazer upgrade' : 'Gerenciar assinatura';
+  const manageLabel = 'Area comercial indisponivel';
 
   const overlay = document.createElement('div');
   overlay.id = ACCOUNT_MODAL_ID;
@@ -300,13 +299,11 @@ export function openAccountModal(user, { onEditProfile, onSignOut, billingProfil
   });
 
   overlay.querySelector('#btn-upgrade-plan')?.addEventListener('click', () => {
-    closeAccountModal();
-    goTo('pricing');
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
   });
 
   overlay.querySelector('#btn-manage-plan')?.addEventListener('click', () => {
-    closeAccountModal();
-    goTo('pricing');
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
   });
 
   overlay.querySelector('#btn-signout')?.addEventListener('click', () => {

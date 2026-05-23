@@ -35,7 +35,7 @@ vi.mock('../domain/pdf/shareReport.js', () => ({
 }));
 
 // Guest conversion modal foi removido quando o modo demo/guest saiu.
-// Os fluxos de limite agora usam Toast.warning + goTo('pricing').
+// Os fluxos de limite agora usam Toast.warning + aviso local de billing desativado.
 
 const trackEvent = vi.fn();
 vi.mock('../core/telemetry.js', () => ({
@@ -245,14 +245,11 @@ describe('reportExportHandlers', () => {
     expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
     // Sem GuestConversionModal — agora mostra Toast com nudge pra Plus/Pro
     expect(warning).toHaveBeenCalled();
-    const toastMsg = warning.mock.calls[warning.mock.calls.length - 1][0];
+    const toastMsg = warning.mock.calls.map(([message]) => message).join('\n');
     expect(toastMsg).toMatch(/Plus/);
     expect(toastMsg).toMatch(/1 PDF\/mês/);
     expect(toastMsg).toMatch(/WhatsApp/i);
-    expect(goTo).toHaveBeenCalledWith('pricing', {
-      highlightPlan: 'plus',
-      reason: 'pdf_quota_free',
-    });
+    expect(goTo).not.toHaveBeenCalled();
   });
 
   it('allows Plus users under the monthly PDF quota and increments usage', async () => {
@@ -301,13 +298,10 @@ describe('reportExportHandlers', () => {
     expect(generateMaintenanceReport).not.toHaveBeenCalled();
     expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
     expect(warning).toHaveBeenCalled();
-    const toastMsg = warning.mock.calls[warning.mock.calls.length - 1][0];
+    const toastMsg = warning.mock.calls.map(([message]) => message).join('\n');
     expect(toastMsg).toMatch(/50 PDFs\/mês/);
     expect(toastMsg).toMatch(/Pro/);
-    expect(goTo).toHaveBeenCalledWith('pricing', {
-      highlightPlan: 'pro',
-      reason: 'pdf_quota_plus',
-    });
+    expect(goTo).not.toHaveBeenCalled();
   });
 
   it('does not increment PDF usage when generation fails before export', async () => {
@@ -415,7 +409,7 @@ describe('reportExportHandlers', () => {
     await handlers.get('whatsapp-export')({});
 
     expect(send).not.toHaveBeenCalled();
-    // Sem GuestConversionModal — Toast.warning + goTo('pricing')
+    // Sem GuestConversionModal: Toast.warning + aviso local de billing desativado.
     expect(warning).toHaveBeenCalled();
     expect(trackEvent).toHaveBeenCalledWith(
       'whatsapp_share_blocked',

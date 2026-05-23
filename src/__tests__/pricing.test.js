@@ -1,208 +1,34 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-async function loadPricingModule({ user = null, profile = null } = {}) {
-  vi.resetModules();
-
-  const getUser = vi.fn().mockResolvedValue(user);
-  const fetchMyProfileBilling = vi.fn().mockResolvedValue({ profile });
-
-  vi.doMock('../core/auth.js', () => ({
-    Auth: { getUser },
-  }));
-
-  vi.doMock('../core/plans/monetization.js', () => ({
-    fetchMyProfileBilling,
-  }));
-
-  const module = await import('../ui/views/pricing.js');
-  return { ...module, mocks: { getUser, fetchMyProfileBilling } };
-}
+import { renderPricing } from '../ui/views/pricing.js';
 
 describe('pricing view', () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
     localStorage.clear();
     document.body.innerHTML = '<div id="view-pricing"></div>';
   });
 
-  it('renders free plan for unauthenticated session without checkout CTA for free card', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: null,
-      profile: null,
-    });
-
+  it('renderiza aviso neutro de area comercial indisponivel', async () => {
     await renderPricing();
 
     const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('Plano Gratuito');
-    expect(html).toContain('Assinar Pro');
-    expect(html).toContain('data-action="start-checkout"');
+    expect(html).toContain('Area comercial indisponivel');
+    expect(html).toContain('Billing e precificacao foram retirados do app');
+    expect(html).toContain('Nenhuma acao de cobranca esta disponivel agora.');
   });
 
-  it('renders pro plan as current with cancel button and no checkout CTA', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'pro', subscription_status: 'active', is_dev: false },
-    });
-
+  it('nao renderiza checkout, portal de assinatura ou tabela de precos', async () => {
     await renderPricing();
 
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('Plano Pro ativo');
-    expect(html).toContain('Plano atual');
+    const view = document.getElementById('view-pricing');
+    const html = view.innerHTML;
     expect(html).not.toContain('data-action="start-checkout"');
-    // Cancel / manage buttons
-    expect(html).toContain('data-action="manage-subscription"');
-    expect(html).toContain('Gerenciar / cancelar assinatura');
-    expect(html).toContain('Abrir portal');
-    // Management section visible
-    expect(html).toContain('pricing-manage-section');
-  });
-
-  it('keeps pro checkout CTA for free users', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
-    });
-
-    await renderPricing({ highlightPlan: 'pro' });
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('Assinar Pro');
-    expect(html).toContain('data-action="start-checkout"');
     expect(html).not.toContain('data-action="manage-subscription"');
-    expect(html).not.toContain('pricing-manage-section');
-  });
-
-  it('shows limit reached message when redirected from blocked free action', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
-    });
-
-    await renderPricing({ highlightPlan: 'pro', reason: 'limit_reached' });
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('atingiu o limite do plano');
-    expect(html).toContain('data-action="start-checkout"');
-  });
-
-  it('shows PDF quota copy and highlights Plus when Free reaches PDF quota', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
-    });
-
-    await renderPricing({ highlightPlan: 'plus', reason: 'pdf_quota_free' });
-
-    const view = document.getElementById('view-pricing');
-    const html = view.innerHTML;
-    expect(html).toContain("1 PDF/mês com marca d'água");
-    expect(html).toContain("<strong>50 PDFs/mês</strong> sem marca d'água");
-    expect(html).toContain('<strong>PDFs ilimitados</strong>');
-    expect(html).toContain('atingiu 1 PDF/mês no Free');
-    expect(html).toContain('Plus libera 50 PDFs/mês');
-    expect(view.querySelector('[data-plan-card="plus"]')?.className).toContain(
-      'pricing-card--highlight',
-    );
-    expect(view.querySelector('[data-plan-tab="plus"]')?.className).toContain(
-      'pricing-plan-tabs__btn--active',
-    );
-  });
-
-  it('shows PDF quota copy and highlights Pro when Plus reaches PDF quota', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'plus', subscription_status: 'active', is_dev: false },
-    });
-
-    await renderPricing({ highlightPlan: 'pro', reason: 'pdf_quota_plus' });
-
-    const view = document.getElementById('view-pricing');
-    const html = view.innerHTML;
-    expect(html).toContain('atingiu 50 PDFs/mês no Plus');
-    expect(html).toContain('Pro libera PDFs sem limitação relevante');
-    expect(view.querySelector('[data-plan-card="pro"]')?.className).toContain(
-      'pricing-card--highlight',
-    );
-    expect(view.querySelector('[data-plan-tab="pro"]')?.className).toContain(
-      'pricing-plan-tabs__btn--active',
-    );
-  });
-
-  it('cancel button is not shown for free plan users', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
-    });
-
-    await renderPricing();
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).not.toContain('pricing-cancel-btn');
-    expect(html).not.toContain('Cancelar assinatura');
-  });
-
-  it('mostra linha "Cadastro por foto (IA)" com cotas reais na tabela comparativa', async () => {
-    // Motivação: antes a IA sumia da tabela comparativa, dando a falsa
-    // impressão de que era Pro-only ou ilimitado. Agora ela aparece no topo
-    // com Free=1/mês (teste), Plus=30/mês, Pro=200/mês.
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
-    });
-
-    await renderPricing();
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('Cadastro por foto (IA)');
-    expect(html).toContain('1 / mês');
-    expect(html).toContain('30 / mês');
-    expect(html).toContain('200 / mês');
-    // Sanity: não deve mais dizer "ilimitado" pra cadastro por foto
-    // (o regex garante que a string "200" aparece como cota do Pro)
-    expect(html).toMatch(/Cadastro por foto \(IA\)[\s\S]*200/);
-  });
-
-  it('Pro subtítulo reforça operação com clientes, setores e PMOC', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'pro', subscription_status: 'active', is_dev: false },
-    });
-
-    await renderPricing();
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain(
-      'Para quem atende vários clientes e precisa organizar operação, setores e PMOC.',
-    );
-  });
-
-  it('heroSubtitle do Pro não mostra emoji 🙌', async () => {
-    // Regressão: o glyph renderizava "👀" em alguns user-agents mobile. Copy
-    // sem emoji é neutra e evita esse tipo de bug por plataforma.
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'pro', subscription_status: 'active', is_dev: false },
-    });
-
-    await renderPricing();
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).not.toContain('🙌');
-    expect(html).toContain('Obrigado por confiar no CoolTrack');
-  });
-
-  it('Plus badge usa "MELHOR P/ AUTÔNOMO"', async () => {
-    const { renderPricing } = await loadPricingModule({
-      user: { id: 'user-1' },
-      profile: { plan: 'free', subscription_status: 'inactive', is_dev: false },
-    });
-
-    await renderPricing();
-
-    const html = document.getElementById('view-pricing').innerHTML;
-    expect(html).toContain('MELHOR P/ AUTÔNOMO');
-    expect(html).not.toContain('INTERMEDIÁRIO');
+    expect(html).not.toContain('Assinar Pro');
+    expect(html).not.toContain('Gerenciar / cancelar assinatura');
+    expect(html).not.toContain('R$ 29');
+    expect(html).not.toContain('R$ 99');
+    expect(view.querySelector('[data-plan-card]')).toBeNull();
+    expect(view.querySelector('[data-plan-tab]')).toBeNull();
   });
 });

@@ -213,11 +213,12 @@ function PmocHero({ isPro }) {
         <button
           className="pmoc-hero__btn pmoc-hero__btn--locked"
           id={RELATORIO_PUBLIC_IDS.pmocNudge}
-          data-nav={RELATORIO_NAV_TARGETS.pricing}
+          data-action="open-upgrade"
+          data-highlight-plan="pro"
           type="button"
-          title="Conheça o plano Pro para PMOC formal."
+          title="Billing e precificacao desativados nesta etapa."
         >
-          🔒 Conhecer Pro
+          Area comercial indisponivel
         </button>
       )}
     </section>

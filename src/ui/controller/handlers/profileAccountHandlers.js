@@ -2,6 +2,7 @@ import { on } from '../../../core/events.js';
 import { Auth } from '../../../core/auth.js';
 import { ErrorCodes, handleError } from '../../../core/errors.js';
 import { goTo } from '../../../core/router.js';
+import { Toast } from '../../../core/toast.js';
 import { ProfileModal } from '../../components/onboarding.js';
 
 /**
@@ -44,9 +45,11 @@ export function bindProfileAccountHandlers() {
   // e "Gerenciar plano"). Antes geravam warning "Sem handler" no console
   // porque essas actions eram declaradas em data-action mas nunca foram
   // bindadas em lugar nenhum. Editar perfil abre o ProfileModal; gerenciar
-  // plano vai pra /pricing.
+  // plano exibe aviso local enquanto billing e precificacao estao fora do produto.
   on('conta-edit-profile', () => ProfileModal.open());
-  on('conta-manage-plan', () => goTo('pricing'));
+  on('conta-manage-plan', () =>
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.'),
+  );
 
   // Bug fix #119: card "Sair da conta" da view /conta. Confirma antes de
   // deslogar (acao destrutiva — perde sessao + redireciona pra login).

@@ -5,7 +5,6 @@ import { ErrorCodes, handleError } from '../../../core/errors.js';
 import { trackEvent } from '../../../core/telemetry.js';
 import { uploadPendingPhotos, normalizePhotoList } from '../../../core/photoStorage.js';
 import { isCachedPlanPlusOrHigher } from '../../../core/plans/planCache.js';
-import { goTo } from '../../../core/router.js';
 import { EquipmentPhotos } from '../../components/equipmentPhotos.js';
 
 let viewEquipFallback = null;
@@ -38,7 +37,7 @@ function _bindPhotosUpsellCta() {
   cta.dataset.upsellBound = '1';
   cta.addEventListener('click', () => {
     trackEvent('photo_upsell_clicked', { source: 'equip_modal' });
-    goTo('pricing', { highlightPlan: 'plus', reason: 'photos_upsell' });
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
   });
 }
 
@@ -112,7 +111,7 @@ function _bindEqPhotosUpsellCta() {
     } catch (_err) {
       /* segue pra pricing mesmo se Modal.close falhar */
     }
-    goTo('pricing', { highlightPlan: 'plus', reason: 'photos_upsell' });
+    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
   });
 }
 

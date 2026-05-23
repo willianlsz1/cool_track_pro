@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { checkSaveEquipPlanLimit, validateSaveEquipPayload } from '../../crud/validate.js';
 
 describe('crud/validate', () => {
-  it('validateSaveEquipPayload retorna validação quando payload é válido', () => {
+  it('validateSaveEquipPayload retorna validacao quando payload e valido', () => {
     const validateEquipamentoPayload = vi.fn((payload, options) => ({
       valid: true,
       value: { ...payload, normalized: true },
@@ -52,10 +52,10 @@ describe('crud/validate', () => {
     expect(Toast.warning).not.toHaveBeenCalled();
   });
 
-  it('validateSaveEquipPayload mostra warning e bloqueia payload inválido', () => {
+  it('validateSaveEquipPayload mostra warning e bloqueia payload invalido', () => {
     const validateEquipamentoPayload = vi.fn(() => ({
       valid: false,
-      errors: ['Nome é obrigatório.'],
+      errors: ['Nome e obrigatorio.'],
     }));
     const Toast = { warning: vi.fn() };
 
@@ -68,10 +68,10 @@ describe('crud/validate', () => {
     });
 
     expect(result).toBeNull();
-    expect(Toast.warning).toHaveBeenCalledWith('Nome é obrigatório.');
+    expect(Toast.warning).toHaveBeenCalledWith('Nome e obrigatorio.');
   });
 
-  it('checkSaveEquipPlanLimit permite edição sem consultar limite', async () => {
+  it('checkSaveEquipPlanLimit permite edicao sem consultar limite', async () => {
     const checkPlanLimit = vi.fn();
 
     const result = await checkSaveEquipPlanLimit({
@@ -80,14 +80,13 @@ describe('crud/validate', () => {
       checkPlanLimit,
       trackEvent: vi.fn(),
       Toast: { warning: vi.fn() },
-      goTo: vi.fn(),
     });
 
     expect(result).toBe(true);
     expect(checkPlanLimit).not.toHaveBeenCalled();
   });
 
-  it('checkSaveEquipPlanLimit mantém toast, telemetria e navegação quando Free bloqueia', async () => {
+  it('checkSaveEquipPlanLimit mantem toast e telemetria quando Free bloqueia', async () => {
     const checkPlanLimit = vi.fn(() => ({
       blocked: true,
       current: 3,
@@ -96,7 +95,6 @@ describe('crud/validate', () => {
     }));
     const trackEvent = vi.fn();
     const Toast = { warning: vi.fn() };
-    const goTo = vi.fn();
 
     const result = await checkSaveEquipPlanLimit({
       equipamentos: [{}, {}, {}],
@@ -104,7 +102,6 @@ describe('crud/validate', () => {
       checkPlanLimit,
       trackEvent,
       Toast,
-      goTo,
     });
 
     expect(result).toBe(false);
@@ -115,9 +112,13 @@ describe('crud/validate', () => {
       limit: 3,
       planCode: 'free',
     });
-    expect(Toast.warning).toHaveBeenCalledWith(
-      'Você atingiu o limite do plano Free. Faça upgrade para continuar.',
+    expect(Toast.warning).toHaveBeenNthCalledWith(
+      1,
+      'Voce atingiu o limite do plano Free. Faca upgrade para continuar.',
     );
-    expect(goTo).toHaveBeenCalledWith('pricing');
+    expect(Toast.warning).toHaveBeenNthCalledWith(
+      2,
+      'Billing e precificacao estao desativados nesta etapa.',
+    );
   });
 });
