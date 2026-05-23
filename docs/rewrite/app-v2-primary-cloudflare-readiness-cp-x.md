@@ -96,7 +96,7 @@ antes do deploy real do Cloudflare Pages conectado ao repo.
 | Paridade dos fluxos de producao | parcialmente documentada       | Sim                                  | Matriz final v1 x v2 por fluxo critico                                     |
 | PDF/share/WhatsApp              | fora do app-v2 real            | Sim se forem requisito do lancamento | CP dedicada ou decisao explicita de deixar fora do primeiro corte          |
 | Billing/features pagas          | fora do app-v2 real            | Sim se rota principal exigir plano   | CP dedicada ou gate de fallback                                            |
-| Router/deep links               | nao promovido                  | Sim para producao publica            | Plano para URLs, refresh e historico                                       |
+| Router/deep links               | rotas principais implementadas | Subrotas ainda bloqueiam deep links  | CP-AD cobre `/`, `/equipamentos`, `/servicos` e `/conta`                   |
 | Cloudflare Pages preview        | smoke local de producao passou | Sim                                  | Falta URL externa de preview Cloudflare Pages                              |
 | Rollback                        | documentado em CP-AB           | Nao para corte local; sim para cloud | Falta validar rollback em preview/branch se necessario                     |
 
@@ -322,6 +322,35 @@ Pendente:
 
 - reexecutar o mesmo smoke contra a URL externa do Cloudflare Pages preview da
   branch.
+
+### CP-AD - Rotas principais app-v2
+
+Objetivo:
+
+Garantir que o app-v2 como root principal abra as quatro areas principais por
+URL, sem promover subrotas, IDs ou fluxo de registro para contratos publicos.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-primary-routes-cp-ad.md`;
+- `src/app-v2/navigation/appV2Routes.ts` define o contrato minimo:
+  - `/`;
+  - `/equipamentos`;
+  - `/servicos`;
+  - `/conta`;
+- `AppV2Shell` inicializa a area ativa a partir de `window.location.pathname`;
+- troca de area atualiza `history.pushState`;
+- `popstate` sincroniza a area principal;
+- `e2e/specs/app-v2-primary-entrypoint.spec.js` agora valida `/equipamentos`,
+  `/servicos` e `/conta` em preview de producao.
+
+Fora de escopo:
+
+- subrotas como `/servicos/orcamentos`;
+- URLs com IDs;
+- recuperacao de `serviceDraft` apos refresh;
+- router legado;
+- storage, Supabase/RLS, PDF/share, WhatsApp, billing, upload ou PMOC.
 
 Smoke Cloudflare:
 

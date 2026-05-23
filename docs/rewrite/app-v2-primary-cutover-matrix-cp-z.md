@@ -59,7 +59,7 @@ Classificação usada nesta matriz:
 | Relatórios locais        | Relatório local e consolidado local foram tratados                        | Obrigatório se substituir v1 operacionalmente      | `relatorios-consolidados-locais-app-v2.md`                              | Smoke local no bootstrap v2                                   |
 | Orçamentos locais        | Ciclo local foi tratado; orçamento real segue fora                        | Obrigatório no recorte local, real pode ficar fora | docs de orçamentos fases 2/3 e CP-R                                     | Decisão explícita sobre orçamento real fora do primeiro corte |
 | Conta/configurações      | Conta local fechada visualmente; perfil real fora                         | Obrigatório no recorte local                       | fases Conta 1-6 e QA visual                                             | Decisão explícita sobre perfil real mínimo                    |
-| Router/deep links        | Não promovido                                                             | Obrigatório para produção pública mínima           | CP-X classifica como bloqueio                                           | CP dedicada para refresh, histórico e URLs                    |
+| Router/deep links        | Rotas principais implementadas; subrotas fora                             | Subrotas/IDs exigem CP própria                     | `docs/rewrite/app-v2-primary-routes-cp-ad.md`                           | Validar rotas principais no preview externo                   |
 | PDF/share                | Fora do app-v2 real                                                       | Etapa sensível própria                             | AGENTS e matriz                                                         | Decidir se fica fora do primeiro corte ou executar CP própria |
 | WhatsApp real            | Fora do app-v2 real                                                       | Etapa sensível própria                             | AGENTS e matriz                                                         | Decidir se fica fora do primeiro corte ou executar CP própria |
 | Billing/features pagas   | Fora do app-v2 real                                                       | Etapa sensível própria                             | AGENTS e matriz                                                         | Decidir se root v2 exige plano no primeiro corte              |
@@ -104,7 +104,7 @@ Fora do primeiro corte, se aprovado explicitamente:
 
 1. Validar sessão Supabase real no browser.
 2. Validar escrita real mínima de cliente e equipamento sob usuário autenticado.
-3. Definir comportamento de router/deep link para `/`.
+3. Validar rotas principais app-v2 no preview externo.
 4. Validar fluxo operacional mínimo em mobile e desktop.
 5. Publicar Cloudflare Pages preview da branch com v2 como root e reexecutar
    smoke E2E.
@@ -116,9 +116,11 @@ Se houver sessão de teste disponível: executar CP-Y, validação real do
 `authenticated-preview.html`.
 
 CP-AB executou a troca local do `index.html` e validou `/` no browser local.
-CP-AC validou `dist` via preview local de producao. O próximo checkpoint
-recomendado é publicar/validar a URL externa do Cloudflare Pages preview da
-branch antes da promoção final.
+CP-AC validou `dist` via preview local de producao. CP-AD adicionou rotas
+principais para `/`, `/equipamentos`, `/servicos` e `/conta`.
+
+O próximo checkpoint recomendado é publicar/validar a URL externa do Cloudflare
+Pages preview da branch antes da promoção final.
 
 ## Validação desta CP
 

@@ -25,13 +25,25 @@ test.describe('App-v2 primary entrypoint', () => {
     expect(errors()).toEqual([]);
   });
 
-  test('mantem fallback SPA para rota nao-arquivo no preview de producao', async ({ page }) => {
+  test('mantem fallback SPA para rotas principais no preview de producao', async ({ page }) => {
     const errors = collectBlockingErrors(page);
 
     await page.goto('/equipamentos');
 
     await expect(page.locator('#app-v2-root')).toHaveCount(1);
-    await expect(page.getByRole('heading', { name: 'Hoje' })).toBeVisible();
+    await expect(page.getByText('Parque')).toBeVisible();
+    await expect(page.locator('#app')).toHaveCount(0);
+
+    await page.goto('/servicos');
+
+    await expect(page.locator('#app-v2-root')).toHaveCount(1);
+    await expect(page.getByRole('heading', { name: 'Registros recentes' })).toBeVisible();
+    await expect(page.locator('#app')).toHaveCount(0);
+
+    await page.goto('/conta');
+
+    await expect(page.locator('#app-v2-root')).toHaveCount(1);
+    await expect(page.getByRole('heading', { name: 'Conta' })).toBeVisible();
     await expect(page.locator('#app')).toHaveCount(0);
     expect(errors()).toEqual([]);
   });

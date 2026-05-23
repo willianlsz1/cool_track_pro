@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { AccountHome } from '../account/AccountHome';
 import { AlertsHome } from '../alerts/AlertsHome';
@@ -27,6 +27,11 @@ import {
 import type { EquipmentSubView } from '../equipment/EquipmentSubViewNav';
 import { HomeToday } from '../home/HomeToday';
 import { BottomNav, DesktopSidebar, type AppV2Tab } from '../navigation/BottomNav';
+import {
+  getAppV2PathForTab,
+  isKnownAppV2Path,
+  resolveAppV2TabFromPath,
+} from '../navigation/appV2Routes';
 import {
   createQuoteFromServiceRecord,
   createPreServiceQuoteDraft,
@@ -71,7 +76,9 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     ...(initialSnapshot ?? createAppV2MockSnapshot()),
     serviceDraft: null,
   }));
-  const [activeTab, setActiveTab] = useState<AppV2Tab>('hoje');
+  const [activeTab, setActiveTab] = useState<AppV2Tab>(() =>
+    resolveAppV2TabFromPath(getCurrentPathname()),
+  );
   const [homeView, setHomeView] = useState<'overview' | 'alerts'>('overview');
   const [equipmentSubView, setEquipmentSubView] = useState<EquipmentSubView>('equipments');
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
@@ -88,8 +95,56 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   });
   const [startServiceAfterEquipmentCreate, setStartServiceAfterEquipmentCreate] = useState(false);
   const [equipmentFormClientId, setEquipmentFormClientId] = useState<string | null>(null);
+  const didMountRouteSync = useRef(false);
+  const isApplyingHistoryNavigation = useRef(false);
   const operationalState = selectAppV2OperationalState(appState);
   const serviceDraft = operationalState.serviceDraft;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    if (!isKnownAppV2Path(window.location.pathname)) {
+      window.history.replaceState({ appV2Tab: 'hoje' }, '', getAppV2PathForTab('hoje'));
+    }
+
+    function handlePopState() {
+      isApplyingHistoryNavigation.current = true;
+      const nextTab = resolveAppV2TabFromPath(window.location.pathname);
+
+      setActiveTab(nextTab);
+      resetTransientStateForTab(nextTab);
+    }
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (!didMountRouteSync.current) {
+      didMountRouteSync.current = true;
+      return;
+    }
+
+    if (isApplyingHistoryNavigation.current) {
+      isApplyingHistoryNavigation.current = false;
+      return;
+    }
+
+    const nextPath = getAppV2PathForTab(activeTab);
+
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({ appV2Tab: activeTab }, '', nextPath);
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (!dataPort) {
@@ -121,7 +176,10 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
 
   function selectTab(tab: AppV2Tab) {
     setActiveTab(tab);
+    resetTransientStateForTab(tab);
+  }
 
+  function resetTransientStateForTab(tab: AppV2Tab) {
     if (tab === 'hoje') {
       setHomeView('overview');
     }
@@ -875,4 +933,12 @@ function isValidLocalIsoDate(date: string): boolean {
 
 function getSaveErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
+}
+
+function getCurrentPathname(): string {
+  if (typeof window === 'undefined') {
+    return '/';
+  }
+
+  return window.location.pathname;
 }

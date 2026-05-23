@@ -23,6 +23,7 @@ afterEach(async () => {
 
   root = null;
   document.body.innerHTML = '';
+  window.history.pushState({}, '', '/');
   vi.restoreAllMocks();
 });
 

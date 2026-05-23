@@ -2299,3 +2299,36 @@ Resultado:
 
 Ainda nao e validacao externa do Cloudflare Pages. Falta URL de preview da
 branch para reexecutar o mesmo smoke em ambiente publicado.
+
+## 138. Checkpoint concluido - CP-AD rotas principais app-v2
+
+Foi implementado o contrato minimo de rotas principais para o app-v2 como
+entrada principal:
+
+- `/` abre `Hoje`;
+- `/equipamentos` abre `Equipamentos`;
+- `/servicos` abre `Servicos`;
+- `/conta` abre `Conta`.
+
+Arquivos principais:
+
+- `src/app-v2/navigation/appV2Routes.ts`;
+- `src/app-v2/navigation/appV2Routes.test.ts`;
+- `src/app-v2/shell/AppV2Shell.tsx`;
+- `docs/rewrite/app-v2-primary-routes-cp-ad.md`.
+
+Decisao registrada:
+
+- somente as quatro areas principais viraram contrato publico de URL;
+- subrotas, IDs e etapas de fluxo continuam fora;
+- `popstate` sincroniza apenas a area principal;
+- troca de area atualiza `history.pushState`;
+- caminhos desconhecidos fazem fallback para `Hoje`.
+
+Validacao focada:
+
+- `npm test -- src/app-v2/navigation/appV2Routes.test.ts src/app-v2/shell/AppV2Shell.navigation.test.tsx --run`;
+- `npm test -- src/app-v2/shell/AppV2Shell.test.tsx src/app-v2/shell/AppV2ShellDataPort.test.tsx --run`.
+
+Nao foram alterados storage, Supabase/RLS, PDF/share, WhatsApp, billing,
+upload, PMOC, router legado, subrotas com IDs ou persistencia de draft.

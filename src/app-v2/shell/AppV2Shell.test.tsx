@@ -10,10 +10,10 @@ import {
   selectOption,
 } from './AppV2Shell.testUtils';
 
+afterEach(cleanupShell);
+
 describe('AppV2Shell', () => {
   const forbiddenRegulatoryTerm = ['P', 'MOC'].join('');
-
-  afterEach(cleanupShell);
 
   it('filtra Relatorios por periodo, cliente e equipamento com resumo consolidado local', async () => {
     const host = await renderShell();

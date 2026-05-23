@@ -34,6 +34,7 @@ export async function cleanupShell() {
 
   root = null;
   document.body.innerHTML = '';
+  window.history.pushState({}, '', '/');
   vi.restoreAllMocks();
 }
 

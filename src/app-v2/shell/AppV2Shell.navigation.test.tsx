@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act } from 'react';
 
 import {
   cleanupShell,
@@ -11,7 +12,10 @@ import {
 describe('AppV2Shell navigation and alerts', () => {
   const forbiddenRegulatoryTerm = ['P', 'MOC'].join('');
 
-  afterEach(cleanupShell);
+  afterEach(async () => {
+    await cleanupShell();
+    window.history.pushState({}, '', '/');
+  });
 
   it('mostra lista curta de alertas ativos na Home sem abrir area sensivel', async () => {
     const host = await renderShell();
@@ -129,15 +133,42 @@ describe('AppV2Shell navigation and alerts', () => {
 
     await clickButton(host, /^Equipamentos$/i);
     expect(host.textContent).toContain('Parque');
+    expect(window.location.pathname).toBe('/equipamentos');
 
     await clickButton(host, /^Servi/i);
     expect(host.textContent).toContain('Registros recentes');
+    expect(window.location.pathname).toBe('/servicos');
 
     await clickButton(host, /^Conta$/i);
     expect(host.textContent).toContain('Conta');
+    expect(window.location.pathname).toBe('/conta');
     expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
     expect(host.textContent).not.toContain('Billing');
     expect(host.textContent).not.toContain('Supabase');
+  });
+
+  it('usa a rota inicial para abrir areas principais do app-v2 como root', async () => {
+    window.history.pushState({}, '', '/servicos');
+
+    const host = await renderShell();
+
+    expect(host.textContent).toContain('Registros recentes');
+    expect(host.textContent).not.toContain('Orientação para o dia');
+  });
+
+  it('sincroniza popstate somente entre rotas principais contratadas', async () => {
+    window.history.pushState({}, '', '/equipamentos');
+    const host = await renderShell();
+
+    expect(host.textContent).toContain('Parque');
+
+    await act(async () => {
+      window.history.pushState({}, '', '/conta');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
+    expect(host.textContent).not.toContain('Parque');
   });
 
   it('abre a tela completa de alertas pelo atalho local de Conta', async () => {
