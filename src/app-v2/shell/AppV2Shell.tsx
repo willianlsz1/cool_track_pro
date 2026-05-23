@@ -60,6 +60,7 @@ interface AppV2ShellProps {
 }
 
 type EquipmentArchiveResult = string | null | Promise<string | null>;
+type PreventiveScheduleResult = string | null | Promise<string | null>;
 
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [appState, setAppState] = useState<AppV2FlowState>(() => ({
@@ -395,19 +396,34 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function schedulePreventiveDraft(equipmentId: string, targetDate: string): string | null {
+  function schedulePreventiveDraft(
+    equipmentId: string,
+    targetDate: string,
+  ): PreventiveScheduleResult {
     try {
       if (!isValidLocalIsoDate(targetDate)) {
         return 'Informe uma data válida para agendar a preventiva.';
       }
 
-      const nextState = scheduleNextCommitment(appState, {
+      const input = {
         id: `compromisso-local-${equipmentId}-${appState.compromissos.length + 1}`,
         equipmentId,
         kind: 'preventiva',
         targetDate,
         origin: 'periodicidade',
-      });
+      } as const;
+
+      if (dataPort) {
+        return dataPort
+          .scheduleCommitment(input)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível agendar a preventiva.'));
+      }
+
+      const nextState = scheduleNextCommitment(appState, input);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;

@@ -220,6 +220,55 @@ describe('AppV2Shell dataPort', () => {
     expect(host.textContent).toContain('Confirmar arquivar equipamento');
     expect(host.textContent).not.toContain('Desarquivar equipamento');
   });
+
+  it('agenda preventiva pela dataPort injetada e atualiza a proxima preventiva', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const scheduleCommitment = vi.spyOn(dataPort, 'scheduleCommitment');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Cassete recep/i);
+    await clickButton(host, /^Agendar preventiva local$/i);
+
+    await fillInput(
+      host.querySelector('input[name="equipment-preventive-date"]') as HTMLInputElement,
+      '2026-06-09',
+    );
+    await clickButton(host, /^Salvar preventiva$/i);
+    await flushPromises();
+
+    expect(scheduleCommitment).toHaveBeenCalledWith({
+      id: `compromisso-local-eq-4-${initialSnapshot.compromissos.length + 1}`,
+      equipmentId: 'eq-4',
+      kind: 'preventiva',
+      targetDate: '2026-06-09',
+      origin: 'periodicidade',
+    });
+    expect(host.textContent).toMatch(/Pr.xima preventiva em 09\/06/);
+    expect(host.querySelector('input[name="equipment-preventive-date"]')).toBeNull();
+  });
+
+  it('mantem modal de preventiva aberto e mostra erro quando scheduleCommitment rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'scheduleCommitment').mockRejectedValueOnce(
+      new Error('Falha schedule CP-M'),
+    );
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Cassete recep/i);
+    await clickButton(host, /^Agendar preventiva local$/i);
+    await clickButton(host, /^Salvar preventiva$/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha schedule CP-M');
+    expect(host.textContent).toContain('Agendar preventiva local');
+    expect(host.querySelector('input[name="equipment-preventive-date"]')).toBeInstanceOf(
+      HTMLInputElement,
+    );
+  });
 });
 
 async function renderShellWithDataPort(

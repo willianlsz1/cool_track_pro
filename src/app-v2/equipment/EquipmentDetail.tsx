@@ -25,6 +25,7 @@ import {
 } from '../ui/primitives';
 
 type EquipmentArchiveResult = string | null | Promise<string | null>;
+type PreventiveScheduleResult = string | null | Promise<string | null>;
 
 interface EquipmentDetailProps {
   equipmentId: string;
@@ -36,7 +37,7 @@ interface EquipmentDetailProps {
   onArchiveEquipment?: (equipmentId: string) => EquipmentArchiveResult;
   onUnarchiveEquipment?: (equipmentId: string) => EquipmentArchiveResult;
   onAddPlaceholderAttachment?: (equipmentId: string) => string | null;
-  onSchedulePreventive?: (equipmentId: string, targetDate: string) => string | null;
+  onSchedulePreventive?: (equipmentId: string, targetDate: string) => PreventiveScheduleResult;
 }
 
 const accentClasses: Record<EquipmentTone, string> = {
@@ -144,12 +145,14 @@ export function EquipmentDetail({
     setIsSchedulingPreventive(true);
   }
 
-  function schedulePreventive() {
+  async function schedulePreventive() {
     if (!onSchedulePreventive) {
       return;
     }
 
-    const result = onSchedulePreventive(equipmentId, preventiveDate);
+    const result = await resolvePreventiveScheduleResult(
+      onSchedulePreventive(equipmentId, preventiveDate),
+    );
 
     if (result) {
       setPreventiveError(result);
@@ -544,5 +547,15 @@ async function resolveArchiveResult(
     return await result;
   } catch (error) {
     return error instanceof Error ? error.message : fallback;
+  }
+}
+
+async function resolvePreventiveScheduleResult(
+  result: PreventiveScheduleResult,
+): Promise<string | null> {
+  try {
+    return await result;
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Não foi possível agendar a preventiva.';
   }
 }
