@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createAuthenticatedAppV2BrowserOptions } from './authenticatedBrowserOptions';
+import type { AppV2AuthenticatedBrowserClient } from './authenticatedBrowserOptions';
 
 describe('createAuthenticatedAppV2BrowserOptions', () => {
   it('compoe session reader e clientesReader com client Supabase injetado', async () => {
@@ -17,10 +18,12 @@ describe('createAuthenticatedAppV2BrowserOptions', () => {
     });
     const select = vi.fn(() => ({ eq }));
     const from = vi.fn(() => ({ select }));
-    const options = createAuthenticatedAppV2BrowserOptions({
-      auth: { getUser },
-      from,
-    });
+    const options = createAuthenticatedAppV2BrowserOptions(
+      asAppV2AuthenticatedBrowserClient({
+        auth: { getUser },
+        from,
+      }),
+    );
 
     await expect(options.sessionReader.getCurrentUser()).resolves.toEqual({
       id: 'user-real-1',
@@ -45,10 +48,12 @@ describe('createAuthenticatedAppV2BrowserOptions', () => {
     const select = vi.fn(() => ({ single }));
     const insert = vi.fn(() => ({ select }));
     const from = vi.fn(() => ({ insert }));
-    const options = createAuthenticatedAppV2BrowserOptions({
-      auth: { getUser: vi.fn() },
-      from,
-    });
+    const options = createAuthenticatedAppV2BrowserOptions(
+      asAppV2AuthenticatedBrowserClient({
+        auth: { getUser: vi.fn() },
+        from,
+      }),
+    );
 
     await expect(
       options.clientesWriter?.({
@@ -86,10 +91,12 @@ describe('createAuthenticatedAppV2BrowserOptions', () => {
     const select = vi.fn(() => ({ single }));
     const insert = vi.fn(() => ({ select }));
     const from = vi.fn(() => ({ insert }));
-    const options = createAuthenticatedAppV2BrowserOptions({
-      auth: { getUser: vi.fn() },
-      from,
-    });
+    const options = createAuthenticatedAppV2BrowserOptions(
+      asAppV2AuthenticatedBrowserClient({
+        auth: { getUser: vi.fn() },
+        from,
+      }),
+    );
 
     await expect(
       options.equipamentosWriter?.({
@@ -126,3 +133,7 @@ describe('createAuthenticatedAppV2BrowserOptions', () => {
     expect(source).not.toContain('sessionStorage');
   });
 });
+
+function asAppV2AuthenticatedBrowserClient(value: unknown): AppV2AuthenticatedBrowserClient {
+  return value as AppV2AuthenticatedBrowserClient;
+}

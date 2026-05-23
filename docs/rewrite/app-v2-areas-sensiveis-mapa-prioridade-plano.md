@@ -386,6 +386,25 @@ Status CP-U:
 - router, storage real amplo, PDF/share, WhatsApp, billing, upload e PMOC
   continuam fora.
 
+Status CP-V:
+
+- documentado em
+  `docs/rewrite/app-v2-authenticated-entrypoint-cp-v.md`;
+- criado adapter `createSupabaseAppV2SessionReader` para transformar
+  `auth.getUser()` em `AppV2SessionReader`;
+- criada factory `createAuthenticatedAppV2BrowserOptions` para compor
+  `sessionReader`, `clientesReader`, `clientesWriter` e `equipamentosWriter`
+  por client Supabase injetado;
+- criado entrypoint opt-in separado
+  `src/app-v2/authenticated-preview.html` -> `authenticatedPreview.tsx`;
+- URL local esperada:
+  `http://localhost:5173/src/app-v2/authenticated-preview.html`;
+- `preview.tsx` continua local com `mountAppV2(root)`;
+- `AppV2Shell`, preview default e telas seguem sem imports diretos de
+  Supabase/auth/storage;
+- router, RLS/migrations, storage real amplo, PDF/share, WhatsApp, billing,
+  upload e PMOC continuam fora.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
