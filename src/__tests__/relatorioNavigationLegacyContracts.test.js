@@ -212,11 +212,12 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
       document.querySelector('.rel-empty__cta[data-nav="registro"]'),
       RELATORIO_NAV_TARGETS.registro,
     );
-    await clickNavAndExpect(
-      ctx,
+    expect(
       document.querySelector(`#${RELATORIO_PUBLIC_IDS.pmocNudge}[data-nav="pricing"]`),
-      RELATORIO_NAV_TARGETS.pricing,
-    );
+    ).toBeNull();
+    expect(
+      document.querySelector(`#${RELATORIO_PUBLIC_IDS.pmocNudge}[data-action="open-upgrade"]`),
+    ).not.toBeNull();
 
     ctx.setPlanCode('pro');
     ctx.setState(buildState());

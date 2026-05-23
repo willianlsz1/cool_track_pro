@@ -80,17 +80,10 @@ export function FinalCTA({ onStart }) {
                 Testar com 3 equipamentos grátis
                 <ArrowRightIcon size={14} />
               </button>
-              <a
-                href="#planos"
-                className="tw-inline-flex tw-items-center tw-justify-center tw-gap-2 tw-px-5 tw-py-3.5 tw-rounded-xl tw-text-[15px] tw-font-bold tw-text-white tw-no-underline tw-border tw-border-[rgba(255,255,255,0.38)] tw-bg-[rgba(255,255,255,0.08)] hover:tw-bg-[rgba(255,255,255,0.14)] hover:-tw-translate-y-px tw-transition-all"
-              >
-                Ver os planos
-              </a>
             </div>
             <div className="tw-mt-5 tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-2 tw-text-[13px] tw-font-semibold tw-text-[rgba(255,255,255,0.82)]">
               <span>✓ Sem cartão</span>
-              <span>✓ Sem fidelidade</span>
-              <span>✓ Cancela quando quiser</span>
+              <span>✓ Sem compromisso comercial nesta etapa</span>
             </div>
           </div>
         </div>

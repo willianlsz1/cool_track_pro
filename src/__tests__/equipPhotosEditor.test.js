@@ -202,7 +202,7 @@ describe('applyEquipPhotosEditorGate — Free (bloqueado / defense-in-depth)', (
     expect(photosClear).toHaveBeenCalledTimes(1);
   });
 
-  it('clique no CTA dispara telemetria, fecha modal e navega pro pricing', async () => {
+  it('clique no CTA dispara telemetria, fecha modal e avisa billing desativado', async () => {
     const { applyEquipPhotosEditorGate } = await import('../ui/views/equipamentos.js');
     applyEquipPhotosEditorGate(false);
 
@@ -217,10 +217,10 @@ describe('applyEquipPhotosEditorGate — Free (bloqueado / defense-in-depth)', (
 
     expect(trackEvent).toHaveBeenCalledWith('photo_upsell_clicked', { source: 'equip_detail' });
     expect(modalClose).toHaveBeenCalledWith('modal-eq-photos');
-    expect(goTo).toHaveBeenCalledWith('pricing', {
-      highlightPlan: 'plus',
-      reason: 'photos_upsell',
-    });
+    expect(toastWarning).toHaveBeenCalledWith(
+      'Billing e precificacao estao desativados nesta etapa.',
+    );
+    expect(goTo).not.toHaveBeenCalled();
   });
 
   it('não stacka listeners mesmo com múltiplas aplicações do gate', async () => {

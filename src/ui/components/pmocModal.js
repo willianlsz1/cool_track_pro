@@ -14,7 +14,6 @@
 import { Utils } from '../../core/utils.js';
 import { Toast } from '../../core/toast.js';
 import { attachDialogA11y } from '../../core/modal.js';
-import { goTo } from '../../core/router.js';
 
 const OVERLAY_ID = 'pmoc-modal-overlay';
 let _a11yCleanup = null;
@@ -103,7 +102,7 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
                 </button>`
               : `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-upgrade"
                   data-action="open-upgrade" data-upgrade-source="pmoc_modal" data-highlight-plan="pro">
-                  Ver plano Pro →
+                  Area comercial indisponivel
                 </button>`
           }
         </div>
@@ -162,7 +161,7 @@ function open({ clientes, isPro, onConfirm, preselectClienteId = null }) {
   } else {
     overlay.querySelector('#pmoc-upgrade')?.addEventListener('click', () => {
       hardClose();
-      goTo('pricing', { highlightPlan: 'pro' });
+      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
     });
   }
 }

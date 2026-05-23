@@ -29,7 +29,7 @@ const NUDGE_CONFIGS = {
     ],
     footer:
       'Tem frota maior? O <strong>Pro</strong> libera equipamentos e PDFs sem limite relevante, PMOC formal e setores.',
-    ctaLabel: 'Ver plano Plus',
+    ctaLabel: 'Area comercial indisponivel',
     highlightPlan: 'plus',
   },
   fromPlus: {
@@ -45,7 +45,7 @@ const NUDGE_CONFIGS = {
       'Suporte prioritário',
     ],
     footer: null,
-    ctaLabel: 'Ver plano Pro',
+    ctaLabel: 'Area comercial indisponivel',
     highlightPlan: 'pro',
   },
 };
@@ -250,7 +250,7 @@ export const UpgradeNudge = {
         </style>
 
         <span>&#128274; ${safeFeature} fica disponível no plano ${requiredPlan}</span>
-        <a href="#" class="upgrade-inline-hint__link" data-action="open-upgrade" data-upgrade-source="upgrade_nudge">Ver plano &rarr;</a>
+        <a href="#" class="upgrade-inline-hint__link" data-action="open-upgrade" data-upgrade-source="upgrade_nudge">Area comercial indisponivel</a>
       </div>
     `;
   },

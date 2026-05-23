@@ -28,6 +28,7 @@ const mocks = vi.hoisted(() => ({
   clearSetorEditingState: vi.fn(),
   clearEquipPhotosEditingState: vi.fn(),
   lockEquipContext: vi.fn(),
+  toastWarning: vi.fn(),
 }));
 
 vi.mock('../core/modal.js', () => ({
@@ -51,7 +52,7 @@ vi.mock('../core/telemetry.js', () => ({
 vi.mock('../core/toast.js', () => ({
   Toast: {
     success: vi.fn(),
-    warning: vi.fn(),
+    warning: mocks.toastWarning,
     error: vi.fn(),
     info: vi.fn(),
     show: vi.fn(),
@@ -218,7 +219,7 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
     expect(lockedNameplate?.classList.contains('nameplate-cta__btn--locked')).toBe(true);
   });
 
-  it('mantem handlers legados acionaveis para abrir/salvar fotos e upsell de plano', async () => {
+  it('mantem handlers legados acionaveis para abrir/salvar fotos e aviso comercial desativado', async () => {
     const openPhotos = document.createElement('button');
     openPhotos.type = 'button';
     openPhotos.dataset.action = 'open-eq-photos-editor';
@@ -247,7 +248,9 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
 
     await click(upgrade);
     await vi.waitFor(() => {
-      expect(mocks.goTo).toHaveBeenCalledWith('pricing', { highlightPlan: 'plus' });
+      expect(mocks.toastWarning).toHaveBeenCalledWith(
+        'Billing e precificacao estao desativados nesta etapa.',
+      );
     });
     expect(mocks.trackEvent).toHaveBeenCalledWith('upgrade_cta_clicked', {
       source: 'equip_detail_photos',
@@ -283,10 +286,10 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
       source: 'equip_modal',
     });
     expect(mocks.modalClose).toHaveBeenCalledWith('modal-add-eq');
-    expect(mocks.goTo).toHaveBeenCalledWith('pricing', {
-      highlightPlan: 'plus',
-      reason: 'nameplate_upsell',
-    });
+    expect(mocks.toastWarning).toHaveBeenCalledWith(
+      'Billing e precificacao estao desativados nesta etapa.',
+    );
+    expect(mocks.goTo).not.toHaveBeenCalled();
   });
 
   it('mantem payloads maliciosos inertes em fotos, paywall e atributos data-*', async () => {
@@ -312,7 +315,9 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
 
     await click(maliciousUpgrade);
     await vi.waitFor(() => {
-      expect(mocks.goTo).toHaveBeenCalledWith('pricing', { highlightPlan: 'pro' });
+      expect(mocks.toastWarning).toHaveBeenCalledWith(
+        'Billing e precificacao estao desativados nesta etapa.',
+      );
     });
     expect(mocks.trackEvent).toHaveBeenCalledWith('upgrade_cta_clicked', {
       source: 'dashboard',

@@ -356,9 +356,7 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
     expect(overflowBanner).not.toBeNull();
     expect(overflowBanner?.getAttribute('role')).toBe('status');
     expect(overflowBanner?.getAttribute('data-limit-type')).toBe('equipamentos');
-    expect(cta?.getAttribute('data-action')).toBe(DASHBOARD_ACTIONS.openUpgrade);
-    expect(cta?.getAttribute('data-upgrade-source')).toBe('overflow_banner');
-    expect(cta?.getAttribute('data-highlight-plan')).toBe('plus');
+    expect(cta).toBeNull();
     expect(overflowMaybeShowFirstTimeModal).toHaveBeenCalledTimes(1);
     expect(document.getElementById('dash-overflow-modal')).toBeNull();
 

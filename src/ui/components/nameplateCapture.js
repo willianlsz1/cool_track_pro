@@ -29,7 +29,6 @@
  * várias vezes sem multiplicar handlers.
  */
 import { Utils } from '../../core/utils.js';
-import { goTo } from '../../core/router.js';
 import { Modal } from '../../core/modal.js';
 import { trackEvent } from '../../core/telemetry.js';
 import { Toast } from '../../core/toast.js';
@@ -295,7 +294,7 @@ function bindOnce() {
       } catch (_) {
         /* se o Modal não tá aberto por algum motivo, segue pro pricing mesmo */
       }
-      goTo('pricing', { highlightPlan: 'plus', reason: 'nameplate_upsell' });
+      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
     });
   }
 

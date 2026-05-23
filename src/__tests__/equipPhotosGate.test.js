@@ -5,12 +5,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // espelhamos com vi.fn pra inspecionar as chamadas.
 const trackEvent = vi.fn();
 const goTo = vi.fn();
+const toastWarning = vi.fn();
 vi.mock('../core/telemetry.js', () => ({
   trackEvent,
   TELEMETRY_EVENT: 'cooltrack:telemetry',
 }));
 vi.mock('../core/router.js', () => ({
   goTo,
+}));
+vi.mock('../core/toast.js', () => ({
+  Toast: { warning: toastWarning },
 }));
 
 // EquipmentPhotos.clear é chamado no caminho Free (defense in depth contra
@@ -164,7 +168,7 @@ describe('applyEquipPhotosGate — Free (upsell visível)', () => {
     expect(trackEvent).toHaveBeenCalledTimes(2);
   });
 
-  it('clique no CTA dispara photo_upsell_clicked e navega pro pricing', async () => {
+  it('clique no CTA dispara photo_upsell_clicked e avisa billing desativado', async () => {
     const { applyEquipPhotosGate } = await import('../ui/views/equipamentos.js');
     applyEquipPhotosGate(false);
 
@@ -173,10 +177,10 @@ describe('applyEquipPhotosGate — Free (upsell visível)', () => {
     cta.click();
 
     expect(trackEvent).toHaveBeenCalledWith('photo_upsell_clicked', { source: 'equip_modal' });
-    expect(goTo).toHaveBeenCalledWith('pricing', {
-      highlightPlan: 'plus',
-      reason: 'photos_upsell',
-    });
+    expect(toastWarning).toHaveBeenCalledWith(
+      'Billing e precificacao estao desativados nesta etapa.',
+    );
+    expect(goTo).not.toHaveBeenCalled();
   });
 
   it('não stacka listeners no CTA se applyEquipPhotosGate rodar múltiplas vezes', async () => {

@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { __test__ } from '../ui/views/conta.js';
 
 describe('conta view helpers', () => {
-  it('Free renderiza Plano Gratuito com CTA Ver planos', () => {
+  it('Free renderiza Plano Gratuito sem CTA comercial', () => {
     const html = __test__._renderPlanCard({ planCode: __test__.PLAN_CODE_FREE });
     expect(html).toContain('Plano Gratuito');
-    expect(html).toContain('Ver planos');
+    expect(html).not.toContain('Ver planos');
   });
 
   it('Plus renderiza subtítulo de modo técnico/autônomo', () => {
@@ -37,17 +37,18 @@ describe('conta view helpers', () => {
     expect(html).not.toContain('<svg onload=');
   });
 
-  it('Pro renderiza proposta empresa sem CTA agressivo de upgrade', () => {
+  it('Pro renderiza proposta empresa sem CTA comercial', () => {
     const html = __test__._renderPlanCard({ planCode: __test__.PLAN_CODE_PRO });
     expect(html).toContain('CoolTrack Pro');
-    expect(html).toContain('Gerenciar assinatura');
+    expect(html).not.toContain('Gerenciar assinatura');
     expect(html).not.toContain('Ver Pro');
   });
 
   it('ações rápidas mudam por plano', () => {
     const freeHtml = __test__._renderQuickActions({ planCode: __test__.PLAN_CODE_FREE });
     expect(freeHtml).toContain('Registrar serviço');
-    expect(freeHtml).toContain('Ver planos');
+    expect(freeHtml).toContain('Editar perfil');
+    expect(freeHtml).not.toContain('Ver planos');
     expect(freeHtml).not.toContain('Gerar PMOC');
 
     const proHtml = __test__._renderQuickActions({ planCode: __test__.PLAN_CODE_PRO });

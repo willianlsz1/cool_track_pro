@@ -1,4 +1,5 @@
 import { goTo } from '../../core/router.js';
+import { Toast } from '../../core/toast.js';
 
 const OVERLAY_ID = 'clientes-paywall-overlay';
 let _bound = false;
@@ -43,7 +44,7 @@ function bindOnce() {
     if (action === 'pricing') {
       event.preventDefault();
       close();
-      goTo('pricing', { highlightPlan: btn.dataset.highlightPlan || 'plus' });
+      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
       return;
     }
 
@@ -55,15 +56,14 @@ function bindOnce() {
   });
 }
 
-function buildMarkup({ reason = 'client_limit', highlightPlan = 'plus', limit = 1 } = {}) {
+function buildMarkup({ reason = 'client_limit', limit = 1 } = {}) {
   const isClientLimit = reason === 'client_limit';
-  const badge = highlightPlan === 'plus' ? 'PLANO PLUS' : 'UPGRADE';
   const title = isClientLimit ? `Free inclui ${limit} cliente` : 'Mais clientes no app';
   const subtitle = isClientLimit
-    ? 'Você já cadastrou o cliente incluído no Free. O Plus libera mais clientes para sua rotina.'
-    : 'Clientes ficam disponíveis em todos os planos. O upgrade libera mais capacidade para sua carteira.';
+    ? 'Voce ja cadastrou o cliente incluido no Free. Billing e precificacao serao refeitos em etapa propria.'
+    : 'Clientes ficam disponiveis conforme o limite operacional atual.';
   const context = isClientLimit
-    ? 'Cliente cadastrado no Free. Mais clientes ficam disponíveis a partir do plano Plus.'
+    ? 'Cliente cadastrado no Free. Mais capacidade comercial sera revista em etapa propria.'
     : 'Continue organizando clientes conforme o limite do seu plano.';
 
   return `
@@ -71,7 +71,7 @@ function buildMarkup({ reason = 'client_limit', highlightPlan = 'plus', limit = 
       <section class="clientes-paywall__hero">
         <span class="clientes-paywall__hero-orb clientes-paywall__hero-orb--a"></span>
         <span class="clientes-paywall__hero-orb clientes-paywall__hero-orb--b"></span>
-        <span class="clientes-paywall__badge">${badge}</span>
+        <span class="clientes-paywall__badge">AREA COMERCIAL</span>
 
         <div class="clientes-paywall__mockup">
           <article class="clientes-paywall__mockup-card">
@@ -117,27 +117,27 @@ function buildMarkup({ reason = 'client_limit', highlightPlan = 'plus', limit = 
         <article class="clientes-paywall__perk">
           <span class="clientes-paywall__perk-icon clientes-paywall__perk-icon--teal" aria-hidden="true">${ICONS.relatorio}</span>
           <div class="clientes-paywall__perk-body">
-            <div class="clientes-paywall__perk-title">Relatórios técnicos</div>
+            <div class="clientes-paywall__perk-title">Relatorios tecnicos</div>
           </div>
         </article>
       </section>
 
       <section class="clientes-paywall__impact" aria-label="Impacto do recurso Clientes">
-        <p>Você mantém cliente, equipamento e histórico no mesmo contexto.</p>
-        <p>Você evita misturar atendimentos de clientes diferentes.</p>
-        <p>Você continua trabalhando no mesmo fluxo de campo.</p>
+        <p>Voce mantem cliente, equipamento e historico no mesmo contexto.</p>
+        <p>Voce evita misturar atendimentos de clientes diferentes.</p>
+        <p>Voce continua trabalhando no mesmo fluxo de campo.</p>
       </section>
 
       <footer class="clientes-paywall__actions">
         <button type="button" class="clientes-paywall__cancel" data-clientes-lock-action="continue">
-          Agora não
+          Agora nao
         </button>
-        <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing" data-highlight-plan="${highlightPlan}">
-          Ver plano Plus
+        <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing">
+          Area comercial indisponivel
         </button>
       </footer>
 
-      <p class="clientes-paywall__trust">Sem contrato. Cancele quando quiser.</p>
+      <p class="clientes-paywall__trust">Billing e precificacao desativados nesta etapa.</p>
     </div>`;
 }
 

@@ -316,9 +316,7 @@ describe('Dashboard onboarding/empty/overflow React island', () => {
     expect(install?.querySelector('[data-action="install-app-dismiss"]')).not.toBeNull();
     expect(overflow?.getAttribute('role')).toBe('status');
     expect(overflow?.getAttribute('data-limit-type')).toBe('registros');
-    expect(overflowCta?.getAttribute('data-action')).toBe(DASHBOARD_ACTIONS.openUpgrade);
-    expect(overflowCta?.getAttribute('data-upgrade-source')).toBe('overflow_banner');
-    expect(overflowCta?.getAttribute('data-highlight-plan')).toBe('plus');
+    expect(overflowCta).toBeNull();
   });
 
   it('escapes dynamic text and keeps malicious data attributes inert', () => {

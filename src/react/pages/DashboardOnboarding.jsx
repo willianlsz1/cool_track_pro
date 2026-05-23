@@ -454,15 +454,6 @@ function Overflow({ overflow }) {
         <path d="M12 10v4M12 17.5v.01" />
       </svg>
       <span className="dash-overflow-banner__text">{overflowCopy(state)}</span>
-      <button
-        className="dash-overflow-banner__cta"
-        data-action={DASHBOARD_ACTIONS.openUpgrade}
-        data-highlight-plan="plus"
-        data-upgrade-source="overflow_banner"
-        type="button"
-      >
-        {'Ver planos →'}
-      </button>
     </aside>
   );
 }

@@ -29,10 +29,7 @@ function emptyModel(overrides = {}) {
     tier: 'free',
     proCards: {
       visible: false,
-      upgradeCta: {
-        label: 'Conhecer Pro',
-        nav: 'pricing',
-      },
+      upgradeCta: null,
       critical: {
         label: 'Alertas criticos',
         title: 'Tudo sob controle',
@@ -122,7 +119,7 @@ describe('dashboard Pro cards and draft React island', () => {
     expect(root?.getAttribute('data-tier')).toBe('plus');
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.criticalAlertsCard}`)).not.toBeNull();
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.riskClientsCard}`)).not.toBeNull();
-    expect(root?.querySelector('[data-nav="pricing"]')).not.toBeNull();
+    expect(root?.querySelector('[data-nav="pricing"]')).toBeNull();
     expect(draftRoot?.querySelector('.dash__continue-card')).toBeNull();
   });
 

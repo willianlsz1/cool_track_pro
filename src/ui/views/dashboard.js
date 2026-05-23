@@ -850,12 +850,7 @@ function _buildProDraftModel({
     tier,
     proCards: {
       visible: Boolean(isEmpresaPro),
-      upgradeCta: isEmpresaPro
-        ? null
-        : {
-            label: 'Conhecer Pro',
-            nav: 'pricing',
-          },
+      upgradeCta: null,
       critical,
       riskClients,
     },

@@ -688,7 +688,7 @@ export function renderShellViews() {
                 data-action="open-upgrade"
                 data-upgrade-source="registro_pmoc_checklist"
                 data-highlight-plan="pro">
-                Conhecer Pro →
+                Area comercial indisponivel
               </button>
             </div>
 

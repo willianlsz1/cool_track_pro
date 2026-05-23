@@ -14,7 +14,6 @@
 export const navItems = [
   { href: '#recursos', label: 'Recursos' },
   { href: '#fluxo', label: 'Como funciona' },
-  { href: '#planos', label: 'Planos' },
 ];
 
 export const heroQuickCards = [
@@ -532,7 +531,6 @@ export const footerProductLinks = [
   { href: '#recursos', label: 'Recursos' },
   { href: '#segmentos', label: 'Onde funciona' },
   { href: '#fluxo', label: 'Como funciona' },
-  { href: '#planos', label: 'Planos' },
 ];
 
 export const footerCompanyLinks = [

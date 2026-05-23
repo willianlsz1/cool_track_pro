@@ -189,7 +189,7 @@ export function updateShellSidebar() {
 
   const ctaLabelEl = document.getElementById('sidenav-plan-cta-label');
   if (ctaLabelEl) {
-    ctaLabelEl.textContent = planCode === PLAN_CODE_FREE ? 'Conhecer planos' : 'Gerenciar plano';
+    ctaLabelEl.textContent = 'Area comercial indisponivel';
   }
 
   // Clientes e acessivel em todos os planos; o limite Free fica na criacao.

@@ -169,8 +169,8 @@ export function renderShellSidebar() {
         <span id="sidenav-plan-renew">Até 25/05/2026</span>
       </div>
       <button type="button" class="app-sidebar__plan-card-cta"
-        id="sidenav-plan-cta" data-nav="pricing">
-        <span id="sidenav-plan-cta-label">Conhecer planos</span>
+        id="sidenav-plan-cta" disabled aria-disabled="true">
+        <span id="sidenav-plan-cta-label">Area comercial indisponivel</span>
         <span aria-hidden="true">${ICON_CHEV_R}</span>
       </button>
     </div>

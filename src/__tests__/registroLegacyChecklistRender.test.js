@@ -306,10 +306,13 @@ describe('registro legacy checklist render adapter', () => {
     );
 
     const cta = upsell?.querySelector('[data-action="open-upgrade"][data-highlight-plan="pro"]');
-    expect(cta?.textContent).toContain('Conhecer Pro');
+    expect(cta?.textContent).toContain('Area comercial indisponivel');
 
     registro.setChecklistItemStatus('filtros_limpeza', 'ok');
-    expect(mocks.goTo).toHaveBeenCalledWith('pricing', { highlightPlan: 'pro' });
+    expect(mocks.toastWarning).toHaveBeenCalledWith(
+      'Billing e precificacao estao desativados nesta etapa.',
+    );
+    expect(mocks.goTo).not.toHaveBeenCalled();
     expect(registro.getCurrentChecklist()).toBeNull();
   });
 

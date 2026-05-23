@@ -299,7 +299,7 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
         true,
       );
       expect(byId(DASHBOARD_PUBLIC_IDS.root)?.getAttribute('data-tier')).toBe(planCode);
-      expect(document.querySelector('[data-nav="pricing"]')?.hasAttribute('hidden')).toBe(true);
+      expect(document.querySelector('[data-nav="pricing"]')).toBeNull();
     }
   });
 

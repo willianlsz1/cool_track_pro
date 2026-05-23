@@ -4,9 +4,8 @@ export async function checkSaveEquipPlanLimit({
   checkPlanLimit,
   trackEvent,
   Toast,
-  goTo,
 }) {
-  // Pula a verificação de limite quando está editando (não cria novo registro)
+  // Pula a verificacao de limite quando esta editando, pois nao cria registro.
   if (!editingId) {
     const planLimit = await checkPlanLimit('equipamentos', equipamentos.length);
     if (planLimit.blocked) {
@@ -18,12 +17,10 @@ export async function checkSaveEquipPlanLimit({
       });
       const msg =
         planLimit.planCode === 'pro'
-          ? 'Você atingiu o limite de equipamentos do seu plano.'
-          : 'Você atingiu o limite do plano Free. Faça upgrade para continuar.';
+          ? 'Voce atingiu o limite de equipamentos do seu plano.'
+          : 'Voce atingiu o limite do plano Free. Faca upgrade para continuar.';
       Toast.warning(msg);
-      if (planLimit.planCode !== 'pro') {
-        goTo('pricing');
-      }
+      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
       return false;
     }
   }
