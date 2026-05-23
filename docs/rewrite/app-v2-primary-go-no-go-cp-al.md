@@ -44,7 +44,7 @@ upload/storage, PMOC ou v1.
 | Gate                                    | Estado   | O que falta                                        |
 | --------------------------------------- | -------- | -------------------------------------------------- |
 | Sessao Supabase real no browser         | Aberto   | Conta de teste para executar CP-Y                  |
-| Escrita real minima cliente/equipamento | Aberto   | CP-Y com usuario autenticado real                  |
+| Escrita real minima cliente/equipamento | Aberto   | CP-Y com `scripts/app-v2-real-session-smoke.mjs`   |
 | Isolamento real entre usuarios          | Aberto   | CP-Y ou etapa RLS dedicada com dois usuarios reais |
 | Aprovacao das areas fora do corte       | Pendente | Decisao explicita do usuario/produto               |
 | PR pronto para merge                    | Pendente | Remover draft somente depois dos gates acima       |
@@ -91,4 +91,9 @@ Antes de transformar o app-v2 na versao principal final:
 ## Proximo passo
 
 O proximo passo executavel e CP-Y. Para isso, e necessario fornecer ou criar uma
-conta Supabase real de teste no projeto usado por `.env.local`.
+conta Supabase real de teste no projeto usado por `.env.local`, exportar
+`APP_V2_TEST_EMAIL` e `APP_V2_TEST_PASSWORD`, iniciar o Vite local e executar:
+
+```powershell
+node scripts/app-v2-real-session-smoke.mjs
+```

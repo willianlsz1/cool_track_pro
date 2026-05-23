@@ -28,6 +28,8 @@ PDF/share, WhatsApp, upload/storage, PMOC ou v1.
 - O bootstrap autenticado usa Supabase somente no entrypoint/factory, mantendo
   shell e telas sem import direto de auth/storage.
 - O PR atual esta com checks externos verdes e merge state limpo.
+- O executor opt-in `scripts/app-v2-real-session-smoke.mjs` valida configuracao
+  local e falha cedo quando as credenciais reais nao existem.
 
 ## O que ainda nao pode ser provado sem conta real
 
@@ -52,15 +54,35 @@ $env:APP_V2_TEST_PASSWORD = "<senha-da-conta-de-teste>"
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-3. Autenticar a conta no mesmo projeto Supabase usado por `.env.local`.
+3. Em outro terminal, executar o smoke real opt-in:
 
-4. Abrir:
+```powershell
+node scripts/app-v2-real-session-smoke.mjs
+```
+
+Esse comando:
+
+- le `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` do ambiente ou de
+  `.env.local`;
+- autentica via `supabase.auth.signInWithPassword`;
+- abre `authenticated-preview.html` com Playwright;
+- cria um cliente real de teste com prefixo `Cliente CP-Y`;
+- cria um equipamento real de teste com prefixo `Equipamento CP-Y`;
+- falha se houver erro de console bloqueante no browser.
+
+Os registros criados sao evidencia do smoke e podem ser removidos manualmente
+depois, se necessario.
+
+4. Autenticar manualmente a conta no mesmo projeto Supabase usado por
+   `.env.local`, caso seja necessario confirmar o comportamento visual.
+
+5. Abrir:
 
 ```text
 http://127.0.0.1:5173/src/app-v2/authenticated-preview.html
 ```
 
-5. Confirmar no browser:
+6. Confirmar no browser:
 
 - tela `Hoje` carrega sem erro de console;
 - dados de clientes/equipamentos pertencem ao usuario autenticado;
