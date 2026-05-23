@@ -1,0 +1,350 @@
+# app-v2 - Plano de remocao do app v1 e vestigios
+
+## 1. Objetivo
+
+Remover o runtime legado/v1 e seus vestigios depois da confirmacao de que o
+app-v2 esta como entrada principal da `main`, sem quebrar contratos ainda usados
+por app-v2, Supabase, PDF/share, storage, autenticacao ou validacoes.
+
+Este plano e uma etapa de preparacao. Ele nao executa delecoes de codigo.
+
+## 2. Estado confirmado
+
+- Branch base analisada: `main`.
+- HEAD base analisado: `94a4ee63ef6362cbff48c3a50f3fce402b09479e`.
+- `index.html` monta `src/app-v2/main.tsx`.
+- O root principal da aplicacao e `app-v2-root`.
+- `src/main.js` nao existe mais como entrada principal.
+- O app-v2 permanece concentrado em `src/app-v2/`.
+
+## 3. Superficies v1 mapeadas
+
+### 3.1 Runtime legado direto
+
+- `src/ui/`: 132 arquivos.
+- `src/react/`: 70 arquivos.
+- `src/features/`: 86 arquivos.
+- `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
+  `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
+- `src/__tests__/`: 211 arquivos de teste, muitos cobrindo contratos legados.
+
+### 3.2 Acoplamentos que impedem delecao em massa
+
+- `src/domain/pdf.js` importa `Profile` de `src/features/profile.js`.
+- `src/domain/whatsapp.js` importa `Profile` de `src/features/profile.js`.
+- `src/domain/pdf/shareReport.js` importa componente de onboarding legado.
+- Entrypoints React legados importam contratos de `src/ui/viewModels`.
+- `src/features/equipamentos/**` ainda importa helpers e componentes de
+  `src/ui/**`.
+- Testes legados cobrem seguranca de assinatura, storage, PDF, WhatsApp,
+  relatorios e contratos DOM.
+
+Conclusao: `src/ui`, `src/react` e `src/features` devem ser removidos por
+checkpoint, depois de extrair ou substituir contratos compartilhados. Delecao
+direta dessas pastas e insegura.
+
+### 3.3 Vestigios publicos e comerciais
+
+- `index.html` ainda contem CSP e comentarios com Stripe.
+- `index.html` ainda contem JSON-LD com ofertas Free, Plus e Pro.
+- Metadados sociais em `index.html` ainda tem textos antigos com caracteres
+  corrompidos.
+- `public/legal/termos.html` ainda referencia planos pagos, Stripe,
+  cancelamento e `/#planos`.
+- `public/legal/privacidade.html` ainda referencia dados de faturamento de
+  planos pagos.
+- `src/assets/styles/components.css` ainda importa estilos de pricing/paywall.
+
+Esses pontos devem ser tratados como checkpoint proprio de conteudo publico e
+nao misturados com remocao estrutural do v1.
+
+## 4. Fora de escopo inicial
+
+Nao remover nesta primeira sequencia sem etapa dedicada:
+
+- Supabase functions e migrations relacionadas a billing/Stripe.
+- RLS, policies e schemas.
+- PDF/share real e `vendor-pdf`.
+- WhatsApp/share.
+- Upload/storage de arquivos.
+- Autenticacao.
+- PMOC real.
+- Orcamento real.
+- Router/deep links.
+- Dependencias em `package.json` ou `package-lock.json`, salvo etapa aprovada
+  com evidencia de nao uso.
+
+## 5. Riscos principais
+
+| Risco                                                | Impacto                                                          | Controle                                                   |
+| ---------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------- |
+| Remover helper legado ainda usado por `domain`       | Quebra PDF, WhatsApp ou testes de seguranca                      | Extrair contratos puros antes de deletar                   |
+| Remover testes legados antes de substituir cobertura | Regressao silenciosa em assinatura, storage ou relatorio         | Migrar ou aposentar teste com justificativa por checkpoint |
+| Limpar CSS legado antes de provar nao uso            | Regressao visual em telas ainda referenciadas por testes ou docs | Usar relatorio de CSS morto e smoke visual                 |
+| Remover billing backend junto com v1                 | Mistura area sensivel com limpeza estrutural                     | Manter billing backend para etapa propria                  |
+| Editar legal/SEO sem revisao                         | Texto publico inconsistente                                      | Checkpoint especifico de copy/legal                        |
+
+## 6. Plano de implementacao por checkpoints
+
+### CP-1 - Inventario executavel de dependencias v1
+
+Objetivo: criar uma fotografia objetiva de imports, entrypoints e testes ligados
+ao v1 antes de remover arquivos.
+
+Arquivos afetados:
+
+- Criar documento de inventario em `docs/rewrite/`.
+- Opcionalmente criar script read-only em `scripts/` apenas se `rg` manual for
+  insuficiente.
+
+Validacao:
+
+```bash
+rg -n "src/ui|src/react|src/features|pricing|billing|stripe|planos" index.html src public docs/rewrite
+npm run format:check
+git diff --check
+```
+
+Saida esperada:
+
+- Lista de arquivos v1-only.
+- Lista de arquivos compartilhados que precisam ser extraidos ou preservados.
+- Lista de testes que devem ser migrados, mantidos ou removidos.
+
+### CP-2 - Separar contratos compartilhados do legado
+
+Objetivo: retirar de `src/features` e `src/ui` os contratos ainda usados por
+`src/domain/**`, colocando-os em camada adequada antes da remocao do v1.
+
+Escopo provavel:
+
+- Extrair `Profile` usado por `src/domain/pdf.js` e `src/domain/whatsapp.js`
+  para modulo puro em `src/domain/` ou `src/core/`.
+- Remover dependencia de `src/domain/pdf/shareReport.js` sobre onboarding
+  legado, substituindo por porta pura ou fallback sem UI.
+- Atualizar testes focados desses contratos.
+
+Validacao:
+
+```bash
+npm test -- src/__tests__/reportExportContracts.test.js src/__tests__/storageCacheOffline.contract.test.js --run
+npm run format
+npm run build
+npm run check
+```
+
+Commit sugerido:
+
+- `Isolate shared contracts before v1 removal`
+
+### CP-3 - Remover entrypoints e ilhas React legadas
+
+Objetivo: apagar componentes React que existiam para o shell v1 e nao sao mais
+entrada do produto principal.
+
+Escopo provavel:
+
+- `src/react/entrypoints/**`
+- `src/react/pages/**` legadas, exceto se algum teste ou app-v2 importar
+  diretamente.
+- Testes associados que cobrem apenas ilhas DOM do v1.
+
+Controle:
+
+- Antes de remover cada grupo, rodar `rg` para confirmar ausencia de imports em
+  app-v2 e no build principal.
+- Quando a cobertura ainda for relevante, migrar o teste para helper puro ou
+  app-v2 antes de deletar.
+
+Validacao:
+
+```bash
+npm test -- src/app-v2/index.test.tsx src/app-v2/shell/AppV2Shell.test.tsx --run
+npm run format
+npm run build
+npm run check
+```
+
+Commit sugerido:
+
+- `Remove legacy React islands`
+
+### CP-4 - Remover shell, views e controllers v1
+
+Objetivo: remover a navegacao, views e handlers do app legado depois que
+contratos compartilhados ja estiverem isolados.
+
+Escopo provavel:
+
+- `src/ui/shell/**`
+- `src/ui/views/**`
+- `src/ui/controller/**`
+- `src/ui/shell.js`
+- View models DOM legados que nao forem mais importados por testes migrados.
+
+Controle:
+
+- Nao remover componentes de PDF/share, assinatura ou storage se ainda forem
+  chamados por `domain` ou testes de seguranca.
+- Apagar em lotes pequenos por dominio: dashboard, equipamentos, historico,
+  registro, relatorios, conta.
+
+Validacao:
+
+```bash
+npm test -- src/app-v2 --run
+npm run format
+npm run build
+npm run check
+```
+
+Commit sugerido:
+
+- `Remove legacy shell and views`
+
+### CP-5 - Remover features legadas apos extracao
+
+Objetivo: remover `src/features/**` que servia apenas ao v1, preservando apenas
+modulos que forem formalmente reclassificados como `domain` ou `core`.
+
+Escopo provavel:
+
+- `src/features/equipamentos/**`
+- `src/features/historico/**`
+- `src/features/registro/**`
+- `src/features/relatorio/**`
+- `src/features/profile.js`
+- `src/features/userData.js`
+
+Controle:
+
+- Cada dominio deve ter `rg` de import antes da remocao.
+- Regras reutilizaveis devem ser movidas para `src/domain/**` com testes puros,
+  nao copiadas para app-v2.
+
+Validacao:
+
+```bash
+npm run format
+npm run build
+npm run check
+```
+
+Commit sugerido:
+
+- `Remove legacy feature modules`
+
+### CP-6 - Limpar CSS e assets legados
+
+Objetivo: remover folhas de estilo e classes que pertenciam ao v1 sem afetar o
+app-v2.
+
+Escopo provavel:
+
+- `src/assets/styles/redesign.css`
+- `src/assets/styles/layout.css`
+- `src/assets/styles/components.css`
+- `src/assets/styles/theme-premium.css`
+- Estilos de pricing/paywall remanescentes.
+
+Controle:
+
+- Confirmar que app-v2 nao importa CSS legado.
+- Usar relatorio de CSS morto quando aplicavel.
+- Fazer smoke visual mobile/desktop do app-v2.
+
+Validacao:
+
+```bash
+npm run lint:css:dead
+npm run build
+npm run check
+```
+
+Commit sugerido:
+
+- `Remove legacy CSS surfaces`
+
+### CP-7 - Limpar vestigios publicos, pricing e legal
+
+Objetivo: alinhar a superficie publica ao produto atual sem billing/pricing no
+cliente.
+
+Escopo provavel:
+
+- `index.html`
+- `public/legal/termos.html`
+- `public/legal/privacidade.html`
+- Referencias publicas a `/#planos`, Stripe, Free, Plus, Pro e assinatura paga.
+
+Controle:
+
+- Manter URL oficial `https://cool-track-pro.pages.dev/`.
+- Nao comprar ou trocar dominio.
+- Nao apagar historico tecnico em `docs/` fora do documento de checkpoint.
+
+Validacao:
+
+```bash
+npm run format
+npm run build
+npm run check
+```
+
+Commit sugerido:
+
+- `Remove public pricing vestiges`
+
+### CP-8 - Verificacao final para v2 como versao principal
+
+Objetivo: provar que a `main` serve apenas o app-v2 como produto principal e que
+o v1 nao participa mais do runtime.
+
+Validacao local:
+
+```bash
+npm run format
+npm run build
+npm run check
+npm run test:e2e:ci
+rg -n "src/ui|src/react|src/features|pricing|billing|stripe|/#planos" index.html src public
+```
+
+Validacao remota:
+
+- Smoke em `https://cool-track-pro.pages.dev/`.
+- Login com conta de teste aprovada pelo usuario.
+- Navegacao app-v2: Hoje, Equipamentos, Servicos, Orcamentos, Alertas e Conta.
+- Confirmar que nao ha CTA de planos, checkout, portal de cliente ou pricing.
+
+Commit sugerido:
+
+- `Document v2 primary cleanup completion`
+
+## 7. Ordem recomendada
+
+1. CP-1 para travar inventario e evitar delecao por palpite.
+2. CP-2 para quebrar acoplamentos sensiveis.
+3. CP-3 a CP-5 para remover runtime v1 por lotes.
+4. CP-6 para limpar CSS depois que runtime v1 sair.
+5. CP-7 para limpar superficie publica e legal.
+6. CP-8 para validar e registrar fechamento.
+
+## 8. Criterio de pronto
+
+A remocao do v1 so deve ser considerada concluida quando:
+
+- `index.html` monta apenas app-v2.
+- `src/ui`, `src/react` e `src/features` nao existem mais ou restaram apenas
+  arquivos reclassificados com justificativa documentada.
+- `src/app-v2` nao importa runtime legado.
+- `src/domain` e `src/core` nao importam `src/ui`, `src/react` ou
+  `src/features`.
+- Nao ha CTA publico de pricing, checkout, portal de cliente ou planos pagos.
+- Build, check, testes e smoke remoto passam.
+
+## 9. Proximo passo recomendado
+
+Executar CP-1 em uma branch propria com inventario de imports e classificacao
+arquivo a arquivo. Somente depois disso iniciar CP-2, porque os acoplamentos em
+`domain` e `features` ainda tornam a remocao direta insegura.
