@@ -53,7 +53,7 @@ Classificação usada nesta matriz:
 | Home Hoje                | Implementada no app-v2                                                    | Obrigatório para trocar                            | QA visual e testes app-v2 existentes                                    | Smoke em `/` após bootstrap v2                                |
 | Alertas                  | Implementado como subfluxo app-v2                                         | Obrigatório para trocar                            | CP de alertas e navegação app-v2                                        | Smoke em `/` após bootstrap v2                                |
 | Clientes                 | Fluxo local e adapters reais progressivos existem                         | Obrigatório para trocar                            | CP-G/CP-H, fases de clientes e CP-AE com Supabase fake                  | CP-Y criando/editando cliente sob usuário real                |
-| Equipamentos             | Fluxo local e adapters reais progressivos existem                         | Obrigatório para trocar                            | CP-I/CP-J/CP-K e fases avançadas locais                                 | CP-Y criando/editando equipamento sob usuário real            |
+| Equipamentos             | Fluxo local e adapters reais progressivos existem                         | Obrigatório para trocar                            | CP-I/CP-J/CP-K, fases avançadas locais e CP-AF com Supabase fake        | CP-Y criando/editando equipamento sob usuário real            |
 | Registro de serviço      | Fluxo principal mock/local está forte                                     | Obrigatório para trocar                            | Auditoria indica alta cobertura do registro                             | Validar no bootstrap v2 com dados reais mínimos               |
 | Registros/histórico      | Filtros locais foram tratados em ciclos posteriores                       | Obrigatório para trocar no recorte operacional     | `servicos-registros-filtros-app-v2.md`                                  | Smoke local de filtro/lista no bootstrap v2                   |
 | Relatórios locais        | Relatório local e consolidado local foram tratados                        | Obrigatório se substituir v1 operacionalmente      | `relatorios-consolidados-locais-app-v2.md`                              | Smoke local no bootstrap v2                                   |
@@ -119,7 +119,8 @@ CP-AB executou a troca local do `index.html` e validou `/` no browser local.
 CP-AC validou `dist` via preview local de producao. CP-AD adicionou rotas
 principais para `/`, `/equipamentos`, `/servicos` e `/conta`. CP-AE validou
 leitura/escrita de cliente no root principal com sessao Supabase fake
-interceptada por Playwright.
+interceptada por Playwright. CP-AF validou escrita de equipamento vinculado a
+cliente no mesmo root principal fake-autenticado.
 
 O próximo checkpoint recomendado é publicar/validar a URL externa do Cloudflare
 Pages preview da branch antes da promoção final.

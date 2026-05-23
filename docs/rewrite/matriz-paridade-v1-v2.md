@@ -2363,3 +2363,38 @@ smoke mobile/desktop antes de tratar o v2 como versao principal publicada.
 
 Nao foram alterados runtime do app-v2, `index.html`, router, storage real,
 Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou v1/legado.
+
+## 140. Checkpoint concluido - CP-AF smoke autenticado de equipamento
+
+Foi ampliado o smoke E2E autenticado do root principal para cobrir equipamento:
+
+- `e2e/specs/app-v2-authenticated-primary.spec.js`;
+- `docs/rewrite/app-v2-authenticated-equipment-smoke-cp-af.md`.
+
+Decisao registrada:
+
+- o teste abre `/equipamentos` pelo root principal;
+- a fixture injeta usuario autenticado fake e cliente remoto;
+- o fluxo "Novo equipamento" salva equipamento vinculado ao cliente remoto;
+- o request `POST /rest/v1/equipamentos` inclui `user_id` autenticado e
+  `cliente_id`;
+- o equipamento salvo aparece na lista app-v2.
+
+Evidencia de schema revisada:
+
+- `supabase/migrations/20260411000000_baseline_core_tables.sql` define
+  `public.equipamentos.id` como `text primary key`;
+- o ID local `eq-shell-*` usado pelo app-v2 nao conflita com o tipo atual do
+  schema.
+
+Validacao focada:
+
+- `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-authenticated-primary.spec.js`.
+
+Ainda nao e validacao real de Supabase/RLS, triggers, quotas nem Cloudflare
+externo. Faltam sessao real, escrita real minima em ambiente real, preview
+externo Cloudflare e smoke mobile/desktop antes de tratar o v2 como versao
+principal publicada.
+
+Nao foram alterados runtime do app-v2, `index.html`, router, storage real,
+Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou v1/legado.

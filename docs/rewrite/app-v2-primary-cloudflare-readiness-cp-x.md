@@ -92,7 +92,7 @@ antes do deploy real do Cloudflare Pages conectado ao repo.
 | ------------------------------- | ------------------------------ | ------------------------------------ | -------------------------------------------------------------------------- |
 | Entrypoint principal v2         | `index.html` aponta ao app-v2  | Nao para corte local; sim para cloud | Falta validar Cloudflare Pages preview                                     |
 | Sessao Supabase real no browser | fake local validado; real nao  | Sim                                  | Login real ou sessao de teste em `authenticated-preview.html`              |
-| Fluxos criticos com dados reais | parcial; cliente fake coberto  | Sim                                  | Criar/editar cliente/equipamento e iniciar servico sob usuario autenticado |
+| Fluxos criticos com dados reais | parcial; cliente/equip fake    | Sim                                  | Criar/editar cliente/equipamento e iniciar servico sob usuario autenticado |
 | Paridade dos fluxos de producao | parcialmente documentada       | Sim                                  | Matriz final v1 x v2 por fluxo critico                                     |
 | PDF/share/WhatsApp              | fora do app-v2 real            | Sim se forem requisito do lancamento | CP dedicada ou decisao explicita de deixar fora do primeiro corte          |
 | Billing/features pagas          | fora do app-v2 real            | Sim se rota principal exigir plano   | CP dedicada ou gate de fallback                                            |
@@ -390,6 +390,33 @@ Limite:
 - nao substitui CP-Y, porque ainda nao valida Supabase real, RLS real,
   Cloudflare Pages externo ou dados reais persistidos.
 
+### CP-AF - Smoke autenticado de equipamento no entrypoint principal
+
+Objetivo:
+
+Validar escrita minima de equipamento no root principal com sessao Supabase fake
+e cliente remoto interceptado.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-authenticated-equipment-smoke-cp-af.md`;
+- `e2e/specs/app-v2-authenticated-primary.spec.js` agora tambem cobre
+  equipamento;
+- o teste confirma `POST /rest/v1/equipamentos`;
+- o payload inclui `user_id`, `cliente_id`, nome, local, tag e tipo;
+- o equipamento salvo aparece na lista app-v2.
+
+Validacao:
+
+```bash
+npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-authenticated-primary.spec.js
+```
+
+Limite:
+
+- nao substitui validacao com Supabase real, RLS real, triggers reais, quotas
+  reais ou Cloudflare Pages externo.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
@@ -409,10 +436,10 @@ O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
 ## 7. Resumo executivo
 
 O app-v2 ja e a entrada principal local desta branch apos a CP-AB. CP-AD cobriu
-rotas principais e CP-AE cobriu leitura/escrita autenticada com Supabase fake no
-root principal. Ele ainda nao deve virar principal no Cloudflare ate passar por
-sessao real, leitura/escrita minima real, smoke mobile/desktop e Cloudflare
-Pages preview.
+rotas principais; CP-AE/CP-AF cobriram leitura/escrita autenticada de cliente e
+equipamento com Supabase fake no root principal. Ele ainda nao deve virar
+principal no Cloudflare ate passar por sessao real, leitura/escrita minima real,
+smoke mobile/desktop e Cloudflare Pages preview.
 
 O proximo passo recomendado depende do ambiente disponivel: validar URL externa
 do Cloudflare Pages preview ou executar CP-Y com sessao Supabase real.
