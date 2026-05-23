@@ -13,9 +13,10 @@ import {
   fieldTextareaClass,
 } from '../ui/FieldGroup';
 import { SectionEyebrow } from '../ui/primitives';
+import type { AppV2ActionResult } from '../ui/actionResult';
 import type { SaveClientDraft } from './clientActions';
 
-export type ClientSaveResult = string | null | Promise<string | null>;
+export type ClientSaveResult = AppV2ActionResult;
 
 interface ClientFormProps {
   title: string;

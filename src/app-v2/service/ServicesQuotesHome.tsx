@@ -18,12 +18,12 @@ import {
   getEditingSubtotal,
 } from './quoteDraftUtils';
 import { quoteTemplates } from './quoteTemplates';
-import { resolveServiceActionResult, type ServiceActionResult } from './serviceActionResult';
 import {
   buildServicesQuotesViewModel,
   type BuildServicesQuotesInput,
   type ServicesQuoteListItemViewModel,
 } from './servicesQuotesViewModel';
+import { resolveAppV2ActionResult, type AppV2ActionResult } from '../ui/actionResult';
 
 export type { QuoteEditDraft } from './quoteDraftTypes';
 
@@ -31,8 +31,8 @@ interface ServicesQuotesHomeProps {
   activeView: ServicesSubView;
   input: BuildServicesQuotesInput;
   onSelectView: (view: ServicesSubView) => void;
-  onSaveQuote?: (draft: QuoteEditDraft) => ServiceActionResult;
-  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => ServiceActionResult;
+  onSaveQuote?: (draft: QuoteEditDraft) => AppV2ActionResult;
+  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => AppV2ActionResult;
 }
 
 export interface PreServiceQuoteCreateDraft {
@@ -140,7 +140,7 @@ export function ServicesQuotesHome({
     }
 
     const nextSubtotal = getEditingSubtotal(editingQuote);
-    const error = await resolveServiceActionResult(
+    const error = await resolveAppV2ActionResult(
       onSaveQuote?.({
         ...editingQuote,
         total: formatNumberInput(nextSubtotal),
@@ -176,7 +176,7 @@ export function ServicesQuotesHome({
       return;
     }
 
-    const error = await resolveServiceActionResult(
+    const error = await resolveAppV2ActionResult(
       onCreatePreServiceQuote(createDraft),
       'Não foi possível criar o orçamento.',
     );

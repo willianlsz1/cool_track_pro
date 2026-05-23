@@ -23,10 +23,11 @@ import {
   SectionEyebrow,
   StatusBadge,
 } from '../ui/primitives';
+import { resolveAppV2ActionResult, type AppV2ActionResult } from '../ui/actionResult';
 
-type EquipmentArchiveResult = string | null | Promise<string | null>;
-type EquipmentAttachmentResult = string | null | Promise<string | null>;
-type PreventiveScheduleResult = string | null | Promise<string | null>;
+type EquipmentArchiveResult = AppV2ActionResult;
+type EquipmentAttachmentResult = AppV2ActionResult;
+type PreventiveScheduleResult = AppV2ActionResult;
 
 interface EquipmentDetailProps {
   equipmentId: string;
@@ -544,29 +545,17 @@ async function resolveArchiveResult(
   result: EquipmentArchiveResult,
   fallback: string,
 ): Promise<string | null> {
-  try {
-    return await result;
-  } catch (error) {
-    return error instanceof Error ? error.message : fallback;
-  }
+  return resolveAppV2ActionResult(result, fallback);
 }
 
 async function resolveEquipmentAttachmentResult(
   result: EquipmentAttachmentResult,
 ): Promise<string | null> {
-  try {
-    return await result;
-  } catch (error) {
-    return error instanceof Error ? error.message : 'Não foi possível adicionar a foto.';
-  }
+  return resolveAppV2ActionResult(result, 'Não foi possível adicionar a foto.');
 }
 
 async function resolvePreventiveScheduleResult(
   result: PreventiveScheduleResult,
 ): Promise<string | null> {
-  try {
-    return await result;
-  } catch (error) {
-    return error instanceof Error ? error.message : 'Não foi possível agendar a preventiva.';
-  }
+  return resolveAppV2ActionResult(result, 'Não foi possível agendar a preventiva.');
 }

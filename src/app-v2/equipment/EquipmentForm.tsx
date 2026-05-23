@@ -20,8 +20,9 @@ import type {
 import { appV2Border, appV2Button, appV2Shadow, appV2Text } from '../styles/tokens';
 import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
 import { SectionEyebrow } from '../ui/primitives';
+import type { AppV2ActionResult } from '../ui/actionResult';
 
-export type EquipmentSaveResult = string | null | Promise<string | null>;
+export type EquipmentSaveResult = AppV2ActionResult;
 
 export interface EquipmentFormProps {
   title: string;

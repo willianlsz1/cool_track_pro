@@ -46,6 +46,7 @@ import {
   fieldTextareaClass,
 } from '../ui/FieldGroup';
 import { PageShell, SectionCard, SectionEyebrow } from '../ui/primitives';
+import { resolveAppV2ActionResult, type AppV2ActionResult } from '../ui/actionResult';
 
 interface EquipmentListProps {
   input?: BuildEquipmentViewModelInput;
@@ -53,8 +54,8 @@ interface EquipmentListProps {
   onSelectView: (view: EquipmentSubView) => void;
   onOpenEquipment: (equipmentId: string) => void;
   onSaveEquipment?: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
-  onSaveSector?: (draft: SaveEquipmentSectorDraft) => string | null | Promise<string | null>;
-  onDeleteSector?: (sectorId: string) => string | null | Promise<string | null>;
+  onSaveSector?: (draft: SaveEquipmentSectorDraft) => AppV2ActionResult;
+  onDeleteSector?: (sectorId: string) => AppV2ActionResult;
   initialClientId?: string | null;
   contextBanner?: EquipmentFormProps['contextBanner'];
   onInitialClientHandled?: () => void;
@@ -172,7 +173,7 @@ export function EquipmentList({
       return;
     }
 
-    const result = await resolveSectorActionResult(
+    const result = await resolveAppV2ActionResult(
       onSaveSector({
         ...sectorForm,
         id: sectorForm.id || createLocalSectorId(equipmentInput.setores?.length ?? 0),
@@ -199,7 +200,7 @@ export function EquipmentList({
       return;
     }
 
-    const result = await resolveSectorActionResult(
+    const result = await resolveAppV2ActionResult(
       onDeleteSector(sectorIdToRemove),
       'Nao foi possivel remover o setor.',
     );
@@ -852,17 +853,6 @@ function getSectorOwner(
   sectorIdToFind: string,
 ): string {
   return setores?.find((setor) => setor.id === sectorIdToFind)?.responsavel?.trim() ?? '';
-}
-
-async function resolveSectorActionResult(
-  result: string | null | Promise<string | null>,
-  fallback: string,
-): Promise<string | null> {
-  try {
-    return await result;
-  } catch (error) {
-    return error instanceof Error ? error.message : fallback;
-  }
 }
 
 function getSectorEquipmentNames(

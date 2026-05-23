@@ -21,15 +21,15 @@ import {
   type ServiceQuickSuggestionId,
 } from './serviceFlowViewModel';
 import { buildServiceReportViewModel } from './serviceReportViewModel';
-import { resolveServiceActionResult, type ServiceActionResult } from './serviceActionResult';
+import { resolveAppV2ActionResult, type AppV2ActionResult } from '../ui/actionResult';
 
 interface ServiceFlowProps {
   input: BuildServiceFlowInput;
   initialDraft: ServiceDraft;
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
-  onCompleteService: (draft: ServiceDraft) => ServiceActionResult;
-  onCreateQuoteFromCompletedService: (draft: ServiceDraft) => ServiceActionResult;
+  onCompleteService: (draft: ServiceDraft) => AppV2ActionResult;
+  onCreateQuoteFromCompletedService: (draft: ServiceDraft) => AppV2ActionResult;
   onValidateService?: (draft: ServiceDraft) => string | null;
   onChangeEquipment?: () => void;
   onOpenEquipment: (equipmentId: string) => void;
@@ -90,7 +90,7 @@ export function ServiceFlow({
   }
 
   async function finishAndBackToServices() {
-    const errorMessage = await resolveServiceActionResult(
+    const errorMessage = await resolveAppV2ActionResult(
       onCompleteService(draft),
       'Não foi possível concluir o serviço.',
     );
@@ -105,7 +105,7 @@ export function ServiceFlow({
   }
 
   async function finishAndOpenEquipment() {
-    const errorMessage = await resolveServiceActionResult(
+    const errorMessage = await resolveAppV2ActionResult(
       onCompleteService(draft),
       'Não foi possível concluir o serviço.',
     );
@@ -120,7 +120,7 @@ export function ServiceFlow({
   }
 
   async function finishAndCreateQuote() {
-    const errorMessage = await resolveServiceActionResult(
+    const errorMessage = await resolveAppV2ActionResult(
       onCreateQuoteFromCompletedService(draft),
       'Não foi possível criar o orçamento.',
     );

@@ -1,7 +1,7 @@
-export type ServiceActionResult = string | null | Promise<string | null>;
+export type AppV2ActionResult = string | null | Promise<string | null>;
 
-export async function resolveServiceActionResult(
-  result: ServiceActionResult,
+export async function resolveAppV2ActionResult(
+  result: AppV2ActionResult,
   fallbackMessage: string,
 ): Promise<string | null> {
   try {
