@@ -54,7 +54,11 @@ function collectBlockingErrors(page) {
 
   page.on('console', (message) => {
     if (message.type() === 'error') {
-      errors.push(message.text());
+      const text = message.text();
+
+      if (!isKnownProviderNoise(text)) {
+        errors.push(text);
+      }
     }
   });
 
@@ -63,4 +67,8 @@ function collectBlockingErrors(page) {
   });
 
   return () => errors;
+}
+
+function isKnownProviderNoise(message) {
+  return message.includes("Framing 'https://app.netlify.com/' violates");
 }

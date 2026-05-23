@@ -78,6 +78,14 @@ Arquivos de plataforma copiados para `dist` pelo build:
 - `dist/_redirects`;
 - `dist/_headers`.
 
+Atualizacao CP-AJ:
+
+- o preview externo Cloudflare revelou que `/equipamentos` retornava 404;
+- a regra antiga de `_redirects` continha rewrite `404`, nao suportado pelo
+  Cloudflare Pages;
+- `public/_redirects` passou a manter apenas o fallback SPA `/* /index.html
+200`.
+
 ## Resultado
 
 O app-v2 passou no smoke local de producao estatica. O teste criado deve ser

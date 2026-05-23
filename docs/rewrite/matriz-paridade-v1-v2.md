@@ -2491,3 +2491,31 @@ Fora de escopo:
 > principal contra a URL publica de preview; se passar, seguir para validacao
 > com env real/sessao real ou Cloudflare Pages preview conforme ambiente
 > disponivel.
+
+## 145. Checkpoint concluido - CP-AJ fallback SPA no Cloudflare Pages
+
+CP-AJ ajustou o fallback SPA de plataforma para as rotas principais do app-v2 no
+Cloudflare Pages.
+
+Arquivos:
+
+- `public/_redirects`
+- `e2e/specs/app-v2-primary-entrypoint.spec.js`
+- `docs/rewrite/app-v2-cloudflare-spa-fallback-cp-aj.md`
+- `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`
+- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
+
+Resultado:
+
+- a regra antiga de `_redirects` com rewrite `404` foi removida por nao ser
+  compatível com Cloudflare Pages;
+- o fallback SPA ficou restrito a `/* /index.html 200`;
+- o smoke E2E passou a ignorar apenas o erro de CSP injetado pelo Netlify
+  Drawer, mantendo page errors e demais console errors como bloqueantes.
+
+Fora de escopo:
+
+- remover `public/404.html`;
+- alterar CSP, service worker, Vite, `manualChunks`, storage real,
+  Supabase/RLS, billing, PDF/share, WhatsApp, upload/storage, PMOC, orcamento
+  real ou v1/legado.

@@ -480,6 +480,27 @@ Limite:
 - nao valida Supabase/RLS real, sessao real ou escrita real;
 - smoke externo deve ser reexecutado apos o deploy do PR atualizado.
 
+### CP-AJ - Fallback SPA no Cloudflare Pages
+
+Objetivo:
+
+Garantir que as rotas principais do app-v2 funcionem por acesso direto no
+Cloudflare Pages preview.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-cloudflare-spa-fallback-cp-aj.md`;
+- `public/_redirects` foi reduzido para a regra Cloudflare-compatible
+  `/* /index.html 200`;
+- `e2e/specs/app-v2-primary-entrypoint.spec.js` ignora somente o erro conhecido
+  de CSP do Netlify Drawer no smoke externo.
+
+Limite:
+
+- validacao final depende de novo deploy do PR e smoke externo no Cloudflare
+  Pages;
+- Supabase/RLS real, sessao real e escrita real continuam gates separados.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
