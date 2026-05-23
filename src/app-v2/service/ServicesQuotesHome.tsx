@@ -18,6 +18,7 @@ import {
   getEditingSubtotal,
 } from './quoteDraftUtils';
 import { quoteTemplates } from './quoteTemplates';
+import { resolveServiceActionResult, type ServiceActionResult } from './serviceActionResult';
 import {
   buildServicesQuotesViewModel,
   type BuildServicesQuotesInput,
@@ -30,10 +31,8 @@ interface ServicesQuotesHomeProps {
   activeView: ServicesSubView;
   input: BuildServicesQuotesInput;
   onSelectView: (view: ServicesSubView) => void;
-  onSaveQuote?: (draft: QuoteEditDraft) => string | null | Promise<string | null>;
-  onCreatePreServiceQuote?: (
-    draft: PreServiceQuoteCreateDraft,
-  ) => string | null | Promise<string | null>;
+  onSaveQuote?: (draft: QuoteEditDraft) => ServiceActionResult;
+  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => ServiceActionResult;
 }
 
 export interface PreServiceQuoteCreateDraft {
@@ -141,7 +140,7 @@ export function ServicesQuotesHome({
     }
 
     const nextSubtotal = getEditingSubtotal(editingQuote);
-    const error = await resolveQuoteActionResult(
+    const error = await resolveServiceActionResult(
       onSaveQuote?.({
         ...editingQuote,
         total: formatNumberInput(nextSubtotal),
@@ -177,7 +176,7 @@ export function ServicesQuotesHome({
       return;
     }
 
-    const error = await resolveQuoteActionResult(
+    const error = await resolveServiceActionResult(
       onCreatePreServiceQuote(createDraft),
       'Não foi possível criar o orçamento.',
     );
@@ -409,15 +408,4 @@ function KpiCard({ label, value }: { label: string; value: number | string }) {
 
 function createLocalQuoteId(seed: number): string {
   return `orcamento-pre-servico-${seed + 1}`;
-}
-
-async function resolveQuoteActionResult(
-  result: string | null | Promise<string | null>,
-  fallbackMessage: string,
-): Promise<string | null> {
-  try {
-    return await result;
-  } catch (error) {
-    return error instanceof Error ? error.message : fallbackMessage;
-  }
 }

@@ -44,6 +44,7 @@ import { ServiceEquipmentChoice } from '../service/ServiceEquipmentChoice';
 import { ServicesHome } from '../service/ServicesHome';
 import type { PreServiceQuoteCreateDraft, QuoteEditDraft } from '../service/ServicesQuotesHome';
 import type { ServicesSubView } from '../service/ServicesSubViewNav';
+import type { ServiceActionResult } from '../service/serviceActionResult';
 import { createServiceDraftFromRecord, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
 import {
@@ -64,8 +65,6 @@ type EquipmentArchiveResult = string | null | Promise<string | null>;
 type EquipmentAttachmentResult = string | null | Promise<string | null>;
 type EquipmentSectorResult = string | null | Promise<string | null>;
 type PreventiveScheduleResult = string | null | Promise<string | null>;
-type ServiceCompletionResult = string | null | Promise<string | null>;
-type ServiceQuoteResult = string | null | Promise<string | null>;
 
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [appState, setAppState] = useState<AppV2FlowState>(() => ({
@@ -488,7 +487,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     setActiveTab('equipamento');
   }
 
-  function completeCurrentService(draft: ServiceDraft): ServiceCompletionResult {
+  function completeCurrentService(draft: ServiceDraft): ServiceActionResult {
     try {
       if (completedServiceRecordId) {
         setAppState((current) => ({
@@ -527,7 +526,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function createQuoteFromCompletedService(draft: ServiceDraft): ServiceQuoteResult {
+  function createQuoteFromCompletedService(draft: ServiceDraft): ServiceActionResult {
     try {
       if (dataPort) {
         const input = buildCompleteServiceInput(appState, draft, editingServiceId);
@@ -585,7 +584,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     setActiveTab('servicos');
   }
 
-  function saveQuoteDraft(draft: QuoteEditDraft): string | null | Promise<string | null> {
+  function saveQuoteDraft(draft: QuoteEditDraft): ServiceActionResult {
     try {
       if (dataPort) {
         return dataPort
@@ -605,9 +604,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function createPreServiceQuote(
-    draft: PreServiceQuoteCreateDraft,
-  ): string | null | Promise<string | null> {
+  function createPreServiceQuote(draft: PreServiceQuoteCreateDraft): ServiceActionResult {
     try {
       if (dataPort) {
         return dataPort

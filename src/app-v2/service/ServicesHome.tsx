@@ -24,6 +24,7 @@ import {
   type QuoteEditDraft,
 } from './ServicesQuotesHome';
 import { ServiceReportsHome } from './ServiceReportsHome';
+import type { ServiceActionResult } from './serviceActionResult';
 import type { ServiceDraft } from './serviceFlowViewModel';
 import {
   buildServicesHomeViewModel,
@@ -40,10 +41,8 @@ interface ServicesHomeProps {
   onResumeService: () => void;
   onStartService: () => void;
   onEditService?: (serviceId: string) => void;
-  onSaveQuote?: (draft: QuoteEditDraft) => string | null | Promise<string | null>;
-  onCreatePreServiceQuote?: (
-    draft: PreServiceQuoteCreateDraft,
-  ) => string | null | Promise<string | null>;
+  onSaveQuote?: (draft: QuoteEditDraft) => ServiceActionResult;
+  onCreatePreServiceQuote?: (draft: PreServiceQuoteCreateDraft) => ServiceActionResult;
 }
 
 export function ServicesHome({

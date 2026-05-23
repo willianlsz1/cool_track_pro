@@ -21,16 +21,15 @@ import {
   type ServiceQuickSuggestionId,
 } from './serviceFlowViewModel';
 import { buildServiceReportViewModel } from './serviceReportViewModel';
+import { resolveServiceActionResult, type ServiceActionResult } from './serviceActionResult';
 
 interface ServiceFlowProps {
   input: BuildServiceFlowInput;
   initialDraft: ServiceDraft;
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
-  onCompleteService: (draft: ServiceDraft) => string | null | Promise<string | null>;
-  onCreateQuoteFromCompletedService: (
-    draft: ServiceDraft,
-  ) => string | null | Promise<string | null>;
+  onCompleteService: (draft: ServiceDraft) => ServiceActionResult;
+  onCreateQuoteFromCompletedService: (draft: ServiceDraft) => ServiceActionResult;
   onValidateService?: (draft: ServiceDraft) => string | null;
   onChangeEquipment?: () => void;
   onOpenEquipment: (equipmentId: string) => void;
@@ -91,7 +90,10 @@ export function ServiceFlow({
   }
 
   async function finishAndBackToServices() {
-    const errorMessage = await resolveServiceCompletionResult(onCompleteService(draft));
+    const errorMessage = await resolveServiceActionResult(
+      onCompleteService(draft),
+      'Não foi possível concluir o serviço.',
+    );
 
     if (errorMessage) {
       setCompletionError(errorMessage);
@@ -103,7 +105,10 @@ export function ServiceFlow({
   }
 
   async function finishAndOpenEquipment() {
-    const errorMessage = await resolveServiceCompletionResult(onCompleteService(draft));
+    const errorMessage = await resolveServiceActionResult(
+      onCompleteService(draft),
+      'Não foi possível concluir o serviço.',
+    );
 
     if (errorMessage) {
       setCompletionError(errorMessage);
@@ -115,8 +120,9 @@ export function ServiceFlow({
   }
 
   async function finishAndCreateQuote() {
-    const errorMessage = await resolveServiceCompletionResult(
+    const errorMessage = await resolveServiceActionResult(
       onCreateQuoteFromCompletedService(draft),
+      'Não foi possível criar o orçamento.',
     );
 
     if (errorMessage) {
@@ -198,16 +204,6 @@ export function ServiceFlow({
       ) : null}
     </PageShell>
   );
-}
-
-async function resolveServiceCompletionResult(
-  result: string | null | Promise<string | null>,
-): Promise<string | null> {
-  try {
-    return await result;
-  } catch (error) {
-    return error instanceof Error ? error.message : 'Não foi possível concluir o serviço.';
-  }
 }
 
 function Progress({ currentStep }: { currentStep: ServiceFlowStep }) {
