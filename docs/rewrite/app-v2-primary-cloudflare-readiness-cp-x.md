@@ -492,6 +492,8 @@ Status:
 - concluido em `docs/rewrite/app-v2-cloudflare-spa-fallback-cp-aj.md`;
 - `public/_redirects` foi reduzido para a regra Cloudflare-compatible
   `/* /index.html 200`;
+- apos smoke externo ainda retornar `404.html` em rota direta, `public/404.html`
+  foi removido para permitir fallback SPA padrao no Cloudflare Pages;
 - `e2e/specs/app-v2-primary-entrypoint.spec.js` ignora somente o erro conhecido
   de CSP do Netlify Drawer no smoke externo.
 

@@ -38,10 +38,13 @@ Fonte oficial consultada:
 - `e2e/specs/app-v2-primary-entrypoint.spec.js` passou a ignorar somente o erro
   conhecido de CSP do Netlify Drawer, que e injetado pelo provedor de preview e
   nao representa erro do app.
+- A primeira validacao externa ainda retornou `public/404.html` em
+  `/equipamentos`, mesmo com `_redirects` publicado. Como o app-v2 agora e a
+  entrada principal, `public/404.html` foi removido para deixar o Cloudflare
+  Pages aplicar o comportamento SPA padrao em rotas diretas.
 
 ## Fora de escopo
 
-- Remover `public/404.html`.
 - Alterar `_headers`, CSP, service worker, Vite, `manualChunks`, package files
   ou dependencias.
 - Validar Supabase/RLS real, billing, PDF/share, WhatsApp, upload/storage,
@@ -58,7 +61,7 @@ npm run check
 git diff --check
 ```
 
-Depois do deploy:
+Depois de novo deploy:
 
 ```bash
 $env:PLAYWRIGHT_BASE_URL='https://<cloudflare-preview>'
@@ -67,8 +70,13 @@ npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-primary-entrypo
 
 ## Risco remanescente
 
-Sem a regra antiga de `/assets/* -> 404`, um asset hash inexistente pode cair no
-fallback SPA dependendo do comportamento da plataforma. Esse risco deve ser
+Sem `public/404.html`, rotas desconhecidas tambem podem receber `index.html`
+em vez da pagina 404 estatica. Esse comportamento e aceitavel para a fase de
+SPA principal, mas uma tela Not Found app-v2 deve ser tratada em etapa propria
+se virar requisito de produto.
+
+Sem a regra antiga de `/assets/* -> 404`, um asset hash inexistente pode cair
+no fallback SPA dependendo do comportamento da plataforma. Esse risco deve ser
 tratado em etapa propria de cache/service worker se reaparecer. Para o corte
 principal, o bloqueio atual e mais direto: rotas publicas do app-v2 precisam
 abrir no Cloudflare Pages.

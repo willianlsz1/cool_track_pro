@@ -171,3 +171,8 @@ Pages:
 A validacao local confirmou que `dist/_redirects` carrega essa regra e que o
 smoke de rotas principais passa em `vite preview`. A troca para versao principal
 ainda depende de novo deploy do PR e smoke externo no Cloudflare Pages preview.
+
+Na primeira validacao externa apos `_redirects`, `/equipamentos` ainda retornou
+`404.html`. Como o app-v2 agora e SPA principal, `public/404.html` foi removido
+para permitir o fallback SPA padrao do Cloudflare Pages em rotas diretas. A
+validacao final continua dependendo de novo deploy e smoke externo.
