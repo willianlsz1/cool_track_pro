@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AccountHome } from '../account/AccountHome';
 import { AlertsHome } from '../alerts/AlertsHome';
@@ -34,6 +34,7 @@ import {
   validateServiceCompletion,
   type AppV2FlowState,
 } from '../data/appV2Actions';
+import type { AppV2DataPort } from '../data/appV2DataPort';
 import { createAppV2MockSnapshot, type AppV2MockSnapshot } from '../data/appV2MockStore';
 import { selectAppV2OperationalState } from '../data/appV2Selectors';
 import { ServiceFlow } from '../service/ServiceFlow';
@@ -53,9 +54,10 @@ import {
 
 interface AppV2ShellProps {
   initialSnapshot?: AppV2MockSnapshot;
+  dataPort?: AppV2DataPort;
 }
 
-export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
+export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [appState, setAppState] = useState<AppV2FlowState>(() => ({
     ...(initialSnapshot ?? createAppV2MockSnapshot()),
     serviceDraft: null,
@@ -78,6 +80,34 @@ export function AppV2Shell({ initialSnapshot }: AppV2ShellProps) {
   const [equipmentFormClientId, setEquipmentFormClientId] = useState<string | null>(null);
   const operationalState = selectAppV2OperationalState(appState);
   const serviceDraft = operationalState.serviceDraft;
+
+  useEffect(() => {
+    if (!dataPort) {
+      return undefined;
+    }
+
+    let isActive = true;
+
+    dataPort
+      .loadSnapshot()
+      .then((nextState) => {
+        if (!isActive) {
+          return;
+        }
+
+        setAppState({
+          ...nextState,
+          serviceDraft: nextState.serviceDraft ?? null,
+        });
+      })
+      .catch(() => {
+        // The app-v2 preview must remain usable when an injected read source fails.
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [dataPort]);
 
   function selectTab(tab: AppV2Tab) {
     setActiveTab(tab);
