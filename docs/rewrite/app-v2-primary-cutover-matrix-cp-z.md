@@ -65,7 +65,7 @@ Classificação usada nesta matriz:
 | Billing/features pagas   | Fora do app-v2 real                                                       | Etapa sensível própria                             | AGENTS e matriz                                                         | Decidir se root v2 exige plano no primeiro corte              |
 | Upload/storage fotos     | Placeholder local, sem upload real                                        | Etapa sensível própria                             | fases de anexos/equipamentos                                            | Decidir se fica fora do primeiro corte                        |
 | PMOC real                | Fora                                                                      | Etapa sensível própria                             | AGENTS e matriz                                                         | Manter fora ou abrir CP própria                               |
-| Cloudflare Pages preview | Não validado para v2 como root                                            | Obrigatório para trocar                            | CI/Cloudflare mapeado em CP-X                                           | Preview publicado com smoke                                   |
+| Cloudflare Pages preview | Smoke local de producao estatica passou; preview externo pendente         | Obrigatório para trocar                            | `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`                 | Reexecutar smoke na URL Cloudflare Pages preview              |
 | Rollback                 | Documentado em CP-AB                                                      | Obrigatório para trocar                            | `docs/rewrite/app-v2-primary-cutover-cp-ab.md`                          | Validar reversão se necessário                                |
 
 ## Primeiro corte recomendado
@@ -106,7 +106,8 @@ Fora do primeiro corte, se aprovado explicitamente:
 2. Validar escrita real mínima de cliente e equipamento sob usuário autenticado.
 3. Definir comportamento de router/deep link para `/`.
 4. Validar fluxo operacional mínimo em mobile e desktop.
-5. Publicar Cloudflare Pages preview da branch com v2 como root.
+5. Publicar Cloudflare Pages preview da branch com v2 como root e reexecutar
+   smoke E2E.
 6. Aprovar explicitamente as áreas fora do primeiro corte.
 
 ## Próxima CP recomendada
@@ -114,8 +115,9 @@ Fora do primeiro corte, se aprovado explicitamente:
 Se houver sessão de teste disponível: executar CP-Y, validação real do
 `authenticated-preview.html`.
 
-CP-AB executou a troca local do `index.html` e validou `/` no browser local. O
-próximo checkpoint recomendado é publicar/validar Cloudflare Pages preview da
+CP-AB executou a troca local do `index.html` e validou `/` no browser local.
+CP-AC validou `dist` via preview local de producao. O próximo checkpoint
+recomendado é publicar/validar a URL externa do Cloudflare Pages preview da
 branch antes da promoção final.
 
 ## Validação desta CP

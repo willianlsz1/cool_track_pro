@@ -97,7 +97,7 @@ antes do deploy real do Cloudflare Pages conectado ao repo.
 | PDF/share/WhatsApp              | fora do app-v2 real            | Sim se forem requisito do lancamento | CP dedicada ou decisao explicita de deixar fora do primeiro corte          |
 | Billing/features pagas          | fora do app-v2 real            | Sim se rota principal exigir plano   | CP dedicada ou gate de fallback                                            |
 | Router/deep links               | nao promovido                  | Sim para producao publica            | Plano para URLs, refresh e historico                                       |
-| Cloudflare Pages preview        | nao validado para v2 principal | Sim                                  | Build preview com entrypoint v2 e smoke em ambiente publicado              |
+| Cloudflare Pages preview        | smoke local de producao passou | Sim                                  | Falta URL externa de preview Cloudflare Pages                              |
 | Rollback                        | documentado em CP-AB           | Nao para corte local; sim para cloud | Falta validar rollback em preview/branch se necessario                     |
 
 ## 4. Decisao tecnica recomendada
@@ -308,6 +308,20 @@ Validacao:
 npm run build
 npm run check
 ```
+
+Status local:
+
+- smoke local de producao documentado em
+  `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`;
+- `npm run preview -- --host 127.0.0.1 --port 4173` serviu `dist`;
+- `e2e/specs/app-v2-primary-entrypoint.spec.js` passou contra `http://127.0.0.1:4173`;
+- `/` e `/equipamentos` renderizaram app-v2 sem root legado;
+- `dist/_redirects` e `dist/_headers` existem.
+
+Pendente:
+
+- reexecutar o mesmo smoke contra a URL externa do Cloudflare Pages preview da
+  branch.
 
 Smoke Cloudflare:
 

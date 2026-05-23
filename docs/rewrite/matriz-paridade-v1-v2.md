@@ -2274,3 +2274,28 @@ preview e aprovacao explicita das areas fora do primeiro corte.
 
 Nao foram alterados router, storage real amplo, Supabase/RLS, PDF/share,
 WhatsApp, billing, upload, PMOC, orcamento real ou configs.
+
+## 137. Checkpoint concluido - CP-AC smoke de preview de producao local
+
+Foi criado e executado um smoke E2E para validar a entrada principal app-v2 em
+ambiente equivalente a producao estatica:
+
+- `e2e/specs/app-v2-primary-entrypoint.spec.js`;
+- `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`.
+
+Decisao registrada:
+
+- o smoke roda contra `npm run preview` servindo `dist`;
+- `/` renderiza `app-v2-root`;
+- `/equipamentos` valida fallback SPA por rota nao-arquivo;
+- o root legado `app` nao aparece;
+- `/src/app.js` e CSS global legado nao voltam para o entrypoint principal;
+- `dist/_redirects` e `dist/_headers` existem apos build.
+
+Resultado:
+
+- `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-primary-entrypoint.spec.js`
+  passou com 2 testes contra `http://127.0.0.1:4173`.
+
+Ainda nao e validacao externa do Cloudflare Pages. Falta URL de preview da
+branch para reexecutar o mesmo smoke em ambiente publicado.
