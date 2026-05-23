@@ -585,3 +585,26 @@ real, smoke mobile/desktop e Cloudflare Pages preview.
 
 O proximo passo recomendado depende do ambiente disponivel: validar URL externa
 do Cloudflare Pages preview ou executar CP-Y com sessao Supabase real.
+
+### CP-AM - Runbook de promocao Cloudflare
+
+Objetivo:
+
+Consolidar o procedimento operacional para promover o app-v2 como versao
+principal no Cloudflare Pages depois dos gates finais.
+
+Status:
+
+- concluido em
+  `docs/rewrite/app-v2-primary-cloudflare-cutover-runbook-cp-am.md`;
+- define pre-condicoes para remover o PR #287 de draft;
+- aponta a CP-Y como gate obrigatorio de sessao e escrita real;
+- descreve smoke pos-promocao na URL principal;
+- referencia rollback minimo para retornar ao root legado `#app` e
+  `/src/app.js`.
+
+Limite:
+
+- nao executa promocao;
+- nao altera runtime;
+- nao substitui CP-Y nem aprovacao explicita das areas fora do primeiro corte.

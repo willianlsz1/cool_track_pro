@@ -222,3 +222,23 @@ Resumo:
 
 O corte final nao deve prosseguir enquanto CP-Y e as aprovacoes explicitas das
 areas fora do primeiro corte nao estiverem concluidas.
+
+## Atualizacao CP-AM
+
+Foi criado
+`docs/rewrite/app-v2-primary-cloudflare-cutover-runbook-cp-am.md` para
+consolidar o procedimento operacional de promocao e rollback no Cloudflare
+Pages.
+
+Resumo:
+
+- o runbook nao executa corte e nao altera runtime;
+- define pre-condicoes para remover o PR #287 de draft;
+- padroniza a execucao da CP-Y com
+  `scripts/app-v2-real-session-smoke.mjs`;
+- descreve o smoke pos-promocao na URL principal;
+- documenta rollback minimo para voltar ao root legado `#app` e
+  `/src/app.js`.
+
+O proximo gate continua sendo CP-Y com conta Supabase real e aprovacao explicita
+das areas fora do primeiro corte.

@@ -48,6 +48,7 @@ upload/storage, PMOC ou v1.
 | Isolamento real entre usuarios          | Aberto   | CP-Y ou etapa RLS dedicada com dois usuarios reais |
 | Aprovacao das areas fora do corte       | Pendente | Decisao explicita do usuario/produto               |
 | PR pronto para merge                    | Pendente | Remover draft somente depois dos gates acima       |
+| Runbook de promocao/rollback            | Verde    | CP-AM                                              |
 
 ## Decisao pendente sobre areas fora do primeiro corte
 
@@ -86,7 +87,18 @@ Antes de transformar o app-v2 na versao principal final:
 - [ ] Aprovar explicitamente que orcamento real com aceite/envio externo fica
       fora do primeiro corte.
 - [ ] Tirar PR #287 de draft.
-- [ ] Fazer merge/promocao com rollback documentado.
+- [ ] Fazer merge/promocao seguindo o runbook CP-AM.
+
+## Runbook operacional
+
+O procedimento final de promocao e rollback foi consolidado em
+`docs/rewrite/app-v2-primary-cloudflare-cutover-runbook-cp-am.md`.
+
+Ele deve ser usado somente depois de:
+
+- CP-Y passar com conta Supabase real;
+- checks remotos do PR estarem verdes no HEAD final;
+- areas fora do primeiro corte estarem explicitamente aprovadas.
 
 ## Proximo passo
 
