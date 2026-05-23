@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -40,5 +43,23 @@ describe('mountAppV2', () => {
 
     expect(loadSnapshot).toHaveBeenCalled();
     expect(root.textContent).toContain('Hoje');
+  });
+
+  it('mantem mount do app-v2 sem importar auth ou Supabase', () => {
+    const source = readFileSync(resolve(__dirname, 'index.tsx'), 'utf8');
+
+    expect(source).not.toContain('core/auth');
+    expect(source).not.toContain('core/supabase');
+    expect(source).not.toContain('@supabase');
+  });
+
+  it('mantem preview default local sem ativar data source autenticado', () => {
+    const source = readFileSync(resolve(__dirname, 'preview.tsx'), 'utf8');
+
+    expect(source).toContain('mountAppV2(root)');
+    expect(source).not.toContain('createAuthenticatedAppV2DataSource');
+    expect(source).not.toContain('core/auth');
+    expect(source).not.toContain('core/supabase');
+    expect(source).not.toContain('@supabase');
   });
 });
