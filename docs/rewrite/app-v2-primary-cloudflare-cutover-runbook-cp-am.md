@@ -188,6 +188,9 @@ direto causado pela promocao.
 
 ## Proximo passo
 
-Executar CP-Y com conta Supabase real. Se CP-Y passar e as areas fora do corte
-forem aprovadas explicitamente, usar este runbook para tirar o PR de draft,
-fazer merge e validar o Cloudflare principal.
+Promocao executada e validada em CP-AN:
+`docs/rewrite/app-v2-primary-cloudflare-post-promotion-cp-an.md`.
+
+Proximas etapas devem tratar apenas pendencias fora do corte em CPs proprias,
+com prioridade para dominio custom/certificado se `cooltrack.app` for o dominio
+publico final.
