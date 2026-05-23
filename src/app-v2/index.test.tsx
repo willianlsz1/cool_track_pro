@@ -57,11 +57,29 @@ describe('mountAppV2', () => {
     const source = readFileSync(resolve(__dirname, 'preview.tsx'), 'utf8');
 
     expect(source).toContain('mountAppV2(root)');
+    expect(source).not.toContain('authenticatedPreview');
+    expect(source).not.toContain('authenticatedBrowserOptions');
     expect(source).not.toContain('mountAuthenticatedAppV2');
     expect(source).not.toContain('authenticatedHarness');
     expect(source).not.toContain('createAuthenticatedAppV2DataSource');
     expect(source).not.toContain('core/auth');
     expect(source).not.toContain('core/supabase');
     expect(source).not.toContain('@supabase');
+  });
+
+  it('expoe entrypoint autenticado opt-in separado do preview default', () => {
+    const html = readFileSync(resolve(__dirname, 'authenticated-preview.html'), 'utf8');
+    const source = readFileSync(resolve(__dirname, 'authenticatedPreview.tsx'), 'utf8');
+
+    expect(html).toContain('id="app-v2-authenticated-preview"');
+    expect(html).toContain('src="./authenticatedPreview.tsx"');
+    expect(source).toContain("document.getElementById('app-v2-authenticated-preview')");
+    expect(source).toContain('mountAuthenticatedAppV2');
+    expect(source).toContain('createAuthenticatedAppV2BrowserOptions');
+    expect(source).toContain('../core/supabase.js');
+    expect(source).not.toContain('mountAppV2(root)');
+    expect(source).not.toContain('core/auth');
+    expect(source).not.toContain('localStorage');
+    expect(source).not.toContain('sessionStorage');
   });
 });
