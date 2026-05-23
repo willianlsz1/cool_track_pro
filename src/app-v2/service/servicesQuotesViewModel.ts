@@ -56,7 +56,7 @@ export interface ServicesQuotesViewModel {
   totalItems: number;
 }
 
-const openStatuses = new Set<QuoteStatus>(['rascunho', 'enviado', 'aguardando_assinatura']);
+const openStatuses = new Set<QuoteStatus>(['rascunho', 'enviado']);
 const openValueStatuses = new Set<QuoteStatus>(['rascunho', 'enviado']);
 
 export function buildServicesQuotesViewModel(
@@ -161,10 +161,6 @@ function getStatusMeta(status: QuoteStatus): { label: string; tone: ServiceHomeT
 
   if (status === 'enviado') {
     return { label: 'Enviado', tone: 'primary' };
-  }
-
-  if (status === 'aguardando_assinatura') {
-    return { label: 'Aguardando assinatura', tone: 'warning' };
   }
 
   return { label: 'Rascunho', tone: 'muted' };

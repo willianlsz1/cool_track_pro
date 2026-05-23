@@ -10,13 +10,7 @@ export type ServiceCommitmentStatus = 'agendado' | 'em_andamento' | 'concluido' 
 export type ServiceRecordKind = 'preventiva' | 'corretiva' | 'instalacao' | 'visita' | 'outro';
 export type ServiceRecordStatus = EquipmentStatus;
 
-export type QuoteStatus =
-  | 'rascunho'
-  | 'enviado'
-  | 'aguardando_assinatura'
-  | 'aprovado'
-  | 'recusado'
-  | 'expirado';
+export type QuoteStatus = 'rascunho' | 'enviado' | 'aprovado' | 'recusado' | 'expirado';
 
 export interface Cliente {
   id: string;

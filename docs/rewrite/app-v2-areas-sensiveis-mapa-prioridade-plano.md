@@ -69,7 +69,6 @@ Os termos sensiveis que aparecem no app-v2 hoje sao intencionais:
 
 - testes garantindo ausencia de PMOC/PDF/WhatsApp/storage real;
 - textos de contato de cliente, como "WhatsApp";
-- status local de Orcamento, como `aguardando_assinatura`;
 - botao futuro/desabilitado de PDF;
 - `window.print()` para preview local imprimivel.
 
@@ -95,7 +94,7 @@ Regra para o app-v2:
 | Persistencia/Supabase/RLS   | ausente; dados mockados                  | acoplar UI ao banco e repetir storage espalhado   | contrato de entidades, auth, RLS, testes   | P0          |
 | Auth/perfil real            | ausente no app-v2                        | misturar perfil real com Conta local              | Supabase, cache, logout, permissoes        | P1          |
 | Router/deep links           | triado; mantido local                    | contratos publicos prematuros e back quebrado     | ids persistidos, fallback, historico       | P1          |
-| Billing/assinatura/quotas   | ausente; apenas textos/status locais     | paywall client-side e quota burlavel              | auth, Supabase, Stripe, usage server-side  | P2          |
+| Billing/assinatura/quotas   | ausente no runtime app-v2                | paywall client-side e quota burlavel              | auth, Supabase, Stripe, usage server-side  | P2          |
 | Upload/storage de anexos    | placeholder local com bloqueio de URL    | upload direto sem ownership/gate                  | auth, storage policies, quota, antivirus   | P2          |
 | PDF/share/WhatsApp          | apenas print local; sem share real       | quota localStorage, popup bloqueado, XSS/link     | registro persistido, billing, storage      | P3          |
 | Orcamento real              | rascunho local/mock                      | proposta sem ciclo, envio ou assinatura confiavel | persistencia, cliente, billing, PDF/share  | P3          |

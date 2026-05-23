@@ -44,7 +44,6 @@ import type { ServicesQuoteListItemViewModel } from './servicesQuotesViewModel';
 const statusLabelByValue: Record<QuoteStatus, string> = {
   rascunho: 'Rascunho',
   enviado: 'Enviado',
-  aguardando_assinatura: 'Aguardando assinatura',
   aprovado: 'Aprovado',
   recusado: 'Rejeitado',
   expirado: 'Expirado',
