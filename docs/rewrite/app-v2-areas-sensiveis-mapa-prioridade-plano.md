@@ -405,6 +405,22 @@ Status CP-V:
 - router, RLS/migrations, storage real amplo, PDF/share, WhatsApp, billing,
   upload e PMOC continuam fora.
 
+Status CP-W:
+
+- documentado em
+  `docs/rewrite/app-v2-authenticated-harness-browser-audit-cp-w.md`;
+- auditou no browser local o entrypoint autenticado opt-in
+  `http://localhost:5173/src/app-v2/authenticated-preview.html`;
+- confirmou carregamento da UI `Hoje`, navegacao principal e ausencia de erros
+  de console no authenticated preview;
+- confirmou que o preview default
+  `http://localhost:5173/src/app-v2/preview.html` continua carregando sem erros
+  de console;
+- nao alterou runtime, shell, telas, router, RLS/migrations, storage amplo,
+  PDF/share, WhatsApp, billing, upload, PMOC, v1 ou configs;
+- nao validou sessao Supabase real porque isso exige sessao/credenciais locais
+  ativas; fallback sem sessao segue coberto pelos testes do harness/data source.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
