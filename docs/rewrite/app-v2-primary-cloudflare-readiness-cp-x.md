@@ -503,6 +503,28 @@ Limite:
   Pages;
 - Supabase/RLS real, sessao real e escrita real continuam gates separados.
 
+### CP-AK - Smoke responsivo externo no Cloudflare Pages
+
+Objetivo:
+
+Validar as rotas principais do app-v2 no Cloudflare Pages em mobile e desktop.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-cloudflare-responsive-smoke-cp-ak.md`;
+- preview validado:
+  `https://8e3f035a.cool-track-pro.pages.dev`;
+- rotas validadas: `/`, `/equipamentos`, `/servicos`, `/conta`;
+- viewports validados: `mobile-390`, `desktop-1366`, `desktop-1920`;
+- todas as 12 combinacoes passaram com status 200, `#app-v2-root`, sem `#app`
+  legado, sem overflow horizontal e com uma navegacao principal visivel;
+- PR #287 estava com `mergeStateStatus: CLEAN` e checks externos verdes.
+
+Limite:
+
+- nao valida sessao Supabase real, escrita real minima, isolamento real entre
+  usuarios ou areas sensiveis fora do primeiro corte.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:

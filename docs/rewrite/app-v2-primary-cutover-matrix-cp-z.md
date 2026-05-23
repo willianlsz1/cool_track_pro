@@ -176,3 +176,20 @@ Na primeira validacao externa apos `_redirects`, `/equipamentos` ainda retornou
 `404.html`. Como o app-v2 agora e SPA principal, `public/404.html` foi removido
 para permitir o fallback SPA padrao do Cloudflare Pages em rotas diretas. A
 validacao final continua dependendo de novo deploy e smoke externo.
+
+## Atualizacao CP-AK
+
+O preview Cloudflare `https://8e3f035a.cool-track-pro.pages.dev` foi validado no
+HEAD `0c3c630351ca29e0217896e3ac690514b85ce629` em 12 combinacoes:
+
+- rotas: `/`, `/equipamentos`, `/servicos`, `/conta`;
+- viewports: `mobile-390`, `desktop-1366`, `desktop-1920`.
+
+Todas passaram com status 200, `#app-v2-root`, ausencia do root legado `#app`,
+sem overflow horizontal e com exatamente uma navegacao principal visivel. No
+mesmo HEAD, PR #287 estava `CLEAN` e os checks externos principais estavam
+verdes.
+
+Com isso, os bloqueadores 3, 4, 5, 6 e 7 desta matriz estao cobertos para o
+preview externo atual. Restam CP-Y com sessao/escrita real e decisao explicita
+sobre areas fora do primeiro corte.

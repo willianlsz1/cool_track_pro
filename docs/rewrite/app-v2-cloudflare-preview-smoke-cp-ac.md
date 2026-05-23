@@ -92,10 +92,24 @@ O app-v2 passou no smoke local de producao estatica. O teste criado deve ser
 reexecutado contra a URL de preview do Cloudflare Pages assim que a plataforma
 gerar o preview da branch.
 
+## Atualizacao CP-AK
+
+O smoke externo foi repetido contra
+`https://8e3f035a.cool-track-pro.pages.dev` no HEAD
+`0c3c630351ca29e0217896e3ac690514b85ce629`.
+
+Resultado:
+
+- `/`, `/equipamentos`, `/servicos` e `/conta` retornaram 200;
+- `#app-v2-root` foi renderizado;
+- `#app` legado nao apareceu;
+- mobile 390, desktop 1366 e desktop 1920 nao apresentaram overflow horizontal;
+- uma navegacao principal ficou visivel em cada viewport.
+
+Documento de evidencia: `docs/rewrite/app-v2-cloudflare-responsive-smoke-cp-ak.md`.
+
 ## Bloqueios remanescentes
 
-- URL externa de Cloudflare Pages preview nao estava disponivel no ambiente
-  local desta CP;
 - sessao Supabase real no browser continua pendente;
 - escrita real minima com usuario autenticado continua pendente;
 - router/deep links de produto ainda precisam decisao propria;
