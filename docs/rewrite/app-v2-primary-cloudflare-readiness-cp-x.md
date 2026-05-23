@@ -417,6 +417,26 @@ Limite:
 - nao substitui validacao com Supabase real, RLS real, triggers reais, quotas
   reais ou Cloudflare Pages externo.
 
+### CP-AG - Bundle-size do entrypoint principal
+
+Objetivo:
+
+Corrigir o contrato de medicao de bundle para o app-v2 como entrada principal,
+sem alterar runtime, PDF/share, `manualChunks`, storage, router, Supabase/RLS,
+billing ou legado/v1.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-primary-size-limit-cp-ag.md`;
+- `.size-limit.json` deixou de exigir o chunk legado `vendor-pdf.*.js`;
+- a medicao agora cobre `index.*.js`, `vendor-supabase.*.js` e CSS;
+- `npm run size` passou localmente.
+
+Limite:
+
+- nao valida PDF/share real e nao altera a estrategia de chunks do Vite;
+- PDF/share permanece etapa sensivel propria se entrar no primeiro corte.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
@@ -424,6 +444,7 @@ O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
 - `index.html` usa bootstrap principal app-v2, nao harness;
 - build local passa;
 - `npm run check` passa;
+- bundle-size passa no PR;
 - E2E relevante passa ou existe justificativa documentada para lacuna;
 - browser local confirma root `/` usando v2;
 - sessao real Supabase confirmada;
@@ -437,9 +458,10 @@ O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
 
 O app-v2 ja e a entrada principal local desta branch apos a CP-AB. CP-AD cobriu
 rotas principais; CP-AE/CP-AF cobriram leitura/escrita autenticada de cliente e
-equipamento com Supabase fake no root principal. Ele ainda nao deve virar
-principal no Cloudflare ate passar por sessao real, leitura/escrita minima real,
-smoke mobile/desktop e Cloudflare Pages preview.
+equipamento com Supabase fake no root principal. CP-AG corrigiu a medicao de
+bundle-size para o bundle emitido pelo app-v2 principal. Ele ainda nao deve
+virar principal no Cloudflare ate passar por sessao real, leitura/escrita minima
+real, smoke mobile/desktop e Cloudflare Pages preview.
 
 O proximo passo recomendado depende do ambiente disponivel: validar URL externa
 do Cloudflare Pages preview ou executar CP-Y com sessao Supabase real.

@@ -2398,3 +2398,29 @@ principal publicada.
 
 Nao foram alterados runtime do app-v2, `index.html`, router, storage real,
 Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou v1/legado.
+
+## 141. Checkpoint concluido - CP-AG bundle-size do entrypoint principal
+
+CP-AG corrigiu a medicao de bundle-size para o app-v2 como entrada principal.
+
+Arquivos:
+
+- `.size-limit.json`
+- `docs/rewrite/app-v2-primary-size-limit-cp-ag.md`
+- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
+- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+
+Resultado:
+
+- o contrato de size-limit deixou de exigir `vendor-pdf.*.js`, chunk legado que
+  nao e emitido quando o root principal e app-v2;
+- a medicao passou a cobrir `vendor-supabase.*.js`, que e o vendor real emitido
+  pelo app-v2 principal;
+- `npm run size` passou localmente.
+
+Fora de escopo:
+
+- PDF/share real;
+- `manualChunks`;
+- runtime v1;
+- storage, router, Supabase/RLS, billing, WhatsApp, upload/storage e PMOC.

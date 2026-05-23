@@ -6,9 +6,9 @@
     "gzip": true
   },
   {
-    "name": "Vendor PDF",
-    "path": "dist/assets/vendor-pdf.*.js",
-    "limit": "260 KB",
+    "name": "Vendor Supabase",
+    "path": "dist/assets/vendor-supabase.*.js",
+    "limit": "90 KB",
     "gzip": true
   },
   {

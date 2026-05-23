@@ -66,6 +66,7 @@ Classificação usada nesta matriz:
 | Upload/storage fotos     | Placeholder local, sem upload real                                        | Etapa sensível própria                             | fases de anexos/equipamentos                                            | Decidir se fica fora do primeiro corte                        |
 | PMOC real                | Fora                                                                      | Etapa sensível própria                             | AGENTS e matriz                                                         | Manter fora ou abrir CP própria                               |
 | Cloudflare Pages preview | Smoke local de producao estatica passou; preview externo pendente         | Obrigatório para trocar                            | `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`                 | Reexecutar smoke na URL Cloudflare Pages preview              |
+| Bundle size              | Medicao local ajustada para chunks emitidos pelo app-v2 principal         | Obrigatorio para PR de corte                       | `docs/rewrite/app-v2-primary-size-limit-cp-ag.md`                       | Confirmar check externo verde no PR                           |
 | Rollback                 | Documentado em CP-AB                                                      | Obrigatório para trocar                            | `docs/rewrite/app-v2-primary-cutover-cp-ab.md`                          | Validar reversão se necessário                                |
 
 ## Primeiro corte recomendado
@@ -108,7 +109,8 @@ Fora do primeiro corte, se aprovado explicitamente:
 4. Validar fluxo operacional mínimo em mobile e desktop.
 5. Publicar Cloudflare Pages preview da branch com v2 como root e reexecutar
    smoke E2E.
-6. Aprovar explicitamente as áreas fora do primeiro corte.
+6. Confirmar Bundle Size verde no PR.
+7. Aprovar explicitamente as áreas fora do primeiro corte.
 
 ## Próxima CP recomendada
 
@@ -120,7 +122,9 @@ CP-AC validou `dist` via preview local de producao. CP-AD adicionou rotas
 principais para `/`, `/equipamentos`, `/servicos` e `/conta`. CP-AE validou
 leitura/escrita de cliente no root principal com sessao Supabase fake
 interceptada por Playwright. CP-AF validou escrita de equipamento vinculado a
-cliente no mesmo root principal fake-autenticado.
+cliente no mesmo root principal fake-autenticado. CP-AG ajustou o contrato de
+bundle-size para o bundle real do app-v2 principal, sem tocar em PDF/share ou
+`manualChunks`.
 
 O próximo checkpoint recomendado é publicar/validar a URL externa do Cloudflare
 Pages preview da branch antes da promoção final.
