@@ -2332,3 +2332,34 @@ Validacao focada:
 
 Nao foram alterados storage, Supabase/RLS, PDF/share, WhatsApp, billing,
 upload, PMOC, router legado, subrotas com IDs ou persistencia de draft.
+
+## 139. Checkpoint concluido - CP-AE smoke autenticado no root principal
+
+Foi adicionado um smoke E2E para validar o app-v2 como entrada principal com
+sessao Supabase fake no browser:
+
+- `e2e/specs/app-v2-authenticated-primary.spec.js`;
+- `e2e/fixtures/authedSession.js`;
+- `docs/rewrite/app-v2-authenticated-primary-smoke-cp-ae.md`.
+
+Decisao registrada:
+
+- o teste abre `/equipamentos` pelo root principal;
+- a fixture injeta usuario autenticado fake;
+- a lista de Clientes carrega dados remotos interceptados da tabela
+  `clientes`;
+- o fluxo "Novo cliente" envia escrita para `clientes` com `user_id`
+  autenticado;
+- a fixture agora responde objeto unico quando o request Supabase usa
+  `.single()`.
+
+Validacao focada:
+
+- `npx playwright test -c e2e/playwright.config.js e2e/specs/app-v2-authenticated-primary.spec.js`.
+
+Ainda nao e validacao real de Supabase/RLS nem Cloudflare externo. Faltam sessao
+real, escrita real minima de cliente/equipamento, preview externo Cloudflare e
+smoke mobile/desktop antes de tratar o v2 como versao principal publicada.
+
+Nao foram alterados runtime do app-v2, `index.html`, router, storage real,
+Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou v1/legado.
