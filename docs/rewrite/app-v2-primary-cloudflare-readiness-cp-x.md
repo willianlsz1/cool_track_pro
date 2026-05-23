@@ -1,0 +1,330 @@
+# app-v2 - Primary Cloudflare readiness CP-X
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use
+> `superpowers:subagent-driven-development` or `superpowers:executing-plans` to
+> implement future runtime tasks from this plan task-by-task. Steps use checkbox
+> (`- [ ]`) syntax for tracking.
+
+**Goal:** Definir o caminho seguro para o app-v2 substituir o v1 como entrada
+principal do produto e ser publicado no Cloudflare Pages sem regressao dos
+fluxos criticos.
+
+**Architecture:** O v1 permanece congelado como baseline ate a troca explicita
+do entrypoint principal. O app-v2 continua isolado em `src/app-v2/`, com
+promocao feita por uma CP propria que altera somente o bootstrap/entrypoint
+principal depois que os gates abaixo estiverem verdes.
+
+**Tech Stack:** Vite, React, TypeScript no app-v2, Tailwind, Supabase,
+Cloudflare Pages via build `npm run build` e output `dist`.
+
+---
+
+## 1. Estado atual verificado
+
+Branch auditada:
+
+```text
+codex/rewrite-zero-react-parallel
+```
+
+HEAD auditado:
+
+```text
+1c97c0dcbb5a0ae7c6346594445e5f9a44383785
+```
+
+Entrada principal atual de producao:
+
+```html
+<script type="module" src="/src/app.js"></script>
+```
+
+Arquivo:
+
+```text
+index.html
+```
+
+Conclusao: a entrada principal ainda monta o v1/legado. O app-v2 ainda nao esta
+no lugar do v1.
+
+Entradas app-v2 existentes:
+
+```text
+http://localhost:5173/src/app-v2/preview.html
+http://localhost:5173/src/app-v2/authenticated-preview.html
+```
+
+O build Cloudflare/Vite atual continua usando:
+
+```text
+npm run build
+dist
+```
+
+O workflow `.github/workflows/ci.yml` executa `npm run check` e `npm run build`
+antes do deploy real do Cloudflare Pages conectado ao repo.
+
+## 2. O que ja esta pronto no app-v2
+
+- Shell app-v2 isolado do v1.
+- Telas principais do app-v2 em React/TypeScript:
+  - Hoje;
+  - Alertas;
+  - Equipamentos;
+  - Clientes;
+  - Servicos;
+  - Relatorios;
+  - Orcamentos;
+  - Conta.
+- Store mockada unica e actions/selectors operacionais.
+- `AppV2DataPort` como fronteira de dados.
+- Adapters locais/memoria para o shell.
+- Mutacoes locais importantes roteadas pelo data port.
+- Adapters Supabase progressivos para clientes/equipamentos.
+- Harness autenticado opt-in.
+- Entrypoint autenticado opt-in separado.
+- Auditoria browser local dos dois previews sem erros de console.
+
+## 3. O que ainda bloqueia promover v2 para principal
+
+| Gate                            | Estado atual                   | Bloqueia troca?                      | Evidencia necessaria                                                       |
+| ------------------------------- | ------------------------------ | ------------------------------------ | -------------------------------------------------------------------------- |
+| Entrypoint principal v2         | inexistente                    | Sim                                  | CP que altera `index.html` ou cria bootstrap principal v2                  |
+| Sessao Supabase real no browser | nao validada                   | Sim                                  | Login real ou sessao de teste em `authenticated-preview.html`              |
+| Fluxos criticos com dados reais | parcial                        | Sim                                  | Criar/editar cliente/equipamento e iniciar servico sob usuario autenticado |
+| Paridade dos fluxos de producao | parcialmente documentada       | Sim                                  | Matriz final v1 x v2 por fluxo critico                                     |
+| PDF/share/WhatsApp              | fora do app-v2 real            | Sim se forem requisito do lancamento | CP dedicada ou decisao explicita de deixar fora do primeiro corte          |
+| Billing/features pagas          | fora do app-v2 real            | Sim se rota principal exigir plano   | CP dedicada ou gate de fallback                                            |
+| Router/deep links               | nao promovido                  | Sim para producao publica            | Plano para URLs, refresh e historico                                       |
+| Cloudflare Pages preview        | nao validado para v2 principal | Sim                                  | Build preview com entrypoint v2 e smoke em ambiente publicado              |
+| Rollback                        | nao definido                   | Sim                                  | Plano de reverter entrada principal para v1 em um commit                   |
+
+## 4. Decisao tecnica recomendada
+
+Nao trocar `index.html` diretamente para `authenticatedPreview.tsx`.
+
+Motivo: `authenticatedPreview.tsx` e um harness de validacao local opt-in. Ele
+foi criado para testar a fronteira real sem mudar a entrada default. Promover
+esse arquivo diretamente misturaria harness e producao.
+
+Criar uma CP propria para um bootstrap de producao app-v2:
+
+```text
+src/app-v2/main.tsx
+```
+
+Esse bootstrap deve:
+
+1. montar em um root de producao no `index.html`;
+2. usar `createAuthenticatedAppV2BrowserOptions` ou uma factory equivalente de
+   producao;
+3. preservar fallback controlado quando nao houver sessao;
+4. nao importar telas v1;
+5. manter auth/Supabase restritos ao entrypoint/factory, nunca ao shell/telas.
+
+## 5. Sequencia recomendada
+
+### CP-Y - Sessao real no authenticated preview
+
+Objetivo:
+
+Validar o harness autenticado com sessao Supabase real ativa antes de qualquer
+troca de entrypoint.
+
+Arquivos previstos:
+
+- `docs/rewrite/app-v2-authenticated-real-session-cp-y.md`
+- opcionalmente testes novos se surgir lacuna objetiva
+
+Passos:
+
+- [ ] Autenticar uma conta de teste no ambiente local.
+- [ ] Abrir
+      `http://localhost:5173/src/app-v2/authenticated-preview.html`.
+- [ ] Confirmar que a tela `Hoje` carrega sem erro de console.
+- [ ] Confirmar que leitura de clientes/equipamentos usa usuario autenticado.
+- [ ] Criar ou editar um cliente via fluxo app-v2.
+- [ ] Criar ou editar um equipamento via fluxo app-v2.
+- [ ] Confirmar que dados de outro usuario nao aparecem.
+- [ ] Registrar evidencia e limites da validacao.
+
+Validacao:
+
+```bash
+npm run format:check
+git diff --check
+```
+
+Se houver mudanca de codigo:
+
+```bash
+npm run format
+npm run build
+npm run check
+```
+
+### CP-Z - Matriz final de corte v1 -> v2
+
+Objetivo:
+
+Fechar quais fluxos do v1 sao obrigatorios para a primeira versao principal do
+v2 e quais ficam explicitamente fora do primeiro corte.
+
+Arquivos previstos:
+
+- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+- `docs/rewrite/matriz-paridade-v1-v2.md`
+
+Fluxos minimos para decisao:
+
+- login/sessao;
+- Hoje;
+- Alertas;
+- Clientes;
+- Equipamentos;
+- Registro de servico;
+- Relatorios;
+- Orcamentos;
+- Conta;
+- fallback sem sessao;
+- erro de rede/Supabase;
+- mobile;
+- desktop.
+
+Validacao:
+
+```bash
+npm run format:check
+git diff --check
+```
+
+### CP-AA - Bootstrap principal app-v2 atras de gate
+
+Objetivo:
+
+Criar um bootstrap de producao app-v2 sem trocar ainda o `index.html` de
+producao.
+
+Arquivos previstos:
+
+- `src/app-v2/main.tsx`
+- `src/app-v2/main.test.tsx`
+- `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`
+
+Regras:
+
+- `main.tsx` pode importar Supabase/factory de producao;
+- `AppV2Shell` e telas continuam sem Supabase/auth/storage direto;
+- `preview.tsx` continua local/mockado;
+- `authenticatedPreview.tsx` continua harness.
+
+Validacao:
+
+```bash
+npm test -- src/app-v2/main.test.tsx src/app-v2/index.test.tsx --run
+npm run format
+npm run build
+npm run check
+git diff --check
+```
+
+### CP-AB - Troca controlada do entrypoint principal
+
+Objetivo:
+
+Trocar `index.html` para montar o app-v2 principal, com rollback simples.
+
+Arquivos previstos:
+
+- `index.html`
+- possivel backup documental em `docs/rewrite/app-v2-primary-cutover-cp-ab.md`
+
+Mudanca esperada:
+
+```html
+<script type="module" src="/src/app-v2/main.tsx"></script>
+```
+
+Rollback:
+
+```html
+<script type="module" src="/src/app.js"></script>
+```
+
+Validacao local obrigatoria:
+
+```bash
+npm run format
+npm run build
+npm run check
+npm run test:e2e
+git diff --check
+```
+
+Validacao browser obrigatoria:
+
+- abrir `http://localhost:5173/`;
+- validar login/fallback;
+- validar Hoje;
+- validar Clientes;
+- validar Equipamentos;
+- validar Registro de servico;
+- validar Relatorios/Orcamentos conforme matriz de corte;
+- validar mobile e desktop.
+
+### CP-AC - Cloudflare Pages preview e smoke de producao
+
+Objetivo:
+
+Validar o app-v2 como entrada principal em ambiente publicado antes de tratar
+como versao principal.
+
+Requisitos:
+
+- branch publicada em Cloudflare Pages preview;
+- env vars `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` configuradas;
+- build Cloudflare verde;
+- smoke manual em URL de preview;
+- rollback definido.
+
+Validacao:
+
+```bash
+npm run build
+npm run check
+```
+
+Smoke Cloudflare:
+
+- abrir URL de preview;
+- confirmar assets carregados;
+- confirmar login/sessao;
+- confirmar fluxo minimo autenticado;
+- confirmar que erros de console nao bloqueiam uso;
+- confirmar comportamento mobile.
+
+## 6. Criterio para declarar "v2 pode substituir v1"
+
+O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
+
+- `index.html` usa bootstrap principal app-v2, nao harness;
+- build local passa;
+- `npm run check` passa;
+- E2E relevante passa ou existe justificativa documentada para lacuna;
+- browser local confirma root `/` usando v2;
+- sessao real Supabase confirmada;
+- leitura/escrita minima real confirmada;
+- matriz final v1 x v2 aprovada;
+- Cloudflare Pages preview validado;
+- rollback documentado em um commit simples;
+- areas fora do primeiro corte estao explicitamente aprovadas.
+
+## 7. Resumo executivo
+
+O app-v2 esta tecnicamente avancado, mas ainda esta em modo preview/harness. Ele
+nao deve virar principal no Cloudflare ate passar por sessao real, matriz final
+de corte, bootstrap de producao app-v2 e smoke em Cloudflare Pages preview.
+
+O proximo passo recomendado e CP-Y: validar sessao Supabase real no
+`authenticated-preview.html`.

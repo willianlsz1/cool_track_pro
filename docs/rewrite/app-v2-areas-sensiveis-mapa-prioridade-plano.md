@@ -421,6 +421,20 @@ Status CP-W:
 - nao validou sessao Supabase real porque isso exige sessao/credenciais locais
   ativas; fallback sem sessao segue coberto pelos testes do harness/data source.
 
+Status CP-X:
+
+- documentado em
+  `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`;
+- mapeou que `index.html` ainda usa `/src/app.js`, portanto a producao segue no
+  v1/legado;
+- classificou `preview.html` e `authenticated-preview.html` como entrypoints de
+  preview/harness, nao como bootstrap de producao;
+- definiu gates para promover o app-v2 como principal: sessao Supabase real,
+  matriz final de corte v1 -> v2, bootstrap app-v2 de producao, troca controlada
+  do `index.html`, smoke local e Cloudflare Pages preview;
+- manteve runtime, router, storage amplo, PDF/share, WhatsApp, billing, upload,
+  PMOC, v1 e configs sem alteracao.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
