@@ -24,6 +24,8 @@ import {
   StatusBadge,
 } from '../ui/primitives';
 
+type EquipmentArchiveResult = string | null | Promise<string | null>;
+
 interface EquipmentDetailProps {
   equipmentId: string;
   input?: BuildEquipmentViewModelInput;
@@ -31,8 +33,8 @@ interface EquipmentDetailProps {
   onOpenClient?: (clientId: string) => void;
   onStartService?: (equipmentId: string) => void;
   onSaveEquipment?: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
-  onArchiveEquipment?: (equipmentId: string) => string | null;
-  onUnarchiveEquipment?: (equipmentId: string) => string | null;
+  onArchiveEquipment?: (equipmentId: string) => EquipmentArchiveResult;
+  onUnarchiveEquipment?: (equipmentId: string) => EquipmentArchiveResult;
   onAddPlaceholderAttachment?: (equipmentId: string) => string | null;
   onSchedulePreventive?: (equipmentId: string, targetDate: string) => string | null;
 }
@@ -77,12 +79,15 @@ export function EquipmentDetail({
   const [preventiveError, setPreventiveError] = useState<string | null>(null);
   const isArchived = Boolean(detail.archivedLabel);
 
-  function confirmArchiveEquipment() {
+  async function confirmArchiveEquipment() {
     if (!onArchiveEquipment) {
       return;
     }
 
-    const result = onArchiveEquipment(equipmentId);
+    const result = await resolveArchiveResult(
+      onArchiveEquipment(equipmentId),
+      'NÃ£o foi possÃ­vel arquivar o equipamento.',
+    );
 
     if (result) {
       setArchiveError(result);
@@ -93,12 +98,15 @@ export function EquipmentDetail({
     setIsArchivePending(false);
   }
 
-  function unarchiveEquipment() {
+  async function unarchiveEquipment() {
     if (!onUnarchiveEquipment) {
       return;
     }
 
-    const result = onUnarchiveEquipment(equipmentId);
+    const result = await resolveArchiveResult(
+      onUnarchiveEquipment(equipmentId),
+      'NÃ£o foi possÃ­vel desarquivar o equipamento.',
+    );
 
     if (result) {
       setArchiveError(result);
@@ -526,4 +534,15 @@ function isValidIsoDate(date: string): boolean {
     parsed.getUTCMonth() === month - 1 &&
     parsed.getUTCDate() === day
   );
+}
+
+async function resolveArchiveResult(
+  result: EquipmentArchiveResult,
+  fallback: string,
+): Promise<string | null> {
+  try {
+    return await result;
+  } catch (error) {
+    return error instanceof Error ? error.message : fallback;
+  }
 }

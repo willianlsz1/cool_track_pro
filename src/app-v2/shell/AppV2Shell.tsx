@@ -59,6 +59,8 @@ interface AppV2ShellProps {
   dataPort?: AppV2DataPort;
 }
 
+type EquipmentArchiveResult = string | null | Promise<string | null>;
+
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [appState, setAppState] = useState<AppV2FlowState>(() => ({
     ...(initialSnapshot ?? createAppV2MockSnapshot()),
@@ -325,8 +327,20 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function archiveEquipmentDraft(equipmentId: string): string | null {
+  function archiveEquipmentDraft(equipmentId: string): EquipmentArchiveResult {
     try {
+      if (dataPort) {
+        return dataPort
+          .archiveEquipment(equipmentId, appState.today)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) =>
+            getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel arquivar o equipamento.'),
+          );
+      }
+
       const nextState = archiveEquipment(appState, equipmentId, appState.today);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));
@@ -336,8 +350,20 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function unarchiveEquipmentDraft(equipmentId: string): string | null {
+  function unarchiveEquipmentDraft(equipmentId: string): EquipmentArchiveResult {
     try {
+      if (dataPort) {
+        return dataPort
+          .unarchiveEquipment(equipmentId)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) =>
+            getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel desarquivar o equipamento.'),
+          );
+      }
+
       const nextState = unarchiveEquipment(appState, equipmentId);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));

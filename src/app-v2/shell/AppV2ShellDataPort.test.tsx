@@ -167,6 +167,59 @@ describe('AppV2Shell dataPort', () => {
     expect(host.textContent).toContain('Novo equipamento');
     expect(host.querySelector('input[name="equipment-name"]')).toBeInstanceOf(HTMLInputElement);
   });
+
+  it('arquiva equipamento pela dataPort injetada usando today', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const archiveEquipment = vi.spyOn(dataPort, 'archiveEquipment');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Arquivar equipamento$/i);
+    await clickButton(host, /^Confirmar arquivar equipamento$/i);
+    await flushPromises();
+
+    expect(archiveEquipment).toHaveBeenCalledWith('eq-1', initialSnapshot.today);
+    expect(host.textContent).toContain('Arquivado em');
+    expect(host.textContent).toContain('Desarquivar equipamento');
+  });
+
+  it('desarquiva equipamento pela dataPort injetada', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const unarchiveEquipment = vi.spyOn(dataPort, 'unarchiveEquipment');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Arquivar equipamento$/i);
+    await clickButton(host, /^Confirmar arquivar equipamento$/i);
+    await flushPromises();
+    await clickButton(host, /^Desarquivar equipamento$/i);
+    await flushPromises();
+
+    expect(unarchiveEquipment).toHaveBeenCalledWith('eq-1');
+    expect(host.textContent).not.toContain('Arquivado em');
+    expect(host.textContent).toContain('Iniciar servi');
+  });
+
+  it('mantem confirmacao aberta e mostra erro quando archiveEquipment da dataPort rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'archiveEquipment').mockRejectedValueOnce(new Error('Falha archive CP-L'));
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Split 24\.000 BTU/i);
+    await clickButton(host, /^Arquivar equipamento$/i);
+    await clickButton(host, /^Confirmar arquivar equipamento$/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha archive CP-L');
+    expect(host.textContent).toContain('Confirmar arquivar equipamento');
+    expect(host.textContent).not.toContain('Desarquivar equipamento');
+  });
 });
 
 async function renderShellWithDataPort(
