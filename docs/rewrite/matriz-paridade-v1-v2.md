@@ -2248,3 +2248,29 @@ Decisao registrada:
 
 Nao foram alterados `index.html`, v1/legado, router, storage real,
 Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou configs.
+
+## 136. Checkpoint concluido - CP-AB corte local para app-v2 principal
+
+O app-v2 foi promovido como entrada principal local por meio de `index.html`:
+
+- `index.html`;
+- `src/app-v2/primaryCutover.test.ts`;
+- `docs/rewrite/app-v2-primary-cutover-cp-ab.md`.
+
+Decisao registrada:
+
+- `index.html` monta `app-v2-root`;
+- `index.html` carrega `/src/app-v2/main.tsx`;
+- `index.html` nao carrega mais `/src/app.js`;
+- CSS global legado do v1 nao e carregado no entrypoint principal app-v2;
+- rollback minimo esta documentado para voltar ao root `app` e `/src/app.js`.
+
+O v1 segue no repositorio como baseline congelado e caminho de rollback, mas nao
+e mais o entrypoint local desta branch.
+
+Ainda nao e liberacao final para Cloudflare principal. Faltam sessao real,
+escrita real minima, router/deep links, smoke mobile/desktop, Cloudflare Pages
+preview e aprovacao explicita das areas fora do primeiro corte.
+
+Nao foram alterados router, storage real amplo, Supabase/RLS, PDF/share,
+WhatsApp, billing, upload, PMOC, orcamento real ou configs.

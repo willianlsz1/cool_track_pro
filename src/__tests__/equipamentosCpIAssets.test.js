@@ -3,14 +3,15 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('equipamentos CP-I visual assets', () => {
-  it('carrega CSS escopado da aba Equipamentos depois do detalhe CP-H', () => {
+  it('mantem assets visuais CP-H/CP-I disponiveis sem carregar no index app-v2', () => {
     const index = readFileSync('index.html', 'utf8');
-    const detailCss = '/src/assets/styles/equipment-detail-cp-h.css';
-    const listCss = '/src/assets/styles/equipment-list-cp-i.css';
+    const detailCss = 'src/assets/styles/equipment-detail-cp-h.css';
+    const listCss = 'src/assets/styles/equipment-list-cp-i.css';
 
-    expect(index).toContain(detailCss);
-    expect(index).toContain(listCss);
-    expect(index.indexOf(listCss)).toBeGreaterThan(index.indexOf(detailCss));
+    expect(existsSync(detailCss)).toBe(true);
+    expect(existsSync(listCss)).toBe(true);
+    expect(index).not.toContain(`/${detailCss}`);
+    expect(index).not.toContain(`/${listCss}`);
   });
 
   it('mantem o CSS CP-I escopado na aba Equipamentos', () => {

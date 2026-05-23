@@ -460,6 +460,17 @@ Status CP-AA:
 - manteve preview local, authenticated preview, router, storage amplo,
   PDF/share, WhatsApp, billing, upload, PMOC, v1 e configs sem alteracao.
 
+Status CP-AB:
+
+- documentado em `docs/rewrite/app-v2-primary-cutover-cp-ab.md`;
+- trocou `index.html` para montar `app-v2-root`;
+- trocou o script principal para `/src/app-v2/main.tsx`;
+- removeu CSS global legado do entrypoint principal para nao contaminar o
+  app-v2;
+- documentou rollback para voltar `index.html` ao root `app` e `/src/app.js`;
+- manteve router, storage amplo, Supabase/RLS, PDF/share, WhatsApp, billing,
+  upload, PMOC, v1 e configs sem alteracao.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:

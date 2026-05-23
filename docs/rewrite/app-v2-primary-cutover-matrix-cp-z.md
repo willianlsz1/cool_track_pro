@@ -13,7 +13,7 @@ Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC, v1 ou configs.
 - Branch: `codex/rewrite-zero-react-parallel`
 - HEAD inicial da CP: `b940f262bc7fa7b5f2010c2788ef25f7f41af0d0`
 - Working tree inicial: limpo
-- Entrada principal atual: `index.html` ainda carrega `/src/app.js`
+- Entrada principal atual: CP-AB trocou `index.html` para `/src/app-v2/main.tsx`
 - App-v2 atual: disponível via `src/app-v2/preview.html` e
   `src/app-v2/authenticated-preview.html`
 
@@ -44,12 +44,12 @@ Classificação usada nesta matriz:
 
 | Fluxo                    | Estado app-v2 atual                                                       | Decisão para corte                                 | Evidência atual                                                         | Próxima evidência necessária                                  |
 | ------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Entrada principal `/`    | v1 ainda monta por `/src/app.js`                                          | Obrigatório para trocar                            | `index.html`                                                            | CP-AB alterando para bootstrap v2, com rollback               |
-| Bootstrap v2 produção    | Criado em `src/app-v2/main.tsx`                                           | Parcial: falta trocar `index.html`                 | `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`                        | CP-AB usando bootstrap v2 com rollback                        |
+| Entrada principal `/`    | CP-AB trocou para `/src/app-v2/main.tsx`                                  | Concluído para corte local                         | `docs/rewrite/app-v2-primary-cutover-cp-ab.md`                          | Cloudflare Pages preview com smoke                            |
+| Bootstrap v2 produção    | Criado em `src/app-v2/main.tsx` e usado por `index.html`                  | Concluído para corte local                         | `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`, CP-AB                 | Validar em Cloudflare Pages preview                           |
 | Preview local v2         | Funciona em `src/app-v2/preview.html`                                     | Suporte, não corte                                 | CP-W browser audit                                                      | Manter como harness local                                     |
 | Preview autenticado      | Funciona em `authenticated-preview.html` sem erros de console             | Suporte, não corte                                 | CP-W browser audit                                                      | CP-Y com sessão real                                          |
 | Login/sessão             | Fronteira e harness existem, sessão real não validada no browser          | Obrigatório para trocar                            | CP-T, CP-U, CP-V, CP-W                                                  | CP-Y com conta de teste autenticada                           |
-| Fallback sem sessão      | Coberto por testes de harness/data source, não por storage browser direto | Obrigatório para trocar                            | `authenticatedHarness.test.tsx`, `appV2AuthenticatedDataSource.test.ts` | Browser local no bootstrap v2                                 |
+| Fallback sem sessão      | Coberto por testes de harness/data source e browser local no bootstrap v2 | Obrigatório para trocar                            | `authenticatedHarness.test.tsx`, `appV2AuthenticatedDataSource.test.ts` | Cloudflare Pages preview                                      |
 | Home Hoje                | Implementada no app-v2                                                    | Obrigatório para trocar                            | QA visual e testes app-v2 existentes                                    | Smoke em `/` após bootstrap v2                                |
 | Alertas                  | Implementado como subfluxo app-v2                                         | Obrigatório para trocar                            | CP de alertas e navegação app-v2                                        | Smoke em `/` após bootstrap v2                                |
 | Clientes                 | Fluxo local e adapters reais progressivos existem                         | Obrigatório para trocar                            | CP-G/CP-H e fases de clientes                                           | CP-Y criando/editando cliente sob usuário real                |
@@ -66,7 +66,7 @@ Classificação usada nesta matriz:
 | Upload/storage fotos     | Placeholder local, sem upload real                                        | Etapa sensível própria                             | fases de anexos/equipamentos                                            | Decidir se fica fora do primeiro corte                        |
 | PMOC real                | Fora                                                                      | Etapa sensível própria                             | AGENTS e matriz                                                         | Manter fora ou abrir CP própria                               |
 | Cloudflare Pages preview | Não validado para v2 como root                                            | Obrigatório para trocar                            | CI/Cloudflare mapeado em CP-X                                           | Preview publicado com smoke                                   |
-| Rollback                 | Não documentado em commit de troca                                        | Obrigatório para trocar                            | CP-X propõe rollback simples                                            | CP-AB registrar script/commit de reversão                     |
+| Rollback                 | Documentado em CP-AB                                                      | Obrigatório para trocar                            | `docs/rewrite/app-v2-primary-cutover-cp-ab.md`                          | Validar reversão se necessário                                |
 
 ## Primeiro corte recomendado
 
@@ -100,23 +100,23 @@ Fora do primeiro corte, se aprovado explicitamente:
 - assinatura digital real;
 - orçamento real com aceite/envio externo.
 
-## Bloqueadores antes da troca do `index.html`
+## Bloqueadores após a troca local do `index.html`
 
 1. Validar sessão Supabase real no browser.
 2. Validar escrita real mínima de cliente e equipamento sob usuário autenticado.
 3. Definir comportamento de router/deep link para `/`.
 4. Validar fluxo operacional mínimo em mobile e desktop.
 5. Publicar Cloudflare Pages preview da branch com v2 como root.
-6. Registrar rollback simples para voltar `index.html` para `/src/app.js`.
+6. Aprovar explicitamente as áreas fora do primeiro corte.
 
 ## Próxima CP recomendada
 
 Se houver sessão de teste disponível: executar CP-Y, validação real do
 `authenticated-preview.html`.
 
-Se não houver sessão de teste disponível: executar CP-AB em etapa controlada,
-trocando `index.html` para `src/app-v2/main.tsx` somente com validação local,
-browser, E2E e rollback documentado.
+CP-AB executou a troca local do `index.html` e validou `/` no browser local. O
+próximo checkpoint recomendado é publicar/validar Cloudflare Pages preview da
+branch antes da promoção final.
 
 ## Validação desta CP
 

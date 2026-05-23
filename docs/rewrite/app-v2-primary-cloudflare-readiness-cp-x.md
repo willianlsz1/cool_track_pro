@@ -90,7 +90,7 @@ antes do deploy real do Cloudflare Pages conectado ao repo.
 
 | Gate                            | Estado atual                   | Bloqueia troca?                      | Evidencia necessaria                                                       |
 | ------------------------------- | ------------------------------ | ------------------------------------ | -------------------------------------------------------------------------- |
-| Entrypoint principal v2         | bootstrap criado em CP-AA      | Parcial                              | Falta CP que altera `index.html` para o bootstrap v2                       |
+| Entrypoint principal v2         | `index.html` aponta ao app-v2  | Nao para corte local; sim para cloud | Falta validar Cloudflare Pages preview                                     |
 | Sessao Supabase real no browser | nao validada                   | Sim                                  | Login real ou sessao de teste em `authenticated-preview.html`              |
 | Fluxos criticos com dados reais | parcial                        | Sim                                  | Criar/editar cliente/equipamento e iniciar servico sob usuario autenticado |
 | Paridade dos fluxos de producao | parcialmente documentada       | Sim                                  | Matriz final v1 x v2 por fluxo critico                                     |
@@ -98,7 +98,7 @@ antes do deploy real do Cloudflare Pages conectado ao repo.
 | Billing/features pagas          | fora do app-v2 real            | Sim se rota principal exigir plano   | CP dedicada ou gate de fallback                                            |
 | Router/deep links               | nao promovido                  | Sim para producao publica            | Plano para URLs, refresh e historico                                       |
 | Cloudflare Pages preview        | nao validado para v2 principal | Sim                                  | Build preview com entrypoint v2 e smoke em ambiente publicado              |
-| Rollback                        | nao definido                   | Sim                                  | Plano de reverter entrada principal para v1 em um commit                   |
+| Rollback                        | documentado em CP-AB           | Nao para corte local; sim para cloud | Falta validar rollback em preview/branch se necessario                     |
 
 ## 4. Decisao tecnica recomendada
 
@@ -268,6 +268,14 @@ npm run test:e2e
 git diff --check
 ```
 
+Status:
+
+- concluido em `docs/rewrite/app-v2-primary-cutover-cp-ab.md`;
+- `index.html` agora monta `app-v2-root`;
+- `index.html` agora carrega `/src/app-v2/main.tsx`;
+- `index.html` nao carrega `/src/app.js`;
+- CSS global legado do v1 nao e carregado no entrypoint principal app-v2.
+
 Validacao browser obrigatoria:
 
 - abrir `http://localhost:5173/`;
@@ -328,9 +336,9 @@ O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
 
 ## 7. Resumo executivo
 
-O app-v2 esta tecnicamente avancado, mas ainda esta em modo preview/harness. Ele
-nao deve virar principal no Cloudflare ate passar por sessao real, matriz final
-de corte, bootstrap de producao app-v2 e smoke em Cloudflare Pages preview.
+O app-v2 ja e a entrada principal local desta branch apos a CP-AB. Ele ainda nao
+deve virar principal no Cloudflare ate passar por sessao real, leitura/escrita
+minima real, router/deep links, smoke mobile/desktop e Cloudflare Pages preview.
 
 O proximo passo recomendado e CP-Y: validar sessao Supabase real no
 `authenticated-preview.html`.
