@@ -12,7 +12,7 @@ PDF/share, WhatsApp, upload/storage, PMOC, assinatura, orcamento real ou v1.
 
 - PR promovido: `https://github.com/Willianlsz1/Cool_Track_Pro/pull/287`.
 - Merge commit em `main`: `2f575934c04798377a4000d72c21e7f65bd2c906`.
-- Cloudflare Pages principal:
+- Cloudflare Pages principal e dominio publico aprovado:
   `https://cool-track-pro.pages.dev`.
 - Deploy Cloudflare do commit:
   `https://1bbe3bf7.cool-track-pro.pages.dev`.
@@ -37,10 +37,8 @@ documento do app-v2:
 - `https://1bbe3bf7.cool-track-pro.pages.dev/`
 - `https://1bbe3bf7.cool-track-pro.pages.dev/equipamentos`
 
-O dominio custom `https://cooltrack.app/` falhou na validacao local por relacao
-de confianca SSL/TLS no ambiente do agente. Isso nao bloqueia o Pages default,
-mas deve ser revisado separadamente se esse dominio for usado como producao
-publica.
+Nao ha dominio custom no escopo atual. A URL correta de producao publica nesta
+fase e `https://cool-track-pro.pages.dev/`.
 
 ## Smoke browser anonimo
 
@@ -82,8 +80,9 @@ limite do plano em reexecucoes.
 
 ## Resultado
 
-O app-v2 esta promovido como versao principal no Cloudflare Pages default e
-passou nos criterios tecnicos do runbook CP-AM:
+O app-v2 esta promovido como versao principal em
+`https://cool-track-pro.pages.dev/` e passou nos criterios tecnicos do runbook
+CP-AM:
 
 - branch `main` recebeu o merge;
 - Cloudflare Pages publicou o commit de merge;
@@ -98,7 +97,6 @@ passou nos criterios tecnicos do runbook CP-AM:
 
 Continuam fora do primeiro corte e exigem etapas proprias:
 
-- dominio custom `cooltrack.app`/certificado, se for o dominio publico final;
 - PDF/share real;
 - WhatsApp real;
 - billing/features pagas;

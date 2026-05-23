@@ -191,6 +191,6 @@ direto causado pela promocao.
 Promocao executada e validada em CP-AN:
 `docs/rewrite/app-v2-primary-cloudflare-post-promotion-cp-an.md`.
 
-Proximas etapas devem tratar apenas pendencias fora do corte em CPs proprias,
-com prioridade para dominio custom/certificado se `cooltrack.app` for o dominio
-publico final.
+Proximas etapas devem tratar apenas pendencias fora do corte em CPs proprias.
+O dominio publico aprovado para esta fase e `https://cool-track-pro.pages.dev/`;
+nao ha compra ou configuracao de dominio custom no escopo atual.
