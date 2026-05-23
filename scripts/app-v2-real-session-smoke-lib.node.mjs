@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
+  missingIsolationConfigKeys,
   missingConfigKeys,
   parseDotEnv,
+  resolveCpYIsolationConfig,
   resolveCpYConfig,
   storageKeyForSupabaseUrl,
 } from './app-v2-real-session-smoke-lib.mjs';
@@ -56,6 +58,46 @@ describe('app-v2 CP-Y real session smoke config', () => {
       [
         'APP_V2_TEST_EMAIL or TEST_USER_EMAIL',
         'APP_V2_TEST_PASSWORD or TEST_USER_PASSWORD',
+        'VITE_SUPABASE_ANON_KEY',
+      ],
+    );
+  });
+
+  it('resolves two-account isolation config without exposing secret values', () => {
+    const config = resolveCpYIsolationConfig({
+      env: {
+        APP_V2_TEST_EMAIL: 'primary@example.com',
+        APP_V2_TEST_PASSWORD: 'primary-secret',
+        APP_V2_SECOND_TEST_EMAIL: 'secondary@example.com',
+        APP_V2_SECOND_TEST_PASSWORD: 'secondary-secret',
+      },
+      dotEnv: {
+        VITE_SUPABASE_URL: 'https://project.supabase.co',
+        VITE_SUPABASE_ANON_KEY: 'anon-key',
+      },
+    });
+
+    assert.deepEqual(missingIsolationConfigKeys(config), []);
+    assert.equal(config.primaryEmail, 'primary@example.com');
+    assert.equal(config.secondaryEmail, 'secondary@example.com');
+    assert.equal(config.supabaseUrl, 'https://project.supabase.co');
+  });
+
+  it('reports missing two-account isolation config by key names only', () => {
+    assert.deepEqual(
+      missingIsolationConfigKeys(
+        resolveCpYIsolationConfig({
+          env: {
+            APP_V2_TEST_EMAIL: 'primary@example.com',
+            APP_V2_TEST_PASSWORD: 'primary-secret',
+          },
+          dotEnv: {},
+        }),
+      ),
+      [
+        'APP_V2_SECOND_TEST_EMAIL',
+        'APP_V2_SECOND_TEST_PASSWORD',
+        'VITE_SUPABASE_URL',
         'VITE_SUPABASE_ANON_KEY',
       ],
     );

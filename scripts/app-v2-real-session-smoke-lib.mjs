@@ -33,6 +33,18 @@ export function resolveCpYConfig({ env = {}, dotEnv = {} } = {}) {
   };
 }
 
+export function resolveCpYIsolationConfig({ env = {}, dotEnv = {} } = {}) {
+  return {
+    primaryEmail: firstValue(env.APP_V2_TEST_EMAIL, env.TEST_USER_EMAIL),
+    primaryPassword: firstValue(env.APP_V2_TEST_PASSWORD, env.TEST_USER_PASSWORD),
+    secondaryEmail: firstValue(env.APP_V2_SECOND_TEST_EMAIL),
+    secondaryPassword: firstValue(env.APP_V2_SECOND_TEST_PASSWORD),
+    supabaseUrl: firstValue(env.VITE_SUPABASE_URL, dotEnv.VITE_SUPABASE_URL),
+    supabaseAnonKey: firstValue(env.VITE_SUPABASE_ANON_KEY, dotEnv.VITE_SUPABASE_ANON_KEY),
+    baseUrl: firstValue(env.APP_V2_BASE_URL, 'http://127.0.0.1:5173'),
+  };
+}
+
 export function missingConfigKeys(config) {
   const missing = [];
 
@@ -42,6 +54,36 @@ export function missingConfigKeys(config) {
 
   if (!config.password) {
     missing.push('APP_V2_TEST_PASSWORD or TEST_USER_PASSWORD');
+  }
+
+  if (!config.supabaseUrl) {
+    missing.push('VITE_SUPABASE_URL');
+  }
+
+  if (!config.supabaseAnonKey) {
+    missing.push('VITE_SUPABASE_ANON_KEY');
+  }
+
+  return missing;
+}
+
+export function missingIsolationConfigKeys(config) {
+  const missing = [];
+
+  if (!config.primaryEmail) {
+    missing.push('APP_V2_TEST_EMAIL or TEST_USER_EMAIL');
+  }
+
+  if (!config.primaryPassword) {
+    missing.push('APP_V2_TEST_PASSWORD or TEST_USER_PASSWORD');
+  }
+
+  if (!config.secondaryEmail) {
+    missing.push('APP_V2_SECOND_TEST_EMAIL');
+  }
+
+  if (!config.secondaryPassword) {
+    missing.push('APP_V2_SECOND_TEST_PASSWORD');
   }
 
   if (!config.supabaseUrl) {

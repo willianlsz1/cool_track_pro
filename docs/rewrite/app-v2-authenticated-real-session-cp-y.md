@@ -20,6 +20,9 @@ PDF/share, WhatsApp, upload/storage, PMOC ou v1.
 - Conta de teste validada em ambiente local:
   - email: `user@gmail.com`;
   - senha: nao registrada neste documento.
+- Segunda conta de teste validada para isolamento:
+  - email: `user1@gmail.com`;
+  - senha: nao registrada neste documento.
 
 ## O que pode ser validado sem conta real
 
@@ -56,7 +59,37 @@ browser autenticado.
 
 ## O que ainda nao pode ser provado com uma unica conta real
 
-- Isolamento de dados entre usuarios reais.
+Resolvido em 2026-05-23 com o smoke de isolamento entre duas contas reais.
+
+## Evidencia de isolamento real executada em 2026-05-23
+
+Com Vite local em `http://127.0.0.1:5173`, o smoke opt-in de isolamento foi
+executado com duas sessoes Supabase reais:
+
+```powershell
+node scripts/app-v2-real-session-isolation-smoke.mjs
+```
+
+Antes de criar nova evidencia, o harness remove somente linhas de teste do
+usuario primario com prefixos `Cliente CP-Y` e `Equipamento CP-Y`, para evitar
+falso negativo por limite do plano durante reexecucoes.
+
+Resultado:
+
+- `ok`: `true`;
+- usuario primario: `user@gmail.com`
+  (`8438983a-aafb-428f-b2f8-f1be4b4870de`);
+- usuario secundario: `user1@gmail.com`
+  (`38f8141e-85b2-4606-b086-178a4474047d`);
+- cliente criado pelo primario:
+  `Cliente CP-Y isolamento 2026-05-23T22-45-13-450Z`;
+- equipamento criado pelo primario:
+  `Equipamento CP-Y isolamento 2026-05-23T22-45-13-450Z`;
+- leitura direta como usuario secundario:
+  - `clientes`: `[]`;
+  - `equipamentos`: `[]`;
+- browser autenticado do usuario secundario abriu `authenticated-preview.html`
+  e nao exibiu os nomes criados pelo usuario primario.
 
 ## Procedimento de execucao quando houver conta de teste
 
@@ -119,6 +152,5 @@ final.
 
 ## Proximo passo
 
-Fornecer ou criar uma conta de teste Supabase para o projeto usado por
-`.env.local`. Depois disso, executar o procedimento acima e atualizar este
-documento com a evidencia.
+Remover o estado draft do PR de corte quando houver aprovacao explicita para
+promover o app-v2 como versao principal.

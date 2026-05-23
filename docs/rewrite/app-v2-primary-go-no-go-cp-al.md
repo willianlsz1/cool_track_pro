@@ -40,15 +40,15 @@ upload/storage, PMOC ou v1.
 | Rollback documental                     | Verde  | CP-AB                                                           |
 | Sessao Supabase real no browser         | Verde  | CP-Y com conta `user@gmail.com`                                 |
 | Escrita real minima cliente/equipamento | Verde  | CP-Y criou cliente e equipamento reais via browser autenticado  |
+| Isolamento real entre usuarios          | Verde  | CP-Y isolamento com `user@gmail.com` e `user1@gmail.com`        |
 | Aprovacao das areas fora do corte       | Verde  | Usuario aprovou exclusoes do primeiro corte em 2026-05-23       |
 
 ## Gates ainda abertos
 
-| Gate                           | Estado   | O que falta                                        |
-| ------------------------------ | -------- | -------------------------------------------------- |
-| Isolamento real entre usuarios | Aberto   | CP-Y ou etapa RLS dedicada com dois usuarios reais |
-| PR pronto para merge           | Pendente | Remover draft somente depois dos gates acima       |
-| Runbook de promocao/rollback   | Verde    | CP-AM                                              |
+| Gate                         | Estado   | O que falta                                  |
+| ---------------------------- | -------- | -------------------------------------------- |
+| PR pronto para merge         | Pendente | Remover draft quando o usuario aprovar merge |
+| Runbook de promocao/rollback | Verde    | CP-AM                                        |
 
 ## Decisao pendente sobre areas fora do primeiro corte
 
@@ -74,7 +74,7 @@ Antes de transformar o app-v2 na versao principal final:
 - [x] Confirmar leitura real de cliente/equipamento sob usuario autenticado.
 - [x] Confirmar escrita real minima de cliente.
 - [x] Confirmar escrita real minima de equipamento vinculado ao cliente.
-- [ ] Confirmar que dados de outro usuario nao aparecem.
+- [x] Confirmar que dados de outro usuario nao aparecem.
 - [x] Aprovar explicitamente que PDF/share real fica fora do primeiro corte.
 - [x] Aprovar explicitamente que WhatsApp real fica fora do primeiro corte.
 - [x] Aprovar explicitamente que billing/features pagas ficam fora do primeiro
@@ -102,9 +102,5 @@ Ele deve ser usado somente depois de:
 
 ## Proximo passo
 
-O proximo passo executavel e decidir como fechar o gate de isolamento real entre
-usuarios:
-
-- fornecer uma segunda conta real de teste e executar validacao cruzada; ou
-- deixar isolamento para uma etapa Supabase/RLS dedicada antes de remover o
-  draft do PR.
+O proximo passo executavel e remover o draft do PR #287 e seguir o runbook
+CP-AM quando o usuario aprovar a promocao.
