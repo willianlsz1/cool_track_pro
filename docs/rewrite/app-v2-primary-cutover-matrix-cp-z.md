@@ -45,7 +45,7 @@ Classificação usada nesta matriz:
 | Fluxo                    | Estado app-v2 atual                                                       | Decisão para corte                                 | Evidência atual                                                         | Próxima evidência necessária                                  |
 | ------------------------ | ------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
 | Entrada principal `/`    | v1 ainda monta por `/src/app.js`                                          | Obrigatório para trocar                            | `index.html`                                                            | CP-AB alterando para bootstrap v2, com rollback               |
-| Bootstrap v2 produção    | Não existe `src/app-v2/main.tsx`                                          | Obrigatório para trocar                            | CP-X recomenda criar bootstrap próprio                                  | CP-AA com `main.tsx` e testes                                 |
+| Bootstrap v2 produção    | Criado em `src/app-v2/main.tsx`                                           | Parcial: falta trocar `index.html`                 | `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`                        | CP-AB usando bootstrap v2 com rollback                        |
 | Preview local v2         | Funciona em `src/app-v2/preview.html`                                     | Suporte, não corte                                 | CP-W browser audit                                                      | Manter como harness local                                     |
 | Preview autenticado      | Funciona em `authenticated-preview.html` sem erros de console             | Suporte, não corte                                 | CP-W browser audit                                                      | CP-Y com sessão real                                          |
 | Login/sessão             | Fronteira e harness existem, sessão real não validada no browser          | Obrigatório para trocar                            | CP-T, CP-U, CP-V, CP-W                                                  | CP-Y com conta de teste autenticada                           |
@@ -102,21 +102,21 @@ Fora do primeiro corte, se aprovado explicitamente:
 
 ## Bloqueadores antes da troca do `index.html`
 
-1. Criar e validar `src/app-v2/main.tsx` como bootstrap de produção.
-2. Validar sessão Supabase real no browser.
-3. Validar escrita real mínima de cliente e equipamento sob usuário autenticado.
-4. Definir comportamento de router/deep link para `/`.
-5. Validar fluxo operacional mínimo em mobile e desktop.
-6. Publicar Cloudflare Pages preview da branch com v2 como root.
-7. Registrar rollback simples para voltar `index.html` para `/src/app.js`.
+1. Validar sessão Supabase real no browser.
+2. Validar escrita real mínima de cliente e equipamento sob usuário autenticado.
+3. Definir comportamento de router/deep link para `/`.
+4. Validar fluxo operacional mínimo em mobile e desktop.
+5. Publicar Cloudflare Pages preview da branch com v2 como root.
+6. Registrar rollback simples para voltar `index.html` para `/src/app.js`.
 
 ## Próxima CP recomendada
 
 Se houver sessão de teste disponível: executar CP-Y, validação real do
 `authenticated-preview.html`.
 
-Se não houver sessão de teste disponível: executar CP-AA, criação do bootstrap
-de produção `src/app-v2/main.tsx` sem ainda alterar `index.html`.
+Se não houver sessão de teste disponível: executar CP-AB em etapa controlada,
+trocando `index.html` para `src/app-v2/main.tsx` somente com validação local,
+browser, E2E e rollback documentado.
 
 ## Validação desta CP
 

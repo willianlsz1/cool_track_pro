@@ -2227,3 +2227,24 @@ Decisao registrada:
 
 Nao foram alterados runtime, `index.html`, router, storage real, Supabase/RLS,
 PDF/share, WhatsApp, billing, upload, PMOC, v1 ou configs.
+
+## 135. Checkpoint concluido - CP-AA bootstrap principal app-v2
+
+O bootstrap de producao app-v2 foi criado sem promover o app-v2 para a raiz:
+
+- `src/app-v2/main.tsx`;
+- `src/app-v2/main.test.tsx`;
+- `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`.
+
+Decisao registrada:
+
+- `main.tsx` monta o app-v2 autenticado no root futuro `app-v2-root`;
+- `index.html` continua carregando `/src/app.js`, portanto a producao segue no
+  v1 ate a CP-AB;
+- `preview.tsx` continua local/mockado;
+- `authenticatedPreview.tsx` continua harness autenticado opt-in;
+- a troca para v2 principal continua bloqueada por sessao real, router/deep
+  links, smoke local/mobile/desktop, Cloudflare Pages preview e rollback.
+
+Nao foram alterados `index.html`, v1/legado, router, storage real,
+Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou configs.

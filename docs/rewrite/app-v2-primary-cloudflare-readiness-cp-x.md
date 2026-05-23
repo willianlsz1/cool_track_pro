@@ -90,7 +90,7 @@ antes do deploy real do Cloudflare Pages conectado ao repo.
 
 | Gate                            | Estado atual                   | Bloqueia troca?                      | Evidencia necessaria                                                       |
 | ------------------------------- | ------------------------------ | ------------------------------------ | -------------------------------------------------------------------------- |
-| Entrypoint principal v2         | inexistente                    | Sim                                  | CP que altera `index.html` ou cria bootstrap principal v2                  |
+| Entrypoint principal v2         | bootstrap criado em CP-AA      | Parcial                              | Falta CP que altera `index.html` para o bootstrap v2                       |
 | Sessao Supabase real no browser | nao validada                   | Sim                                  | Login real ou sessao de teste em `authenticated-preview.html`              |
 | Fluxos criticos com dados reais | parcial                        | Sim                                  | Criar/editar cliente/equipamento e iniciar servico sob usuario autenticado |
 | Paridade dos fluxos de producao | parcialmente documentada       | Sim                                  | Matriz final v1 x v2 por fluxo critico                                     |
@@ -218,6 +218,12 @@ Regras:
 - `AppV2Shell` e telas continuam sem Supabase/auth/storage direto;
 - `preview.tsx` continua local/mockado;
 - `authenticatedPreview.tsx` continua harness.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`;
+- `src/app-v2/main.tsx` foi criado;
+- `index.html` ainda nao foi alterado.
 
 Validacao:
 

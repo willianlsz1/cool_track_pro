@@ -449,6 +449,17 @@ Status CP-Z:
 - manteve runtime, `index.html`, router, storage amplo, PDF/share, WhatsApp,
   billing, upload, PMOC, v1 e configs sem alteracao.
 
+Status CP-AA:
+
+- documentado em `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`;
+- criou `src/app-v2/main.tsx` como bootstrap de producao app-v2 para root futuro
+  `app-v2-root`;
+- criou `src/app-v2/main.test.tsx` cobrindo montagem quando o root existe,
+  ausencia de montagem quando o root nao existe e separacao dos previews/v1;
+- manteve `index.html` apontando para `/src/app.js`;
+- manteve preview local, authenticated preview, router, storage amplo,
+  PDF/share, WhatsApp, billing, upload, PMOC, v1 e configs sem alteracao.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
