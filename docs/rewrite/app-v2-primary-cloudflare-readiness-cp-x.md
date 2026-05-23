@@ -534,6 +534,27 @@ Limite:
 - nao valida sessao Supabase real, escrita real minima, isolamento real entre
   usuarios ou areas sensiveis fora do primeiro corte.
 
+### CP-AL - Checklist go/no-go do primeiro corte
+
+Objetivo:
+
+Consolidar os gates fechados, gates abertos e decisoes pendentes antes de
+promover o app-v2 como versao principal.
+
+Status:
+
+- concluido em `docs/rewrite/app-v2-primary-go-no-go-cp-al.md`;
+- PR #287 em `d8a38ef` estava `CLEAN`, ainda em draft, com checks externos
+  verdes;
+- gates tecnicos de build, E2E, bundle, Cloudflare, rotas principais,
+  mobile/desktop e fallback publico foram classificados como verdes;
+- gates de sessao real, escrita real minima, isolamento real entre usuarios e
+  aprovacao explicita das areas fora do primeiro corte permanecem abertos.
+
+Limite:
+
+- nao aprova o corte final; apenas transforma a decisao em checklist auditavel.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:

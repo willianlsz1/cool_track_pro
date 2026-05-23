@@ -204,3 +204,21 @@ equivalentes).
 
 Portanto, os bloqueadores 1 e 2 permanecem abertos ate haver conta real de
 teste para provar sessao, leitura e escrita minima sob usuario autenticado.
+
+## Atualizacao CP-AL
+
+Foi criado `docs/rewrite/app-v2-primary-go-no-go-cp-al.md` para consolidar o
+estado go/no-go do primeiro corte.
+
+Resumo:
+
+- gates tecnicos de build, E2E, bundle, Cloudflare, rotas principais,
+  mobile/desktop e fallback publico estao verdes no PR #287;
+- o PR segue em draft;
+- sessao Supabase real, escrita real minima e isolamento real entre usuarios
+  seguem abertos;
+- a aprovacao explicita das areas fora do primeiro corte foi transformada em
+  checklist auditavel.
+
+O corte final nao deve prosseguir enquanto CP-Y e as aprovacoes explicitas das
+areas fora do primeiro corte nao estiverem concluidas.
