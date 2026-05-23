@@ -61,6 +61,7 @@ interface AppV2ShellProps {
 
 type EquipmentArchiveResult = string | null | Promise<string | null>;
 type EquipmentAttachmentResult = string | null | Promise<string | null>;
+type EquipmentSectorResult = string | null | Promise<string | null>;
 type PreventiveScheduleResult = string | null | Promise<string | null>;
 
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
@@ -303,13 +304,25 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function saveSectorDraft(draft: SaveEquipmentSectorDraft): string | null {
+  function saveSectorDraft(draft: SaveEquipmentSectorDraft): EquipmentSectorResult {
     try {
       const sectorId = draft.id || createNextSectorId(appState.setores.length + 1, appState);
-      const nextState = saveEquipmentSector(appState, {
+      const nextDraft = {
         ...draft,
         id: sectorId,
-      });
+      };
+
+      if (dataPort) {
+        return dataPort
+          .saveSector(nextDraft)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel salvar o setor.'));
+      }
+
+      const nextState = saveEquipmentSector(appState, nextDraft);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
@@ -318,8 +331,18 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }
   }
 
-  function deleteSectorDraft(sectorId: string): string | null {
+  function deleteSectorDraft(sectorId: string): EquipmentSectorResult {
     try {
+      if (dataPort) {
+        return dataPort
+          .deleteSector(sectorId)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel remover o setor.'));
+      }
+
       const nextState = deleteEquipmentSector(appState, sectorId);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));

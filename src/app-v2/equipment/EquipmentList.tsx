@@ -53,8 +53,8 @@ interface EquipmentListProps {
   onSelectView: (view: EquipmentSubView) => void;
   onOpenEquipment: (equipmentId: string) => void;
   onSaveEquipment?: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
-  onSaveSector?: (draft: SaveEquipmentSectorDraft) => string | null;
-  onDeleteSector?: (sectorId: string) => string | null;
+  onSaveSector?: (draft: SaveEquipmentSectorDraft) => string | null | Promise<string | null>;
+  onDeleteSector?: (sectorId: string) => string | null | Promise<string | null>;
   initialClientId?: string | null;
   contextBanner?: EquipmentFormProps['contextBanner'];
   onInitialClientHandled?: () => void;
@@ -167,15 +167,18 @@ export function EquipmentList({
     setSectorForm((current) => (current ? { ...current, [field]: value } : current));
   }
 
-  function submitSectorForm() {
+  async function submitSectorForm() {
     if (!sectorForm || !onSaveSector) {
       return;
     }
 
-    const result = onSaveSector({
-      ...sectorForm,
-      id: sectorForm.id || createLocalSectorId(equipmentInput.setores?.length ?? 0),
-    });
+    const result = await resolveSectorActionResult(
+      onSaveSector({
+        ...sectorForm,
+        id: sectorForm.id || createLocalSectorId(equipmentInput.setores?.length ?? 0),
+      }),
+      'Nao foi possivel salvar o setor.',
+    );
 
     if (result) {
       setSectorError(result);
@@ -191,12 +194,15 @@ export function EquipmentList({
     setSectorPendingRemovalId(sectorIdToRemove);
   }
 
-  function confirmSectorRemoval(sectorIdToRemove: string) {
+  async function confirmSectorRemoval(sectorIdToRemove: string) {
     if (!onDeleteSector) {
       return;
     }
 
-    const result = onDeleteSector(sectorIdToRemove);
+    const result = await resolveSectorActionResult(
+      onDeleteSector(sectorIdToRemove),
+      'Nao foi possivel remover o setor.',
+    );
 
     if (result) {
       setSectorError(result);
@@ -389,6 +395,12 @@ export function EquipmentList({
                 </button>
               </div>
             </form>
+          ) : null}
+
+          {sectorError && !sectorForm ? (
+            <p className="tw-m-0 tw-mt-4 tw-rounded-xl tw-border tw-border-[#FECACA] tw-bg-[#FEF2F2] tw-px-4 tw-py-3 tw-text-sm tw-font-semibold tw-text-[#991B1B]">
+              {sectorError}
+            </p>
           ) : null}
 
           <div className="tw-mt-5 tw-flex tw-flex-wrap tw-gap-2" aria-label="Filtros de setores">
@@ -840,6 +852,17 @@ function getSectorOwner(
   sectorIdToFind: string,
 ): string {
   return setores?.find((setor) => setor.id === sectorIdToFind)?.responsavel?.trim() ?? '';
+}
+
+async function resolveSectorActionResult(
+  result: string | null | Promise<string | null>,
+  fallback: string,
+): Promise<string | null> {
+  try {
+    return await result;
+  } catch (error) {
+    return error instanceof Error ? error.message : fallback;
+  }
 }
 
 function getSectorEquipmentNames(

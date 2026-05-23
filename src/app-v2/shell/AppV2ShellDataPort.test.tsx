@@ -6,7 +6,7 @@ import { createAppV2MockSnapshot } from '../data/appV2MockStore';
 import type { AppV2DataPort } from '../data/appV2DataPort';
 import { createMemoryAppV2DataAdapter } from '../data/memoryAppV2DataAdapter';
 import { AppV2Shell } from './AppV2Shell';
-import { clickButton, fillInput } from './AppV2Shell.testUtils';
+import { clickButton, fillInput, selectOption } from './AppV2Shell.testUtils';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
   true;
@@ -166,6 +166,93 @@ describe('AppV2Shell dataPort', () => {
     expect(host.textContent).toContain('Falha equipamento CP-K');
     expect(host.textContent).toContain('Novo equipamento');
     expect(host.querySelector('input[name="equipment-name"]')).toBeInstanceOf(HTMLInputElement);
+  });
+
+  it('salva novo setor pela dataPort injetada', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const saveSector = vi.spyOn(dataPort, 'saveSector');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Novo setor$/i);
+
+    await fillInput(
+      host.querySelector('input[name="equipment-sector-name"]') as HTMLInputElement,
+      'CP-O setor',
+    );
+    await selectOption(
+      host.querySelector('select[name="equipment-sector-client"]') as HTMLSelectElement,
+      'cliente-1',
+    );
+    await clickButton(host, /^Salvar setor$/i);
+    await flushPromises();
+
+    expect(saveSector).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'setor-shell-4',
+        nome: 'CP-O setor',
+        clienteId: 'cliente-1',
+      }),
+    );
+    expect(host.textContent).toContain('CP-O setor');
+    expect(host.querySelector('input[name="equipment-sector-name"]')).toBeNull();
+  });
+
+  it('mantem formulario aberto e mostra erro quando saveSector da dataPort rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'saveSector').mockRejectedValueOnce(new Error('Falha setor CP-O'));
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /^Novo setor$/i);
+
+    await fillInput(
+      host.querySelector('input[name="equipment-sector-name"]') as HTMLInputElement,
+      'Setor com erro',
+    );
+    await clickButton(host, /^Salvar setor$/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha setor CP-O');
+    expect(host.textContent).toContain('Novo setor');
+    expect(host.querySelector('input[name="equipment-sector-name"]')).toBeInstanceOf(
+      HTMLInputElement,
+    );
+  });
+
+  it('remove setor pela dataPort injetada e preserva equipamento como sem setor', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const deleteSector = vi.spyOn(dataPort, 'deleteSector');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Remover setor Recep/i);
+    await clickButton(host, /^Confirmar/i);
+    await flushPromises();
+
+    expect(deleteSector).toHaveBeenCalledWith('setor-1');
+    expect(host.querySelector('[data-sector-card="setor-1"]')).toBeNull();
+    expect(host.textContent).toContain('Split 24.000 BTU');
+    expect(host.textContent).toContain('Sem setor');
+  });
+
+  it('mantem confirmacao aberta e mostra erro quando deleteSector da dataPort rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'deleteSector').mockRejectedValueOnce(new Error('Falha remover setor CP-O'));
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /^Equipamentos$/i);
+    await clickButton(host, /Remover setor Recep/i);
+    await clickButton(host, /^Confirmar/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha remover setor CP-O');
+    expect(host.querySelector('[data-sector-card="setor-1"]')).toBeInstanceOf(HTMLElement);
+    expect(host.textContent).toContain('Confirmar');
   });
 
   it('arquiva equipamento pela dataPort injetada usando today', async () => {
