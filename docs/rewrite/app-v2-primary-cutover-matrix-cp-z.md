@@ -193,3 +193,14 @@ verdes.
 Com isso, os bloqueadores 3, 4, 5, 6 e 7 desta matriz estao cobertos para o
 preview externo atual. Restam CP-Y com sessao/escrita real e decisao explicita
 sobre areas fora do primeiro corte.
+
+## Atualizacao CP-Y preflight
+
+Foi criado `docs/rewrite/app-v2-authenticated-real-session-cp-y.md` com o
+procedimento de validacao real. A pre-checagem confirmou que `.env.local` possui
+`VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, mas o ambiente atual nao possui
+credenciais de conta de teste (`APP_V2_TEST_EMAIL`/`APP_V2_TEST_PASSWORD` ou
+equivalentes).
+
+Portanto, os bloqueadores 1 e 2 permanecem abertos ate haver conta real de
+teste para provar sessao, leitura e escrita minima sob usuario autenticado.

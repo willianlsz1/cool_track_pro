@@ -137,6 +137,15 @@ Arquivos previstos:
 - `docs/rewrite/app-v2-authenticated-real-session-cp-y.md`
 - opcionalmente testes novos se surgir lacuna objetiva
 
+Preflight:
+
+- documento criado em `docs/rewrite/app-v2-authenticated-real-session-cp-y.md`;
+- `.env.local` possui `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`;
+- o ambiente atual nao possui credenciais de conta de teste
+  (`APP_V2_TEST_EMAIL`/`APP_V2_TEST_PASSWORD` ou equivalentes);
+- a conclusao da CP-Y depende de conta real para provar sessao, leitura e
+  escrita real minima no browser.
+
 Passos:
 
 - [ ] Autenticar uma conta de teste no ambiente local.
