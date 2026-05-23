@@ -435,6 +435,20 @@ Status CP-X:
 - manteve runtime, router, storage amplo, PDF/share, WhatsApp, billing, upload,
   PMOC, v1 e configs sem alteracao.
 
+Status CP-Z:
+
+- documentado em `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`;
+- criou matriz de corte por fluxo para promover o app-v2 como entrada principal;
+- confirmou que a troca do `index.html` continua bloqueada ate existir
+  bootstrap de producao app-v2, sessao Supabase real validada, fluxo real minimo
+  validado, router/deep links definidos, Cloudflare Pages preview validado e
+  rollback documentado;
+- definiu primeiro corte operacional minimo e separou PDF/share, WhatsApp,
+  billing, upload/storage real, PMOC, assinatura digital real e orcamento real
+  como fora do primeiro corte somente se aprovados explicitamente;
+- manteve runtime, `index.html`, router, storage amplo, PDF/share, WhatsApp,
+  billing, upload, PMOC, v1 e configs sem alteracao.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:

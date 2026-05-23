@@ -2199,3 +2199,31 @@ redesign amplo.
 > testes, sem alterar runtime e mantendo PMOC, Supabase/RLS, migrations, storage
 > real, billing real, assinatura, PDF/share, WhatsApp, perfil real, security
 > hardening e React Doctor em etapas proprias.
+
+## 134. Checkpoint concluido - CP-Z matriz final de corte v1 -> v2
+
+A matriz de corte para promover o app-v2 como entrada principal foi criada em:
+
+- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+
+Decisao registrada:
+
+- o app-v2 ainda nao substitui o v1 porque `index.html` continua carregando
+  `/src/app.js`;
+- `preview.html` e `authenticated-preview.html` sao entrypoints de
+  preview/harness, nao bootstrap de producao;
+- o primeiro corte recomendado para v2 principal deve ser operacional minimo,
+  cobrindo login/sessao, fallback, Hoje, Alertas, Clientes, Equipamentos,
+  Registro de servico, Registros, Relatorios locais, Orcamentos locais, Conta,
+  mobile/desktop, Cloudflare Pages preview e rollback;
+- PDF/share real, WhatsApp real, billing/features pagas, upload/storage real,
+  PMOC real, assinatura digital real e orcamento real ficam fora do primeiro
+  corte se forem aprovados explicitamente como limitacoes;
+- se houver sessao de teste disponivel, o proximo checkpoint recomendado e
+  CP-Y, validacao real do `authenticated-preview.html`;
+- se nao houver sessao de teste disponivel, o proximo checkpoint recomendado e
+  CP-AA, bootstrap de producao `src/app-v2/main.tsx` sem trocar ainda
+  `index.html`.
+
+Nao foram alterados runtime, `index.html`, router, storage real, Supabase/RLS,
+PDF/share, WhatsApp, billing, upload, PMOC, v1 ou configs.
