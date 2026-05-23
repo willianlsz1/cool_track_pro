@@ -372,6 +372,20 @@ Status CP-T:
 - router, storage real amplo, PDF/share, WhatsApp, billing, upload e PMOC
   continuam fora.
 
+Status CP-U:
+
+- documentado em
+  `docs/rewrite/app-v2-authenticated-harness-opt-in-cp-u.md`;
+- criado helper `mountAuthenticatedAppV2` para montagem autenticada opt-in;
+- o helper resolve `createAuthenticatedAppV2DataSource` por injecao e passa
+  somente `dataPort` para `mountAppV2`;
+- o retorno expoe `dataSource` para diagnostico de harness sem acoplar o shell;
+- `preview.tsx` continua local com `mountAppV2(root)` e tem guarda contra
+  import do helper autenticado;
+- helper, preview e shell seguem sem imports diretos de Supabase/auth/storage;
+- router, storage real amplo, PDF/share, WhatsApp, billing, upload e PMOC
+  continuam fora.
+
 ## 7. Contrato de arquitetura proposto
 
 Camadas planejadas no app-v2:
