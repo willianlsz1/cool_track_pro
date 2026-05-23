@@ -155,3 +155,19 @@ a inicializacao autenticada falha.
 Essa protecao evita tela vazia em preview sem env, mas nao substitui a validacao
 obrigatoria com env real, sessao real, escrita real minima e Cloudflare Pages
 preview.
+
+## Atualizacao CP-AJ
+
+O preview Cloudflare do PR publicou o root `/`, mas `/equipamentos` retornou
+`404.html`, indicando que o fallback SPA nao estava ativo para rotas diretas.
+
+`public/_redirects` foi reduzido para uma unica regra compativel com Cloudflare
+Pages:
+
+```text
+/*    /index.html    200
+```
+
+A validacao local confirmou que `dist/_redirects` carrega essa regra e que o
+smoke de rotas principais passa em `vite preview`. A troca para versao principal
+ainda depende de novo deploy do PR e smoke externo no Cloudflare Pages preview.
