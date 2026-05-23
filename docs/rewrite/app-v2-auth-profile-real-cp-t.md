@@ -15,6 +15,8 @@ futura injetar sessao real por fora do shell.
 - `src/app-v2/data/appV2AuthenticatedDataSource.ts`
 - `src/app-v2/data/appV2AuthenticatedDataSource.test.ts`
 - `src/app-v2/index.test.tsx`
+- `docs/rewrite/app-v2-auth-profile-real-cp-t.md`
+- `docs/rewrite/app-v2-areas-sensiveis-mapa-prioridade-plano.md`
 
 ## Contratos criados
 
