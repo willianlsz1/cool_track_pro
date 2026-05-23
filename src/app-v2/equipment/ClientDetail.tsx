@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ClientForm } from './ClientForm';
+import { ClientForm, type ClientSaveResult } from './ClientForm';
 import type { SaveClientDraft } from './clientActions';
 import { buildEquipmentClientDetailViewModel } from './equipmentClientsViewModel';
 import type { BuildEquipmentViewModelInput } from './equipmentViewModel';
@@ -26,7 +26,7 @@ interface ClientDetailProps {
   input?: BuildEquipmentViewModelInput;
   onBack: () => void;
   onOpenEquipment: (equipmentId: string) => void;
-  onSaveClient: (draft: SaveClientDraft) => string | null;
+  onSaveClient: (draft: SaveClientDraft) => ClientSaveResult;
   onCreateEquipmentForClient?: (clientId: string) => void;
 }
 
@@ -51,8 +51,8 @@ export function ClientDetail({
   const detail = buildEquipmentClientDetailViewModel(viewInput, clientId);
   const client = viewInput.clientes.find((item) => item.id === clientId);
 
-  function saveClientDraft(draft: SaveClientDraft): string | null {
-    const error = onSaveClient(draft);
+  async function saveClientDraft(draft: SaveClientDraft): Promise<string | null> {
+    const error = await onSaveClient(draft);
 
     if (!error) {
       setIsEditing(false);

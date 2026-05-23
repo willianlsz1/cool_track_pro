@@ -5,7 +5,7 @@ import {
   type BuildEquipmentViewModelInput,
   type EquipmentTone,
 } from './equipmentViewModel';
-import { EquipmentForm } from './EquipmentForm';
+import { EquipmentForm, type EquipmentSaveResult } from './EquipmentForm';
 import type { SaveEquipmentDraft } from './equipmentActions';
 import {
   mockEquipmentClientes,
@@ -30,7 +30,7 @@ interface EquipmentDetailProps {
   onBack: () => void;
   onOpenClient?: (clientId: string) => void;
   onStartService?: (equipmentId: string) => void;
-  onSaveEquipment?: (draft: SaveEquipmentDraft) => string | null;
+  onSaveEquipment?: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
   onArchiveEquipment?: (equipmentId: string) => string | null;
   onUnarchiveEquipment?: (equipmentId: string) => string | null;
   onAddPlaceholderAttachment?: (equipmentId: string) => string | null;
@@ -314,8 +314,8 @@ export function EquipmentDetail({
               setores={equipmentInput.setores}
               initialEquipment={equipment}
               onCancel={() => setIsEditing(false)}
-              onSave={(draft) => {
-                const result = onSaveEquipment(draft);
+              onSave={async (draft) => {
+                const result = await onSaveEquipment(draft);
 
                 if (!result) {
                   setIsEditing(false);

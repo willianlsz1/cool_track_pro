@@ -8,8 +8,10 @@ import type {
   AccountStartTabPreference,
 } from '../account/accountViewModel';
 import { ClientDetail } from '../equipment/ClientDetail';
+import type { ClientSaveResult } from '../equipment/ClientForm';
 import { ClientList } from '../equipment/ClientList';
 import { EquipmentDetail } from '../equipment/EquipmentDetail';
+import type { EquipmentSaveResult } from '../equipment/EquipmentForm';
 import { EquipmentList } from '../equipment/EquipmentList';
 import { saveClient, type SaveClientDraft } from '../equipment/clientActions';
 import {
@@ -216,14 +218,39 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     }));
   }
 
-  function saveEquipmentDraft(draft: SaveEquipmentDraft): string | null {
+  function saveEquipmentDraft(draft: SaveEquipmentDraft): EquipmentSaveResult {
     try {
       const equipmentId =
         draft.id || createNextEquipmentId(appState.equipamentos.length + 1, appState);
-      const nextState = saveEquipment(appState, {
+      const nextDraft = {
         ...draft,
         id: equipmentId,
-      });
+      };
+
+      if (dataPort) {
+        return dataPort
+          .saveEquipment(nextDraft)
+          .then((nextState) => {
+            if (startServiceAfterEquipmentCreate && draft.mode !== 'edit') {
+              const serviceState = startServiceFlowAction(nextState, equipmentId);
+
+              setAppState(serviceState);
+              setEditingServiceId(null);
+              setIsServiceFlowOpen(true);
+              setIsServiceEquipmentChoiceOpen(false);
+              setStartServiceAfterEquipmentCreate(false);
+              setActiveTab('servicos');
+              return null;
+            }
+
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            setStartServiceAfterEquipmentCreate(false);
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível salvar o equipamento.'));
+      }
+
+      const nextState = saveEquipment(appState, nextDraft);
 
       if (startServiceAfterEquipmentCreate && draft.mode !== 'edit') {
         const serviceState = startServiceFlowAction(nextState, equipmentId);
@@ -241,22 +268,34 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
       setStartServiceAfterEquipmentCreate(false);
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Não foi possível salvar o equipamento.';
+      return getSaveErrorMessage(error, 'Não foi possível salvar o equipamento.');
     }
   }
 
-  function saveClientDraft(draft: SaveClientDraft): string | null {
+  function saveClientDraft(draft: SaveClientDraft): ClientSaveResult {
     try {
       const clientId = draft.id || createNextClientId(appState.clientes.length + 1, appState);
-      const nextState = saveClient(appState, {
+      const nextDraft = {
         ...draft,
         id: clientId,
-      });
+      };
+
+      if (dataPort) {
+        return dataPort
+          .saveClient(nextDraft)
+          .then((nextState) => {
+            setAppState(preserveCurrentServiceDraft(appState, nextState));
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível salvar o cliente.'));
+      }
+
+      const nextState = saveClient(appState, nextDraft);
 
       setAppState(preserveCurrentServiceDraft(appState, nextState));
       return null;
     } catch (error) {
-      return error instanceof Error ? error.message : 'Não foi possível salvar o cliente.';
+      return getSaveErrorMessage(error, 'Não foi possível salvar o cliente.');
     }
   }
 
@@ -654,4 +693,8 @@ function isValidLocalIsoDate(date: string): boolean {
     parsed.getUTCMonth() === month - 1 &&
     parsed.getUTCDate() === day
   );
+}
+
+function getSaveErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }

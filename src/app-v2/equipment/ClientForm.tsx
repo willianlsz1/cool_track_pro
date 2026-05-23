@@ -15,12 +15,14 @@ import {
 import { SectionEyebrow } from '../ui/primitives';
 import type { SaveClientDraft } from './clientActions';
 
+export type ClientSaveResult = string | null | Promise<string | null>;
+
 interface ClientFormProps {
   title: string;
   initialClient?: Cliente;
   error?: string | null;
   onCancel: () => void;
-  onSave: (draft: SaveClientDraft) => string | null;
+  onSave: (draft: SaveClientDraft) => ClientSaveResult;
 }
 
 export function ClientForm({ title, initialClient, error, onCancel, onSave }: ClientFormProps) {
@@ -44,23 +46,29 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
   );
   const [localError, setLocalError] = useState<string | null>(null);
 
-  function submit() {
-    const saveError = onSave({
-      id: initialClient?.id ?? '',
-      mode: initialClient ? 'edit' : 'create',
-      nome,
-      razaoSocial,
-      documento,
-      finalidadeAmbiente,
-      contato,
-      endereco,
-      canalChamados,
-      inscricaoEstadual,
-      inscricaoMunicipal,
-      observacoesInternas,
-    });
+  async function submit() {
+    try {
+      const saveError = await onSave({
+        id: initialClient?.id ?? '',
+        mode: initialClient ? 'edit' : 'create',
+        nome,
+        razaoSocial,
+        documento,
+        finalidadeAmbiente,
+        contato,
+        endereco,
+        canalChamados,
+        inscricaoEstadual,
+        inscricaoMunicipal,
+        observacoesInternas,
+      });
 
-    setLocalError(saveError);
+      setLocalError(saveError);
+    } catch (error) {
+      setLocalError(
+        error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel salvar o cliente.',
+      );
+    }
   }
 
   const visibleError = localError ?? error;

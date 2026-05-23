@@ -13,7 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { EquipmentCard } from './EquipmentCard';
-import { EquipmentForm, type EquipmentFormProps } from './EquipmentForm';
+import { EquipmentForm, type EquipmentFormProps, type EquipmentSaveResult } from './EquipmentForm';
 import { EquipmentSubViewNav, type EquipmentSubView } from './EquipmentSubViewNav';
 import type { SaveEquipmentDraft, SaveEquipmentSectorDraft } from './equipmentActions';
 import {
@@ -52,7 +52,7 @@ interface EquipmentListProps {
   activeView: EquipmentSubView;
   onSelectView: (view: EquipmentSubView) => void;
   onOpenEquipment: (equipmentId: string) => void;
-  onSaveEquipment?: (draft: SaveEquipmentDraft) => string | null;
+  onSaveEquipment?: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
   onSaveSector?: (draft: SaveEquipmentSectorDraft) => string | null;
   onDeleteSector?: (sectorId: string) => string | null;
   initialClientId?: string | null;
@@ -251,8 +251,8 @@ export function EquipmentList({
             initialSectorId={equipmentCreateContext?.sectorId}
             contextBanner={contextBanner}
             onCancel={closeCreateForm}
-            onSave={(draft) => {
-              const result = onSaveEquipment(draft);
+            onSave={async (draft) => {
+              const result = await onSaveEquipment(draft);
 
               if (!result) {
                 closeCreateForm();

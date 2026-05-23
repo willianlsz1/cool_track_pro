@@ -21,6 +21,8 @@ import { appV2Border, appV2Button, appV2Shadow, appV2Text } from '../styles/toke
 import { FieldGroup, FormGrid, fieldInputClass, fieldSelectClass } from '../ui/FieldGroup';
 import { SectionEyebrow } from '../ui/primitives';
 
+export type EquipmentSaveResult = string | null | Promise<string | null>;
+
 export interface EquipmentFormProps {
   title: string;
   clientes: Cliente[];
@@ -34,7 +36,7 @@ export interface EquipmentFormProps {
   };
   error?: string | null;
   onCancel: () => void;
-  onSave: (draft: SaveEquipmentDraft) => string | null;
+  onSave: (draft: SaveEquipmentDraft) => EquipmentSaveResult;
 }
 
 export function EquipmentForm({
@@ -105,28 +107,34 @@ export function EquipmentForm({
     setLabelAssistApplied(true);
   }
 
-  function submit() {
-    const saveError = onSave({
-      id: initialEquipment?.id ?? '',
-      mode: initialEquipment ? 'edit' : 'create',
-      nome,
-      local,
-      tipo,
-      tag,
-      clienteId,
-      setorId,
-      status,
-      componente,
-      fluidoRefrigerante,
-      marcaModelo,
-      numeroSerie,
-      capacidadeBtuh,
-      criticidade,
-      prioridadeOperacional,
-      periodicidadePreventivaDias,
-    });
+  async function submit() {
+    try {
+      const saveError = await onSave({
+        id: initialEquipment?.id ?? '',
+        mode: initialEquipment ? 'edit' : 'create',
+        nome,
+        local,
+        tipo,
+        tag,
+        clienteId,
+        setorId,
+        status,
+        componente,
+        fluidoRefrigerante,
+        marcaModelo,
+        numeroSerie,
+        capacidadeBtuh,
+        criticidade,
+        prioridadeOperacional,
+        periodicidadePreventivaDias,
+      });
 
-    setLocalError(saveError);
+      setLocalError(saveError);
+    } catch (error) {
+      setLocalError(
+        error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel salvar o equipamento.',
+      );
+    }
   }
 
   const visibleError = localError ?? error;

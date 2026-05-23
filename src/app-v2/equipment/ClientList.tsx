@@ -13,7 +13,7 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { ClientForm } from './ClientForm';
+import { ClientForm, type ClientSaveResult } from './ClientForm';
 import type { SaveClientDraft } from './clientActions';
 import {
   buildEquipmentClientsListViewModel,
@@ -37,7 +37,7 @@ interface ClientListProps {
   activeView: EquipmentSubView;
   onSelectView: (view: EquipmentSubView) => void;
   onOpenClient: (clientId: string) => void;
-  onSaveClient: (draft: SaveClientDraft) => string | null;
+  onSaveClient: (draft: SaveClientDraft) => ClientSaveResult;
 }
 
 const defaultEquipmentInput: BuildEquipmentViewModelInput = {
@@ -76,8 +76,8 @@ export function ClientList({
   const totalEquipments = sumCountLabels(viewModel.items.map((item) => item.equipmentCountLabel));
   const totalPending = sumCountLabels(viewModel.items.map((item) => item.pendingCountLabel));
 
-  function saveClientDraft(draft: SaveClientDraft): string | null {
-    const error = onSaveClient(draft);
+  async function saveClientDraft(draft: SaveClientDraft): Promise<string | null> {
+    const error = await onSaveClient(draft);
 
     if (!error) {
       setIsCreating(false);
