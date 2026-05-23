@@ -153,6 +153,51 @@ describe('createAppV2DataSource', () => {
     ).rejects.toThrow('RLS denied');
   });
 
+  it('compoe escrita real de equipamentos apos clientes read/write quando writer existe', async () => {
+    const equipamentosWriter = vi.fn().mockResolvedValue({
+      id: 'equip-real-1',
+      nome: 'Equipamento real',
+      local: 'Sala tecnica',
+      status: 'warn',
+    });
+    const dataSource = createAppV2DataSource({
+      initialSnapshot: createAppV2MockSnapshot({ equipamentos: [] }),
+      session: { userId: ' user-1 ' },
+      clientesReader: vi.fn().mockResolvedValue([]),
+      clientesWriter: vi.fn().mockResolvedValue({
+        id: 'cliente-real-1',
+        nome: 'Cliente real',
+      }),
+      equipamentosWriter,
+    });
+
+    const state = await dataSource.dataPort.saveEquipment({
+      id: 'equip-real-1',
+      nome: 'Equipamento real',
+      local: 'Sala tecnica',
+      mode: 'create',
+    });
+
+    expect(dataSource.mode).toBe('clientes-readwrite');
+    expect(equipamentosWriter).toHaveBeenCalledWith({
+      userId: 'user-1',
+      draft: {
+        id: 'equip-real-1',
+        nome: 'Equipamento real',
+        local: 'Sala tecnica',
+        mode: 'create',
+      },
+    });
+    expect(state.equipamentos).toEqual([
+      {
+        id: 'equip-real-1',
+        nome: 'Equipamento real',
+        local: 'Sala tecnica',
+        status: 'warn',
+      },
+    ]);
+  });
+
   it('nao importa Supabase, auth ou storage diretamente na factory', () => {
     const source = readFileSync(resolve(__dirname, 'appV2DataSourceFactory.ts'), 'utf8');
 

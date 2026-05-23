@@ -5,6 +5,8 @@ import { createAppV2ClientesReadOnlyDataAdapter } from './appV2ClientesReadOnlyD
 import type { AppV2ClientesReader } from './appV2ClientesReadOnlyDataAdapter';
 import { createAppV2ClientesWriteDataAdapter } from './appV2ClientesWriteDataAdapter';
 import type { AppV2ClientesWriter } from './appV2ClientesWriteDataAdapter';
+import { createAppV2EquipamentosWriteDataAdapter } from './appV2EquipamentosWriteDataAdapter';
+import type { AppV2EquipamentosWriter } from './appV2EquipamentosWriteDataAdapter';
 import { createMemoryAppV2DataAdapter } from './memoryAppV2DataAdapter';
 
 export type AppV2DataSourceMode = 'local' | 'clientes-readonly' | 'clientes-readwrite';
@@ -20,6 +22,7 @@ export interface CreateAppV2DataSourceInput {
   session?: AppV2DataSourceSession | null;
   clientesReader?: AppV2ClientesReader;
   clientesWriter?: AppV2ClientesWriter;
+  equipamentosWriter?: AppV2EquipamentosWriter;
 }
 
 export interface AppV2DataSource {
@@ -33,6 +36,7 @@ export function createAppV2DataSource({
   session,
   clientesReader,
   clientesWriter,
+  equipamentosWriter,
 }: CreateAppV2DataSourceInput = {}): AppV2DataSource {
   const basePort = createMemoryAppV2DataAdapter(initialSnapshot);
   const userId = String(session?.userId ?? '').trim();
@@ -66,11 +70,17 @@ export function createAppV2DataSource({
     };
   }
 
+  const readWritePort = createAppV2ClientesWriteDataAdapter({
+    basePort: readOnlyPort,
+    userId,
+    clientesWriter,
+  });
+
   return {
-    dataPort: createAppV2ClientesWriteDataAdapter({
-      basePort: readOnlyPort,
+    dataPort: createAppV2EquipamentosWriteDataAdapter({
+      basePort: readWritePort,
       userId,
-      clientesWriter,
+      equipamentosWriter,
     }),
     mode: 'clientes-readwrite',
   };
