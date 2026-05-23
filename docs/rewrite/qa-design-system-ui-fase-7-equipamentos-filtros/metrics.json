@@ -1,0 +1,564 @@
+[
+  {
+    "viewport": "mobile-390",
+    "scenario": "list",
+    "screenshot": "mobile-390-list.png",
+    "metrics": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 2193
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 4,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 2,
+      "overflowingTextSample": [
+        {
+          "tag": "span",
+          "text": "Mercado Bom Preço - Sala de espera",
+          "clientWidth": 223,
+          "scrollWidth": 234
+        },
+        {
+          "tag": "span",
+          "text": "Ar condicionado - CAS-010",
+          "clientWidth": 143,
+          "scrollWidth": 170
+        }
+      ],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "mobile-390",
+    "scenario": "filter-empty",
+    "screenshot": "mobile-390-filter-empty.png",
+    "metrics": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1639
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 0,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": true,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "mobile-390",
+    "scenario": "long-text",
+    "screenshot": "mobile-390-long-text.png",
+    "metrics": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 2353
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 5,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 5,
+      "overflowingTextSample": [
+        {
+          "tag": "span",
+          "text": "Mercado Bom Preço - Sala de espera",
+          "clientWidth": 223,
+          "scrollWidth": 234
+        },
+        {
+          "tag": "span",
+          "text": "Ar condicionado - CAS-010",
+          "clientWidth": 143,
+          "scrollWidth": 170
+        },
+        {
+          "tag": "span",
+          "text": "Condensadora rooftop supermercado matriz ala norte corredor tecnico com identificador extr",
+          "clientWidth": 223,
+          "scrollWidth": 839
+        },
+        {
+          "tag": "span",
+          "text": "Mercado Bom Preço - Casa de maquinas superior - acesso pela escada externa do bloco admini",
+          "clientWidth": 223,
+          "scrollWidth": 645
+        },
+        {
+          "tag": "span",
+          "text": "Refrigeracao industrial com monitoramento local - TAG-EXTREMAMENTE-LONGA-2026-ALA-NORTE-00",
+          "clientWidth": 143,
+          "scrollWidth": 664
+        }
+      ],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "mobile-390",
+    "scenario": "detail-attachments",
+    "screenshot": "mobile-390-detail-attachments.png",
+    "metrics": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scroll": {
+        "width": 390,
+        "height": 1685
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Split 24.000 BTU",
+      "equipmentCards": 0,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": null,
+      "filterRailOverflowX": null,
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": true
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1366",
+    "scenario": "list",
+    "screenshot": "desktop-1366-list.png",
+    "metrics": {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 1305
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 4,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1366",
+    "scenario": "filter-empty",
+    "screenshot": "desktop-1366-filter-empty.png",
+    "metrics": {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 1037
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 0,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": true,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1366",
+    "scenario": "long-text",
+    "screenshot": "desktop-1366-long-text.png",
+    "metrics": {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 1467
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 5,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 3,
+      "overflowingTextSample": [
+        {
+          "tag": "span",
+          "text": "Condensadora rooftop supermercado matriz ala norte corredor tecnico com identificador extr",
+          "clientWidth": 378,
+          "scrollWidth": 839
+        },
+        {
+          "tag": "span",
+          "text": "Mercado Bom Preço - Casa de maquinas superior - acesso pela escada externa do bloco admini",
+          "clientWidth": 378,
+          "scrollWidth": 645
+        },
+        {
+          "tag": "span",
+          "text": "Refrigeracao industrial com monitoramento local - TAG-EXTREMAMENTE-LONGA-2026-ALA-NORTE-00",
+          "clientWidth": 298,
+          "scrollWidth": 664
+        }
+      ],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1366",
+    "scenario": "detail-attachments",
+    "screenshot": "desktop-1366-detail-attachments.png",
+    "metrics": {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "scroll": {
+        "width": 1366,
+        "height": 917
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Split 24.000 BTU",
+      "equipmentCards": 0,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": null,
+      "filterRailOverflowX": null,
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": true
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1920",
+    "scenario": "list",
+    "screenshot": "desktop-1920-list.png",
+    "metrics": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1305
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 4,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1920",
+    "scenario": "filter-empty",
+    "screenshot": "desktop-1920-filter-empty.png",
+    "metrics": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1080
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 0,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": true,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1920",
+    "scenario": "long-text",
+    "screenshot": "desktop-1920-long-text.png",
+    "metrics": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1467
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Equipamentos",
+      "equipmentCards": 5,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 3,
+      "overflowingTextSample": [
+        {
+          "tag": "span",
+          "text": "Condensadora rooftop supermercado matriz ala norte corredor tecnico com identificador extr",
+          "clientWidth": 459,
+          "scrollWidth": 839
+        },
+        {
+          "tag": "span",
+          "text": "Mercado Bom Preço - Casa de maquinas superior - acesso pela escada externa do bloco admini",
+          "clientWidth": 459,
+          "scrollWidth": 645
+        },
+        {
+          "tag": "span",
+          "text": "Refrigeracao industrial com monitoramento local - TAG-EXTREMAMENTE-LONGA-2026-ALA-NORTE-00",
+          "clientWidth": 379,
+          "scrollWidth": 664
+        }
+      ],
+      "filterRailFlexWrap": "wrap",
+      "filterRailOverflowX": "visible",
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": false
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  },
+  {
+    "viewport": "desktop-1920",
+    "scenario": "detail-attachments",
+    "screenshot": "desktop-1920-detail-attachments.png",
+    "metrics": {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scroll": {
+        "width": 1920,
+        "height": 1080
+      },
+      "hasHorizontalOverflow": false,
+      "h1": "Split 24.000 BTU",
+      "equipmentCards": 0,
+      "offscreenXVisibleCount": 0,
+      "offscreenXVisibleSample": [],
+      "overflowingTextCount": 0,
+      "overflowingTextSample": [],
+      "filterRailFlexWrap": null,
+      "filterRailOverflowX": null,
+      "containsEmptyMessage": false,
+      "containsThreeAttachments": true
+    },
+    "consoleMessages": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+      }
+    ]
+  }
+]

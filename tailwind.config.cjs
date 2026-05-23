@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./index.html', './src/react/**/*.{js,jsx,ts,tsx}'],
+  content: ['./index.html', './src/react/**/*.{js,jsx,ts,tsx}', './src/app-v2/**/*.{ts,tsx}'],
   prefix: 'tw-',
   corePlugins: {
     preflight: false,

@@ -62,6 +62,11 @@ function remoteRowsForRequest(url, remoteData = {}) {
   return null;
 }
 
+function requestWantsSingleObject(request) {
+  const accept = request.headers().accept || '';
+  return accept.includes('application/vnd.pgrst.object+json');
+}
+
 /**
  * Storage key do Supabase: depende do hostname. Em testes rodamos contra
  * 127.0.0.1, então `sb-127-auth-token`. Se rodar contra outro host, ajusta.
@@ -183,7 +188,7 @@ export async function setupAuthedPage(page, options = {}) {
       return route.fulfill({
         status: 201,
         contentType: 'application/json',
-        body: JSON.stringify(hydrated),
+        body: JSON.stringify(requestWantsSingleObject(req) ? hydrated[0] : hydrated),
       });
     }
 

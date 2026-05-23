@@ -210,9 +210,6 @@ export function renderShellViews() {
             <div class="equip-hero__kpis" id="equip-hero-kpis" role="list"></div>
           </section>
 
-          <!-- Quick filters: 5 pílulas (Todos · Sem setor · Em atenção · Críticos · Preventiva ≤30d). -->
-          <nav class="equip-filters" id="equip-filters" aria-label="Filtrar equipamentos" hidden></nav>
-
           <div class="page-toolbar">
             <div>
               <div class="section-title" id="equip-page-title">Equipamentos</div>
@@ -222,16 +219,11 @@ export function renderShellViews() {
               <button class="btn btn--primary btn--sm" data-action="open-modal" data-id="modal-add-eq">+ Novo equipamento</button>
             </div>
           </div>
-          <div id="equip-context-chip"></div>
-          <!--
-            Wrapper flex que coloca search bar + toggle Lista/Grade na mesma
-            linha. Antes o toggle estava DENTRO da .search-bar (que é só
-            position:relative, sem flex) e quebrava pra linha solta abaixo
-            do input. Agora wrapper externo controla a disposição:
-              [ search input flex:1 ] [ toggle flex-shrink:0 ]
-            A .search-bar mantém a UI interna do input + ícone lupa
-            sem precisar de mudança estrutural.
-          -->
+          <section class="equip-operational-bar" aria-label="Controles da aba Equipamentos">
+            <div class="equip-operational-bar__top">
+              <div id="equip-context-chip"></div>
+              <nav class="equip-filters" id="equip-filters" aria-label="Filtrar equipamentos" hidden></nav>
+            </div>
           <div class="equip-search-row">
             <div class="search-bar" id="equip-search-bar">
               <span class="search-bar__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14"
@@ -264,6 +256,7 @@ export function renderShellViews() {
               </button>
             </div>
           </div>
+          </section>
           <div id="lista-equip" role="list"></div>
         </div>
 
