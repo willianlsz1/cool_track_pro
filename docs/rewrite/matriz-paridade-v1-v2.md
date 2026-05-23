@@ -2455,3 +2455,39 @@ Fora de escopo:
 - runtime v1;
 - PDF/share, WhatsApp, billing, upload/storage, PMOC, Supabase/RLS e
   dependencias.
+
+## 143. Checkpoint concluido - CP-AI fallback de preview publico sem env Supabase
+
+CP-AI corrigiu o bootstrap principal do app-v2 para nao deixar o root vazio
+quando o preview publico nao possui env Supabase configurada.
+
+Arquivos:
+
+- `src/app-v2/main.tsx`
+- `src/app-v2/main.test.tsx`
+- `docs/rewrite/app-v2-primary-public-preview-fallback-cp-ai.md`
+- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
+- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+
+Resultado:
+
+- `main.tsx` deixou de importar `../core/supabase.js` no topo do modulo;
+- o bootstrap autenticado passou a carregar Supabase, browser options e harness
+  por import dinamico;
+- se a inicializacao autenticada falhar, o app-v2 monta fallback local com
+  `mountAppV2(root)`;
+- o teste de bootstrap cobre o caminho autenticado e o fallback sem env.
+
+Fora de escopo:
+
+- configurar env real no provedor;
+- validar Supabase/RLS real;
+- storage real, migrations, billing, WhatsApp, PDF/share, upload/storage, PMOC,
+  v1/legado e dependencias.
+
+## 144. Proximo checkpoint recomendado
+
+> Aguardar deploy do PR atualizado e reexecutar o smoke externo do root
+> principal contra a URL publica de preview; se passar, seguir para validacao
+> com env real/sessao real ou Cloudflare Pages preview conforme ambiente
+> disponivel.

@@ -457,6 +457,29 @@ Limite:
 - migracao ou arquivamento formal das specs legadas fica para etapa propria de
   harness E2E.
 
+### CP-AI - Fallback do preview publico sem env Supabase
+
+Objetivo:
+
+Evitar tela vazia no root principal quando o preview publico nao possui
+`VITE_SUPABASE_URL` ou `VITE_SUPABASE_ANON_KEY` configuradas.
+
+Status:
+
+- concluido em
+  `docs/rewrite/app-v2-primary-public-preview-fallback-cp-ai.md`;
+- `src/app-v2/main.tsx` carrega Supabase e harness autenticado por import
+  dinamico;
+- se o bootstrap autenticado falhar na inicializacao, o root principal monta
+  `mountAppV2(root)` como fallback local;
+- `src/app-v2/main.test.tsx` cobre o caminho autenticado e o fallback sem env.
+
+Limite:
+
+- nao configura env real no provedor;
+- nao valida Supabase/RLS real, sessao real ou escrita real;
+- smoke externo deve ser reexecutado apos o deploy do PR atualizado.
+
 ## 6. Criterio para declarar "v2 pode substituir v1"
 
 O app-v2 so deve substituir o v1 quando todos estes itens tiverem evidencia:
@@ -480,9 +503,10 @@ O app-v2 ja e a entrada principal local desta branch apos a CP-AB. CP-AD cobriu
 rotas principais; CP-AE/CP-AF cobriram leitura/escrita autenticada de cliente e
 equipamento com Supabase fake no root principal. CP-AG corrigiu a medicao de
 bundle-size para o bundle emitido pelo app-v2 principal. CP-AH alinhou o E2E do
-PR de corte as specs app-v2 relevantes. Ele ainda nao deve virar principal no
-Cloudflare ate passar por sessao real, leitura/escrita minima real, smoke
-mobile/desktop e Cloudflare Pages preview.
+PR de corte as specs app-v2 relevantes. CP-AI adicionou fallback local quando o
+preview publico nao possui env Supabase, evitando root vazio. Ele ainda nao deve
+virar principal no Cloudflare ate passar por sessao real, leitura/escrita minima
+real, smoke mobile/desktop e Cloudflare Pages preview.
 
 O proximo passo recomendado depende do ambiente disponivel: validar URL externa
 do Cloudflare Pages preview ou executar CP-Y com sessao Supabase real.

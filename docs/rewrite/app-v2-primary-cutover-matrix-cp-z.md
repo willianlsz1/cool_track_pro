@@ -144,3 +144,14 @@ git diff --check
 Como não há mudança de runtime, `npm run build` e `npm run check` não são
 obrigatórios para esta CP, mas continuam obrigatórios quando CP-AA ou CP-AB
 alterarem código.
+
+## Atualizacao CP-AI
+
+O preview publico Netlify do PR expos um root vazio quando a env
+`VITE_SUPABASE_ANON_KEY` nao estava configurada. O bootstrap principal agora usa
+import dinamico para Supabase/harness autenticado e cai para `mountAppV2` quando
+a inicializacao autenticada falha.
+
+Essa protecao evita tela vazia em preview sem env, mas nao substitui a validacao
+obrigatoria com env real, sessao real, escrita real minima e Cloudflare Pages
+preview.
