@@ -18,14 +18,16 @@ import type { ServiceReportViewModel } from './serviceReportViewModel';
 interface ServiceDoneProps {
   done: ServiceDoneViewModel;
   report: ServiceReportViewModel;
-  onBackToServices: () => void;
+  errorMessage?: string | null;
+  onBackToServices: () => void | Promise<void>;
   onCreateQuote: () => void;
-  onOpenEquipment: () => void;
+  onOpenEquipment: () => void | Promise<void>;
 }
 
 export function ServiceDone({
   done,
   report,
+  errorMessage,
   onBackToServices,
   onCreateQuote,
   onOpenEquipment,
@@ -70,6 +72,12 @@ export function ServiceDone({
             Voltar para Serviços
           </DoneButton>
         </div>
+
+        {errorMessage ? (
+          <p className="tw-mx-auto tw-mt-4 tw-max-w-xl tw-rounded-xl tw-border tw-border-[#FCA5A5] tw-bg-[#FEF2F2] tw-px-3 tw-py-2 tw-text-center tw-text-sm tw-font-semibold tw-text-[#B91C1C]">
+            {errorMessage}
+          </p>
+        ) : null}
 
         <hr className="tw-my-6 tw-h-px tw-border-0 tw-bg-[#EDF2F7]" />
 
@@ -132,7 +140,7 @@ function DoneButton({
   variant,
 }: {
   children: ReactNode;
-  onClick: () => void;
+  onClick: () => void | Promise<void>;
   variant: 'outline' | 'primary';
 }) {
   const classes =
@@ -144,7 +152,9 @@ function DoneButton({
     <button
       type="button"
       className={`tw-inline-flex tw-min-h-10 tw-items-center tw-gap-2 tw-rounded-[10px] tw-border tw-px-4 tw-py-2 tw-text-xs tw-font-semibold tw-transition focus-visible:tw-outline focus-visible:tw-outline-2 focus-visible:tw-outline-offset-2 focus-visible:tw-outline-[#2563EB] ${classes}`}
-      onClick={onClick}
+      onClick={() => {
+        void onClick();
+      }}
     >
       {children}
     </button>

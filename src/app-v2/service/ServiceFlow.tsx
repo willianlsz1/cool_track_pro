@@ -27,7 +27,7 @@ interface ServiceFlowProps {
   initialDraft: ServiceDraft;
   onBackToServices: () => void;
   onDraftChange: (draft: ServiceDraft) => void;
-  onCompleteService: (draft: ServiceDraft) => void;
+  onCompleteService: (draft: ServiceDraft) => string | null | Promise<string | null>;
   onCreateQuoteFromCompletedService: (draft: ServiceDraft) => void;
   onValidateService?: (draft: ServiceDraft) => string | null;
   onChangeEquipment?: () => void;
@@ -88,13 +88,27 @@ export function ServiceFlow({
     nextStep();
   }
 
-  function finishAndBackToServices() {
-    onCompleteService(draft);
+  async function finishAndBackToServices() {
+    const errorMessage = await resolveServiceCompletionResult(onCompleteService(draft));
+
+    if (errorMessage) {
+      setCompletionError(errorMessage);
+      return;
+    }
+
+    setCompletionError(null);
     onBackToServices();
   }
 
-  function finishAndOpenEquipment() {
-    onCompleteService(draft);
+  async function finishAndOpenEquipment() {
+    const errorMessage = await resolveServiceCompletionResult(onCompleteService(draft));
+
+    if (errorMessage) {
+      setCompletionError(errorMessage);
+      return;
+    }
+
+    setCompletionError(null);
     onOpenEquipment(draft.equipmentId);
   }
 
@@ -165,6 +179,7 @@ export function ServiceFlow({
         <ServiceDone
           done={buildServiceDoneViewModel(input, draft)}
           report={buildServiceReportViewModel(input, draft)}
+          errorMessage={completionError}
           onBackToServices={finishAndBackToServices}
           onCreateQuote={finishAndCreateQuote}
           onOpenEquipment={finishAndOpenEquipment}
@@ -172,6 +187,16 @@ export function ServiceFlow({
       ) : null}
     </PageShell>
   );
+}
+
+async function resolveServiceCompletionResult(
+  result: string | null | Promise<string | null>,
+): Promise<string | null> {
+  try {
+    return await result;
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Não foi possível concluir o serviço.';
+  }
 }
 
 function Progress({ currentStep }: { currentStep: ServiceFlowStep }) {

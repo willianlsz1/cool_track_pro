@@ -5,8 +5,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createAppV2MockSnapshot } from '../data/appV2MockStore';
 import type { AppV2DataPort } from '../data/appV2DataPort';
 import { createMemoryAppV2DataAdapter } from '../data/memoryAppV2DataAdapter';
+import { createServiceDraftFromRecord } from '../service/serviceFlowViewModel';
 import { AppV2Shell } from './AppV2Shell';
-import { clickButton, fillInput, selectOption } from './AppV2Shell.testUtils';
+import { clickButton, fillInput, fillTextarea, selectOption } from './AppV2Shell.testUtils';
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
   true;
@@ -497,6 +498,94 @@ describe('AppV2Shell dataPort', () => {
       HTMLSelectElement,
     );
   });
+
+  it('conclui servico novo pela dataPort injetada antes de voltar para Servicos', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    const startServiceFromEquipment = vi.spyOn(dataPort, 'startServiceFromEquipment');
+    const completeService = vi.spyOn(dataPort, 'completeService');
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /Iniciar servi/i);
+    await flushPromises();
+    await completeCurrentServiceFlow(host, 'CP-Q diagnostico', 'CP-Q acoes');
+    await clickButton(host, /^Voltar para Servi/i);
+    await flushPromises();
+
+    expect(startServiceFromEquipment).toHaveBeenCalledTimes(1);
+    expect(completeService).toHaveBeenCalledWith({
+      id: 'reg-shell-4',
+      date: initialSnapshot.today,
+      technician: 'Ana CP-Q',
+      diagnosis: 'CP-Q diagnostico',
+      actionsDone: 'CP-Q acoes',
+      finalStatus: 'ok',
+    });
+    expect(host.textContent).toContain('Registros recentes');
+    expect(host.textContent).toContain('Ana CP-Q');
+    expect(host.textContent).toContain('CP-Q diagnostico CP-Q acoes');
+    expect(host.textContent).not.toContain('Atendimento conclu');
+  });
+
+  it('mantem tela concluida e mostra erro quando completeService da dataPort rejeita', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const dataPort = createMemoryAppV2DataAdapter(initialSnapshot);
+    vi.spyOn(dataPort, 'completeService').mockRejectedValueOnce(new Error('Falha complete CP-Q'));
+    const host = await renderShellWithDataPort(initialSnapshot, dataPort);
+
+    await clickButton(host, /Iniciar servi/i);
+    await flushPromises();
+    await completeCurrentServiceFlow(host, 'CP-Q erro diagnostico', 'CP-Q erro acoes');
+    await clickButton(host, /^Voltar para Servi/i);
+    await flushPromises();
+
+    expect(host.textContent).toContain('Falha complete CP-Q');
+    expect(host.textContent).toContain('Atendimento conclu');
+    expect(host.textContent).toContain('Ver equipamento');
+    expect(host.textContent).not.toContain('Registros recentes');
+  });
+
+  it('atualiza registro existente pela dataPort injetada durante edicao', async () => {
+    const initialSnapshot = createAppV2MockSnapshot();
+    const editableRecord = initialSnapshot.registros[1];
+    const initialFlowSnapshot = {
+      ...initialSnapshot,
+      serviceDraft: createServiceDraftFromRecord(editableRecord),
+    };
+    const dataPort = createMemoryAppV2DataAdapter(initialFlowSnapshot);
+    const updateServiceRecord = vi.spyOn(dataPort, 'updateServiceRecord');
+    const host = await renderShellWithDataPort(initialFlowSnapshot, dataPort);
+
+    await clickButton(host, /^Servi/i);
+    await clickButton(host, /^Editar$/i);
+    await clickButton(host, /^Continuar$/i);
+    await clickButton(host, /^Continuar$/i);
+
+    const technician = host.querySelector('input[name="service-technician"]');
+    expect(technician).toBeInstanceOf(HTMLInputElement);
+    await fillInput(technician as HTMLInputElement, 'Ana CP-Q Editora');
+
+    const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+    await fillTextarea(diagnosis, 'CP-Q diagnostico editado');
+    await fillTextarea(actionsDone, 'CP-Q acoes editadas');
+
+    await clickButton(host, /^Revisar$/i);
+    await clickButton(host, /^Concluir servi/i);
+    await clickButton(host, /^Voltar para Servi/i);
+    await flushPromises();
+
+    expect(updateServiceRecord).toHaveBeenCalledWith({
+      id: editableRecord.id,
+      date: editableRecord.data,
+      technician: 'Ana CP-Q Editora',
+      diagnosis: 'CP-Q diagnostico editado',
+      actionsDone: 'CP-Q acoes editadas',
+      finalStatus: editableRecord.status,
+    });
+    expect(host.textContent).toContain('Ana CP-Q Editora');
+    expect(host.textContent).toContain('CP-Q diagnostico editado CP-Q acoes editadas');
+    expect(host.textContent).toContain('Registros recentes');
+  });
 });
 
 async function renderShellWithDataPort(
@@ -519,4 +608,27 @@ async function flushPromises() {
   await act(async () => {
     await Promise.resolve();
   });
+}
+
+async function completeCurrentServiceFlow(
+  host: HTMLElement,
+  diagnosisText: string,
+  actionsDoneText: string,
+) {
+  await clickButton(host, /^Continuar$/i);
+  await clickButton(host, /^Limpeza preventiva/i);
+  await clickButton(host, /^Continuar$/i);
+
+  const technician = host.querySelector('input[name="service-technician"]');
+  expect(technician).toBeInstanceOf(HTMLInputElement);
+  await fillInput(technician as HTMLInputElement, 'Ana CP-Q');
+
+  const [diagnosis, actionsDone] = Array.from(host.querySelectorAll('textarea'));
+  await fillTextarea(diagnosis, diagnosisText);
+  await fillTextarea(actionsDone, actionsDoneText);
+
+  await clickButton(host, /^Revisar$/i);
+  await clickButton(host, /^Concluir servi/i);
+
+  expect(host.textContent).toContain('Atendimento conclu');
 }

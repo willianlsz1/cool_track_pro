@@ -47,6 +47,7 @@ import type { ServicesSubView } from '../service/ServicesSubViewNav';
 import { createServiceDraftFromRecord, type ServiceDraft } from '../service/serviceFlowViewModel';
 import { appV2Tone } from '../styles/tokens';
 import {
+  buildCompleteServiceInput,
   completeServiceDraft,
   createNextClientId,
   createNextEquipmentId,
@@ -63,6 +64,7 @@ type EquipmentArchiveResult = string | null | Promise<string | null>;
 type EquipmentAttachmentResult = string | null | Promise<string | null>;
 type EquipmentSectorResult = string | null | Promise<string | null>;
 type PreventiveScheduleResult = string | null | Promise<string | null>;
+type ServiceCompletionResult = string | null | Promise<string | null>;
 
 export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   const [appState, setAppState] = useState<AppV2FlowState>(() => ({
@@ -162,7 +164,22 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
   }
 
   function startServiceFromEquipment(equipmentId: string, commitmentId?: string) {
+    if (dataPort) {
+      return dataPort
+        .startServiceFromEquipment(equipmentId, commitmentId)
+        .then((nextState) => {
+          openStartedService(nextState);
+          return null;
+        })
+        .catch(() => null);
+    }
+
     const nextState = startServiceFlowAction(appState, equipmentId, commitmentId);
+    openStartedService(nextState);
+    return null;
+  }
+
+  function openStartedService(nextState: AppV2FlowState) {
     setAppState(nextState);
     setEditingServiceId(null);
     setIsServiceFlowOpen(true);
@@ -237,15 +254,11 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
           .saveEquipment(nextDraft)
           .then((nextState) => {
             if (startServiceAfterEquipmentCreate && draft.mode !== 'edit') {
-              const serviceState = startServiceFlowAction(nextState, equipmentId);
-
-              setAppState(serviceState);
-              setEditingServiceId(null);
-              setIsServiceFlowOpen(true);
-              setIsServiceEquipmentChoiceOpen(false);
-              setStartServiceAfterEquipmentCreate(false);
-              setActiveTab('servicos');
-              return null;
+              return dataPort.startServiceFromEquipment(equipmentId).then((serviceState) => {
+                openStartedService(serviceState);
+                setStartServiceAfterEquipmentCreate(false);
+                return null;
+              });
             }
 
             setAppState(preserveCurrentServiceDraft(appState, nextState));
@@ -319,7 +332,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
             setAppState(preserveCurrentServiceDraft(appState, nextState));
             return null;
           })
-          .catch((error) => getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel salvar o setor.'));
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível salvar o setor.'));
       }
 
       const nextState = saveEquipmentSector(appState, nextDraft);
@@ -340,7 +353,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
             setAppState(preserveCurrentServiceDraft(appState, nextState));
             return null;
           })
-          .catch((error) => getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel remover o setor.'));
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível remover o setor.'));
       }
 
       const nextState = deleteEquipmentSector(appState, sectorId);
@@ -361,9 +374,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
             setAppState(preserveCurrentServiceDraft(appState, nextState));
             return null;
           })
-          .catch((error) =>
-            getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel arquivar o equipamento.'),
-          );
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível arquivar o equipamento.'));
       }
 
       const nextState = archiveEquipment(appState, equipmentId, appState.today);
@@ -385,7 +396,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
             return null;
           })
           .catch((error) =>
-            getSaveErrorMessage(error, 'NÃ£o foi possÃ­vel desarquivar o equipamento.'),
+            getSaveErrorMessage(error, 'Não foi possível desarquivar o equipamento.'),
           );
       }
 
@@ -475,9 +486,32 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
     setActiveTab('equipamento');
   }
 
-  function completeCurrentService(draft: ServiceDraft) {
-    setAppState((current) => completeServiceDraft(current, draft, editingServiceId).nextState);
-    setEditingServiceId(null);
+  function completeCurrentService(draft: ServiceDraft): ServiceCompletionResult {
+    try {
+      if (dataPort) {
+        const input = buildCompleteServiceInput(appState, draft, editingServiceId);
+        const completion = editingServiceId
+          ? dataPort.updateServiceRecord(input)
+          : dataPort.completeService(input);
+
+        return completion
+          .then((nextState) => {
+            setAppState({
+              ...nextState,
+              serviceDraft: nextState.serviceDraft ?? null,
+            });
+            setEditingServiceId(null);
+            return null;
+          })
+          .catch((error) => getSaveErrorMessage(error, 'Não foi possível concluir o serviço.'));
+      }
+
+      setAppState((current) => completeServiceDraft(current, draft, editingServiceId).nextState);
+      setEditingServiceId(null);
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Não foi possível concluir o serviço.';
+    }
   }
 
   function createQuoteFromCompletedService(draft: ServiceDraft) {
@@ -545,14 +579,7 @@ export function AppV2Shell({ initialSnapshot, dataPort }: AppV2ShellProps) {
           ...appState,
           serviceDraft: draft,
         },
-        {
-          id: editingServiceId ?? `reg-shell-${appState.registros.length + 1}`,
-          date: draft.serviceDate ?? appState.today,
-          technician: draft.technician,
-          diagnosis: draft.diagnosis,
-          actionsDone: draft.actionsDone,
-          finalStatus: draft.finalStatus,
-        },
+        buildCompleteServiceInput(appState, draft, editingServiceId),
       );
       return null;
     } catch (error) {

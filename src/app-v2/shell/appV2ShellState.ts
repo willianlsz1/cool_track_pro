@@ -1,4 +1,9 @@
-import { completeService, updateServiceRecord, type AppV2FlowState } from '../data/appV2Actions';
+import {
+  completeService,
+  updateServiceRecord,
+  type AppV2FlowState,
+  type CompleteServiceInput,
+} from '../data/appV2Actions';
 import type { AppV2MockSnapshot } from '../data/appV2MockStore';
 import type { ServiceDraft } from '../service/serviceFlowViewModel';
 
@@ -26,14 +31,7 @@ export function completeServiceDraft(
   editingServiceId?: string | null,
 ): { nextState: AppV2FlowState; recordId: string } {
   const recordId = editingServiceId ?? `reg-shell-${current.registros.length + 1}`;
-  const completion = {
-    id: recordId,
-    date: draft.serviceDate ?? current.today,
-    technician: draft.technician,
-    diagnosis: draft.diagnosis,
-    actionsDone: draft.actionsDone,
-    finalStatus: draft.finalStatus,
-  };
+  const completion = buildCompleteServiceInput(current, draft, editingServiceId);
   const stateWithDraft = {
     ...current,
     serviceDraft: draft,
@@ -44,6 +42,21 @@ export function completeServiceDraft(
     nextState: editingServiceId
       ? updateServiceRecord(stateWithDraft, completion)
       : completeService(stateWithDraft, completion),
+  };
+}
+
+export function buildCompleteServiceInput(
+  current: AppV2FlowState,
+  draft: ServiceDraft,
+  editingServiceId?: string | null,
+): CompleteServiceInput {
+  return {
+    id: editingServiceId ?? `reg-shell-${current.registros.length + 1}`,
+    date: draft.serviceDate ?? current.today,
+    technician: draft.technician,
+    diagnosis: draft.diagnosis,
+    actionsDone: draft.actionsDone,
+    finalStatus: draft.finalStatus,
   };
 }
 
