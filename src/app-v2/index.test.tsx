@@ -57,6 +57,8 @@ describe('mountAppV2', () => {
     const source = readFileSync(resolve(__dirname, 'preview.tsx'), 'utf8');
 
     expect(source).toContain('mountAppV2(root)');
+    expect(source).not.toContain('mountAuthenticatedAppV2');
+    expect(source).not.toContain('authenticatedHarness');
     expect(source).not.toContain('createAuthenticatedAppV2DataSource');
     expect(source).not.toContain('core/auth');
     expect(source).not.toContain('core/supabase');
