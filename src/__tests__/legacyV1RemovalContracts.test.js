@@ -314,6 +314,30 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/registro/__tests__/save/photos.test.js')).toBe(false);
   });
 
+  it('does not keep registro v1 photo capture/upload surface', () => {
+    const registroSource = readSource('src/ui/views/registro.js');
+    const registroTemplateSource = readSource('src/ui/shell/templates/views.js');
+    const registroContractsSource = readSource('src/ui/viewModels/registroContracts.js');
+    const photosSource = readSource('src/ui/components/photos.js');
+
+    expect(existsSync('src/ui/views/registro/save/photos.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroSavePhotosHelpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroLegacyPhotosRender.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/exploratory/photo-base64-payload.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/regressions/photo-failure-path.test.js')).toBe(false);
+    expect(registroSource).not.toContain('uploadPendingPhotos');
+    expect(registroSource).not.toContain('Photos.render');
+    expect(registroSource).not.toContain('Photos.pending');
+    expect(registroSource).not.toContain('persistRegistroPhotosForSave');
+    expect(registroTemplateSource).not.toContain('input-fotos');
+    expect(registroTemplateSource).not.toContain('registro-photos-root');
+    expect(registroTemplateSource).not.toContain('photo-drop-zone');
+    expect(registroContractsSource).not.toContain('inputFotos');
+    expect(registroContractsSource).not.toContain('photosRoot');
+    expect(photosSource).not.toContain('MAX_PHOTOS_PER_RECORD');
+    expect(photosSource).not.toContain('renderRegistroPhotosDom');
+  });
+
   it('does not keep registro signature helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/signature.js')).toBe(false);
     expect(existsSync('src/features/registro/__tests__/save/signature.test.js')).toBe(false);

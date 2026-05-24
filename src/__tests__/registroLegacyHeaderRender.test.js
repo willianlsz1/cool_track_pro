@@ -230,10 +230,8 @@ describe('registro legacy header/hero/main fields render adapter', () => {
     expect(view.querySelector('.registro-side-column')).not.toBeNull();
     expect(view.querySelector('.registro-side-card__title')?.textContent).toContain('Resumo');
     const evidencias = view.querySelector('#registro-evidencias-details');
-    expect(evidencias?.tagName).toBe('DETAILS');
-    expect(evidencias?.classList.contains('registro-details--evidence')).toBe(true);
-    expect(view.querySelector('.registro-side-column')?.contains(evidencias)).toBe(true);
-    expect(evidencias?.querySelector('#input-fotos')).not.toBeNull();
+    expect(evidencias).toBeNull();
+    expect(view.querySelector('#input-fotos')).toBeNull();
 
     ['r-equip', 'r-data', 'r-tipo', 'r-obs', 'r-tecnico'].forEach((id) => {
       expect(view.querySelector(`#${id}`)).not.toBeNull();

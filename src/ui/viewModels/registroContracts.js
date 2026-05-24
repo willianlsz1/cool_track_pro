@@ -34,12 +34,6 @@ export const REGISTRO_PUBLIC_IDS = Object.freeze({
   pecas: 'r-pecas',
   custoPecas: 'r-custo-pecas',
   custoMaoObra: 'r-custo-mao-obra',
-  photoDropZone: 'photo-drop-zone',
-  photoDropText: 'photo-drop-text',
-  inputFotos: 'input-fotos',
-  inputFotosCamera: 'input-fotos-camera',
-  photoPreview: 'photo-preview',
-  photosRoot: 'registro-photos-root',
   impactTitle: 'registro-impact-title',
   impactSubtitle: 'registro-impact-subtitle',
   impactHint: 'registro-impact-hint',
@@ -61,8 +55,6 @@ export const REGISTRO_ACTIONS = Object.freeze({
   checklistSet: 'r-checklist-set',
   checklistMeasure: 'r-checklist-measure',
   checklistObs: 'r-checklist-obs',
-  photoOpen: 'registro-photo-open',
-  photoRemove: 'registro-photo-remove',
 });
 
 export const REGISTRO_DATA_ATTRIBUTES = Object.freeze([
@@ -91,7 +83,6 @@ export const REGISTRO_PUBLIC_CLASSES = Object.freeze([
   'registro-details__body',
   'registro-actions',
   'registro-context-card',
-  'registro-photo-quick',
   'r-checklist__body',
   'r-checklist__row',
   'r-checklist__status',
@@ -102,7 +93,6 @@ export const REGISTRO_PUBLIC_CLASSES = Object.freeze([
 export const REGISTRO_REACT_ROOTS = Object.freeze({
   header: REGISTRO_PUBLIC_IDS.headerRoot,
   checklist: REGISTRO_PUBLIC_IDS.checklistBody,
-  photos: REGISTRO_PUBLIC_IDS.photosRoot,
 });
 
 export const REGISTRO_FIELD_IDS = Object.freeze([

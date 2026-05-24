@@ -9,11 +9,8 @@ import { migrateLegacyKey, userStorage } from '../../core/userStorage.js';
 import { Toast } from '../../core/toast.js';
 import { goTo, setRouteGuard, clearRouteGuard } from '../../core/router.js';
 import { CustomConfirm } from '../../core/modal.js';
-import { Photos } from '../components/photos.js';
 import { SavedHighlight } from '../components/onboarding.js';
 import { Profile } from '../../core/profile.js';
-import { ErrorCodes, handleError } from '../../core/errors.js';
-import { uploadPendingPhotos } from '../../core/photoStorage.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { reconcileEquipmentStatusesAfterRegistroEdit } from '../../domain/registroStatus.js';
 import { trackEvent } from '../../core/telemetry.js';
@@ -24,7 +21,6 @@ import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPr
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
-import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
 import {
   mountRegistroChecklistDom,
   unmountRegistroChecklistDom,
@@ -37,11 +33,6 @@ import {
   validateRegistroOperationalFieldsData,
   validateRegistroPayloadDraftData,
 } from './registro/save/payload.js';
-import {
-  buildRegistroPhotoPayload,
-  getRegistroPhotoState,
-  persistRegistroPhotosForSave,
-} from './registro/save/photos.js';
 import {
   buildRegistroCreateRecord,
   buildRegistroCreateStateMutation,
@@ -804,7 +795,7 @@ export function unmountRegistroChecklist() {
 }
 
 export function unmountRegistroPhotos() {
-  return Photos.unmount?.();
+  return null;
 }
 
 function _hasPmocChecklistAccess() {
@@ -1149,9 +1140,8 @@ function syncRegistroInitDetailsState(formView) {
   _updateProgressBar();
 }
 
-function renderRegistroInitHeroAndPhotos() {
+function renderRegistroInitHero() {
   _renderHeroSub();
-  Photos.render?.();
 }
 
 function applyRegistroInitDateDefault() {
@@ -1243,7 +1233,7 @@ function applyRegistroInitPriorityDefault() {
 
 function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }) {
   syncRegistroInitDetailsState(formView);
-  renderRegistroInitHeroAndPhotos();
+  renderRegistroInitHero();
   applyRegistroInitDateDefault();
   bindRegistroInitDatetimeUX();
   applyRegistroInitTechnicianDefault();
@@ -1542,17 +1532,7 @@ export async function saveRegistro() {
 
     // Modo criaÃ§Ã£o â€” continua fluxo normal
     const novoId = resolveRegistroCreateId({ uid: () => Utils.uid() });
-    const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
-
-    const photoPayload = buildRegistroPhotoPayload(
-      await persistRegistroPhotosForSave(photoState, {
-        registroId: novoId,
-        uploadPendingPhotos,
-        Toast,
-        handleError,
-        ErrorCodes,
-      }),
-    );
+    const photoPayload = { fotos: [] };
 
     const operationalStatus = getOperationalStatus({
       status,
@@ -1595,7 +1575,7 @@ function resetRegistroDefaultFieldsAfterClear() {
 }
 
 function resetRegistroMediaAfterClear() {
-  Photos.clear();
+  return null;
 }
 
 function resetRegistroDetailsAfterClear() {

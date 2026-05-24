@@ -17,7 +17,6 @@ function source(file) {
 
 const sourceFiles = [
   'src/ui/views/registro.js',
-  'src/ui/components/photos.js',
   'src/ui/controller/handlers/registroHandlers.js',
   'src/ui/shell/templates/views.js',
   'src/ui/views/registro/headerRenderer.js',
@@ -50,8 +49,6 @@ describe('registro public selector contracts', () => {
       'r-tipo-custom',
       'r-obs',
       'r-tecnico',
-      'photo-preview',
-      'input-fotos',
       'r-checklist-body',
     ];
 
@@ -71,7 +68,6 @@ describe('registro public selector contracts', () => {
     expect(REGISTRO_REACT_ROOTS).toEqual({
       header: 'registro-header-root',
       checklist: 'r-checklist-body',
-      photos: 'registro-photos-root',
     });
     roots.forEach(expectSourceContains);
   });
@@ -100,7 +96,6 @@ describe('registro public selector contracts', () => {
       'registro-field',
       'registro-actions',
       'registro-context-card',
-      'registro-photo-quick',
       'r-checklist__body',
       'r-checklist__row',
       'r-checklist__status',

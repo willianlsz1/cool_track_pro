@@ -546,46 +546,10 @@
                 <h3 class="registro-side-card__title" id="registro-side-summary-title">Resumo do preenchimento</h3>
                 <ul class="registro-side-card__list">
                   <li>Campos obrigatórios salvam o serviço e geram o relatório técnico.</li>
-                  <li>Evidências ficam anexadas como prova do atendimento.</li>
+                  <li>Observações e checklist registram o contexto operacional.</li>
                   <li>Checklist PMOC aparece só quando fizer sentido para o equipamento.</li>
                 </ul>
               </section>
-
-              <details class="registro-details registro-details--evidence" id="registro-evidencias-details">
-                <summary class="registro-details__summary">
-                <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-camera"/></svg></span>
-                <div class="registro-details__titles">
-                  <div class="registro-details__title">Evidências</div>
-                  <div class="registro-details__subtitle">opcional — fotos e anexos do atendimento</div>
-                </div>
-                <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
-                </summary>
-                <div class="registro-details__body">
-                <label id="photo-drop-zone" class="registro-photo-drop" for="input-fotos">
-                  <span class="registro-photo-drop__icon" aria-hidden="true"><svg><use href="#ri-camera"/></svg></span>
-                  <div class="registro-photo-drop__title" id="photo-drop-text">Toque para adicionar fotos</div>
-                  <p class="registro-photo-drop__hint">Antes/depois, etiqueta, peça trocada ou condição encontrada</p>
-                  <div class="registro-photo-drop__meta">ATÉ 5 FOTOS · JPG OU PNG</div>
-                  <input type="file" accept="image/*" multiple id="input-fotos" aria-label="Adicionar fotos" />
-                </label>
-
-                <!-- Atalho "Tirar foto agora" — só aparece em mobile (CSS esconde
-                     em desktop via hover:hover). capture="environment" abre a
-                     câmera direto, sem passar pelo picker de galeria. -->
-                <label class="equip-photo-shortcut registro-photo-quick registro-photo-quick--evidence" for="input-fotos-camera">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"
-                      stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                    <circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="1.6" />
-                  </svg>
-                  Tirar foto agora
-                </label>
-                <input type="file" accept="image/*" capture="environment" id="input-fotos-camera"
-                  class="visually-hidden" aria-label="Tirar foto com a câmera" />
-
-                <div class="photo-grid" id="photo-preview" role="list" aria-label="Fotos adicionadas"></div>
-                </div>
-              </details>
 
               <section class="registro-side-card registro-side-card--tip" aria-labelledby="registro-side-tip-title">
                 <h3 class="registro-side-card__title" id="registro-side-tip-title">Dica rápida</h3>

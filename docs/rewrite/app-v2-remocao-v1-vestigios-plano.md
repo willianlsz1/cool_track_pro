@@ -678,6 +678,11 @@ Progresso executado:
   `migrateLegacyPhotosInState`, sem consumidor runtime. A migracao ativa de
   fotos legadas permanece em `src/core/storage/storageMigrations.js`, que e o
   caminho importado por `src/core/storage.js`.
+- CP-57D aposenta a captura/upload de fotos no Registro v1: remove
+  `Photos.render`/`Photos.pending`, helpers de save de fotos, inputs publicos
+  `input-fotos`/`input-fotos-camera`/`registro-photos-root` e testes da captura
+  legada. Equipamentos, Historico, `photoStorage.js`, Supabase/RLS, bucket e
+  migrations permanecem fora deste corte.
 
 Controle:
 

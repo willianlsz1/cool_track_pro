@@ -146,8 +146,6 @@ vi.mock('../ui/views/historico.js', () => ({
   deleteReg: mocks.deleteReg,
 }));
 
-const SAFE_PHOTO =
-  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAH/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAEFAqf/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDAQE/ASP/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAECAQE/ASP/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAY/Al//xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAE/IV//2gAMAwEAAgADAAAAEP/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8QH//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8QH//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAT8QH//Z';
 const MALICIOUS = '<img src=x onerror=alert(1)><script>alert(2)</script>';
 
 function baseState(overrides = {}) {
@@ -333,15 +331,10 @@ describe('registro legacy save handlers with signature contracts', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('salva via save-registro lendo campos DOM, checklist DOM e fotos legadas', async () => {
+  it('salva via save-registro lendo campos DOM e checklist sem captura legada de fotos', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: false });
-    mocks.photos.pending = [SAFE_PHOTO];
-    mocks.uploadPendingPhotos.mockResolvedValue({
-      photos: ['uploaded-photo-ref'],
-      failedCount: 0,
-    });
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
@@ -352,10 +345,10 @@ describe('registro legacy save handlers with signature contracts', () => {
     expect(saved.tipo).toContain('Preventiva');
     expect(saved.obs).toContain('Limpeza preventiva');
     expect(getSavedTechnician(saved)).toBe('Tecnico Padrao');
-    expect(saved.fotos).toEqual(['uploaded-photo-ref']);
+    expect(saved.fotos).toEqual([]);
     expect(saved.checklist?.items.find((item) => item.id === 'filtros_limpeza')?.status).toBe('ok');
     expect(saved).not.toHaveProperty('assinatura');
-    expect(mocks.uploadPendingPhotos).toHaveBeenCalledWith([SAFE_PHOTO], { recordId: saved.id });
+    expect(mocks.uploadPendingPhotos).not.toHaveBeenCalled();
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );
