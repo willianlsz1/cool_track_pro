@@ -37,7 +37,7 @@ export function notifyRegistroCreateSaved(
   { equipId, registroId, saveContext } = {},
   { PostSaveRegistroToast, Toast } = {},
 ) {
-  // Feedback pos-save padrao. CTAs PDF/WhatsApp foram aposentados no CP54C1.
+  // Feedback pos-save padrao. CTAs externos foram aposentados no CP54C1.
   const eqForToast = saveContext.equipamentos.find((e) => e.id === equipId) || null;
   const toastShown = PostSaveRegistroToast?.show?.({
     equipId,

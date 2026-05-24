@@ -855,6 +855,28 @@ describe('legacy v1 removal contracts', () => {
     expect(joined).not.toContain('pdf gerado');
   });
 
+  it('does not keep legacy sensitive integration comments in neutralized helper files', () => {
+    const neutralizedSources = [
+      'src/core/utils.js',
+      'src/domain/dadosPlacaDisplay.js',
+      'src/domain/dadosPlacaInsights.js',
+      'src/ui/views/registro.js',
+      'src/ui/views/registro/save/postSave.js',
+      'src/ui/views/dashboard.js',
+      'src/ui/views/historico.js',
+      'src/ui/components/onboarding/onboardingBanner.js',
+      'src/ui/components/onboarding/firstTimeExperience.css',
+      'src/ui/views/equipamentos/placaData.js',
+      'src/ui/components/pushOptInCard.js',
+    ].map(readSource);
+
+    const joined = neutralizedSources.join('\n');
+
+    expect(joined).not.toContain('PDF');
+    expect(joined).not.toContain('WhatsApp');
+    expect(joined).not.toContain('assinatura');
+  });
+
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 

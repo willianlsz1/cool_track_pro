@@ -883,6 +883,8 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
   `Servicos > Relatorios` no app-v2, mantendo PDF/share para etapa propria.
 - CP-58S neutraliza copias legadas visiveis/documentais de PDF em onboarding,
   perfil, cliente e registro, preservando runtime e IDs internos antigos.
+- CP-58T neutraliza comentarios legados soltos que citavam PDF, WhatsApp e
+  assinatura em helpers sem tocar runtime sensivel.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

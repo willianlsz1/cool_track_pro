@@ -54,7 +54,7 @@ import {
 
 // Histórico é parte do core do produto e não tem corte por data em nenhum
 // plano — Free, Plus e Pro veem todos os registros salvos. Outros limites
-// do Free (equipamentos, PDFs, WhatsApp share) permanecem via plan cache.
+// do Free permanecem via plan cache ate a etapa dedicada de planos.
 
 // Filtros auxiliares persistem na sessão — desaparecem ao fechar o app (intencional).
 const HIST_PERIOD_KEY = 'cooltrack-hist-period';

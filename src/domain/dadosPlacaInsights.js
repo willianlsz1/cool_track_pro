@@ -289,10 +289,10 @@ export function buildTechnicalInsights(dadosPlaca) {
   };
 }
 
-// Exposição do mapa de tones/copies pra o PDF reutilizar texto/cor.
+// Exposicao do mapa de tones/copies para renderizadores reutilizarem texto/cor.
 export const INSIGHT_CATEGORY_ORDER = CATEGORY_ORDER;
 export const INSIGHT_CATEGORY_LABELS = { ...CATEGORY_LABELS };
 
-// Re-export do prettify pra o PDF não precisar importar dois módulos
-// quando quer só "label humanizado + categoria".
+// Re-export do prettify para consumidores que precisam apenas de
+// "label humanizado + categoria".
 export { prettifyDadosPlacaKey };

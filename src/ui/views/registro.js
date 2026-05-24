@@ -1443,7 +1443,7 @@ async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, 
   persistRegistroLastClientAfterSave(persistedPayload, { saveRegistroLastClient });
   resetRegistroCreateAfterSave({ clearRegistro });
 
-  // Feedback pos-save simples; PDF/WhatsApp serao reconstruidos em etapa propria.
+  // Feedback pos-save simples; saidas externas serao reconstruidas em etapa propria.
   runRegistroPreventivaPromptAfterSave(registroId, {
     showProximaPreventivaPrompt: _showProximaPreventivaPrompt,
   });

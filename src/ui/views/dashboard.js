@@ -1373,7 +1373,7 @@ export async function renderDashboard() {
     // topo "Continuar registro de [Equipamento]" pra resgatar o flow.
     // Onboarding checklist: card "Primeiros passos" aparece no topo do
     // painel até o usuário completar 5/5 ou dispensar. Auto-detecta cliente,
-    // equipamento e serviço via getState(). Relatório e PDF eram hooks do
+    // equipamento e serviço via getState(). Saidas externas eram hooks do
     // fluxo legado e permanecem sem caminho runtime apos a promocao do app-v2.
     const onboarding = _buildOnboardingBlocksModel({
       tier,

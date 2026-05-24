@@ -99,8 +99,8 @@ export const Utils = {
     // Aceita tanto 'YYYY-MM-DD' quanto ISO datetime completo
     // ('YYYY-MM-DDTHH:mm:ss'). No segundo caso um split('-') cru vazava
     // o resto do ISO dentro de `day`, produzindo strings como
-    // '19T21:24:04/04/2026' que o autoTable do PDF quebrava em duas
-    // linhas ('19T21:24:0' / '4/2026'). slice(0, 10) isola a porção
+    // '19T21:24:04/04/2026' em consumidores de data formatada.
+    // slice(0, 10) isola a porção
     // de data antes do split — seguro para ambos os formatos.
     const [y, m, day] = iso.slice(0, 10).split('-');
     if (!y || !m || !day) return '—';

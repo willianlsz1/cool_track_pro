@@ -309,8 +309,8 @@
   flex-shrink: 0;
 }
 
-/* Bloco de prévia do relatório (step 3) — usa superfície clara
-   intencionalmente (simula PDF impresso), por isso NÃO usa tokens
+/* Bloco de previa do relatorio (step 3) - usa superficie clara
+   intencionalmente, por isso nao usa tokens
    de tema dark. */
 .ftx-report-copy-top {
   font-size: 14px;

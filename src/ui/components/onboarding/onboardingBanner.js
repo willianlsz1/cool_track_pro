@@ -46,8 +46,8 @@ export const OnboardingBanner = {
     if (wasSkipped) {
       // Usuário pulou o FTX deliberadamente — oferece retomar o cadastro
       // em vez de abrir o modal de adicionar equipamento direto. A ideia é
-      // preservar o ponto de contato com o preview de PDF que é o "aha
-      // moment" do produto.
+      // preservar o ponto de contato com o primeiro registro, que e o
+      // momento operacional principal do produto.
       el.innerHTML = `
         <div class="onboarding-banner__icon">⏱️</div>
         <div>

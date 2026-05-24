@@ -9,7 +9,7 @@
  * Consumidores:
  *   - viewEquip() no modal de detalhe do equipamento (seção "Dados da etiqueta")
  *   - record card expandido no histórico/relatório
- *   - (futuro) PDF export
+ *   - exportadores futuros via etapa propria
  *
  * Schema esperado — ver migration 20260421_equipamentos_dados_placa.sql:
  *   numero_serie (string), capacidade_btu (int), tensao (string), frequencia_hz (int),
@@ -159,9 +159,9 @@ function formatValue(key, raw) {
 }
 
 /**
- * Cap máximo de extras renderizados. Protege o detail/PDF de payloads
+ * Cap máximo de extras renderizados. Protege o detail view de payloads
  * exagerados. Se houver mais que isso, os últimos são omitidos (com
- * indicador de truncamento quando consumido pelo PDF).
+ * indicador de truncamento quando consumido por outro renderizador).
  */
 export const CAMPOS_EXTRAS_DISPLAY_CAP = 10;
 
@@ -187,7 +187,7 @@ export function prettifyDadosPlacaKey(key) {
 
 /**
  * Chaves que são metadata (não campo de etiqueta). Não entram no render
- * do detail view nem do PDF. Qualquer chave iniciada com `_` também é
+ * do detail view. Qualquer chave iniciada com `_` também é
  * tratada como metadata.
  */
 const METADATA_KEYS = new Set(['camposExtras', 'notas']);

@@ -116,8 +116,8 @@ export function collectDadosPlaca() {
     }));
   }
 
-  // Metadata: preserva origem (ai/manual) e notas da IA. Chaves `_*` são
-  // tratadas como metadata pelo display/PDF e omitidas do render; ficam
+  // Metadata: preserva origem (ai/manual) e notas da IA. Chaves `_*` sao
+  // tratadas como metadata pelo display e omitidas do render; ficam
   // auditáveis no DB.
   const metadata = getNameplateMetadata();
   result._source = metadata.source || 'manual';

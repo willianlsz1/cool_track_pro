@@ -2,8 +2,8 @@
  * PushOptInCard — card de opt-in pra notificações push.
  * ─────────────────────────────────────────────────────────────────
  * Renderizado dentro da view de Conta. Permite ao usuário ativar/
- * desativar notificações push (preventivas próximas do vencimento +
- * eventos como assinatura de orçamento).
+ * desativar notificacoes push (preventivas proximas do vencimento +
+ * eventos operacionais futuros).
  *
  * Estados visuais:
  *   - Permission default: mostra CTA "Ativar notificações"
