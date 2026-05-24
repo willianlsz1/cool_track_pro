@@ -348,6 +348,27 @@ describe('legacy v1 removal contracts', () => {
     expect(routerSource).not.toContain('signature-viewer');
   });
 
+  it('does not keep legacy registro signature surface after retiring signature flows', () => {
+    const registroSource = readSource('src/ui/views/registro.js');
+    const registroHandlersSource = readSource('src/ui/controller/handlers/registroHandlers.js');
+    const registroTemplateSource = readSource('src/ui/shell/templates/views.js');
+    const registroContractsSource = readSource('src/ui/viewModels/registroContracts.js');
+
+    expect(existsSync('src/ui/views/registro/save/signature.js')).toBe(false);
+    expect(existsSync('src/ui/views/registro/signatureHint.js')).toBe(false);
+    expect(existsSync('src/ui/viewModels/registroSignatureModel.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroSaveSignatureHelpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroSignatureHint.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroSignatureLegacyHandlers.test.jsx')).toBe(false);
+    expect(registroSource).not.toContain('captureRegistroSignatureFromHint');
+    expect(registroSource).not.toContain('mountRegistroSignature');
+    expect(registroHandlersSource).not.toContain('REGISTRO_SIGNATURE_ACTIONS');
+    expect(registroTemplateSource).not.toContain('registro-signature-hint');
+    expect(registroContractsSource).not.toContain('registro-signature-capture');
+    expect(registroContractsSource).not.toContain('registro-signature-open');
+    expect(registroContractsSource).not.toContain('registro-signature-remove');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

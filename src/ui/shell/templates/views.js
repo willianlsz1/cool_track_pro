@@ -689,37 +689,13 @@
               </button>
             </div>
 
-            <!-- UX V2 audit fix #90: assinatura do cliente movida pra ANTES
-                 do rodape de acao. Antes ficava DEPOIS do botao Salvar — usuario
-                 ja achava que tinha terminado. Agora ele ve "Assinatura: Incluso"
-                 antes de tocar em Salvar. -->
-            <div class="registro-sig-hint" id="registro-signature-hint" hidden>
-              <span class="registro-sig-hint__ic" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-                  <path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
-                </svg>
-              </span>
-              <div class="registro-sig-hint__body">
-                <div class="registro-sig-hint__head">
-                  <strong class="registro-sig-hint__title">Assinatura do cliente</strong>
-                  <span class="registro-sig-hint__badge">Incluso</span>
-                </div>
-                <p class="registro-sig-hint__desc">
-                  Ao salvar, solicitamos a rubrica do cliente. Ela fica anexada ao registro e aparece no relatório técnico.
-                </p>
-              </div>
-            </div>
-
             <!-- ============== Rodapé de ação V3 — alinhado ao padrão do
                  footer do modal de equipamento (modals.js#eq-action-footer) ===
                  Estrutura: .action-footer envolve primário + .action-tray
                  (card com separadores) + hint. Dá affordance de botão às
                  ações secundárias e marca Recomeçar como destrutivo (vermelho).
                  Mantém wrapper .registro-actions pra contrato em
-                 registroContracts.js + #tour-signature-anchor pro tour. -->
+                 registroContracts.js + tour. -->
             <div class="action-footer registro-actions" id="tour-signature-anchor">
               <button class="btn btn--primary action-footer__primary"
                 data-action="save-registro"

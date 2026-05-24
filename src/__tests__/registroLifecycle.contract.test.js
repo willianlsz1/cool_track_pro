@@ -236,9 +236,6 @@ describe('registro lifecycle contract', () => {
     expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
       'true',
     );
-    expect(
-      document.getElementById('registro-signature-hint')?.dataset.registroSignatureMounted,
-    ).toBe('true');
     expect(document.getElementById('r-equip')?.value).toBe('eq-1');
     expect(document.getElementById('r-data')?.value).toBe('2026-05-01T09:30');
     expect(document.getElementById('r-tecnico')?.value).toBe('Tecnico Padrao');
@@ -247,7 +244,7 @@ describe('registro lifecycle contract', () => {
     expect(mocks.photosRender).toHaveBeenCalledTimes(1);
   });
 
-  it('clearRegistro preserva equipamento opcionalmente, limpa modo edicao e reseta fotos assinatura e Checklist PMOC', async () => {
+  it('clearRegistro preserva equipamento opcionalmente, limpa modo edicao e reseta fotos e Checklist PMOC', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state);
@@ -273,9 +270,6 @@ describe('registro lifecycle contract', () => {
     expect(document.getElementById('view-registro')?.dataset.editMode).toBe('0');
     expect(mocks.clearRouteGuard).toHaveBeenCalled();
     expect(mocks.photosClear).toHaveBeenCalledTimes(1);
-    expect(
-      document.getElementById('registro-signature-hint')?.dataset.registroSignatureMounted,
-    ).toBe('true');
     expect(registro.getCurrentChecklist()).toBeNull();
   });
 
@@ -334,6 +328,6 @@ describe('registro lifecycle contract', () => {
     expect(document.getElementById('registro-header-root')).not.toBeNull();
     expect(document.getElementById('r-checklist-body')).not.toBeNull();
     expect(document.getElementById('photo-preview')).not.toBeNull();
-    expect(document.getElementById('registro-signature-hint')).not.toBeNull();
+    expect(document.getElementById('registro-signature-hint')).toBeNull();
   });
 });

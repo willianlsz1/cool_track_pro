@@ -99,10 +99,6 @@ vi.mock('../../ui/viewModels/registroViewModel.js', () => ({
 vi.mock('../../ui/viewModels/registroPhotosModel.js', () => ({
   isSafeRegistroPhotoSrc: vi.fn(() => true),
 }));
-vi.mock('../../ui/viewModels/registroSignatureModel.js', () => ({
-  REGISTRO_SIGNATURE_ROOT_ID: 'registro-signature-root',
-  isSafeRegistroSignatureSrc: vi.fn(() => true),
-}));
 vi.mock('../../domain/pmoc/checklistTemplates.js', () => ({
   getChecklistTemplate: vi.fn(() => null),
   buildEmptyChecklist: vi.fn(() => null),

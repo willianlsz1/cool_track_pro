@@ -25,11 +25,6 @@ import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
-import { REGISTRO_SIGNATURE_ROOT_ID } from '../viewModels/registroSignatureModel.js';
-import {
-  renderRegistroSignatureHint,
-  unmountRegistroSignatureHint,
-} from './registro/signatureHint.js';
 import {
   mountRegistroChecklistDom,
   unmountRegistroChecklistDom,
@@ -47,14 +42,6 @@ import {
   getRegistroPhotoState,
   persistRegistroPhotosForSave,
 } from './registro/save/photos.js';
-import {
-  buildRegistroSignaturePayload,
-  captureRegistroSignatureIfNeeded,
-  clearRegistroSignatureAfterSave,
-  getRegistroSignatureState,
-  loadRegistroSignatureSaveModule,
-  persistRegistroSignatureForSave,
-} from './registro/save/signature.js';
 import {
   buildRegistroCreateRecord,
   buildRegistroCreateStateMutation,
@@ -198,8 +185,6 @@ function _prefillObsFromTipo(tipo) {
 
 const EDITING_KEY = 'cooltrack-editing-id';
 let _registroChecklistRenderGeneration = 0;
-let _registroSignatureRenderGeneration = 0;
-let _registroSignatureDraftSrc = '';
 let _isSavingRegistro = false;
 // Persiste o Ãºltimo cliente preenchido para auto-prefill no prÃ³ximo registro â€”
 // tÃ©cnico que atende o mesmo cliente em sequÃªncia nÃ£o precisa digitar de novo.
@@ -823,57 +808,6 @@ export function unmountRegistroPhotos() {
   return Photos.unmount?.();
 }
 
-function buildRegistroSignatureProps() {
-  return {
-    isPlusOrHigher: false,
-    signatureSrc: '',
-    onUpsellClick: () => {
-      trackEvent('signature_upsell_clicked', { source: 'registro_form' });
-      Toast.warning('Recurso indisponivel nesta etapa.');
-    },
-  };
-}
-
-function mountRegistroSignature() {
-  if (typeof document === 'undefined') return null;
-
-  const root = document.getElementById(REGISTRO_SIGNATURE_ROOT_ID);
-  if (!root) return null;
-
-  const renderGeneration = (_registroSignatureRenderGeneration += 1);
-  const props = buildRegistroSignatureProps();
-
-  return Promise.resolve().then(() => {
-    if (renderGeneration !== _registroSignatureRenderGeneration) return null;
-    return renderRegistroSignatureHint(root, props);
-  });
-}
-
-export function unmountRegistroSignature() {
-  _registroSignatureRenderGeneration += 1;
-  if (typeof document === 'undefined') return null;
-
-  const root = document.getElementById(REGISTRO_SIGNATURE_ROOT_ID);
-  return unmountRegistroSignatureHint(root);
-}
-
-export async function captureRegistroSignatureFromHint(el = null) {
-  void el;
-  Toast.warning?.('Assinatura digital sera refeita em uma etapa propria.');
-  return false;
-}
-
-export async function openRegistroSignatureFromHint(el = null) {
-  void el;
-  return false;
-}
-
-export async function removeRegistroSignatureFromHint() {
-  _registroSignatureDraftSrc = '';
-  await mountRegistroSignature();
-  return true;
-}
-
 function _hasPmocChecklistAccess() {
   return PlanCache.isCachedPlanPro?.() === true;
 }
@@ -1308,10 +1242,6 @@ function applyRegistroInitPriorityDefault() {
   if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
 }
 
-function applyRegistroInitSignatureHint() {
-  applySignatureHint();
-}
-
 function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }) {
   syncRegistroInitDetailsState(formView);
   renderRegistroInitHeroAndPhotos();
@@ -1325,11 +1255,6 @@ function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId 
   _buildRegistroReadOnlyViewModel(params);
 
   applyRegistroInitPriorityDefault();
-
-  // Hint de assinatura: acesso liberado mostra "Incluso" confirmando que a
-  // captura vai rolar no save. Sem acesso, a variante informativa fica
-  // escondida por padrÃ£o para evitar flash de conteÃºdo indevido.
-  applyRegistroInitSignatureHint();
 }
 
 export function initRegistro(params = {}) {
@@ -1344,10 +1269,6 @@ export function initRegistro(params = {}) {
       runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }),
     ),
   );
-}
-
-function applySignatureHint() {
-  return mountRegistroSignature();
 }
 
 function getRegistroFormElements() {
@@ -1624,36 +1545,6 @@ export async function saveRegistro() {
     const novoId = resolveRegistroCreateId({ uid: () => Utils.uid() });
     const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
 
-    // Assinatura digital legada aposentada: app-v2-native tera etapa propria.
-    const signatureState = getRegistroSignatureState({
-      registroId: novoId,
-      canUseSignature: false,
-    });
-    await loadRegistroSignatureSaveModule(signatureState);
-    const { assinatura } = await captureRegistroSignatureIfNeeded(
-      {
-        ...signatureState,
-      },
-      {
-        Toast,
-        handleError,
-        ErrorCodes,
-      },
-    );
-    // Reference do Storage quando upload OK; null quando offline ou sem acesso.
-    // Shape: { version, provider, bucket, path, url, urlExpiresAt, ... }
-    const signatureReference = await persistRegistroSignatureForSave(
-      {
-        registroId: novoId,
-        assinatura,
-      },
-      {
-        Toast,
-        handleError,
-        ErrorCodes,
-      },
-    );
-
     const photoPayload = buildRegistroPhotoPayload(
       await persistRegistroPhotosForSave(photoState, {
         registroId: novoId,
@@ -1674,7 +1565,7 @@ export async function saveRegistro() {
       registroId: novoId,
       persistedPayload,
       photoPayload,
-      assinaturaPayload: buildRegistroSignaturePayload({ assinatura, signatureReference }),
+      assinaturaPayload: false,
       checklist: getCurrentChecklist(),
     });
 
@@ -1707,15 +1598,6 @@ function resetRegistroDefaultFieldsAfterClear() {
 
 function resetRegistroMediaAfterClear() {
   Photos.clear();
-}
-
-function resetRegistroSignatureAfterClear() {
-  clearRegistroSignatureAfterSave({
-    clearDraft: () => {
-      _registroSignatureDraftSrc = '';
-    },
-    remountSignature: mountRegistroSignature,
-  });
 }
 
 function resetRegistroDetailsAfterClear() {
@@ -1784,7 +1666,6 @@ export function clearRegistro(preserveEquip = false) {
   resetEditingState();
   resetRegistroDefaultFieldsAfterClear();
   resetRegistroMediaAfterClear();
-  resetRegistroSignatureAfterClear();
 
   // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
   resetRegistroDetailsAfterClear();

@@ -613,6 +613,13 @@ Progresso executado:
   `registerBlockingLayer` para outras camadas bloqueantes. A superficie inerte
   de assinatura no Registro e o campo `registros.assinatura` permanecem para
   CPs proprios.
+- CP-55F remove a superficie inerte de assinatura do Registro v1:
+  `src/ui/views/registro/signatureHint.js`,
+  `src/ui/views/registro/save/signature.js`,
+  `src/ui/viewModels/registroSignatureModel.js`, handlers delegados,
+  selectors publicos e o bloco `registro-signature-hint` do template. O save
+  continua gravando `assinatura: false` para preservar o shape ate CP dedicado
+  de schema/sync.
 
 Controle:
 

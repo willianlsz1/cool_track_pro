@@ -41,9 +41,6 @@ const mocks = vi.hoisted(() => ({
   setChecklistItemStatus: vi.fn(),
   setChecklistItemObs: vi.fn(),
   setChecklistItemMeasure: vi.fn(),
-  captureRegistroSignatureFromHint: vi.fn(),
-  openRegistroSignatureFromHint: vi.fn(),
-  removeRegistroSignatureFromHint: vi.fn(),
 }));
 
 vi.mock('../core/events.js', () => ({
@@ -172,21 +169,9 @@ vi.mock('../ui/views/registro.js', () => ({
   setChecklistItemStatus: mocks.setChecklistItemStatus,
   setChecklistItemObs: mocks.setChecklistItemObs,
   setChecklistItemMeasure: mocks.setChecklistItemMeasure,
-  captureRegistroSignatureFromHint: mocks.captureRegistroSignatureFromHint,
-  openRegistroSignatureFromHint: mocks.openRegistroSignatureFromHint,
-  removeRegistroSignatureFromHint: mocks.removeRegistroSignatureFromHint,
   unmountRegistroHeader: vi.fn(),
   unmountRegistroChecklist: vi.fn(),
   unmountRegistroPhotos: vi.fn(),
-  unmountRegistroSignature: vi.fn(),
-}));
-
-vi.mock('../ui/viewModels/registroSignatureModel.js', () => ({
-  REGISTRO_SIGNATURE_ACTIONS: {
-    capture: 'registro-signature-capture',
-    open: 'registro-signature-open',
-    remove: 'registro-signature-remove',
-  },
 }));
 
 vi.mock('../ui/views/historico/filtersRenderer.js', () => ({

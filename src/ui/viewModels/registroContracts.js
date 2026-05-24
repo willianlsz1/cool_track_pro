@@ -51,7 +51,6 @@ export const REGISTRO_PUBLIC_IDS = Object.freeze({
   checklistSummary: 'r-checklist-summary',
   checklistBody: 'r-checklist-body',
   checklistUpsell: 'r-checklist-upsell',
-  signatureHint: 'registro-signature-hint',
   actionAnchor: 'tour-signature-anchor',
 });
 
@@ -62,10 +61,6 @@ export const REGISTRO_ACTIONS = Object.freeze({
   checklistSet: 'r-checklist-set',
   checklistMeasure: 'r-checklist-measure',
   checklistObs: 'r-checklist-obs',
-  signatureCapture: 'registro-signature-capture',
-  signatureOpen: 'registro-signature-open',
-  signatureRemove: 'registro-signature-remove',
-  signatureUpsell: 'signature-upsell-cta',
   photoOpen: 'registro-photo-open',
   photoRemove: 'registro-photo-remove',
 });
@@ -97,7 +92,6 @@ export const REGISTRO_PUBLIC_CLASSES = Object.freeze([
   'registro-actions',
   'registro-context-card',
   'registro-photo-quick',
-  'registro-sig-hint',
   'r-checklist__body',
   'r-checklist__row',
   'r-checklist__status',
@@ -109,7 +103,6 @@ export const REGISTRO_REACT_ROOTS = Object.freeze({
   header: REGISTRO_PUBLIC_IDS.headerRoot,
   checklist: REGISTRO_PUBLIC_IDS.checklistBody,
   photos: REGISTRO_PUBLIC_IDS.photosRoot,
-  signature: REGISTRO_PUBLIC_IDS.signatureHint,
 });
 
 export const REGISTRO_FIELD_IDS = Object.freeze([

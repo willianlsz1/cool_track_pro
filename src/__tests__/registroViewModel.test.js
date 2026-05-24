@@ -231,7 +231,6 @@ describe('registro view model', () => {
       typeSelect: 'r-tipo',
       technicianInput: 'r-tecnico',
       checklistBody: 'r-checklist-body',
-      signatureHint: 'registro-signature-hint',
     });
     expect(REGISTRO_ACTIONS).toMatchObject({
       save: 'save-registro',

@@ -22,9 +22,7 @@ const sourceFiles = [
   'src/ui/shell/templates/views.js',
   'src/ui/views/registro/headerRenderer.js',
   'src/ui/views/registro/checklistRenderer.js',
-  'src/ui/views/registro/signatureHint.js',
   'src/ui/viewModels/registroPhotosModel.js',
-  'src/ui/viewModels/registroSignatureModel.js',
 ].map(source);
 
 const combinedSource = sourceFiles.join('\n');
@@ -54,7 +52,6 @@ describe('registro public selector contracts', () => {
       'r-tecnico',
       'photo-preview',
       'input-fotos',
-      'registro-signature-hint',
       'r-checklist-body',
     ];
 
@@ -75,7 +72,6 @@ describe('registro public selector contracts', () => {
       header: 'registro-header-root',
       checklist: 'r-checklist-body',
       photos: 'registro-photos-root',
-      signature: 'registro-signature-hint',
     });
     roots.forEach(expectSourceContains);
   });
@@ -86,9 +82,6 @@ describe('registro public selector contracts', () => {
       'clear-registro',
       'quick-service-template',
       'r-checklist-set',
-      'registro-signature-capture',
-      'registro-signature-open',
-      'registro-signature-remove',
     ];
 
     const actions = valuesOf(REGISTRO_ACTIONS);
@@ -108,7 +101,6 @@ describe('registro public selector contracts', () => {
       'registro-actions',
       'registro-context-card',
       'registro-photo-quick',
-      'registro-sig-hint',
       'r-checklist__body',
       'r-checklist__row',
       'r-checklist__status',
