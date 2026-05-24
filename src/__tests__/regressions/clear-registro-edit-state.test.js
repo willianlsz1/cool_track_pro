@@ -98,9 +98,6 @@ vi.mock('../../ui/composables/registroContext.js', () => ({
 vi.mock('../../ui/viewModels/registroViewModel.js', () => ({
   buildRegistroViewModel: vi.fn(() => ({})),
 }));
-vi.mock('../../ui/viewModels/registroPhotosModel.js', () => ({
-  isSafeRegistroPhotoSrc: vi.fn(() => true),
-}));
 vi.mock('../../domain/pmoc/checklistTemplates.js', () => ({
   getChecklistTemplate: vi.fn(() => null),
   buildEmptyChecklist: vi.fn(() => null),

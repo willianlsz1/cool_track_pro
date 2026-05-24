@@ -574,12 +574,17 @@ describe('legacy v1 removal contracts', () => {
   });
 
   it('does not keep stale photoStorage mocks in tests after removing the runtime', () => {
+    expect(existsSync('src/ui/viewModels/registroPhotosModel.js')).toBe(false);
+
     const testFiles = listSourceFiles('src/__tests__').filter(
       (file) => !file.endsWith('legacyV1RemovalContracts.test.js'),
     );
 
     expect(
-      findMatches(testFiles, /photoStorage\.js|uploadPendingPhotos|ui\/components\/photos\.js/),
+      findMatches(
+        testFiles,
+        /photoStorage\.js|uploadPendingPhotos|ui\/components\/photos\.js|registroPhotosModel\.js/,
+      ),
     ).toEqual([]);
   });
 

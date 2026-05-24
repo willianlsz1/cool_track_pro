@@ -21,7 +21,6 @@ const sourceFiles = [
   'src/ui/shell/templates/views.js',
   'src/ui/views/registro/headerRenderer.js',
   'src/ui/views/registro/checklistRenderer.js',
-  'src/ui/viewModels/registroPhotosModel.js',
 ].map(source);
 
 const combinedSource = sourceFiles.join('\n');

@@ -715,6 +715,9 @@ Progresso executado:
   `src/ui/components/photos.js` depois da remocao do componente legado. O
   contrato passa a bloquear o retorno desses mocks junto de `photoStorage.js` e
   `uploadPendingPhotos`.
+- CP-57L remove o helper orfao `src/ui/viewModels/registroPhotosModel.js` e os
+  mocks test-only associados. O contrato passa a bloquear o retorno desse helper
+  sem tocar storage, Supabase/RLS, bucket, PDF/share ou app-v2 runtime.
 
 Controle:
 
