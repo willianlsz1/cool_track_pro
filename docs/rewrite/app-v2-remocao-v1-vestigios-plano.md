@@ -153,6 +153,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/ui/controller/helpers/themeInitHelpers.js` apos confirmar que
   `initControllerHelpers` nao tinha import ativo; rotas, handlers, views,
   modais e areas sensiveis continuaram preservados para lotes futuros.
+- CP-19 removeu o registrador de rotas legado `src/ui/controller/routes.js` e
+  seus testes de lifecycle/contrato dedicados, apos confirmar que nao havia
+  import ativo no runtime principal, app-v2, e2e ou configuracao. Handlers e
+  views legadas permanecem para desmontagem por dominio.
 
 ## 3. Superficies v1 mapeadas
 

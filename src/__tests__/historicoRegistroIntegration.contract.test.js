@@ -323,24 +323,6 @@ describe('Historico -> Registro edit/delete integration contract', () => {
     expect(mocks.goTo).toHaveBeenCalledWith('registro', { editRegistroId: 'reg-edit-1' });
   });
 
-  it('rota Registro aceita editRegistroId e chama loadRegistroForEdit depois de initRegistro', async () => {
-    const calls = [];
-    mocks.initRegistro.mockImplementation(() => calls.push('init'));
-    mocks.loadRegistroForEdit.mockImplementation((id) => calls.push(`load:${id}`));
-
-    const { registerAppRoutes } = await import('../ui/controller/routes.js');
-    registerAppRoutes();
-
-    const registroRoute = mocks.routes.get('registro');
-    expect(registroRoute).toBeDefined();
-
-    registroRoute.onEnter({ editRegistroId: 'reg-edit-1' });
-
-    expect(mocks.initRegistro).toHaveBeenCalledWith({ editRegistroId: 'reg-edit-1' });
-    expect(mocks.loadRegistroForEdit).toHaveBeenCalledWith('reg-edit-1');
-    expect(calls).toEqual(['init', 'load:reg-edit-1']);
-  });
-
   it('delete-reg cancelado nao chama deleteReg nem altera storage/state', async () => {
     const currentState = createState();
     mocks.getState.mockReturnValue(currentState);

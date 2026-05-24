@@ -213,14 +213,12 @@ describe('legacy v1 removal contracts', () => {
   });
 
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
-    const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const redesignCss = readSource('src/assets/styles/redesign.css');
     const componentsCss = readSource('src/assets/styles/components.css');
 
+    expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/ui/views/configuracoes.js')).toBe(false);
-    expect(routesSource).not.toContain('renderConfiguracoes');
-    expect(routesSource).not.toContain("registerRoute('configuracoes'");
     expect(shellViewsSource).not.toContain('view-configuracoes');
     expect(existsSync('src/ui/shell/templates/sidebar.js')).toBe(false);
     expect(existsSync('src/ui/shell/templates/header.js')).toBe(false);
@@ -229,29 +227,25 @@ describe('legacy v1 removal contracts', () => {
   });
 
   it('does not keep the legacy privacidade route or internal static view', () => {
-    const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const contaSource = readSource('src/ui/views/conta.js');
 
+    expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/ui/views/privacidade.js')).toBe(false);
-    expect(routesSource).not.toContain('renderPrivacidade');
-    expect(routesSource).not.toContain("registerRoute('privacidade'");
     expect(shellViewsSource).not.toContain('view-privacidade');
     expect(contaSource).not.toContain("goTo('privacidade')");
     expect(contaSource).toContain('/legal/privacidade.html');
   });
 
   it('does not keep the legacy alertas standalone route, view or shell shortcuts', () => {
-    const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const headerComposableSource = readSource('src/ui/composables/header.js');
     const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
 
+    expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/ui/views/alertas.js')).toBe(false);
     expect(existsSync('src/ui/viewModels/alertasViewModel.js')).toBe(false);
-    expect(routesSource).not.toContain('renderAlertas');
-    expect(routesSource).not.toContain("registerRoute('alertas'");
     expect(shellViewsSource).not.toContain('view-alertas');
     expect(shellViewsSource).not.toContain('alertas-contextual');
     expect(shellViewsSource).not.toContain('lista-alertas');
