@@ -1606,7 +1606,7 @@ export async function saveRegistro() {
     if (!validateRegistroOperationalFields(validatedPayload)) return false;
 
     const persistedPayload = buildRegistroPersistPayload(validatedPayload, formValues);
-    const { equipId, tipo, tecnico, status } = persistedPayload;
+    const { tipo, tecnico, status } = persistedPayload;
 
     warnRegistroChecklistPayloadGaps(tipo);
 
