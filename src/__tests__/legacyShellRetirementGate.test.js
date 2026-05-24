@@ -14,8 +14,12 @@ const retiredShellTests = [
   'src/__tests__/globalHeaderContracts.test.js',
 ];
 
-const legacyRuntimeKeptForLaterCheckpoints = [
+const retiredControllerOrchestratorFiles = [
   'src/ui/controller.js',
+  'src/__tests__/controller.init.test.js',
+];
+
+const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/controller/routes.js',
   'src/ui/shell/navigationMode.js',
   'src/ui/shell/templates/modals.js',
@@ -33,12 +37,16 @@ describe('legacy shell retirement gate', () => {
   it('keeps the retired visual shell removed while preserving later legacy checkpoints', () => {
     const stillPresentShellFiles = retiredShellFiles.filter((path) => existsSync(path));
     const stillPresentShellTests = retiredShellTests.filter((path) => existsSync(path));
+    const stillPresentControllerOrchestrator = retiredControllerOrchestratorFiles.filter((path) =>
+      existsSync(path),
+    );
     const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
       (path) => !existsSync(path),
     );
 
     expect(stillPresentShellFiles).toEqual([]);
     expect(stillPresentShellTests).toEqual([]);
+    expect(stillPresentControllerOrchestrator).toEqual([]);
     expect(missingLaterCheckpointFiles).toEqual([]);
   });
 

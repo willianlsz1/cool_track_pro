@@ -1,7 +1,7 @@
 /**
  * CoolTrack Pro - Router v1.1
  * Roteamento puro — sem dependências de UI
- * Orquestrado pelo ui/controller.js que injeta os handlers de cada view
+ * As rotas legadas restantes se registram por adaptadores fora do core.
  */
 
 import { Toast } from './toast.js';
