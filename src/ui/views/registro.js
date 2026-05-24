@@ -25,7 +25,6 @@ import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPr
 import { exportPdfFlow, shareWhatsAppFlow } from '../controller/handlers/reportExportHandlers.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
-import { asArray } from '../helpers/registroPure.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
 import {
@@ -101,6 +100,10 @@ import { isPreventivaOrPmocServiceType } from '../../domain/pmoc/serviceType.js'
 
 // O meter de progresso vive estático dentro do hero do template.
 // Apontamos pro hero + o contador numérico ao invés de injetar markup na hora.
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 const HERO_ID = 'registro-hero';
 const HERO_SUB_ID = 'registro-hero-sub';
 const HERO_PILL_TEXT_ID = 'registro-hero-pill-text';

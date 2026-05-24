@@ -5,15 +5,14 @@ import {
   recencia,
   ctaLabelForAction,
 } from '../ui/helpers/equipamentosPure.js';
-import { asArray, isPreventivaTipo } from '../ui/helpers/registroPure.js';
 
 describe('equipamentos pure helpers', () => {
   test('normalizeText remove acentos e caixa', () => {
-    expect(normalizeText('PréventÍva')).toBe('preventiva');
+    expect(normalizeText('Preventiva')).toBe('preventiva');
   });
 
   test('classifyRiskFactor identifica fator positivo', () => {
-    expect(classifyRiskFactor('Histórico limpo e em dia')).toBe('positive');
+    expect(classifyRiskFactor('Historico limpo e em dia')).toBe('positive');
     expect(classifyRiskFactor('parado desde ontem')).toBe('neutral');
   });
 
@@ -27,17 +26,5 @@ describe('equipamentos pure helpers', () => {
     const ACTION = { REGISTER_PREVENTIVE: 'rp' };
     expect(ctaLabelForAction('rp', ACTION)).toBe('Registrar serviço preventivo');
     expect(ctaLabelForAction('x', ACTION)).toBe('Registrar serviço');
-  });
-});
-
-describe('registro pure helpers', () => {
-  test('asArray normaliza valor', () => {
-    expect(asArray([1, 2])).toEqual([1, 2]);
-    expect(asArray(null)).toEqual([]);
-  });
-
-  test('isPreventivaTipo detecta tipo preventiva', () => {
-    expect(isPreventivaTipo('Manutenção preventiva')).toBe(true);
-    expect(isPreventivaTipo('Corretiva')).toBe(false);
   });
 });

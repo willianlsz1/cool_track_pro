@@ -180,12 +180,15 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-26 removeu o barrel legado `src/ui/views/clientes/renderers.js`,
   substituindo seu unico consumidor por imports diretos dos renderers de
   clientes.
+- CP-27 removeu o helper legado `src/ui/helpers/registroPure.js`,
+  co-localizando o unico helper runtime usado (`asArray`) em
+  `src/ui/views/registro.js` e aposentando o helper sem consumidor real.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 161 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 160 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,

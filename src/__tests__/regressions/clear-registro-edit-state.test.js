@@ -103,10 +103,6 @@ vi.mock('../../core/phoneMask.js', () => ({ bindSmartContactMaskInput: vi.fn() }
 vi.mock('../../ui/composables/registroContext.js', () => ({
   resolveRegistroContext: vi.fn(() => ({})),
 }));
-vi.mock('../../ui/helpers/registroPure.js', () => ({
-  asArray: vi.fn((v) => (Array.isArray(v) ? v : [])),
-  isPreventivaTipo: vi.fn(() => false),
-}));
 vi.mock('../../ui/viewModels/registroViewModel.js', () => ({
   buildRegistroViewModel: vi.fn(() => ({})),
 }));
