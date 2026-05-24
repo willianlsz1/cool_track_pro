@@ -43,6 +43,7 @@ const retiredOrphanLegacyComponentTests = [
 const retiredOrphanLegacyOnboardingFragments = [
   'src/ui/components/onboarding/firstTimeExperience/steps.js',
   'src/ui/components/onboarding/firstTimeExperience/styles.js',
+  'src/ui/components/onboarding/savedHighlight.js',
 ];
 
 const retiredLegacyBarrelFiles = ['src/ui/views/clientes/renderers.js'];

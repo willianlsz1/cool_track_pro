@@ -14310,7 +14310,7 @@ select option {
   outline-offset: 1px;
 }
 
-/* Highlight pós-save (savedHighlight.js) */
+/* Highlight pos-save (SavedHighlight) */
 #view-historico .timeline__item--saved {
   animation: hist-item-save-flash 3s ease forwards;
 }

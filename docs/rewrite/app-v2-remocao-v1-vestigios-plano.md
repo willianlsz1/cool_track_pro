@@ -194,12 +194,16 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   co-localizando filtros de Clientes no unico consumidor
   `src/ui/views/clientes/pageRenderer.js` e corrigindo mojibake no placeholder
   de busca tocado.
+- CP-31 removeu o helper legado `src/ui/components/onboarding/savedHighlight.js`,
+  co-localizando `SavedHighlight` no barrel publico
+  `src/ui/components/onboarding.js` e preservando a API importada por Registro e
+  Historico.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 157 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 156 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
