@@ -8,7 +8,7 @@ import {
   mergeHistoricoDomCacheFilters,
   normalizeHistoricoFilterCache,
   parseHistoricoUrlFilters,
-} from '../../filters/filterHelpers.js';
+} from '../../ui/views/historico/helpers/filters/filterHelpers.js';
 
 const urlKeys = {
   busca: 'busca',
@@ -86,7 +86,7 @@ describe('historico filter helpers', () => {
 
   it('filterHelpers nao importa adapter, DOM, storage, React, handlers ou exportadores', () => {
     const source = readFileSync(
-      resolve(process.cwd(), 'src/features/historico/filters/filterHelpers.js'),
+      resolve(process.cwd(), 'src/ui/views/historico/helpers/filters/filterHelpers.js'),
       'utf8',
     );
 

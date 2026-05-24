@@ -32,18 +32,18 @@ import {
   buildHistoricoRenderState,
   buildHistoricoRenderViewModel,
   buildHistoricoTimelineRenderContext,
-} from '../../features/historico/render/renderHelpers.js';
+} from './historico/helpers/render/renderHelpers.js';
 import {
   buildHistoricoCurrentFiltersFromValues,
   mergeHistoricoDomCacheFilters,
   normalizeHistoricoFilterCache,
   parseHistoricoUrlFilters,
-} from '../../features/historico/filters/filterHelpers.js';
+} from './historico/helpers/filters/filterHelpers.js';
 import {
   closeHistoricoCardMenus,
   toggleHistoricoCardMenu,
-} from '../../features/historico/actions/cardMenuHelpers.js';
-import { buildHistoricoDeleteStateMutation } from '../../features/historico/delete/deleteHelpers.js';
+} from './historico/helpers/actions/cardMenuHelpers.js';
+import { buildHistoricoDeleteStateMutation } from './historico/helpers/delete/deleteHelpers.js';
 import {
   HISTORICO_ACTIONS,
   HISTORICO_PERIOD_OPTIONS,

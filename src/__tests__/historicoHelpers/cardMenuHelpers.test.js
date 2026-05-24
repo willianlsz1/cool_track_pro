@@ -3,7 +3,10 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { closeHistoricoCardMenus, toggleHistoricoCardMenu } from '../../actions/cardMenuHelpers.js';
+import {
+  closeHistoricoCardMenus,
+  toggleHistoricoCardMenu,
+} from '../../ui/views/historico/helpers/actions/cardMenuHelpers.js';
 
 function createMenuFixture() {
   const container = document.createElement('div');
@@ -71,7 +74,7 @@ describe('historico card menu helpers', () => {
 
   it('cardMenuHelpers nao importa adapter, React, handlers ou side effects proibidos', () => {
     const source = readFileSync(
-      resolve(process.cwd(), 'src/features/historico/actions/cardMenuHelpers.js'),
+      resolve(process.cwd(), 'src/ui/views/historico/helpers/actions/cardMenuHelpers.js'),
       'utf8',
     );
 

@@ -17,7 +17,7 @@ Contagem por dominio em `src/features`:
 | Dominio      | Arquivos | Leitura atual                                                                 |
 | ------------ | -------- | ----------------------------------------------------------------------------- |
 | equipamentos | 59       | Maior bloco, fortemente acoplado a `src/ui/views/equipamentos.js` e contratos |
-| historico    | 8        | Bloco pequeno, usado pela view v1 de historico                                |
+| historico    | 0        | Resolvido no CP-9e; helpers co-localizados com a view v1 de historico         |
 | registro     | 16       | Bloco sensivel: salvamento, fotos, assinatura, PMOC e pos-salvamento          |
 | relatorio    | 2        | Pequeno, mas ligado a exportacao/PDF/WhatsApp via handlers                    |
 | profile.js   | 1        | Re-export de compatibilidade ainda mockado por muitos testes legados          |
@@ -41,7 +41,12 @@ setores, fotos, nameplate e CRUD.
 
 ### Historico
 
-`src/features/historico/**` e consumido por `src/ui/views/historico.js`:
+Resolvido no CP-9e. Os helpers de `src/features/historico/**` foram
+co-localizados em `src/ui/views/historico/helpers/**` e os testes foram movidos
+para `src/__tests__/historicoHelpers/**`.
+
+A view v1 de Historico ainda existe e continua sensivel por tocar timeline,
+registro, PDF/share e WhatsApp:
 
 - `render/renderHelpers.js`;
 - `filters/filterHelpers.js`;
@@ -54,9 +59,9 @@ Tambem ha containers e rota no shell v1:
 - view `#view-historico` em `src/ui/shell/templates/views.js`;
 - botoes `data-nav="historico"` em templates de historico/relatorio/dashboard.
 
-Classificacao: melhor candidato para primeiro lote de runtime v1, desde que seja
-tratado como checkpoint proprio e nao junto com Relatorio. A remocao deve
-preservar o app-v2 `Servicos > Registros` como caminho atual para registros.
+Classificacao atual: `src/features/historico/**` concluido. Remocao da
+view/rota `historico` permanece adiada por envolver router legado, timeline,
+registro, PDF/share e WhatsApp.
 
 ### Registro
 
@@ -85,14 +90,9 @@ autenticacao, Edge Functions e LGPD.
 
 ## Primeiro lote recomendado
 
-Criar CP-9b para remover a superficie v1 de Historico, limitado a:
-
-- rota `historico` do router legado;
-- container `#view-historico` no shell legado;
-- `src/ui/views/historico.js`;
-- sub-renderers `src/ui/views/historico/**`;
-- helpers `src/features/historico/**`;
-- testes estritamente legados de historico que nao protegem app-v2.
+CP-9b diagnosticou que a remocao direta da superficie v1 de Historico era
+sensivel. CP-9e executou apenas o lote seguro: remover `src/features/historico`
+por co-localizacao dos helpers junto da view legada.
 
 ## Controles para CP-9b
 

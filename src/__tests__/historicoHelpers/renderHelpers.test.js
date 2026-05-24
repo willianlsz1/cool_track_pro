@@ -7,7 +7,7 @@ import {
   buildHistoricoRenderState,
   buildHistoricoRenderViewModel,
   buildHistoricoTimelineRenderContext,
-} from '../../render/renderHelpers.js';
+} from '../../ui/views/historico/helpers/render/renderHelpers.js';
 
 describe('historico render helpers', () => {
   it('buildHistoricoRenderState normaliza arrays e preserva colecoes principais', () => {
@@ -108,7 +108,7 @@ describe('historico render helpers', () => {
 
   it('renderHelpers nao importa adapter, DOM, React, handlers, Toast ou exportadores', () => {
     const source = readFileSync(
-      resolve(process.cwd(), 'src/features/historico/render/renderHelpers.js'),
+      resolve(process.cwd(), 'src/ui/views/historico/helpers/render/renderHelpers.js'),
       'utf8',
     );
 

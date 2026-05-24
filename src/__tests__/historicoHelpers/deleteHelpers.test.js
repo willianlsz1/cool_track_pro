@@ -10,7 +10,7 @@ import {
   findHistoricoDeletedRegistro,
   findHistoricoLastRegistroForEquipment,
   recalculateHistoricoEquipamentosAfterDelete,
-} from '../../delete/deleteHelpers.js';
+} from '../../ui/views/historico/helpers/delete/deleteHelpers.js';
 
 const statusDeps = {
   daysDiff: vi.fn(() => 12),
@@ -129,7 +129,7 @@ describe('historico delete helpers', () => {
 
   it('deleteHelpers nao importa adapter, storage, DOM, Toast, handlers ou exportadores', () => {
     const source = readFileSync(
-      resolve(process.cwd(), 'src/features/historico/delete/deleteHelpers.js'),
+      resolve(process.cwd(), 'src/ui/views/historico/helpers/delete/deleteHelpers.js'),
       'utf8',
     );
 
