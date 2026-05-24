@@ -581,6 +581,23 @@ describe('legacy v1 removal contracts', () => {
     );
   });
 
+  it('does not keep legacy Android TWA build artifacts in the web app repository', () => {
+    const checkedSources = [
+      'package.json',
+      'vite.config.js',
+      'index.html',
+      ...listSourceFiles('src').filter(
+        (file) => file !== 'src/__tests__/legacyV1RemovalContracts.test.js',
+      ),
+      ...listSourceFiles('.github'),
+    ];
+
+    expect(existsSync('twa-build')).toBe(false);
+    expect(
+      findMatches(checkedSources, /twa-build|bubblewrap-cli|cooltrackpro\.netlify\.app/),
+    ).toEqual([]);
+  });
+
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
       readSource('src/ui/components/clienteModal.js'),

@@ -864,6 +864,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58L remove o detector legado `src/domain/pmoc/serviceType.js`: Registro
   deixa de tratar `PMOC` como tipo contextual e recomenda checklist apenas para
   preventiva, sem alterar ainda `registro.checklist` ou templates.
+- CP-58M remove `twa-build/`, artefato Android/TWA legado gerado por Bubblewrap
+  que apontava para dominio antigo e continha keystore/dependencias Android fora
+  do app-v2 web principal.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.
