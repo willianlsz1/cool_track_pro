@@ -10,7 +10,7 @@ import { jsPDF } from 'jspdf';
 // a funcao e importada e chamada como autoTable(doc, options). As sections
 // (cover, services) fazem esse import diretamente.
 import { getState } from '../core/state.js';
-import { Profile } from '../features/profile.js';
+import { Profile } from '../core/profile.js';
 import { buildPdfDocumentModel } from './pdf/generatorHelpers.js';
 import { drawWatermarkAllPages } from './pdf/primitives.js';
 import { buildReportFileName } from './pdf/reportModel.js';
