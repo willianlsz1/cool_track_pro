@@ -170,12 +170,15 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-23 removeu o componente orfao
   `src/ui/components/postSaveRegistroCompletion.js` e seu teste dedicado. O
   pos-salvamento ativo continua usando `PostSaveRegistroToast`.
+- CP-24 removeu o componente orfao `src/ui/components/offlineBanner.js` e o CSS
+  dedicado `.offline-banner`/`.has-offline-banner`, preservando
+  `src/core/onlineStatus.js`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 165 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 164 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,

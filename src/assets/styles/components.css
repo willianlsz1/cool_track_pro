@@ -5221,66 +5221,6 @@ mark,
   padding: 16px 0 4px;
 }
 
-/* ─── OFFLINE BANNER ─── */
-/* Faixa fixa no topo que sinaliza perda de conexão. Complementa o Toast
-   transiente do onlineStatus.js, ficando visível enquanto offline.
-   Padding-top no body evita que o banner cubra o conteúdo. */
-.offline-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 8px 16px;
-  background: color-mix(in srgb, var(--warning) 92%, #000 8%);
-  color: #1a1205;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.offline-banner[hidden] {
-  display: none;
-}
-
-.offline-banner__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #1a1205;
-  animation: offline-banner-pulse 1.6s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes offline-banner-pulse {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.has-offline-banner {
-  padding-top: 36px;
-}
-
-@media (max-width: 480px) {
-  .offline-banner {
-    font-size: 12px;
-    padding: 7px 12px;
-  }
-  .has-offline-banner {
-    padding-top: 32px;
-  }
-}
-
 /* ─── SPINNER ─── */
 .spinner {
   display: inline-block;
