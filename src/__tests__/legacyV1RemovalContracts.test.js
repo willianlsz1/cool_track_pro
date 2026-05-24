@@ -567,6 +567,14 @@ describe('legacy v1 removal contracts', () => {
     expect(photoRefsSource).not.toContain('registro-fotos');
   });
 
+  it('does not keep stale photoStorage mocks in tests after removing the runtime', () => {
+    const testFiles = listSourceFiles('src/__tests__').filter(
+      (file) => !file.endsWith('legacyV1RemovalContracts.test.js'),
+    );
+
+    expect(findMatches(testFiles, /photoStorage\.js|uploadPendingPhotos/)).toEqual([]);
+  });
+
   it('does not keep the duplicate legacy photo migration bridge in storage normalizers', () => {
     const storageNormalizersSource = readSource('src/core/storage/normalizers.js');
 

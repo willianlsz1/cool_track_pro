@@ -17,7 +17,6 @@ const mocks = vi.hoisted(() => ({
   photosClear: vi.fn(),
   photosRender: vi.fn(),
   photosUnmount: vi.fn(),
-  uploadPendingPhotos: vi.fn(),
   getOperationalStatus: vi.fn(),
   validateOperationalPayload: vi.fn(),
   reconcileEquipmentStatusesAfterRegistroEdit: vi.fn(),
@@ -76,10 +75,6 @@ vi.mock('../core/profile.js', () => ({
 vi.mock('../core/errors.js', () => ({
   ErrorCodes: { VALIDATION_ERROR: 'VALIDATION_ERROR' },
   handleError: mocks.handleError,
-}));
-
-vi.mock('../core/photoStorage.js', () => ({
-  uploadPendingPhotos: mocks.uploadPendingPhotos,
 }));
 
 vi.mock('../core/equipmentRules.js', () => ({
@@ -201,7 +196,6 @@ async function loadRegistro(state = baseState()) {
   mocks.profileDefaultTecnico.mockReturnValue('Tecnico Padrao');
   mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
-  mocks.uploadPendingPhotos.mockResolvedValue({ photos: [], failedCount: 0 });
   return import('../ui/views/registro.js');
 }
 

@@ -35,7 +35,6 @@ const mocks = vi.hoisted(() => {
     setRouteGuard: vi.fn(),
     clearRouteGuard: vi.fn(),
     customConfirmShow: vi.fn(),
-    uploadPendingPhotos: vi.fn(),
     markForHighlight: vi.fn(),
     getOperationalStatus: vi.fn(),
     validateOperationalPayload: vi.fn(),
@@ -114,10 +113,6 @@ vi.mock('../core/errors.js', () => ({
     VALIDATION_ERROR: 'VALIDATION_ERROR',
   },
   handleError: mocks.handleError,
-}));
-
-vi.mock('../core/photoStorage.js', () => ({
-  uploadPendingPhotos: mocks.uploadPendingPhotos,
 }));
 
 vi.mock('../core/equipmentRules.js', () => ({
@@ -266,7 +261,6 @@ async function loadRegistro(state = baseState()) {
     label: 'Operando normalmente',
   });
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
-  mocks.uploadPendingPhotos.mockResolvedValue({ photos: [], failedCount: 0 });
   mocks.postSaveToastShow.mockReturnValue(true);
 
   const registro = await import('../ui/views/registro.js');

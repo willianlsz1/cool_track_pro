@@ -23,7 +23,6 @@ const mocks = vi.hoisted(() => {
     setRouteGuard: vi.fn(),
     clearRouteGuard: vi.fn(),
     customConfirmShow: vi.fn(),
-    uploadPendingPhotos: vi.fn(),
     markForHighlight: vi.fn(),
     getOperationalStatus: vi.fn(),
     validateOperationalPayload: vi.fn(),
@@ -102,10 +101,6 @@ vi.mock('../core/errors.js', () => ({
     VALIDATION_ERROR: 'VALIDATION_ERROR',
   },
   handleError: mocks.handleError,
-}));
-
-vi.mock('../core/photoStorage.js', () => ({
-  uploadPendingPhotos: mocks.uploadPendingPhotos,
 }));
 
 vi.mock('../core/equipmentRules.js', () => ({
@@ -219,7 +214,6 @@ async function loadRegistro(state = baseState(), { plus = true } = {}) {
     label: 'Operando normalmente',
   });
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
-  mocks.uploadPendingPhotos.mockResolvedValue({ photos: [], failedCount: 0 });
   mocks.postSaveToastShow.mockReturnValue(true);
   const registro = await import('../ui/views/registro.js');
   const { bindRegistroHandlers } = await import('../ui/controller/handlers/registroHandlers.js');
@@ -348,7 +342,6 @@ describe('registro legacy save handlers with signature contracts', () => {
     expect(saved.fotos).toEqual([]);
     expect(saved.checklist?.items.find((item) => item.id === 'filtros_limpeza')?.status).toBe('ok');
     expect(saved).not.toHaveProperty('assinatura');
-    expect(mocks.uploadPendingPhotos).not.toHaveBeenCalled();
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );

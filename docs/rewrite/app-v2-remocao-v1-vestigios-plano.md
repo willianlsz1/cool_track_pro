@@ -697,6 +697,11 @@ Progresso executado:
   dedicado de upload/signing. O CP preserva apenas normalizacao pura de
   referencias em `src/core/storage/photoRefs.js`; buckets, policies, migrations
   e upload/storage real ficam fora para etapa app-v2-native propria.
+- CP-57H limpa os vestigios test-only de `photoStorage.js` depois da remocao do
+  runtime: remove mocks e expectativas antigas de `uploadPendingPhotos` nos
+  testes de Registro/exploratorios/regressoes e adiciona contrato para impedir
+  a volta desses mocks. Nenhum runtime, Supabase/RLS, bucket ou migration foi
+  alterado.
 
 Controle:
 

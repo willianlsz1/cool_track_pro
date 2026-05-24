@@ -47,9 +47,6 @@ vi.mock('../../core/profile.js', () => ({
   },
 }));
 vi.mock('../../core/errors.js', () => ({ ErrorCodes: {}, handleError: vi.fn() }));
-vi.mock('../../core/photoStorage.js', () => ({
-  uploadPendingPhotos: vi.fn(async (photos) => ({ photos, failedCount: 0 })),
-}));
 vi.mock('../../core/equipmentRules.js', () => ({
   getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'ok' })),
   validateOperationalPayload: vi.fn(() => ({ valid: true })),

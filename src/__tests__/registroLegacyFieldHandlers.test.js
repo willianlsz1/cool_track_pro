@@ -20,7 +20,6 @@ const mocks = vi.hoisted(() => {
     clearRouteGuard: vi.fn(),
     customConfirmShow: vi.fn(),
     photosClear: vi.fn(),
-    uploadPendingPhotos: vi.fn(),
     getOperationalStatus: vi.fn(),
     validateOperationalPayload: vi.fn(),
     reconcileEquipmentStatusesAfterRegistroEdit: vi.fn(),
@@ -86,10 +85,6 @@ vi.mock('../core/profile.js', () => ({
 vi.mock('../core/errors.js', () => ({
   ErrorCodes: { VALIDATION_ERROR: 'VALIDATION_ERROR' },
   handleError: mocks.handleError,
-}));
-
-vi.mock('../core/photoStorage.js', () => ({
-  uploadPendingPhotos: mocks.uploadPendingPhotos,
 }));
 
 vi.mock('../core/equipmentRules.js', () => ({
@@ -252,7 +247,6 @@ function expectNoUnsafeMarkup(root) {
 
 function expectExternalFlowsNotExecuted() {
   expect(mocks.setState).not.toHaveBeenCalled();
-  expect(mocks.uploadPendingPhotos).not.toHaveBeenCalled();
   expect(mocks.postSaveToastShow).not.toHaveBeenCalled();
   expect(mocks.goTo).not.toHaveBeenCalled();
   expect(mocks.customConfirmShow).not.toHaveBeenCalled();

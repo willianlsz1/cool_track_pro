@@ -71,7 +71,6 @@ vi.mock('../core/errors.js', () => ({
   ErrorCodes: { NETWORK_ERROR: 'NETWORK_ERROR', SYNC_FAILED: 'SYNC_FAILED' },
   handleError: vi.fn(),
 }));
-vi.mock('../core/photoStorage.js', () => ({ uploadPendingPhotos: vi.fn() }));
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'Operando normalmente' })),
   validateOperationalPayload: vi.fn(() => ({ valid: true, errors: [] })),
