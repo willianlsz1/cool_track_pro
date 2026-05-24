@@ -2204,7 +2204,7 @@ redesign amplo.
 
 A matriz de corte para promover o app-v2 como entrada principal foi criada em:
 
-- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+- `docs/rewrite/checkpoints-recentes-resumo.md`
 
 Decisao registrada:
 
@@ -2234,7 +2234,7 @@ O bootstrap de producao app-v2 foi criado sem promover o app-v2 para a raiz:
 
 - `src/app-v2/main.tsx`;
 - `src/app-v2/main.test.tsx`;
-- `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Decisao registrada:
 
@@ -2255,7 +2255,7 @@ O app-v2 foi promovido como entrada principal local por meio de `index.html`:
 
 - `index.html`;
 - `src/app-v2/primaryCutover.test.ts`;
-- `docs/rewrite/app-v2-primary-cutover-cp-ab.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Decisao registrada:
 
@@ -2281,7 +2281,7 @@ Foi criado e executado um smoke E2E para validar a entrada principal app-v2 em
 ambiente equivalente a producao estatica:
 
 - `e2e/specs/app-v2-primary-entrypoint.spec.js`;
-- `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Decisao registrada:
 
@@ -2315,7 +2315,7 @@ Arquivos principais:
 - `src/app-v2/navigation/appV2Routes.ts`;
 - `src/app-v2/navigation/appV2Routes.test.ts`;
 - `src/app-v2/shell/AppV2Shell.tsx`;
-- `docs/rewrite/app-v2-primary-routes-cp-ad.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Decisao registrada:
 
@@ -2340,7 +2340,7 @@ sessao Supabase fake no browser:
 
 - `e2e/specs/app-v2-authenticated-primary.spec.js`;
 - `e2e/fixtures/authedSession.js`;
-- `docs/rewrite/app-v2-authenticated-primary-smoke-cp-ae.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Decisao registrada:
 
@@ -2369,7 +2369,7 @@ Supabase/RLS, PDF/share, WhatsApp, billing, upload, PMOC ou v1/legado.
 Foi ampliado o smoke E2E autenticado do root principal para cobrir equipamento:
 
 - `e2e/specs/app-v2-authenticated-primary.spec.js`;
-- `docs/rewrite/app-v2-authenticated-equipment-smoke-cp-af.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Decisao registrada:
 
@@ -2406,9 +2406,7 @@ CP-AG corrigiu a medicao de bundle-size para o app-v2 como entrada principal.
 Arquivos:
 
 - `.size-limit.json`
-- `docs/rewrite/app-v2-primary-size-limit-cp-ag.md`
-- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
-- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+- historico consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`
 
 Resultado:
 
@@ -2434,9 +2432,7 @@ Arquivos:
 - `.github/workflows/e2e.yml`
 - `e2e/specs/app-v2-service-layout.spec.js`
 - `src/app-v2/service/ServiceStepExecution.tsx`
-- `docs/rewrite/app-v2-primary-e2e-suite-cp-ah.md`
-- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
-- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+- historico consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`
 
 Resultado:
 
@@ -2465,9 +2461,7 @@ Arquivos:
 
 - `src/app-v2/main.tsx`
 - `src/app-v2/main.test.tsx`
-- `docs/rewrite/app-v2-primary-public-preview-fallback-cp-ai.md`
-- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
-- `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`
+- historico consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`
 
 Resultado:
 
@@ -2501,9 +2495,7 @@ Arquivos:
 
 - `public/_redirects`
 - `e2e/specs/app-v2-primary-entrypoint.spec.js`
-- `docs/rewrite/app-v2-cloudflare-spa-fallback-cp-aj.md`
-- `docs/rewrite/app-v2-cloudflare-preview-smoke-cp-ac.md`
-- `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`
+- historico consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`
 
 Resultado:
 

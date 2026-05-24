@@ -423,7 +423,7 @@ Status CP-W:
 Status CP-X:
 
 - documentado em
-  `docs/rewrite/app-v2-primary-cloudflare-readiness-cp-x.md`;
+  `docs/rewrite/checkpoints-recentes-resumo.md`;
 - mapeou que `index.html` ainda usa `/src/app.js`, portanto a producao segue no
   v1/legado;
 - classificou `preview.html` e `authenticated-preview.html` como entrypoints de
@@ -436,7 +436,7 @@ Status CP-X:
 
 Status CP-Z:
 
-- documentado em `docs/rewrite/app-v2-primary-cutover-matrix-cp-z.md`;
+- documentado em `docs/rewrite/checkpoints-recentes-resumo.md`;
 - criou matriz de corte por fluxo para promover o app-v2 como entrada principal;
 - confirmou que a troca do `index.html` continua bloqueada ate existir
   bootstrap de producao app-v2, sessao Supabase real validada, fluxo real minimo
@@ -450,7 +450,7 @@ Status CP-Z:
 
 Status CP-AA:
 
-- documentado em `docs/rewrite/app-v2-primary-bootstrap-cp-aa.md`;
+- documentado em `docs/rewrite/checkpoints-recentes-resumo.md`;
 - criou `src/app-v2/main.tsx` como bootstrap de producao app-v2 para root futuro
   `app-v2-root`;
 - criou `src/app-v2/main.test.tsx` cobrindo montagem quando o root existe,
@@ -461,7 +461,7 @@ Status CP-AA:
 
 Status CP-AB:
 
-- documentado em `docs/rewrite/app-v2-primary-cutover-cp-ab.md`;
+- documentado em `docs/rewrite/checkpoints-recentes-resumo.md`;
 - trocou `index.html` para montar `app-v2-root`;
 - trocou o script principal para `/src/app-v2/main.tsx`;
 - removeu CSS global legado do entrypoint principal para nao contaminar o

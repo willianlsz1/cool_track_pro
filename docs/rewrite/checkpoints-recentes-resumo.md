@@ -67,6 +67,17 @@ decisao, do escopo e do risco remanescente.
 - Esses mapas nao devem orientar nova arquitetura diretamente; app-v2 deve
   recriar contratos sensiveis em etapas proprias.
 
+## App-v2 publicacao Cloudflare
+
+- Consolidado e removido o historico detalhado dos CPs de promocao do app-v2.
+- Estado preservado: app-v2 tratado como experiencia principal em
+  `https://cool-track-pro.pages.dev/`, com fallback SPA, smokes publicos,
+  smokes autenticados quando houver sessao valida, size/e2e e runbook de
+  cutover registrados.
+- Nao comprar dominio para o app; a URL correta continua sendo a Pages.
+- Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
+  assinatura, PMOC e orcamento real seguem como etapas proprias futuras.
+
 ## Validacao padrao
 
 - Para CPs com codigo: testes focados, `npm run format`, `npm run build`,
