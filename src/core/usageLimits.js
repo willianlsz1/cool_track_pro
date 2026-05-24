@@ -1,44 +1,15 @@
 import { supabase } from './supabase.js';
-import {
-  normalizePlanCode,
-  PLAN_CODE_FREE,
-  PLAN_CODE_PLUS,
-  PLAN_CODE_PRO,
-} from './plans/subscriptionPlans.js';
+import { normalizePlanCode, PLAN_CODE_FREE } from './plans/subscriptionPlans.js';
 
-export const USAGE_RESOURCE_PDF_EXPORT = 'pdf_export';
-export const USAGE_RESOURCE_WHATSAPP_SHARE = 'whatsapp_share';
 export const USAGE_RESOURCE_NAMEPLATE_ANALYSIS = 'nameplate_analysis';
 
-const VALID_RESOURCES = new Set([
-  USAGE_RESOURCE_PDF_EXPORT,
-  USAGE_RESOURCE_WHATSAPP_SHARE,
-  USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-]);
+const VALID_RESOURCES = new Set([USAGE_RESOURCE_NAMEPLATE_ANALYSIS]);
 
-const PDF_EXPORT_MONTHLY_QUOTA_CONTRACT = Object.freeze({
-  [PLAN_CODE_FREE]: Number.POSITIVE_INFINITY,
-  [PLAN_CODE_PLUS]: Number.POSITIVE_INFINITY,
-  [PLAN_CODE_PRO]: Number.POSITIVE_INFINITY,
-});
-
-// A area comercial foi removida do produto. As chaves legadas continuam aqui
-// apenas como contrato tecnico para manter recursos existentes desbloqueados
-// enquanto limites comerciais sao refeitos em etapa propria.
+// A area comercial foi removida do produto. Mantemos apenas recursos
+// operacionais ainda usados enquanto limites comerciais sao refeitos em etapa
+// propria.
 const MONTHLY_LIMITS = {
   [PLAN_CODE_FREE]: {
-    [USAGE_RESOURCE_PDF_EXPORT]: Number.POSITIVE_INFINITY,
-    [USAGE_RESOURCE_WHATSAPP_SHARE]: Number.POSITIVE_INFINITY,
-    [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: Number.POSITIVE_INFINITY,
-  },
-  [PLAN_CODE_PLUS]: {
-    [USAGE_RESOURCE_PDF_EXPORT]: Number.POSITIVE_INFINITY,
-    [USAGE_RESOURCE_WHATSAPP_SHARE]: Number.POSITIVE_INFINITY,
-    [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: Number.POSITIVE_INFINITY,
-  },
-  [PLAN_CODE_PRO]: {
-    [USAGE_RESOURCE_PDF_EXPORT]: Number.POSITIVE_INFINITY,
-    [USAGE_RESOURCE_WHATSAPP_SHARE]: Number.POSITIVE_INFINITY,
     [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: Number.POSITIVE_INFINITY,
   },
 };
@@ -68,23 +39,7 @@ function normalizeUsageCount(value) {
 export function getMonthlyLimitForPlan(planCode, resource) {
   assertValidResource(resource);
   const normalizedPlan = normalizePlanCode(planCode);
-  if (resource === USAGE_RESOURCE_PDF_EXPORT) {
-    return getPdfExportMonthlyQuotaForPlan(normalizedPlan);
-  }
   return MONTHLY_LIMITS[normalizedPlan][resource];
-}
-
-export function getPdfExportMonthlyQuotaForPlan(planCode) {
-  const normalizedPlan = normalizePlanCode(planCode);
-  return PDF_EXPORT_MONTHLY_QUOTA_CONTRACT[normalizedPlan];
-}
-
-export function isPdfExportMonthlyQuotaUnlimited(planCode) {
-  return !Number.isFinite(getPdfExportMonthlyQuotaForPlan(planCode));
-}
-
-export function hasFinitePdfExportMonthlyQuota(planCode) {
-  return Number.isFinite(getPdfExportMonthlyQuotaForPlan(planCode));
 }
 
 export function hasReachedMonthlyLimit({ planCode, resource, usedCount }) {
@@ -100,8 +55,6 @@ export async function getMonthlyUsageSnapshot(
   if (!userId) {
     return {
       monthStart: normalizeMonthStart(monthStart),
-      [USAGE_RESOURCE_PDF_EXPORT]: 0,
-      [USAGE_RESOURCE_WHATSAPP_SHARE]: 0,
       [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: 0,
     };
   }
@@ -118,16 +71,12 @@ export async function getMonthlyUsageSnapshot(
   if (error) {
     return {
       monthStart: normalizedMonth,
-      [USAGE_RESOURCE_PDF_EXPORT]: 0,
-      [USAGE_RESOURCE_WHATSAPP_SHARE]: 0,
       [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: 0,
     };
   }
 
   const snapshot = {
     monthStart: normalizedMonth,
-    [USAGE_RESOURCE_PDF_EXPORT]: 0,
-    [USAGE_RESOURCE_WHATSAPP_SHARE]: 0,
     [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: 0,
   };
 

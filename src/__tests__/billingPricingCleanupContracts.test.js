@@ -135,4 +135,19 @@ describe('billing/pricing cleanup contracts', () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it('does not keep PDF or WhatsApp usage quota resources in runtime modules', () => {
+    const sources = [
+      readSource('src/core/usageLimits.js'),
+      readSource('src/core/plans/subscriptionPlans.js'),
+      readSource('src/core/plans/operationalPlan.js'),
+    ].join('\n');
+
+    expect(sources).not.toContain('USAGE_RESOURCE_PDF_EXPORT');
+    expect(sources).not.toContain('USAGE_RESOURCE_WHATSAPP_SHARE');
+    expect(sources).not.toContain('FEATURE_PDF_EXPORT');
+    expect(sources).not.toContain('PREMIUM_FEATURE_PDF_EXPORT');
+    expect(sources).not.toContain('pdf_export');
+    expect(sources).not.toContain('whatsapp_share');
+  });
 });

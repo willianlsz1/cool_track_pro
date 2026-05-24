@@ -39,7 +39,8 @@ describe('operational plan compatibility layer', () => {
 
     expect(mod.isProUser({ plan_code: 'free' })).toBe(true);
     expect(mod.canUsePremiumFeature(null, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(true);
-    expect(mod.canUsePremiumFeature(null, mod.PREMIUM_FEATURE_PDF_EXPORT)).toBe(true);
+    expect(mod.canUsePremiumFeature(null, 'pdf_export')).toBe(false);
+    expect(Object.keys(mod)).not.toContain('PREMIUM_FEATURE_PDF_EXPORT');
     expect(mod.getPlanCodeFromProfile({ plan_code: 'pro' })).toBe('free');
   });
 

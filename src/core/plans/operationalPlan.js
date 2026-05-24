@@ -2,7 +2,6 @@ import { supabase } from '../supabase.js';
 import {
   FEATURE_EQUIPAMENTOS_EXTRA,
   FEATURE_HISTORICO_COMPLETO,
-  FEATURE_PDF_EXPORT,
   FEATURE_SETORES,
   FEATURE_SUPORTE_PRIORITARIO,
   PLAN_CODE_FREE,
@@ -15,7 +14,6 @@ import {
 } from './subscriptionPlans.js';
 
 export const PREMIUM_FEATURE_EQUIPAMENTOS = 'equipamentos';
-export const PREMIUM_FEATURE_PDF_EXPORT = 'pdf_export';
 
 let _profileSnapshot = null;
 
@@ -23,7 +21,6 @@ export {
   hasFeature,
   assertFeature,
   hasPlusAccess,
-  FEATURE_PDF_EXPORT,
   FEATURE_EQUIPAMENTOS_EXTRA,
   FEATURE_HISTORICO_COMPLETO,
   FEATURE_SETORES,
@@ -87,7 +84,7 @@ export function isProUser() {
 }
 
 export function canUsePremiumFeature(_profile, feature) {
-  return feature === PREMIUM_FEATURE_EQUIPAMENTOS || feature === PREMIUM_FEATURE_PDF_EXPORT;
+  return feature === PREMIUM_FEATURE_EQUIPAMENTOS;
 }
 
 export function getCachedOperationalProfileSnapshot() {

@@ -4,7 +4,6 @@ export const PLAN_CODE_FREE = 'free';
 export const PLAN_CODE_PLUS = 'plus';
 export const PLAN_CODE_PRO = 'pro';
 
-export const FEATURE_PDF_EXPORT = 'pdf_export';
 export const FEATURE_EQUIPAMENTOS_EXTRA = 'equipamentos_extra';
 export const FEATURE_HISTORICO_COMPLETO = 'historico_completo';
 export const FEATURE_SETORES = 'setores';
