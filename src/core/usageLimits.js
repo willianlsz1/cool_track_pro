@@ -22,24 +22,9 @@ const PDF_EXPORT_MONTHLY_QUOTA_CONTRACT = Object.freeze({
   [PLAN_CODE_PRO]: Number.POSITIVE_INFINITY,
 });
 
-// ── Limites mensais por plano ──────────────────────────────────────────────
-// Free: PDF liberado com marca d'água (sem bloqueio rígido no loop principal),
-//       WhatsApp ainda com teto mensal pra preservar incentivo de upgrade.
-//       1 análise de placa/mês como "teste grátis" recorrente — suficiente
-//       pra demonstrar o valor do recurso todo mês, sem liberar workflow real.
-// Plus: cotas dimensionadas pro técnico autônomo individual (15 equipamentos).
-//       Análise de placa: 30/mês cobre com folga o uso típico (1 cadastro novo
-//       a cada 1-2 dias úteis). Limite existe pra proteger margem — o custo
-//       da análise é em USD, então "ilimitado" virava risco de cauda longa.
-// Plus tambem tem PDF ilimitado agora — diferenciacao do Free e a marca
-//       d'agua (Free leva, Plus nao leva). Quota de 120 PDFs foi removida pois
-//       PDF e barato (so processamento) e a friccao da quota mensal afastava
-//       usuarios. Pro:  equipe pequena ou operação com 15+ equipamentos.
-//       PDFs/WhatsApp ilimitados (sao baratos — papel/mensagem). Analise de
-//       placa: 200/mes
-//       cobre rollout inicial de uma equipe média sem abrir mão da margem.
-// Nota CP-C: getMonthlyLimitForPlan resolve pdf_export pelo contrato dedicado
-// acima, ativando Free 1/mes, Plus 50/mes e Pro ilimitado no runtime.
+// A area comercial foi removida do produto. As chaves legadas continuam aqui
+// apenas como contrato tecnico para manter recursos existentes desbloqueados
+// enquanto limites comerciais sao refeitos em etapa propria.
 const MONTHLY_LIMITS = {
   [PLAN_CODE_FREE]: {
     [USAGE_RESOURCE_PDF_EXPORT]: Number.POSITIVE_INFINITY,

@@ -46,11 +46,11 @@ export function renderShellModals() {
         <!--
           Hero CTA: "Aponta a câmera, a gente preenche".
           Dois estados mutuamente exclusivos:
-          - .nameplate-cta--active (Plus+): botão primário que abre o file
+          - .nameplate-cta--active: botao primario que abre o file
             picker. Preenche tipo/fluido/marca-modelo no step 2 via IA.
-          - .nameplate-cta--locked (Free): mesmo layout, CTA redireciona pro
-            upsell. Mantemos o layout IDÊNTICO entre os dois estados pra não
-            causar "shift" visual quando o user fizer upgrade.
+          - .nameplate-cta--locked: mesmo layout, mas sem abrir o picker.
+            Mantemos o layout identico entre os dois estados para evitar
+            deslocamento visual quando o estado muda.
           O toggle é feito por applyNameplateCtaGate() no controller, baseado
           no plano efetivo. Input file fica fora do bloco locked (dentro do
           active) pra não ativar listeners quando estiver bloqueado.

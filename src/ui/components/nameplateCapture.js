@@ -220,8 +220,7 @@ function resolveCtaPresentation({ isPlusOrPro, trialRemaining }) {
       trialRemaining: remaining,
     };
   }
-  // remaining === 0 → uso do mês esgotado. Billing/pricing está fora do produto,
-  // então o texto deve ficar operacional e sem CTA comercial.
+  // remaining === 0: uso do mes esgotado; o texto fica operacional.
   return {
     state: 'locked',
     subtitle: 'Você já usou a análise disponível este mês. Aguarde o próximo ciclo.',

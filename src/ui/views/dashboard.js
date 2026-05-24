@@ -1472,9 +1472,8 @@ export async function renderDashboard() {
     // Plan extras: onboarding + overflow banner (Free only)
     OnboardingBanner.render({ userId: planContext.userId });
 
-    // Banner + modal de overflow (só para Free acima dos limites).
-    // Substitui o par usage-meter + upgrade-card anteriores — aparece
-    // apenas quando há razão, em vez de ocupar espaço permanentemente.
+    // Banner + modal de overflow: aparece apenas quando ha razao, em vez de
+    // ocupar espaco permanentemente.
     if (onboarding.overflow.state?.overLimit) {
       OverflowBanner.maybeShowFirstTimeModal({ state: onboarding.overflow.state });
     }

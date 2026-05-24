@@ -39,8 +39,7 @@ export class NameplateAnalysisError extends Error {
     this.cause = cause ?? null;
     // `details` carrega metadados específicos do código. Pra ERR_PLAN_GATE:
     // { currentPlan, monthlyLimit, used, quotaExhausted, trialExhausted,
-    // trialLimit, trialUsed } — o UI escolhe a mensagem/CTA de upgrade com
-    // base em currentPlan ('free' | 'plus' | 'pro').
+    // trialLimit, trialUsed } para a UI montar a mensagem operacional.
     this.details = details ?? null;
   }
 }

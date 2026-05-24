@@ -1,8 +1,25 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 function readSource(path) {
   return readFileSync(path, 'utf8');
+}
+
+function collectRuntimeSources(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir)) {
+    const path = `${dir}/${entry}`;
+    const stat = statSync(path);
+    if (stat.isDirectory()) {
+      if (entry === '__tests__') continue;
+      out.push(...collectRuntimeSources(path));
+      continue;
+    }
+    if (!/\.(js|jsx|ts|tsx)$/.test(entry)) continue;
+    if (entry.includes('.test.')) continue;
+    out.push(path);
+  }
+  return out;
 }
 
 describe('billing/pricing cleanup contracts', () => {
@@ -85,5 +102,35 @@ describe('billing/pricing cleanup contracts', () => {
       expect(source).not.toContain('Assine o Plus');
       expect(source).not.toContain('sugere Pro');
     }
+  });
+
+  it('does not keep active commercial billing/pricing terms in runtime modules', () => {
+    const runtimeSources = [
+      ...collectRuntimeSources('src/core'),
+      ...collectRuntimeSources('src/domain'),
+      ...collectRuntimeSources('src/features'),
+      ...collectRuntimeSources('src/ui'),
+    ].filter((path) => !path.startsWith('src/ui/views/pricing'));
+
+    const forbidden = [
+      'billing',
+      'pricing',
+      'checkout',
+      'stripe',
+      'Stripe',
+      'start-checkout',
+      'manage-subscription',
+      'open-upgrade',
+    ];
+
+    const offenders = [];
+    for (const path of runtimeSources) {
+      const source = readSource(path);
+      for (const term of forbidden) {
+        if (source.includes(term)) offenders.push(`${path}: ${term}`);
+      }
+    }
+
+    expect(offenders).toEqual([]);
   });
 });

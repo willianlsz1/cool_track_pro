@@ -146,7 +146,7 @@ export function updateShellSidebar() {
   const roleEl = document.getElementById('sidenav-user-role');
   if (roleEl) roleEl.textContent = 'Administrador';
 
-  // Area comercial removida: mantem o card como status operacional sem plano pago.
+  // Mantem o card como status operacional sem plano pago.
   const planCode = _getCurrentPlanCode();
   const planMeta = _PLAN_LABELS[planCode] || _PLAN_LABELS[PLAN_CODE_FREE];
   const helpMenuEl = document.getElementById('header-help-menu');

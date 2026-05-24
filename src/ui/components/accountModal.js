@@ -83,9 +83,8 @@ function _getPlanBadgeLabel(planCode, planLabel) {
   return `${planLabel.toUpperCase()} · ATIVO`;
 }
 
-// Chips do plano. 'filled' = check preenchido no accent do plano (Plus/Pro).
-// 'stroke' = outline ciano, aspiracional — usado no Free pra mostrar o que
-// vem no upgrade sem dar a impressão de "já tenho isso".
+// Chips do status operacional. 'filled' usa o accent ativo; 'stroke' indica
+// recurso ainda indisponivel sem sugerir fluxo comercial.
 function renderChips(chips, variant) {
   if (!Array.isArray(chips) || chips.length === 0) return '';
   const modifier =

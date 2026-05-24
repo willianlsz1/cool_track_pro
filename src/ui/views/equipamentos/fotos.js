@@ -47,8 +47,7 @@ function _bindPhotosUpsellCta() {
  * - Free → mesmo wrapper visível, mas troca o conteúdo pro locked state
  *   (card com lock + CTA "Desbloquear com Plus"). A visibilidade é feita
  *   via classe `.equip-photo-block--locked` no CSS, então os listeners
- *   dos file inputs ficam intactos e funcionam de volta assim que o user
- *   faz upgrade e reabre o modal.
+ *   dos file inputs ficam intactos e funcionam de volta quando o estado muda.
  *
  * Motivação da mudança (v3.5): antes escondiamos o bloco inteiro pra Free.
  * Isso tirava a feature do radar do usuário e reduzia conversão. Mostrar

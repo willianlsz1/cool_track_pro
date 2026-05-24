@@ -24,7 +24,7 @@ export const PMOC_COLORS = {
   black: [0, 0, 0],
   white: [255, 255, 255],
   // V2 (abr/2026): adicionado azul navy como accent INSTITUCIONAL pra alinhar
-  // com referencia de design (ver PR PMOC visual upgrade). Uso restrito a:
+  // com referencia de design. Uso restrito a:
   //   - numero das secoes (1., 2., 3., ...)
   //   - badges de identificacao (DOCUMENTO Nº box)
   //   - barras laterais de cards (resumo executivo)
