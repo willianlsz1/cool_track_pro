@@ -73,7 +73,6 @@ export function buildRegistroCreateRecord({
   registroId,
   persistedPayload,
   photoPayload,
-  assinaturaPayload,
   checklist,
 }) {
   const {
@@ -112,7 +111,6 @@ export function buildRegistroCreateRecord({
     clienteDocumento,
     localAtendimento,
     clienteContato,
-    assinatura: assinaturaPayload,
     checklist,
   };
 }

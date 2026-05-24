@@ -404,7 +404,6 @@ describe('registro Checklist/PMOC contract', () => {
       registroId: 'reg-1',
       persistedPayload,
       photoPayload: { fotos: [], fotos_pendentes: [] },
-      assinaturaPayload: false,
       checklist: incompleteChecklist,
     });
     expect(created.checklist).toBe(incompleteChecklist);

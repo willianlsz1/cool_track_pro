@@ -637,6 +637,9 @@ Progresso executado:
   separa tres trilhas que nao devem ser misturadas: Registro/storage/sync,
   Supabase/RLS/migrations e assinatura de orcamento/billing. Este CP e
   documental para evitar mudanca por tentativa em area sensivel.
+- CP-56A remove `assinaturaPayload` e `assinatura` do payload local de criacao
+  do Registro. O CP nao altera normalizers, sync remoto, migrations,
+  Supabase/RLS, orcamentos ou billing.
 
 Controle:
 

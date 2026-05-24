@@ -105,23 +105,21 @@ describe('registro save persistence helpers', () => {
     expect(uid).toHaveBeenCalledTimes(1);
   });
 
-  it('monta registro de criacao preservando payload, fotos, assinatura e checklist', () => {
+  it('monta registro de criacao preservando payload, fotos e checklist sem assinatura legado', () => {
     const photoPayload = {
       fotos: [{ id: 'foto-1', src: 'safe' }],
       fotos_pendentes: [{ id: 'pending-1' }],
     };
-    const assinaturaPayload = { provider: 'supabase', path: 'sig.png' };
     const checklist = { template: 'pmoc' };
 
-    expect(
-      buildRegistroCreateRecord({
-        registroId: 'reg-new',
-        persistedPayload,
-        photoPayload,
-        assinaturaPayload,
-        checklist,
-      }),
-    ).toEqual({
+    const record = buildRegistroCreateRecord({
+      registroId: 'reg-new',
+      persistedPayload,
+      photoPayload,
+      checklist,
+    });
+
+    expect(record).toEqual({
       id: 'reg-new',
       equipId: 'eq-1',
       data: '2026-04-10T10:00',
@@ -139,9 +137,9 @@ describe('registro save persistence helpers', () => {
       clienteDocumento: '123',
       localAtendimento: 'Sala 1',
       clienteContato: '(11) 99999-0000',
-      assinatura: assinaturaPayload,
       checklist,
     });
+    expect(record).not.toHaveProperty('assinatura');
   });
 
   it('prepara mutacao de criacao sem mutar entrada e adiciona tecnico novo', () => {

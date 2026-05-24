@@ -124,8 +124,6 @@ describe('exploratory: signature payload contract', () => {
     });
     const { saveRegistro } = await import('../../ui/views/registro.js');
     await saveRegistro();
-    const assinatura = finalState.registros[0].assinatura;
-    expect(typeof assinatura === 'string' && assinatura.startsWith('data:image')).toBe(false);
-    expect(assinatura).toBe(false);
+    expect(finalState.registros[0]).not.toHaveProperty('assinatura');
   });
 });

@@ -400,6 +400,15 @@ describe('legacy v1 removal contracts', () => {
     expect(pmocInfoModalSource).not.toContain('assinaturas');
   });
 
+  it('does not keep legacy assinatura field in Registro create payload', () => {
+    const registroSource = readSource('src/ui/views/registro.js');
+    const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');
+
+    expect(registroSource).not.toContain('assinaturaPayload');
+    expect(persistenceSource).not.toContain('assinaturaPayload');
+    expect(persistenceSource).not.toContain('assinatura:');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

@@ -1564,7 +1564,6 @@ export async function saveRegistro() {
       registroId: novoId,
       persistedPayload,
       photoPayload,
-      assinaturaPayload: false,
       checklist: getCurrentChecklist(),
     });
 

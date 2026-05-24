@@ -354,7 +354,7 @@ describe('registro legacy save handlers with signature contracts', () => {
     expect(getSavedTechnician(saved)).toBe('Tecnico Padrao');
     expect(saved.fotos).toEqual(['uploaded-photo-ref']);
     expect(saved.checklist?.items.find((item) => item.id === 'filtros_limpeza')?.status).toBe('ok');
-    expect(saved.assinatura).toBe(false);
+    expect(saved).not.toHaveProperty('assinatura');
     expect(mocks.uploadPendingPhotos).toHaveBeenCalledWith([SAFE_PHOTO], { recordId: saved.id });
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
@@ -372,7 +372,7 @@ describe('registro legacy save handlers with signature contracts', () => {
 
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
-    expect(saved.assinatura).toBe(false);
+    expect(saved).not.toHaveProperty('assinatura');
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );
@@ -399,7 +399,7 @@ describe('registro legacy save handlers with signature contracts', () => {
 
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
-    expect(saved.assinatura).toBe(false);
+    expect(saved).not.toHaveProperty('assinatura');
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );
@@ -427,7 +427,7 @@ describe('registro legacy save handlers with signature contracts', () => {
 
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
-    expect(saved.assinatura).toBe(false);
+    expect(saved).not.toHaveProperty('assinatura');
     expectNoUnsafeMarkup();
     expectNoExternalPdfOrWhatsapp();
   });
