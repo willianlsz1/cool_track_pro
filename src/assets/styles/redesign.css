@@ -3926,39 +3926,6 @@ body:not(.landing-active) .upgrade-nudge-card {
   box-shadow: none !important;
 }
 
-body:not(.landing-active) .clientes-paywall-overlay {
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 32px;
-}
-
-body:not(.landing-active) .clientes-paywall {
-  width: min(620px, calc(100vw - 32px));
-  max-height: min(88vh, 860px);
-  overflow-y: auto;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(20, 27, 39, 0.98), rgba(9, 15, 24, 0.99)) !important;
-  border: 1px solid rgba(255, 182, 13, 0.34) !important;
-  box-shadow: 0 34px 96px rgba(0, 0, 0, 0.58) !important;
-}
-
-body:not(.landing-active) .clientes-paywall__hero {
-  background: linear-gradient(180deg, rgba(255, 182, 13, 0.1), transparent) !important;
-  border-bottom: 1px solid rgba(255, 182, 13, 0.14);
-}
-
-body:not(.landing-active) .clientes-paywall__mockup-card,
-body:not(.landing-active) .clientes-paywall__perk,
-body:not(.landing-active) .clientes-paywall__impact {
-  background: rgba(8, 13, 22, 0.42) !important;
-  border-color: rgba(148, 163, 184, 0.14) !important;
-  box-shadow: none !important;
-}
-
-body:not(.landing-active) .clientes-paywall__upgrade {
-  box-shadow: 0 14px 34px rgba(255, 182, 13, 0.18) !important;
-}
-
 body:not(.landing-active) .registro-equip-picker {
   z-index: 9200;
 }
@@ -4029,15 +3996,9 @@ body:not(.landing-active)
     > .modal:not(.setor-modal),
   body:not(.landing-active) .cliente-modal-overlay .cliente-modal,
   body:not(.landing-active) .pmoc-modal-overlay .pmoc-modal,
-  body:not(.landing-active) .pmoc-info-modal-overlay .pmoc-info-modal,
-  body:not(.landing-active) .clientes-paywall {
+  body:not(.landing-active) .pmoc-info-modal-overlay .pmoc-info-modal {
     width: 100% !important;
     max-height: min(90vh, 760px);
     border-radius: 18px 18px 12px 12px;
-  }
-
-  body:not(.landing-active) .clientes-paywall-overlay {
-    align-items: flex-end !important;
-    padding: 12px;
   }
 }
