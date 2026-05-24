@@ -136,6 +136,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `ui/controller` e classificou a cobertura entre aposentadoria junto com
   shell/router, migracao para app-v2/helper puro, etapa sensivel dedicada e
   contratos de transicao.
+- CP-15 adicionou um gate executavel para rastrear testes shell/router-only
+  enquanto `src/ui/shell.js` e `src/ui/controller.js` ainda existem, e para
+  confirmar a presenca da cobertura app-v2 equivalente antes da aposentadoria.
 
 ## 3. Superficies v1 mapeadas
 
