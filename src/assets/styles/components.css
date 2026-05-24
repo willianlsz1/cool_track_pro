@@ -12866,9 +12866,9 @@ mark,
      + .hist-signature-modal (body-appended, lightbox da assinatura)
    ═══════════════════════════════════════════════════════════════════════ */
 
-/* Tokens scoped pra não colidir com os globais do base.css (que usam valores
-   menores pros mesmos nomes). Aqui re-definimos as variantes fortes que o
-   mockup usa pra bordas/backgrounds — isolados sob #view-historico e o modal. */
+/* Tokens scoped para nao colidir com os tokens globais legados. Aqui
+   redefinimos as variantes fortes usadas por bordas/backgrounds, isoladas sob
+   #view-historico e o modal. */
 #view-historico,
 .hist-signature-modal {
   --primary-dim: rgba(34, 211, 238, 0.32);
@@ -14600,8 +14600,7 @@ select option {
   inset: 0;
   z-index: 60;
   display: none;
-  /* Mesmos tokens fortes que o viewer usa — isolado em scope do modal
-     pra não vazar pro base.css global. */
+  /* Mesmos tokens fortes que o viewer usa, isolados no scope do modal. */
   --primary-dim: rgba(34, 211, 238, 0.32);
   --primary-soft: rgba(34, 211, 238, 0.08);
   --border-soft: rgba(255, 255, 255, 0.07);

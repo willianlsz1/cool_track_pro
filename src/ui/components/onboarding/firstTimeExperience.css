@@ -1,8 +1,8 @@
 /* ============================================================
    firstTimeExperience.css — Onboarding overlay (FTX)
    Extraído do firstTimeExperience.js para permitir caching e
-   reduzir size do bundle JS. Tokens seguem o design system
-   (base.css). Layout responsivo unificado para mobile + desktop.
+   reduzir size do bundle JS. Layout responsivo unificado para mobile +
+   desktop.
    ============================================================ */
 
 @keyframes ftx-fade-in {

@@ -235,12 +235,14 @@ describe('legacy v1 removal contracts', () => {
     expect(componentsCss).not.toContain('_configuracoes.css');
   });
 
-  it('does not keep orphan legacy visual polish stylesheets after v2 promotion', () => {
+  it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 
+    expect(existsSync('src/assets/styles/base.css')).toBe(false);
     expect(existsSync('src/assets/styles/desktop-fonts.css')).toBe(false);
     expect(existsSync('src/assets/styles/theme-premium.css')).toBe(false);
     expect(existsSync('src/assets/styles/ux-polish.css')).toBe(false);
+    expect(primaryHtml).not.toContain('base.css');
     expect(primaryHtml).not.toContain('desktop-fonts.css');
     expect(primaryHtml).not.toContain('theme-premium.css');
     expect(primaryHtml).not.toContain('ux-polish.css');
