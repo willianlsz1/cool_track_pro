@@ -110,10 +110,10 @@ describe('billing/pricing cleanup contracts', () => {
     const sources = [
       readSource('src/ui/views/equipamentos/fotos.js'),
       readSource('src/ui/views/registro.js'),
-      readSource('src/ui/components/accountModal.js'),
       readSource('src/ui/shell/templates/modals.js'),
     ];
 
+    expect(existsSync('src/ui/components/accountModal.js')).toBe(false);
     expect(existsSync('src/ui/controller/handlers/profileAccountHandlers.js')).toBe(false);
 
     for (const source of sources) {

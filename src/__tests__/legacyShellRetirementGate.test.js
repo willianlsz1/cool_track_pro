@@ -28,6 +28,8 @@ const retiredOrphanControllerHandlerFiles = [
   'src/ui/controller/handlers/profileAccountHandlers.js',
 ];
 
+const retiredOrphanLegacyComponentFiles = ['src/ui/components/accountModal.js'];
+
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/shell/navigationMode.js',
   'src/ui/shell/templates/modals.js',
@@ -57,6 +59,9 @@ describe('legacy shell retirement gate', () => {
     const stillPresentOrphanControllerHandlers = retiredOrphanControllerHandlerFiles.filter(
       (path) => existsSync(path),
     );
+    const stillPresentOrphanLegacyComponents = retiredOrphanLegacyComponentFiles.filter((path) =>
+      existsSync(path),
+    );
     const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
       (path) => !existsSync(path),
     );
@@ -67,6 +72,7 @@ describe('legacy shell retirement gate', () => {
     expect(stillPresentControllerHelpers).toEqual([]);
     expect(stillPresentControllerRoutes).toEqual([]);
     expect(stillPresentOrphanControllerHandlers).toEqual([]);
+    expect(stillPresentOrphanLegacyComponents).toEqual([]);
     expect(missingLaterCheckpointFiles).toEqual([]);
   });
 

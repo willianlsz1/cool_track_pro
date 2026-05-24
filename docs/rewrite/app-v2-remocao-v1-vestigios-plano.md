@@ -161,12 +161,15 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/ui/controller/handlers/clienteHandlers.js` e
   `src/ui/controller/handlers/profileAccountHandlers.js`, preservando handlers
   ainda cobertos por consumidores ativos ou areas sensiveis.
+- CP-21 removeu o componente orfao `src/ui/components/accountModal.js`, que
+  nao tinha import ativo fora de contrato de limpeza de billing/pricing. A tela
+  de Conta do v1 e o app-v2 seguem sem depender desse modal antigo.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 178 arquivos restantes.
+- `src/ui/`: 177 arquivos restantes.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
