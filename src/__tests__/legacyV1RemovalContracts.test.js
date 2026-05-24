@@ -23,4 +23,17 @@ describe('legacy v1 removal contracts', () => {
     expect(redesignCss).not.toContain('view-configuracoes');
     expect(componentsCss).not.toContain('_configuracoes.css');
   });
+
+  it('does not keep the legacy privacidade route or internal static view', () => {
+    const routesSource = readSource('src/ui/controller/routes.js');
+    const shellViewsSource = readSource('src/ui/shell/templates/views.js');
+    const contaSource = readSource('src/ui/views/conta.js');
+
+    expect(existsSync('src/ui/views/privacidade.js')).toBe(false);
+    expect(routesSource).not.toContain('renderPrivacidade');
+    expect(routesSource).not.toContain("registerRoute('privacidade'");
+    expect(shellViewsSource).not.toContain('view-privacidade');
+    expect(contaSource).not.toContain("goTo('privacidade')");
+    expect(contaSource).toContain('/legal/privacidade.html');
+  });
 });

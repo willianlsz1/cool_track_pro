@@ -29,7 +29,6 @@ import {
   resolveClientesAccess,
 } from '../../core/plans/clientesAccess.js';
 import { renderConta } from '../views/conta.js';
-import { renderPrivacidade } from '../views/privacidade.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 
 export function registerAppRoutes() {
@@ -159,11 +158,6 @@ export function registerAppRoutes() {
 
   registerRoute('conta', () => {
     renderConta();
-    updateHeader();
-  });
-
-  registerRoute('privacidade', () => {
-    renderPrivacidade();
     updateHeader();
   });
 

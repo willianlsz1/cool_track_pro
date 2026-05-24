@@ -239,10 +239,6 @@ vi.mock('../ui/views/conta.js', () => ({
   renderConta: vi.fn(),
 }));
 
-vi.mock('../ui/views/privacidade.js', () => ({
-  renderPrivacidade: vi.fn(),
-}));
-
 vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   OnboardingChecklist: { markStep: vi.fn() },
 }));

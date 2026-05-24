@@ -956,9 +956,6 @@
         <!-- CONTA (full-page Minha Conta) -->
         <div class="view" id="view-conta"></div>
 
-        <!-- PRIVACIDADE (Politica LGPD) -->
-        <div class="view" id="view-privacidade"></div>
-
         <!-- V3: ORÇAMENTOS DE INSTALAÇÃO -->
         <div class="view" id="view-orcamentos"></div>
 `;

@@ -62,7 +62,6 @@ vi.mock('../ui/views/clientes.js', () => ({
   unmountClientes: vi.fn(),
 }));
 vi.mock('../ui/views/conta.js', () => ({ renderConta: vi.fn() }));
-vi.mock('../ui/views/privacidade.js', () => ({ renderPrivacidade: vi.fn() }));
 vi.mock('../core/plans/clientesAccess.js', () => ({
   getClientesAccessSnapshot: vi.fn(() => ({ resolved: true, canAccess: true })),
   resolveClientesAccess: vi.fn(),

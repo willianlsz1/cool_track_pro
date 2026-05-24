@@ -6,7 +6,7 @@
  *      + 2 cards inferiores: progresso de equipamentos + renovação)
  *   2. Identity card (avatar grande + nome + role + email + Ver perfil público)
  *   3. Section cards agrupados (CONTA · ASSINATURA · DADOS · ZONA DE RISCO)
- *   4. Footer LGPD ("Seus dados estão seguros" + Saiba mais → /privacidade)
+ *   4. Footer LGPD ("Seus dados estão seguros" + Saiba mais → legal público)
  *
  * Os dados vêm de:
  *   - Profile.get()       → nome, role
@@ -534,7 +534,7 @@ function _bindOnce() {
         Toast.info('Use o card de notificações abaixo para ajustar o push.');
         break;
       case 'open-privacy':
-        goTo('privacidade');
+        window.location.assign('/legal/privacidade.html');
         break;
       default:
         break;
