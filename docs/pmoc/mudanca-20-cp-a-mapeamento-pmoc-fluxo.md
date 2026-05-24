@@ -19,11 +19,10 @@ Observação: o prompt informava HEAD `1bbf1dd317e2fcdc35a7aa16d576053807fc5b73`
   - Descreve fases de cliente, checklist, registro PMOC, PDF formal e dropdown de exportação.
 - `docs/flow/mudanca-18-final-report.md`
   - Mantém PMOC avançado fora da Mudança 18.
-- `docs/monetization/mudanca-19-final-report.md`
-  - Recomenda Mudança 20 como PMOC contextual/avançado.
-  - Mantém monetização PDF/cotas separada de PMOC.
-- `docs/monetization/mudanca-19-cp-c-pdf-quota-runtime.md`
-  - Documenta preservação de PMOC ao ativar a cota de PDF comum.
+- `docs/rewrite/checkpoints-recentes-resumo.md`
+  - Consolida que billing/pricing e a monetização PDF/cotas antigas foram
+    removidos.
+  - Mantém PDF/share novo, WhatsApp novo e PMOC novo como etapas próprias.
 
 ### Core/domain
 

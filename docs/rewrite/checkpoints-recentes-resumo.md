@@ -7,6 +7,8 @@
 - Removidos resíduos técnicos de quota `pdf_export` e `whatsapp_share`.
 - Neutralizados rótulos de exportação que ainda descreviam assinatura,
   PDF/WhatsApp como conteúdo atual.
+- Consolidado e removido o histórico antigo de monetização PDF/cotas; billing e
+  pricing serão redesenhados em etapa própria.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets públicos.
