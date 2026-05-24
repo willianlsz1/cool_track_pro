@@ -47,7 +47,10 @@ const retiredOrphanLegacyOnboardingFragments = [
 
 const retiredLegacyBarrelFiles = ['src/ui/views/clientes/renderers.js'];
 
-const retiredLegacyHelperFiles = ['src/ui/helpers/registroPure.js'];
+const retiredLegacyHelperFiles = [
+  'src/ui/helpers/registroPure.js',
+  'src/ui/views/clientes/emptyStateRenderer.js',
+];
 
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/shell/navigationMode.js',

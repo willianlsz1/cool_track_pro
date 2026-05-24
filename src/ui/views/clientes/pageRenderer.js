@@ -1,10 +1,10 @@
+import { Utils } from '../../../core/utils.js';
 import { CLIENTES_ACTIONS } from '../../viewModels/clientesContracts.js';
 import { renderCard } from './cardRenderer.js';
 import { renderActiveContext, renderAlertStrip, renderSummary } from './summaryRenderer.js';
-import { renderEmptyFilter, renderEmptyState } from './emptyStateRenderer.js';
 import { renderFilters } from './filtersRenderer.js';
 import { renderPagination } from './paginationRenderer.js';
-import { ICON_PLUS } from './constants.js';
+import { ICON_PLUS, ICON_USERS } from './constants.js';
 
 function renderHeader() {
   return `
@@ -31,6 +31,33 @@ function renderGrid(viewModel, clienteHelpers) {
       ${viewModel.pageItems
         .map((cliente) => renderCard(cliente, viewModel.indexed.get(cliente.id), clienteHelpers))
         .join('')}
+    </div>`;
+}
+
+function renderEmptyState() {
+  return `
+    <section class="cli-empty" aria-label="Nenhum cliente">
+      <div class="cli-empty__art" aria-hidden="true">${ICON_USERS}</div>
+      <h3 class="cli-empty__title">Nenhum cliente cadastrado</h3>
+      <p class="cli-empty__sub">
+        Cadastre o primeiro cliente para vincular equipamentos, registrar serviços
+        e manter o histórico organizado.
+      </p>
+      <button type="button" class="cli-empty__cta"
+        data-action="${CLIENTES_ACTIONS.openModal}" data-mode="create">
+        ${ICON_PLUS}<span>Cadastrar primeiro cliente</span>
+      </button>
+    </section>`;
+}
+
+function renderEmptyFilter(searchTerm) {
+  const term = Utils.escapeHtml(searchTerm || '');
+  const hint = term ? `para "${term}"` : 'com os filtros atuais';
+  return `
+    <div class="cli-empty cli-empty--filter">
+      <p class="cli-empty__sub">Nenhum cliente encontrado ${hint}.</p>
+      <button type="button" class="cli-empty__cta cli-empty__cta--ghost"
+        data-cli-action="${CLIENTES_ACTIONS.clearFilters}">Limpar filtros</button>
     </div>`;
 }
 
