@@ -702,6 +702,11 @@ Progresso executado:
   testes de Registro/exploratorios/regressoes e adiciona contrato para impedir
   a volta desses mocks. Nenhum runtime, Supabase/RLS, bucket ou migration foi
   alterado.
+- CP-57I remove o tratamento especial de `#lightbox` no router legado depois da
+  aposentadoria do runtime de fotos: o fechamento e a contagem de camadas
+  bloqueantes passam a depender apenas de modal padrao, camadas registradas via
+  `registerBlockingLayer` e overflow modal. Nenhum storage, Supabase/RLS ou
+  migration foi alterado.
 
 Controle:
 

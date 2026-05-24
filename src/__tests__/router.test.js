@@ -246,8 +246,12 @@ describe('router', () => {
 
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
+    closeCustomBlockingLayer.mockImplementationOnce(() => {
+      document.getElementById('custom-blocking-overlay')?.classList.remove('is-open');
+      return true;
+    });
 
     registerRoute('inicio', onEnterInicio);
     registerRoute('registros', onEnterRegistros);
@@ -257,7 +261,9 @@ describe('router', () => {
 
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
 
-    expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(false);
+    expect(document.getElementById('custom-blocking-overlay').classList.contains('is-open')).toBe(
+      false,
+    );
     expect(onEnterRegistros).not.toHaveBeenCalled();
     expect(pushSpy).toHaveBeenCalledTimes(1);
   });
@@ -296,7 +302,7 @@ describe('router', () => {
     expect(onEnterRegistros).not.toHaveBeenCalled();
   });
 
-  it('sequência de back: fecha foto e no back seguinte navega sem loop', async () => {
+  it('sequência de back: fecha camada bloqueante e no back seguinte navega sem loop', async () => {
     vi.useFakeTimers();
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterInicio = vi.fn();
@@ -310,15 +316,19 @@ describe('router', () => {
     vi.advanceTimersByTime(150);
     initHistory();
 
-    // Foto/lightbox aberta após history bind: cria um nível de camada no histórico.
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
+    closeCustomBlockingLayer.mockImplementationOnce(() => {
+      document.getElementById('custom-blocking-overlay')?.classList.remove('is-open');
+      return true;
+    });
 
-    // 1º back: fecha foto, não navega rota.
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
-    expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(false);
+    expect(document.getElementById('custom-blocking-overlay').classList.contains('is-open')).toBe(
+      false,
+    );
     expect(onEnterInicio).toHaveBeenCalledTimes(1);
     expect(onEnterRegistros).toHaveBeenCalledTimes(1);
 
@@ -415,14 +425,10 @@ describe('router', () => {
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
 
-    // Ordem no DOM define topo: modal padrão -> lightbox -> camada customizada.
+    // Ordem no DOM define topo: modal padrão -> camada customizada.
     document.body.insertAdjacentHTML(
       'beforeend',
       `<div id="modal-add-eq" class="modal-overlay is-open"></div>`,
-    );
-    document.body.insertAdjacentHTML(
-      'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
     );
     document.body.insertAdjacentHTML(
       'beforeend',
@@ -439,7 +445,6 @@ describe('router', () => {
 
     expect(closeCustomBlockingLayer).toHaveBeenCalled();
     expect(document.getElementById('modal-add-eq').classList.contains('is-open')).toBe(true);
-    expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(true);
     expect(onEnterRegistros).not.toHaveBeenCalled();
   });
 
@@ -461,14 +466,14 @@ describe('router', () => {
 
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
     await Promise.resolve();
 
     const syntheticState = pushSpy.mock.calls.at(-1)?.[0];
     expect(syntheticState).toMatchObject({ route: 'registros', blockingLayer: true });
 
-    document.getElementById('lightbox').classList.remove('is-open');
+    document.getElementById('custom-blocking-overlay').classList.remove('is-open');
     await Promise.resolve();
 
     expect(goSpy).toHaveBeenCalledWith(-1);

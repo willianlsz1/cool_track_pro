@@ -139,15 +139,6 @@ function closeTopBlockingLayer() {
     candidates.push({ element, close: entry.close });
   });
 
-  // Lightbox de fotos (não usa .modal-overlay).
-  const lightbox = document.getElementById('lightbox');
-  if (lightbox?.classList.contains('is-open')) {
-    candidates.push({
-      element: lightbox,
-      close: () => lightbox.classList.remove('is-open'),
-    });
-  }
-
   // Overflow modal do dashboard (usa class `overflow-modal-overlay`, não
   // `modal-overlay`, e só existe no DOM enquanto aberto — audit §1.3).
   // Preferimos clicar no botão dismiss pra preservar a telemetria de close;
@@ -181,14 +172,13 @@ function closeTopBlockingLayer() {
 function countOpenBlockingLayers() {
   if (typeof document === 'undefined') return 0;
   const modalCount = document.querySelectorAll('.modal-overlay.is-open').length;
-  const lightboxCount = document.getElementById('lightbox')?.classList.contains('is-open') ? 1 : 0;
   const registeredLayerCount = [..._blockingLayerRegistry.values()].filter((entry) =>
     entry.isOpen(),
   ).length;
   // Overflow modal existe no DOM só enquanto aberto (sem class is-open),
   // então basta checar presença (audit §1.3).
   const overflowCount = document.getElementById('dash-overflow-modal') ? 1 : 0;
-  return modalCount + lightboxCount + registeredLayerCount + overflowCount;
+  return modalCount + registeredLayerCount + overflowCount;
 }
 
 function syncBlockingLayerHistoryDepth() {
@@ -232,7 +222,7 @@ function bindBlockingLayerHistoryObserver() {
 
   // Sinal explícito do Modal.open/close — torna o sync determinístico quando
   // o usuário fecha via UI. MutationObserver acima continua como safety net
-  // pra overlays que não passam pelo módulo Modal (lightbox, signature).
+  // pra overlays que não passam pelo módulo Modal.
   document.addEventListener('modal:opened', syncBlockingLayerHistoryDepth);
   document.addEventListener('modal:closed', syncBlockingLayerHistoryDepth);
 }

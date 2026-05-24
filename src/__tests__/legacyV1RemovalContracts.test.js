@@ -343,6 +343,7 @@ describe('legacy v1 removal contracts', () => {
     );
     const shellModalsSource = readSource('src/ui/shell/templates/modals.js');
     const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
+    const routerSource = readSource('src/core/router.js');
 
     expect(existsSync('src/ui/components/photos.js')).toBe(false);
     expect(historicoSource).not.toContain('Photos.openLightbox');
@@ -355,6 +356,7 @@ describe('legacy v1 removal contracts', () => {
     expect(shellModalsSource).not.toContain('lightbox-img');
     expect(navigationHandlersSource).not.toContain('close-lightbox');
     expect(navigationHandlersSource).not.toContain('components/photos');
+    expect(routerSource).not.toContain('lightbox');
   });
 
   it('does not keep equipamentos v1 photo editor/upload surface', () => {
