@@ -131,10 +131,6 @@ async function setupDashboardHeaderModule({
     },
   }));
 
-  vi.doMock('../react/entrypoints/dashboardReadOnlyBlocksIsland.jsx', () => ({
-    mountDashboardReadOnlyBlocksReact: vi.fn(),
-    unmountDashboardReadOnlyBlocksReact: vi.fn(),
-  }));
   vi.doMock('../react/entrypoints/dashboardProDraftIsland.jsx', () => ({
     mountDashboardProDraftReact: vi.fn(),
     unmountDashboardProDraftReact: vi.fn(),

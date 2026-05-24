@@ -56,10 +56,9 @@ import {
 } from '../viewModels/dashboardViewModel.js';
 import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
+import { renderReadOnlyBlocksDom } from './dashboard/readOnlyBlocks.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardReadOnlyBlocksBridgePromise = null;
-let dashboardReadOnlyBlocksBridge = null;
 let dashboardProDraftBridgePromise = null;
 let dashboardProDraftBridge = null;
 let dashboardOnboardingBridgePromise = null;
@@ -91,16 +90,7 @@ function getMonthSectionRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.monthSection);
 }
 
-function loadDashboardReadOnlyBlocksBridge() {
-  dashboardReadOnlyBlocksBridgePromise ??=
-    import('../../react/entrypoints/dashboardReadOnlyBlocksIsland.jsx').then((bridge) => {
-      dashboardReadOnlyBlocksBridge = bridge;
-      return bridge;
-    });
-  return dashboardReadOnlyBlocksBridgePromise;
-}
-
-function getDashboardReadOnlyBlocksRoot() {
+function getReadOnlyBlocksRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.readOnlyBlocksRoot);
 }
 
@@ -174,15 +164,10 @@ export function unmountMonthSection(root = getMonthSectionRoot()) {
   return undefined;
 }
 
-export function unmountDashboardReadOnlyBlocks(root = getDashboardReadOnlyBlocksRoot()) {
+export function unmountDashboardReadOnlyBlocks(root = getReadOnlyBlocksRoot()) {
   if (!root) return undefined;
-  if (dashboardReadOnlyBlocksBridge?.unmountDashboardReadOnlyBlocksReact) {
-    dashboardReadOnlyBlocksBridge.unmountDashboardReadOnlyBlocksReact(root);
-    return undefined;
-  }
-  return loadDashboardReadOnlyBlocksBridge().then(({ unmountDashboardReadOnlyBlocksReact }) => {
-    unmountDashboardReadOnlyBlocksReact(root);
-  });
+  root.replaceChildren();
+  return undefined;
 }
 
 export function unmountDashboardProDraft(root = getDashboardProDraftRoot()) {
@@ -1414,21 +1399,11 @@ function _renderReadOnlyBlocks({
     isEmpresaPro,
     clientes,
   });
-  const root = getDashboardReadOnlyBlocksRoot();
-
-  if (root && dashboardReadOnlyBlocksBridge?.mountDashboardReadOnlyBlocksReact) {
-    dashboardReadOnlyBlocksBridge.mountDashboardReadOnlyBlocksReact(root, {
-      readOnlyBlocks: model,
-    });
-    _renderReadOnlyBlocksUpgradeHint({ alerts, planContext });
-    return Promise.resolve();
-  }
+  const root = getReadOnlyBlocksRoot();
 
   if (root) {
-    return loadDashboardReadOnlyBlocksBridge().then(({ mountDashboardReadOnlyBlocksReact }) => {
-      mountDashboardReadOnlyBlocksReact(root, { readOnlyBlocks: model });
-      _renderReadOnlyBlocksUpgradeHint({ alerts, planContext });
-    });
+    renderReadOnlyBlocksDom(root, model);
+    _renderReadOnlyBlocksUpgradeHint({ alerts, planContext });
   }
 
   return Promise.resolve();

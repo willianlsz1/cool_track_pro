@@ -424,7 +424,7 @@ describe('dashboard legacy read-only blocks render adapter', () => {
     assertNoUnsafeHtml(proRow);
   });
 
-  it('delegates read-only dashboard blocks to the React island and documents public contracts', () => {
+  it('renders read-only dashboard blocks in the legacy adapter and documents public contracts', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
@@ -458,8 +458,10 @@ describe('dashboard legacy read-only blocks render adapter', () => {
     expect(DASHBOARD_DATA_ATTRIBUTES).toEqual(
       expect.arrayContaining(['data-action', 'data-id', 'data-nav']),
     );
-    expect(dashboardSource).toContain('../../react/entrypoints/dashboardReadOnlyBlocksIsland.jsx');
-    expect(dashboardSource).toContain('mountDashboardReadOnlyBlocksReact');
+    expect(dashboardSource).not.toContain(
+      '../../react/entrypoints/dashboardReadOnlyBlocksIsland.jsx',
+    );
+    expect(dashboardSource).not.toContain('mountDashboardReadOnlyBlocksReact');
     expect(dashboardSource).not.toContain('function _renderAlertsMiniSection');
     expect(dashboardSource).not.toContain('function _renderCriticalNowSection');
     expect(dashboardSource).not.toContain('function _renderCriticosSection');
