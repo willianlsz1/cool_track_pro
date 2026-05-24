@@ -139,6 +139,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-15 adicionou um gate executavel para rastrear testes shell/router-only
   enquanto `src/ui/shell.js` e `src/ui/controller.js` ainda existem, e para
   confirmar a presenca da cobertura app-v2 equivalente antes da aposentadoria.
+- CP-16A resolveu a divergencia entre remover testes antes do runtime e manter
+  runtime legado coberto: o primeiro corte real deve remover shell visual v1,
+  testes obsoletos correspondentes e atualizar o gate no mesmo checkpoint.
 
 ## 3. Superficies v1 mapeadas
 
