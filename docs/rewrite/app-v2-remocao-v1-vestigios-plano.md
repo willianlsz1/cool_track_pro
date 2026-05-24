@@ -475,6 +475,14 @@ Escopo provavel:
 - `src/assets/styles/components.css`
 - Estilos de pricing/paywall remanescentes.
 
+Progresso executado:
+
+- Removidos top-level CSS orfaos `theme-premium.css`, `ux-polish.css`,
+  `desktop-fonts.css`, `base.css`, `layout.css` e `tokens.css`.
+- Removidos assets visuais legados de equipamentos
+  `equipment-detail-cp-h.css` e `equipment-list-cp-i.css`.
+- Contratos de remocao ampliados em `legacyV1RemovalContracts`.
+
 Controle:
 
 - Confirmar que app-v2 nao importa CSS legado.
