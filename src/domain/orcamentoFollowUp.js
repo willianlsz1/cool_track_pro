@@ -22,7 +22,7 @@ function getTime(value) {
 export function getOrcamentoDisplayStatus(orcamento) {
   if (!orcamento || typeof orcamento !== 'object') return 'rascunho';
   const status = orcamento.status || 'rascunho';
-  if (orcamento.visualizadoEm && (status === 'aguardando_assinatura' || status === 'enviado')) {
+  if (orcamento.visualizadoEm && status === 'enviado') {
     return 'visualizado';
   }
   return status;
@@ -35,10 +35,7 @@ export function getFollowUpMeta(orcamento, now = Date.now()) {
   const displayStatus = getOrcamentoDisplayStatus(orcamento);
   const eligibleStatus = displayStatus === 'enviado' || displayStatus === 'visualizado';
   const blockedByOutcome =
-    displayStatus === 'aprovado' ||
-    displayStatus === 'recusado' ||
-    displayStatus === 'expirado' ||
-    !!orcamento?.assinadoEm;
+    displayStatus === 'aprovado' || displayStatus === 'recusado' || displayStatus === 'expirado';
 
   if (!eligibleStatus || blockedByOutcome) {
     return { shouldShow: false, daysOpen: 0 };

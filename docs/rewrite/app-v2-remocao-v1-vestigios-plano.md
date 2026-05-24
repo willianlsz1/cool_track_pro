@@ -652,6 +652,13 @@ Progresso executado:
   para nao depender mais do helper aposentado
   `can_write_registro_signature_storage_object`. Fotos de registros seguem
   apenas o contrato de ownership do path; fotos de equipamentos continuam Plus+.
+- CP-56D aposenta a assinatura digital legada de Orcamentos: remove helpers
+  `generateShareToken`, `buildShareUrl`, `fetchOrcamentoByToken` e
+  `signOrcamentoByToken` de `src/core/orcamentos.js`, remove do follow-up o
+  status `aguardando_assinatura` e adiciona migration para dropar RPCs publicas,
+  colunas `share_token`/`assinatura_cliente_dataurl` e reverter orcamentos
+  pendentes para `enviado`. Billing/features, PDF/share, WhatsApp e orcamento
+  app-v2-native permanecem fora deste corte.
 
 Controle:
 
