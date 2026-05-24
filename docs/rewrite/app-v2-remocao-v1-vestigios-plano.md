@@ -109,6 +109,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/registro/save/photos.js` foi removido no CP-9x; helpers de
   fotos de Registro foram co-localizados em
   `src/ui/views/registro/save/photos.js`, preservando upload/fallback por DI.
+- `src/features/registro/save/signature.js` foi removido no CP-9y; helpers de
+  assinatura de Registro foram co-localizados em
+  `src/ui/views/registro/save/signature.js`, preservando lazy import, storage e
+  fallback por DI.
 
 ## 3. Superficies v1 mapeadas
 

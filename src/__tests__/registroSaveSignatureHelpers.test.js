@@ -9,7 +9,7 @@ import {
   getRegistroSignatureState,
   loadRegistroSignatureSaveModule,
   persistRegistroSignatureForSave,
-} from '../../save/signature.js';
+} from '../ui/views/registro/save/signature.js';
 
 const safeDataUrl = 'data:image/png;base64,abc123==';
 
@@ -280,7 +280,7 @@ describe('registro save signature helpers', () => {
 
   it('nao importa o adapter legado nem UI/storage diretamente', () => {
     const source = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/features/registro/save/signature.js'),
+      path.resolve(process.cwd(), 'src/ui/views/registro/save/signature.js'),
       'utf8',
     );
 

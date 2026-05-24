@@ -36,6 +36,7 @@ git diff --cached --check
 
 ## Proximo risco
 
-Restam `signature.js`, `postSave.js` e `reportShare.js`. `signature.js` deve ser
-avaliado como checkpoint dedicado porque cruza assinatura, storage/fallback e
-lazy import.
+Restam `signature.js`, `postSave.js` e `reportShare.js`. `signature.js` pode ser
+movido em checkpoint dedicado porque cruza assinatura, storage/fallback e lazy
+import, mas os efeitos entram por DI e o helper nao importa UI/storage
+diretamente.

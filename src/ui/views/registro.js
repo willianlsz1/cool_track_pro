@@ -60,7 +60,7 @@ import {
   getRegistroSignatureState,
   loadRegistroSignatureSaveModule,
   persistRegistroSignatureForSave,
-} from '../../features/registro/save/signature.js';
+} from './registro/save/signature.js';
 import {
   buildRegistroCreateRecord,
   buildRegistroCreateStateMutation,
