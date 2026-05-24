@@ -83,8 +83,6 @@ describe('registro public selector contracts', () => {
   it('locks critical data-actions without duplicates', () => {
     const criticalActions = [
       'save-registro',
-      'save-and-share-registro',
-      'save-and-share-other-registro',
       'clear-registro',
       'quick-service-template',
       'r-checklist-set',

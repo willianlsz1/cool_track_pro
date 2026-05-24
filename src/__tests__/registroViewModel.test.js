@@ -235,7 +235,6 @@ describe('registro view model', () => {
     });
     expect(REGISTRO_ACTIONS).toMatchObject({
       save: 'save-registro',
-      saveAndShare: 'save-and-share-registro',
       clear: 'clear-registro',
       quickTemplate: 'quick-service-template',
       checklistSet: 'r-checklist-set',

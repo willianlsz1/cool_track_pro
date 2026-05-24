@@ -428,7 +428,7 @@ describe('registro DOM checklist legacy handlers contract', () => {
     const adapterSource = readFileSync('src/ui/views/registro.js', 'utf8');
 
     expect(handlersSource).toContain("on('r-checklist-set'");
-    expect(handlersSource).toContain("data-action='r-checklist-obs'");
+    expect(handlersSource).toContain("target.dataset?.action === 'r-checklist-obs'");
     expect(handlersSource).toContain("action === 'r-checklist-measure'");
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);

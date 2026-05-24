@@ -223,12 +223,12 @@ describe('report export public contracts', () => {
     mocks.profileGet.mockReturnValue({ nome: 'Tecnico Perfil', empresa: 'CoolTrack' });
   });
 
-  it('preserva actions publicas e data-registro-id nos CTAs de historico', async () => {
+  it('mantem CTAs de PDF/WhatsApp fora da timeline de Historico', async () => {
     const timelineSource = source('src/ui/views/historico/timelineRenderer.js');
 
-    expect(timelineSource).toContain('data-action="export-pdf"');
-    expect(timelineSource).toContain('data-action="whatsapp-export"');
-    expect(timelineSource).toContain('data-registro-id="${escapeAttr(');
+    expect(timelineSource).not.toContain('data-action="export-pdf"');
+    expect(timelineSource).not.toContain('data-action="whatsapp-export"');
+    expect(timelineSource).not.toContain('data-registro-id="${escapeAttr(');
   });
 
   it('mantem paridade de filtros e prioridade de filters.registroId para PDF e WhatsApp', async () => {

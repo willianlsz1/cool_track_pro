@@ -236,7 +236,7 @@ describe('registro legacy signature render adapter', () => {
     expect(cta?.disabled).toBe(true);
     expect(document.querySelector('#tour-signature-anchor')).not.toBeNull();
     expect(document.querySelector('[data-action="save-registro"]')).not.toBeNull();
-    expect(document.querySelector('[data-action="save-and-share-registro"]')).not.toBeNull();
+    expect(document.querySelector('[data-action="save-and-share-registro"]')).toBeNull();
 
     expectNoUnsafeMarkup(hint);
     expectCriticalFlowsNotExecuted();

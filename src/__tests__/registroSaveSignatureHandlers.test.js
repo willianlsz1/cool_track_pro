@@ -420,24 +420,16 @@ describe('registro legacy save handlers with signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('salva e compartilha usando WhatsApp mockado sem executar PDF real', async () => {
+  it('nao registra handler legado de salvar e compartilhar', async () => {
     const state = baseState();
     setupDom(state);
-    const registro = await loadRegistro(state, { plus: true });
-    mocks.signatureRequest.mockResolvedValue(null);
+    await loadRegistro(state, { plus: true });
 
-    await prepareRegistroForm(registro);
-    await triggerSave('save-and-share-registro');
-
-    const nextState = getSavedState(state);
-    const saved = nextState.registros.at(-1);
-    expect(saved.assinatura).toBe(false);
-    expect(mocks.shareWhatsAppFlow).toHaveBeenCalledWith({
-      filters: { equipId: 'eq-1', registroId: saved.id },
-    });
+    expect(mocks.handlers.get('save-and-share-registro')).toBeUndefined();
+    expect(mocks.handlers.get('save-and-share-other-registro')).toBeUndefined();
+    expect(mocks.setState).not.toHaveBeenCalled();
     expect(mocks.exportPdfFlow).not.toHaveBeenCalled();
-    expect(mocks.postSaveToastShow).not.toHaveBeenCalled();
-    expect(mocks.goTo).not.toHaveBeenCalled();
+    expect(mocks.shareWhatsAppFlow).not.toHaveBeenCalled();
   });
 
   it('mantem salvamento quando assinatura e cancelada pelo modal legado', async () => {

@@ -544,6 +544,14 @@ Progresso executado:
   handler, toasts, badge e modal preview) e CP54C3 (remover dominio
   PDF/share/WhatsApp legado ou mover dependencias restantes para CP sensivel
   proprio).
+- CP-54C1 aposentou a superficie clicavel de PDF/WhatsApp em Historico e no
+  pos-salvamento de Registro. A timeline v1 manteve apenas editar/excluir; o
+  Registro passou a salvar e exibir feedback local simples, sem CTA/fallback
+  para PDF, WhatsApp ou destinatario alternativo. Foram removidos tambem o
+  adapter `src/ui/views/registro/save/reportShare.js`, o fork modal
+  `src/ui/components/registroClienteForkSheet.js` e testes que protegiam o
+  fluxo legado removido. `reportExportHandlers.js`, toasts/badge/modal preview
+  e dominio PDF/share/WhatsApp permanecem para CP54C2/CP54C3.
 
 Controle:
 

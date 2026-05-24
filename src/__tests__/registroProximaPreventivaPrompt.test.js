@@ -45,9 +45,6 @@ vi.mock('../core/router.js', () => ({
   clearRouteGuard: mocks.clearRouteGuard,
 }));
 vi.mock('../ui/components/photos.js', () => ({ Photos: mocks.photos }));
-vi.mock('../ui/components/registroClienteForkSheet.js', () => ({
-  RegistroClienteForkSheet: { open: vi.fn(() => Promise.resolve({ action: 'skip' })) },
-}));
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));
@@ -291,27 +288,17 @@ describe('registro próxima preventiva prompt', () => {
     }
   });
 
-  it('no fluxo andShare=true chama WhatsApp antes do prompt aparecer', async () => {
+  it('aposenta WhatsApp direto e exibe prompt preventiva depois do salvamento', async () => {
     mountRegistroDom();
-    let resolveShare;
-    mocks.shareWhatsAppFlow.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveShare = () => resolve(true);
-        }),
-    );
     const { saveRegistro } = await import('../ui/views/registro.js');
 
-    const savePromise = saveRegistro({ andShare: true });
+    const savePromise = saveRegistro();
     await flushAsyncWork();
 
-    expect(mocks.shareWhatsAppFlow).toHaveBeenCalledTimes(1);
-    expect(document.querySelector('[data-testid="registro-proxima-preventiva-prompt"]')).toBeNull();
-
-    resolveShare();
     await expect(savePromise).resolves.toBe(true);
     await flushAsyncWork();
 
+    expect(mocks.shareWhatsAppFlow).not.toHaveBeenCalled();
     expect(
       document.querySelector('[data-testid="registro-proxima-preventiva-prompt"]'),
     ).not.toBeNull();

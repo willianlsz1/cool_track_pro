@@ -18,7 +18,6 @@ function setRoot() {
       <div id="registro-header-root"></div>
       <div id="registro-signature-hint" class="registro-sig-hint" hidden></div>
       <button data-action="save-registro"></button>
-      <button data-action="save-and-share-registro"></button>
     </main>
   `;
   return document.getElementById('registro-signature-hint');

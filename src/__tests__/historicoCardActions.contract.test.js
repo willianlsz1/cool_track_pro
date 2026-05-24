@@ -73,12 +73,12 @@ function expectCardActionsContract(root, registroId) {
   expect(root.querySelector(`.timeline__item[data-reg-id="${registroId}"]`)).not.toBeNull();
   expect(root.querySelector(`[data-action="edit-reg"][data-id="${registroId}"]`)).not.toBeNull();
   expect(root.querySelector(`[data-action="delete-reg"][data-id="${registroId}"]`)).not.toBeNull();
-  expect(
-    root.querySelector(`[data-action="export-pdf"][data-registro-id="${registroId}"]`),
-  ).not.toBeNull();
+  expect(root.querySelector(`[data-action="export-pdf"][data-registro-id="${registroId}"]`)).toBe(
+    null,
+  );
   expect(
     root.querySelector(`[data-action="whatsapp-export"][data-registro-id="${registroId}"]`),
-  ).not.toBeNull();
+  ).toBe(null);
 }
 
 describe('Historico card actions contract', () => {
@@ -86,12 +86,12 @@ describe('Historico card actions contract', () => {
     document.body.innerHTML = '';
   });
 
-  it('renders edit/delete and PDF/WhatsApp actions with the same registro id', async () => {
+  it('renders edit/delete actions and omits legacy PDF/WhatsApp actions', async () => {
     const root = await renderTimeline(createTimelineItem());
     const registroId = 'reg-card-1';
 
     expectCardActionsContract(root, registroId);
-    expect(root.querySelector('.card-actions')).not.toBeNull();
+    expect(root.querySelector('.card-actions')).toBeNull();
     expect(
       root.querySelector(`[data-hist-action="toggle-card-menu"][data-id="${registroId}"]`),
     ).not.toBeNull();
@@ -125,23 +125,18 @@ describe('Historico card actions contract', () => {
       'src/ui/controller/handlers/registroHandlers.js',
       'utf8',
     );
-    const reportExportHandlersSource = readFileSync(
-      'src/ui/controller/handlers/reportExportHandlers.js',
-      'utf8',
-    );
 
     expect(timelineSource).toContain('HISTORICO_ACTIONS.editReg');
     expect(timelineSource).toContain('HISTORICO_ACTIONS.deleteReg');
     expect(timelineSource).toContain('data-id="${escapeAttr(item.id)}"');
-    expect(timelineSource).toContain('renderCardActions(item.id)');
-    expect(timelineSource).toContain('data-action="export-pdf"');
-    expect(timelineSource).toContain('data-action="whatsapp-export"');
-    expect(timelineSource).toContain('data-registro-id="${escapeAttr(');
+    expect(timelineSource).not.toContain('renderCardActions(item.id)');
+    expect(timelineSource).not.toContain('data-action="export-pdf"');
+    expect(timelineSource).not.toContain('data-action="whatsapp-export"');
+    expect(timelineSource).not.toContain('data-registro-id="${escapeAttr(');
 
     expect(navigationHandlersSource).toContain("on('edit-reg'");
     expect(navigationHandlersSource).toMatch(/editRegistroId:\s*el\.dataset\.id/);
     expect(registroHandlersSource).toContain("on('delete-reg'");
     expect(registroHandlersSource).toMatch(/deleteReg\(el\.dataset\.id\)/);
-    expect(reportExportHandlersSource).toContain('triggerEl?.dataset?.registroId');
   });
 });

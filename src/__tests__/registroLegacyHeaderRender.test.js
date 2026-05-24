@@ -254,7 +254,7 @@ describe('registro legacy header/hero/main fields render adapter', () => {
     expectClass(view.querySelector('#r-tecnico'), 'registro-field__input');
 
     expect(view.querySelector('[data-action="save-registro"]')).not.toBeNull();
-    expect(view.querySelector('[data-action="save-and-share-registro"]')).not.toBeNull();
+    expect(view.querySelector('[data-action="save-and-share-registro"]')).toBeNull();
     expect(view.querySelector('[data-action="clear-registro"]')).not.toBeNull();
     expect(view.querySelectorAll('[data-action="quick-service-template"]')).toHaveLength(5);
 

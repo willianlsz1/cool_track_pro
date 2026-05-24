@@ -57,8 +57,6 @@ export const REGISTRO_PUBLIC_IDS = Object.freeze({
 
 export const REGISTRO_ACTIONS = Object.freeze({
   save: 'save-registro',
-  saveAndShare: 'save-and-share-registro',
-  saveAndShareOther: 'save-and-share-other-registro',
   clear: 'clear-registro',
   quickTemplate: 'quick-service-template',
   checklistSet: 'r-checklist-set',

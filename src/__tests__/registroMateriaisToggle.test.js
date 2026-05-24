@@ -63,9 +63,6 @@ vi.mock('../core/router.js', () => ({
 }));
 vi.mock('../core/modal.js', () => ({ CustomConfirm: { ask: vi.fn(() => Promise.resolve(true)) } }));
 vi.mock('../ui/components/photos.js', () => ({ Photos: mocks.photos }));
-vi.mock('../ui/components/registroClienteForkSheet.js', () => ({
-  RegistroClienteForkSheet: { open: vi.fn(() => Promise.resolve({ action: 'skip' })) },
-}));
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));

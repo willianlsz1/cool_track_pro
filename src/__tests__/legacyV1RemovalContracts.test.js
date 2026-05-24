@@ -249,6 +249,14 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/registro/__tests__/save/reportShare.test.js')).toBe(false);
   });
 
+  it('does not keep registro legacy post-save share/fork adapters after retiring PDF/WhatsApp CTAs', () => {
+    expect(existsSync('src/ui/views/registro/save/reportShare.js')).toBe(false);
+    expect(existsSync('src/ui/components/registroClienteForkSheet.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroSaveReportShareHelpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroClientFork.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroPostSaveLegacyFlow.test.js')).toBe(false);
+  });
+
   it('does not keep user data account handlers under src/features after co-locating with account UI', () => {
     expect(existsSync('src/features/userData.js')).toBe(false);
   });

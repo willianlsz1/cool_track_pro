@@ -87,8 +87,6 @@ const mocks = vi.hoisted(() => ({
           `<article class="timeline__item" data-reg-id="${item.id}">
             <span class="timeline__item__service">${item.serviceTitle}</span>
             <span class="timeline__item__equipment">${item.equipmentName}</span>
-            <button type="button" data-action="export-pdf" data-registro-id="${item.id}">PDF</button>
-            <button type="button" data-action="whatsapp-export" data-registro-id="${item.id}">WhatsApp</button>
           </article>`,
       )
       .join('');
@@ -292,7 +290,7 @@ describe('historico consolidated filters contract', () => {
     mocks.getSignatureForRecord.mockReturnValue(null);
   });
 
-  it('preserva DOM roots, actions publicas e ponte timeline/card com data-registro-id', async () => {
+  it('preserva DOM roots e timeline sem CTAs legados de PDF/WhatsApp', async () => {
     await renderHistorico();
 
     expect(document.querySelector('#hist-busca[type="search"]')).not.toBeNull();
@@ -304,12 +302,9 @@ describe('historico consolidated filters contract', () => {
     expect(document.querySelector('#hist-filters-count')).not.toBeNull();
     expect(document.querySelectorAll('[data-hist-action="hist-filter-period"]')).toHaveLength(4);
     expect(document.querySelectorAll('[data-hist-action="hist-filter-tipo"]')).toHaveLength(5);
-    expect(
-      document.querySelector('[data-action="export-pdf"][data-registro-id="reg-1"]'),
-    ).not.toBeNull();
-    expect(
-      document.querySelector('[data-action="whatsapp-export"][data-registro-id="reg-1"]'),
-    ).not.toBeNull();
+    expect(document.querySelector('.timeline__item[data-reg-id="reg-1"]')).not.toBeNull();
+    expect(document.querySelector('[data-action="export-pdf"]')).toBeNull();
+    expect(document.querySelector('[data-action="whatsapp-export"]')).toBeNull();
   });
 
   it('hidrata URL params em DOM/sessionStorage e filtra VM/timeline sem perder registroId', async () => {
@@ -340,7 +335,7 @@ describe('historico consolidated filters contract', () => {
         .groups.flatMap((group) => group.items)
         .map((item) => item.id),
     ).toEqual(['reg-1']);
-    expect(document.querySelector('[data-action="export-pdf"]')?.dataset.registroId).toBe('reg-1');
+    expect(document.querySelector('.timeline__item')?.dataset.regId).toBe('reg-1');
     expect(window.location.search).toContain('q=troca');
     expect(window.location.search).toContain('periodo=7d');
     expect(window.location.search).toContain('tipo=preventiva');
@@ -417,7 +412,7 @@ describe('historico consolidated filters contract', () => {
     ).toEqual(['reg-1', 'reg-2']);
   });
 
-  it('aplica/reset sheet e clear-all mantendo estado vazio correto e data-registro-id nos cards', async () => {
+  it('aplica/reset sheet e clear-all mantendo estado vazio correto nos cards', async () => {
     await renderHistorico();
 
     document.getElementById('hist-filters-trigger').click();
@@ -438,9 +433,7 @@ describe('historico consolidated filters contract', () => {
     expect(latestFiltersViewModel().filters).toEqual(
       expect.objectContaining({ setorId: '', equipId: '', tipo: '' }),
     );
-    expect(
-      document.querySelector('[data-action="export-pdf"][data-registro-id="reg-1"]'),
-    ).not.toBeNull();
+    expect(document.querySelector('.timeline__item[data-reg-id="reg-1"]')).not.toBeNull();
 
     document.getElementById('hist-filters-trigger').click();
     latestSheetOptions().onApply({ setor: 'setor-1', equip: 'eq-1', tipo: 'preventiva' });
@@ -451,8 +444,7 @@ describe('historico consolidated filters contract', () => {
     expect(latestFiltersViewModel().filters).toEqual(
       expect.objectContaining({ busca: '', setorId: '', equipId: '', tipo: '', period: 'tudo' }),
     );
-    expect(document.querySelector('[data-action="whatsapp-export"]')?.dataset.registroId).toBe(
-      'reg-1',
-    );
+    expect(document.querySelector('.timeline__item')?.dataset.regId).toBe('reg-1');
+    expect(document.querySelector('[data-action="whatsapp-export"]')).toBeNull();
   });
 });
