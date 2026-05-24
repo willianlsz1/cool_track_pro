@@ -8,12 +8,10 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const mocks = vi.hoisted(() => {
   const handlers = new Map();
-  const signatureCanceled = Symbol('signature-canceled');
   const photos = { pending: [], clear: vi.fn(() => (photos.pending = [])) };
 
   return {
     handlers,
-    signatureCanceled,
     photos,
     stateRef: { current: null },
     on: vi.fn((action, handler) => handlers.set(action, handler)),
@@ -47,8 +45,6 @@ const mocks = vi.hoisted(() => {
     toastWarning: vi.fn(),
     toastError: vi.fn(),
     toastInfo: vi.fn(),
-    signatureRequest: vi.fn(),
-    saveSignatureForRecord: vi.fn(),
   };
 });
 
@@ -150,16 +146,6 @@ vi.mock('../ui/views/historico.js', () => ({
   deleteReg: mocks.deleteReg,
 }));
 
-vi.mock('../ui/components/signature.js', () => ({
-  SignatureModal: {
-    CANCELED: mocks.signatureCanceled,
-    request: mocks.signatureRequest,
-  },
-  saveSignatureForRecord: mocks.saveSignatureForRecord,
-}));
-
-const SAFE_SIGNATURE =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
 const SAFE_PHOTO =
   'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAH/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAEFAqf/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAEDAQE/ASP/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAECAQE/ASP/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAY/Al//xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAE/IV//2gAMAwEAAgADAAAAEP/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8QH//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8QH//EABQQAQAAAAAAAAAAAAAAAAAAABD/2gAIAQEAAT8QH//Z';
 const MALICIOUS = '<img src=x onerror=alert(1)><script>alert(2)</script>';
@@ -237,9 +223,6 @@ async function loadRegistro(state = baseState(), { plus = true } = {}) {
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
   mocks.uploadPendingPhotos.mockResolvedValue({ photos: [], failedCount: 0 });
   mocks.postSaveToastShow.mockReturnValue(true);
-  mocks.signatureRequest.mockResolvedValue(null);
-  mocks.saveSignatureForRecord.mockResolvedValue(null);
-
   const registro = await import('../ui/views/registro.js');
   const { bindRegistroHandlers } = await import('../ui/controller/handlers/registroHandlers.js');
   bindRegistroHandlers();
@@ -372,8 +355,6 @@ describe('registro legacy save handlers with signature contracts', () => {
     expect(saved.fotos).toEqual(['uploaded-photo-ref']);
     expect(saved.checklist?.items.find((item) => item.id === 'filtros_limpeza')?.status).toBe('ok');
     expect(saved.assinatura).toBe(false);
-    expect(mocks.signatureRequest).not.toHaveBeenCalled();
-    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
     expect(mocks.uploadPendingPhotos).toHaveBeenCalledWith([SAFE_PHOTO], { recordId: saved.id });
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
@@ -385,15 +366,12 @@ describe('registro legacy save handlers with signature contracts', () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });
-    mocks.signatureRequest.mockResolvedValue(SAFE_SIGNATURE);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
 
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
-    expect(mocks.signatureRequest).not.toHaveBeenCalled();
-    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
     expect(saved.assinatura).toBe(false);
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
@@ -415,7 +393,6 @@ describe('registro legacy save handlers with signature contracts', () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });
-    mocks.signatureRequest.mockResolvedValue(mocks.signatureCanceled);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
@@ -423,8 +400,6 @@ describe('registro legacy save handlers with signature contracts', () => {
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
     expect(saved.assinatura).toBe(false);
-    expect(mocks.signatureRequest).not.toHaveBeenCalled();
-    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );
@@ -446,14 +421,12 @@ describe('registro legacy save handlers with signature contracts', () => {
     });
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });
-    mocks.signatureRequest.mockResolvedValue('data:image/svg+xml,<svg onload="alert(1)"></svg>');
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
 
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
-    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
     expect(saved.assinatura).toBe(false);
     expectNoUnsafeMarkup();
     expectNoExternalPdfOrWhatsapp();

@@ -29,10 +29,7 @@ describe('registro save signature helpers', () => {
   });
 
   it('nao carrega modulo de assinatura legado', async () => {
-    const loadSignatureModule = vi.fn(async () => ({
-      SignatureModal: { request: vi.fn() },
-      saveSignatureForRecord: vi.fn(),
-    }));
+    const loadSignatureModule = vi.fn(async () => ({}));
 
     await expect(
       loadRegistroSignatureSaveModule(
@@ -44,10 +41,7 @@ describe('registro save signature helpers', () => {
   });
 
   it('nao captura assinatura nem aciona modal legado', async () => {
-    const SignatureModal = {
-      CANCELED: Symbol('canceled'),
-      request: vi.fn(async () => safeDataUrl),
-    };
+    const legacySignatureModal = { request: vi.fn(async () => safeDataUrl) };
 
     await expect(
       captureRegistroSignatureIfNeeded(
@@ -55,7 +49,7 @@ describe('registro save signature helpers', () => {
           registroId: 'reg-1',
           equipNome: 'Split 01',
           canUseSignature: true,
-          SignatureModal,
+          legacySignatureModal,
         },
         {
           isSafeSignatureCaptureDataUrl: vi.fn(() => true),
@@ -65,7 +59,7 @@ describe('registro save signature helpers', () => {
         },
       ),
     ).resolves.toEqual({ assinatura: null });
-    expect(SignatureModal.request).not.toHaveBeenCalled();
+    expect(legacySignatureModal.request).not.toHaveBeenCalled();
   });
 
   it('nao persiste assinatura nem aciona storage legado', async () => {

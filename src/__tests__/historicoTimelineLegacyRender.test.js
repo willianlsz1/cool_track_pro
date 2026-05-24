@@ -4,9 +4,6 @@ const mocks = vi.hoisted(() => ({
   getState: vi.fn(),
   findEquip: vi.fn(),
   setState: vi.fn(),
-  cleanupOrphanSignatures: vi.fn(),
-  getSignatureForRecord: vi.fn(),
-  openSignatureViewer: vi.fn(),
   openLightbox: vi.fn(),
   applySavedHighlight: vi.fn(),
   markRegistroDeleted: vi.fn(),
@@ -39,12 +36,6 @@ vi.mock('../core/router.js', () => ({
 
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: mocks.applySavedHighlight },
-}));
-
-vi.mock('../ui/components/signature.js', () => ({
-  cleanupOrphanSignatures: mocks.cleanupOrphanSignatures,
-  getSignatureForRecord: mocks.getSignatureForRecord,
-  SignatureViewerModal: { open: mocks.openSignatureViewer },
 }));
 
 vi.mock('../ui/components/photos.js', () => ({
@@ -131,7 +122,6 @@ describe('historico legacy #timeline render', () => {
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
     mocks.isCachedPlanPro.mockReturnValue(false);
     mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
-    mocks.getSignatureForRecord.mockReturnValue(null);
   });
 
   it('preserva #timeline e empty state quando nao ha registros validos', async () => {
@@ -150,7 +140,6 @@ describe('historico legacy #timeline render', () => {
     expect(timeline.textContent).toContain('Nenhum');
     expect(timeline.querySelector('[data-nav="registro"]')).not.toBeNull();
     expect(mocks.openLightbox).not.toHaveBeenCalled();
-    expect(mocks.openSignatureViewer).not.toHaveBeenCalled();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
     expect(mocks.goTo).not.toHaveBeenCalled();
   });
@@ -206,10 +195,6 @@ describe('historico legacy #timeline render', () => {
         { id: 'cliente-2', nome: 'Beta Hospital' },
       ],
     });
-    mocks.getSignatureForRecord.mockImplementation((id) =>
-      id === 'reg-1' ? 'data:image/png;base64,assinatura' : null,
-    );
-
     const timeline = await renderTimeline(state);
     const items = [...timeline.querySelectorAll('.timeline__item')];
     const firstItem = items[0];
@@ -246,7 +231,7 @@ describe('historico legacy #timeline render', () => {
     ).not.toBeNull();
   });
 
-  it('escapa conteudo dinamico e bloqueia URLs perigosas em fotos e assinatura', async () => {
+  it('escapa conteudo dinamico e bloqueia URLs perigosas em fotos sem renderizar assinatura', async () => {
     const maliciousText = '<img src=x onerror=alert(1)><script>alert(1)</script>';
     const state = baseState({
       registros: [
@@ -276,8 +261,6 @@ describe('historico legacy #timeline render', () => {
       setores: [{ id: 'setor-xss', nome: maliciousText }],
       clientes: [],
     });
-    mocks.getSignatureForRecord.mockReturnValue('javascript:alert(3)');
-
     const timeline = await renderTimeline(state);
     const html = timeline.innerHTML.toLowerCase();
 
@@ -291,7 +274,6 @@ describe('historico legacy #timeline render', () => {
     expect(timeline.querySelector('[data-hist-action="hist-open-photo"]')).toBeNull();
     expect(timeline.querySelector('[data-hist-action="hist-view-signature"]')).toBeNull();
     expect(mocks.openLightbox).not.toHaveBeenCalled();
-    expect(mocks.openSignatureViewer).not.toHaveBeenCalled();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
   });
 

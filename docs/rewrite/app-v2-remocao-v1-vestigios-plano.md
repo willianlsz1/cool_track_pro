@@ -593,6 +593,14 @@ Progresso executado:
   `SignatureViewerModal`, `getSignatureForRecord` ou `cleanupOrphanSignatures`.
   UI/modal, router global e storage real de assinatura permanecem para CPs
   proprios.
+- CP-55C remove a UI/modal legada de assinatura
+  (`src/ui/components/signature.js`,
+  `src/ui/components/signature/signature-canvas.js`,
+  `src/ui/components/signature/signature-modal.js` e
+  `src/ui/components/signature/signature-viewer-modal.js`) e o teste dedicado
+  `src/__tests__/registroLegacySignatureRender.test.js`. Storage real,
+  router global e campo persistido `registros.assinatura` permanecem para CPs
+  proprios.
 
 Controle:
 

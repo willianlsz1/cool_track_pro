@@ -18,7 +18,7 @@ export async function captureRegistroSignatureIfNeeded(
     registroId: _registroId,
     equipNome: _equipNome,
     canUseSignature: _canUseSignature,
-    SignatureModal: _SignatureModal,
+    legacySignatureModal: _legacySignatureModal,
   } = {},
   {
     isSafeSignatureCaptureDataUrl: _isSafeSignatureCaptureDataUrl,

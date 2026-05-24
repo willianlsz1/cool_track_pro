@@ -4,9 +4,6 @@ const mocks = vi.hoisted(() => ({
   getState: vi.fn(),
   findEquip: vi.fn(),
   setState: vi.fn(),
-  cleanupOrphanSignatures: vi.fn(),
-  getSignatureForRecord: vi.fn(),
-  openSignatureViewer: vi.fn(),
   openLightbox: vi.fn(),
   applySavedHighlight: vi.fn(),
   markRegistroDeleted: vi.fn(),
@@ -49,12 +46,6 @@ vi.mock('../core/router.js', () => ({
 
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: mocks.applySavedHighlight },
-}));
-
-vi.mock('../ui/components/signature.js', () => ({
-  cleanupOrphanSignatures: mocks.cleanupOrphanSignatures,
-  getSignatureForRecord: mocks.getSignatureForRecord,
-  SignatureViewerModal: { open: mocks.openSignatureViewer },
 }));
 
 vi.mock('../ui/components/photos.js', () => ({
@@ -218,7 +209,6 @@ describe('historico legacy filters/search render adapter', () => {
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
     mocks.isCachedPlanPro.mockReturnValue(false);
     mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
-    mocks.getSignatureForRecord.mockReturnValue(null);
   });
 
   it('renderiza header, busca, filtros e quick filters com ids/classes publicos', async () => {
@@ -262,7 +252,6 @@ describe('historico legacy filters/search render adapter', () => {
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-busca"]')).not.toBeNull();
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-all"]')).not.toBeNull();
     expect(mocks.openLightbox).not.toHaveBeenCalled();
-    expect(mocks.openSignatureViewer).not.toHaveBeenCalled();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
   });
 

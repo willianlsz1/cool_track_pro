@@ -16,9 +16,6 @@ const mocks = vi.hoisted(() => ({
   markRegistroDeleted: vi.fn(),
   customConfirmShow: vi.fn(),
   handleError: vi.fn(),
-  cleanupOrphanSignatures: vi.fn(),
-  getSignatureForRecord: vi.fn(),
-  openSignatureViewer: vi.fn(),
   openLightbox: vi.fn(),
   toastWarning: vi.fn(),
   toastSuccess: vi.fn(),
@@ -106,12 +103,6 @@ vi.mock('../core/clientePmoc.js', () => ({
 
 vi.mock('../ui/components/photos.js', () => ({
   Photos: { openLightbox: mocks.openLightbox, closeLightbox: vi.fn() },
-}));
-
-vi.mock('../ui/components/signature.js', () => ({
-  cleanupOrphanSignatures: mocks.cleanupOrphanSignatures,
-  getSignatureForRecord: mocks.getSignatureForRecord,
-  SignatureViewerModal: { open: mocks.openSignatureViewer },
 }));
 
 vi.mock('../ui/components/skeleton.js', () => ({
@@ -291,7 +282,6 @@ describe('Historico -> Registro edit/delete integration contract', () => {
     window.history.replaceState(null, '', '/');
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
     mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
-    mocks.getSignatureForRecord.mockReturnValue(null);
   });
 
   it('edit-reg navega para Registro usando o mesmo data-id como editRegistroId', async () => {

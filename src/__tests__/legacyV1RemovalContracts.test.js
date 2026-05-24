@@ -319,6 +319,14 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/registro/__tests__/save/signature.test.js')).toBe(false);
   });
 
+  it('does not keep legacy signature capture/viewer UI after retiring signature flows', () => {
+    expect(existsSync('src/ui/components/signature.js')).toBe(false);
+    expect(existsSync('src/ui/components/signature/signature-canvas.js')).toBe(false);
+    expect(existsSync('src/ui/components/signature/signature-modal.js')).toBe(false);
+    expect(existsSync('src/ui/components/signature/signature-viewer-modal.js')).toBe(false);
+    expect(existsSync('src/__tests__/registroLegacySignatureRender.test.js')).toBe(false);
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

@@ -1,18 +1,6 @@
 const closeSignatureCaptureIfOpen = vi.fn(() => true);
 const closeSignatureViewerIfOpen = vi.fn(() => true);
 
-vi.mock('../ui/components/signature/signature-modal.js', () => ({
-  SignatureModal: {
-    closeIfOpen: closeSignatureCaptureIfOpen,
-  },
-}));
-
-vi.mock('../ui/components/signature/signature-viewer-modal.js', () => ({
-  SignatureViewerModal: {
-    closeIfOpen: closeSignatureViewerIfOpen,
-  },
-}));
-
 function mountRouterDom() {
   document.body.innerHTML = `
     <main id="main-content" tabindex="-1"></main>

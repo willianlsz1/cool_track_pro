@@ -4,9 +4,6 @@ const mocks = vi.hoisted(() => ({
   getState: vi.fn(),
   findEquip: vi.fn(),
   setState: vi.fn(),
-  cleanupOrphanSignatures: vi.fn(),
-  getSignatureForRecord: vi.fn(),
-  openSignatureViewer: vi.fn(),
   openLightbox: vi.fn(),
   applySavedHighlight: vi.fn(),
   markRegistroDeleted: vi.fn(),
@@ -122,12 +119,6 @@ vi.mock('../core/router.js', () => ({
 
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: mocks.applySavedHighlight },
-}));
-
-vi.mock('../ui/components/signature.js', () => ({
-  cleanupOrphanSignatures: mocks.cleanupOrphanSignatures,
-  getSignatureForRecord: mocks.getSignatureForRecord,
-  SignatureViewerModal: { open: mocks.openSignatureViewer },
 }));
 
 vi.mock('../ui/components/photos.js', () => ({
@@ -287,7 +278,6 @@ describe('historico consolidated filters contract', () => {
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
     mocks.isCachedPlanPro.mockReturnValue(false);
     mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
-    mocks.getSignatureForRecord.mockReturnValue(null);
   });
 
   it('preserva DOM roots e timeline sem CTAs legados de PDF/WhatsApp', async () => {

@@ -4,9 +4,6 @@ const mocks = vi.hoisted(() => ({
   getState: vi.fn(),
   findEquip: vi.fn(),
   setState: vi.fn(),
-  cleanupOrphanSignatures: vi.fn(),
-  getSignatureForRecord: vi.fn(),
-  openSignatureViewer: vi.fn(),
   openLightbox: vi.fn(),
   applySavedHighlight: vi.fn(),
   markRegistroDeleted: vi.fn(),
@@ -108,12 +105,6 @@ vi.mock('../core/router.js', () => ({
 
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: mocks.applySavedHighlight },
-}));
-
-vi.mock('../ui/components/signature.js', () => ({
-  cleanupOrphanSignatures: mocks.cleanupOrphanSignatures,
-  getSignatureForRecord: mocks.getSignatureForRecord,
-  SignatureViewerModal: { open: mocks.openSignatureViewer },
 }));
 
 vi.mock('../ui/components/photos.js', () => ({
@@ -281,7 +272,6 @@ describe('historico mobile filters sheet integration handlers', () => {
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
     mocks.isCachedPlanPro.mockReturnValue(false);
     mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
-    mocks.getSignatureForRecord.mockReturnValue(null);
   });
 
   it('abre o sheet legado pelo trigger React preservando initial e contratos atuais', async () => {
@@ -353,7 +343,6 @@ describe('historico mobile filters sheet integration handlers', () => {
     expect(document.getElementById('hist-active-chips-slot')?.textContent).toContain('Corretiva');
     expect(mocks.mountHistoricoTimelineDom).toHaveBeenCalledTimes(2);
     expect(mocks.openLightbox).not.toHaveBeenCalled();
-    expect(mocks.openSignatureViewer).not.toHaveBeenCalled();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
     expect(mocks.goTo).not.toHaveBeenCalled();
   });
@@ -401,7 +390,6 @@ describe('historico mobile filters sheet integration handlers', () => {
     expectNoInjectedMarkup(document.getElementById('hist-filters-root'));
     expectNoInjectedMarkup(document.getElementById('timeline'));
     expect(mocks.openLightbox).not.toHaveBeenCalled();
-    expect(mocks.openSignatureViewer).not.toHaveBeenCalled();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
     expect(mocks.goTo).not.toHaveBeenCalled();
   });

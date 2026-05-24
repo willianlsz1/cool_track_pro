@@ -25,11 +25,6 @@ vi.mock('../ui/components/emptyState.js', () => ({
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: vi.fn() },
 }));
-vi.mock('../ui/components/signature.js', () => ({
-  cleanupOrphanSignatures: vi.fn(),
-  getSignatureForRecord: vi.fn(() => null),
-  SignatureViewerModal: { open: vi.fn() },
-}));
 vi.mock('../ui/components/photos.js', () => ({
   Photos: { openLightbox: vi.fn() },
 }));

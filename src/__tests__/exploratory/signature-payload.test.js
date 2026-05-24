@@ -7,7 +7,6 @@ const mocks = vi.hoisted(() => ({
     tecnicos: [],
   })),
   setState: vi.fn(),
-  saveSignatureForRecord: vi.fn(),
 }));
 
 vi.mock('../../core/utils.js', () => ({
@@ -111,14 +110,6 @@ vi.mock('../../domain/pmoc/checklistTemplates.js', () => ({
   validateChecklist: vi.fn(() => ({ complete: true, missing: [] })),
   summarizeChecklist: vi.fn(() => ''),
 }));
-vi.mock('../../ui/components/signature.js', () => ({
-  SignatureModal: {
-    CANCELED: '__cancel__',
-    request: vi.fn(async () => 'data:image/png;base64,AAA'),
-  },
-  saveSignatureForRecord: mocks.saveSignatureForRecord,
-}));
-
 beforeEach(() => {
   vi.resetModules();
   document.body.innerHTML = `<div id="view-registro"><input id="r-equip" value="eq-1" /><input id="r-data" value="2026-05-05" /><input id="r-tipo" value="Inspeção Geral" /><input id="r-tipo-custom" value="" /><input id="r-obs" value="observação longa o suficiente" /><input id="r-tecnico" value="Tec" /><input id="r-status" value="ok" /><input id="r-prioridade" value="media" /><input id="r-pecas" value="" /><input id="r-proxima" value="" /><input id="r-custo-pecas" value="0" /><input id="r-custo-mao-obra" value="0" /><input id="r-cliente-nome" value="" /><input id="r-cliente-documento" value="" /><input id="r-local-atendimento" value="" /><input id="r-cliente-contato" value="" /><button data-action="save-registro"><span>Salvar serviço</span></button></div>`;
@@ -127,17 +118,6 @@ beforeEach(() => {
 describe('exploratory: signature payload contract', () => {
   it('mantem payload sem assinatura apos aposentadoria do fluxo legado', async () => {
     let finalState;
-    mocks.saveSignatureForRecord.mockResolvedValue({
-      version: 1,
-      provider: 'supabase-storage',
-      bucket: 'registro-fotos',
-      path: 'u/registros/reg-new/assinatura.png',
-      url: 'https://supabase.co/storage/v1/object/sign/registro-fotos/sig',
-      urlExpiresAt: '2026-05-06T00:00:00.000Z',
-      mimeType: 'image/png',
-      size: 123,
-      uploadedAt: '2026-05-05T00:00:00.000Z',
-    });
     mocks.setState.mockImplementation((updater) => {
       finalState = updater({
         registros: [],
@@ -151,6 +131,5 @@ describe('exploratory: signature payload contract', () => {
     const assinatura = finalState.registros[0].assinatura;
     expect(typeof assinatura === 'string' && assinatura.startsWith('data:image')).toBe(false);
     expect(assinatura).toBe(false);
-    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
   });
 });

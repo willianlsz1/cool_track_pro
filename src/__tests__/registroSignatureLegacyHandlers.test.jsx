@@ -9,10 +9,8 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const mocks = vi.hoisted(() => {
   const handlers = new Map();
-  const signatureCanceled = Symbol('signature-canceled');
   return {
     handlers,
-    signatureCanceled,
     on: vi.fn((action, handler) => handlers.set(action, handler)),
     getState: vi.fn(),
     findEquip: vi.fn(),
@@ -44,8 +42,6 @@ const mocks = vi.hoisted(() => {
     toastWarning: vi.fn(),
     toastError: vi.fn(),
     toastInfo: vi.fn(),
-    signatureRequest: vi.fn(),
-    signatureViewerOpen: vi.fn(),
   };
 });
 
@@ -143,20 +139,9 @@ vi.mock('../ui/views/historico.js', () => ({
   deleteReg: mocks.deleteReg,
 }));
 
-vi.mock('../ui/components/signature.js', () => ({
-  SignatureModal: {
-    CANCELED: mocks.signatureCanceled,
-    request: mocks.signatureRequest,
-  },
-  SignatureViewerModal: {
-    open: mocks.signatureViewerOpen,
-  },
-}));
-
 const SAFE_SIGNATURE =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
 const UNSAFE_SIGNATURE = 'data:image/svg+xml,<svg onload="alert(1)"></svg>';
-const UNSAFE_CAPTURE_SIGNATURE = 'javascript:alert(1)';
 const MALICIOUS = '<img src=x onerror=alert(1)><script>alert(2)</script>';
 
 function setupDom() {
@@ -176,7 +161,6 @@ async function setupHandlers() {
   mocks.isCachedPlanPlusOrHigher.mockReturnValue(true);
   mocks.findEquip.mockReturnValue({ id: 'eq-1', nome: 'Split Recepcao' });
   mocks.getState.mockReturnValue({ equipamentos: [], registros: [] });
-  mocks.signatureRequest.mockResolvedValue(SAFE_SIGNATURE);
 
   const { bindRegistroHandlers } = await import('../ui/controller/handlers/registroHandlers.js');
   bindRegistroHandlers();
@@ -252,7 +236,6 @@ describe('registro signature React block legacy handlers contract', () => {
 
     await callHandler(REGISTRO_SIGNATURE_ACTIONS.capture, capture);
 
-    expect(mocks.signatureRequest).not.toHaveBeenCalled();
     expect(mocks.toastWarning).toHaveBeenCalledWith(
       'Assinatura digital sera refeita em uma etapa propria.',
     );
@@ -273,9 +256,6 @@ describe('registro signature React block legacy handlers contract', () => {
 
     await callHandler(REGISTRO_SIGNATURE_ACTIONS.open, open);
 
-    expect(mocks.signatureViewerOpen).not.toHaveBeenCalled();
-
-    mocks.signatureViewerOpen.mockClear();
     await act(async () => {
       renderRegistroSignatureHint(root, {
         isPlusOrHigher: true,
@@ -291,21 +271,18 @@ describe('registro signature React block legacy handlers contract', () => {
       closest: () => null,
     });
 
-    expect(mocks.signatureViewerOpen).not.toHaveBeenCalled();
     expect(root.textContent).toContain(MALICIOUS);
     expectNoUnsafeMarkup(root);
     expectExternalFlowsNotExecuted();
   });
 
-  it('nao chama modal quando captura legada recebe assinatura insegura mockada', async () => {
+  it('mantem captura legada aposentada sem depender de modal removido', async () => {
     await setupHandlers();
-    mocks.signatureRequest.mockResolvedValue(UNSAFE_CAPTURE_SIGNATURE);
     const root = await mountSignatureRoot();
     const capture = root.querySelector('[data-r-action="registro-signature-capture"]');
 
     await callHandler(REGISTRO_SIGNATURE_ACTIONS.capture, capture);
 
-    expect(mocks.signatureRequest).not.toHaveBeenCalled();
     expect(mocks.toastWarning).toHaveBeenCalledWith(
       'Assinatura digital sera refeita em uma etapa propria.',
     );
