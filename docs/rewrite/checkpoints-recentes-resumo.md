@@ -35,6 +35,8 @@ decisao, do escopo e do risco remanescente.
   novo, PDF/share novo, WhatsApp novo, assinatura nova, PMOC novo e orcamento
   real app-v2-native.
 - O favicon e os assets de marca preservados continuam fora da remocao ampla.
+- Removidas entradas `.gitignore` remanescentes de `twa-build`; o build TWA
+  legado nao faz parte do app-v2.
 
 ## PMOC legado
 
