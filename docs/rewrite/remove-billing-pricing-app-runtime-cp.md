@@ -18,14 +18,15 @@ remocao dos vestigios do v1.
 
 ## Fora de escopo
 
-- Supabase migrations, RLS e Edge Functions de billing/Stripe.
-- Remocao de tabelas, colunas ou testes SQL de historico de billing.
+- Supabase migrations, RLS e testes SQL de historico de billing.
+- Remocao de tabelas ou colunas de historico de billing.
 - Redesign de Conta, Dashboard, Relatorios ou Equipamentos.
 
 ## Risco residual
 
-- O backend ainda contem artefatos historicos de billing/Stripe e deve ser
-  tratado em etapa propria, porque envolve schema, RLS e funcoes sensiveis.
+- O backend ainda contem artefatos historicos de schema/RLS de billing/Stripe e
+  deve ser tratado em etapa propria, porque envolve banco e contratos
+  sensiveis.
 - Alguns nomes legados (`PLAN_CODE_*`, `monetization.js`) permanecem como
   compatibilidade para evitar quebra ampla neste checkpoint.
 

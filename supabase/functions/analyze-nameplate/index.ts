@@ -20,8 +20,7 @@
  *
  * Auth: deployada com --no-verify-jwt (gateway) porque o projeto assina JWT
  * com ES256 e o gateway do Supabase só valida HS256. A validação é feita
- * internamente via admin API com service role — mesmo padrão que as funções
- * create-checkout-session, create-portal-session, stripe-webhook.
+ * internamente via admin API com service role.
  *
  * Gate de plano: cada tier tem cota mensal própria pra conter custo variável
  * em USD (~$0.015/análise). Free ganha 1 uso/mês como teste grátis recorrente
@@ -182,8 +181,7 @@ function errorResponse(req: Request, code: string, message: string, status = 400
 
 /**
  * Decodifica payload de JWT sem verificar assinatura. A verificação real
- * vem logo depois via admin API — é o padrão estabelecido pelas outras
- * edge functions deste projeto (create-portal-session etc).
+ * vem logo depois via admin API.
  */
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
