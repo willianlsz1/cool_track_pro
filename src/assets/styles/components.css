@@ -1,5 +1,5 @@
 /* CSS LEGADO CONGELADO: nao adicionar novas classes visuais aqui.
-   Novas UIs React devem usar src/react/components/ui ou Tailwind tw-*.
+   Novas UIs do app-v2 devem usar Tailwind tw-* dentro de src/app-v2.
    Edicoes neste arquivo exigem PR proprio: bug/seguranca comprovado,
    remocao de CSS morto comprovado ou ajuste minimo documentado. */
 

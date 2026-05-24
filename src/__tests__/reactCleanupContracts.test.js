@@ -8,6 +8,10 @@ function readSource(path) {
 }
 
 describe('React cleanup contracts', () => {
+  it('does not keep the legacy src/react runtime tree after DOM renderer migration', () => {
+    expect(existsSync('src/react')).toBe(false);
+  });
+
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {
     const appEntry = readSource('src/app.js');
     const routesEntry = readSource('src/ui/controller/routes.js');
