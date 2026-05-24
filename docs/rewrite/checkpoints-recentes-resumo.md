@@ -19,6 +19,17 @@
 - Corrigidos textos visíveis corrompidos no Registro/checklist legado ainda
   ativo.
 
+## Remoção v1
+
+- Consolidado o histórico dos CPs individuais de remoção v1 neste resumo único.
+- Já foram tratados: shell/rotas legadas, telas DOM v1, ilhas React antigas,
+  CSS legado, billing/pricing, PDF/share v1, assinatura digital, fotos/storage,
+  PMOC visual/copy e `twa-build`.
+- Mantidos como etapa própria futura: Supabase/RLS/migrations reais, storage
+  novo, PDF/share novo, WhatsApp novo, assinatura nova, PMOC novo e orçamento
+  real app-v2-native.
+- O favicon e os assets de marca preservados continuam fora da remoção ampla.
+
 ## Validação padrão
 
 - Para CPs com código: testes focados, `npm run format`, `npm run build`,

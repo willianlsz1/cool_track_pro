@@ -74,11 +74,12 @@ describe('legacy v1 removal contracts', () => {
 
   it('keeps app-v2 independent from legacy relatorio, PDF/share and PMOC runtime', () => {
     const appV2Sources = listSourceFiles('src/app-v2');
+    const checkpointsSummary = readSource('docs/rewrite/checkpoints-recentes-resumo.md');
     const forbiddenLegacyRuntimePattern =
       /(?:ui\/views\/relatorio|ui\\views\\relatorio|ui\/controller\/handlers\/reportExportHandlers|ui\\controller\\handlers\\reportExportHandlers|domain\/pdf|domain\\pdf|components\/pmocModal|components\\pmocModal|components\/pmocInfoModal|components\\pmocInfoModal)/;
 
-    expect(existsSync('docs/rewrite/app-v2-remocao-v1-cp54b-relatorio-readiness.md')).toBe(true);
-    expect(existsSync('docs/rewrite/app-v2-remocao-v1-cp54c-pdf-share-readiness.md')).toBe(true);
+    expect(checkpointsSummary).toContain('PDF/share v1');
+    expect(checkpointsSummary).toContain('PMOC visual/copy');
     expect(findMatches(appV2Sources, forbiddenLegacyRuntimePattern)).toEqual([]);
   });
 
