@@ -58,35 +58,9 @@ export function renderViewEquipServiceTimeline(regs, deps) {
 
 export function renderViewEquipCoverBlock(model, deps) {
   const { Utils, getEquipmentVisualMeta } = resolveDetailDeps(deps);
-  const { eq, safeId } = model;
+  const { eq } = model;
   const visual = getEquipmentVisualMeta(eq);
   const firstPhotoUrl = visual.photoUrl;
-  const photosCount = Array.isArray(eq.fotos)
-    ? eq.fotos.filter((p) => p && (typeof p === 'string' ? p : p.url || p.path)).length
-    : 0;
-  const canEditPhotos = true;
-  const photoCtaLabel = canEditPhotos
-    ? photosCount === 0
-      ? 'Adicionar foto'
-      : 'Gerenciar fotos'
-    : 'Adicionar foto';
-  const photoCtaAction = 'open-eq-photos-editor';
-  const photoCtaExtra = '';
-  const photoCtaBadge = '';
-  const photoCtaVariantCls = canEditPhotos ? '' : ' eq-detail-cover__cta--locked';
-  const photoCameraIcon = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>
-      <circle cx="12" cy="13" r="3.5"/>
-    </svg>`;
-  const photoLockIcon = `
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <rect x="4" y="11" width="16" height="10" rx="2"/>
-      <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-    </svg>`;
-  const photoCtaIcon = canEditPhotos ? photoCameraIcon : photoLockIcon;
   const coverFallback = `<div class="eq-detail-cover__fallback eq-detail-cover__fallback--tone-${visual.tone}">
       <span class="eq-detail-cover__fallback-initials">${Utils.escapeHtml(visual.initials)}</span>
     </div>`;
@@ -100,35 +74,15 @@ export function renderViewEquipCoverBlock(model, deps) {
          </svg>
          ampliar
        </span>`
-    : `${coverFallback}
-       <button type="button" class="eq-detail-cover__cta eq-detail-cover__cta--center${photoCtaVariantCls}"
-         data-action="${photoCtaAction}" data-id="${safeId}"${photoCtaExtra}
-         aria-label="Adicionar foto">
-         ${photoCtaIcon}
-         <span>${photoCtaLabel}</span>
-         ${photoCtaBadge}
-       </button>`;
+    : coverFallback;
   const coverHasPhotoClass = firstPhotoUrl
     ? ' eq-detail-cover--has-photo'
     : ' eq-detail-cover--empty';
-  const coverLockedClass = canEditPhotos ? '' : ' eq-detail-cover--locked';
-  const coverActionsBlock = firstPhotoUrl
-    ? `<div class="eq-detail-cover-actions">
-        <button type="button" class="eq-detail-cover-action${photoCtaVariantCls}"
-          data-action="${photoCtaAction}" data-id="${safeId}"${photoCtaExtra}
-          aria-label="Gerenciar fotos">
-          ${photoCtaIcon}
-          <span>${photoCtaLabel}</span>
-          ${photoCtaBadge}
-        </button>
-      </div>`
-    : '';
   return {
     html: `
-    <div class="eq-detail-cover${coverHasPhotoClass}${coverLockedClass}">
+    <div class="eq-detail-cover${coverHasPhotoClass}">
       ${coverInner}
-    </div>
-    ${coverActionsBlock}`,
+    </div>`,
     firstPhotoUrl,
   };
 }

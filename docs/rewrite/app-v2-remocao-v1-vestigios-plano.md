@@ -683,6 +683,10 @@ Progresso executado:
   `input-fotos`/`input-fotos-camera`/`registro-photos-root` e testes da captura
   legada. Equipamentos, Historico, `photoStorage.js`, Supabase/RLS, bucket e
   migrations permanecem fora deste corte.
+- CP-57E aposenta o editor/upload de fotos de Equipamentos v1: remove
+  `open-eq-photos-editor`, `save-eq-photos`, `modal-eq-photos`,
+  `EquipmentPhotos` e o modulo `src/ui/views/equipamentos/fotos.js`. A leitura
+  de fotos existentes como capa/preview permanece ate o CP de Historico/storage.
 
 Controle:
 

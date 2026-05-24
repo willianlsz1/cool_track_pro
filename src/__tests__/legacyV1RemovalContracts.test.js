@@ -338,6 +338,33 @@ describe('legacy v1 removal contracts', () => {
     expect(photosSource).not.toContain('renderRegistroPhotosDom');
   });
 
+  it('does not keep equipamentos v1 photo editor/upload surface', () => {
+    const equipamentosSource = readSource('src/ui/views/equipamentos.js');
+    const equipamentoDetailSource = readSource('src/ui/views/equipamentos/ui/detail.js');
+    const equipmentCardsSource = readSource('src/ui/views/equipamentos/equipmentCards.js');
+    const shellModalsSource = readSource('src/ui/shell/templates/modals.js');
+    const equipmentHandlersSource = readSource('src/ui/controller/handlers/equipmentHandlers.js');
+    const equipamentosContractsSource = readSource('src/ui/viewModels/equipamentosContracts.js');
+
+    expect(existsSync('src/ui/views/equipamentos/fotos.js')).toBe(false);
+    expect(existsSync('src/ui/components/equipmentPhotos.js')).toBe(false);
+    expect(existsSync('src/__tests__/equipPhotosEditor.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/equipPhotosGate.test.js')).toBe(false);
+    for (const source of [
+      equipamentosSource,
+      equipamentoDetailSource,
+      equipmentCardsSource,
+      shellModalsSource,
+      equipmentHandlersSource,
+      equipamentosContractsSource,
+    ]) {
+      expect(source).not.toContain('open-eq-photos-editor');
+      expect(source).not.toContain('save-eq-photos');
+      expect(source).not.toContain('modal-eq-photos');
+      expect(source).not.toContain('EquipmentPhotos');
+    }
+  });
+
   it('does not keep registro signature helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/signature.js')).toBe(false);
     expect(existsSync('src/features/registro/__tests__/save/signature.test.js')).toBe(false);

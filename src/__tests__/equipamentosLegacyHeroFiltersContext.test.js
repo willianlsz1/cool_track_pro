@@ -167,10 +167,6 @@ vi.mock('../core/inputValidation.js', () => ({
   validateEquipamentoPayload: vi.fn((payload) => payload),
 }));
 
-vi.mock('../ui/components/equipmentPhotos.js', () => ({
-  EquipmentPhotos: { clear: vi.fn() },
-}));
-
 vi.mock('../ui/components/nameplateCapture.js', () => ({
   resetCamposExtrasState: vi.fn(),
   setCamposExtrasState: vi.fn(),

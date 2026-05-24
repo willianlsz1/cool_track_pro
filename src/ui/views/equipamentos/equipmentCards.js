@@ -1,4 +1,4 @@
-import { Utils } from '../../../core/utils.js';
+﻿import { Utils } from '../../../core/utils.js';
 import { regsForEquip } from '../../../core/state.js';
 import {
   calculateHealthScore,
@@ -236,7 +236,6 @@ function equipCardIconBlock(eq) {
   const visual = getEquipmentVisualMeta(eq);
   const photoUrl = visual.photoUrl;
   const toneClass = `equip-card__type-icon--fallback-t${visual.tone}`;
-  const safeId = Utils.escapeAttr(eq.id);
   // V7 (abr/2026): emoji glyph (floquinho/raio/etc) removido do avatar.
   // Antes ficava no canto inferior direito do tile com `position:absolute`
   // e sobrepunha as iniciais em cards mais apertados. Decisão UX: avatar
@@ -251,21 +250,7 @@ function equipCardIconBlock(eq) {
       ${fallbackHtml}
     </div>`;
   }
-  // Sem foto: o avatar de iniciais vira um botão clicável que abre o editor
-  // de fotos direto da listagem (sem precisar abrir o detail view antes).
-  // O delegator global (events.js) usa `closest('[data-action]')` e pega o
-  // nó mais próximo — então o click no avatar dispara `open-eq-photos-editor`
-  // em vez do `view-equip` do card, sem precisar stopPropagation manual.
-  return `<div class="equip-card__type-icon equip-card__type-icon--lg equip-card__type-icon--fallback equip-card__type-icon--empty ${toneClass}" role="button" tabindex="0"
-    data-action="open-eq-photos-editor" data-id="${safeId}"
-    aria-label="Adicionar foto ao equipamento ${Utils.escapeAttr(eq.nome)}">${fallbackHtml}
-    <span class="equip-card__type-icon-overlay" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>
-        <circle cx="12" cy="13" r="3.5"/>
-      </svg>
-    </span>
-  </div>`;
+  return `<div class="equip-card__type-icon equip-card__type-icon--lg equip-card__type-icon--fallback equip-card__type-icon--empty ${toneClass}" aria-hidden="true">${fallbackHtml}</div>`;
 }
 
 export function equipCardHtml(eq, { showLocal: _showLocal = true, evalCtx = null } = {}) {

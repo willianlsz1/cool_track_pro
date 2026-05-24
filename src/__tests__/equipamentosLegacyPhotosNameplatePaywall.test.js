@@ -13,8 +13,6 @@ const mocks = vi.hoisted(() => ({
   modalClose: vi.fn(),
   goTo: vi.fn(),
   trackEvent: vi.fn(),
-  openEquipPhotosEditor: vi.fn(),
-  saveEquipPhotos: vi.fn(),
   saveEquip: vi.fn(),
   viewEquip: vi.fn(),
   deleteEquip: vi.fn(),
@@ -26,7 +24,6 @@ const mocks = vi.hoisted(() => ({
   applyEquipModalExperience: vi.fn(),
   clearEditingState: vi.fn(),
   clearSetorEditingState: vi.fn(),
-  clearEquipPhotosEditingState: vi.fn(),
   lockEquipContext: vi.fn(),
   toastWarning: vi.fn(),
   toastInfo: vi.fn(),
@@ -69,8 +66,6 @@ vi.mock('../ui/views/equipamentos.js', () => ({
   viewEquip: mocks.viewEquip,
   deleteEquip: mocks.deleteEquip,
   openEditEquip: mocks.openEditEquip,
-  openEquipPhotosEditor: mocks.openEquipPhotosEditor,
-  saveEquipPhotos: mocks.saveEquipPhotos,
   saveSetor: vi.fn(),
   deleteSetor: vi.fn(),
   setActiveSector: mocks.setActiveSector,
@@ -83,7 +78,6 @@ vi.mock('../ui/views/equipamentos.js', () => ({
   clearForcedEquipContext: mocks.clearForcedEquipContext,
   applyEquipModalExperience: mocks.applyEquipModalExperience,
   clearEditingState: mocks.clearEditingState,
-  clearEquipPhotosEditingState: mocks.clearEquipPhotosEditingState,
   lockEquipContext: mocks.lockEquipContext,
   syncComponenteVisibility: vi.fn(),
 }));
@@ -182,21 +176,11 @@ beforeEach(() => {
   bindNavigationHandlers();
 });
 
-describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
-  it('preserva contratos DOM do editor legado de fotos e da captura de etiqueta', () => {
-    expect(document.getElementById('modal-eq-photos')).not.toBeNull();
-    expect(document.getElementById('eq-photos-block')).not.toBeNull();
-    expect(document.getElementById('eq-photos-drop-zone')).not.toBeNull();
-    expect(document.getElementById('eq-photos-gallery')?.getAttribute('accept')).toBe('image/*');
-    expect(document.getElementById('eq-photos-camera')?.getAttribute('capture')).toBe(
-      'environment',
-    );
-    expect(document.getElementById('eq-photos-preview')?.getAttribute('role')).toBe('list');
-    expect(
-      document.querySelector('#eq-photos-locked [data-action="eq-photos-upsell-cta"]'),
-    ).not.toBeNull();
-    expect(document.querySelector('[data-action="save-eq-photos"]')).not.toBeNull();
-
+describe('equipamentos legacy nameplate/paywall contracts', () => {
+  it('preserva contratos DOM da captura de etiqueta sem editor legado de fotos', () => {
+    expect(document.getElementById('modal-eq-photos')).toBeNull();
+    expect(document.querySelector('[data-action="save-eq-photos"]')).toBeNull();
+    expect(document.querySelector('[data-action="open-eq-photos-editor"]')).toBeNull();
     expect(document.getElementById('nameplate-cta')?.dataset.state).toBe('hidden');
     expect(document.getElementById('nameplate-cta-sub')).not.toBeNull();
     expect(document.getElementById('nameplate-cta-btn-active')?.getAttribute('for')).toBe(
@@ -212,29 +196,6 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
     expect(lockedNameplate).not.toBeNull();
     expect(lockedNameplate?.hasAttribute('data-action')).toBe(false);
     expect(lockedNameplate?.classList.contains('nameplate-cta__btn--locked')).toBe(true);
-  });
-
-  it('mantem handlers legados acionaveis para abrir/salvar fotos sem superficie comercial', async () => {
-    const openPhotos = document.createElement('button');
-    openPhotos.type = 'button';
-    openPhotos.dataset.action = 'open-eq-photos-editor';
-    openPhotos.dataset.id = 'eq-1';
-    openPhotos.dataset.mode = 'gallery';
-    openPhotos.textContent = 'Gerenciar fotos';
-
-    const savePhotos = document.querySelector('[data-action="save-eq-photos"]');
-    document.getElementById('modal-eq-det')?.classList.add('is-open');
-    document.body.append(openPhotos);
-
-    await click(openPhotos);
-    expect(openPhotos.dataset).toMatchObject({ id: 'eq-1', mode: 'gallery' });
-    expect(mocks.openEquipPhotosEditor).toHaveBeenCalledWith('eq-1');
-
-    await click(savePhotos);
-    expect(mocks.saveEquipPhotos).toHaveBeenCalledTimes(1);
-
-    expect(mocks.toastInfo).not.toHaveBeenCalled();
-    expect(mocks.trackEvent).not.toHaveBeenCalledWith('upgrade_cta_clicked', expect.anything());
   });
 
   it('preserva estados do nameplate gate e aciona upsell legado sem analise real', async () => {

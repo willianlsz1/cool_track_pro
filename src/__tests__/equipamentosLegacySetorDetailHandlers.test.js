@@ -15,12 +15,10 @@ const mocks = vi.hoisted(() => ({
   openEditSetor: vi.fn(),
   initSetorColorPicker: vi.fn(),
   clearSetorEditingState: vi.fn(),
-  openEquipPhotosEditor: vi.fn(),
   openEditEquip: vi.fn(),
   deleteEquip: vi.fn(),
   clearEquipEditingState: vi.fn(),
   clearForcedEquipContext: vi.fn(),
-  clearEquipPhotosEditingState: vi.fn(),
   lockEquipContext: vi.fn(),
   syncComponenteVisibility: vi.fn(),
   applyEquipModalExperience: vi.fn(),
@@ -59,8 +57,6 @@ vi.mock('../ui/views/equipamentos.js', () => ({
   viewEquip: vi.fn(),
   deleteEquip: mocks.deleteEquip,
   openEditEquip: mocks.openEditEquip,
-  openEquipPhotosEditor: mocks.openEquipPhotosEditor,
-  saveEquipPhotos: vi.fn(),
   saveSetor: vi.fn(),
   deleteSetor: mocks.deleteSetor,
   setActiveSector: mocks.setActiveSector,
@@ -73,7 +69,6 @@ vi.mock('../ui/views/equipamentos.js', () => ({
   clearForcedEquipContext: mocks.clearForcedEquipContext,
   applyEquipModalExperience: mocks.applyEquipModalExperience,
   clearEditingState: mocks.clearEquipEditingState,
-  clearEquipPhotosEditingState: mocks.clearEquipPhotosEditingState,
   lockEquipContext: mocks.lockEquipContext,
   syncComponenteVisibility: mocks.syncComponenteVisibility,
 }));
@@ -218,9 +213,6 @@ function appendDetail(id = 'eq-1') {
   const footer = document.createElement('footer');
   footer.className = 'eq-modal-footer';
 
-  const photos = makeButton('open-eq-photos-editor', { id, mode: 'gallery' }, 'Fotos');
-  footer.appendChild(photos);
-
   const register = makeButton(
     'go-register-equip',
     { id, afterSave: 'back-to-equip-detail' },
@@ -245,7 +237,7 @@ function appendDetail(id = 'eq-1') {
   view.appendChild(footer);
   root.appendChild(view);
 
-  return { root, menu, toggle, photos, register, edit };
+  return { root, menu, toggle, register, edit };
 }
 
 async function click(elOrSelector) {
@@ -354,7 +346,7 @@ describe('equipamentos legacy setor/detail handlers contracts', () => {
   });
 
   it('aciona handlers principais do detalhe/modal preservando data-id, data-mode e data-after-save', async () => {
-    const { menu, toggle, photos, register, edit } = appendDetail('eq-1');
+    const { menu, toggle, register, edit } = appendDetail('eq-1');
 
     await click(toggle);
     expect(menu.hidden).toBe(false);
@@ -363,10 +355,6 @@ describe('equipamentos legacy setor/detail handlers contracts', () => {
     await click(toggle);
     expect(menu.hidden).toBe(true);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
-
-    await click(photos);
-    expect(photos.dataset).toMatchObject({ id: 'eq-1', mode: 'gallery' });
-    expect(mocks.openEquipPhotosEditor).toHaveBeenCalledWith('eq-1');
 
     await click(register);
     expect(register.dataset).toMatchObject({
@@ -399,10 +387,8 @@ describe('equipamentos legacy setor/detail handlers contracts', () => {
     detail.root.querySelector('#eq-det-title').textContent = '<img src=x onerror=alert(1)>';
 
     await expect(click(setor.toggle)).resolves.toBe(setor.toggle);
-    await click(detail.photos);
     await click(detail.edit);
 
-    expect(mocks.openEquipPhotosEditor).toHaveBeenCalledWith(malicious);
     expect(mocks.openEditEquip).toHaveBeenCalledWith(malicious, { focusField: 'modelo' });
     expect(document.querySelector('script')).toBeNull();
     expect(document.querySelector('[onerror]')).toBeNull();

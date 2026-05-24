@@ -93,7 +93,6 @@ describe('billing/pricing cleanup contracts', () => {
 
   it('does not keep paid-plan copy in legacy runtime gates', () => {
     const sources = [
-      readSource('src/ui/views/equipamentos/fotos.js'),
       readSource('src/ui/views/registro.js'),
       readSource('src/ui/shell/templates/modals.js'),
     ];

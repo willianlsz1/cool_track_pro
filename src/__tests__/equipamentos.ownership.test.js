@@ -6,7 +6,6 @@ describe('equipamentos ownership cleanup', () => {
     const files = [
       'src/ui/controller/handlers/equipmentHandlers.js',
       'src/ui/views/equipamentos.js',
-      'src/__tests__/equipPhotosEditor.test.js',
     ];
 
     const legacyImportPattern =

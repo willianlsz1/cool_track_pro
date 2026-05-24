@@ -155,10 +155,6 @@ vi.mock('../core/inputValidation.js', () => ({
   validateEquipamentoPayload: vi.fn((payload) => payload),
 }));
 
-vi.mock('../ui/components/equipmentPhotos.js', () => ({
-  EquipmentPhotos: {},
-}));
-
 vi.mock('../ui/components/nameplateCapture.js', () => ({
   resetCamposExtrasState: vi.fn(),
   setCamposExtrasState: vi.fn(),
@@ -318,9 +314,7 @@ describe('equipamentos legacy render adapter', () => {
     expect(
       card?.querySelector('.equip-card__primary-cta[data-action="go-register-equip"]'),
     ).not.toBeNull();
-    expect(
-      document.querySelector('[data-action="open-eq-photos-editor"][data-id="eq-1"]'),
-    ).not.toBeNull();
+    expect(document.querySelector('[data-action="open-eq-photos-editor"]')).toBeNull();
     expect(
       document.querySelector('#equip-toolbar-actions [data-action="open-modal"]')?.dataset.id,
     ).toBe('modal-add-eq');
@@ -615,9 +609,7 @@ describe('equipamentos legacy render adapter', () => {
     expect(detailRoot?.querySelector('.eq-tech-sheet-wrap')).not.toBeNull();
     expect(detailRoot?.querySelector('.eq-svc-section')).not.toBeNull();
     expect(detailRoot?.querySelector('.eq-modal-footer')).not.toBeNull();
-    expect(
-      detailRoot?.querySelector('[data-action="open-eq-photos-editor"][data-id="eq-detail"]'),
-    ).not.toBeNull();
+    expect(detailRoot?.querySelector('[data-action="open-eq-photos-editor"]')).toBeNull();
     expect(
       detailRoot?.querySelector('[data-action="go-register-equip"][data-id="eq-detail"]'),
     ).not.toBeNull();

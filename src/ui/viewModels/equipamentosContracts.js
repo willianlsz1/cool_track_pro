@@ -16,7 +16,6 @@ export const EQUIPAMENTOS_PUBLIC_IDS = Object.freeze({
   quickMoveTargetSetor: 'quick-move-target-setor',
   addModal: 'modal-add-eq',
   detailModal: 'modal-eq-det',
-  photosModal: 'modal-eq-photos',
   setorModal: 'modal-add-setor',
 });
 
@@ -38,11 +37,8 @@ export const EQUIPAMENTOS_ACTIONS = Object.freeze({
   quickMoveEquipBatch: 'quick-move-equip-batch',
   toggleIdleCluster: 'toggle-idle-cluster',
   setViewMode: 'equip-set-view-mode',
-  openPhotosEditor: 'open-eq-photos-editor',
-  savePhotos: 'save-eq-photos',
   toggleDetailMenu: 'toggle-eq-detail-menu',
   unlockContext: 'equip-unlock-context',
-  photosUpsell: 'eq-photos-upsell-cta',
 });
 
 export const EQUIPAMENTOS_DATA_ATTRIBUTES = Object.freeze([

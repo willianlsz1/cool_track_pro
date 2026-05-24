@@ -153,21 +153,20 @@ describe('detail HTML render helpers', () => {
     expect(result.html).toContain('eq-detail-cover--has-photo');
     expect(result.html).toContain('src="https://cdn.test/foto.jpg?x=&lt;bad&gt;"');
     expect(result.html).toContain('eq-detail-cover__fallback-initials">SL</span>');
-    expect(result.html).toContain('data-action="open-eq-photos-editor"');
-    expect(result.html).toContain('data-id="eq-1"');
-    expect(result.html).toContain('Gerenciar fotos');
+    expect(result.html).not.toContain('data-action="open-eq-photos-editor"');
+    expect(result.html).not.toContain('Gerenciar fotos');
   });
 
-  it('mantem CTA de fotos liberado sem gate comercial', () => {
+  it('mantem capa sem CTA de fotos legado', () => {
     const deps = makeDeps({ isCachedPlanPlusOrHigher: vi.fn(() => false) });
 
     const result = renderViewEquipCoverBlock(makeModel(), deps);
 
     expect(result.html).not.toContain('eq-detail-cover--locked');
-    expect(result.html).toContain('data-action="open-eq-photos-editor"');
+    expect(result.html).not.toContain('data-action="open-eq-photos-editor"');
     expect(result.html).not.toContain('data-upgrade-source="equip_detail_photos"');
     expect(result.html).not.toContain('data-highlight-plan="plus"');
-    expect(result.html).toContain('Adicionar foto');
+    expect(result.html).not.toContain('Adicionar foto');
   });
 
   it('renderiza dados de placa fixos e extras escapados', () => {

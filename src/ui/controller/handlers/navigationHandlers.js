@@ -11,7 +11,6 @@ import {
   clearEditingState as clearEquipEditingState,
   clearForcedEquipContext,
   clearSetorEditingState,
-  clearEquipPhotosEditingState,
   lockEquipContext,
 } from '../../views/equipamentos.js';
 import { populateClienteSelect } from '../../views/clientes.js';
@@ -195,9 +194,6 @@ export function bindNavigationHandlers() {
       resetNameplateCtaState();
     }
     if (id === 'modal-add-setor') clearSetorEditingState();
-    // Fechar o editor de fotos sem salvar → limpa state interno (evita
-    // vazar pending photos pra próxima abertura).
-    if (id === 'modal-eq-photos') clearEquipPhotosEditingState();
   });
   on('toggle-help-menu', (el) => {
     // Se o trigger é o botao Ajuda do sidebar, passa ele como anchor

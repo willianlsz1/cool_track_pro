@@ -233,7 +233,6 @@ describe('equipamentos view model', () => {
       openSetorModal: 'open-setor-modal',
       quickFilter: 'equip-quickfilter',
       quickMoveEquipBatch: 'quick-move-equip-batch',
-      openPhotosEditor: 'open-eq-photos-editor',
     });
     expect(EQUIPAMENTOS_PUBLIC_CLASSES).toEqual(
       expect.arrayContaining(['equip-card', 'equip-hero', 'equip-filter', 'setor-card']),

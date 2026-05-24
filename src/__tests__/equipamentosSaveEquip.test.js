@@ -139,10 +139,6 @@ vi.mock('../ui/views/equipamentos/placaData.js', () => ({
   restoreDadosPlaca: vi.fn(),
 }));
 
-vi.mock('../ui/components/equipmentPhotos.js', () => ({
-  EquipmentPhotos: { clear: vi.fn() },
-}));
-
 vi.mock('../ui/components/nameplateCapture.js', () => ({
   resetCamposExtrasState: vi.fn(),
   setCamposExtrasState: vi.fn(),
@@ -207,17 +203,6 @@ vi.mock('../ui/views/equipamentos/equipmentCards.js', () => ({
   })),
   _resolveIdleClusterCollapsed: vi.fn(() => false),
   equipCardHtml: vi.fn(() => ''),
-}));
-
-vi.mock('../ui/views/equipamentos/fotos.js', () => ({
-  configureEquipPhotos: vi.fn(),
-  syncContextGroupVisibility: vi.fn(),
-  applyEquipPhotosEditorGate: vi.fn(),
-  applyEquipPhotosGate: vi.fn(),
-  clearEquipPhotosEditingState: vi.fn(),
-  getEditingPhotosEquipId: vi.fn(() => null),
-  openEquipPhotosEditor: vi.fn(),
-  saveEquipPhotos: vi.fn(),
 }));
 
 vi.mock('../ui/views/equipamentos/hero.js', () => ({

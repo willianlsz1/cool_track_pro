@@ -309,16 +309,6 @@ export function renderShellModals() {
               </div>
             </div>
             <div id="eq-context-locked-summary" class="form-hint" style="display:none" aria-live="polite"></div>
-
-              <!--
-                V4: O bloco de fotos foi MOVIDO pra fora do modal de cadastro.
-                Agora as fotos são gerenciadas via avatar + CTA "Gerenciar
-                fotos" no detail view do equipamento (modal-eq-photos). A
-                mudança elimina a confusão de UX onde o usuário via dois
-                locais de foto (cadastro + card) sem saber qual era a
-                identificação principal. O fluxo novo: cria o equipamento
-                → abre o detail → usa o avatar pra adicionar fotos.
-              -->
           </div>
 
           <!--
@@ -633,92 +623,6 @@ export function renderShellModals() {
         </button>
       </header>
       <div id="eq-det-corpo" class="modal__body modal__body--scroll eq-detail-shell-body"></div>
-    </div>
-  </div>
-
-  <!--
-    MODAL: Fotos do Equipamento
-    Editor dedicado de fotos, aberto a partir do detail view (avatar + CTA
-    "Gerenciar fotos"). Foi extraído do modal-add-eq pra resolver a confusão
-    de UX em que o usuário via dois locais de foto (cadastro + perfil). Agora
-    fotos só se gerenciam aqui, pós-cadastro, no contexto do equipamento.
-    O componente EquipmentPhotos é reutilizado — só trocaram-se os IDs dos
-    targets DOM pra não colidir com o resto do app.
-  -->
-  <div class="modal-overlay" id="modal-eq-photos" role="dialog" aria-modal="true"
-    aria-labelledby="eq-photos-title">
-    <div class="modal">
-      <div class="modal__handle"></div>
-      <div class="modal__body modal__body--scroll">
-        <div class="modal__title" id="eq-photos-title">Fotos do equipamento</div>
-        <p class="modal__text eq-photos-modal__lead" id="eq-photos-subtitle">
-          Até 3 fotos pra identificar o equipamento em campo. A primeira vira a capa do card.
-        </p>
-
-        <div class="equip-photo-block" id="eq-photos-block">
-          <label class="equip-photo-dropzone" for="eq-photos-gallery" id="eq-photos-drop-zone">
-            <svg class="equip-photo-dropzone__icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
-              aria-hidden="true">
-              <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"
-                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-              <circle cx="12" cy="13" r="3.5" stroke="currentColor" stroke-width="1.6" />
-            </svg>
-            <span class="equip-photo-dropzone__text">
-              <span class="equip-photo-dropzone__title" id="eq-photos-drop-text">Tirar foto ou escolher da galeria</span>
-              <span class="equip-photo-dropzone__sub">câmera ou arquivos · até 3</span>
-            </span>
-          </label>
-          <input type="file" id="eq-photos-gallery" accept="image/*" multiple
-            class="visually-hidden" />
-
-          <label class="equip-photo-shortcut" for="eq-photos-camera">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"
-                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-              <circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="1.6" />
-            </svg>
-            Atalho: abrir câmera direto
-          </label>
-          <input type="file" id="eq-photos-camera" accept="image/*" capture="environment"
-            class="visually-hidden" />
-
-          <div class="equip-photo-counter photo-counter visually-hidden" aria-live="polite">0/3 fotos</div>
-          <div class="photo-preview equip-photo-preview" id="eq-photos-preview" role="list"></div>
-
-          <!--
-            Locked state (Free). Mesmo padrão do gate antigo em modal-add-eq:
-            .equip-photo-block--locked no wrapper esconde dropzone+preview via
-            CSS e mostra o card de upsell. Aplicado por applyEquipPhotosEditorGate.
-          -->
-          <div class="equip-photo-locked" id="eq-photos-locked" hidden>
-            <div class="equip-photo-locked__icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <rect x="5" y="11" width="14" height="9" rx="2"
-                  stroke="currentColor" stroke-width="1.6" />
-                <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor"
-                  stroke-width="1.6" stroke-linecap="round" />
-              </svg>
-            </div>
-            <div class="equip-photo-locked__text">
-              <div class="equip-photo-locked__title">
-                Fotos do equipamento
-              </div>
-              <p class="equip-photo-locked__sub">
-                Identifique equipamentos em campo pelas fotos — até 3 por equipamento.
-              </p>
-            </div>
-            <button type="button" class="btn btn--primary btn--sm equip-photo-locked__cta"
-              data-action="eq-photos-upsell-cta">
-              Recurso indisponível
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-group modal__footer">
-        <button class="btn btn--outline" data-action="close-modal" data-id="modal-eq-photos">Cancelar</button>
-        <button class="btn btn--primary" data-action="save-eq-photos">Salvar fotos</button>
-      </div>
     </div>
   </div>
 

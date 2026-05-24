@@ -28,7 +28,6 @@ import { emptyStateHtml } from '../components/emptyState.js';
 import { buildEquipamentosViewModel } from '../viewModels/equipamentosViewModel.js';
 import { buildEquipamentosHeaderViewModel } from '../viewModels/equipamentosHeaderModel.js';
 import { validateEquipamentoPayload } from '../../core/inputValidation.js';
-import { EquipmentPhotos } from '../components/equipmentPhotos.js';
 import { resetCamposExtrasState, setCamposExtrasState } from '../components/nameplateCapture.js';
 import { normalizePhotoList } from '../../core/photoStorage.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
@@ -44,7 +43,6 @@ import {
   _createEquipRenderEvalContext,
   _resolveIdleClusterCollapsed,
 } from './equipamentos/equipmentCards.js';
-import { configureEquipPhotos, syncContextGroupVisibility } from './equipamentos/fotos.js';
 import {
   DADOS_PLACA_INPUT_IDS,
   collectDadosPlaca,
@@ -196,7 +194,6 @@ configureViewEquip({
   Utils,
   getSetores: () => getState().setores,
 });
-configureEquipPhotos({ viewEquip });
 configureRenderEquipPlan({ renderEquip });
 configureSetorUI({
   Utils,
@@ -332,14 +329,6 @@ export { getEditingEquipId, getEditingSetorId };
 export { unmountEquipamentosHeader, unmountEquipamentosList };
 export { setorCardHtml } from './equipamentos/setores.js';
 export { setorContrastWithWhite };
-export {
-  applyEquipPhotosEditorGate,
-  applyEquipPhotosGate,
-  clearEquipPhotosEditingState,
-  getEditingPhotosEquipId,
-  openEquipPhotosEditor,
-  saveEquipPhotos,
-} from './equipamentos/fotos.js';
 
 // ── Tipos de climatização que tem componente (evap/cond/única) ────────────
 // Lista de tipos onde o select de "componente" aparece no modal. Outros tipos
@@ -434,12 +423,6 @@ export function clearEditingState() {
   if (detailsPanel) {
     detailsPanel.style.display = '';
     detailsPanel.setAttribute('aria-hidden', 'true');
-  }
-  // Reset das fotos do equipamento (se o componente estiver montado)
-  try {
-    EquipmentPhotos.clear();
-  } catch (_err) {
-    /* componente pode ainda não estar inicializado */
   }
   // Reset dos extras + metadata da nameplate pra próximo cadastro começar limpo.
   try {
@@ -666,6 +649,13 @@ export function setActiveQuickFilter(id) {
 // Import local pra uso interno + re-export pra preservar imports externos.
 import { computeEquipKpis, renderEquipHero, renderEquipFilters } from './equipamentos/hero.js';
 export { computeEquipKpis, renderEquipHero, renderEquipFilters };
+
+function syncContextGroupVisibility() {
+  const group = Utils.getEl('eq-context-group');
+  if (!group) return;
+  const setorVisible = Utils.getEl('eq-setor-wrapper')?.style.display !== 'none';
+  group.style.display = setorVisible ? '' : 'none';
+}
 
 /** Popula o select de setores no modal de cadastro de equipamento. */
 /** @sliceTarget ui/form */

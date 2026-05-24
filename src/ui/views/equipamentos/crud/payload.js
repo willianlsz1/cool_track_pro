@@ -52,7 +52,7 @@ export function buildSaveEquipPayload({
   // ── Fotos do equipamento ─────────────────────────────────────────────────
   // V4: upload de fotos saiu desse fluxo. Criação/edição de dados só lida
   // com os campos textuais; fotos são gerenciadas via detail view →
-  // modal-eq-photos. Em edit mode, preservamos as fotos já persistidas
+  // fluxo dedicado futuro. Em edit mode, preservamos as fotos já persistidas
   // (eq.fotos) pra não perdê-las ao salvar alterações de texto.
   const equipId = editingId || createId();
   const fotosPayload = editingId ? normalizePhotoList(findEquip(editingId)?.fotos || []) : [];
