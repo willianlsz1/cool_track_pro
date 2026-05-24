@@ -132,6 +132,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/__tests__/reportModel.registroId.test.js')).toBe(false);
   });
 
+  it('does not keep the legacy quote PDF generator after v2 quotes became local-only', () => {
+    expect(existsSync('src/domain/pdf/orcamentoPdf.js')).toBe(false);
+  });
+
   it('does not keep the legacy relatorio v1 DOM view or renderers', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');

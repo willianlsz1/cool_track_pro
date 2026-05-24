@@ -570,6 +570,10 @@ Progresso executado:
   PMOC/checklist (`constants`, `primitives`, `safeLinks`, `sanitizers`,
   `checklist`, `checklistHelpers`, `upsell` e `pdf/pmoc/**`) permanecem para CP
   sensivel proprio.
+- CP-54E removeu o gerador legado de PDF de orcamento
+  (`src/domain/pdf/orcamentoPdf.js`) sem consumidor runtime. PDF/share de
+  orcamento deve ser reconstruido no app-v2 em etapa propria; PMOC/checklist PDF
+  restante permanece para CP sensivel separado.
 
 Controle:
 
