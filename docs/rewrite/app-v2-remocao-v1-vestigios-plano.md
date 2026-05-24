@@ -851,6 +851,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58H remove o helper core legado `src/core/pmocProgress.js` e seu teste
   dedicado depois que nao ha mais consumidor runtime do progresso PMOC anual por
   cliente.
+- CP-58I remove o helper legado `src/domain/pmoc/reportContext.js` e seu teste
+  dedicado depois que nao ha mais consumidor runtime do resumo PMOC/preventivo
+  de relatorio.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

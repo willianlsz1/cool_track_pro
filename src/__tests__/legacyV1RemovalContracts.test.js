@@ -537,6 +537,20 @@ describe('legacy v1 removal contracts', () => {
     expect(findMatches(runtimeSources, /getPmocSummaryForCliente|pmocProgress/)).toEqual([]);
   });
 
+  it('does not keep the legacy PMOC report context helper after retiring PDF/share PMOC', () => {
+    const runtimeSources = listSourceFiles('src').filter(
+      (file) =>
+        !file.startsWith('src/__tests__/') &&
+        file !== 'src/__tests__/legacyV1RemovalContracts.test.js',
+    );
+
+    expect(existsSync('src/domain/pmoc/reportContext.js')).toBe(false);
+    expect(existsSync('src/__tests__/pmocReportContext.test.js')).toBe(false);
+    expect(
+      findMatches(runtimeSources, /buildContextualPmocReportSummary|pmoc\/reportContext/),
+    ).toEqual([]);
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');
