@@ -260,6 +260,7 @@ describe('dashboard legacy last service render adapter', () => {
 
     expect(card).not.toBeNull();
     expect(card?.hidden).toBe(true);
+    expect(card?.dataset.reactDashboardLastServiceMounted).toBe('true');
     expect(card?.classList.contains('dash__card')).toBe(true);
     expect(card?.classList.contains('dash__card--last-service')).toBe(true);
     expect(card?.querySelector('.dash__card-label')?.textContent).toBe('\u00daltimo servi\u00e7o');
@@ -308,6 +309,7 @@ describe('dashboard legacy last service render adapter', () => {
     const card = byId(DASHBOARD_PUBLIC_IDS.lastServiceCard);
 
     expect(card?.hidden).toBe(false);
+    expect(card?.dataset.reactDashboardLastServiceMounted).toBe('true');
     expect(card?.classList.contains('dash__card')).toBe(true);
     expect(card?.classList.contains('dash__card--last-service')).toBe(true);
     expect(byId(DASHBOARD_PUBLIC_IDS.lastServiceTitle)?.textContent).toBe(
@@ -363,7 +365,7 @@ describe('dashboard legacy last service render adapter', () => {
     expect(card?.querySelector('[onerror]')).toBeNull();
   });
 
-  it('delegates last service rendering to the React island without manual DOM fallback', () => {
+  it('renders last service without React root or unrelated dashboard dependencies', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_CLASSES).toEqual(
@@ -373,10 +375,8 @@ describe('dashboard legacy last service render adapter', () => {
       expect.arrayContaining(['data-action', 'data-id', 'data-nav']),
     );
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot|mountDashboardReact/);
-    expect(dashboardSource).toContain('../../react/entrypoints/dashboardLastServiceIsland.jsx');
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-last-title'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-last-sub'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-last-desc'\)/);
+    expect(dashboardSource).not.toMatch(new RegExp('dashboard' + 'LastServiceIsland'));
+    expect(dashboardSource).toContain('renderDashboardLastServiceDom');
     expect(document.getElementById('chart-status-pie')).toBeNull();
     expect(document.getElementById('dash-onboarding')).not.toBeNull();
     expect(document.getElementById('app-header')).toBeNull();

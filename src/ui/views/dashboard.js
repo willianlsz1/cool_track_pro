@@ -64,8 +64,6 @@ let dashboardKpisBridgePromise = null;
 let dashboardKpisBridge = null;
 let dashboardNextActionBridgePromise = null;
 let dashboardNextActionBridge = null;
-let dashboardLastServiceBridgePromise = null;
-let dashboardLastServiceBridge = null;
 let dashboardMonthSummaryBridgePromise = null;
 let dashboardMonthSummaryBridge = null;
 let dashboardReadOnlyBlocksBridgePromise = null;
@@ -120,15 +118,6 @@ function loadDashboardNextActionBridge() {
 
 function getDashboardNextActionRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.nextActionCard);
-}
-
-function loadDashboardLastServiceBridge() {
-  dashboardLastServiceBridgePromise ??=
-    import('../../react/entrypoints/dashboardLastServiceIsland.jsx').then((bridge) => {
-      dashboardLastServiceBridge = bridge;
-      return bridge;
-    });
-  return dashboardLastServiceBridgePromise;
 }
 
 function getDashboardLastServiceRoot() {
@@ -234,13 +223,9 @@ export function unmountDashboardNextAction(root = getDashboardNextActionRoot()) 
 
 export function unmountDashboardLastService(root = getDashboardLastServiceRoot()) {
   if (!root) return undefined;
-  if (dashboardLastServiceBridge?.unmountDashboardLastServiceReact) {
-    dashboardLastServiceBridge.unmountDashboardLastServiceReact(root);
-    return undefined;
-  }
-  return loadDashboardLastServiceBridge().then(({ unmountDashboardLastServiceReact }) => {
-    unmountDashboardLastServiceReact(root);
-  });
+  root.replaceChildren();
+  delete root.dataset.reactDashboardLastServiceMounted;
+  return undefined;
 }
 
 export function unmountDashboardMonthSummary(root = getDashboardMonthSummaryRoot()) {
@@ -723,17 +708,74 @@ function _renderNextActionCard({ viewModel }) {
   return Promise.resolve();
 }
 
+function appendDashboardText(parent, tagName, className, textContent, options = {}) {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  if (options.id) element.id = options.id;
+  if (options.ariaHidden) element.setAttribute('aria-hidden', 'true');
+  element.textContent = textContent ?? '';
+  parent.appendChild(element);
+  return element;
+}
+
+function appendDashboardLastServiceIcon(parent) {
+  const icon = document.createElement('div');
+  icon.className = 'dash__card-icon';
+  icon.setAttribute('aria-hidden', 'true');
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '16');
+  svg.setAttribute('height', '16');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.6');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute(
+    'd',
+    'M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.8 2.8-2.8-2.8 2.8-2.8z',
+  );
+  svg.appendChild(path);
+  icon.appendChild(svg);
+  parent.appendChild(icon);
+  return icon;
+}
+
+function renderDashboardLastServiceDom(root, lastService = {}) {
+  if (!root) return null;
+  const model = lastService || {};
+
+  root.replaceChildren();
+  root.hidden = Boolean(model.hidden);
+  root.dataset.reactDashboardLastServiceMounted = 'true';
+
+  appendDashboardLastServiceIcon(root);
+
+  const body = document.createElement('div');
+  body.className = 'dash__card-body';
+  appendDashboardText(body, 'div', 'dash__card-label', '\u00daltimo servi\u00e7o');
+  appendDashboardText(body, 'div', 'dash__card-title', model.title || '\u2014', {
+    id: DASHBOARD_PUBLIC_IDS.lastServiceTitle,
+  });
+  appendDashboardText(body, 'div', 'dash__card-sub', model.subtitle || '\u2014', {
+    id: DASHBOARD_PUBLIC_IDS.lastServiceSubtitle,
+  });
+  appendDashboardText(body, 'div', 'dash__card-desc', model.description || '', {
+    id: 'dash-last-desc',
+  });
+
+  root.appendChild(body);
+  return root;
+}
+
 function _renderLastServiceCard({ viewModel }) {
   const model = viewModel?.lastService;
   const root = getDashboardLastServiceRoot();
   if (root && model) {
-    if (dashboardLastServiceBridge?.mountDashboardLastServiceReact) {
-      dashboardLastServiceBridge.mountDashboardLastServiceReact(root, { lastService: model });
-      return Promise.resolve();
-    }
-    return loadDashboardLastServiceBridge().then(({ mountDashboardLastServiceReact }) => {
-      mountDashboardLastServiceReact(root, { lastService: model });
-    });
+    renderDashboardLastServiceDom(root, model);
   }
 
   return Promise.resolve();
