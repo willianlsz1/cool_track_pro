@@ -564,6 +564,12 @@ Progresso executado:
   `src/domain/whatsapp.js` e `src/domain/reportExportHelpers.js`, alem dos
   testes dedicados. O gerador PDF comum e PMOC nao foram removidos neste corte
   para evitar misturar PDF, assinatura, checklist e PMOC no mesmo CP.
+- CP-54D removeu o gerador PDF tecnico legado (`src/domain/pdf.js`),
+  `generatorHelpers.js`, `reportModel.js` e secoes de capa, rodape, servicos e
+  assinaturas que nao tinham consumidor runtime app-v2. Helpers ainda usados por
+  PMOC/checklist (`constants`, `primitives`, `safeLinks`, `sanitizers`,
+  `checklist`, `checklistHelpers`, `upsell` e `pdf/pmoc/**`) permanecem para CP
+  sensivel proprio.
 
 Controle:
 

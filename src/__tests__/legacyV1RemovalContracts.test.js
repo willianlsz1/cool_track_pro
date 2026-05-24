@@ -110,6 +110,28 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/__tests__/reportExportHelpers.test.js')).toBe(false);
   });
 
+  it('does not keep the legacy technical PDF generator or report sections', () => {
+    expect(existsSync('src/domain/pdf.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/generatorHelpers.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/reportModel.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/cover.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/coverHelpers.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/footer.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/services.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/servicesHelpers.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/signatureHelpers.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/signatures.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfCover.contract.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfCover.helpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfCoverChecklistCursor.contract.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfGenerator.helpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfGenerator.mediaChecklist.contract.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfGenerator.registroId.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfServices.helpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfSignature.helpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/reportModel.registroId.test.js')).toBe(false);
+  });
+
   it('does not keep the legacy relatorio v1 DOM view or renderers', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
