@@ -278,13 +278,12 @@ describe('legacy v1 removal contracts', () => {
 
   it('does not keep the legacy privacidade route or internal static view', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
-    const contaSource = readSource('src/ui/views/conta.js');
 
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/ui/views/privacidade.js')).toBe(false);
+    expect(existsSync('src/ui/views/conta.js')).toBe(false);
     expect(shellViewsSource).not.toContain('view-privacidade');
-    expect(contaSource).not.toContain("goTo('privacidade')");
-    expect(contaSource).toContain('/legal/privacidade.html');
+    expect(shellViewsSource).not.toContain('view-conta');
   });
 
   it('does not keep the legacy alertas standalone route, view or shell shortcuts', () => {

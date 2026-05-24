@@ -944,10 +944,6 @@
 
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>
-
-        <!-- CONTA (full-page Minha Conta) -->
-        <div class="view" id="view-conta"></div>
-
         <!-- V3: ORÇAMENTOS DE INSTALAÇÃO -->
         <div class="view" id="view-orcamentos"></div>
 `;

@@ -69,11 +69,7 @@ describe('billing/pricing cleanup contracts', () => {
   });
 
   it('does not keep account actions named as billing or upgrade flows', () => {
-    const contaSource = readSource('src/ui/views/conta.js');
-
-    expect(contaSource).not.toContain("case 'manage-plan'");
-    expect(contaSource).not.toContain("case 'upgrade'");
-    expect(contaSource).not.toContain("case 'conta-manage-plan'");
+    expect(existsSync('src/ui/views/conta.js')).toBe(false);
   });
 
   it('does not keep PMOC blocked-state controls named as commercial upgrade actions', () => {

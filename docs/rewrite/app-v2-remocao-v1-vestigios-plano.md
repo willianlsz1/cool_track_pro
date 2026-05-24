@@ -511,6 +511,9 @@ Progresso executado:
   o modal auxiliar `passwordRecoveryModal.js` e o teste dedicado da tela v1.
   O bootstrap autenticado do app-v2 permanece em `src/app-v2/main.tsx` e seus
   adapters proprios.
+- CP-53 removeu a view legada `src/ui/views/conta.js`, seu teste dedicado e o
+  placeholder `#view-conta` do template v1. `src/ui/account/userData.js`
+  permanece para CP separado por envolver LGPD, auth e Edge Functions.
 
 Controle:
 

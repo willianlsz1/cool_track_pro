@@ -41,6 +41,7 @@ const retiredOrphanLegacyComponentFiles = [
 
 const retiredOrphanLegacyComponentTests = [
   'src/__tests__/authscreen.redesign.test.js',
+  'src/__tests__/contaView.test.js',
   'src/__tests__/postSaveRegistroCompletion.test.js',
   'src/__tests__/registroEquipPicker.test.js',
   'src/__tests__/usageMeter.test.js',
@@ -65,6 +66,7 @@ const retiredLegacyHelperFiles = [
   'src/ui/views/clientes/filtersRenderer.js',
   'src/ui/views/clientes/paginationRenderer.js',
   'src/ui/views/clientes/summaryRenderer.js',
+  'src/ui/views/conta.js',
 ];
 
 const retiredLegacyViewModelFiles = ['src/ui/viewModels/relatorioCompanyPmocModel.js'];

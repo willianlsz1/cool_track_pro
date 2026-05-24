@@ -226,10 +226,6 @@ vi.mock('../core/plans/clientesAccess.js', () => ({
   resolveClientesAccess: vi.fn(() => Promise.resolve({ resolved: true, canAccess: true })),
 }));
 
-vi.mock('../ui/views/conta.js', () => ({
-  renderConta: vi.fn(),
-}));
-
 vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   OnboardingChecklist: { markStep: vi.fn() },
 }));
