@@ -115,9 +115,9 @@ export function renderViewEquipDadosPlacaSections(eq, deps) {
   return { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml };
 }
 
-export function renderViewEquipPmocContextBlock(model, deps) {
+export function renderViewEquipPreventiveContextBlock(model, deps) {
   const { Utils } = resolveDetailDeps(deps);
-  const pmoc = model.pmocContext ?? {
+  const preventive = model.preventiveContext ?? {
     statusLabel: 'Sem registro',
     statusTone: 'muted',
     periodicidadeLabel: `${model.context?.periodicidadeDias || model.eq.periodicidadePreventivaDias} dias`,
@@ -127,35 +127,35 @@ export function renderViewEquipPmocContextBlock(model, deps) {
     ctaLabel: 'Registrar serviço',
   };
   const safeId = model.safeId;
-  const tone = pmoc.statusTone || 'muted';
-  const ctaLabel = pmoc.ctaLabel || 'Registrar serviço';
+  const tone = preventive.statusTone || 'muted';
+  const ctaLabel = preventive.ctaLabel || 'Registrar serviço';
 
   return `
-      <section class="eq-pmoc-context eq-pmoc-context--${Utils.escapeAttr(tone)}" aria-label="PMOC e preventiva do equipamento">
-        <div class="eq-pmoc-context__head">
+      <section class="eq-preventive-context eq-preventive-context--${Utils.escapeAttr(tone)}" aria-label="Preventiva do equipamento">
+        <div class="eq-preventive-context__head">
           <div>
-            <span class="eq-pmoc-context__eyebrow">PMOC / Preventiva</span>
-            <h3 class="eq-pmoc-context__title">${Utils.escapeHtml(pmoc.statusLabel)}</h3>
+            <span class="eq-preventive-context__eyebrow">Preventiva</span>
+            <h3 class="eq-preventive-context__title">${Utils.escapeHtml(preventive.statusLabel)}</h3>
           </div>
-          <span class="eq-pmoc-context__status">${Utils.escapeHtml(pmoc.statusLabel)}</span>
+          <span class="eq-preventive-context__status">${Utils.escapeHtml(preventive.statusLabel)}</span>
         </div>
-        <div class="eq-pmoc-context__grid">
-          <div class="eq-pmoc-context__item">
+        <div class="eq-preventive-context__grid">
+          <div class="eq-preventive-context__item">
             <span>Periodicidade</span>
-            <b>${Utils.escapeHtml(pmoc.periodicidadeLabel)}</b>
+            <b>${Utils.escapeHtml(preventive.periodicidadeLabel)}</b>
           </div>
-          <div class="eq-pmoc-context__item">
+          <div class="eq-preventive-context__item">
             <span>Última preventiva</span>
-            <b>${Utils.escapeHtml(pmoc.ultimaPreventivaLabel)}</b>
+            <b>${Utils.escapeHtml(preventive.ultimaPreventivaLabel)}</b>
           </div>
-          <div class="eq-pmoc-context__item">
+          <div class="eq-preventive-context__item">
             <span>Próxima preventiva</span>
-            <b>${Utils.escapeHtml(pmoc.proximaPreventivaLabel)}</b>
+            <b>${Utils.escapeHtml(preventive.proximaPreventivaLabel)}</b>
           </div>
         </div>
-        <div class="eq-pmoc-context__footer">
-          <p>${Utils.escapeHtml(pmoc.recommendedAction)}</p>
-          <button type="button" class="btn btn--primary btn--sm eq-pmoc-context__cta" data-action="go-register-equip" data-id="${safeId}">
+        <div class="eq-preventive-context__footer">
+          <p>${Utils.escapeHtml(preventive.recommendedAction)}</p>
+          <button type="button" class="btn btn--primary btn--sm eq-preventive-context__cta" data-action="go-register-equip" data-id="${safeId}">
             ${Utils.escapeHtml(ctaLabel)}
           </button>
         </div>
@@ -202,12 +202,12 @@ export function renderViewEquipDetailHtml(model, deps) {
   const svcTimeline = renderViewEquipServiceTimeline(regs, resolvedDeps);
   const coverBlock = renderViewEquipCoverBlock(model, resolvedDeps);
   const basicFieldsBlock = renderViewEquipBasicFields(model, resolvedDeps);
-  const pmocContextBlock = renderViewEquipPmocContextBlock(model, resolvedDeps);
+  const preventiveContextBlock = renderViewEquipPreventiveContextBlock(model, resolvedDeps);
   const { dadosPlacaSectionHtml, dadosPlacaExtrasSectionHtml } = renderViewEquipDadosPlacaSections(
     eq,
     resolvedDeps,
   );
-  const primaryCtaLabel = model.pmocContext?.ctaLabel || 'Registrar serviço';
+  const primaryCtaLabel = model.preventiveContext?.ctaLabel || 'Registrar serviço';
 
   return {
     html: `
@@ -267,8 +267,8 @@ export function renderViewEquipDetailHtml(model, deps) {
         </div>
       </section>
 
-      <section class="eq-detail-support-panel" aria-label="PMOC, risco e histórico recente">
-        ${pmocContextBlock}
+      <section class="eq-detail-support-panel" aria-label="Preventiva, risco e histórico recente">
+        ${preventiveContextBlock}
 
         <section class="eq-detail-work-summary" aria-label="Resumo operacional do equipamento">
           <div class="eq-detail-hero eq-detail-hero--${cls}">

@@ -153,7 +153,7 @@ describe('buildViewEquipDetailModel', () => {
       'context',
       'risk',
       'proximaPreventiva',
-      'pmocContext',
+      'preventiveContext',
       'healthSummary',
       'ringR',
       'ringC',
@@ -194,7 +194,7 @@ describe('buildViewEquipDetailModel', () => {
     expect(model.healthSummary).toBe('html:<script>risco</script> | preventiva vencida');
   });
 
-  it('marca PMOC como sem_cronograma quando nao ha periodicidade nem agenda', () => {
+  it('marca preventiva como sem_cronograma quando nao ha periodicidade nem agenda', () => {
     const model = buildViewEquipDetailModel(
       makeDeps({
         equip: { id: 'eq-1', nome: 'Split 01' },
@@ -202,7 +202,7 @@ describe('buildViewEquipDetailModel', () => {
       }),
     );
 
-    expect(model.pmocContext).toMatchObject({
+    expect(model.preventiveContext).toMatchObject({
       status: 'sem_cronograma',
       statusLabel: 'Sem cronograma',
       periodicidadeLabel: 'Sem periodicidade definida',
@@ -212,7 +212,7 @@ describe('buildViewEquipDetailModel', () => {
     });
   });
 
-  it('marca PMOC como sem_registro quando ha periodicidade mas nenhuma preventiva', () => {
+  it('marca preventiva como sem_registro quando ha periodicidade mas nenhuma preventiva', () => {
     const model = buildViewEquipDetailModel(
       makeDeps({
         equip: { id: 'eq-1', nome: 'Split 01', periodicidadePreventivaDias: 90 },
@@ -225,7 +225,7 @@ describe('buildViewEquipDetailModel', () => {
       }),
     );
 
-    expect(model.pmocContext).toMatchObject({
+    expect(model.preventiveContext).toMatchObject({
       status: 'sem_registro',
       statusLabel: 'Sem registro',
       periodicidadeLabel: '90 dias',
@@ -234,7 +234,7 @@ describe('buildViewEquipDetailModel', () => {
     });
   });
 
-  it('marca PMOC como em_dia quando a proxima preventiva esta fora da janela de atencao', () => {
+  it('marca preventiva como em_dia quando a proxima preventiva esta fora da janela de atencao', () => {
     const model = buildViewEquipDetailModel(
       makeDeps({
         regsForEquip: vi.fn(() => [{ id: 'r1', data: '2026-04-01', tipo: 'Preventiva' }]),
@@ -251,7 +251,7 @@ describe('buildViewEquipDetailModel', () => {
       }),
     );
 
-    expect(model.pmocContext).toMatchObject({
+    expect(model.preventiveContext).toMatchObject({
       status: 'em_dia',
       statusLabel: 'Em dia',
       ultimaPreventivaLabel: 'date:2026-04-01',
@@ -260,10 +260,10 @@ describe('buildViewEquipDetailModel', () => {
     });
   });
 
-  it('marca PMOC como atencao quando a preventiva esta proxima de vencer', () => {
+  it('marca preventiva como atencao quando a preventiva esta proxima de vencer', () => {
     const model = buildViewEquipDetailModel(
       makeDeps({
-        regsForEquip: vi.fn(() => [{ id: 'r1', data: '2026-04-01', tipo: 'PMOC' }]),
+        regsForEquip: vi.fn(() => [{ id: 'r1', data: '2026-04-01', tipo: 'Preventiva' }]),
         health: {
           score: 90,
           context: {
@@ -277,11 +277,11 @@ describe('buildViewEquipDetailModel', () => {
       }),
     );
 
-    expect(model.pmocContext.status).toBe('atencao');
-    expect(model.pmocContext.statusLabel).toBe('Atenção');
+    expect(model.preventiveContext.status).toBe('atencao');
+    expect(model.preventiveContext.statusLabel).toBe('Atenção');
   });
 
-  it('marca PMOC como vencido quando a proxima preventiva passou', () => {
+  it('marca preventiva como vencido quando a proxima preventiva passou', () => {
     const model = buildViewEquipDetailModel(
       makeDeps({
         regsForEquip: vi.fn(() => [{ id: 'r1', data: '2025-10-01', tipo: 'Higienizacao' }]),
@@ -298,7 +298,7 @@ describe('buildViewEquipDetailModel', () => {
       }),
     );
 
-    expect(model.pmocContext).toMatchObject({
+    expect(model.preventiveContext).toMatchObject({
       status: 'vencido',
       statusLabel: 'Vencido',
       recommendedAction: 'Preventiva vencida. Registre a execução agora.',

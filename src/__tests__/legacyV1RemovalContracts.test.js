@@ -551,6 +551,19 @@ describe('legacy v1 removal contracts', () => {
     ).toEqual([]);
   });
 
+  it('does not keep legacy Equipamentos PMOC context surface', () => {
+    const detailSource = readSource('src/ui/views/equipamentos/ui/detail.js');
+    const detailModelSource = readSource('src/ui/views/equipamentos/ui/detailModel.js');
+
+    expect(detailSource).not.toContain('eq-pmoc-context');
+    expect(detailSource).not.toContain('PMOC / Preventiva');
+    expect(detailSource).not.toContain('pmocContext');
+    expect(detailModelSource).not.toContain('buildEquipmentPmocContext');
+    expect(detailModelSource).not.toContain('pmocContext');
+    expect(detailModelSource).not.toContain('domain/pmoc/serviceType');
+    expect(detailModelSource).not.toContain('isPreventivaOrPmocServiceType');
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');

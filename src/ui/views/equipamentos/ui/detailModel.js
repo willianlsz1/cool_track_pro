@@ -1,5 +1,3 @@
-import { isPreventivaOrPmocServiceType } from '../../../../domain/pmoc/serviceType.js';
-
 /**
  * Model puro da detail view de equipamento.
  *
@@ -67,12 +65,24 @@ function recommendedActionText(status) {
   return 'Selecione um equipamento para avaliar preventiva.';
 }
 
-export function buildEquipmentPmocContext({ eq, regs = [], context = {}, utils: Utils }) {
+function isPreventiveServiceType(tipo) {
+  const normalized = String(tipo || '')
+    .trim()
+    .toLowerCase();
+  if (!normalized || normalized.includes('corretiv')) return false;
+  return (
+    normalized.includes('preventiv') ||
+    normalized.includes('limpeza') ||
+    normalized.includes('higieniz')
+  );
+}
+
+export function buildEquipmentPreventiveContext({ eq, regs = [], context = {}, utils: Utils }) {
   const periodicidadeDias = resolvePositiveNumber(
     context?.periodicidadeDias,
     eq?.periodicidadePreventivaDias,
   );
-  const preventiveRegs = regs.filter((reg) => isPreventivaOrPmocServiceType(reg?.tipo));
+  const preventiveRegs = regs.filter((reg) => isPreventiveServiceType(reg?.tipo));
   const lastPreventive = preventiveRegs[0] || null;
   const lastPreventiveIso = toIsoDate(lastPreventive?.data);
   const proximaFromRegistro = toIsoDate(lastPreventive?.proxima);
@@ -136,7 +146,7 @@ export function buildViewEquipDetailModel({
   const proximaPreventiva = context?.proximaPreventiva
     ? Utils.formatDate(context.proximaPreventiva)
     : 'Sem agenda';
-  const pmocContext = buildEquipmentPmocContext({ eq, regs, context, utils: Utils });
+  const preventiveContext = buildEquipmentPreventiveContext({ eq, regs, context, utils: Utils });
   const healthSummary = health.reasons.length
     ? Utils.escapeHtml(health.reasons.slice(0, 2).join(' | '))
     : 'Histórico dentro da rotina prevista';
@@ -156,7 +166,7 @@ export function buildViewEquipDetailModel({
     context,
     risk,
     proximaPreventiva,
-    pmocContext,
+    preventiveContext,
     healthSummary,
     ringR,
     ringC,

@@ -854,6 +854,10 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58I remove o helper legado `src/domain/pmoc/reportContext.js` e seu teste
   dedicado depois que nao ha mais consumidor runtime do resumo PMOC/preventivo
   de relatorio.
+- CP-58J remove a superficie PMOC do detalhe legado de Equipamentos: o model
+  passa de `pmocContext` para `preventiveContext`, o bloco DOM passa de
+  `eq-pmoc-context` para `eq-preventive-context` e o detalhe deixa de importar
+  `domain/pmoc/serviceType`.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

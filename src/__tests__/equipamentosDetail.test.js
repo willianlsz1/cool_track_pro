@@ -85,8 +85,8 @@ function makeModel(overrides = {}) {
       factors: ['preventiva vencida'],
     },
     proximaPreventiva: overrides.proximaPreventiva ?? '10/06/2026',
-    pmocContext: Object.hasOwn(overrides, 'pmocContext')
-      ? overrides.pmocContext
+    preventiveContext: Object.hasOwn(overrides, 'preventiveContext')
+      ? overrides.preventiveContext
       : {
           status: 'atencao',
           statusLabel: 'Atenção',
@@ -207,8 +207,8 @@ describe('detail HTML render helpers', () => {
     expect(deps.eqDetailSubtitle).toHaveBeenCalledWith(model.eq);
     expect(result.html).toContain('eq-detail-hero eq-detail-hero--ok');
     expect(result.html).toContain('eq-risk-panel eq-risk-panel--alto');
-    expect(result.html).toContain('eq-pmoc-context eq-pmoc-context--warn');
-    expect(result.html).toContain('PMOC / Preventiva');
+    expect(result.html).toContain('eq-preventive-context eq-preventive-context--warn');
+    expect(result.html).toContain('Preventiva');
     expect(result.html).toContain('Atenção');
     expect(result.html).toContain('01/04/2026');
     expect(result.html).toContain('10/06/2026');
@@ -222,7 +222,7 @@ describe('detail HTML render helpers', () => {
     expect(result.firstPhotoUrl).toBeNull();
   });
 
-  it('renderiza painel de campo com foto, basicos visiveis, PMOC decisivo, historico recente e score secundario', () => {
+  it('renderiza painel de campo com foto, basicos visiveis, preventiva decisiva, historico recente e score secundario', () => {
     const deps = makeDeps({
       getSetores: vi.fn(() => [{ id: 'setor-1', nome: 'Sala tecnica' }]),
       getEquipmentVisualMeta: vi.fn(() => ({
@@ -285,7 +285,7 @@ describe('detail HTML render helpers', () => {
     expect(result.html.indexOf('eq-detail-media-panel')).toBeLessThan(
       result.html.indexOf('eq-detail-work-header'),
     );
-    expect(result.html.indexOf('eq-pmoc-context')).toBeLessThan(
+    expect(result.html.indexOf('eq-preventive-context')).toBeLessThan(
       result.html.indexOf('eq-detail-work-summary'),
     );
     expect(result.html.indexOf('eq-detail-work-summary')).toBeLessThan(
@@ -295,17 +295,17 @@ describe('detail HTML render helpers', () => {
       result.html.indexOf('eq-tech-sheet-wrap'),
     );
     expect(result.html).toContain('eq-modal-footer__btn--register');
-    expect(result.html).toContain('eq-pmoc-context__cta');
+    expect(result.html).toContain('eq-preventive-context__cta');
     expect(result.html).toContain('data-action="go-register-equip" data-id="eq-1"');
     expect(result.html.match(/Registrar preventiva/g)).toHaveLength(2);
   });
 
-  it('mantem CTA contextual com texto dinamico quando nao ha contexto PMOC', () => {
-    const result = renderViewEquipDetailHtml(makeModel({ pmocContext: null }), makeDeps());
+  it('mantem CTA contextual com texto dinamico quando nao ha contexto preventivo', () => {
+    const result = renderViewEquipDetailHtml(makeModel({ preventiveContext: null }), makeDeps());
 
     expect(result.html).toContain('eq-modal-footer__btn--register');
-    expect(result.html).toContain('eq-pmoc-context eq-pmoc-context--muted');
-    expect(result.html).toContain('eq-pmoc-context__cta');
+    expect(result.html).toContain('eq-preventive-context eq-preventive-context--muted');
+    expect(result.html).toContain('eq-preventive-context__cta');
     expect(result.html.match(/Registrar servi/g)).toHaveLength(2);
   });
 
