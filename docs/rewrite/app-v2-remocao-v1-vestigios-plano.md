@@ -167,12 +167,15 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-22 removeu o componente orfao `src/ui/components/usageMeter.js` e seu
   teste dedicado, apos confirmar que nao havia import ativo fora da propria
   cobertura legada.
+- CP-23 removeu o componente orfao
+  `src/ui/components/postSaveRegistroCompletion.js` e seu teste dedicado. O
+  pos-salvamento ativo continua usando `PostSaveRegistroToast`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 176 arquivos restantes.
+- `src/ui/`: 165 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,

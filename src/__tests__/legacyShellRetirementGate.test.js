@@ -30,10 +30,14 @@ const retiredOrphanControllerHandlerFiles = [
 
 const retiredOrphanLegacyComponentFiles = [
   'src/ui/components/accountModal.js',
+  'src/ui/components/postSaveRegistroCompletion.js',
   'src/ui/components/usageMeter.js',
 ];
 
-const retiredOrphanLegacyComponentTests = ['src/__tests__/usageMeter.test.js'];
+const retiredOrphanLegacyComponentTests = [
+  'src/__tests__/postSaveRegistroCompletion.test.js',
+  'src/__tests__/usageMeter.test.js',
+];
 
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/shell/navigationMode.js',
