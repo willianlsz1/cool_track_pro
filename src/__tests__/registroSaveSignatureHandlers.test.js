@@ -381,28 +381,20 @@ describe('registro legacy save handlers with signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('persiste assinatura segura no payload esperado do salvamento legado', async () => {
+  it('aposenta assinatura no salvamento legado mesmo com plano antigo habilitado', async () => {
     const state = baseState();
-    const signatureReference = {
-      version: 1,
-      provider: 'supabase-storage',
-      bucket: 'registro-fotos',
-      path: 'user-1/registros/reg-1/assinatura.png',
-      mimeType: 'image/png',
-    };
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });
     mocks.signatureRequest.mockResolvedValue(SAFE_SIGNATURE);
-    mocks.saveSignatureForRecord.mockResolvedValue(signatureReference);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
 
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
-    expect(mocks.signatureRequest).toHaveBeenCalledWith(saved.id, 'Split Recepcao');
-    expect(mocks.saveSignatureForRecord).toHaveBeenCalledWith(saved.id, SAFE_SIGNATURE);
-    expect(saved.assinatura).toEqual(signatureReference);
+    expect(mocks.signatureRequest).not.toHaveBeenCalled();
+    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
+    expect(saved.assinatura).toBe(false);
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );
@@ -431,10 +423,8 @@ describe('registro legacy save handlers with signature contracts', () => {
     const nextState = getSavedState(state);
     const saved = nextState.registros.at(-1);
     expect(saved.assinatura).toBe(false);
+    expect(mocks.signatureRequest).not.toHaveBeenCalled();
     expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
-    expect(mocks.toastInfo).toHaveBeenCalledWith(
-      expect.stringContaining('Registro salvo sem assinatura'),
-    );
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );

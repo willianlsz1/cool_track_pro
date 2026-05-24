@@ -125,7 +125,7 @@ beforeEach(() => {
 });
 
 describe('exploratory: signature payload contract', () => {
-  it('persiste referência remota (não DataURL) quando upload retorna shape real', async () => {
+  it('mantem payload sem assinatura apos aposentadoria do fluxo legado', async () => {
     let finalState;
     mocks.saveSignatureForRecord.mockResolvedValue({
       version: 1,
@@ -150,12 +150,7 @@ describe('exploratory: signature payload contract', () => {
     await saveRegistro();
     const assinatura = finalState.registros[0].assinatura;
     expect(typeof assinatura === 'string' && assinatura.startsWith('data:image')).toBe(false);
-    expect(assinatura).toMatchObject({
-      version: 1,
-      provider: 'supabase-storage',
-      bucket: 'registro-fotos',
-      path: expect.any(String),
-      url: expect.any(String),
-    });
+    expect(assinatura).toBe(false);
+    expect(mocks.saveSignatureForRecord).not.toHaveBeenCalled();
   });
 });

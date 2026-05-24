@@ -583,6 +583,10 @@ Progresso executado:
   insegura porque ainda cruza contratos `data-action`, `hist-view-signature`,
   overlays de router, `src/core/signatureStorage.js`, `src/core/storage.js` e o
   campo persistido `registros.assinatura`.
+- CP-55A aposenta a captura e o salvamento de assinatura no Registro v1. O save
+  nao importa mais `../components/signature.js`, nao chama `SignatureModal`, nao
+  chama `saveSignatureForRecord` e grava `assinatura: false`. Historico,
+  UI/modal, router e storage real de assinatura permanecem para CPs proprios.
 
 Controle:
 

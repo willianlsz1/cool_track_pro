@@ -241,7 +241,7 @@ describe('registro signature React block legacy handlers contract', () => {
     document.body.innerHTML = '';
   });
 
-  it('aciona captura legada a partir dos atributos emitidos pela ilha React', async () => {
+  it('mantem captura legada aposentada a partir dos atributos emitidos pela ilha React', async () => {
     await setupHandlers();
     const root = await mountSignatureRoot();
     const capture = root.querySelector('[data-r-action="registro-signature-capture"]');
@@ -252,17 +252,18 @@ describe('registro signature React block legacy handlers contract', () => {
 
     await callHandler(REGISTRO_SIGNATURE_ACTIONS.capture, capture);
 
-    expect(mocks.signatureRequest).toHaveBeenCalledWith('registro-draft', 'Split Recepcao');
-    expect(root.querySelector('.registro-sig-hint__preview-img')?.getAttribute('src')).toBe(
-      SAFE_SIGNATURE,
+    expect(mocks.signatureRequest).not.toHaveBeenCalled();
+    expect(mocks.toastWarning).toHaveBeenCalledWith(
+      'Assinatura digital sera refeita em uma etapa propria.',
     );
-    expect(root.querySelector('[data-r-action="registro-signature-open"]')).not.toBeNull();
-    expect(root.querySelector('[data-r-action="registro-signature-remove"]')).not.toBeNull();
+    expect(root.querySelector('.registro-sig-hint__preview-img')).toBeNull();
+    expect(root.querySelector('[data-r-action="registro-signature-open"]')).toBeNull();
+    expect(root.querySelector('[data-r-action="registro-signature-remove"]')).toBeNull();
     expectNoUnsafeMarkup(root);
     expectExternalFlowsNotExecuted();
   });
 
-  it('abre visualizacao legada apenas para assinatura segura', async () => {
+  it('nao abre visualizacao legada mesmo para assinatura segura', async () => {
     await setupHandlers();
     const root = await mountSignatureRoot({ signatureSrc: SAFE_SIGNATURE });
     const open = root.querySelector('[data-r-action="registro-signature-open"]');
@@ -272,10 +273,7 @@ describe('registro signature React block legacy handlers contract', () => {
 
     await callHandler(REGISTRO_SIGNATURE_ACTIONS.open, open);
 
-    expect(mocks.signatureViewerOpen).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'registro-draft', assinatura: SAFE_SIGNATURE }),
-      expect.objectContaining({ equipNome: 'Split Recepcao' }),
-    );
+    expect(mocks.signatureViewerOpen).not.toHaveBeenCalled();
 
     mocks.signatureViewerOpen.mockClear();
     await act(async () => {
@@ -299,7 +297,7 @@ describe('registro signature React block legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('ignora assinatura insegura retornada pela captura legada', async () => {
+  it('nao chama modal quando captura legada recebe assinatura insegura mockada', async () => {
     await setupHandlers();
     mocks.signatureRequest.mockResolvedValue(UNSAFE_CAPTURE_SIGNATURE);
     const root = await mountSignatureRoot();
@@ -307,9 +305,9 @@ describe('registro signature React block legacy handlers contract', () => {
 
     await callHandler(REGISTRO_SIGNATURE_ACTIONS.capture, capture);
 
-    expect(mocks.signatureRequest).toHaveBeenCalledWith('registro-draft', 'Split Recepcao');
+    expect(mocks.signatureRequest).not.toHaveBeenCalled();
     expect(mocks.toastWarning).toHaveBeenCalledWith(
-      'Assinatura ignorada por conter dados inválidos.',
+      'Assinatura digital sera refeita em uma etapa propria.',
     );
     expect(root.querySelector('.registro-sig-hint__preview-img')).toBeNull();
     expect(root.querySelector('[data-r-action="registro-signature-open"]')).toBeNull();

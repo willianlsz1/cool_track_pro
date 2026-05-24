@@ -234,7 +234,7 @@ describe('registro legacy signature render adapter', () => {
     expect(mocks.goTo).not.toHaveBeenCalled();
   });
 
-  it('preserva estado Plus com assinatura inclusa sem abrir captura real', async () => {
+  it('renderiza assinatura aposentada mesmo com plano antigo plus', async () => {
     const state = baseState();
     setupRegistroDom(state);
     const registro = await loadRegistroView(state, { plus: true });
@@ -245,12 +245,12 @@ describe('registro legacy signature render adapter', () => {
     const hint = document.querySelector('#registro-signature-hint');
     expect(hint.hidden).toBe(false);
     expect(hint.classList.contains('registro-sig-hint')).toBe(true);
-    expect(hint.classList.contains('registro-sig-hint--upsell')).toBe(false);
+    expect(hint.classList.contains('registro-sig-hint--upsell')).toBe(true);
     expect(hint.querySelector('.registro-sig-hint__title')?.textContent).toBe(
-      'Assinatura do cliente',
+      'Assinatura do cliente indisponivel',
     );
-    expect(hint.querySelector('.registro-sig-hint__badge')?.textContent).toBe('Incluso');
-    expect(hint.querySelector('[data-action="signature-upsell-cta"]')).toBeNull();
+    expect(hint.querySelector('.registro-sig-hint__badge')?.textContent).toBe('Indisponivel');
+    expect(hint.querySelector('[data-action="signature-upsell-cta"]')).not.toBeNull();
     expect(document.querySelector('#modal-signature-overlay')).toBeNull();
 
     expectNoUnsafeMarkup(hint);

@@ -25,10 +25,7 @@ import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
 import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import { isSafeRegistroPhotoSrc } from '../viewModels/registroPhotosModel.js';
-import {
-  REGISTRO_SIGNATURE_ROOT_ID,
-  isSafeRegistroSignatureSrc,
-} from '../viewModels/registroSignatureModel.js';
+import { REGISTRO_SIGNATURE_ROOT_ID } from '../viewModels/registroSignatureModel.js';
 import {
   renderRegistroSignatureHint,
   unmountRegistroSignatureHint,
@@ -228,10 +225,6 @@ function _saveLastClient(cliente) {
   } catch (_err) {
     // localStorage indisponÃ­vel â€” ignora
   }
-}
-
-function isSafeSignatureCaptureDataUrl(dataUrl) {
-  return /^data:image\/(?:png|jpe?g|webp);base64,[a-z0-9+/=]+$/i.test(String(dataUrl || '').trim());
 }
 
 function _updateImpactCopy(context) {
@@ -832,8 +825,8 @@ export function unmountRegistroPhotos() {
 
 function buildRegistroSignatureProps() {
   return {
-    isPlusOrHigher: PlanCache.isCachedPlanPlusOrHigher(),
-    signatureSrc: _registroSignatureDraftSrc,
+    isPlusOrHigher: false,
+    signatureSrc: '',
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
       Toast.warning('Recurso indisponivel nesta etapa.');
@@ -864,73 +857,15 @@ export function unmountRegistroSignature() {
   return unmountRegistroSignatureHint(root);
 }
 
-function getRegistroSignatureDraftRecordId(el = null) {
-  const explicitId = String(el?.dataset?.id || '').trim();
-  if (explicitId) return explicitId;
-
-  try {
-    return sessionStorage.getItem(EDITING_KEY) || 'registro-draft';
-  } catch (_err) {
-    return 'registro-draft';
-  }
-}
-
-function getRegistroSignatureEquipName() {
-  const equipId = Utils.getVal('r-equip');
-  return findEquip(equipId)?.nome || 'Equipamento';
-}
-
-function readRegistroSignatureSrc(el = null) {
-  const candidates = [
-    el?.dataset?.signatureSrc,
-    document
-      .getElementById(REGISTRO_SIGNATURE_ROOT_ID)
-      ?.querySelector('.registro-sig-hint__preview-img')
-      ?.getAttribute('src'),
-    _registroSignatureDraftSrc,
-  ];
-  return candidates.find((src) => isSafeRegistroSignatureSrc(src))?.trim() || '';
-}
-
 export async function captureRegistroSignatureFromHint(el = null) {
-  if (!PlanCache.isCachedPlanPlusOrHigher()) return false;
-
-  const { SignatureModal } = await import('../components/signature.js');
-  if (!SignatureModal?.request) return false;
-
-  const result = await SignatureModal.request(
-    getRegistroSignatureDraftRecordId(el),
-    getRegistroSignatureEquipName(),
-  );
-
-  if (result && result !== SignatureModal.CANCELED && isSafeSignatureCaptureDataUrl(result)) {
-    _registroSignatureDraftSrc = String(result).trim();
-    await mountRegistroSignature();
-    return _registroSignatureDraftSrc;
-  }
-
-  if (result && result !== SignatureModal.CANCELED) {
-    Toast.warning?.('Assinatura ignorada por conter dados inválidos.');
-  }
-
-  return null;
+  void el;
+  Toast.warning?.('Assinatura digital sera refeita em uma etapa propria.');
+  return false;
 }
 
 export async function openRegistroSignatureFromHint(el = null) {
-  const signatureSrc = readRegistroSignatureSrc(el);
-  if (!signatureSrc) return false;
-
-  const { SignatureViewerModal } = await import('../components/signature.js');
-  if (!SignatureViewerModal?.open) return false;
-
-  await SignatureViewerModal.open(
-    {
-      id: getRegistroSignatureDraftRecordId(el),
-      assinatura: signatureSrc,
-    },
-    { equipNome: getRegistroSignatureEquipName() },
-  );
-  return true;
+  void el;
+  return false;
 }
 
 export async function removeRegistroSignatureFromHint() {
@@ -1689,29 +1624,17 @@ export async function saveRegistro() {
     const novoId = resolveRegistroCreateId({ uid: () => Utils.uid() });
     const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
 
-    // D1: assinatura digital â€” recurso controlado por gate operacional.
-    // Sem acesso, pulamos silenciosamente o modal para nÃ£o interromper o fluxo.
+    // Assinatura digital legada aposentada: app-v2-native tera etapa propria.
     const signatureState = getRegistroSignatureState({
       registroId: novoId,
-      canUseSignature: PlanCache.isCachedPlanPlusOrHigher(),
+      canUseSignature: false,
     });
-    const { SignatureModal, saveSignatureForRecord } = await loadRegistroSignatureSaveModule(
-      signatureState,
-      {
-        loadSignatureModule: () => import('../components/signature.js'),
-        handleError,
-        ErrorCodes,
-      },
-    );
-    const eq = findEquip(equipId);
+    await loadRegistroSignatureSaveModule(signatureState);
     const { assinatura } = await captureRegistroSignatureIfNeeded(
       {
         ...signatureState,
-        SignatureModal,
-        equipNome: eq?.nome || 'Equipamento',
       },
       {
-        isSafeSignatureCaptureDataUrl,
         Toast,
         handleError,
         ErrorCodes,
@@ -1723,7 +1646,6 @@ export async function saveRegistro() {
       {
         registroId: novoId,
         assinatura,
-        saveSignatureForRecord,
       },
       {
         Toast,
