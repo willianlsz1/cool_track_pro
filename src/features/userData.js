@@ -5,7 +5,7 @@
  *   - POST /functions/v1/export-user-data → JSON dump do usuário (portabilidade)
  *   - POST /functions/v1/delete-user-account → remove tudo (eliminação)
  *
- * Segue o mesmo pattern de `startBillingPortal` em monetization.js:
+ * Segue o mesmo pattern de chamada autenticada direta:
  *   - refreshSession() → access_token fresco
  *   - fetch direto na edge function (evita token stale do SDK)
  *   - error handling padronizado com AppError
@@ -23,7 +23,7 @@ const DELETE_FN_PATH = '/functions/v1/delete-user-account';
 
 /**
  * Pega um access_token fresco (tenta refresh via rede; fallback pro cache
- * local se ainda válido). Mesma lógica de monetization.js:startBillingPortal.
+ * local se ainda válido).
  *
  * @returns {Promise<string|null>}
  */

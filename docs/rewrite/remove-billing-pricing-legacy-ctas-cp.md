@@ -17,6 +17,8 @@ schema.
   do binding de navegacao.
 - O catalogo operacional removeu chips/textos de `checkout`, `pricing` e
   `billing`.
+- Os exports legados `startCheckout` e `startBillingPortal` foram removidos da
+  camada de monetizacao.
 - Contratos internos legados que citavam `pricing` apenas como nome de acao
   foram renomeados para linguagem comercial neutra.
 

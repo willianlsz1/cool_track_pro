@@ -71,10 +71,10 @@ describe('monetization disabled compatibility layer', () => {
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(2);
   });
 
-  it('commercial entrypoints are removed', async () => {
+  it('does not expose checkout or subscription portal entrypoints', async () => {
     const { mod } = await loadMonetization();
 
-    await expect(mod.startCheckout()).rejects.toMatchObject({ code: 'COMMERCIAL_REMOVED' });
-    await expect(mod.startBillingPortal()).rejects.toMatchObject({ code: 'COMMERCIAL_REMOVED' });
+    expect(mod.startCheckout).toBeUndefined();
+    expect(mod.startBillingPortal).toBeUndefined();
   });
 });
