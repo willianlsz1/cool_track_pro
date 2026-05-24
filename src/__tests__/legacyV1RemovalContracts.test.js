@@ -81,6 +81,22 @@ describe('legacy v1 removal contracts', () => {
     expect(findMatches(appV2Sources, forbiddenLegacyRuntimePattern)).toEqual([]);
   });
 
+  it('does not keep the legacy relatorio v1 DOM view or renderers', () => {
+    const shellViewsSource = readSource('src/ui/shell/templates/views.js');
+    const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
+    const historicoSource = readSource('src/ui/views/historico.js');
+
+    expect(existsSync('src/ui/views/relatorio.js')).toBe(false);
+    expect(existsSync('src/ui/views/relatorio/cardsRenderer.js')).toBe(false);
+    expect(existsSync('src/ui/views/relatorio/controlsRenderer.js')).toBe(false);
+    expect(existsSync('src/ui/viewModels/relatorioContracts.js')).toBe(false);
+    expect(existsSync('src/ui/viewModels/relatorioViewModel.js')).toBe(false);
+    expect(shellViewsSource).not.toContain('view-relatorio');
+    expect(shellViewsSource).not.toContain('relatorio-corpo');
+    expect(navigationModeSource).not.toContain("'relatorio'");
+    expect(historicoSource).not.toContain('data-nav="relatorio"');
+  });
+
   it('does not keep the legacy historico functional e2e after v2 promotion', () => {
     expect(existsSync('e2e/specs/historico-functional-smoke.spec.js')).toBe(false);
   });

@@ -528,6 +528,14 @@ Progresso executado:
   `src/ui/views/relatorio.js` ainda cruza renderers DOM, handlers de exportacao
   e PMOC; o corte de codigo deve ser dividido em CP54B1 (view/renderers),
   CP54C (PDF/share/WhatsApp) e CP54F (PMOC).
+- CP-54B1 removeu a view DOM legada de Relatorio
+  (`src/ui/views/relatorio.js`) e seus renderers locais
+  (`src/ui/views/relatorio/cardsRenderer.js` e
+  `src/ui/views/relatorio/controlsRenderer.js`), alem dos view models v1
+  `src/ui/viewModels/relatorioContracts.js` e
+  `src/ui/viewModels/relatorioViewModel.js`, que ficaram sem consumidor
+  runtime. O contrato de PDF/share por Historico foi preservado para CP54C;
+  PMOC continua para CP54F.
 
 Controle:
 

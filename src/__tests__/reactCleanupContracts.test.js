@@ -18,12 +18,6 @@ describe('React cleanup contracts', () => {
     expect(existsSync('e2e/specs/react-islands-lifecycle.spec.js')).toBe(false);
   });
 
-  it('does not keep stale React naming in legacy relatorio runtime helpers', () => {
-    const relatorioSource = readSource('src/ui/views/relatorio.js');
-
-    expect(relatorioSource).not.toContain('buildRelatorioHeroReactViewModel');
-  });
-
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/app.js')).toBe(false);

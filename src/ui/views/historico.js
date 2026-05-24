@@ -756,8 +756,6 @@ function _renderSummaryCard(
       ? 'hist-summary-card__kpi-value'
       : 'hist-summary-card__kpi-value hist-summary-card__kpi-value--muted';
 
-  const ctaLabel = filtered ? 'Gerar Relatório desta seleção' : 'Gerar Relatório';
-
   const collapsed = isSummaryCollapsed();
   const sectionClass = collapsed
     ? 'hist-summary-card hist-summary-card--collapsed'
@@ -822,14 +820,6 @@ function _renderSummaryCard(
       </span>
       <span>Relatórios automáticos serão revistos em etapa própria.</span>
     </div>
-    <button type="button" class="hist-summary-card__cta" data-nav="relatorio">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/>
-        <path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/>
-      </svg>
-      ${Utils.escapeHtml(ctaLabel)}
-    </button>
     </div>
   </section>`;
 }

@@ -48,6 +48,16 @@ const retiredOrphanLegacyComponentTests = [
   'src/__tests__/orcamentosViewModel.test.js',
   'src/__tests__/postSaveRegistroCompletion.test.js',
   'src/__tests__/registroEquipPicker.test.js',
+  'src/__tests__/relatorioCardsLegacyHandlers.test.js',
+  'src/__tests__/relatorioCompanyPmocContracts.test.js',
+  'src/__tests__/relatorioExportPmocLegacyHandlers.test.js',
+  'src/__tests__/relatorioLegacyCards.test.js',
+  'src/__tests__/relatorioLegacyControls.test.js',
+  'src/__tests__/relatorioLegacyHero.test.js',
+  'src/__tests__/relatorioNavigationLegacyContracts.test.js',
+  'src/__tests__/relatorioView.security.test.js',
+  'src/__tests__/relatorioView.test.js',
+  'src/__tests__/relatorioViewModel.test.js',
   'src/__tests__/usageMeter.test.js',
 ];
 
@@ -72,11 +82,16 @@ const retiredLegacyHelperFiles = [
   'src/ui/views/clientes/summaryRenderer.js',
   'src/ui/views/conta.js',
   'src/ui/views/orcamentos.js',
+  'src/ui/views/relatorio.js',
+  'src/ui/views/relatorio/cardsRenderer.js',
+  'src/ui/views/relatorio/controlsRenderer.js',
 ];
 
 const retiredLegacyViewModelFiles = [
   'src/ui/viewModels/orcamentosViewModel.js',
+  'src/ui/viewModels/relatorioContracts.js',
   'src/ui/viewModels/relatorioCompanyPmocModel.js',
+  'src/ui/viewModels/relatorioViewModel.js',
 ];
 
 const legacyRuntimeKeptForLaterCheckpoints = [

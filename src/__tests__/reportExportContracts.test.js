@@ -223,17 +223,9 @@ describe('report export public contracts', () => {
     mocks.profileGet.mockReturnValue({ nome: 'Tecnico Perfil', empresa: 'CoolTrack' });
   });
 
-  it('preserva actions publicas e data-registro-id nos CTAs de relatorio', async () => {
-    const { RELATORIO_ACTIONS } = await import('../ui/viewModels/relatorioContracts.js');
-
-    expect(RELATORIO_ACTIONS.exportPdf).toBe('export-pdf');
-    expect(RELATORIO_ACTIONS.whatsappExport).toBe('whatsapp-export');
-
-    const controlsSource = source('src/ui/views/relatorio/controlsRenderer.js');
+  it('preserva actions publicas e data-registro-id nos CTAs de historico', async () => {
     const timelineSource = source('src/ui/views/historico/timelineRenderer.js');
 
-    expect(controlsSource).toContain('data-action="${RELATORIO_ACTIONS.exportPdf}"');
-    expect(controlsSource).toContain('data-action="${RELATORIO_ACTIONS.whatsappExport}"');
     expect(timelineSource).toContain('data-action="export-pdf"');
     expect(timelineSource).toContain('data-action="whatsapp-export"');
     expect(timelineSource).toContain('data-registro-id="${escapeAttr(');

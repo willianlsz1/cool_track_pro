@@ -761,26 +761,6 @@
 
         <!-- HISTÓRICO -->
         <div class="view" id="view-historico">
-          <div class="servicos-toggle" role="tablist" aria-label="Modo de visualização">
-            <button type="button" class="servicos-toggle__btn servicos-toggle__btn--lista"
-              data-nav="historico" role="tab" aria-label="Lista de serviços">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-                <line x1="8" y1="18" x2="21" y2="18"/>
-                <circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>
-              </svg>
-              <span>Lista</span>
-            </button>
-            <button type="button" class="servicos-toggle__btn servicos-toggle__btn--relatorio"
-              data-nav="relatorio" role="tab" aria-label="Relatório com KPIs e PDF">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
-              </svg>
-              <span>Relatório</span>
-            </button>
-          </div>
           <div class="hist-sticky-header" id="hist-sticky-header">
             <div class="hist-sticky-header__row">
               <div class="hist-title">Histórico de Serviços</div>
@@ -848,101 +828,5 @@
           <div id="clientes-root"></div>
         </div>
 
-        <!-- RELATÓRIO -->
-        <div class="view" id="view-relatorio">
-          <div id="rel-controls-root" style="display: contents">
-          <div class="servicos-toggle" role="tablist" aria-label="Modo de visualização">
-            <button type="button" class="servicos-toggle__btn servicos-toggle__btn--lista"
-              data-nav="historico" role="tab" aria-label="Lista de serviços">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-                <line x1="8" y1="18" x2="21" y2="18"/>
-                <circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>
-              </svg>
-              <span>Lista</span>
-            </button>
-            <button type="button" class="servicos-toggle__btn servicos-toggle__btn--relatorio"
-              data-nav="relatorio" role="tab" aria-label="Relatório com KPIs e PDF">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
-              </svg>
-              <span>Relatório</span>
-            </button>
-          </div>
-          <!--
-            Toolbar V3: acoes consolidadas em uma linha com cyan consistente.
-            PMOC formal fica destacado no hero Pro acima do relatorio livre.
-          -->
-          <div class="rel-toolbar">
-            <div class="rel-toolbar__actions rel-toolbar__actions--v2">
-              <button class="rel-toolbar__btn rel-toolbar__btn--whatsapp"
-                id="btn-whatsapp" data-action="whatsapp-export" type="button"
-                title="Gera o PDF e abre o compartilhamento via WhatsApp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
-                </svg>
-                <span>Enviar pro cliente</span>
-              </button>
-              <button class="rel-toolbar__btn rel-toolbar__btn--pdf"
-                id="btn-export-pdf" data-action="export-pdf" type="button"
-                title="Gera e baixa o PDF do relatório">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 4v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/>
-                </svg>
-                <span>Baixar PDF</span>
-              </button>
-              <div class="rel-toolbar__more rel-export-dd" id="rel-export-dd">
-                <button class="rel-toolbar__btn rel-toolbar__btn--icon rel-export-dd__main"
-                  id="btn-export-dd-toggle" data-action="toggle-export-dd" type="button"
-                  aria-haspopup="menu" aria-expanded="false" aria-controls="rel-export-dd-menu"
-                  aria-label="Mais opções" title="Mais opções">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>
-                  </svg>
-                </button>
-                <div class="rel-export-dd__menu" id="rel-export-dd-menu" role="menu" hidden>
-                </div>
-              </div>
-              <div id="pdf-quota-slot" class="rel-toolbar__quota-slot"></div>
-            </div>
-          </div>
-
-          <h1 id="rel-main-title" class="rel-title">Seus relatórios</h1>
-          <p id="rel-main-subtitle" class="rel-subtitle">Veja serviços por cliente, equipamento ou setor.</p>
-          <div id="rel-mode-segment-slot"></div>
-
-          <div id="rel-hero" class="rel-hero" aria-live="polite"></div>
-
-          <div id="rel-filters" class="rel-filters" role="group" aria-label="Filtros do relatório">
-            <div id="rel-filters-chips" class="rel-filters__chips"></div>
-            <div id="rel-filters-advanced" class="rel-filters__advanced" hidden>
-              <div class="rel-filters__advanced-grid">
-                <div class="form-group">
-                  <label class="form-label" for="rel-equip">Equipamento</label>
-                  <select id="rel-equip" class="form-control">
-                    <option value="">Todos</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="rel-de">De</label>
-                  <input id="rel-de" class="form-control" type="date" />
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="rel-ate">Até</label>
-                  <input id="rel-ate" class="form-control" type="date" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          </div>
-
-          <div id="rel-company-pmoc-slot"></div>
-
-          <div id="relatorio-corpo" class="rel-records"></div>
-        </div>
 `;
 }

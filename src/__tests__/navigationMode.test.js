@@ -40,7 +40,7 @@ describe('navigationMode', () => {
     const expectedLayout = {
       mobilePrimary: ['inicio', 'clientes', 'registro', 'equipamentos', 'historico'],
       mobileSecondary: [],
-      sidebarPrimary: ['inicio', 'registro', 'clientes', 'equipamentos', 'historico', 'relatorio'],
+      sidebarPrimary: ['inicio', 'registro', 'clientes', 'equipamentos', 'historico'],
       sidebarSecondary: [],
     };
 

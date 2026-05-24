@@ -208,14 +208,6 @@ vi.mock('../ui/views/historico/timelineRenderer.js', () => ({
   unmountHistoricoTimelineDom: mocks.unmountHistoricoTimelineDom,
 }));
 
-vi.mock('../ui/views/relatorio.js', () => ({
-  renderRelatorio: vi.fn(),
-  populateRelatorioSelects: vi.fn(),
-  unmountRelatorioHero: vi.fn(),
-  unmountRelatorioControls: vi.fn(),
-  unmountRelatorioCards: vi.fn(),
-}));
-
 vi.mock('../ui/views/clientes.js', () => ({
   renderClientes: vi.fn(),
   unmountClientes: vi.fn(),

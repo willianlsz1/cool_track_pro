@@ -30,7 +30,6 @@ describe('contracts/selectors (static)', () => {
   ].join('\n');
   const registro = source('src/ui/views/registro.js');
   const historico = source('src/ui/views/historico.js');
-  const relatorio = source('src/ui/views/relatorio.js');
   const clientes = source('src/ui/views/clientes.js');
 
   describe('dashboard', () => {
@@ -86,25 +85,8 @@ describe('contracts/selectors (static)', () => {
   });
   describe('historico', () => {
     it('data-action', () => expect(extract(historico, 'data-action')).toMatchInlineSnapshot(`[]`));
-    it('data-nav', () =>
-      expect(extract(historico, 'data-nav')).toMatchInlineSnapshot(`
-      [
-        "relatorio",
-      ]
-    `));
+    it('data-nav', () => expect(extract(historico, 'data-nav')).toMatchInlineSnapshot(`[]`));
     it('data-id', () => expect(extract(historico, 'data-id')).toMatchInlineSnapshot(`[]`));
-  });
-  describe('relatorio', () => {
-    it('data-action', () =>
-      expect(extract(relatorio, 'data-action')).toMatchInlineSnapshot(`
-        [
-          "rel-clear-filters",
-          "rel-toggle-advanced",
-          "rel-view-signature",
-        ]
-      `));
-    it('data-nav', () => expect(extract(relatorio, 'data-nav')).toMatchInlineSnapshot(`[]`));
-    it('data-id', () => expect(extract(relatorio, 'data-id')).toMatchInlineSnapshot(`[]`));
   });
   describe('clientes', () => {
     it('data-action', () => expect(extract(clientes, 'data-action')).toMatchInlineSnapshot(`[]`));
