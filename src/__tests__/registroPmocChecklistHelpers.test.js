@@ -9,9 +9,9 @@ import {
   collectRegistroChecklistForSave,
   parseRegistroChecklistMeasure,
   resolveRegistroChecklistTemplate,
-} from '../../checklist/pmocChecklist.js';
+} from '../ui/views/registro/checklist/pmocChecklist.js';
 
-const modulePath = join(process.cwd(), 'src/features/registro/checklist/pmocChecklist.js');
+const modulePath = join(process.cwd(), 'src/ui/views/registro/checklist/pmocChecklist.js');
 
 const template = {
   tipo_template: 'split_hi_wall',
@@ -55,7 +55,7 @@ function buildChecklist() {
   };
 }
 
-describe('pmocChecklist feature helpers', () => {
+describe('pmocChecklist registro view helpers', () => {
   it('buildRegistroChecklistViewModel preserva shape do renderer DOM', () => {
     const viewModel = buildRegistroChecklistViewModel(template, buildChecklist());
 

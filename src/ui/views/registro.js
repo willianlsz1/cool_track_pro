@@ -74,7 +74,7 @@ import {
   collectRegistroChecklistForSave,
   parseRegistroChecklistMeasure,
   resolveRegistroChecklistTemplate,
-} from '../../features/registro/checklist/pmocChecklist.js';
+} from './registro/checklist/pmocChecklist.js';
 import {
   getClearRegistroFieldIds,
   resolveRegistroEditTarget,

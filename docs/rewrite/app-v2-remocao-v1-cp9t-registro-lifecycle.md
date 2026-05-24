@@ -36,6 +36,6 @@ git diff --cached --check
 
 ## Proximo risco
 
-Os proximos subgrupos de `src/features/registro/**` ja cruzam checklist PMOC,
-payload, persistencia, fotos, assinatura, relatorio e share. Eles devem ser
-tratados em checkpoints menores, sem misturar PDF/share real ou storage real.
+O subgrupo `checklist` foi tratado depois no CP-9u. Os proximos subgrupos de
+`src/features/registro/**` ficam em `save` e cruzam payload, persistencia,
+fotos, assinatura, relatorio e share.
