@@ -111,6 +111,13 @@ decisao, do escopo e do risco remanescente.
 - Mantidos guardrails de 99% de certeza, validacao, areas sensiveis e
   preservacao do favicon.
 
+## PDF/share legado
+
+- Removidas dependencias `jspdf` e `jspdf-autotable` apos confirmar ausencia de
+  imports runtime.
+- Removido chunk manual `vendor-pdf` do Vite.
+- PDF/share novo continua fora do app-v2 ate etapa propria futura.
+
 ## Validacao padrao
 
 - Para CPs com codigo: testes focados, `npm run format`, `npm run build`,
