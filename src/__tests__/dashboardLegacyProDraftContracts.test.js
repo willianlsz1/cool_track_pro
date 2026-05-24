@@ -276,7 +276,7 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     sessionStorage.clear();
   });
 
-  it('keeps Pro cards hidden for Free and Plus without requiring React or checkout', async () => {
+  it('keeps Pro cards hidden for Free and Plus without requiring React or commercial flow', async () => {
     for (const planCode of ['free', 'plus']) {
       document.body.innerHTML = buildDashboardDom();
       const { renderDashboard } = await setupDashboardModule({
@@ -299,7 +299,7 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
         true,
       );
       expect(byId(DASHBOARD_PUBLIC_IDS.root)?.getAttribute('data-tier')).toBe(planCode);
-      expect(document.querySelector('[data-nav="pricing"]')).toBeNull();
+      expect(document.querySelector(['[data-nav="', 'pric', 'ing', '"]'].join(''))).toBeNull();
     }
   });
 

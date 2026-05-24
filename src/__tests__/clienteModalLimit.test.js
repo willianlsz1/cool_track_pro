@@ -75,7 +75,7 @@ describe('ClienteModal limite por plano', () => {
     expect(paywallOpen).not.toHaveBeenCalled();
   });
 
-  it('permite criar outro cliente quando billing e limites comerciais estao desligados', async () => {
+  it('permite criar outro cliente quando recursos comerciais e limites operacionais estao desligados', async () => {
     stateRef.value = { clientes: [{ id: 'cli-1', nome: 'Cliente 1' }] };
     const { ClienteModal } = await import('../ui/components/clienteModal.js');
 

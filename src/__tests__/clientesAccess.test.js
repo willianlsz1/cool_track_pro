@@ -10,7 +10,7 @@ describe('clientesAccess', () => {
     vi.restoreAllMocks();
   });
 
-  it('mantem acesso a Clientes resolvido sem depender de billing', async () => {
+  it('mantem acesso a Clientes resolvido sem depender de recurso comercial', async () => {
     const { getClientesAccessSnapshot, resolveClientesAccess } = await loadClientesAccess();
 
     expect(getClientesAccessSnapshot()).toMatchObject({

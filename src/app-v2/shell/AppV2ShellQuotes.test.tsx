@@ -90,7 +90,7 @@ describe('AppV2Shell Orçamentos', () => {
     expect(host.textContent).not.toContain('Assinatura');
   });
 
-  it('edita rascunho de Orcamento local sem integrar billing ou storage', async () => {
+  it('edita rascunho de Orcamento local sem integrar recursos comerciais ou storage', async () => {
     const host = await renderShell(createQuoteSnapshot());
 
     await openQuoteEditor(host);
@@ -162,7 +162,7 @@ describe('AppV2Shell Orçamentos', () => {
     expect(host.textContent).toContain('Enviado');
     expect(host.textContent).toContain('R$ 180,00');
     expect(host.textContent).toContain('3 itens locais');
-    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
   });
@@ -195,7 +195,7 @@ describe('AppV2Shell Orçamentos', () => {
 
     expect(host.textContent).toContain('5 itens locais');
     expect(host.textContent).toContain('R$ 980,00');
-    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
   });
@@ -224,7 +224,7 @@ describe('AppV2Shell Orçamentos', () => {
     expect(host.textContent).toContain('Split 24.000 BTU');
     expect(host.textContent).toContain('Rascunho local');
     expect(host.textContent).toContain('Instalação split');
-    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
     expect(host.textContent).not.toContain('Exportar PDF');

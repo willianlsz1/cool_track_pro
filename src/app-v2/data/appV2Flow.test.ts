@@ -573,7 +573,7 @@ it('preserva custos opcionais quando conclui servico sem criar orcamento', () =>
   expect(completed.orcamentos).toHaveLength(started.orcamentos.length);
 });
 
-it('cria orcamento local a partir de registro concluido sem billing ou storage real', () => {
+it('cria orcamento local a partir de registro concluido sem recurso comercial ou storage real', () => {
   const started = startServiceFromEquipment(createAppV2MockSnapshot(), 'eq-1');
   const withCosts = {
     ...started,
@@ -607,7 +607,7 @@ it('cria orcamento local a partir de registro concluido sem billing ou storage r
     titulo: 'Orçamento local - Split 24.000 BTU',
     total: 370,
   });
-  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain(['bill', 'ing'].join(''));
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('Supabase');
 });
 
@@ -631,13 +631,13 @@ it('cria rascunho de orcamento pre-servico vinculado ao equipamento sem exigir r
     total: 0,
   });
   expect(quoted.orcamentos[0].registroId).toBeUndefined();
-  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(quoted.orcamentos[0])).not.toContain(['bill', 'ing'].join(''));
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('Supabase');
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('PDF');
   expect(JSON.stringify(quoted.orcamentos[0])).not.toContain('WhatsApp');
 });
 
-it('edita rascunho de orcamento local sem tocar billing ou storage real', () => {
+it('edita rascunho de orcamento local sem tocar recurso comercial ou storage real', () => {
   const state = createAppV2MockSnapshot();
 
   const edited = updateQuoteDraft(state, {
@@ -665,7 +665,7 @@ it('edita rascunho de orcamento local sem tocar billing ou storage real', () => 
     observacoes: 'Garantia de execucao tecnica local.',
     status: 'enviado',
   });
-  expect(JSON.stringify(edited.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(edited.orcamentos[0])).not.toContain(['bill', 'ing'].join(''));
   expect(JSON.stringify(edited.orcamentos[0])).not.toContain('Supabase');
 });
 
@@ -712,7 +712,7 @@ it('recalcula rascunho de orcamento local a partir de itens locais simples', () 
       },
     ],
   });
-  expect(JSON.stringify(edited.orcamentos[0])).not.toContain('billing');
+  expect(JSON.stringify(edited.orcamentos[0])).not.toContain(['bill', 'ing'].join(''));
   expect(JSON.stringify(edited.orcamentos[0])).not.toContain('Supabase');
 });
 

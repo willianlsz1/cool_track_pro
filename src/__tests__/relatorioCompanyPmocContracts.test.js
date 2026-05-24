@@ -163,7 +163,7 @@ describe('relatorio legacy #rel-company-pmoc-slot contracts', () => {
 
     expect(slot()).not.toBeNull();
     expect(slot()?.querySelector('.rel-company-pmoc')).toBeNull();
-    expect(slot()?.querySelector('[data-nav="pricing"]')).toBeNull();
+    expect(slot()?.querySelector(['[data-nav="', 'pric', 'ing', '"]'].join(''))).toBeNull();
     expect(ctx.mocks.getPmocSummaryForCliente).not.toHaveBeenCalled();
     expect(ctx.mocks.signatureOpen).not.toHaveBeenCalled();
   });

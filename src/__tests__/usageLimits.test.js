@@ -27,7 +27,7 @@ describe('usageLimits', () => {
     vi.restoreAllMocks();
   });
 
-  it('keeps usage resources unlimited while billing is disabled', async () => {
+  it('keeps usage resources unlimited while commercial gates are disabled', async () => {
     const {
       getMonthlyLimitForPlan,
       hasReachedMonthlyLimit,

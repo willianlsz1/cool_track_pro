@@ -39,7 +39,7 @@ describe('subscriptionPlans', () => {
     expect(getEffectivePlan(null)).toBe(PLAN_CODE_FREE);
   });
 
-  it('keeps legacy access helpers open while billing is disabled', async () => {
+  it('keeps legacy access helpers open while commercial gates are disabled', async () => {
     const { assertProAccess, hasProAccess, hasPlusAccess, assertFeature, hasFeature } =
       await loadSubscriptionPlans();
 

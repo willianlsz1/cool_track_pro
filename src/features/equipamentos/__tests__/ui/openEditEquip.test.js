@@ -50,7 +50,7 @@ function configureOpenEditEquipTestDeps(overrides = {}) {
     handleError: vi.fn(() => calls.push('handleError')),
     ErrorCodes: { NETWORK_ERROR: 'NETWORK_ERROR' },
     loadOperationalGateDeps: vi.fn(async () => {
-      calls.push('loadBilling');
+      calls.push('loadOperationalGateDeps');
       return {
         fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
         hasProAccess: vi.fn(() => true),
@@ -121,7 +121,7 @@ describe('openEditEquip orchestrator', () => {
       'restoreDadosPlaca',
       'setCamposExtras',
       'setNameplateMetadata',
-      'loadBilling',
+      'loadOperationalGateDeps',
       'populateSetorSelect',
       'applyGate',
       'set:eq-setor:setor-1',

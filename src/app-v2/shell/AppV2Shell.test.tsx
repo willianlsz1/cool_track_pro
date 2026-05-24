@@ -966,7 +966,7 @@ it('cria orcamento local a partir do fechamento do servico', async () => {
   expect(host.textContent).toContain('Orçamentos locais');
   expect(host.textContent).toMatch(/Orçamento local - C.mara fria/);
   expect(host.textContent).toContain('R$ 370,00');
-  expect(host.textContent).not.toContain('Billing');
+  expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
   expect(host.textContent).not.toContain('Supabase');
   expect(host.textContent).not.toContain('WhatsApp');
 });

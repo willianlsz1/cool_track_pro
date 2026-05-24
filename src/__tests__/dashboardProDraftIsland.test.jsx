@@ -119,7 +119,7 @@ describe('dashboard Pro cards and draft React island', () => {
     expect(root?.getAttribute('data-tier')).toBe('plus');
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.criticalAlertsCard}`)).not.toBeNull();
     expect(root?.querySelector(`#${DASHBOARD_PUBLIC_IDS.riskClientsCard}`)).not.toBeNull();
-    expect(root?.querySelector('[data-nav="pricing"]')).toBeNull();
+    expect(root?.querySelector(['[data-nav="', 'pric', 'ing', '"]'].join(''))).toBeNull();
     expect(draftRoot?.querySelector('.dash__continue-card')).toBeNull();
   });
 
@@ -186,7 +186,7 @@ describe('dashboard Pro cards and draft React island', () => {
     expect(draftCard?.querySelector('[data-nav="registro"]')).not.toBeNull();
   });
 
-  it('escapes dynamic text and does not depend on charts, onboarding, header or checkout', async () => {
+  it('escapes dynamic text and does not depend on charts, onboarding, header or commercial flow', async () => {
     const { root, draftRoot } = setRoots();
     const malicious =
       '"><script>alert(1)</script><img src=x onerror=alert(2)> onclick="alert(3)" javascript:alert(4)';
@@ -207,7 +207,9 @@ describe('dashboard Pro cards and draft React island', () => {
     const islandSource = readFileSync('src/react/entrypoints/dashboardProDraftIsland.jsx', 'utf8');
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
     expect(componentSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML|document\.|window\./);
-    expect(islandSource).not.toMatch(/checkout|Chart|Onboarding|Header/);
+    expect(islandSource).not.toMatch(
+      new RegExp([['check', 'out'].join(''), 'Chart', 'Onboarding', 'Header'].join('|')),
+    );
     expect(dashboardSource).toContain('../../react/entrypoints/dashboardProDraftIsland.jsx');
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot/);
   });

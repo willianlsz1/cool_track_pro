@@ -131,7 +131,7 @@ describe('setorPersist', () => {
       );
     });
 
-    it('falha de billing preserva fail-closed com warning', async () => {
+    it('falha de perfil operacional preserva fail-closed com warning', async () => {
       deps.fetchOperationalProfile.mockRejectedValueOnce(new Error('network'));
 
       await expect(ensureProForSetores({ action: 'delete' })).resolves.toBe(false);

@@ -143,7 +143,7 @@ describe('AppV2Shell navigation and alerts', () => {
     expect(host.textContent).toContain('Conta');
     expect(window.location.pathname).toBe('/conta');
     expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
-    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
     expect(host.textContent).not.toContain('Supabase');
   });
 

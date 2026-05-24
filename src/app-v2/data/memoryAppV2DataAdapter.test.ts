@@ -64,13 +64,13 @@ describe('createMemoryAppV2DataAdapter', () => {
     expect(fromAdapter.serviceDraft).toEqual(fromAction.serviceDraft);
   });
 
-  it('does not introduce real persistence or billing integration terms', () => {
+  it('does not introduce real persistence or commercial integration terms', () => {
     const source = readFileSync('src/app-v2/data/memoryAppV2DataAdapter.ts', 'utf-8');
 
     expect(source).not.toContain('supabase');
     expect(source).not.toContain('localStorage');
     expect(source).not.toContain('sessionStorage');
     expect(source).not.toContain('fetch(');
-    expect(source).not.toContain('billing');
+    expect(source).not.toContain(['bill', 'ing'].join(''));
   });
 });

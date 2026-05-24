@@ -101,7 +101,7 @@ describe('contracts/routes', () => {
     mountRouteShell();
   });
 
-  it('keeps the public route list without pricing', () => {
+  it('keeps the public route list without commercial route', () => {
     expect([...routeIds].sort()).toEqual([
       'alertas',
       'clientes',

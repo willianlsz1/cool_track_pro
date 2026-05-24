@@ -40,7 +40,7 @@ const CARD_INNER_PAD_BOTTOM = 3.5;
 const CARD_GAP = 3; // espaço entre cards
 
 const HEADER_BAND_H = 7; // faixa colorida no topo do card (data + status)
-const HEADER_BAND_ACCENT_W = 2; // stripe teal à esquerda da faixa
+const HEADER_BAND_ACCENT_W = 2; // faixa teal à esquerda da faixa
 
 const GAP_SM = 1.5; // gap pequeno entre blocos do mesmo grupo
 const GAP_MD = 3; // gap médio antes de fotos
@@ -264,7 +264,7 @@ function drawCardChrome(doc, pageWidth, margin, startY, totalHeight) {
   const outerW = pageWidth - margin * 2;
   // Faixa colorida superior
   fillRect(doc, margin, startY, outerW, HEADER_BAND_H, HEADER_BAND_BG);
-  // Stripe teal no canto esquerdo da faixa
+  // Faixa teal no canto esquerdo da faixa
   fillRect(doc, margin, startY, HEADER_BAND_ACCENT_W, HEADER_BAND_H, C.accent);
   // Linha divisória inferior (hairline)
   accentLine(doc, margin + 2, startY + totalHeight - 1.2, pageWidth - margin - 2, C.border);

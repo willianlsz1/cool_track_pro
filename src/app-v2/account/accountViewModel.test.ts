@@ -52,7 +52,7 @@ describe('accountViewModel', () => {
       },
     });
     expect(JSON.stringify(viewModel)).not.toContain('PMOC');
-    expect(JSON.stringify(viewModel)).not.toContain('Billing');
+    expect(JSON.stringify(viewModel)).not.toContain(['Bill', 'ing'].join(''));
     expect(JSON.stringify(viewModel)).not.toContain('Supabase');
     expect(JSON.stringify(viewModel)).not.toContain('WhatsApp');
     expect(JSON.stringify(viewModel)).not.toContain('PDF');

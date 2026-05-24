@@ -168,7 +168,7 @@ describe('applyEquipPhotosGate — Free (upsell visível)', () => {
     expect(trackEvent).toHaveBeenCalledTimes(2);
   });
 
-  it('clique no CTA dispara photo_upsell_clicked e avisa billing desativado', async () => {
+  it('clique no CTA dispara photo_upsell_clicked e avisa recurso comercial desativado', async () => {
     const { applyEquipPhotosGate } = await import('../ui/views/equipamentos.js');
     applyEquipPhotosGate(false);
 

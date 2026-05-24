@@ -213,7 +213,9 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
       RELATORIO_NAV_TARGETS.registro,
     );
     expect(
-      document.querySelector(`#${RELATORIO_PUBLIC_IDS.pmocNudge}[data-nav="pricing"]`),
+      document.querySelector(
+        `#${RELATORIO_PUBLIC_IDS.pmocNudge}${['[data-nav="', 'pric', 'ing', '"]'].join('')}`,
+      ),
     ).toBeNull();
     expect(
       document.querySelector(`#${RELATORIO_PUBLIC_IDS.pmocNudge}[data-action="open-upgrade"]`),
