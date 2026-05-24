@@ -17,7 +17,6 @@ O foco desta CP-E foi visual e controlado. Nao houve mudanca de fluxo, dados, PM
   - `docs/design/mudanca-21-cp-b-contrato-visual-superficies.md`
   - `docs/design/mudanca-21-cp-c2-registro-desktop-layout.md`
   - `docs/design/mudanca-21-cp-d-shell-sidebar-header-nav.md`
-  - `docs/flow/mudanca-18-final-report.md`
   - `docs/rewrite/checkpoints-recentes-resumo.md`
 
 ## 3. Arquivos alterados

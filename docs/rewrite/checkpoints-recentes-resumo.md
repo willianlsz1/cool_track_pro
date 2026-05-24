@@ -39,6 +39,14 @@
 - PMOC novo fica como etapa própria futura, com contrato, storage e PDF/share
   redesenhados do zero.
 
+## Fluxo/produto legado
+
+- Consolidado e removido o histórico antigo da Mudança 18.
+- A referência útil preservada é conceitual: reduzir fricção para o técnico,
+  priorizar registro de serviço, clientes/equipamentos e navegação por intenção.
+- Regras antigas de plano, pricing, PDF/share, PMOC e onboarding legado não
+  devem ser copiadas para o app-v2 sem etapa própria.
+
 ## Validação padrão
 
 - Para CPs com código: testes focados, `npm run format`, `npm run build`,
