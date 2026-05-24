@@ -648,6 +648,10 @@ Progresso executado:
   trigger/funcoes `registro_signature_*` e a coluna `public.registros.assinatura`.
   O CP remove o teste SQL especifico desse gate e nao altera assinatura de
   orcamento, billing, PDF/share, WhatsApp, fotos ou PMOC.
+- CP-56C2 atualiza o predicado canonico `can_write_registro_fotos_storage_object`
+  para nao depender mais do helper aposentado
+  `can_write_registro_signature_storage_object`. Fotos de registros seguem
+  apenas o contrato de ownership do path; fotos de equipamentos continuam Plus+.
 
 Controle:
 

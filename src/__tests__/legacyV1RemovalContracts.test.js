@@ -430,6 +430,9 @@ describe('legacy v1 removal contracts', () => {
     const retirementMigration = readSource(
       'supabase/migrations/20260524193000_retire_registro_signature_gate.sql',
     );
+    const storageDependencyMigration = readSource(
+      'supabase/migrations/20260524194500_remove_registro_signature_storage_dependency.sql',
+    );
     const supabaseTestsReadme = readSource('supabase/tests/README.md');
 
     expect(existsSync('supabase/tests/10_signature_plan_gate.test.sql')).toBe(false);
@@ -439,6 +442,9 @@ describe('legacy v1 removal contracts', () => {
     );
     expect(retirementMigration).toContain(
       'drop function if exists public.enforce_registro_signature_plan_gate()',
+    );
+    expect(storageDependencyMigration).not.toContain(
+      'can_write_registro_signature_storage_object(',
     );
     expect(supabaseTestsReadme).not.toContain('10_signature_plan_gate.test.sql');
   });
