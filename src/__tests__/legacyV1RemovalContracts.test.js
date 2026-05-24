@@ -353,6 +353,7 @@ describe('legacy v1 removal contracts', () => {
     const registroHandlersSource = readSource('src/ui/controller/handlers/registroHandlers.js');
     const registroTemplateSource = readSource('src/ui/shell/templates/views.js');
     const registroContractsSource = readSource('src/ui/viewModels/registroContracts.js');
+    const registroViewModelSource = readSource('src/ui/viewModels/registroViewModel.js');
 
     expect(existsSync('src/ui/views/registro/save/signature.js')).toBe(false);
     expect(existsSync('src/ui/views/registro/signatureHint.js')).toBe(false);
@@ -364,9 +365,13 @@ describe('legacy v1 removal contracts', () => {
     expect(registroSource).not.toContain('mountRegistroSignature');
     expect(registroHandlersSource).not.toContain('REGISTRO_SIGNATURE_ACTIONS');
     expect(registroTemplateSource).not.toContain('registro-signature-hint');
+    expect(registroTemplateSource).not.toContain('tour-signature-anchor');
     expect(registroContractsSource).not.toContain('registro-signature-capture');
     expect(registroContractsSource).not.toContain('registro-signature-open');
     expect(registroContractsSource).not.toContain('registro-signature-remove');
+    expect(registroContractsSource).not.toContain('tour-signature-anchor');
+    expect(registroViewModelSource).not.toContain('signature:');
+    expect(registroViewModelSource).not.toContain('isPlusOrHigher');
   });
 
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {

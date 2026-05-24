@@ -493,7 +493,6 @@ function _buildRegistroReadOnlyViewModel(params = {}) {
     form: _readRegistroFormModelSnapshot(),
     editingId: sessionStorage.getItem(EDITING_KEY),
     checklist: getCurrentChecklist(),
-    isPlusOrHigher: PlanCache.isCachedPlanPlusOrHigher(),
   });
 }
 

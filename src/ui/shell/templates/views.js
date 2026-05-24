@@ -695,8 +695,8 @@
                  (card com separadores) + hint. Dá affordance de botão às
                  ações secundárias e marca Recomeçar como destrutivo (vermelho).
                  Mantém wrapper .registro-actions pra contrato em
-                 registroContracts.js + tour. -->
-            <div class="action-footer registro-actions" id="tour-signature-anchor">
+                 registroContracts.js. -->
+            <div class="action-footer registro-actions" id="registro-action-anchor">
               <button class="btn btn--primary action-footer__primary"
                 data-action="save-registro"
                 title="Salva o serviço no histórico">

@@ -620,6 +620,11 @@ Progresso executado:
   selectors publicos e o bloco `registro-signature-hint` do template. O save
   continua gravando `assinatura: false` para preservar o shape ate CP dedicado
   de schema/sync.
+- CP-55G remove os vestigios inertes finais de assinatura no contrato visual do
+  Registro: o view model nao expoe mais `signature`, o rodape usa
+  `registro-action-anchor` em vez de `tour-signature-anchor` e os testes de
+  remocao travam essa ausencia. Storage, sync, schema, historico e orcamentos
+  permanecem fora do escopo.
 
 Controle:
 

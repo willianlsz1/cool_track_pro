@@ -115,7 +115,6 @@ describe('registro view model', () => {
       state,
       editingId: 'reg-1',
       now: NOW,
-      isPlusOrHigher: true,
     });
 
     expect(vm.mode).toBe('edit');
@@ -134,7 +133,7 @@ describe('registro view model', () => {
     expect(vm.form.tipo).toBe('Manutencao Preventiva');
     expect(vm.form.obs).toBe('Limpeza de filtros realizada');
     expect(vm.progress.state).toBe('complete');
-    expect(vm.signature.available).toBe(true);
+    expect(Object.keys(vm)).not.toContain('signature');
   });
 
   it('normaliza formulario, resolve tipo Outro e valida campos puros', () => {
@@ -226,6 +225,7 @@ describe('registro view model', () => {
     expect(REGISTRO_PUBLIC_IDS).toMatchObject({
       view: 'view-registro',
       hero: 'registro-hero',
+      actionAnchor: 'registro-action-anchor',
       equipSelect: 'r-equip',
       dateInput: 'r-data',
       typeSelect: 'r-tipo',

@@ -253,7 +253,6 @@ export function buildRegistroViewModel({
   form = {},
   editingId = '',
   checklist = null,
-  isPlusOrHigher = false,
 } = {}) {
   const equipamentos = asArray(state.equipamentos);
   const registros = asArray(state.registros);
@@ -292,9 +291,6 @@ export function buildRegistroViewModel({
     progress,
     validation,
     checklist: buildChecklistModel(sourceChecklist, normalizedForm),
-    signature: {
-      available: Boolean(isPlusOrHigher),
-    },
     actions: buildActions(),
   };
 }
