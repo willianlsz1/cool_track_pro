@@ -13,6 +13,8 @@ decisao, do escopo e do risco remanescente.
   PDF/WhatsApp como conteudo atual.
 - Consolidado e removido o historico antigo de monetizacao PDF/cotas; billing e
   pricing serao redesenhados em etapa propria.
+- Removidos scripts manuais antigos de seguranca da Mudanca 17 que validavam
+  billing, assinatura e storage legados.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.
