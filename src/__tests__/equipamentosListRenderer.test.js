@@ -241,10 +241,10 @@ describe('equipamentos DOM flat list renderer', () => {
 
   it('keeps DOM renderer in the list bridge, not the legacy adapter or React island', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
-    const bridgeSource = readFileSync('src/features/equipamentos/bridges/listBridge.js', 'utf8');
+    const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/listBridge.js', 'utf8');
 
     expect(adapterSource).not.toContain('equipamentosListIsland.jsx');
-    expect(bridgeSource).toContain('../ui/listRenderer.js');
+    expect(bridgeSource).toContain('../../../../features/equipamentos/ui/listRenderer.js');
     expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
     expect(adapterSource).not.toMatch(/from ['"]react['"]/);
     expect(adapterSource).not.toMatch(/createRoot/);

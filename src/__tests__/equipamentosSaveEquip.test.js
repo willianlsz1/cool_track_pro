@@ -234,17 +234,17 @@ vi.mock('../ui/views/equipamentos/cardIconFallbacks.js', () => ({
   bindEquipCardImageFallbacks: vi.fn(),
 }));
 
-vi.mock('../features/equipamentos/bridges/headerBridge.js', () => ({
+vi.mock('../ui/views/equipamentos/bridges/headerBridge.js', () => ({
   mountEquipamentosHeader: vi.fn(() => Promise.resolve()),
   unmountEquipamentosHeader: vi.fn(),
 }));
 
-vi.mock('../features/equipamentos/bridges/listBridge.js', () => ({
+vi.mock('../ui/views/equipamentos/bridges/listBridge.js', () => ({
   mountEquipamentosList: vi.fn(() => Promise.resolve()),
   unmountEquipamentosList: vi.fn(),
 }));
 
-vi.mock('../features/equipamentos/bridges/renderPlan.js', () => ({
+vi.mock('../ui/views/equipamentos/bridges/renderPlan.js', () => ({
   bindRenderEquipPlanInvalidationEvents: vi.fn(),
   configureRenderEquipPlan: vi.fn(),
   refreshRenderEquipPlan: vi.fn(),

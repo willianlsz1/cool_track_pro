@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   mountEquipamentosHeader,
   unmountEquipamentosHeader,
-} from '../features/equipamentos/bridges/headerBridge.js';
+} from '../ui/views/equipamentos/bridges/headerBridge.js';
 import {
   EQUIPAMENTOS_ACTIONS,
   EQUIPAMENTOS_PUBLIC_IDS,
@@ -291,13 +291,13 @@ describe('equipamentos header DOM bridge', () => {
     expect(view?.querySelector('[onerror]')).toBeNull();
     expect(view?.querySelector('[onclick]')).toBeNull();
 
-    const bridgeSource = readFileSync('src/features/equipamentos/bridges/headerBridge.js', 'utf8');
+    const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/headerBridge.js', 'utf8');
     expect(bridgeSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML\s*=/);
   });
 
   it('keeps the legacy adapter free from React imports', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
-    const bridgeSource = readFileSync('src/features/equipamentos/bridges/headerBridge.js', 'utf8');
+    const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/headerBridge.js', 'utf8');
 
     expect(adapterSource).not.toContain('equipamentosHeaderIsland.jsx');
     expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosHeaderIsland.jsx');

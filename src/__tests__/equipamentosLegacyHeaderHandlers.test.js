@@ -7,7 +7,7 @@ import { bindNavigationHandlers } from '../ui/controller/handlers/navigationHand
 import {
   mountEquipamentosHeader,
   unmountEquipamentosHeader,
-} from '../features/equipamentos/bridges/headerBridge.js';
+} from '../ui/views/equipamentos/bridges/headerBridge.js';
 import {
   EQUIPAMENTOS_ACTIONS,
   EQUIPAMENTOS_PUBLIC_IDS,

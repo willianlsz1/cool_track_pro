@@ -4,11 +4,11 @@ import {
   incrementEquipamentosHeaderRenderGeneration,
   setEquipamentosHeaderBridge,
   setEquipamentosHeaderBridgePromise,
-} from '../../../ui/views/equipamentos/state/bridgeState.js';
+} from '../state/bridgeState.js';
 import {
   EQUIPAMENTOS_ACTIONS,
   EQUIPAMENTOS_PUBLIC_IDS,
-} from '../../../ui/viewModels/equipamentosContracts.js';
+} from '../../../viewModels/equipamentosContracts.js';
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];

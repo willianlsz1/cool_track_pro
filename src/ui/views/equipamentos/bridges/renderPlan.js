@@ -1,5 +1,5 @@
-import { setCachedPlan } from '../../../core/plans/planCache.js';
-import { getEffectivePlan, hasProAccess } from '../../../core/plans/subscriptionPlans.js';
+import { setCachedPlan } from '../../../../core/plans/planCache.js';
+import { getEffectivePlan, hasProAccess } from '../../../../core/plans/subscriptionPlans.js';
 import {
   clearRenderEquipPlanRefreshPromise,
   getRenderEquipPlanEventsBound,
@@ -8,7 +8,7 @@ import {
   setRenderEquipPlanEventsBound,
   setRenderEquipPlanNeedsRefresh,
   setRenderEquipPlanRefreshPromise,
-} from '../../../ui/views/equipamentos/state/renderPlanState.js';
+} from '../state/renderPlanState.js';
 
 let renderEquipHandler = null;
 
@@ -42,7 +42,7 @@ export function refreshRenderEquipPlan({
   const refreshPromise = (async () => {
     try {
       const { fetchOperationalProfileCached } =
-        await import('../../../core/plans/operationalPlan.js');
+        await import('../../../../core/plans/operationalPlan.js');
       const { profile } = await fetchOperationalProfileCached();
       setCachedPlan(getEffectivePlan(profile));
       setRenderEquipPlanNeedsRefresh(false);

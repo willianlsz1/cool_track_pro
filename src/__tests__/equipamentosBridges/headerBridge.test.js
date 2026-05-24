@@ -4,13 +4,13 @@ import {
   loadEquipamentosHeaderBridge,
   mountEquipamentosHeader,
   unmountEquipamentosHeader,
-} from '../../bridges/headerBridge.js';
+} from '../../ui/views/equipamentos/bridges/headerBridge.js';
 import {
   clearBridgeState,
   getEquipamentosHeaderBridge,
   getEquipamentosHeaderBridgePromise,
   getEquipamentosHeaderRenderGeneration,
-} from '../../../../ui/views/equipamentos/state/bridgeState.js';
+} from '../../ui/views/equipamentos/state/bridgeState.js';
 
 describe('bridges/headerBridge', () => {
   beforeEach(() => {

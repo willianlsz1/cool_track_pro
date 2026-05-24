@@ -4,7 +4,7 @@ import {
   bindRenderEquipPlanInvalidationEvents,
   configureRenderEquipPlan,
   refreshRenderEquipPlan,
-} from '../../bridges/renderPlan.js';
+} from '../../ui/views/equipamentos/bridges/renderPlan.js';
 import {
   clearRenderPlanState,
   getRenderEquipPlanNeedsRefresh,
@@ -12,19 +12,19 @@ import {
   incrementRenderEquipPlanToken,
   setRenderEquipPlanNeedsRefresh,
   setRenderEquipPlanRefreshPromise,
-} from '../../../../ui/views/equipamentos/state/renderPlanState.js';
-import { fetchOperationalProfileCached } from '../../../../core/plans/operationalPlan.js';
-import { hasProAccess } from '../../../../core/plans/subscriptionPlans.js';
+} from '../../ui/views/equipamentos/state/renderPlanState.js';
+import { fetchOperationalProfileCached } from '../../core/plans/operationalPlan.js';
+import { hasProAccess } from '../../core/plans/subscriptionPlans.js';
 
-vi.mock('../../../../core/plans/operationalPlan.js', () => ({
+vi.mock('../../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfileCached: vi.fn(),
 }));
 
-vi.mock('../../../../core/plans/planCache.js', () => ({
+vi.mock('../../core/plans/planCache.js', () => ({
   setCachedPlan: vi.fn(),
 }));
 
-vi.mock('../../../../core/plans/subscriptionPlans.js', () => ({
+vi.mock('../../core/plans/subscriptionPlans.js', () => ({
   getEffectivePlan: vi.fn((profile) => profile?.plan ?? 'free'),
   hasProAccess: vi.fn((profile) => profile?.plan === 'pro'),
 }));

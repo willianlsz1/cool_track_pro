@@ -5,17 +5,20 @@ import {
   loadEquipamentosListBridge,
   mountEquipamentosList,
   unmountEquipamentosList,
-} from '../../bridges/listBridge.js';
+} from '../../ui/views/equipamentos/bridges/listBridge.js';
 import {
   clearBridgeState,
   getEquipamentosListBridge,
   getEquipamentosListBridgePromise,
   getEquipamentosListRenderGeneration,
   setEquipamentosListBridge,
-} from '../../../../ui/views/equipamentos/state/bridgeState.js';
-import { mountEquipamentosListDom, unmountEquipamentosListDom } from '../../ui/listRenderer.js';
+} from '../../ui/views/equipamentos/state/bridgeState.js';
+import {
+  mountEquipamentosListDom,
+  unmountEquipamentosListDom,
+} from '../../features/equipamentos/ui/listRenderer.js';
 
-vi.mock('../../ui/listRenderer.js', () => ({
+vi.mock('../../features/equipamentos/ui/listRenderer.js', () => ({
   mountEquipamentosListDom: vi.fn(() => 'mounted-list'),
   unmountEquipamentosListDom: vi.fn((root) => {
     delete root.dataset.equipamentosListMounted;
@@ -100,9 +103,9 @@ describe('bridges/listBridge', () => {
   });
 
   it('usa renderer DOM da lista em vez da ilha React legada', () => {
-    const bridgeSource = readFileSync('src/features/equipamentos/bridges/listBridge.js', 'utf8');
+    const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/listBridge.js', 'utf8');
 
-    expect(bridgeSource).toContain('../ui/listRenderer.js');
+    expect(bridgeSource).toContain('../../../../features/equipamentos/ui/listRenderer.js');
     expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
     expect(bridgeSource).not.toContain(['mountEquipamentos', 'ListReact'].join(''));
     expect(bridgeSource).not.toContain(['unmountEquipamentos', 'ListReact'].join(''));

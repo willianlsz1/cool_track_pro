@@ -87,15 +87,15 @@ import {
   bindRenderEquipPlanInvalidationEvents,
   configureRenderEquipPlan,
   refreshRenderEquipPlan,
-} from '../../features/equipamentos/bridges/renderPlan.js';
+} from './equipamentos/bridges/renderPlan.js';
 import {
   mountEquipamentosHeader as mountEquipamentosHeaderBridge,
   unmountEquipamentosHeader,
-} from '../../features/equipamentos/bridges/headerBridge.js';
+} from './equipamentos/bridges/headerBridge.js';
 import {
   mountEquipamentosList,
   unmountEquipamentosList,
-} from '../../features/equipamentos/bridges/listBridge.js';
+} from './equipamentos/bridges/listBridge.js';
 import {
   configureSetorUI,
   renderSetorGrid,

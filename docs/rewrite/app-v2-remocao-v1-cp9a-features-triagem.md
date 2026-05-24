@@ -16,7 +16,7 @@ Contagem por dominio em `src/features`:
 
 | Dominio      | Arquivos | Leitura atual                                                                 |
 | ------------ | -------- | ----------------------------------------------------------------------------- |
-| equipamentos | 53       | Maior bloco, fortemente acoplado a `src/ui/views/equipamentos.js` e contratos |
+| equipamentos | 47       | Maior bloco, fortemente acoplado a `src/ui/views/equipamentos.js` e contratos |
 | historico    | 0        | Resolvido no CP-9e; helpers co-localizados com a view v1 de historico         |
 | registro     | 16       | Bloco sensivel: salvamento, fotos, assinatura, PMOC e pos-salvamento          |
 | relatorio    | 2        | Pequeno, mas ligado a exportacao/PDF/WhatsApp via handlers                    |
@@ -43,6 +43,11 @@ Atualizacao CP-9f: o subgrupo `state/**` foi removido de `src/features` e
 co-localizado em `src/ui/views/equipamentos/state/**`, pois representa cache e
 estado de UI da view legada. A area restante ainda mistura bridges, UI, CRUD,
 setores, fotos e nameplate.
+
+Atualizacao CP-9g: o subgrupo `bridges/**` foi removido de `src/features` e
+co-localizado em `src/ui/views/equipamentos/bridges/**`. O lote ficou restrito a
+mount/unmount e generation guards da view legada; CRUD, storage, setores, fotos
+e nameplate permanecem fora do escopo.
 
 ### Historico
 
