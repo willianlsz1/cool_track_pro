@@ -243,7 +243,7 @@ describe('equipamentos legacy nameplate/paywall contracts', () => {
     document.body.appendChild(inertButton);
 
     await click(inertButton);
-    expect(mocks.toastInfo).not.toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
+    expect(mocks.toastInfo).not.toHaveBeenCalledWith('Área comercial fora do app nesta etapa.');
     expect(mocks.trackEvent).not.toHaveBeenCalledWith('upgrade_cta_clicked', expect.anything());
     expect(document.querySelector('script')).toBeNull();
     expect(document.querySelector('[onerror]')).toBeNull();

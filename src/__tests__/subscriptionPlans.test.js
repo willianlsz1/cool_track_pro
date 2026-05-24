@@ -66,7 +66,7 @@ describe('subscriptionPlans', () => {
       await loadSubscriptionPlans();
 
     expect(PLAN_CATALOG[PLAN_CODE_FREE].label).toBe('Operacional');
-    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain('Area comercial fora do app nesta etapa');
+    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain('Área comercial fora do app nesta etapa');
     expect(PLAN_CATALOG[PLAN_CODE_PLUS].limits.equipamentos).toBe(Number.POSITIVE_INFINITY);
     expect(PLAN_CATALOG[PLAN_CODE_PRO].limits.clientes).toBe(Number.POSITIVE_INFINITY);
   });

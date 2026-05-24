@@ -1,23 +1,23 @@
 ﻿/**
  * OverflowBanner - aviso fino de limite ultrapassado + modal one-shot.
  *
- * Motivacao: o dashboard antigo mostrava barras de uso e logo abaixo o card
- * comercial desligado. Para o usuario Free, isso era 2 blocos grandes
- * competindo por atencao logo no topo, com a mesma mensagem dita duas vezes.
+ * Motivação: o dashboard antigo mostrava barras de uso e logo abaixo o card
+ * comercial desligado. Para o usuário Free, isso era 2 blocos grandes
+ * competindo por atenção logo no topo, com a mesma mensagem dita duas vezes.
  *
  * A troca: uma linha fina no topo indicando especificamente qual limite foi
- * ultrapassado + um modal one-shot que aparece UMA UNICA VEZ por flag no
- * localStorage quando o usuario cruza o limite pela primeira vez. Depois
- * disso, so o banner fino fica, e o usuario continua trabalhando.
+ * ultrapassado + um modal one-shot que aparece UMA ÚNICA VEZ por flag no
+ * localStorage quando o usuário cruza o limite pela primeira vez. Depois
+ * disso, só o banner fino fica, e o usuário continua trabalhando.
  *
  * UX:
- *   - Banner e permanente enquanto o usuario estiver acima do limite (nao e
- *     dismissivel; ao contrario de um popup diario, que o usuario aprende a
+ *   - Banner é permanente enquanto o usuário estiver acima do limite (não é
+ *     dismissível; ao contrário de um popup diário, que o usuário aprende a
  *     fechar no reflexo). Deixa de aparecer quando o uso volta ao limite ou o
  *     uso volta ao limite.
- *   - Modal aparece so 1x por limite atingido (flag por tipo: equipamentos,
- *     registros ou ambos). Se o usuario volta ao Free apos cancelamento ou
- *     reduz o uso, a flag e preservada para nao repetir o aviso.
+ *   - Modal aparece só 1x por limite atingido (flag por tipo: equipamentos,
+ *     registros ou ambos). Se o usuário volta ao Free após cancelamento ou
+ *     reduz o uso, a flag é preservada para não repetir o aviso.
  *
  * API:
  *   OverflowBanner.computeState({ equipamentos, registros }) -> { overLimit, ... }
@@ -34,9 +34,9 @@ const FREE_EQUIP_LIMIT = PLAN_CATALOG[PLAN_CODE_FREE].limits.equipamentos;
 const FREE_REPORT_LIMIT = PLAN_CATALOG[PLAN_CODE_FREE].limits.registros;
 const HAS_FREE_REPORT_LIMIT = Number.isFinite(FREE_REPORT_LIMIT) && FREE_REPORT_LIMIT > 0;
 
-// Chave do localStorage que marca que o modal one-shot jÃ¡ foi exibido.
-// Mantemos granularidade por tipo de limite para que o usuÃ¡rio que bate no
-// limite de equipamentos e depois no de registros veja o contexto especÃ­fico
+// Chave do localStorage que marca que o modal one-shot já foi exibido.
+// Mantemos granularidade por tipo de limite para que o usuário que bate no
+// limite de equipamentos e depois no de registros veja o contexto específico
 // da segunda vez. Depois disso, nunca mais.
 const STORAGE_KEY = 'cooltrack:overflow-onboarded';
 
@@ -70,8 +70,8 @@ function persistOnboardedSet(set) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
   } catch {
-    // localStorage pode estar cheio ou bloqueado â€” o pior cenÃ¡rio Ã© o modal
-    // reaparecer numa prÃ³xima sessÃ£o, nÃ£o vale quebrar o dashboard por isso.
+    // localStorage pode estar cheio ou bloqueado; o pior cenário é o modal
+    // reaparecer numa próxima sessão, não vale quebrar o dashboard por isso.
   }
 }
 
@@ -90,10 +90,10 @@ function closeModal({ action = 'dismiss' } = {}) {
 
 export const OverflowBanner = {
   /**
-   * Calcula o estado de overflow para o usuÃ¡rio Free atual.
-   * Tratar sempre como Free nesse componente â€” os chamadores garantem que o
-   * banner sÃ³ Ã© invocado quando planCode Ã© Free (Plus jÃ¡ tem registros
-   * ilimitados e 15 equipamentos; Pro nÃ£o tem limites relevantes aqui).
+   * Calcula o estado de overflow para o usuário Free atual.
+   * Tratar sempre como Free nesse componente; os chamadores garantem que o
+   * banner só é invocado quando planCode é Free (Plus já tem registros
+   * ilimitados e 15 equipamentos; Pro não tem limites relevantes aqui).
    */
   computeState({ equipamentos = [], registros = [] } = {}) {
     const equipCount = Array.isArray(equipamentos) ? equipamentos.length : 0;
@@ -102,9 +102,9 @@ export const OverflowBanner = {
     const equipOver = equipCount > FREE_EQUIP_LIMIT;
     const reportOver = HAS_FREE_REPORT_LIMIT && reportCount > FREE_REPORT_LIMIT;
 
-    // Tipo dominante pra copy do banner. Se os dois estiverem acima, damos
-    // preferÃªncia a equipamentos (limite estrutural, nÃ£o mensal) porque
-    // bloqueia mais aÃ§Ãµes no produto.
+    // Tipo dominante para a copy do banner. Se os dois estiverem acima, damos
+    // preferência a equipamentos (limite estrutural, não mensal) porque
+    // bloqueia mais ações no produto.
     let limitType = null;
     if (equipOver && reportOver) limitType = 'both';
     else if (equipOver) limitType = 'equipamentos';
@@ -123,7 +123,7 @@ export const OverflowBanner = {
   },
 
   /**
-   * Gera o HTML do banner fino. SÃ³ chame se state.overLimit === true.
+   * Gera o HTML do banner fino. Só chame se state.overLimit === true.
    */
   render({ state } = {}) {
     if (!state?.overLimit) return '';
@@ -211,14 +211,14 @@ export const OverflowBanner = {
   },
 
   /**
-   * Exibe o modal one-shot se o usuÃ¡rio ainda nÃ£o viu esse tipo de overflow.
+   * Exibe o modal one-shot se o usuário ainda não viu esse tipo de overflow.
    * Marca a flag no localStorage imediatamente ao exibir (mesmo antes do
-   * usuÃ¡rio fechar) pra evitar que um reload rÃ¡pido mostre de novo.
+   * usuário fechar) para evitar que um reload rápido mostre de novo.
    */
   maybeShowFirstTimeModal({ state } = {}) {
     if (!state?.overLimit) return;
     // Opt-out para E2E: Playwright pode abrir com VITE_DISABLE_OVERFLOW_MODAL=1
-    // pra nÃ£o ter o modal interceptando cliques. Prod ignora esta flag.
+    // para não ter o modal interceptando cliques. Prod ignora esta flag.
     if (
       typeof import.meta !== 'undefined' &&
       import.meta.env?.VITE_DISABLE_OVERFLOW_MODAL === '1'
@@ -226,9 +226,9 @@ export const OverflowBanner = {
       return;
     }
     const seen = readOnboardedSet();
-    // Quando o limite Ã© "both", consideramos satisfeito se o usuÃ¡rio jÃ¡ viu
-    // qualquer um dos dois tipos isolados â€” evita spam pro usuÃ¡rio que
-    // primeiro bate equipamentos e depois bate tambÃ©m registros.
+    // Quando o limite é "both", consideramos satisfeito se o usuário já viu
+    // qualquer um dos dois tipos isolados. Evita spam para o usuário que
+    // primeiro bate equipamentos e depois bate também registros.
     const alreadySeen =
       seen.has(state.limitType) ||
       (state.limitType === 'both' && (seen.has('equipamentos') || seen.has('registros')));
@@ -251,10 +251,10 @@ export const OverflowBanner = {
 
 function buildBannerCopy(state) {
   if (state.limitType === 'equipamentos') {
-    return `Voce cadastrou ${state.equipCount} equipamentos; revise a organizacao antes de adicionar novos itens.`;
+    return `Você cadastrou ${state.equipCount} equipamentos; revise a organização antes de adicionar novos itens.`;
   }
   if (state.limitType === 'registros') {
-    return `Voce registrou ${state.reportCount} servicos este mes; revise a fila antes de continuar.`;
+    return `Você registrou ${state.reportCount} serviços este mês; revise a fila antes de continuar.`;
   }
   // both
   return 'Revise os limites operacionais de equipamentos e registros antes de continuar.';
@@ -265,16 +265,16 @@ function buildModalCopy(state) {
     return {
       title: 'Revise o parque de equipamentos',
       description:
-        'A area comercial foi removida desta versao. Continue usando os equipamentos atuais e revise a organizacao antes de cadastrar novos itens.',
+        'A área comercial foi removida desta versão. Continue usando os equipamentos atuais e revise a organização antes de cadastrar novos itens.',
       ctaLabel: '',
       highlightPlan: 'plus',
     };
   }
   if (state.limitType === 'registros') {
     return {
-      title: 'Revise os registros deste mes',
+      title: 'Revise os registros deste mês',
       description:
-        'A area comercial foi removida desta versao. Continue usando os registros operacionais e atualize o app se esta mensagem persistir.',
+        'A área comercial foi removida desta versão. Continue usando os registros operacionais e atualize o app se esta mensagem persistir.',
       ctaLabel: '',
       highlightPlan: 'plus',
     };
@@ -282,7 +282,7 @@ function buildModalCopy(state) {
   return {
     title: 'Revise os limites operacionais',
     description:
-      'A area comercial foi removida desta versao. Revise equipamentos e registros antes de continuar.',
+      'A área comercial foi removida desta versão. Revise equipamentos e registros antes de continuar.',
     ctaLabel: '',
     highlightPlan: 'plus',
   };

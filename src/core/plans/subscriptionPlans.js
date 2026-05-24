@@ -24,12 +24,12 @@ const OPERATIONAL_PLAN = Object.freeze({
   perks: [
     'Equipamentos sem limite comercial',
     'Clientes sem limite comercial',
-    'Registros de servico sem limite comercial',
+    'Registros de serviço sem limite comercial',
     'Histórico completo do equipamento',
-    'Area comercial fora do app nesta etapa',
+    'Área comercial fora do app nesta etapa',
   ],
-  accountTagline: 'Fluxo operacional liberado nesta versao.',
-  accountChips: ['Operacional', 'Sem modulo comercial', 'Sem limite comercial'],
+  accountTagline: 'Fluxo operacional liberado nesta versão.',
+  accountChips: ['Operacional', 'Sem módulo comercial', 'Sem limite comercial'],
 });
 
 export const PLAN_CATALOG = Object.freeze({
