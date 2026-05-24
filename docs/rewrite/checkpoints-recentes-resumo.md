@@ -47,6 +47,13 @@
 - Regras antigas de plano, pricing, PDF/share, PMOC e onboarding legado não
   devem ser copiadas para o app-v2 sem etapa própria.
 
+## Design legado
+
+- Consolidado e removido o histórico antigo da Mudança 21.
+- O rewrite app-v2 não continua a numeração nem os padrões visuais dessa trilha.
+- A referência válida para UI atual é o Design System do app-v2 em
+  `docs/rewrite/`, não os CPs visuais legados.
+
 ## Validação padrão
 
 - Para CPs com código: testes focados, `npm run format`, `npm run build`,

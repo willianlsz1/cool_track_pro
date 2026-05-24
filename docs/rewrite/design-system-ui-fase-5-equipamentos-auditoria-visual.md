@@ -39,7 +39,7 @@ misture risco visual com integracoes sensiveis.
 - `docs/rewrite/design-system-ui-fase-2-home-hoje-checklist.md`.
 - `docs/rewrite/design-system-ui-fase-4-fechamento-home-hoje.md`.
 - `docs/rewrite/equipamentos-avancados-fase-12-reauditoria-paridade.md`.
-- `docs/design/mudanca-21-cp-b-contrato-visual-superficies.md`.
+- `docs/rewrite/checkpoints-recentes-resumo.md`.
 - `src/app-v2/equipment/EquipmentList.tsx`.
 - `src/app-v2/equipment/EquipmentCard.tsx`.
 - `src/app-v2/equipment/EquipmentDetail.tsx`.
