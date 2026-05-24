@@ -8,7 +8,11 @@ import { buildContextualPmocReportSummary } from '../../domain/pmoc/reportContex
 import { PdfQuotaBadge } from '../components/pdfQuotaBadge.js';
 import { getSignatureForRecord, SignatureViewerModal } from '../components/signature.js';
 import { getPmocSummaryForCliente } from '../../core/pmocProgress.js';
-import { RELATORIO_PLAN_CODES, RELATORIO_VIEW_MODES } from '../viewModels/relatorioContracts.js';
+import {
+  RELATORIO_PLAN_CODES,
+  RELATORIO_PUBLIC_IDS,
+  RELATORIO_VIEW_MODES,
+} from '../viewModels/relatorioContracts.js';
 import { buildReportContext, buildRelatorioViewModel } from '../viewModels/relatorioViewModel.js';
 
 export {
@@ -29,8 +33,6 @@ const VIEW_MODE_STORAGE_KEY = 'cooltrack_relatorio_view_mode';
 const VIEW_MODE_COMPACT = RELATORIO_VIEW_MODES.compact;
 const VIEW_MODE_DETAILED = RELATORIO_VIEW_MODES.detailed;
 const PLAN_CODE_PRO = RELATORIO_PLAN_CODES.pro;
-let relatorioHeroBridgePromise = null;
-let relatorioHeroBridge = null;
 let relatorioHeroRenderGeneration = 0;
 let relatorioControlsBridgePromise = null;
 let relatorioControlsBridge = null;
@@ -66,22 +68,6 @@ function rememberRelatorioFiltersFromDom() {
     de: Utils.getEl('rel-de') ? Utils.getVal('rel-de') : lastRelatorioFilters.de,
     ate: Utils.getEl('rel-ate') ? Utils.getVal('rel-ate') : lastRelatorioFilters.ate,
   };
-}
-
-function loadRelatorioHeroBridge() {
-  if (relatorioHeroBridge) return Promise.resolve(relatorioHeroBridge);
-  if (!relatorioHeroBridgePromise) {
-    relatorioHeroBridgePromise = import('../../react/entrypoints/relatorioHeroIsland.jsx')
-      .then((bridge) => {
-        relatorioHeroBridge = bridge;
-        return bridge;
-      })
-      .catch((error) => {
-        relatorioHeroBridgePromise = null;
-        throw error;
-      });
-  }
-  return relatorioHeroBridgePromise;
 }
 
 function loadRelatorioControlsBridge() {
@@ -123,14 +109,9 @@ export function unmountRelatorioHero() {
   const root = document.getElementById('rel-hero');
   if (!root?.dataset.reactRelatorioHeroMounted) return null;
 
-  if (relatorioHeroBridge?.unmountRelatorioHeroReact) {
-    relatorioHeroBridge.unmountRelatorioHeroReact(root);
-    return null;
-  }
-
-  return loadRelatorioHeroBridge().then((bridge) => {
-    bridge.unmountRelatorioHeroReact?.(root);
-  });
+  root.replaceChildren();
+  delete root.dataset.reactRelatorioHeroMounted;
+  return null;
 }
 
 export function unmountRelatorioControls() {
@@ -246,6 +227,189 @@ export function populateRelatorioSelects() {
 // ──────────────────────────────────────────────────────────────────────
 // Hero summary
 // ──────────────────────────────────────────────────────────────────────
+function relText(value, fallback = '') {
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+}
+
+function relClassNames(...values) {
+  return values.filter(Boolean).join(' ');
+}
+
+function appendRelText(parent, tagName, className, textContent, options = {}) {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  if (options.id) element.id = options.id;
+  if (options.role) element.setAttribute('role', options.role);
+  if (options.ariaLabel) element.setAttribute('aria-label', options.ariaLabel);
+  if (options.title) element.title = options.title;
+  element.textContent = textContent;
+  parent.appendChild(element);
+  return element;
+}
+
+function createRelIcon(name, size = 14) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', String(size));
+  svg.setAttribute('height', String(size));
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.6');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const appendPath = (d) => {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+  };
+  const appendRect = (attrs) => {
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    Object.entries(attrs).forEach(([key, value]) => rect.setAttribute(key, value));
+    svg.appendChild(rect);
+  };
+  const appendCircle = (attrs) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    Object.entries(attrs).forEach(([key, value]) => circle.setAttribute(key, value));
+    svg.appendChild(circle);
+  };
+
+  if (name === 'dollarSign') {
+    appendPath('M12 3v18');
+    appendPath('M16 7H10a2.5 2.5 0 0 0 0 5h4a2.5 2.5 0 0 1 0 5H8');
+    return svg;
+  }
+
+  if (name === 'shieldCheck') {
+    appendPath('M12 3l8 3v6c0 4.5-3.5 8-8 9-4.5-1-8-4.5-8-9V6l8-3z');
+    appendPath('M9 12l2 2 4-4');
+    return svg;
+  }
+
+  if (name === 'calendarClock') {
+    appendRect({ x: '3', y: '5', width: '14', height: '14', rx: '2' });
+    appendPath('M3 9h14M8 3v4M14 3v4');
+    appendCircle({ cx: '18', cy: '18', r: '4' });
+    appendPath('M18 16.5V18l1 1');
+    return svg;
+  }
+
+  appendRect({ x: '6', y: '4', width: '12', height: '17', rx: '2' });
+  appendPath('M9 4h6v3H9z');
+  appendPath('M9 13l2 2 4-4');
+  return svg;
+}
+
+function appendRelViewModeButton(parent, mode, active, label) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = relClassNames('rel-segmented__opt', active ? 'is-active' : '');
+  button.setAttribute('role', 'radio');
+  button.setAttribute('aria-checked', active ? 'true' : 'false');
+  button.dataset.viewMode = mode;
+  button.textContent = label;
+  parent.appendChild(button);
+  return button;
+}
+
+function appendRelKpi(parent, item = {}) {
+  const kpi = document.createElement('div');
+  kpi.className = 'rel-kpi';
+  if (item.ariaLabel) kpi.setAttribute('aria-label', item.ariaLabel);
+  if (item.title) kpi.title = item.title;
+
+  const row = document.createElement('div');
+  row.className = 'rel-kpi__row';
+
+  const icon = document.createElement('span');
+  icon.className = relClassNames(
+    'rel-kpi__icon',
+    `rel-kpi__icon--${relText(item.iconTone, 'cyan')}`,
+  );
+  icon.appendChild(createRelIcon(item.icon || 'clipboardCheck'));
+
+  const value = document.createElement('span');
+  value.className = relClassNames('rel-kpi__value', item.valueClass);
+  value.textContent = relText(item.value, '---');
+
+  row.append(icon, value);
+  kpi.appendChild(row);
+  appendRelText(kpi, 'div', 'rel-kpi__label', relText(item.label));
+  parent.appendChild(kpi);
+  return kpi;
+}
+
+function renderRelatorioHeroDom(root, hero = {}) {
+  const data = hero || {};
+  const kpis = Array.isArray(data.kpis) && data.kpis.length ? data.kpis : [];
+  const viewMode =
+    data.viewMode === RELATORIO_VIEW_MODES.detailed
+      ? RELATORIO_VIEW_MODES.detailed
+      : RELATORIO_VIEW_MODES.compact;
+
+  root.replaceChildren();
+  root.dataset.reactRelatorioHeroMounted = 'true';
+
+  const brand = document.createElement('div');
+  brand.className = 'rel-hero__brand';
+  const brandIcon = document.createElement('span');
+  brandIcon.className = 'rel-hero__brand-ic';
+  brandIcon.setAttribute('aria-hidden', 'true');
+  brandIcon.appendChild(createRelIcon('clipboardCheck', 14));
+  brand.appendChild(brandIcon);
+  appendRelText(brand, 'span', 'rel-hero__brand-label', relText(data.brand, 'Relatorio rapido'));
+  root.appendChild(brand);
+
+  const head = document.createElement('div');
+  head.className = 'rel-hero__head';
+  appendRelText(head, 'h2', 'rel-hero__title', relText(data.title, 'Resumo dos servicos'), {
+    id: RELATORIO_PUBLIC_IDS.heroTitle,
+  });
+  const segmented = document.createElement('div');
+  segmented.className = 'rel-segmented';
+  segmented.setAttribute('role', 'radiogroup');
+  segmented.setAttribute('aria-label', 'Modo de visualizacao');
+  appendRelViewModeButton(
+    segmented,
+    RELATORIO_VIEW_MODES.compact,
+    viewMode === RELATORIO_VIEW_MODES.compact,
+    'Compacto',
+  );
+  appendRelViewModeButton(
+    segmented,
+    RELATORIO_VIEW_MODES.detailed,
+    viewMode === RELATORIO_VIEW_MODES.detailed,
+    'Detalhado',
+  );
+  head.appendChild(segmented);
+  root.appendChild(head);
+
+  const meta = document.createElement('div');
+  meta.className = 'rel-hero__meta';
+  appendRelText(meta, 'span', 'rel-hero__meta-period', relText(data.metaText, 'Todo o periodo'));
+  if (data.emittedAt) {
+    appendRelText(meta, 'span', 'rel-hero__emitted', `Emitido em ${relText(data.emittedAt)}`, {
+      ariaLabel: `Emitido em ${relText(data.emittedAt)}`,
+    });
+  }
+  root.appendChild(meta);
+
+  if (data.narrativeText) {
+    appendRelText(root, 'p', 'rel-hero__narrative', relText(data.narrativeText));
+  }
+
+  appendRelText(root, 'div', 'rel-hero__divider', '', { role: 'presentation' });
+
+  const kpiList = document.createElement('div');
+  kpiList.className = 'rel-hero__kpis';
+  kpis.forEach((item) => appendRelKpi(kpiList, item));
+  root.appendChild(kpiList);
+
+  return root;
+}
+
 function buildRelatorioHeroReactViewModel({
   kpis,
   periodoTxt,
@@ -531,16 +695,8 @@ function mountRelatorioHero({ root, hero }) {
   root.classList.add('rel-hero');
   const renderGeneration = (relatorioHeroRenderGeneration += 1);
 
-  const mountWithBridge = (bridge) => {
-    if (renderGeneration !== relatorioHeroRenderGeneration) return null;
-    return bridge.mountRelatorioHeroReact(root, { hero });
-  };
-
-  if (relatorioHeroBridge?.mountRelatorioHeroReact) {
-    return mountWithBridge(relatorioHeroBridge);
-  }
-
-  return loadRelatorioHeroBridge().then(mountWithBridge);
+  if (renderGeneration !== relatorioHeroRenderGeneration) return null;
+  return renderRelatorioHeroDom(root, hero);
 }
 
 function mountRelatorioControls({ root, controls }) {

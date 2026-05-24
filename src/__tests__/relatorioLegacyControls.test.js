@@ -184,6 +184,19 @@ describe('relatorio legacy filters and controls render adapter', () => {
     expect(document.querySelector('#rel-equip option[value="eq-1"]')?.textContent).toContain(
       'Split Recepcao',
     );
+
+    const hero = document.querySelector('#rel-hero');
+    expect(hero?.dataset.reactRelatorioHeroMounted).toBe('true');
+    expectClass(hero, 'rel-hero');
+    expect(hero.querySelector('#rel-hero-title')?.textContent).toContain('Contexto');
+    expect(hero.querySelector('.rel-hero__brand')).not.toBeNull();
+    expect(hero.querySelector('.rel-hero__meta')?.textContent).toContain('Todo');
+    expect(hero.querySelector('.rel-hero__kpis')).not.toBeNull();
+    expect(hero.querySelectorAll('.rel-kpi').length).toBeGreaterThanOrEqual(1);
+    expect(hero.querySelector('[data-view-mode="compact"]')?.getAttribute('role')).toBe('radio');
+    expect(hero.querySelector('[data-view-mode="compact"]')?.getAttribute('aria-checked')).toBe(
+      'true',
+    );
   });
 
   it('integra filtros do DOM ao view model e preserva chips ativos e limpar filtros', async () => {
@@ -231,6 +244,7 @@ describe('relatorio legacy filters and controls render adapter', () => {
       await module.renderRelatorio();
     });
 
+    expect(document.querySelector('#rel-hero')?.dataset.reactRelatorioHeroMounted).toBe('true');
     expect(document.querySelector('#rel-equip')?.value).toBe('eq-1');
     expect(document.querySelector('#rel-de')?.value).toBe('2026-04-01');
     expect(document.querySelector('#rel-ate')?.value).toBe('2026-04-30');
