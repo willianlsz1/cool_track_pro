@@ -1,12 +1,12 @@
 import {
   ErrorCodes as defaultErrorCodes,
   handleError as defaultHandleError,
-} from '../../../core/errors.js';
-import { Utils as defaultUtils } from '../../../core/utils.js';
-import { Photos as defaultPhotos } from '../../../ui/components/photos.js';
+} from '../../../../core/errors.js';
+import { Utils as defaultUtils } from '../../../../core/utils.js';
+import { Photos as defaultPhotos } from '../../../components/photos.js';
 
 function defaultImportModal() {
-  return import('../../../core/modal.js');
+  return import('../../../../core/modal.js');
 }
 
 export function mountViewEquipDetail(html, deps = {}) {

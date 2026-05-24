@@ -75,6 +75,12 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/setor/setorNavigation.js` foi removido no CP-9o;
   a navegacao local de setor foi co-localizada em
   `src/ui/views/equipamentos/setor/setorNavigation.js`.
+- `src/features/equipamentos/ui/detail.js`,
+  `src/features/equipamentos/ui/detailController.js`,
+  `src/features/equipamentos/ui/detailModel.js` e
+  `src/features/equipamentos/ui/viewEquip.js` foram removidos no CP-9p; o
+  detalhe de Equipamentos foi co-localizado em
+  `src/ui/views/equipamentos/ui/**`.
 
 ## 3. Superficies v1 mapeadas
 

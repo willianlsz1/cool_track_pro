@@ -6,7 +6,7 @@ import {
   renderViewEquipDetailHtml,
   renderViewEquipServiceTimeline,
   renderViewEquipSetorInfoRow,
-} from '../../ui/detail.js';
+} from '../ui/views/equipamentos/ui/detail.js';
 
 function makeUtils() {
   const escapeHtml = (value) =>

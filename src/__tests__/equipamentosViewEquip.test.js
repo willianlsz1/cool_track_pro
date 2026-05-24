@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureViewEquip, viewEquip } from '../../ui/viewEquip.js';
+import { configureViewEquip, viewEquip } from '../ui/views/equipamentos/ui/viewEquip.js';
 
 function configureViewEquipTestDeps(overrides = {}) {
   const calls = [];

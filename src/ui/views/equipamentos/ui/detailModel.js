@@ -1,4 +1,4 @@
-import { isPreventivaOrPmocServiceType } from '../../../domain/pmoc/serviceType.js';
+import { isPreventivaOrPmocServiceType } from '../../../../domain/pmoc/serviceType.js';
 
 /**
  * Model puro da detail view de equipamento.

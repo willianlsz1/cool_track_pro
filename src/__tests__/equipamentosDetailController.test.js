@@ -4,7 +4,7 @@ import {
   bindViewEquipDetailCoverActions,
   mountViewEquipDetail,
   openViewEquipDetailModal,
-} from '../../ui/detailController.js';
+} from '../ui/views/equipamentos/ui/detailController.js';
 
 describe('detailController', () => {
   beforeEach(() => {

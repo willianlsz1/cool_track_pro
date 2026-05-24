@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { buildViewEquipDetailModel } from '../../ui/detailModel.js';
+import { buildViewEquipDetailModel } from '../ui/views/equipamentos/ui/detailModel.js';
 
 function makeUtils() {
   return {

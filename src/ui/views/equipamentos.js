@@ -133,9 +133,9 @@ import {
   bindViewEquipDetailCoverActions,
   mountViewEquipDetail,
   openViewEquipDetailModal,
-} from '../../features/equipamentos/ui/detailController.js';
-import { renderViewEquipDetailHtml } from '../../features/equipamentos/ui/detail.js';
-import { buildViewEquipDetailModel } from '../../features/equipamentos/ui/detailModel.js';
+} from './equipamentos/ui/detailController.js';
+import { renderViewEquipDetailHtml } from './equipamentos/ui/detail.js';
+import { buildViewEquipDetailModel } from './equipamentos/ui/detailModel.js';
 import { configureDeleteEquip, deleteEquip } from '../../features/equipamentos/ui/deleteEquip.js';
 import {
   configureOpenEditEquip,
@@ -146,7 +146,7 @@ import { configureRenderFlatList, renderFlatList } from './equipamentos/ui/rende
 import { configureRenderEquip, renderEquip } from './equipamentos/ui/renderEquip.js';
 import { configureHeaderMount, mountEquipamentosHeader } from './equipamentos/ui/headerMount.js';
 import { configureToolbar, setToolbar as _setToolbar } from './equipamentos/ui/toolbar.js';
-import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/viewEquip.js';
+import { configureViewEquip, viewEquip } from './equipamentos/ui/viewEquip.js';
 
 configureEquipContextState({ renderEquip });
 configureToolbar({ Utils });
