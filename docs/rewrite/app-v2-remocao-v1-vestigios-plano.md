@@ -536,6 +536,14 @@ Progresso executado:
   `src/ui/viewModels/relatorioViewModel.js`, que ficaram sem consumidor
   runtime. O contrato de PDF/share por Historico foi preservado para CP54C;
   PMOC continua para CP54F.
+- CP-54C registrou a readiness de PDF/share/WhatsApp v1 sem remover runtime. O
+  diagnostico confirmou que `reportExportHandlers.js` ainda e acionado por
+  Historico e Registro, cruza `src/domain/pdf/**`, `src/domain/whatsapp.js`,
+  toasts, quota, preview modal, assinatura e PMOC. O corte deve ser dividido em
+  CP54C1 (aposentar CTAs/fallbacks em Historico e Registro), CP54C2 (remover
+  handler, toasts, badge e modal preview) e CP54C3 (remover dominio
+  PDF/share/WhatsApp legado ou mover dependencias restantes para CP sensivel
+  proprio).
 
 Controle:
 
@@ -637,8 +645,7 @@ A remocao do v1 so deve ser considerada concluida quando:
 
 ## 9. Proximo passo recomendado
 
-Executar o proximo corte em um lote pequeno de `src/ui/components`, agora com a
-premissa de que PDF/share, assinatura, fotos, storage e PMOC nao serao
-reaproveitados. Antes de apagar cada candidato, confirmar consumidores ativos
-com `rg`, aposentar ou migrar o teste correspondente e atualizar os gates de
-remocao.
+Executar CP54C1: aposentar a superficie clicavel PDF/WhatsApp em Historico e
+Registro v1 antes de remover o handler central. O corte deve remover CTAs e
+fallbacks legados, ajustar os testes correspondentes e manter PDF/share,
+WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.

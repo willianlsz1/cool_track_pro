@@ -78,6 +78,7 @@ describe('legacy v1 removal contracts', () => {
       /(?:ui\/views\/relatorio|ui\\views\\relatorio|ui\/controller\/handlers\/reportExportHandlers|ui\\controller\\handlers\\reportExportHandlers|domain\/pdf|domain\\pdf|components\/pmocModal|components\\pmocModal|components\/pmocInfoModal|components\\pmocInfoModal)/;
 
     expect(existsSync('docs/rewrite/app-v2-remocao-v1-cp54b-relatorio-readiness.md')).toBe(true);
+    expect(existsSync('docs/rewrite/app-v2-remocao-v1-cp54c-pdf-share-readiness.md')).toBe(true);
     expect(findMatches(appV2Sources, forbiddenLegacyRuntimePattern)).toEqual([]);
   });
 
