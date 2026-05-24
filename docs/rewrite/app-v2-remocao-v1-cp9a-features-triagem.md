@@ -16,7 +16,7 @@ Contagem por dominio em `src/features`:
 
 | Dominio      | Arquivos | Leitura atual                                                                 |
 | ------------ | -------- | ----------------------------------------------------------------------------- |
-| equipamentos | 40       | Maior bloco, fortemente acoplado a `src/ui/views/equipamentos.js` e contratos |
+| equipamentos | 39       | Maior bloco, fortemente acoplado a `src/ui/views/equipamentos.js` e contratos |
 | historico    | 0        | Resolvido no CP-9e; helpers co-localizados com a view v1 de historico         |
 | registro     | 16       | Bloco sensivel: salvamento, fotos, assinatura, PMOC e pos-salvamento          |
 | relatorio    | 2        | Pequeno, mas ligado a exportacao/PDF/WhatsApp via handlers                    |
@@ -63,6 +63,12 @@ Atualizacao CP-9j: `ui/listRenderer.js` foi removido de `src/features` e
 co-localizado em `src/ui/views/equipamentos/ui/listRenderer.js`, pois o bridge
 da lista ja havia sido movido para a view legada. Demais helpers de `ui/**`,
 CRUD, storage, setores e fotos permanecem fora do escopo.
+
+Atualizacao CP-9k: `ui/headerMount.js` foi removido de `src/features` e
+co-localizado em `src/ui/views/equipamentos/ui/headerMount.js`, pois e apenas um
+wrapper de roots DOM para a bridge de header ja co-localizada na view legada.
+Demais helpers de `ui/**`, CRUD, storage, setores e fotos permanecem fora do
+escopo.
 
 ### Historico
 

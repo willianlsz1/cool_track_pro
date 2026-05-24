@@ -150,10 +150,7 @@ import {
   renderFlatList,
 } from '../../features/equipamentos/ui/renderFlatList.js';
 import { configureRenderEquip, renderEquip } from '../../features/equipamentos/ui/renderEquip.js';
-import {
-  configureHeaderMount,
-  mountEquipamentosHeader,
-} from '../../features/equipamentos/ui/headerMount.js';
+import { configureHeaderMount, mountEquipamentosHeader } from './equipamentos/ui/headerMount.js';
 import {
   configureToolbar,
   setToolbar as _setToolbar,

@@ -57,6 +57,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/ui/listRenderer.js` foi removido no CP-9j; renderer
   DOM da lista de Equipamentos foi co-localizado em
   `src/ui/views/equipamentos/ui/listRenderer.js`.
+- `src/features/equipamentos/ui/headerMount.js` foi removido no CP-9k; wrapper
+  de roots DOM do header de Equipamentos foi co-localizado em
+  `src/ui/views/equipamentos/ui/headerMount.js`.
 
 ## 3. Superficies v1 mapeadas
 
