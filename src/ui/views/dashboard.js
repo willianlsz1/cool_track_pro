@@ -58,8 +58,6 @@ import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboard
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardHeroBridgePromise = null;
-let dashboardHeroBridge = null;
 let dashboardKpisBridgePromise = null;
 let dashboardKpisBridge = null;
 let dashboardNextActionBridgePromise = null;
@@ -75,16 +73,6 @@ let dashboardOnboardingBridge = null;
 const refreshDashboardCharts = createDashboardChartsRefresher({
   loadCharts: () => import('../components/charts.js').then((module) => module.Charts),
 });
-
-function loadDashboardHeroBridge() {
-  dashboardHeroBridgePromise ??= import('../../react/entrypoints/dashboardHeroIsland.jsx').then(
-    (bridge) => {
-      dashboardHeroBridge = bridge;
-      return bridge;
-    },
-  );
-  return dashboardHeroBridgePromise;
-}
 
 function getDashboardHeroRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.hero);
@@ -190,13 +178,9 @@ function getDashboardOverflowRoot() {
 
 export function unmountDashboardHero(root = getDashboardHeroRoot()) {
   if (!root) return undefined;
-  if (dashboardHeroBridge?.unmountDashboardHeroReact) {
-    dashboardHeroBridge.unmountDashboardHeroReact(root);
-    return undefined;
-  }
-  return loadDashboardHeroBridge().then(({ unmountDashboardHeroReact }) => {
-    unmountDashboardHeroReact(root);
-  });
+  root.replaceChildren();
+  delete root.dataset.reactDashboardHeroMounted;
+  return undefined;
 }
 
 export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
@@ -629,6 +613,99 @@ function _criticalEquipmentCardModel(eq) {
 // ═══════════════════════════════════════════════════════
 // Hero Status Card
 // ═══════════════════════════════════════════════════════
+const DEFAULT_DASHBOARD_HERO = Object.freeze({
+  tier: 'free',
+  tone: 'ok',
+  greeting: 'Ola, Tecnico',
+  summary: '0 equipamentos - 0 servicos no mes',
+  primaryCta: {
+    action: DASHBOARD_ACTIONS.startServiceRegistration,
+    label: 'Registrar servico',
+  },
+  secondaryCta: {
+    action: DASHBOARD_ACTIONS.openModal,
+    id: 'modal-add-eq',
+    label: 'Cadastrar equipamento',
+  },
+});
+
+function heroText(value, fallback = '') {
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+}
+
+function resolveHeroCta(cta, fallback) {
+  if (!cta) return fallback;
+  return {
+    ...cta,
+    label: heroText(cta?.label, fallback.label),
+  };
+}
+
+function setOptionalDataAttribute(element, name, value) {
+  if (!element) return;
+  const normalized = heroText(value);
+  if (normalized) {
+    element.setAttribute(name, normalized);
+    return;
+  }
+  element.removeAttribute(name);
+}
+
+function renderHeroButton(button, label, cta) {
+  if (!button) return;
+  button.type = 'button';
+  setOptionalDataAttribute(button, 'data-nav', cta.nav);
+  setOptionalDataAttribute(button, 'data-action', cta.action);
+  setOptionalDataAttribute(button, 'data-id', cta.id);
+  if (label) label.textContent = heroText(cta.label);
+}
+
+function renderDashboardHeroDom(root, hero = {}) {
+  const model = {
+    ...DEFAULT_DASHBOARD_HERO,
+    ...(hero || {}),
+  };
+  const primaryCta = resolveHeroCta(model.primaryCta, DEFAULT_DASHBOARD_HERO.primaryCta);
+  const secondaryCta = resolveHeroCta(model.secondaryCta, DEFAULT_DASHBOARD_HERO.secondaryCta);
+
+  root.dataset.tier = heroText(model.tier, DEFAULT_DASHBOARD_HERO.tier);
+  root.dataset.tone = heroText(model.tone, DEFAULT_DASHBOARD_HERO.tone);
+  root.innerHTML = `
+    <div class="dash__hero-body">
+      <h1 class="dash__hero-greeting" id="${DASHBOARD_PUBLIC_IDS.heroGreeting}"></h1>
+      <p class="dash__hero-summary" id="${DASHBOARD_PUBLIC_IDS.heroSummary}"></p>
+    </div>
+    <div class="dash__hero-cta-wrap">
+      <button class="dash__hero-cta" id="${DASHBOARD_PUBLIC_IDS.heroCta}" type="button">
+        <span class="dash__hero-cta-label" id="${DASHBOARD_PUBLIC_IDS.heroCtaLabel}"></span>
+      </button>
+      <button class="dash__hero-cta dash__hero-cta--secondary" id="${DASHBOARD_PUBLIC_IDS.heroSecondaryCta}" type="button">
+        <span class="dash__hero-cta-label" id="${DASHBOARD_PUBLIC_IDS.heroSecondaryCtaLabel}"></span>
+      </button>
+    </div>
+  `;
+
+  root.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroGreeting}`).textContent = heroText(
+    model.greeting,
+    DEFAULT_DASHBOARD_HERO.greeting,
+  );
+  root.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroSummary}`).textContent = heroText(
+    model.summary,
+    DEFAULT_DASHBOARD_HERO.summary,
+  );
+  renderHeroButton(
+    root.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroCta}`),
+    root.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroCtaLabel}`),
+    primaryCta,
+  );
+  renderHeroButton(
+    root.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroSecondaryCta}`),
+    root.querySelector(`#${DASHBOARD_PUBLIC_IDS.heroSecondaryCtaLabel}`),
+    secondaryCta,
+  );
+}
+
 function _renderHero({ viewModel }) {
   const model = viewModel?.hero;
   const root = getDashboardHeroRoot();
@@ -641,15 +718,8 @@ function _renderHero({ viewModel }) {
     dashRoot.setAttribute('data-tone', model.tone);
   }
 
-  if (root && dashboardHeroBridge?.mountDashboardHeroReact) {
-    dashboardHeroBridge.mountDashboardHeroReact(root, { hero: model });
-    return Promise.resolve();
-  }
-
   if (root) {
-    return loadDashboardHeroBridge().then(({ mountDashboardHeroReact }) => {
-      mountDashboardHeroReact(root, { hero: model });
-    });
+    renderDashboardHeroDom(root, model);
   }
 
   return Promise.resolve();

@@ -306,7 +306,7 @@ describe('dashboard legacy hero render adapter', () => {
     );
   });
 
-  it('documents public contracts and delegates hero rendering to the React island', () => {
+  it('documents public contracts and renders hero directly in the dashboard adapter', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
@@ -335,13 +335,8 @@ describe('dashboard legacy hero render adapter', () => {
       expect.arrayContaining(['data-action', 'data-id', 'data-nav', 'data-tier', 'data-tone']),
     );
     expect(dashboardSource).toContain('function _renderHero');
-    expect(dashboardSource).toContain('../../react/entrypoints/dashboardHeroIsland.jsx');
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-hero-greeting'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-hero-summary'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-hero-cta'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-hero-cta-label'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-hero-cta-secondary'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-hero-cta-secondary-label'\)/);
+    expect(dashboardSource).toContain('function renderDashboardHeroDom');
+    expect(dashboardSource).not.toContain('../../react/entrypoints/dashboardHeroIsland.jsx');
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot/);
     expect(document.getElementById('chart-status-pie')).toBeNull();
     expect(document.querySelector('.app-header')).toBeNull();
