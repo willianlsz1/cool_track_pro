@@ -10,7 +10,7 @@ import {
   getEquipamentosHeaderBridge,
   getEquipamentosHeaderBridgePromise,
   getEquipamentosHeaderRenderGeneration,
-} from '../../state/bridgeState.js';
+} from '../../../../ui/views/equipamentos/state/bridgeState.js';
 
 describe('bridges/headerBridge', () => {
   beforeEach(() => {

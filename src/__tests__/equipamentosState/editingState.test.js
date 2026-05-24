@@ -8,7 +8,7 @@ import {
   setEditingEquipId,
   setEditingSetorId,
   setForcedEquipContext,
-} from '../../state/editingState.js';
+} from '../../ui/views/equipamentos/state/editingState.js';
 
 describe('state/editingState', () => {
   beforeEach(() => {

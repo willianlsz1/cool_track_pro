@@ -42,6 +42,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/historico/**` foi removido no CP-9e; helpers foram
   co-localizados em `src/ui/views/historico/helpers/**` porque a view/rota v1 de
   Historico ainda cruza timeline, registro, PDF/share e WhatsApp.
+- `src/features/equipamentos/state/**` foi removido no CP-9f; estado de
+  cache/render da view legada foi co-localizado em
+  `src/ui/views/equipamentos/state/**`.
 
 ## 3. Superficies v1 mapeadas
 
@@ -49,8 +52,8 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 
 - `src/ui/`: 135 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: ainda existe, concentrado em `equipamentos`, `registro` e
-  `userData.js`.
+- `src/features/`: ainda existe, concentrado em `equipamentos` sem o subgrupo
+  `state`, `registro` e `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.

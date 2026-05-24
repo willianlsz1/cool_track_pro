@@ -78,11 +78,11 @@ import {
   setEditingEquipId,
   setEditingSetorId,
   setForcedEquipContext,
-} from '../../features/equipamentos/state/editingState.js';
+} from './equipamentos/state/editingState.js';
 import {
   incrementRenderEquipPlanToken,
   getRenderEquipPlanNeedsRefresh,
-} from '../../features/equipamentos/state/renderPlanState.js';
+} from './equipamentos/state/renderPlanState.js';
 import {
   bindRenderEquipPlanInvalidationEvents,
   configureRenderEquipPlan,

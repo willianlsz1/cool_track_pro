@@ -8,7 +8,7 @@ import {
   setRenderEquipPlanEventsBound,
   setRenderEquipPlanNeedsRefresh,
   setRenderEquipPlanRefreshPromise,
-} from '../state/renderPlanState.js';
+} from '../../../ui/views/equipamentos/state/renderPlanState.js';
 
 let renderEquipHandler = null;
 

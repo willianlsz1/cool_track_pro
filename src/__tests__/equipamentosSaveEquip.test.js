@@ -250,7 +250,7 @@ vi.mock('../features/equipamentos/bridges/renderPlan.js', () => ({
   refreshRenderEquipPlan: vi.fn(),
 }));
 
-vi.mock('../features/equipamentos/state/renderPlanState.js', () => ({
+vi.mock('../ui/views/equipamentos/state/renderPlanState.js', () => ({
   incrementRenderEquipPlanToken: vi.fn(() => 1),
   getRenderEquipPlanNeedsRefresh: vi.fn(() => false),
 }));
@@ -323,7 +323,7 @@ function setupDom() {
 
 async function importSubject() {
   const equipamentos = await import('../ui/views/equipamentos.js');
-  const editingState = await import('../features/equipamentos/state/editingState.js');
+  const editingState = await import('../ui/views/equipamentos/state/editingState.js');
   return { ...equipamentos, ...editingState };
 }
 

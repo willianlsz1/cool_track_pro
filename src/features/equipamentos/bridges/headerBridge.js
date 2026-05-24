@@ -4,7 +4,7 @@ import {
   incrementEquipamentosHeaderRenderGeneration,
   setEquipamentosHeaderBridge,
   setEquipamentosHeaderBridgePromise,
-} from '../state/bridgeState.js';
+} from '../../../ui/views/equipamentos/state/bridgeState.js';
 import {
   EQUIPAMENTOS_ACTIONS,
   EQUIPAMENTOS_PUBLIC_IDS,

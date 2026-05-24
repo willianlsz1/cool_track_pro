@@ -12,7 +12,7 @@ import {
   incrementRenderEquipPlanToken,
   setRenderEquipPlanNeedsRefresh,
   setRenderEquipPlanRefreshPromise,
-} from '../../state/renderPlanState.js';
+} from '../../../../ui/views/equipamentos/state/renderPlanState.js';
 import { fetchOperationalProfileCached } from '../../../../core/plans/operationalPlan.js';
 import { hasProAccess } from '../../../../core/plans/subscriptionPlans.js';
 

@@ -12,7 +12,7 @@ import {
   getEquipamentosListBridgePromise,
   getEquipamentosListRenderGeneration,
   setEquipamentosListBridge,
-} from '../../state/bridgeState.js';
+} from '../../../../ui/views/equipamentos/state/bridgeState.js';
 import { mountEquipamentosListDom, unmountEquipamentosListDom } from '../../ui/listRenderer.js';
 
 vi.mock('../../ui/listRenderer.js', () => ({

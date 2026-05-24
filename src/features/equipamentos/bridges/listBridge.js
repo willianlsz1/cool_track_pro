@@ -5,7 +5,7 @@ import {
   incrementEquipamentosListRenderGeneration,
   setEquipamentosListBridge,
   setEquipamentosListBridgePromise,
-} from '../state/bridgeState.js';
+} from '../../../ui/views/equipamentos/state/bridgeState.js';
 import { mountEquipamentosListDom, unmountEquipamentosListDom } from '../ui/listRenderer.js';
 
 /** @sliceTarget controller/bridges */

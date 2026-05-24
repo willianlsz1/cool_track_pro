@@ -18,7 +18,7 @@ import {
   setEquipamentosHeaderBridgePromise,
   setEquipamentosListBridge,
   setEquipamentosListBridgePromise,
-} from '../../state/bridgeState.js';
+} from '../../ui/views/equipamentos/state/bridgeState.js';
 
 describe('state/bridgeState', () => {
   beforeEach(() => {
