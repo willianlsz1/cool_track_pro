@@ -235,6 +235,7 @@ describe('registro legacy header/hero/main fields render adapter', () => {
         .querySelector('#registro-header-root')
         ?.classList.contains('registro-main-column--header'),
     ).toBe(true);
+    expect(view.querySelector('#registro-header-root')?.dataset.registroHeaderMounted).toBe('true');
     expect(view.querySelector('.registro-side-column')).not.toBeNull();
     expect(view.querySelector('.registro-side-card__title')?.textContent).toContain('Resumo');
     const evidencias = view.querySelector('#registro-evidencias-details');
@@ -374,5 +375,8 @@ describe('registro legacy header/hero/main fields render adapter', () => {
     const source = readFileSync('src/ui/views/registro.js', 'utf8');
 
     expect(source).not.toMatch(/from ['"]react['"]|react-dom|createRoot/);
+    const removedIslandPath =
+      '../../react/entrypoints/' + ['registro', 'Header', 'Island.jsx'].join('');
+    expect(source).not.toContain(removedIslandPath);
   });
 });

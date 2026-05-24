@@ -232,8 +232,7 @@ async function mountRegistroHeader(registro, params = {}) {
 
   const root = document.getElementById('registro-header-root');
   expect(root).not.toBeNull();
-  expect(root?.dataset.reactRegistroHeaderMounted).toBe('true');
-  expect(document.querySelectorAll('[data-react-registro-header-mounted="true"]')).toHaveLength(1);
+  expect(root?.dataset.registroHeaderMounted).toBe('true');
   return root;
 }
 
@@ -269,7 +268,7 @@ function expectExternalFlowsNotExecuted() {
   expect(mocks.deleteReg).not.toHaveBeenCalled();
 }
 
-describe('registro React header fields legacy handlers contract', () => {
+describe('registro DOM header fields legacy handlers contract', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -282,7 +281,7 @@ describe('registro React header fields legacy handlers contract', () => {
     document.body.innerHTML = '';
   });
 
-  it('mantem handlers legados de equipamento, contexto e progresso nos campos React', async () => {
+  it('mantem handlers legados de equipamento, contexto e progresso nos campos DOM', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistroView(state);
@@ -325,7 +324,7 @@ describe('registro React header fields legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('aciona quick-service-template legado a partir do data-action emitido pela ilha React', async () => {
+  it('aciona quick-service-template legado a partir do data-action emitido pelo header DOM', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistroView(state);
@@ -368,7 +367,7 @@ describe('registro React header fields legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('nao injeta HTML ao lidar com campos React e atributos data-* maliciosos', async () => {
+  it('nao injeta HTML ao lidar com campos DOM e atributos data-* maliciosos', async () => {
     const state = baseState({
       equipamentos: [
         {

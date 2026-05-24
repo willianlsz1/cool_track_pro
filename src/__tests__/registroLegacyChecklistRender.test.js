@@ -212,7 +212,7 @@ async function mountRegistroHeader(registro, params = { equipId: 'eq-1' }) {
 
   const root = document.getElementById('registro-header-root');
   expect(root).not.toBeNull();
-  expect(root?.dataset.reactRegistroHeaderMounted).toBe('true');
+  expect(root?.dataset.registroHeaderMounted).toBe('true');
   return root;
 }
 

@@ -218,7 +218,7 @@ async function renderRegistroChecklist(state = baseState()) {
   });
 
   const body = document.getElementById('r-checklist-body');
-  expect(document.getElementById('registro-header-root')?.dataset.reactRegistroHeaderMounted).toBe(
+  expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
   expect(body?.dataset.reactRegistroChecklistMounted).toBe('true');

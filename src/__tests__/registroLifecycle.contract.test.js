@@ -34,12 +34,6 @@ const mocks = vi.hoisted(() => ({
   profileSave: vi.fn(),
   profileSaveLastTecnico: vi.fn(),
   handleError: vi.fn(),
-  mountRegistroHeaderReact: vi.fn((root) => {
-    root.dataset.reactRegistroHeaderMounted = 'true';
-  }),
-  unmountRegistroHeaderReact: vi.fn((root) => {
-    delete root.dataset.reactRegistroHeaderMounted;
-  }),
   mountRegistroChecklistReact: vi.fn((root) => {
     root.dataset.reactRegistroChecklistMounted = 'true';
   }),
@@ -129,11 +123,6 @@ vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
 
 vi.mock('../core/phoneMask.js', () => ({
   bindSmartContactMaskInput: mocks.bindSmartContactMaskInput,
-}));
-
-vi.mock('../react/entrypoints/registroHeaderIsland.jsx', () => ({
-  mountRegistroHeaderReact: mocks.mountRegistroHeaderReact,
-  unmountRegistroHeaderReact: mocks.unmountRegistroHeaderReact,
 }));
 
 vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({
@@ -262,9 +251,9 @@ describe('registro lifecycle contract', () => {
     await init(registro, { equipId: 'eq-1' });
 
     expect(document.getElementById('view-registro')).not.toBeNull();
-    expect(
-      document.getElementById('registro-header-root')?.dataset.reactRegistroHeaderMounted,
-    ).toBe('true');
+    expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
+      'true',
+    );
     expect(
       document.getElementById('registro-signature-hint')?.dataset.registroSignatureMounted,
     ).toBe('true');

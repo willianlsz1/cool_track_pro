@@ -287,7 +287,7 @@ async function prepareNewRegistro(registro, overrides = {}) {
   await mountRegistro(registro, { equipId: overrides.equipId || 'eq-1' });
   await fillMainFields(registro, overrides);
   await setChecklistOk();
-  expect(document.getElementById('registro-header-root')?.dataset.reactRegistroHeaderMounted).toBe(
+  expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
   expect(document.getElementById('r-checklist-body')?.dataset.reactRegistroChecklistMounted).toBe(

@@ -36,6 +36,7 @@ import {
   renderRegistroSignatureHint,
   unmountRegistroSignatureHint,
 } from './registro/signatureHint.js';
+import { renderRegistroHeader, unmountRegistroHeaderDom } from './registro/headerRenderer.js';
 import {
   buildRegistroPayloadDraft,
   buildRegistroPersistPayload,
@@ -195,9 +196,6 @@ function _prefillObsFromTipo(tipo) {
 }
 
 const EDITING_KEY = 'cooltrack-editing-id';
-let _registroHeaderBridgePromise = null;
-let _registroHeaderBridge = null;
-let _registroHeaderRenderGeneration = 0;
 let _registroChecklistBridgePromise = null;
 let _registroChecklistBridge = null;
 let _registroChecklistRenderGeneration = 0;
@@ -544,22 +542,6 @@ function _buildRegistroReadOnlyViewModel(params = {}) {
   });
 }
 
-function loadRegistroHeaderBridge() {
-  if (_registroHeaderBridge) return Promise.resolve(_registroHeaderBridge);
-  if (!_registroHeaderBridgePromise) {
-    _registroHeaderBridgePromise = import('../../react/entrypoints/registroHeaderIsland.jsx')
-      .then((bridge) => {
-        _registroHeaderBridge = bridge;
-        return bridge;
-      })
-      .catch((error) => {
-        _registroHeaderBridgePromise = null;
-        throw error;
-      });
-  }
-  return _registroHeaderBridgePromise;
-}
-
 function ensureRegistroHeaderRoot() {
   let root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
   if (root) {
@@ -588,7 +570,7 @@ function ensureRegistroHeaderRoot() {
   return root;
 }
 
-function buildRegistroHeaderReactProps(params = {}) {
+function buildRegistroHeaderProps(params = {}) {
   const state = getState() || {};
   const viewModel = _buildRegistroReadOnlyViewModel(params);
   const equipmentOptions = asArray(state.equipamentos).map((equipamento) => ({
@@ -610,36 +592,16 @@ function mountRegistroHeader(params = {}) {
   const root = ensureRegistroHeaderRoot();
   if (!root) return null;
 
-  const renderGeneration = (_registroHeaderRenderGeneration += 1);
-  const props = buildRegistroHeaderReactProps(params);
+  const props = buildRegistroHeaderProps(params);
 
-  const mountWithBridge = (bridge) => {
-    if (renderGeneration !== _registroHeaderRenderGeneration) return null;
-    return bridge.mountRegistroHeaderReact(root, props);
-  };
-
-  if (_registroHeaderBridge?.mountRegistroHeaderReact) {
-    return mountWithBridge(_registroHeaderBridge);
-  }
-
-  return loadRegistroHeaderBridge().then(mountWithBridge);
+  return renderRegistroHeader(root, props);
 }
 
 export function unmountRegistroHeader() {
-  _registroHeaderRenderGeneration += 1;
   if (typeof document === 'undefined') return null;
 
   const root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
-  if (!root?.dataset.reactRegistroHeaderMounted) return null;
-
-  if (_registroHeaderBridge?.unmountRegistroHeaderReact) {
-    _registroHeaderBridge.unmountRegistroHeaderReact(root);
-    return null;
-  }
-
-  return loadRegistroHeaderBridge().then((bridge) => {
-    bridge.unmountRegistroHeaderReact?.(root);
-  });
+  return unmountRegistroHeaderDom(root);
 }
 
 function resetEditingState() {

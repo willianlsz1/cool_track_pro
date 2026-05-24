@@ -35,12 +35,6 @@ const mocks = vi.hoisted(() => ({
     toDataUrl: vi.fn(() => 'data:image/png;base64,aW1hZ2U='),
   })),
   toastWarning: vi.fn(),
-  mountRegistroHeaderReact: vi.fn((root) => {
-    root.dataset.reactRegistroHeaderMounted = 'true';
-  }),
-  unmountRegistroHeaderReact: vi.fn((root) => {
-    delete root.dataset.reactRegistroHeaderMounted;
-  }),
   mountRegistroChecklistReact: vi.fn((root) => {
     root.dataset.reactRegistroChecklistMounted = 'true';
   }),
@@ -133,11 +127,6 @@ vi.mock('../ui/components/signature/signature-storage.js', () => ({
 
 vi.mock('../ui/components/signature/signature-canvas.js', () => ({
   createSignatureCanvas: mocks.createSignatureCanvas,
-}));
-
-vi.mock('../react/entrypoints/registroHeaderIsland.jsx', () => ({
-  mountRegistroHeaderReact: mocks.mountRegistroHeaderReact,
-  unmountRegistroHeaderReact: mocks.unmountRegistroHeaderReact,
 }));
 
 vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({

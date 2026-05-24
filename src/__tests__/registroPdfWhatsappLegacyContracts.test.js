@@ -296,7 +296,7 @@ async function mountAndFillRegistro(registro, overrides = {}) {
     await flushAsyncWork();
   });
 
-  expect(document.getElementById('registro-header-root')?.dataset.reactRegistroHeaderMounted).toBe(
+  expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
   expect(document.getElementById('r-checklist-body')?.dataset.reactRegistroChecklistMounted).toBe(
