@@ -13,11 +13,11 @@ import {
   setRenderEquipPlanNeedsRefresh,
   setRenderEquipPlanRefreshPromise,
 } from '../../state/renderPlanState.js';
-import { fetchMyProfileBillingCached } from '../../../../core/plans/monetization.js';
+import { fetchOperationalProfileCached } from '../../../../core/plans/monetization.js';
 import { hasProAccess } from '../../../../core/plans/subscriptionPlans.js';
 
 vi.mock('../../../../core/plans/monetization.js', () => ({
-  fetchMyProfileBillingCached: vi.fn(),
+  fetchOperationalProfileCached: vi.fn(),
 }));
 
 vi.mock('../../../../core/plans/planCache.js', () => ({
@@ -71,12 +71,12 @@ describe('bridges/renderPlan', () => {
 
     refreshRenderEquipPlan({ renderToken: 1 });
 
-    expect(fetchMyProfileBillingCached).not.toHaveBeenCalled();
+    expect(fetchOperationalProfileCached).not.toHaveBeenCalled();
     expect(getRenderEquipPlanRefreshPromise()).toBe(activePromise);
   });
 
   it('limpa refreshPromise no finally', async () => {
-    fetchMyProfileBillingCached.mockResolvedValue({ profile: { plan: 'free' } });
+    fetchOperationalProfileCached.mockResolvedValue({ profile: { plan: 'free' } });
 
     refreshRenderEquipPlan({ renderToken: incrementRenderEquipPlanToken() });
     await getRenderEquipPlanRefreshPromise();
@@ -85,7 +85,7 @@ describe('bridges/renderPlan', () => {
   });
 
   it('preserva fallback silencioso em erro', async () => {
-    fetchMyProfileBillingCached.mockRejectedValue(new Error('billing unavailable'));
+    fetchOperationalProfileCached.mockRejectedValue(new Error('billing unavailable'));
 
     refreshRenderEquipPlan({ renderToken: incrementRenderEquipPlanToken() });
     await expect(getRenderEquipPlanRefreshPromise()).resolves.toBeUndefined();
@@ -96,7 +96,7 @@ describe('bridges/renderPlan', () => {
   it('chama renderEquip com __skipPlanRefresh true quando Pro access muda e token ainda é atual', async () => {
     const renderEquip = vi.fn();
     configureRenderEquipPlan({ renderEquip });
-    fetchMyProfileBillingCached.mockResolvedValue({ profile: { plan: 'pro' } });
+    fetchOperationalProfileCached.mockResolvedValue({ profile: { plan: 'pro' } });
 
     refreshRenderEquipPlan({
       filtro: 'split',
@@ -116,7 +116,7 @@ describe('bridges/renderPlan', () => {
   it('não chama renderEquip quando token está stale', async () => {
     const renderEquip = vi.fn();
     configureRenderEquipPlan({ renderEquip });
-    fetchMyProfileBillingCached.mockResolvedValue({ profile: { plan: 'pro' } });
+    fetchOperationalProfileCached.mockResolvedValue({ profile: { plan: 'pro' } });
     const staleToken = incrementRenderEquipPlanToken();
     incrementRenderEquipPlanToken();
 

@@ -32,7 +32,7 @@ const mocks = vi.hoisted(() => ({
   setVal: vi.fn(),
   storageSave: vi.fn(),
   storageLoad: vi.fn(),
-  fetchMyProfileBilling: vi.fn(),
+  fetchOperationalProfile: vi.fn(),
   hasPlusAccess: vi.fn(),
   getMonthlyUsageSnapshot: vi.fn(),
   applyNameplateCtaGate: vi.fn(),
@@ -175,7 +175,7 @@ vi.mock('../core/plans/planCache.js', () => ({
 }));
 
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling: mocks.fetchMyProfileBilling,
+  fetchOperationalProfile: mocks.fetchOperationalProfile,
 }));
 
 vi.mock('../core/plans/subscriptionPlans.js', () => ({
@@ -307,7 +307,7 @@ beforeAll(() => {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.isCachedPlanPlusOrHigher.mockReturnValue(false);
-  mocks.fetchMyProfileBilling.mockResolvedValue({ profile: { plan_code: 'free' } });
+  mocks.fetchOperationalProfile.mockResolvedValue({ profile: { plan_code: 'free' } });
   mocks.hasPlusAccess.mockReturnValue(false);
   mocks.getMonthlyUsageSnapshot.mockResolvedValue({ nameplate_analysis: 0 });
   window.__setEquipViewMode = vi.fn();

@@ -19,6 +19,8 @@ schema.
   `billing`.
 - Os exports legados `startCheckout` e `startBillingPortal` foram removidos da
   camada de monetizacao.
+- Helpers internos com nomenclatura `Billing` foram renomeados para perfil
+  operacional, preservando comportamento local sem planos pagos.
 - Contratos internos legados que citavam `pricing` apenas como nome de acao
   foram renomeados para linguagem comercial neutra.
 

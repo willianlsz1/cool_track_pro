@@ -49,10 +49,10 @@ function configureOpenEditEquipTestDeps(overrides = {}) {
     focusEditField: vi.fn(() => calls.push('focus')),
     handleError: vi.fn(() => calls.push('handleError')),
     ErrorCodes: { NETWORK_ERROR: 'NETWORK_ERROR' },
-    loadBillingGateDeps: vi.fn(async () => {
+    loadOperationalGateDeps: vi.fn(async () => {
       calls.push('loadBilling');
       return {
-        fetchMyProfileBilling: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
+        fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
         hasProAccess: vi.fn(() => true),
         hasPlusAccess: vi.fn(() => true),
         applyNameplateCtaGate: vi.fn(() => calls.push('applyGate')),

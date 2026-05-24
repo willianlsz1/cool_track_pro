@@ -56,7 +56,7 @@ vi.mock('../ui/components/skeleton.js', () => ({
 
 // monetization + subscriptionPlans — ensureProForSetores precisa passar.
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
+  fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
 }));
 vi.mock('../core/plans/subscriptionPlans.js', async (importOriginal) => {
   // Mantém exports reais (PLAN_CATALOG, helpers, etc.) e só força hasProAccess

@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => ({
   shareToastShow: vi.fn(),
   pdfToastShow: vi.fn(),
   pdfBadgeRefresh: vi.fn(),
-  fetchMyProfileBilling: vi.fn(),
+  fetchOperationalProfile: vi.fn(),
   getPlanCodeForUserId: vi.fn(),
   getEffectivePlan: vi.fn(),
   getMonthlyUsageSnapshot: vi.fn(),
@@ -86,7 +86,7 @@ vi.mock('../ui/components/pdfQuotaBadge.js', () => ({
 }));
 
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling: mocks.fetchMyProfileBilling,
+  fetchOperationalProfile: mocks.fetchOperationalProfile,
 }));
 
 vi.mock('../core/plans/subscriptionPlans.js', () => ({
@@ -176,7 +176,7 @@ describe('report export public contracts', () => {
     });
 
     mocks.getUser.mockResolvedValue({ id: 'user-1' });
-    mocks.fetchMyProfileBilling.mockResolvedValue({
+    mocks.fetchOperationalProfile.mockResolvedValue({
       profile: { id: 'user-1', plan_code: 'free', subscription_status: 'inactive' },
     });
     mocks.getPlanCodeForUserId.mockResolvedValue('free');

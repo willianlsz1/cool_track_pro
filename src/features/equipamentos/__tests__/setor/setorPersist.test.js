@@ -80,7 +80,7 @@ describe('setorPersist', () => {
       setorNomeMax: 80,
       setorDescLimit: 240,
       defaultSetorColor: '#00c8e8',
-      fetchMyProfileBilling: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
+      fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
       hasProAccess: vi.fn(() => true),
     };
     configureSetorPersist(deps);
@@ -90,7 +90,7 @@ describe('setorPersist', () => {
     it('retorna true quando plano permite Pro', async () => {
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
 
-      expect(deps.fetchMyProfileBilling).toHaveBeenCalledTimes(1);
+      expect(deps.fetchOperationalProfile).toHaveBeenCalledTimes(1);
       expect(deps.hasProAccess).toHaveBeenCalledWith({ plan_code: 'pro' });
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
@@ -132,7 +132,7 @@ describe('setorPersist', () => {
     });
 
     it('falha de billing preserva fail-closed com warning', async () => {
-      deps.fetchMyProfileBilling.mockRejectedValueOnce(new Error('network'));
+      deps.fetchOperationalProfile.mockRejectedValueOnce(new Error('network'));
 
       await expect(ensureProForSetores({ action: 'delete' })).resolves.toBe(false);
 
@@ -191,7 +191,7 @@ describe('setorPersist', () => {
       await assignEquipToSetor('eq-1', 'setor-1');
 
       expect(callOrder[0]).toBe('setState');
-      expect(deps.fetchMyProfileBilling).toHaveBeenCalledTimes(1);
+      expect(deps.fetchOperationalProfile).toHaveBeenCalledTimes(1);
       expect(state.equipamentos.find((e) => e.id === 'eq-1')).toMatchObject({
         setorId: 'setor-1',
       });
@@ -210,7 +210,7 @@ describe('setorPersist', () => {
     it('não chama guard nem muta quando equipamento não existe', async () => {
       await assignEquipToSetor('eq-missing', 'setor-1');
 
-      expect(deps.fetchMyProfileBilling).not.toHaveBeenCalled();
+      expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
       expect(deps.setState).not.toHaveBeenCalled();
     });
 

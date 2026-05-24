@@ -66,7 +66,7 @@ async function setupModule({ planCode = 'free', hasPro = false, state, alerts = 
     regsForEquip: (id) => state.registros.filter((r) => r.equipId === id),
   }));
   vi.doMock('../core/plans/monetization.js', () => ({
-    fetchMyProfileBilling: vi.fn(async () => ({ profile: { plan: planCode } })),
+    fetchOperationalProfile: vi.fn(async () => ({ profile: { plan: planCode } })),
   }));
   vi.doMock('../core/plans/subscriptionPlans.js', async () => {
     const actual = await vi.importActual('../core/plans/subscriptionPlans.js');

@@ -13,7 +13,7 @@ const openEditEquipDeps = {
   focusEditField: null,
   handleError: null,
   ErrorCodes: null,
-  loadBillingGateDeps: null,
+  loadOperationalGateDeps: null,
   loadSupabase: null,
   loadNameplateCapture: null,
   loadModal: null,
@@ -90,18 +90,18 @@ function expandOpenEditEquipDetailsPanel() {
   }
 }
 
-async function applyOpenEditEquipBillingGates() {
+async function applyOpenEditEquipOperationalGates() {
   try {
     const {
-      fetchMyProfileBilling,
+      fetchOperationalProfile,
       hasProAccess,
       hasPlusAccess,
       applyNameplateCtaGate,
       getMonthlyUsageSnapshot,
       USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
       getMonthlyLimitForPlan,
-    } = await getRequiredOpenEditEquipDep('loadBillingGateDeps')();
-    const { profile } = await fetchMyProfileBilling();
+    } = await getRequiredOpenEditEquipDep('loadOperationalGateDeps')();
+    const { profile } = await fetchOperationalProfile();
     getRequiredOpenEditEquipDep('populateSetorSelect')(hasProAccess(profile));
 
     const isPlusOrPro = hasPlusAccess(profile);
@@ -198,7 +198,7 @@ export async function openEditEquip(id, opts = {}) {
   restoreOpenEditEquipNameplate(eq);
   markOpenEditEquipManualPeriodicity();
   expandOpenEditEquipDetailsPanel();
-  await applyOpenEditEquipBillingGates();
+  await applyOpenEditEquipOperationalGates();
   syncOpenEditEquipContextFields(eq);
   syncOpenEditEquipActionTray();
 

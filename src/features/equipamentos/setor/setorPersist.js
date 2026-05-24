@@ -17,7 +17,7 @@ const setorPersistDeps = {
   setorNomeMax: null,
   setorDescLimit: null,
   defaultSetorColor: null,
-  fetchMyProfileBilling: null,
+  fetchOperationalProfile: null,
   hasProAccess: null,
 };
 
@@ -43,16 +43,16 @@ function getSetorPersistValue(name, fallback) {
 /** @sliceTarget setor/guard */
 export async function ensureProForSetores({ action = 'manage' } = {}) {
   try {
-    let fetchMyProfileBilling = setorPersistDeps.fetchMyProfileBilling;
+    let fetchOperationalProfile = setorPersistDeps.fetchOperationalProfile;
     let hasProAccess = setorPersistDeps.hasProAccess;
-    if (!fetchMyProfileBilling || !hasProAccess) {
-      const { fetchMyProfileBilling: fetchBilling } =
+    if (!fetchOperationalProfile || !hasProAccess) {
+      const { fetchOperationalProfile: fetchProfile } =
         await import('../../../core/plans/monetization.js');
       const { hasProAccess: hasAccess } = await import('../../../core/plans/subscriptionPlans.js');
-      fetchMyProfileBilling = fetchBilling;
+      fetchOperationalProfile = fetchProfile;
       hasProAccess = hasAccess;
     }
-    const { profile } = await fetchMyProfileBilling();
+    const { profile } = await fetchOperationalProfile();
     if (hasProAccess(profile)) return true;
   } catch {
     // Em modo guest ou sem conexão, bloqueia por padrão

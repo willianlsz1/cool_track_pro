@@ -1,7 +1,7 @@
 /**
  * Dev Wipe Data — apaga equipamentos, registros, técnicos e cache local
  * do usuário atual. Só para testes. NÃO derruba a sessão, NÃO mexe no perfil
- * de billing (plan_code, subscription_status) pra não quebrar o teste do plano.
+ * de plano (plan_code, subscription_status) pra não quebrar o teste de perfil.
  *
  * Ordem importa:
  *  1. Supabase (remote) — registros primeiro (FK para equipamentos), depois

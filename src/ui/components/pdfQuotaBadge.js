@@ -20,7 +20,7 @@
  */
 
 import { Auth } from '../../core/auth.js';
-import { fetchMyProfileBilling } from '../../core/plans/monetization.js';
+import { fetchOperationalProfile } from '../../core/plans/monetization.js';
 import {
   getEffectivePlan,
   PLAN_CODE_FREE,
@@ -98,7 +98,7 @@ async function fetchQuota() {
   if (!user) return null; // Guest: sem quota a mostrar
 
   const [{ profile }, usageSnapshot] = await Promise.all([
-    fetchMyProfileBilling(),
+    fetchOperationalProfile(),
     getMonthlyUsageSnapshot(user.id),
   ]);
   const planCode = getEffectivePlan(profile);

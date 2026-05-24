@@ -80,9 +80,9 @@ async function setupDashboardHeaderModule({
   }));
 
   vi.doMock('../core/plans/monetization.js', () => ({
-    fetchMyProfileBilling: vi.fn(async () => ({ profile: { plan: 'pro' } })),
-    fetchMyProfileBillingCached: vi.fn(async () => ({ profile: { plan: 'pro' } })),
-    getCachedBillingProfileSnapshot: vi.fn(() => ({ profile: { plan: 'pro' } })),
+    fetchOperationalProfile: vi.fn(async () => ({ profile: { plan: 'pro' } })),
+    fetchOperationalProfileCached: vi.fn(async () => ({ profile: { plan: 'pro' } })),
+    getCachedOperationalProfileSnapshot: vi.fn(() => ({ profile: { plan: 'pro' } })),
   }));
 
   vi.doMock('../core/plans/subscriptionPlans.js', () => ({

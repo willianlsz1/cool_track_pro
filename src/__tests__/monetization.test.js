@@ -43,10 +43,10 @@ describe('monetization disabled compatibility layer', () => {
     expect(mod.getPlanCodeFromProfile({ plan_code: 'pro' })).toBe('free');
   });
 
-  it('fetchMyProfileBilling returns a disabled local profile without querying billing tables', async () => {
+  it('fetchOperationalProfile returns a disabled local profile without querying billing tables', async () => {
     const { mod, supabaseMock } = await loadMonetization();
 
-    const result = await mod.fetchMyProfileBilling();
+    const result = await mod.fetchOperationalProfile();
 
     expect(result.user.id).toBe('user-1');
     expect(result.profile).toMatchObject({
@@ -62,12 +62,12 @@ describe('monetization disabled compatibility layer', () => {
   it('caches the disabled profile snapshot until explicitly invalidated', async () => {
     const { mod, supabaseMock } = await loadMonetization();
 
-    await mod.fetchMyProfileBillingCached();
-    await mod.fetchMyProfileBillingCached();
+    await mod.fetchOperationalProfileCached();
+    await mod.fetchOperationalProfileCached();
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(1);
 
-    mod.invalidateBillingProfileCache();
-    await mod.fetchMyProfileBillingCached();
+    mod.invalidateOperationalProfileCache();
+    await mod.fetchOperationalProfileCached();
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(2);
   });
 

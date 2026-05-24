@@ -5,9 +5,9 @@ vi.mock('../core/auth.js', () => ({
   Auth: { getUser },
 }));
 
-const fetchMyProfileBilling = vi.fn();
+const fetchOperationalProfile = vi.fn();
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling,
+  fetchOperationalProfile,
 }));
 
 const getEffectivePlan = vi.fn();
@@ -46,7 +46,7 @@ describe('PdfQuotaBadge', () => {
   it('hides for Pro users (unlimited)', async () => {
     const { PdfQuotaBadge } = await import('../ui/components/pdfQuotaBadge.js');
     getUser.mockResolvedValueOnce({ id: 'u1' });
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan_code: 'pro' },
     });
     getEffectivePlan.mockReturnValueOnce('pro');
@@ -61,7 +61,7 @@ describe('PdfQuotaBadge', () => {
   it('renders label "X/Y PDFs este mês · restam Z (Free)" for Free', async () => {
     const { PdfQuotaBadge } = await import('../ui/components/pdfQuotaBadge.js');
     getUser.mockResolvedValueOnce({ id: 'u1' });
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan_code: 'free' },
     });
     getEffectivePlan.mockReturnValueOnce('free');
@@ -80,7 +80,7 @@ describe('PdfQuotaBadge', () => {
   it('applies warning tone at >=80% usage', async () => {
     const { PdfQuotaBadge } = await import('../ui/components/pdfQuotaBadge.js');
     getUser.mockResolvedValueOnce({ id: 'u1' });
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan_code: 'free' },
     });
     getEffectivePlan.mockReturnValueOnce('free');
@@ -96,7 +96,7 @@ describe('PdfQuotaBadge', () => {
   it('applies danger tone and "Limite atingido" label at 100%', async () => {
     const { PdfQuotaBadge } = await import('../ui/components/pdfQuotaBadge.js');
     getUser.mockResolvedValueOnce({ id: 'u1' });
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan_code: 'plus' },
     });
     getEffectivePlan.mockReturnValueOnce('plus');
@@ -123,7 +123,7 @@ describe('PdfQuotaBadge', () => {
   it('is idempotent — calling refresh twice replaces the badge', async () => {
     const { PdfQuotaBadge } = await import('../ui/components/pdfQuotaBadge.js');
     getUser.mockResolvedValue({ id: 'u1' });
-    fetchMyProfileBilling.mockResolvedValue({
+    fetchOperationalProfile.mockResolvedValue({
       profile: { id: 'u1', plan_code: 'free' },
     });
     getEffectivePlan.mockReturnValue('free');
@@ -143,7 +143,7 @@ describe('PdfQuotaBadge', () => {
   it('remove() clears the badge from DOM', async () => {
     const { PdfQuotaBadge } = await import('../ui/components/pdfQuotaBadge.js');
     getUser.mockResolvedValueOnce({ id: 'u1' });
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan_code: 'free' },
     });
     getEffectivePlan.mockReturnValueOnce('free');

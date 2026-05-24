@@ -22,7 +22,7 @@ const mocks = vi.hoisted(() => ({
   shareToastShow: vi.fn(),
   pdfToastShow: vi.fn(),
   pdfBadgeRefresh: vi.fn(),
-  fetchMyProfileBilling: vi.fn(),
+  fetchOperationalProfile: vi.fn(),
   getPlanCodeForUserId: vi.fn(),
   getEffectivePlan: vi.fn(),
   getMonthlyUsageSnapshot: vi.fn(),
@@ -81,7 +81,7 @@ vi.mock('../ui/components/pdfQuotaBadge.js', () => ({
 }));
 
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling: mocks.fetchMyProfileBilling,
+  fetchOperationalProfile: mocks.fetchOperationalProfile,
 }));
 
 vi.mock('../core/plans/subscriptionPlans.js', () => ({
@@ -207,7 +207,7 @@ async function bindReportHandlers() {
 
 function setupReportMocks() {
   mocks.getUser.mockResolvedValue({ id: 'user-critical' });
-  mocks.fetchMyProfileBilling.mockResolvedValue({
+  mocks.fetchOperationalProfile.mockResolvedValue({
     profile: {
       id: 'user-critical',
       plan_code: 'free',

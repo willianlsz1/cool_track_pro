@@ -97,7 +97,7 @@ vi.mock('../core/modal.js', () => ({
 
 // monetization + subscriptionPlans (import dinâmico no recheck async).
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling: vi.fn(async () => ({ profile: null })),
+  fetchOperationalProfile: vi.fn(async () => ({ profile: null })),
 }));
 // subscriptionPlans é importado transitivamente por upgradeNudge/dashboard,
 // então precisamos expor também as constantes (senão importOriginal é o caminho).

@@ -90,21 +90,21 @@ export function canUsePremiumFeature(_profile, feature) {
   return feature === PREMIUM_FEATURE_EQUIPAMENTOS || feature === PREMIUM_FEATURE_PDF_EXPORT;
 }
 
-export function getCachedBillingProfileSnapshot() {
+export function getCachedOperationalProfileSnapshot() {
   return _profileSnapshot;
 }
 
-export function invalidateBillingProfileCache() {
+export function invalidateOperationalProfileCache() {
   _profileSnapshot = null;
 }
 
-export async function fetchMyProfileBillingCached() {
+export async function fetchOperationalProfileCached() {
   if (_profileSnapshot) return _profileSnapshot;
-  _profileSnapshot = await fetchMyProfileBilling();
+  _profileSnapshot = await fetchOperationalProfile();
   return _profileSnapshot;
 }
 
-export async function fetchMyProfileBilling({ supabaseClient = supabase } = {}) {
+export async function fetchOperationalProfile({ supabaseClient = supabase } = {}) {
   const {
     data: { user },
     error: userError,

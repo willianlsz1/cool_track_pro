@@ -98,7 +98,7 @@ async function loadRelatorioWithExportHandlers({ state = buildState(), planCode 
   const pdfSuccessShow = vi.fn();
   const pdfQuotaRefresh = vi.fn();
   const pdfQuotaRemove = vi.fn();
-  const fetchMyProfileBilling = vi.fn(async () => ({
+  const fetchOperationalProfile = vi.fn(async () => ({
     profile: { id: 'u1', plan_code: planCode, subscription_status: 'active', is_dev: false },
   }));
   const getPlanCodeForUserId = vi.fn(async () => planCode);
@@ -196,7 +196,7 @@ async function loadRelatorioWithExportHandlers({ state = buildState(), planCode 
     PdfSuccessToast: { show: pdfSuccessShow },
   }));
   vi.doMock('../core/plans/monetization.js', () => ({
-    fetchMyProfileBilling,
+    fetchOperationalProfile,
   }));
   vi.doMock('../core/plans/subscriptionPlans.js', () => ({
     getPlanCodeForUserId,
@@ -251,7 +251,7 @@ async function loadRelatorioWithExportHandlers({ state = buildState(), planCode 
     relatorio,
     handlers,
     mocks: {
-      fetchMyProfileBilling,
+      fetchOperationalProfile,
       generateMaintenanceReport,
       generatePmocPdf,
       generateText,

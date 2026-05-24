@@ -284,7 +284,7 @@ configureOpenEditEquip({
   focusEditField: _focusEditField,
   handleError,
   ErrorCodes,
-  loadBillingGateDeps: async () => {
+  loadOperationalGateDeps: async () => {
     const [monetization, plans, capture, usageLimits] = await Promise.all([
       import('../../core/plans/monetization.js'),
       import('../../core/plans/subscriptionPlans.js'),

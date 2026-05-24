@@ -18,7 +18,7 @@ import {
   PLAN_CODE_FREE,
   PLAN_CODE_PLUS,
 } from '../../../core/plans/subscriptionPlans.js';
-import { fetchMyProfileBilling } from '../../../core/plans/monetization.js';
+import { fetchOperationalProfile } from '../../../core/plans/monetization.js';
 import { OnboardingChecklist } from '../../components/onboarding/onboardingChecklist.js';
 import {
   getMonthlyLimitForPlan,
@@ -84,7 +84,7 @@ function buildPdfLimitMessage(planCode, pdfLimit) {
  * Porta de entrada compartilhada por "Exportar PDF" e "Imprimir" — ambos
  * consomem a mesma quota mensal (USAGE_RESOURCE_PDF_EXPORT). Centraliza:
  *   1. Auth.getUser() + modal de conversão para convidados
- *   2. fetchMyProfileBilling() + getEffectivePlan() para o plano efetivo
+ *   2. fetchOperationalProfile() + getEffectivePlan() para o plano efetivo
  *   3. getMonthlyUsageSnapshot + hasReachedMonthlyLimit + modal de limite
  *   4. commit(): incremento condicional (apenas planos com limite finito)
  *
@@ -102,7 +102,7 @@ async function ensureReportBudget({ attemptedEvent, blockedEvent }) {
     return { ok: false };
   }
 
-  const { profile } = await fetchMyProfileBilling();
+  const { profile } = await fetchOperationalProfile();
   const planCode = getEffectivePlan(profile);
   trackEvent(attemptedEvent, { plan: planCode });
 
@@ -633,8 +633,8 @@ function bindPmocFormal() {
       // Refinar: cache Plus+ é mais permissivo do que Pro estrito.
       // Faz fetch defensivo do profile real.
       try {
-        const { fetchMyProfileBilling } = await import('../../../core/plans/monetization.js');
-        const { profile } = await fetchMyProfileBilling();
+        const { fetchOperationalProfile } = await import('../../../core/plans/monetization.js');
+        const { profile } = await fetchOperationalProfile();
         isPro = hasProAccess(profile);
       } catch (_) {
         /* offline: mantém cache (over-permissive nessa edge case é OK pro PMOC) */

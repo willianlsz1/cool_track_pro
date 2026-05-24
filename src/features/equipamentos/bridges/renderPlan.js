@@ -41,8 +41,8 @@ export function refreshRenderEquipPlan({
 
   const refreshPromise = (async () => {
     try {
-      const { fetchMyProfileBillingCached } = await import('../../../core/plans/monetization.js');
-      const { profile } = await fetchMyProfileBillingCached();
+      const { fetchOperationalProfileCached } = await import('../../../core/plans/monetization.js');
+      const { profile } = await fetchOperationalProfileCached();
       setCachedPlan(getEffectivePlan(profile));
       setRenderEquipPlanNeedsRefresh(false);
       const nextIsPro = hasProAccess(profile);

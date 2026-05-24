@@ -64,9 +64,9 @@ vi.mock('../ui/components/pdfQuotaBadge.js', () => ({
   PdfQuotaBadge: { refresh: pdfBadgeRefresh, remove: vi.fn() },
 }));
 
-const fetchMyProfileBilling = vi.fn();
+const fetchOperationalProfile = vi.fn();
 vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBilling,
+  fetchOperationalProfile,
 }));
 
 const getPlanCodeForUserId = vi.fn();
@@ -119,7 +119,7 @@ describe('reportExportHandlers', () => {
     shareReportPdf.mockReset();
     getUser.mockReset();
     getEffectivePlan.mockReset();
-    fetchMyProfileBilling.mockReset();
+    fetchOperationalProfile.mockReset();
     customConfirmShow.mockReset();
     localStorage.clear();
     // Default: usuario sempre CONFIRMA o modal de PDF preview/export.
@@ -141,7 +141,7 @@ describe('reportExportHandlers', () => {
     getPlanCodeForUserId.mockResolvedValue('free');
     getEffectivePlan.mockReturnValue('free');
 
-    fetchMyProfileBilling.mockResolvedValue({
+    fetchOperationalProfile.mockResolvedValue({
       profile: { id: 'u1', plan_code: 'free', subscription_status: 'inactive', is_dev: false },
     });
 
@@ -255,7 +255,7 @@ describe('reportExportHandlers', () => {
   it('allows Plus users under the monthly PDF quota and increments usage', async () => {
     getUser.mockResolvedValueOnce({ id: 'u1' });
     getEffectivePlan.mockReturnValueOnce('plus');
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan: 'plus', subscription_status: 'active', is_dev: false },
     });
     getMonthlyUsageSnapshot.mockResolvedValueOnce({
@@ -281,7 +281,7 @@ describe('reportExportHandlers', () => {
   it('blocks Plus users once they hit the monthly PDF quota', async () => {
     getUser.mockResolvedValueOnce({ id: 'u1' });
     getEffectivePlan.mockReturnValueOnce('plus');
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan: 'plus', subscription_status: 'active', is_dev: false },
     });
     getMonthlyUsageSnapshot.mockResolvedValueOnce({
@@ -317,7 +317,7 @@ describe('reportExportHandlers', () => {
   it('allows authenticated Pro users to export PDF without incrementing quota', async () => {
     getUser.mockResolvedValueOnce({ id: 'u1' });
     getEffectivePlan.mockReturnValueOnce('pro');
-    fetchMyProfileBilling.mockResolvedValueOnce({
+    fetchOperationalProfile.mockResolvedValueOnce({
       profile: { id: 'u1', plan: 'pro', subscription_status: 'active', is_dev: false },
     });
     generateMaintenanceReport.mockResolvedValueOnce({

@@ -45,7 +45,7 @@ export function bindProfileAccountHandlers() {
   // e "Gerenciar plano"). Antes geravam warning "Sem handler" no console
   // porque essas actions eram declaradas em data-action mas nunca foram
   // bindadas em lugar nenhum. Editar perfil abre o ProfileModal; gerenciar
-  // plano exibe aviso local enquanto billing e precificacao estao fora do produto.
+  // plano exibe aviso local enquanto planos pagos estao fora do produto.
   on('conta-edit-profile', () => ProfileModal.open());
   on('conta-manage-plan', () => Toast.warning('Planos pagos foram removidos desta versao.'));
 

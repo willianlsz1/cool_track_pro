@@ -22,7 +22,7 @@ import { InstallAppPrompt } from '../components/installAppPrompt.js';
 import { UpgradeNudge } from '../components/upgradeNudge.js';
 import { OverflowBanner } from '../components/overflowBanner.js';
 import { withSkeleton } from '../components/skeleton.js';
-import { fetchMyProfileBilling } from '../../core/plans/monetization.js';
+import { fetchOperationalProfile } from '../../core/plans/monetization.js';
 import {
   PLAN_CODE_FREE,
   PLAN_CODE_PLUS,
@@ -498,7 +498,7 @@ async function resolveDashboardPlanContext() {
   if (!user?.id) return { planCode: PLAN_CODE_FREE, hasPro: false, userId: null };
 
   try {
-    const { profile } = await fetchMyProfileBilling();
+    const { profile } = await fetchOperationalProfile();
     return {
       planCode: getEffectivePlan(profile),
       hasPro: hasProAccess(profile),
@@ -1168,7 +1168,7 @@ export async function renderDashboard() {
   if (!viewInicio) return;
 
   // Skeleton cobre TODO o ciclo — incluindo o await do planContext — para
-  // que o usuário nunca veja a view em branco enquanto buscamos billing.
+  // que o usuário nunca veja a view em branco enquanto buscamos o perfil operacional.
   return withSkeleton(viewInicio, { enabled: true, variant: 'generic', count: 4 }, async () => {
     const planContext = await resolveDashboardPlanContext();
     const { equipamentos, registros, clientes, setores } = getState();
