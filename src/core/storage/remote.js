@@ -80,7 +80,6 @@ export async function pushRegistros(registros, userId) {
       tecnico: r.tecnico,
       custo_pecas: r.custoPecas,
       custo_mao_obra: r.custoMaoObra,
-      assinatura: r.assinatura,
       fotos: normalizePhotoList(r.fotos),
     }));
     const { error } = await supabase.from('registros').upsert(rows, { onConflict: 'id' });
@@ -221,7 +220,6 @@ export async function pullFromSupabase(userId) {
       tecnico: r.tecnico || '',
       custoPecas: parseFloat(r.custo_pecas || 0),
       custoMaoObra: parseFloat(r.custo_mao_obra || 0),
-      assinatura: Boolean(r.assinatura),
       fotos: normalizePhotoList(r.fotos),
     }))
     .filter((r) => equipIds.has(r.equipId));

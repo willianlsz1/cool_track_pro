@@ -409,6 +409,23 @@ describe('legacy v1 removal contracts', () => {
     expect(persistenceSource).not.toContain('assinatura:');
   });
 
+  it('does not keep legacy assinatura field in Registro storage and sync payloads', () => {
+    const storageNormalizersSource = readSource('src/core/storage/storageNormalizers.js');
+    const normalizersSource = readSource('src/core/storage/normalizers.js');
+    const storageRemoteSyncSource = readSource('src/core/storage/storageRemoteSync.js');
+    const remoteSource = readSource('src/core/storage/remote.js');
+
+    for (const source of [
+      storageNormalizersSource,
+      normalizersSource,
+      storageRemoteSyncSource,
+      remoteSource,
+    ]) {
+      expect(source).not.toContain('assinatura:');
+      expect(source).not.toContain('r.assinatura');
+    }
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

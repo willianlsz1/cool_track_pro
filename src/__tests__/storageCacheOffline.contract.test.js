@@ -102,7 +102,6 @@ function sampleState() {
         tipo: 'Preventiva',
         status: 'ok',
         fotos: [],
-        assinatura: null,
       },
     ],
     tecnicos: ['Ana'],

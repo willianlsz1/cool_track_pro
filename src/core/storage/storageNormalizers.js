@@ -112,7 +112,6 @@ export function normalizeRegistro(r, equipamentoIds) {
     tecnico: sanitized.tecnico,
     custoPecas: sanitized.custoPecas,
     custoMaoObra: sanitized.custoMaoObra,
-    assinatura: Boolean(r.assinatura),
     checklist: r.checklist && typeof r.checklist === 'object' ? r.checklist : null,
   };
 }

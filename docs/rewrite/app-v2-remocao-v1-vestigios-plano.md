@@ -640,6 +640,9 @@ Progresso executado:
 - CP-56A remove `assinaturaPayload` e `assinatura` do payload local de criacao
   do Registro. O CP nao altera normalizers, sync remoto, migrations,
   Supabase/RLS, orcamentos ou billing.
+- CP-56B remove `assinatura` dos normalizers e mapeadores de storage/sync de
+  Registro. O CP nao altera migrations, Supabase/RLS, orcamentos, billing ou
+  qualquer contrato de assinatura fora de Registro.
 
 Controle:
 
