@@ -736,7 +736,7 @@ function _bindEquipChangeWarning() {
       const w = document.createElement('div');
       w.id = 'reg-pending-warning';
       w.className = 'reg-pending-warning';
-      w.textContent = 'âš  ManutenÃ§Ã£o preventiva agendada. Registre apenas em emergÃªncia.';
+      w.textContent = 'Manutenção preventiva agendada. Registre apenas em emergência.';
       sel.parentNode.parentNode.insertBefore(w, sel.parentNode.nextSibling);
     }
   });
@@ -889,10 +889,10 @@ function _updateChecklistSummary() {
   const periodicidadeLabel =
     Number.isFinite(periodicidade) && periodicidade > 0
       ? `${periodicidade} dias`
-      : 'periodicidade nÃ£o definida';
-  const tipoServico = _getRegistroChecklistServiceType() || 'ServiÃ§o';
+      : 'periodicidade não definida';
+  const tipoServico = _getRegistroChecklistServiceType() || 'Serviço';
   const filled = s.ok + s.fail + s.na;
-  summaryEl.textContent = `${tipoServico} Â· ${periodicidadeLabel} Â· ${filled}/${s.total} itens preenchidos`;
+  summaryEl.textContent = `${tipoServico} · ${periodicidadeLabel} · ${filled}/${s.total} itens preenchidos`;
 }
 
 function _refreshChecklistPriBadge() {

@@ -16,6 +16,8 @@
 - Corrigidos textos operacionais com português quebrado em helpers de plano.
 - Corrigidas mensagens visíveis do app-v2 em formulários/detalhes de cliente e
   equipamento.
+- Corrigidos textos visíveis corrompidos no Registro/checklist legado ainda
+  ativo.
 
 ## Validação padrão
 

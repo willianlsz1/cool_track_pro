@@ -667,6 +667,19 @@ describe('legacy v1 removal contracts', () => {
     }
   });
 
+  it('does not keep mojibake in active Registro checklist copy', () => {
+    const joined = [
+      readSource('src/ui/views/registro.js'),
+      readSource('src/ui/views/registro/checklist/pmocChecklist.js'),
+    ].join('\n');
+
+    expect(joined).not.toContain('ManutenÃ§Ã£o preventiva agendada');
+    expect(joined).not.toContain('periodicidade nÃ£o definida');
+    expect(joined).not.toContain('ServiÃ§o');
+    expect(joined).not.toContain('itens obrigatÃ³rios pendentes');
+    expect(joined).not.toContain('item obrigatÃ³rio pendente');
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');
