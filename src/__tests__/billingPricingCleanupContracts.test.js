@@ -13,10 +13,7 @@ describe('billing/pricing cleanup contracts', () => {
   });
 
   it('does not keep legacy e2e assertions that navigate to pricing', () => {
-    const relatorioVisualSmoke = readSource('e2e/specs/relatorio-visual-smoke.spec.js');
-
-    expect(relatorioVisualSmoke).not.toContain("data-nav', 'pricing'");
-    expect(relatorioVisualSmoke).not.toContain('"pricing"');
+    expect(existsSync('e2e/specs/relatorio-visual-smoke.spec.js')).toBe(false);
   });
 
   it('does not keep orphan clientes paywall styles after removing commercial surfaces', () => {
