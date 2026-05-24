@@ -1,28 +1,28 @@
 ﻿/**
- * OverflowBanner â€” aviso fino de limite ultrapassado + modal one-shot.
+ * OverflowBanner - aviso fino de limite ultrapassado + modal one-shot.
  *
- * MotivaÃ§Ã£o: o dashboard antigo mostrava um usage-meter (com barras e badge
- * "LIMITE ULTRAPASSADO") e logo abaixo o card comercial desligado. Para o usuÃ¡rio Free, isso era 2 blocos grandes
- * competindo por atenÃ§Ã£o logo no topo, com a mesma mensagem dita duas vezes.
+ * Motivacao: o dashboard antigo mostrava barras de uso e logo abaixo o card
+ * comercial desligado. Para o usuario Free, isso era 2 blocos grandes
+ * competindo por atencao logo no topo, com a mesma mensagem dita duas vezes.
  *
  * A troca: uma linha fina no topo indicando especificamente qual limite foi
- * ultrapassado + um modal one-shot que aparece UMA ÃšNICA VEZ por flag no
- * localStorage quando o usuÃ¡rio cruza o limite pela primeira vez. Depois
- * disso, sÃ³ o banner fino fica, e o usuÃ¡rio continua trabalhando.
+ * ultrapassado + um modal one-shot que aparece UMA UNICA VEZ por flag no
+ * localStorage quando o usuario cruza o limite pela primeira vez. Depois
+ * disso, so o banner fino fica, e o usuario continua trabalhando.
  *
  * UX:
- *   - Banner Ã© permanente enquanto o usuÃ¡rio estiver acima do limite (nÃ£o Ã©
- *     dismissÃ­vel â€” ao contrÃ¡rio de um popup diÃ¡rio, que o usuÃ¡rio aprende a
+ *   - Banner e permanente enquanto o usuario estiver acima do limite (nao e
+ *     dismissivel; ao contrario de um popup diario, que o usuario aprende a
  *     fechar no reflexo). Deixa de aparecer quando o uso volta ao limite ou o
  *     uso volta ao limite.
- *   - Modal aparece sÃ³ 1x por limite atingido (flag por tipo â€” equipamentos,
- *     registros ou ambos). Se o usuÃ¡rio volta ao Free apÃ³s cancelamento ou
- *     reduz o uso, a flag Ã© preservada â€” nÃ£o queremos assediar.
+ *   - Modal aparece so 1x por limite atingido (flag por tipo: equipamentos,
+ *     registros ou ambos). Se o usuario volta ao Free apos cancelamento ou
+ *     reduz o uso, a flag e preservada para nao repetir o aviso.
  *
  * API:
- *   OverflowBanner.computeState({ equipamentos, registros })  â†’ { overLimit, ... }
- *   OverflowBanner.render({ state })                          â†’ HTML string
- *   OverflowBanner.maybeShowFirstTimeModal({ state })         â†’ mostra modal se 1Âª vez
+ *   OverflowBanner.computeState({ equipamentos, registros }) -> { overLimit, ... }
+ *   OverflowBanner.render({ state }) -> HTML string
+ *   OverflowBanner.maybeShowFirstTimeModal({ state }) -> mostra modal na primeira vez
  */
 
 import { Utils } from '../../core/utils.js';

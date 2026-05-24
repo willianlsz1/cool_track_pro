@@ -164,12 +164,15 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-21 removeu o componente orfao `src/ui/components/accountModal.js`, que
   nao tinha import ativo fora de contrato de limpeza de billing/pricing. A tela
   de Conta do v1 e o app-v2 seguem sem depender desse modal antigo.
+- CP-22 removeu o componente orfao `src/ui/components/usageMeter.js` e seu
+  teste dedicado, apos confirmar que nao havia import ativo fora da propria
+  cobertura legada.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 177 arquivos restantes.
+- `src/ui/`: 176 arquivos restantes.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
