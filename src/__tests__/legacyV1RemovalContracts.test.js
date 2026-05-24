@@ -383,6 +383,23 @@ describe('legacy v1 removal contracts', () => {
     expect(historicoViewModelSource).not.toContain('hasSignature');
   });
 
+  it('does not keep legacy signature promises in onboarding and PMOC copy', () => {
+    const tourSource = readSource('src/ui/components/tour.js');
+    const onboardingChecklistSource = readSource(
+      'src/ui/components/onboarding/onboardingChecklist.js',
+    );
+    const firstTimeExperienceCss = readSource(
+      'src/ui/components/onboarding/firstTimeExperience.css',
+    );
+    const pmocInfoModalSource = readSource('src/ui/components/pmocInfoModal.js');
+
+    expect(tourSource).not.toContain('assinatura');
+    expect(onboardingChecklistSource).not.toContain('assinatura');
+    expect(firstTimeExperienceCss).not.toContain('ftx-signature');
+    expect(pmocInfoModalSource).not.toContain('assinatura');
+    expect(pmocInfoModalSource).not.toContain('assinaturas');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

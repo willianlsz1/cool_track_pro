@@ -51,7 +51,7 @@ const STEPS = [
   {
     id: 'servico',
     label: 'Registre seu primeiro serviço',
-    sub: 'Foto, observação e assinatura do cliente',
+    sub: 'Foto, observação e peças utilizadas',
     nav: 'registro',
   },
   {

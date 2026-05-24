@@ -95,7 +95,7 @@ function buildHtml() {
               </header>
               <ul>
                 <li>Gerado a partir de um atendimento</li>
-                <li>Inclui descrição, fotos, assinatura e checklist quando houver</li>
+                <li>Inclui descrição, fotos e checklist quando houver</li>
                 <li>Serve para enviar ao cliente após a visita</li>
                 <li>WhatsApp abre para você fazer o envio</li>
               </ul>
@@ -123,7 +123,7 @@ function buildHtml() {
               <ul>
                 <li>Documento anual numerado</li>
                 <li>Cadastro técnico e cronograma 12 meses</li>
-                <li>Termo de RT e assinaturas formais</li>
+                <li>Termo de RT e campos de responsabilidade técnica</li>
                 <li>Usa o histórico já registrado no app</li>
               </ul>
               <div class="pmoc-info-modal__compare-use">

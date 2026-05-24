@@ -630,6 +630,9 @@ Progresso executado:
   `signature: null` e a exclusao de registro nao limpa mais a chave obsoleta
   `cooltrack-sig-*`. O campo persistido `registros.assinatura` e sync/schema
   permanecem para CP dedicado.
+- CP-55I remove promessas obsoletas de assinatura em copy/CSS legado de
+  onboarding, tour e modal informativo de PMOC. O CP nao altera PMOC real,
+  PDF/share, storage, orcamentos, billing ou app-v2.
 
 Controle:
 

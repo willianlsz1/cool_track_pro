@@ -406,19 +406,6 @@
   color: #33445a;
   font-weight: 700;
 }
-.ftx-signature-mock {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8ef;
-}
-.ftx-signature-line {
-  margin-top: 18px;
-  border-top: 1px dashed #8a98a8;
-  padding-top: 6px;
-  font-size: 10px;
-  color: #4c5c6e;
-  width: 68%;
-}
 .ftx-report-copy-bottom {
   text-align: center;
   color: var(--text-2);

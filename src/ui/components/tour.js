@@ -57,9 +57,9 @@ const STEPS = [
     title: 'Registre cada atendimento',
     description:
       'No botão <strong>+ Registrar</strong> da barra inferior, registre cada visita — ' +
-      'preventiva, corretiva ou inspeção. Adiciona fotos, lista de peças e assinatura ' +
-      'do cliente direto no celular.',
-    tip: '💡 Depois de salvar, gere o PDF com 1 toque e envie pelo WhatsApp. O cliente recebe tudo formatado, com fotos e assinatura.',
+      'preventiva, corretiva ou inspeção. Adiciona fotos, observações e lista de peças ' +
+      'direto no celular.',
+    tip: '💡 Depois de salvar, consulte o histórico do equipamento para revisar o atendimento.',
   },
   {
     icon: '⚙️',
