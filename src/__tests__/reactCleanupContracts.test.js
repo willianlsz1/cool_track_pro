@@ -22,12 +22,12 @@ describe('React cleanup contracts', () => {
     expect(existsSync('src/react/entrypoints/integrationProbe.jsx')).toBe(false);
   });
 
-  it('keeps clientes search on the current React contract instead of #clientes-busca', () => {
+  it('keeps clientes search on the current DOM contract instead of #clientes-busca', () => {
     const routesEntry = readSource('src/ui/controller/routes.js');
-    const clientesPage = readSource('src/react/pages/ClientesPage.jsx');
+    const clientesPage = readSource('src/ui/views/clientes/filtersRenderer.js');
 
     expect(CLIENTES_PUBLIC_IDS.searchInput).toBe('cli-search-input');
-    expect(clientesPage).toContain('id={CLIENTES_PUBLIC_IDS.searchInput}');
+    expect(clientesPage).toContain('id="${CLIENTES_PUBLIC_IDS.searchInput}"');
     expect(clientesPage).not.toContain('clientes-busca');
     expect(routesEntry).not.toContain('clientes-busca');
     expect(routesEntry).not.toContain('setClientesSearch');

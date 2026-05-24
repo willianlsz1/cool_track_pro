@@ -1,11 +1,8 @@
-import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { mountClientesReact, unmountClientesReact } from '../react/entrypoints/clientesIsland.jsx';
+import { mountClientesDom, unmountClientesDom } from '../ui/views/clientes/pageRenderer.js';
 import { CLIENTES_ACTIONS, CLIENTES_PUBLIC_IDS } from '../ui/viewModels/clientesContracts.js';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const PMOC_SUMMARY = {
   activeLabel: 'PMOC 2026 ativo',
@@ -82,21 +79,18 @@ function createViewModel(overrides = {}) {
   };
 }
 
-describe('clientes React island', () => {
+describe('clientes DOM renderer', () => {
   afterEach(() => {
     document.body.innerHTML = '';
     vi.restoreAllMocks();
   });
 
-  it('mounts in #clientes-root preserving public ids, classes and action contracts', async () => {
+  it('mounts in #clientes-root preserving public ids, classes and action contracts', () => {
     document.body.innerHTML = '<div id="view-clientes"><div id="clientes-root"></div></div>';
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
+    mountClientesDom(root, { viewModel: createViewModel() });
 
-    await act(async () => {
-      mountClientesReact(root, { viewModel: createViewModel() });
-    });
-
-    expect(root?.dataset.reactClientesMounted).toBe('true');
+    expect(root?.dataset.clientesMounted).toBe('true');
     expect(root?.querySelector('.cli-page')).not.toBeNull();
     expect(root?.querySelector('.cli-card[data-id="c1"]')).not.toBeNull();
     expect(root?.querySelector(`#${CLIENTES_PUBLIC_IDS.searchInput}`)?.value).toBe('alpha');
@@ -134,57 +128,51 @@ describe('clientes React island', () => {
     ).not.toBeNull();
   });
 
-  it('renders empty and filter-empty states with legacy contracts', async () => {
+  it('renders empty and filter-empty states with legacy contracts', () => {
     document.body.innerHTML = '<div id="clientes-root"></div>';
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
-
-    await act(async () => {
-      mountClientesReact(root, {
-        viewModel: createViewModel({
-          clientes: [],
-          equipamentos: [],
-          registros: [],
-          indexed: new Map(),
-          filtered: [],
-          pageItems: [],
-          cities: [],
-          isEmpty: true,
-          isFilterEmpty: false,
-          pagination: {
-            currentPage: 1,
-            pageSize: 6,
-            totalPages: 1,
-            filteredCount: 0,
-            from: 0,
-            to: 0,
-          },
-        }),
-      });
+    mountClientesDom(root, {
+      viewModel: createViewModel({
+        clientes: [],
+        equipamentos: [],
+        registros: [],
+        indexed: new Map(),
+        filtered: [],
+        pageItems: [],
+        cities: [],
+        isEmpty: true,
+        isFilterEmpty: false,
+        pagination: {
+          currentPage: 1,
+          pageSize: 6,
+          totalPages: 1,
+          filteredCount: 0,
+          from: 0,
+          to: 0,
+        },
+      }),
     });
 
     expect(root?.querySelector('.cli-empty')?.textContent).toContain('Nenhum cliente cadastrado');
     expect(
       root?.querySelector(`[data-action="${CLIENTES_ACTIONS.openModal}"][data-mode="create"]`),
     ).not.toBeNull();
-
-    await act(async () => {
-      mountClientesReact(root, {
-        viewModel: createViewModel({
-          pageItems: [],
-          filtered: [],
-          isEmpty: false,
-          isFilterEmpty: true,
-          filters: { ...createViewModel().filters, searchTerm: 'sem resultado' },
-          pagination: {
-            currentPage: 1,
-            pageSize: 6,
-            totalPages: 1,
-            filteredCount: 0,
-            from: 0,
-            to: 0,
-          },
-        }),
-      });
+    mountClientesDom(root, {
+      viewModel: createViewModel({
+        pageItems: [],
+        filtered: [],
+        isEmpty: false,
+        isFilterEmpty: true,
+        filters: { ...createViewModel().filters, searchTerm: 'sem resultado' },
+        pagination: {
+          currentPage: 1,
+          pageSize: 6,
+          totalPages: 1,
+          filteredCount: 0,
+          from: 0,
+          to: 0,
+        },
+      }),
     });
 
     expect(root?.querySelector('.cli-empty--filter')?.textContent).toContain(
@@ -195,35 +183,32 @@ describe('clientes React island', () => {
     ).not.toBeNull();
   });
 
-  it('updates an existing root instead of creating multiple roots for repeated calls', async () => {
+  it('updates an existing root instead of creating multiple roots for repeated calls', () => {
     document.body.innerHTML = '<div id="clientes-root"></div>';
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    await act(async () => {
-      mountClientesReact(root, { viewModel: createViewModel() });
-      mountClientesReact(root, {
-        viewModel: createViewModel({
-          pageItems: [createCliente({ id: 'c2', nome: 'Beta Clinica' })],
-          filtered: [createCliente({ id: 'c2', nome: 'Beta Clinica' })],
-          clientes: [createCliente({ id: 'c2', nome: 'Beta Clinica' })],
-          indexed: new Map([
-            [
-              'c2',
-              {
-                status: 'precisa_atencao',
-                displayCity: 'Santos',
-                equipsCount: 0,
-                servicesCount: 0,
-                lastServiceTs: 0,
-                sinceLast: Infinity,
-                pmocSummary: null,
-                pmocOverdueCount: 0,
-              },
-            ],
-          ]),
-        }),
-      });
+    mountClientesDom(root, { viewModel: createViewModel() });
+    mountClientesDom(root, {
+      viewModel: createViewModel({
+        pageItems: [createCliente({ id: 'c2', nome: 'Beta Clinica' })],
+        filtered: [createCliente({ id: 'c2', nome: 'Beta Clinica' })],
+        clientes: [createCliente({ id: 'c2', nome: 'Beta Clinica' })],
+        indexed: new Map([
+          [
+            'c2',
+            {
+              status: 'precisa_atencao',
+              displayCity: 'Santos',
+              equipsCount: 0,
+              servicesCount: 0,
+              lastServiceTs: 0,
+              sinceLast: Infinity,
+              pmocSummary: null,
+              pmocOverdueCount: 0,
+            },
+          ],
+        ]),
+      }),
     });
 
     const cards = root?.querySelectorAll('.cli-card');
@@ -237,21 +222,18 @@ describe('clientes React island', () => {
     );
   });
 
-  it('unmounts safely and tolerates repeated unmount calls', async () => {
+  it('unmounts safely and tolerates repeated unmount calls', () => {
     document.body.innerHTML = '<div id="clientes-root"></div>';
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
+    mountClientesDom(root, { viewModel: createViewModel() });
+    unmountClientesDom(root);
+    unmountClientesDom(root);
 
-    await act(async () => {
-      mountClientesReact(root, { viewModel: createViewModel() });
-      unmountClientesReact(root);
-      unmountClientesReact(root);
-    });
-
-    expect(root?.dataset.reactClientesMounted).toBeUndefined();
+    expect(root?.dataset.clientesMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
   });
 
-  it('keeps legacy delegated handlers actionable through data attributes', async () => {
+  it('keeps legacy delegated handlers actionable through data attributes', () => {
     document.body.innerHTML = '<div id="view-clientes"><div id="clientes-root"></div></div>';
     const view = document.getElementById(CLIENTES_PUBLIC_IDS.view);
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
@@ -262,10 +244,7 @@ describe('clientes React island', () => {
         target?.getAttribute('data-cli-action') || target?.getAttribute('data-action'),
       );
     });
-
-    await act(async () => {
-      mountClientesReact(root, { viewModel: createViewModel() });
-    });
+    mountClientesDom(root, { viewModel: createViewModel() });
 
     root
       ?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.verEquipamentos}"][data-id="c1"]`)
@@ -278,7 +257,7 @@ describe('clientes React island', () => {
     expect(delegatedHandler).toHaveBeenCalledWith(CLIENTES_ACTIONS.openModal);
   });
 
-  it('escapes dynamic content and does not use unsafe React HTML APIs', async () => {
+  it('escapes dynamic content and does not use unsafe React HTML APIs', () => {
     document.body.innerHTML = '<div id="clientes-root"></div>';
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
     const malicious = createCliente({
@@ -287,15 +266,12 @@ describe('clientes React island', () => {
       cnpj: '" autofocus onfocus="alert(1)',
       endereco: 'Rua <svg onload=alert(1)>, Campinas, SP',
     });
-
-    await act(async () => {
-      mountClientesReact(root, {
-        viewModel: createViewModel({
-          clientes: [malicious],
-          filtered: [malicious],
-          pageItems: [malicious],
-        }),
-      });
+    mountClientesDom(root, {
+      viewModel: createViewModel({
+        clientes: [malicious],
+        filtered: [malicious],
+        pageItems: [malicious],
+      }),
     });
 
     const html = root?.innerHTML || '';
@@ -310,7 +286,7 @@ describe('clientes React island', () => {
     expect(root?.querySelector('img[src="x"]')).toBeNull();
     expect(root?.querySelector('svg[onload]')).toBeNull();
 
-    const pageSource = readFileSync('src/react/pages/ClientesPage.jsx', 'utf8');
-    expect(pageSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML/);
+    const pageSource = readFileSync('src/ui/views/clientes/pageRenderer.js', 'utf8');
+    expect(pageSource).not.toMatch(/dangerouslySetInnerHTML/);
   });
 });

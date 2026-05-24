@@ -34,6 +34,7 @@ import { ClienteAlertModal } from '../components/clienteAlertModal.js';
 import { ClientePmocPanel } from '../components/clientePmocPanel.js';
 import { buildClientesViewModel } from '../viewModels/clientesViewModel.js';
 import { CLIENTES_ACTIONS, CLIENTES_PUBLIC_IDS } from '../viewModels/clientesContracts.js';
+import { mountClientesDom, unmountClientesDom } from './clientes/pageRenderer.js';
 
 /* ─────────────────────── module state ──────────────────────────────── */
 
@@ -47,12 +48,6 @@ let _hydrated = false;
 let _bound = false;
 let _summaryCollapsed = true;
 let renderGeneration = 0;
-let clientesBridgePromise = null;
-
-function loadClientesBridge() {
-  clientesBridgePromise ??= import('../../react/entrypoints/clientesIsland.jsx');
-  return clientesBridgePromise;
-}
 
 function buildClienteAlerts(pageItems = []) {
   return pageItems.reduce((alerts, cliente) => {
@@ -112,10 +107,9 @@ export async function renderClientes() {
 
   const generation = ++renderGeneration;
   const clienteAlerts = buildClienteAlerts(viewModel.pageItems);
-  const { mountClientesReact } = await loadClientesBridge();
   if (generation !== renderGeneration) return null;
 
-  const mounted = mountClientesReact(root, {
+  const mounted = mountClientesDom(root, {
     viewModel,
     clienteAlerts,
     isSummaryCollapsed: shouldCollapseSummary(),
@@ -127,12 +121,9 @@ export async function renderClientes() {
 export function unmountClientes() {
   renderGeneration += 1;
   const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
-  if (!root?.dataset.reactClientesMounted) return null;
-
-  return loadClientesBridge().then(({ unmountClientesReact }) => {
-    unmountClientesReact(root);
-    return null;
-  });
+  if (!root?.dataset.clientesMounted) return null;
+  unmountClientesDom(root);
+  return null;
 }
 
 /* ─────────────────────── interactions ──────────────────────────────── */

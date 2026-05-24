@@ -25,6 +25,7 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
   const safeData = data || {};
   const safeId = Utils.escapeAttr(cliente.id);
   const nome = Utils.escapeHtml(cliente.nome || 'Cliente');
+  const ariaNome = Utils.escapeAttr(String(cliente.nome || 'Cliente').replace(/[<>]/g, ' '));
   const razao = cliente.razaoSocial ? Utils.escapeHtml(cliente.razaoSocial) : '';
   const cnpj = cliente.cnpj ? Utils.escapeHtml(formatCnpjOrCpf(cliente.cnpj)) : '';
   const subline = [razao, cnpj].filter(Boolean).join('  ·  ');
@@ -73,7 +74,7 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
 
   return `
     <article class="cli-card" data-id="${safeId}" role="listitem"
-      tabindex="0" aria-label="Cliente ${nome}">
+      tabindex="0" aria-label="Cliente ${ariaNome}">
       <header class="cli-card__head">
         <span class="cli-card__icon cli-card__icon--${industry.tint}" aria-hidden="true">
           ${INDUSTRY_SVG[industry.name]}
@@ -149,17 +150,25 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
           data-cli-action="${CLIENTES_ACTIONS.verEquipamentos}" data-id="${safeId}">
           ${ICON_MONITOR_SM}<span>Ver equipamentos</span>
         </button>
-        <button type="button" class="cli-card__action cli-card__action--primary"
+        <button type="button" class="cli-card__action cli-card__action--secondary"
           data-cli-action="${CLIENTES_ACTIONS.verServicos}" data-id="${safeId}">
           ${ICON_CLOCK_SM}<span>Ver serviços</span>
         </button>
-        <button type="button" class="cli-card__action cli-card__action--primary"
+        <button type="button" class="cli-card__action cli-card__action--secondary"
           data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}" data-id="${safeId}">
           ${ICON_FILE}<span>PMOC</span>
         </button>
+        <button type="button" class="cli-card__action cli-card__action--secondary"
+          data-cli-action="${CLIENTES_ACTIONS.novoOrcamento}" data-id="${safeId}">
+          ${ICON_FILE}<span>Novo orçamento</span>
+        </button>
+        <button type="button" class="cli-card__action cli-card__action--secondary"
+          data-cli-action="${CLIENTES_ACTIONS.novoServico}" data-id="${safeId}">
+          ${ICON_CLOCK_SM}<span>Novo serviço</span>
+        </button>
         <button type="button" class="cli-card__action cli-card__action--ghost cli-card__action--options"
           data-cli-action="${CLIENTES_ACTIONS.cardMenu}" data-id="${safeId}"
-          aria-label="Mais opções para ${nome}" title="Opções"
+          aria-label="Mais opções para ${ariaNome}" title="Opções"
           aria-haspopup="menu" aria-expanded="false">
           ${ICON_KEBAB}<span class="cli-card__options-label">Opções</span>
         </button>
