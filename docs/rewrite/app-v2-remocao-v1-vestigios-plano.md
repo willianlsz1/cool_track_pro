@@ -633,6 +633,10 @@ Progresso executado:
 - CP-55I remove promessas obsoletas de assinatura em copy/CSS legado de
   onboarding, tour e modal informativo de PMOC. O CP nao altera PMOC real,
   PDF/share, storage, orcamentos, billing ou app-v2.
+- CP-56 mapeia o corte sensivel do campo persistido `registros.assinatura` e
+  separa tres trilhas que nao devem ser misturadas: Registro/storage/sync,
+  Supabase/RLS/migrations e assinatura de orcamento/billing. Este CP e
+  documental para evitar mudanca por tentativa em area sensivel.
 
 Controle:
 
