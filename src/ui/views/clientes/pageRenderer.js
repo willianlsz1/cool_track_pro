@@ -3,10 +3,11 @@ import {
   CLIENTES_ACTIONS,
   CLIENTES_PAGE_SIZE_OPTIONS,
   CLIENTES_PUBLIC_IDS,
+  CLIENTES_SORT_OPTIONS,
+  CLIENTES_STATUS_OPTIONS,
 } from '../../viewModels/clientesContracts.js';
 import { renderCard } from './cardRenderer.js';
-import { ICON_CHEV_L, ICON_CHEV_R, ICON_PLUS, ICON_USERS } from './constants.js';
-import { renderFilters } from './filtersRenderer.js';
+import { ICON_CHEV_L, ICON_CHEV_R, ICON_PLUS, ICON_SEARCH, ICON_USERS } from './constants.js';
 import { renderActiveContext, renderAlertStrip, renderSummary } from './summaryRenderer.js';
 
 function renderHeader() {
@@ -61,6 +62,49 @@ function renderEmptyFilter(searchTerm) {
       <p class="cli-empty__sub">Nenhum cliente encontrado ${hint}.</p>
       <button type="button" class="cli-empty__cta cli-empty__cta--ghost"
         data-cli-action="${CLIENTES_ACTIONS.clearFilters}">Limpar filtros</button>
+    </div>`;
+}
+
+function renderFilters({ cities, searchTerm, statusFilter, cityFilter, sortBy }) {
+  const cityOptions = ['todas', ...Array.from(new Set(cities)).filter(Boolean).sort()];
+  return `
+    <div class="cli-filters">
+      <label class="cli-search">
+        <span class="cli-search__icon" aria-hidden="true">${ICON_SEARCH}</span>
+        <input type="search" class="cli-search__input" id="${CLIENTES_PUBLIC_IDS.searchInput}"
+          placeholder="Buscar por nome, CNPJ, endereço..."
+          aria-label="Buscar cliente"
+          value="${Utils.escapeAttr(searchTerm)}" />
+      </label>
+      <label class="cli-select">
+        <span class="cli-select__label">Status</span>
+        <select id="${CLIENTES_PUBLIC_IDS.statusFilter}" class="cli-select__input" aria-label="Filtrar por status">
+          ${CLIENTES_STATUS_OPTIONS.map(
+            (option) =>
+              `<option value="${Utils.escapeAttr(option.id)}" ${statusFilter === option.id ? 'selected' : ''}>${Utils.escapeHtml(option.label)}</option>`,
+          ).join('')}
+        </select>
+      </label>
+      <label class="cli-select">
+        <span class="cli-select__label">Cidade</span>
+        <select id="${CLIENTES_PUBLIC_IDS.cityFilter}" class="cli-select__input" aria-label="Filtrar por cidade">
+          ${cityOptions
+            .map((c) => {
+              const label = c === 'todas' ? 'Todas' : c;
+              return `<option value="${Utils.escapeAttr(c)}" ${cityFilter === c ? 'selected' : ''}>${Utils.escapeHtml(label)}</option>`;
+            })
+            .join('')}
+        </select>
+      </label>
+      <label class="cli-select">
+        <span class="cli-select__label">Ordenar por</span>
+        <select id="${CLIENTES_PUBLIC_IDS.sort}" class="cli-select__input" aria-label="Ordenar lista">
+          ${CLIENTES_SORT_OPTIONS.map(
+            (option) =>
+              `<option value="${Utils.escapeAttr(option.id)}" ${sortBy === option.id ? 'selected' : ''}>${Utils.escapeHtml(option.label)}</option>`,
+          ).join('')}
+        </select>
+      </label>
     </div>`;
 }
 

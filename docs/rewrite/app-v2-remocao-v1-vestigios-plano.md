@@ -190,12 +190,16 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   co-localizando a paginacao de Clientes no unico consumidor
   `src/ui/views/clientes/pageRenderer.js` e corrigindo mojibake nos textos
   tocados da pagina.
+- CP-30 removeu o helper legado `src/ui/views/clientes/filtersRenderer.js`,
+  co-localizando filtros de Clientes no unico consumidor
+  `src/ui/views/clientes/pageRenderer.js` e corrigindo mojibake no placeholder
+  de busca tocado.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 158 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 157 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,

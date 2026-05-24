@@ -32,7 +32,7 @@ describe('React cleanup contracts', () => {
   });
 
   it('keeps clientes search on the current DOM contract instead of #clientes-busca', () => {
-    const clientesPage = readSource('src/ui/views/clientes/filtersRenderer.js');
+    const clientesPage = readSource('src/ui/views/clientes/pageRenderer.js');
 
     expect(CLIENTES_PUBLIC_IDS.searchInput).toBe('cli-search-input');
     expect(clientesPage).toContain('id="${CLIENTES_PUBLIC_IDS.searchInput}"');
