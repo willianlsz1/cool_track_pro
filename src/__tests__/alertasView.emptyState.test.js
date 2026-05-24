@@ -50,17 +50,14 @@ describe('renderAlertas empty states', () => {
     expect(document.getElementById('lista-alertas')?.textContent).toContain('Tudo em dia!');
   });
 
-  it('mounts through React without synchronously creating the legacy DOM fallback', async () => {
+  it('creates the alert containers when the shell root is empty', async () => {
     getState.mockReturnValue({ equipamentos: [] });
     getAll.mockReturnValue([]);
 
     const { renderAlertas } = await import('../ui/views/alertas.js');
-    const renderPromise = renderAlertas();
-
-    expect(document.getElementById('lista-alertas')).toBeNull();
 
     await act(async () => {
-      await renderPromise;
+      await renderAlertas();
     });
 
     expect(document.getElementById('lista-alertas')?.textContent).toContain(

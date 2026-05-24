@@ -32,7 +32,7 @@ describe('alertas view security', () => {
     document.body.innerHTML = '<div id="view-alertas"></div>';
   });
 
-  it('escapes dynamic alert content when rendering the React island', async () => {
+  it('escapes dynamic alert content when rendering alert cards', async () => {
     const { renderAlertas } = await loadAlertasView({
       alerts: [
         {

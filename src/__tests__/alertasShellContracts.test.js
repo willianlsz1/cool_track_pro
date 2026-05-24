@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { renderShellViews } from '../ui/shell/templates/views.js';
 
 describe('alertas shell contracts', () => {
-  it('declares the fixed root and list containers used by the React island', () => {
+  it('declares the fixed root and list containers used by the legacy alertas renderer', () => {
     const host = document.createElement('main');
     host.innerHTML = renderShellViews();
 
