@@ -60,6 +60,13 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/profile.js')).toBe(false);
   });
 
+  it('does not keep the legacy relatorio feature helper after moving copy to domain', () => {
+    expect(existsSync('src/features/relatorio/export/reportExportHelpers.js')).toBe(false);
+    expect(existsSync('src/features/relatorio/__tests__/export/reportExportHelpers.test.js')).toBe(
+      false,
+    );
+  });
+
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
     const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');

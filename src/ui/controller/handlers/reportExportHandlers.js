@@ -28,7 +28,7 @@ import {
   USAGE_RESOURCE_PDF_EXPORT,
   USAGE_RESOURCE_WHATSAPP_SHARE,
 } from '../../../core/usageLimits.js';
-import { buildWhatsAppSuccessCopy } from '../../../features/relatorio/export/reportExportHelpers.js';
+import { buildWhatsAppSuccessCopy } from '../../../domain/reportExportHelpers.js';
 
 export function buildReportFilters({
   equipId = '',

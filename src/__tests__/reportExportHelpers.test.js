@@ -3,27 +3,27 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { buildWhatsAppSuccessCopy } from '../../export/reportExportHelpers.js';
+import { buildWhatsAppSuccessCopy } from '../domain/reportExportHelpers.js';
 
 describe('relatorio export helpers', () => {
   it('preserva o copy de sucesso por canal de compartilhamento', () => {
     expect(buildWhatsAppSuccessCopy('web-share')).toEqual({
-      title: 'Relatório pronto para compartilhar',
+      title: 'RelatÃ³rio pronto para compartilhar',
     });
     expect(buildWhatsAppSuccessCopy('download')).toEqual({
-      title: 'Relatório baixado. Envie manualmente pelo WhatsApp.',
+      title: 'RelatÃ³rio baixado. Envie manualmente pelo WhatsApp.',
     });
     expect(buildWhatsAppSuccessCopy('wa-link')).toEqual({
-      title: 'Relatório enviado para o WhatsApp',
+      title: 'RelatÃ³rio enviado para o WhatsApp',
     });
     expect(buildWhatsAppSuccessCopy(undefined)).toEqual({
-      title: 'Relatório enviado para o WhatsApp',
+      title: 'RelatÃ³rio enviado para o WhatsApp',
     });
   });
 
-  it('mantem modulo feature sem imports do adapter, DOM, PDF, share, Toast ou Router', () => {
+  it('mantem helper puro sem imports do adapter, DOM, PDF, share, Toast ou Router', () => {
     const source = readFileSync(
-      resolve(process.cwd(), 'src/features/relatorio/export/reportExportHelpers.js'),
+      resolve(process.cwd(), 'src/domain/reportExportHelpers.js'),
       'utf8',
     );
 
