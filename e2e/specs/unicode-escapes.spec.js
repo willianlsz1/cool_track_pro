@@ -125,16 +125,16 @@ test.describe('Unicode escapes never leak to the UI', () => {
     // Pro multi-equipamento: o segmented mostra "Relatórios" no plural.
     expect(relatorioText).toContain('Relatórios');
 
-    // O botao "Conheça o Pro (PMOC)" e o texto/title do nudge ficam no DOM
-    // mesmo em Pro (com atributo `hidden`). Validamos via textContent +
-    // attribute para nao depender do `innerText` (que pula hidden).
+    // O estado indisponivel do PMOC fica no DOM mesmo quando oculto.
+    // Validamos via textContent + attribute para nao depender do `innerText`
+    // (que pula hidden).
     const pmocNudge = page.locator('#rel-dd-pmoc-nudge');
     await expect(pmocNudge).toHaveCount(1);
     const nudgeText = (await pmocNudge.textContent()) ?? '';
     const nudgeTitle = (await pmocNudge.getAttribute('title')) ?? '';
     expect(nudgeText).not.toMatch(UNICODE_ESCAPE_PATTERN);
     expect(nudgeTitle).not.toMatch(UNICODE_ESCAPE_PATTERN);
-    expect(nudgeText).toContain('Conheça');
+    expect(nudgeText).toContain('Indisponivel nesta versao');
     expect(nudgeTitle).toContain('Conheça');
 
     // Aria-labels do menu de export tambem devem estar limpas.

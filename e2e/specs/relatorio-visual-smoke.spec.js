@@ -162,7 +162,9 @@ async function assertControlsContracts(page) {
 
   const pmocNudge = page.locator('#rel-dd-pmoc-nudge');
   if ((await pmocNudge.count()) > 0) {
-    await expect(pmocNudge).toHaveAttribute('data-nav', 'pricing');
+    await expect(pmocNudge).toBeDisabled();
+    await expect(pmocNudge).not.toHaveAttribute('data-nav', /.+/);
+    await expect(pmocNudge).toContainText('Indisponivel nesta versao');
   }
 
   expect(await controlsRoot.locator('[data-action]').count()).toBeGreaterThan(0);
