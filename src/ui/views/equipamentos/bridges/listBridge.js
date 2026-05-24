@@ -6,10 +6,7 @@ import {
   setEquipamentosListBridge,
   setEquipamentosListBridgePromise,
 } from '../state/bridgeState.js';
-import {
-  mountEquipamentosListDom,
-  unmountEquipamentosListDom,
-} from '../../../../features/equipamentos/ui/listRenderer.js';
+import { mountEquipamentosListDom, unmountEquipamentosListDom } from '../ui/listRenderer.js';
 
 /** @sliceTarget controller/bridges */
 export function loadEquipamentosListBridge() {

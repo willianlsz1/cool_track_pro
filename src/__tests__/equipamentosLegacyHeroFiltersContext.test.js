@@ -51,7 +51,7 @@ vi.mock('../core/router.js', () => ({
   goTo: vi.fn(),
 }));
 
-vi.mock('../features/equipamentos/ui/listRenderer.js', () => ({
+vi.mock('../ui/views/equipamentos/ui/listRenderer.js', () => ({
   mountEquipamentosListDom: listRendererMocks.mountEquipamentosListDom,
   unmountEquipamentosListDom: listRendererMocks.unmountEquipamentosListDom,
 }));

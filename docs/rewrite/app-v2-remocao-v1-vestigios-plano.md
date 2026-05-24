@@ -54,6 +54,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/nameplate/**` foi removido no CP-9i; helper de
   coleta/erro de dados de placa da view legada foi co-localizado em
   `src/ui/views/equipamentos/nameplate/**`.
+- `src/features/equipamentos/ui/listRenderer.js` foi removido no CP-9j; renderer
+  DOM da lista de Equipamentos foi co-localizado em
+  `src/ui/views/equipamentos/ui/listRenderer.js`.
 
 ## 3. Superficies v1 mapeadas
 

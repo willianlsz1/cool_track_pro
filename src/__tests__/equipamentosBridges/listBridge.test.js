@@ -16,9 +16,9 @@ import {
 import {
   mountEquipamentosListDom,
   unmountEquipamentosListDom,
-} from '../../features/equipamentos/ui/listRenderer.js';
+} from '../../ui/views/equipamentos/ui/listRenderer.js';
 
-vi.mock('../../features/equipamentos/ui/listRenderer.js', () => ({
+vi.mock('../../ui/views/equipamentos/ui/listRenderer.js', () => ({
   mountEquipamentosListDom: vi.fn(() => 'mounted-list'),
   unmountEquipamentosListDom: vi.fn((root) => {
     delete root.dataset.equipamentosListMounted;
@@ -105,7 +105,7 @@ describe('bridges/listBridge', () => {
   it('usa renderer DOM da lista em vez da ilha React legada', () => {
     const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/listBridge.js', 'utf8');
 
-    expect(bridgeSource).toContain('../../../../features/equipamentos/ui/listRenderer.js');
+    expect(bridgeSource).toContain('../ui/listRenderer.js');
     expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
     expect(bridgeSource).not.toContain(['mountEquipamentos', 'ListReact'].join(''));
     expect(bridgeSource).not.toContain(['unmountEquipamentos', 'ListReact'].join(''));

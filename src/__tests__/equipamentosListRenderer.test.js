@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   mountEquipamentosListDom,
   unmountEquipamentosListDom,
-} from '../features/equipamentos/ui/listRenderer.js';
+} from '../ui/views/equipamentos/ui/listRenderer.js';
 import { EQUIPAMENTOS_ACTIONS } from '../ui/viewModels/equipamentosContracts.js';
 
 function createCard(overrides = {}) {
@@ -235,7 +235,7 @@ describe('equipamentos DOM flat list renderer', () => {
     expect(root?.querySelector('img[src="x"]')).toBeNull();
     expect(root?.querySelector('[onerror]')).toBeNull();
 
-    const pageSource = readFileSync('src/features/equipamentos/ui/listRenderer.js', 'utf8');
+    const pageSource = readFileSync('src/ui/views/equipamentos/ui/listRenderer.js', 'utf8');
     expect(pageSource).not.toMatch(/dangerouslySetInnerHTML/);
   });
 
@@ -244,7 +244,7 @@ describe('equipamentos DOM flat list renderer', () => {
     const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/listBridge.js', 'utf8');
 
     expect(adapterSource).not.toContain('equipamentosListIsland.jsx');
-    expect(bridgeSource).toContain('../../../../features/equipamentos/ui/listRenderer.js');
+    expect(bridgeSource).toContain('../ui/listRenderer.js');
     expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
     expect(adapterSource).not.toMatch(/from ['"]react['"]/);
     expect(adapterSource).not.toMatch(/createRoot/);

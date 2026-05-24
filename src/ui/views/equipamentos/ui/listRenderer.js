@@ -1,4 +1,4 @@
-import { EQUIPAMENTOS_ACTIONS } from '../../../ui/viewModels/equipamentosContracts.js';
+import { EQUIPAMENTOS_ACTIONS } from '../../../viewModels/equipamentosContracts.js';
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
