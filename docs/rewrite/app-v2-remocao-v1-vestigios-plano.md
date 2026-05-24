@@ -514,6 +514,9 @@ Progresso executado:
 - CP-53 removeu a view legada `src/ui/views/conta.js`, seu teste dedicado e o
   placeholder `#view-conta` do template v1. `src/ui/account/userData.js`
   permanece para CP separado por envolver LGPD, auth e Edge Functions.
+- CP-54 mapeou a ordem de corte das areas sensiveis restantes do runtime v1,
+  priorizando Orcamentos v1 visual/modal/handler antes de Relatorio,
+  PDF/share, assinatura, fotos e PMOC. O CP e documental e nao remove runtime.
 
 Controle:
 
