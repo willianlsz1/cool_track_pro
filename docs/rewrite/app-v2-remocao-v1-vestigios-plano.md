@@ -669,6 +669,11 @@ Progresso executado:
   o consumo runtime desse resolver acabou com a remocao do dominio PDF legado.
   Upload, fila offline, normalizacao, bucket `registro-fotos`, policies,
   UI de fotos e storage real permanecem fora deste corte para CPs proprios.
+- CP-57B mapeia a ordem segura para remover fotos/upload/storage herdados:
+  Registro, Equipamentos, Historico, storage client-side e Supabase bucket
+  devem ser cortados em CPs separados. A delecao direta de `photoStorage.js`,
+  `Photos` ou `EquipmentPhotos` continua insegura porque ainda misturaria UI,
+  sync offline, storage real e policies.
 
 Controle:
 
