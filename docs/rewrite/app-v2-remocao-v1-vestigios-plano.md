@@ -121,12 +121,16 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   exportacao/exclusao de dados foram co-localizados em
   `src/ui/account/userData.js`, preservando Supabase Edge Functions por DI
   implicita existente.
+- CP-11 mapeou o runtime legado restante em `src/ui` e confirmou que a remocao
+  direta da pasta ainda e insegura: restam 178 arquivos e a cobertura de testes
+  ainda referencia fortemente `ui/views`, `ui/components`, `ui/controller`,
+  `ui/shell` e `ui/viewModels`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 171 arquivos restantes.
+- `src/ui/`: 178 arquivos restantes.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
@@ -142,9 +146,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - Testes legados cobrem seguranca de assinatura, storage, PDF, WhatsApp,
   relatorios e contratos DOM.
 
-Conclusao: `src/ui` e `src/features` devem ser removidos por checkpoint, depois
-de extrair ou substituir contratos compartilhados. Delecao direta dessas pastas
-continua insegura. `src/react` ja foi removido e e protegido por
+Conclusao: `src/features` nao possui mais arquivos rastreaveis, mas `src/ui`
+ainda deve ser removido por checkpoints depois de extrair, substituir ou
+aposentar contratos compartilhados. Delecao direta de `src/ui` continua
+insegura. `src/react` ja foi removido e e protegido por
 `src/__tests__/reactCleanupContracts.test.js`.
 
 ### 3.3 Vestigios publicos e comerciais
