@@ -861,6 +861,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58K remove copias e comentarios residuais de PMOC em Cliente, Perfil,
   Equipamentos e shell legado, mantendo campos/payloads intactos e deixando
   Registro/checklist PMOC para CP proprio.
+- CP-58L remove o detector legado `src/domain/pmoc/serviceType.js`: Registro
+  deixa de tratar `PMOC` como tipo contextual e recomenda checklist apenas para
+  preventiva, sem alterar ainda `registro.checklist` ou templates.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

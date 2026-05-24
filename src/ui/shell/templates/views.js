@@ -590,11 +590,11 @@
             </details>
 
             <!--
-              PMOC Fase 3: Checklist NBR 13971 (recomendado em preventiva).
+              Checklist NBR 13971 (recomendado em preventiva).
               O body é renderizado dinamicamente por registro.js#renderChecklist
               baseado no tipo do equipamento selecionado. Quando o tipo de
               serviço NÃO é preventiva, o accordion fica colapsado e discreto;
-              quando É preventiva, ganha um pill 'Recomendado para PMOC' em
+              quando e preventiva, ganha um pill de recomendacao em
               destaque.
             -->
             <details class="registro-details registro-details--checklist" id="r-checklist-details" hidden>
@@ -609,7 +609,7 @@
                 <div class="registro-details__titles">
                   <div class="registro-details__title">
                     Checklist PMOC preenchível (NBR 13971)
-                    <span class="registro-details__pri" id="r-checklist-pri" hidden>Recomendado p/ PMOC</span>
+                    <span class="registro-details__pri" id="r-checklist-pri" hidden>Recomendado</span>
                   </div>
                   <div class="registro-details__subtitle" id="r-checklist-summary">selecione o equipamento primeiro</div>
                 </div>
@@ -640,7 +640,7 @@
                   <span class="registro-sig-hint__badge registro-sig-hint__badge--pro">Indisponivel</span>
                 </div>
                 <p class="registro-sig-hint__desc">
-                  Checklist completo conforme NBR 13971. Recurso Pro para preventiva/PMOC.
+                  Checklist completo conforme NBR 13971. Recurso indisponivel nesta etapa.
                   <span id="r-checklist-upsell-context"></span>
                 </p>
               </div>

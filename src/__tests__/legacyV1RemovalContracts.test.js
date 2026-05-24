@@ -564,6 +564,23 @@ describe('legacy v1 removal contracts', () => {
     expect(detailModelSource).not.toContain('isPreventivaOrPmocServiceType');
   });
 
+  it('does not keep legacy PMOC service type detector', () => {
+    const registroSource = readSource('src/ui/views/registro.js');
+    const runtimeSources = listSourceFiles('src').filter(
+      (file) =>
+        !file.startsWith('src/__tests__/') &&
+        file !== 'src/__tests__/legacyV1RemovalContracts.test.js',
+    );
+
+    expect(existsSync('src/domain/pmoc/serviceType.js')).toBe(false);
+    expect(existsSync('src/__tests__/pmocServiceType.test.js')).toBe(false);
+    expect(registroSource).not.toContain('isPreventivaOrPmocServiceType');
+    expect(registroSource).not.toContain('pmocRecommended');
+    expect(findMatches(runtimeSources, /domain\/pmoc\/serviceType|isPmocLikeServiceType/)).toEqual(
+      [],
+    );
+  });
+
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
       readSource('src/ui/components/clienteModal.js'),

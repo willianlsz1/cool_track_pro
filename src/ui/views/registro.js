@@ -68,7 +68,6 @@ import {
   validateChecklist,
   summarizeChecklist,
 } from '../../domain/pmoc/checklistTemplates.js';
-import { isPreventivaOrPmocServiceType } from '../../domain/pmoc/serviceType.js';
 
 // O meter de progresso vive estÃ¡tico dentro do hero do template.
 // Apontamos pro hero + o contador numÃ©rico ao invÃ©s de injetar markup na hora.
@@ -813,10 +812,26 @@ function _getRegistroChecklistServiceType() {
   return Utils.getVal('r-tipo-custom') || tipo;
 }
 
+function isPreventiveChecklistServiceType(tipo) {
+  const normalized = String(tipo || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  if (!normalized || normalized.includes('corretiv')) return false;
+
+  return (
+    normalized.includes('preventiv') ||
+    normalized.includes('higieniz') ||
+    normalized.includes('limpeza preventiva')
+  );
+}
+
 function _isRegistroChecklistRecommended() {
   return (
     Boolean(Utils.getVal('r-equip')) &&
-    isPreventivaOrPmocServiceType(_getRegistroChecklistServiceType())
+    isPreventiveChecklistServiceType(_getRegistroChecklistServiceType())
   );
 }
 
@@ -828,13 +843,13 @@ function _applyPmocChecklistDiscoveryState() {
   const upsellContext = document.getElementById('r-checklist-upsell-context');
 
   if (wrapper) {
-    wrapper.dataset.pmocRecommended = recommended ? 'true' : 'false';
+    wrapper.dataset.checklistRecommended = recommended ? 'true' : 'false';
     wrapper.open = !wrapper.hidden && recommended;
   }
   if (pri) pri.hidden = !recommended;
-  if (upsell) upsell.dataset.pmocRecommended = recommended ? 'true' : 'false';
+  if (upsell) upsell.dataset.checklistRecommended = recommended ? 'true' : 'false';
   if (upsellContext) {
-    upsellContext.textContent = recommended ? ' Recomendado para preventiva/PMOC.' : '';
+    upsellContext.textContent = recommended ? ' Recomendado para preventiva.' : '';
   }
 }
 
@@ -919,7 +934,7 @@ export function renderChecklist() {
   const equipId = Utils.getVal('r-equip');
   if (!equipId) {
     wrapper.hidden = true;
-    delete wrapper.dataset.pmocRecommended;
+    delete wrapper.dataset.checklistRecommended;
     clearRegistroChecklistState();
     unmountRegistroChecklist();
     _showPmocChecklistUpsell(false);
@@ -1357,7 +1372,7 @@ function validateRegistroOperationalFields({ data, status }) {
 function warnRegistroChecklistSoftRequiredGaps(tipo) {
   const warning = buildRegistroChecklistSoftRequiredWarning(tipo, {
     checklist: getCurrentChecklist(),
-    isPreventivaTipo: isPreventivaOrPmocServiceType,
+    isPreventivaTipo: isPreventiveChecklistServiceType,
     validateChecklist,
   });
   if (warning) Toast.warning(warning);

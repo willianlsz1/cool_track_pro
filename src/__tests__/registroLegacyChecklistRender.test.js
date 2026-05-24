@@ -269,7 +269,7 @@ describe('registro legacy checklist render adapter', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('bloqueia checklist PMOC para plano nao-Pro com CTA comercial desativado', async () => {
+  it('bloqueia checklist para plano nao-Pro com CTA comercial desativado', async () => {
     const { wrapper, body, upsell, registro } = await renderChecklistForState(
       baseState(),
       { equipId: 'eq-1' },
@@ -285,7 +285,7 @@ describe('registro legacy checklist render adapter', () => {
     );
     expect(upsell?.textContent).toContain('Checklist PMOC preenchível (NBR 13971)');
     expect(upsell?.textContent).toContain(
-      'Checklist completo conforme NBR 13971. Recurso Pro para preventiva/PMOC.',
+      'Checklist completo conforme NBR 13971. Recurso indisponivel nesta etapa.',
     );
 
     const cta = upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]');
@@ -334,12 +334,11 @@ describe('registro legacy checklist render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('destaca e abre checklist quando o tipo e PMOC/preventiva com equipamento selecionado', async () => {
+  it('destaca e abre checklist quando o tipo e preventiva com equipamento selecionado', async () => {
     setupDom();
     const registro = await loadRegistroView();
     await mountRegistroHeader(registro, { equipId: 'eq-1' });
-    document.getElementById('r-tipo').value = 'Outro';
-    document.getElementById('r-tipo-custom').value = 'Checklist PMOC';
+    document.getElementById('r-tipo').value = 'Manutenção Preventiva';
 
     await act(async () => {
       registro.renderChecklist();
@@ -351,13 +350,13 @@ describe('registro legacy checklist render adapter', () => {
 
     expect(wrapper?.hidden).toBe(false);
     expect(wrapper?.open).toBe(true);
-    expect(wrapper?.dataset.pmocRecommended).toBe('true');
+    expect(wrapper?.dataset.checklistRecommended).toBe('true');
     expect(pri?.hidden).toBe(false);
     expect(pri?.textContent).toContain('Recomendado');
-    expect(document.getElementById('r-checklist-summary')?.textContent).toContain('Checklist PMOC');
+    expect(document.getElementById('r-checklist-summary')?.textContent).toContain('Preventiva');
   });
 
-  it('mantem checklist discreto quando o tipo de servico nao e preventiva nem PMOC', async () => {
+  it('mantem checklist discreto quando o tipo de servico nao e preventiva', async () => {
     setupDom();
     const registro = await loadRegistroView();
     await mountRegistroHeader(registro, { equipId: 'eq-1' });
@@ -373,11 +372,11 @@ describe('registro legacy checklist render adapter', () => {
 
     expect(wrapper?.hidden).toBe(false);
     expect(wrapper?.open).toBe(false);
-    expect(wrapper?.dataset.pmocRecommended).toBe('false');
+    expect(wrapper?.dataset.checklistRecommended).toBe('false');
     expect(pri?.hidden).toBe(true);
   });
 
-  it('mostra upsell contextual no Free/Plus quando PMOC/preventiva tem equipamento', async () => {
+  it('mostra upsell contextual no Free/Plus quando preventiva tem equipamento', async () => {
     setupDom();
     const registro = await loadRegistroView();
     await mountRegistroHeader(registro, { equipId: 'eq-1' });
@@ -394,8 +393,8 @@ describe('registro legacy checklist render adapter', () => {
 
     expect(wrapper?.hidden).toBe(true);
     expect(upsell?.hidden).toBe(false);
-    expect(upsell?.dataset.pmocRecommended).toBe('true');
-    expect(upsell?.textContent).toContain('Recomendado para preventiva/PMOC');
+    expect(upsell?.dataset.checklistRecommended).toBe('true');
+    expect(upsell?.textContent).toContain('Recomendado para preventiva');
     expect(
       upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]'),
     ).not.toBeNull();
