@@ -58,8 +58,6 @@ import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboard
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardNextActionBridgePromise = null;
-let dashboardNextActionBridge = null;
 let dashboardMonthSummaryBridgePromise = null;
 let dashboardMonthSummaryBridge = null;
 let dashboardReadOnlyBlocksBridgePromise = null;
@@ -83,16 +81,7 @@ function getDashboardKpiGridRoot() {
   );
 }
 
-function loadDashboardNextActionBridge() {
-  dashboardNextActionBridgePromise ??=
-    import('../../react/entrypoints/dashboardNextActionIsland.jsx').then((bridge) => {
-      dashboardNextActionBridge = bridge;
-      return bridge;
-    });
-  return dashboardNextActionBridgePromise;
-}
-
-function getDashboardNextActionRoot() {
+function getNextActionCardRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.nextActionCard);
 }
 
@@ -177,15 +166,10 @@ export function unmountDashboardKpiGrid(root = getDashboardKpiGridRoot()) {
   return undefined;
 }
 
-export function unmountDashboardNextAction(root = getDashboardNextActionRoot()) {
+export function unmountNextActionCard(root = getNextActionCardRoot()) {
   if (!root) return undefined;
-  if (dashboardNextActionBridge?.unmountDashboardNextActionReact) {
-    dashboardNextActionBridge.unmountDashboardNextActionReact(root);
-    return undefined;
-  }
-  return loadDashboardNextActionBridge().then(({ unmountDashboardNextActionReact }) => {
-    unmountDashboardNextActionReact(root);
-  });
+  root.replaceChildren();
+  return undefined;
 }
 
 export function unmountDashboardLastService(root = getDashboardLastServiceRoot()) {
@@ -890,18 +874,55 @@ export function selectNextBestAction({ alerts, equipamentos, registros }) {
   return selectNextDashboardAction({ alerts, equipamentos, registros });
 }
 
+const EMPTY_DASHBOARD_NEXT_ACTION = Object.freeze({
+  tone: 'ok',
+  title: 'Nenhuma a\u00e7\u00e3o urgente',
+  subtitle: 'Sem pend\u00eancias imediatas no momento.',
+  cta: {
+    nav: 'historico',
+    label: 'Ver hist\u00f3rico',
+  },
+});
+
+function renderNextActionCardDom(root, nextAction = EMPTY_DASHBOARD_NEXT_ACTION) {
+  const model = nextAction || EMPTY_DASHBOARD_NEXT_ACTION;
+  const cta = model.cta || EMPTY_DASHBOARD_NEXT_ACTION.cta;
+
+  root.dataset.tone = heroText(model.tone, EMPTY_DASHBOARD_NEXT_ACTION.tone);
+  root.innerHTML = `
+    <div class="dash__card-label">Pr\u00f3xima a\u00e7\u00e3o</div>
+    <div class="dash__card-title" id="${DASHBOARD_PUBLIC_IDS.nextActionTitle}"></div>
+    <div class="dash__card-sub" id="${DASHBOARD_PUBLIC_IDS.nextActionSubtitle}"></div>
+    <button class="dash__card-cta" id="${DASHBOARD_PUBLIC_IDS.nextActionCta}" type="button">
+      <span class="dash__card-cta-label" id="${DASHBOARD_PUBLIC_IDS.nextActionCtaLabel}"></span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6"></path>
+      </svg>
+    </button>
+  `;
+
+  root.querySelector(`#${DASHBOARD_PUBLIC_IDS.nextActionTitle}`).textContent = heroText(
+    model.title,
+    EMPTY_DASHBOARD_NEXT_ACTION.title,
+  );
+  root.querySelector(`#${DASHBOARD_PUBLIC_IDS.nextActionSubtitle}`).textContent = heroText(
+    model.subtitle,
+    EMPTY_DASHBOARD_NEXT_ACTION.subtitle,
+  );
+  const button = root.querySelector(`#${DASHBOARD_PUBLIC_IDS.nextActionCta}`);
+  setOptionalDataAttribute(button, 'data-nav', cta.nav);
+  setOptionalDataAttribute(button, 'data-action', cta.action);
+  setOptionalDataAttribute(button, 'data-id', cta.id);
+  root.querySelector(`#${DASHBOARD_PUBLIC_IDS.nextActionCtaLabel}`).textContent = heroText(
+    cta.label,
+    EMPTY_DASHBOARD_NEXT_ACTION.cta.label,
+  );
+}
+
 function _renderNextActionCard({ viewModel }) {
   const model = viewModel?.nextAction;
-  const root = getDashboardNextActionRoot();
-  if (root && model) {
-    if (dashboardNextActionBridge?.mountDashboardNextActionReact) {
-      dashboardNextActionBridge.mountDashboardNextActionReact(root, { nextAction: model });
-      return Promise.resolve();
-    }
-    return loadDashboardNextActionBridge().then(({ mountDashboardNextActionReact }) => {
-      mountDashboardNextActionReact(root, { nextAction: model });
-    });
-  }
+  const root = getNextActionCardRoot();
+  if (root) renderNextActionCardDom(root, model);
 
   return Promise.resolve();
 }

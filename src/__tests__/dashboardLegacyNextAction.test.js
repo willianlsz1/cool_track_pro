@@ -334,8 +334,9 @@ describe('dashboard legacy next action render adapter', () => {
     expect(cta?.dataset.id).toBe(equipamento.id);
   });
 
-  it('delegates next action rendering to the React island without manual DOM fallback', () => {
+  it('keeps next action contracts legacy-only and view model pure', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
+    const viewModelSource = readFileSync('src/ui/viewModels/dashboardViewModel.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_CLASSES).toEqual(
       expect.arrayContaining(['dash__card', 'dash__card--next-action', 'dash__card-cta']),
@@ -343,12 +344,11 @@ describe('dashboard legacy next action render adapter', () => {
     expect(DASHBOARD_DATA_ATTRIBUTES).toEqual(
       expect.arrayContaining(['data-action', 'data-id', 'data-nav']),
     );
-    expect(dashboardSource).toContain('../../react/entrypoints/dashboardNextActionIsland.jsx');
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-next-title'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-next-sub'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-next-cta'\)/);
-    expect(dashboardSource).not.toMatch(/getElementById\('dash-next-cta-label'\)/);
+    expect(dashboardSource).not.toContain(
+      '../../react/entrypoints/dashboard' + 'NextActionIsland.jsx',
+    );
     expect(dashboardSource).not.toMatch(/react-dom\/client|createRoot|mountDashboardReact/);
+    expect(viewModelSource).not.toMatch(/document\.|window\.|react-dom|createRoot|innerHTML/);
     expect(document.getElementById('chart-status-pie')).toBeNull();
     expect(document.getElementById('dash-onboarding')).not.toBeNull();
   });

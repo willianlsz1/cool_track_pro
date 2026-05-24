@@ -259,10 +259,6 @@ async function setupDashboardModule({
     };
   });
 
-  vi.doMock('../react/entrypoints/dashboardNextActionIsland.jsx', () => ({
-    mountDashboardNextActionReact: vi.fn(),
-    unmountDashboardNextActionReact: vi.fn(),
-  }));
   vi.doMock('../react/entrypoints/dashboardMonthSummaryIsland.jsx', () => ({
     mountDashboardMonthSummaryReact: vi.fn(),
     unmountDashboardMonthSummaryReact: vi.fn(),
