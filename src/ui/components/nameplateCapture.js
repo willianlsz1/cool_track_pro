@@ -6,9 +6,9 @@
  *
  *   1. `applyNameplateCtaGate({isPlusOrPro, trialRemaining})` — toggle entre
  *      três estados:
- *        - "active" (Plus+ ou Pro): botão direto, ilimitado
+ *        - "active" (acesso operacional): botão direto
  *        - "trial"  (Free com quota): botão direto + badge "teste grátis"
- *        - "locked" (Free esgotou OU plano desconhecido): botão pro upsell
+ *        - "locked" (quota esgotada OU plano desconhecido): botão bloqueado
  *      Chamado no open-modal + quando o plano/quota muda.
  *
  *   2. Listener `change` no input file escondido. Quando o user seleciona
@@ -147,11 +147,10 @@ const REVIEW_FIELDS = [
 /**
  * Aplica o gate de plano no CTA. Três estados possíveis:
  *
- *  - `active` (Plus+): botão primário que abre o file picker. Ilimitado.
+ *  - `active`: botão primário que abre o file picker.
  *  - `trial` (Free com quota restante): mesmo botão, mas com badge "teste
- *    grátis" e subtitle contando uso do mês. Gera demanda orgânica de Plus
- *    quando o user curte e volta e percebe que já usou o do mês.
- *  - `locked` (Free sem quota OU plano desconhecido): botão pro upsell.
+ *    grátis" e subtitle contando uso do mês.
+ *  - `locked` (quota esgotada OU plano desconhecido): botão bloqueado.
  *
  * Aceita tanto boolean (legado, == isPlusOrPro) quanto objeto
  * `{ isPlusOrPro, trialRemaining }` pra o novo fluxo de teste grátis.
@@ -221,12 +220,11 @@ function resolveCtaPresentation({ isPlusOrPro, trialRemaining }) {
       trialRemaining: remaining,
     };
   }
-  // remaining === 0 → Free que já gastou o uso do mês. Subtitle focada em
-  // conversão ("assine o Plus pra ilimitado") em vez de "feature exclusiva"
-  // genérico — carrega sinal de que o user JÁ EXPERIMENTOU o valor.
+  // remaining === 0 → uso do mês esgotado. Billing/pricing está fora do produto,
+  // então o texto deve ficar operacional e sem CTA comercial.
   return {
     state: 'locked',
-    subtitle: 'Você já usou seu teste grátis este mês. Assine o Plus pra escanear ilimitado.',
+    subtitle: 'Você já usou a análise disponível este mês. Aguarde o próximo ciclo.',
     trialRemaining: 0,
   };
 }
@@ -432,11 +430,10 @@ async function handleFile(file) {
     let stageMsg = message;
     let fallbackMsg = 'Você pode tentar outra foto ou continuar sem foto.';
     if (code === ERR_PLAN_GATE) {
-      // 3 caminhos possíveis agora que Plus e Pro também têm cap mensal:
-      //   - Free teste esgotado (conversão → Plus)
-      //   - Free nunca usou (CTA locked, mostra "Feature exclusiva Plus+")
-      //   - Plus esgotou (sugere Pro ou espera próximo ciclo)
-      //   - Pro esgotou (mensagem "fale com a gente" ou espera)
+      // 3 caminhos possíveis para quota mensal, todos sem CTA comercial:
+      //   - teste operacional esgotado;
+      //   - acesso ainda não liberado;
+      //   - limite mensal esgotado.
       const details = err instanceof NameplateAnalysisError ? (err.details ?? {}) : {};
       const currentPlan = details.currentPlan || 'free';
       const quotaExhausted = Boolean(details.quotaExhausted ?? details.trialExhausted);
@@ -460,7 +457,7 @@ async function handleFile(file) {
         trackEvent('nameplate_trial_exhausted_hit', { source: 'equip_modal' });
       } else {
         cta.dataset.state = 'locked';
-        stageMsg = 'Feature exclusiva Plus+';
+        stageMsg = 'Recurso indisponivel nesta etapa';
         setSubtitle('Recurso indisponivel nesta etapa.');
       }
     } else if (code === ERR_NO_SESSION) {

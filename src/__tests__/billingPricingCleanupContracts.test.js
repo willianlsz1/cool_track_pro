@@ -36,4 +36,15 @@ describe('billing/pricing cleanup contracts', () => {
 
     expect(pmocModalSource).not.toContain('pmoc-upgrade');
   });
+
+  it('does not keep nameplate quota messages pointing to paid-plan conversion', () => {
+    const nameplateClientSource = readSource('src/ui/components/nameplateCapture.js');
+    const nameplateFunctionSource = readSource('supabase/functions/analyze-nameplate/index.ts');
+
+    for (const source of [nameplateClientSource, nameplateFunctionSource]) {
+      expect(source).not.toContain('Faça upgrade');
+      expect(source).not.toContain('Assine o Plus');
+      expect(source).not.toContain('sugere Pro');
+    }
+  });
 });

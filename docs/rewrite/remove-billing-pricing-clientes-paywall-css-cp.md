@@ -16,6 +16,9 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 - Renomeado o controle bloqueado do modal PMOC de `pmoc-upgrade` para
   `pmoc-unavailable`, mantendo a mensagem local de indisponibilidade sem nome
   de acao comercial.
+- Neutralizadas mensagens comerciais do fluxo de leitura de placa por foto,
+  tanto no cliente quanto na Edge Function `analyze-nameplate`, sem alterar
+  limites operacionais ou reserva de quota.
 - Adicionado contrato automatizado para impedir retorno desse CSS orfao e do
   stub/CTA de upgrade.
 
@@ -48,6 +51,8 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
   do Dashboard.
 - RED adicional: o teste falhou enquanto o modal PMOC bloqueado ainda continha
   o id comercial `pmoc-upgrade`.
+- RED adicional: o teste falhou enquanto nameplate ainda orientava upgrade ou
+  assinatura de plano pago.
 - GREEN adicional: `billingPricingCleanupContracts` e
   `dashboardLegacyProDraftContracts` passaram apos remover o contrato morto.
 

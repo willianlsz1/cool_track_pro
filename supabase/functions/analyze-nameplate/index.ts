@@ -296,9 +296,9 @@ function planGateMessage(planCode: string, limit: number): string {
     return `Você já usou as ${limit} análises por foto do plano Pro neste mês. A cota reseta no dia 1º. Se precisa de mais, fala com a gente — conseguimos ajustar.`;
   }
   if (planCode === 'plus') {
-    return `Você já usou as ${limit} análises por foto do plano Plus neste mês. Faça upgrade pra Pro pra ter até ${NAMEPLATE_PRO_MONTHLY_LIMIT} análises/mês, ou aguarde o próximo ciclo.`;
+    return `Você já usou as ${limit} análises por foto disponíveis neste mês. Aguarde o próximo ciclo.`;
   }
-  return 'Você já usou seu teste grátis de análise por foto este mês. Assine o Plus pra escanear até 30/mês ou o Pro pra 200/mês.';
+  return 'Você já usou a análise por foto disponível este mês. Aguarde o próximo ciclo.';
 }
 
 function estimateBase64Bytes(base64: string): number {
