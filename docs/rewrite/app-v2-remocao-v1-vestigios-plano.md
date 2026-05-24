@@ -664,6 +664,11 @@ Progresso executado:
   pricing ja foram retirados do runtime principal, este corte apenas impede que
   a assinatura digital v1 volte como feature flag acidental; a recriacao de
   assinatura real fica para etapa app-v2-native propria.
+- CP-57A remove o resolver orfao `resolvePhotoDataUrlForPdf` e seu helper
+  interno `blobToDataUrl` de `src/core/photoStorage.js`. A busca confirmou que
+  o consumo runtime desse resolver acabou com a remocao do dominio PDF legado.
+  Upload, fila offline, normalizacao, bucket `registro-fotos`, policies,
+  UI de fotos e storage real permanecem fora deste corte para CPs proprios.
 
 Controle:
 

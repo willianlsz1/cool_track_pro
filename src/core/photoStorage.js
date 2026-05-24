@@ -145,15 +145,6 @@ function buildObjectPath({ userId, recordId, index, mimeType, scope = 'registros
   return `${userId}/${resolveScope(scope)}/${safeRecordId}/${unique}.${ext}`;
 }
 
-function blobToDataUrl(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Falha ao converter blob para data URL.'));
-    reader.readAsDataURL(blob);
-  });
-}
-
 export async function dataUrlToBlob(dataUrl) {
   const match = /^data:([^;,]+)?(?:;charset=[^;,]+)?(;base64)?,(.*)$/i.exec(
     String(dataUrl || '').trim(),
@@ -547,23 +538,5 @@ export async function resolvePhotoDisplayUrl(photo) {
     return signed.url;
   } catch (_err) {
     return normalized.url || null;
-  }
-}
-
-export async function resolvePhotoDataUrlForPdf(photo) {
-  if (isDataUrl(photo)) return photo;
-
-  const displayUrl = await resolvePhotoDisplayUrl(photo);
-  if (!displayUrl) return null;
-  if (isDataUrl(displayUrl)) return displayUrl;
-
-  try {
-    const response = await fetch(displayUrl);
-    if (!response.ok) return null;
-    const blob = await response.blob();
-    const dataUrl = await blobToDataUrl(blob);
-    return isString(dataUrl) ? dataUrl : null;
-  } catch (_err) {
-    return null;
   }
 }
