@@ -240,10 +240,12 @@ describe('legacy v1 removal contracts', () => {
 
     expect(existsSync('src/assets/styles/base.css')).toBe(false);
     expect(existsSync('src/assets/styles/desktop-fonts.css')).toBe(false);
+    expect(existsSync('src/assets/styles/layout.css')).toBe(false);
     expect(existsSync('src/assets/styles/theme-premium.css')).toBe(false);
     expect(existsSync('src/assets/styles/ux-polish.css')).toBe(false);
     expect(primaryHtml).not.toContain('base.css');
     expect(primaryHtml).not.toContain('desktop-fonts.css');
+    expect(primaryHtml).not.toContain('layout.css');
     expect(primaryHtml).not.toContain('theme-premium.css');
     expect(primaryHtml).not.toContain('ux-polish.css');
   });

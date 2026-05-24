@@ -5,8 +5,8 @@
  *
  * Estratégia: este arquivo SOBRESCREVE as variáveis existentes
  * (--primary, --bg, --surface, etc.) que já são usadas em
- * components.css, layout.css e demais — assim a paleta nova é
- * adotada automaticamente sem reescrever 22 mil linhas de CSS.
+ * components.css e demais folhas legadas remanescentes, para que a paleta nova
+ * seja adotada automaticamente sem reescrever 22 mil linhas de CSS.
  *
  * Importar ANTES dos outros estilos (1ª referência em index.html).
  *
