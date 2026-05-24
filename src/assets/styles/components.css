@@ -14969,8 +14969,7 @@ select option {
 
 /* ── eq-detail-avatar (V4) ───────────────────────────────────────────────
    Avatar + CTA "Gerenciar fotos" no topo do detail view. Substitui o bloco
-   de fotos que morava no modal-add-eq. Free vê emoji-only sem edit-hint
-   (gate é feito via data-action=open-upgrade no HTML).
+   de fotos que morava no modal-add-eq.
 */
 .eq-detail-avatar-row {
   display: flex;
