@@ -499,6 +499,20 @@ describe('legacy v1 removal contracts', () => {
     expect(dashboardViewModelSource).not.toContain("kind: 'pmoc'");
   });
 
+  it('does not keep legacy Historico PMOC attention surface', () => {
+    const historicoSource = readSource('src/ui/views/historico.js');
+    const historicoViewModelSource = readSource('src/ui/viewModels/historicoViewModel.js');
+    const historicoRenderHelpersSource = readSource(
+      'src/ui/views/historico/helpers/render/renderHelpers.js',
+    );
+
+    expect(historicoSource).not.toContain('buildClientePmocDetails');
+    expect(historicoSource).not.toContain('pmoc-');
+    expect(historicoViewModelSource).not.toContain('buildClientePmocDetails');
+    expect(historicoViewModelSource).not.toContain('pmoc-');
+    expect(historicoRenderHelpersSource).not.toContain('buildClientePmocDetails');
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');

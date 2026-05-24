@@ -21,7 +21,6 @@ import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
 import { updateGlobalHeader } from '../composables/header.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
-import { buildClientePmocDetails } from '../../core/clientePmoc.js';
 import {
   buildHistoricoRenderState,
   buildHistoricoRenderViewModel,
@@ -529,13 +528,7 @@ function createAttentionItem({
   return { id, tone, title, reason, ctaLabel, equipId };
 }
 
-export function getAttentionItems({
-  registros = [],
-  equipamentos = [],
-  clientes = [],
-  setores = [],
-  isPro = false,
-}) {
+export function getAttentionItems({ registros = [], equipamentos = [] }) {
   const list = [];
   const byEquip = new Map((equipamentos || []).map((eq) => [eq.id, eq]));
   const latestByEquip = new Map();
@@ -577,29 +570,6 @@ export function getAttentionItems({
       );
     }
   });
-
-  if (isPro) {
-    (clientes || []).forEach((cliente) => {
-      const pmoc = buildClientePmocDetails({
-        cliente,
-        equipamentos,
-        registros,
-        setores,
-        today: Utils.localDateString(),
-      });
-      if (pmoc.status === 'atrasado' || pmoc.status === 'atencao') {
-        list.push(
-          createAttentionItem({
-            id: `pmoc-${cliente.id}`,
-            tone: pmoc.status === 'atrasado' ? 'danger' : 'warn',
-            title: cliente?.nome?.trim() || 'Cliente',
-            reason: `PMOC ${pmoc.statusLabel.toLowerCase()}`,
-            ctaLabel: 'Resolver',
-          }),
-        );
-      }
-    });
-  }
 
   return list.slice(0, 6);
 }
@@ -1318,7 +1288,6 @@ export function renderHist() {
     },
     clienteFilter: _clienteFilter,
     isProMode,
-    buildClientePmocDetails,
     buildHistoricoViewModel,
   });
 

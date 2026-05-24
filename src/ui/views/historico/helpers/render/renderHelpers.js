@@ -23,7 +23,6 @@ export function buildHistoricoRenderViewModel({
   filters,
   clienteFilter,
   isProMode,
-  buildClientePmocDetails,
   buildHistoricoViewModel,
 }) {
   const historicoVm = buildHistoricoViewModel({
@@ -40,7 +39,6 @@ export function buildHistoricoRenderViewModel({
     },
     clienteFilter,
     isPro: isProMode,
-    buildClientePmocDetails,
   });
 
   return { historicoVm, list: historicoVm.list };

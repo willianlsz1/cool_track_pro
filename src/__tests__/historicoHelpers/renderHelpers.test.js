@@ -27,9 +27,8 @@ describe('historico render helpers', () => {
     });
   });
 
-  it('buildHistoricoRenderViewModel chama o VM com filtros, cliente e PMOC preservados', () => {
+  it('buildHistoricoRenderViewModel chama o VM com filtros e cliente preservados', () => {
     const buildHistoricoViewModel = vi.fn(() => ({ list: [{ id: 'reg-1' }] }));
-    const buildClientePmocDetails = vi.fn();
     const clienteFilter = { id: 'cliente-1', nome: 'Alpha' };
 
     const result = buildHistoricoRenderViewModel({
@@ -46,7 +45,6 @@ describe('historico render helpers', () => {
       },
       clienteFilter,
       isProMode: true,
-      buildClientePmocDetails,
       buildHistoricoViewModel,
     });
 
@@ -65,7 +63,6 @@ describe('historico render helpers', () => {
       },
       clienteFilter,
       isPro: true,
-      buildClientePmocDetails,
     });
   });
 

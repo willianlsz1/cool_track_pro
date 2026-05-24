@@ -13,7 +13,6 @@ const mocks = vi.hoisted(() => ({
   updateHeader: vi.fn(),
   getOperationalStatus: vi.fn(),
   isCachedPlanPro: vi.fn(),
-  buildClientePmocDetails: vi.fn(),
 }));
 
 vi.mock('../core/state.js', () => ({
@@ -59,10 +58,6 @@ vi.mock('../core/equipmentRules.js', () => ({
 
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPro: mocks.isCachedPlanPro,
-}));
-
-vi.mock('../core/clientePmoc.js', () => ({
-  buildClientePmocDetails: mocks.buildClientePmocDetails,
 }));
 
 function mountHistoricoDom({ busca = '' } = {}) {
@@ -117,7 +112,6 @@ describe('historico legacy #timeline render', () => {
     mocks.applySavedHighlight.mockReturnValue(false);
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
     mocks.isCachedPlanPro.mockReturnValue(false);
-    mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
   });
 
   it('preserva #timeline e empty state quando nao ha registros validos', async () => {

@@ -23,7 +23,6 @@ const mocks = vi.hoisted(() => ({
   updateHeader: vi.fn(),
   updateGlobalHeader: vi.fn(),
   getOperationalStatus: vi.fn(),
-  buildClientePmocDetails: vi.fn(),
   mountHistoricoFiltersDom: vi.fn((root) => {
     root.dataset.mounted = 'filters';
   }),
@@ -92,10 +91,6 @@ vi.mock('../core/equipmentRules.js', () => ({
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: vi.fn(() => true),
   isCachedPlanPro: vi.fn(() => false),
-}));
-
-vi.mock('../core/clientePmoc.js', () => ({
-  buildClientePmocDetails: mocks.buildClientePmocDetails,
 }));
 
 vi.mock('../ui/components/skeleton.js', () => ({
@@ -262,7 +257,6 @@ describe('Historico -> Registro edit/delete integration contract', () => {
     sessionStorage.clear();
     window.history.replaceState(null, '', '/');
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
-    mocks.buildClientePmocDetails.mockReturnValue({ status: 'em_dia', statusLabel: 'Em dia' });
   });
 
   it('edit-reg navega para Registro usando o mesmo data-id como editRegistroId', async () => {

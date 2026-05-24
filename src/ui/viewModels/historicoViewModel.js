@@ -251,15 +251,7 @@ function createAttentionItem({
   return { id, tone, title, reason, ctaLabel, equipId };
 }
 
-export function getAttentionItems({
-  registros = [],
-  equipamentos = [],
-  clientes = [],
-  setores = [],
-  isPro = false,
-  buildClientePmocDetails = null,
-  now = new Date(),
-}) {
+export function getAttentionItems({ registros = [], equipamentos = [], now = new Date() }) {
   const list = [];
   const byEquip = buildLookup(equipamentos);
   const latestByEquip = new Map();
@@ -302,29 +294,6 @@ export function getAttentionItems({
       );
     }
   });
-
-  if (isPro && typeof buildClientePmocDetails === 'function') {
-    asArray(clientes).forEach((cliente) => {
-      const pmoc = buildClientePmocDetails({
-        cliente,
-        equipamentos: asArray(equipamentos),
-        registros: asArray(registros),
-        setores: asArray(setores),
-        today: localDateString(now),
-      });
-      if (pmoc?.status === 'atrasado' || pmoc?.status === 'atencao') {
-        list.push(
-          createAttentionItem({
-            id: `pmoc-${safeString(cliente?.id)}`,
-            tone: pmoc.status === 'atrasado' ? 'danger' : 'warn',
-            title: safeString(cliente?.nome).trim() || 'Cliente',
-            reason: `PMOC ${safeString(pmoc.statusLabel).toLowerCase()}`,
-            ctaLabel: 'Resolver',
-          }),
-        );
-      }
-    });
-  }
 
   return list.slice(0, 6);
 }
@@ -444,7 +413,6 @@ export function buildHistoricoViewModel({
   filters = {},
   clienteFilter = { id: null, nome: null },
   isPro = false,
-  buildClientePmocDetails = null,
   now = new Date(),
 } = {}) {
   const equipamentosList = asArray(equipamentos);
@@ -517,10 +485,6 @@ export function buildHistoricoViewModel({
     attentionItems: getAttentionItems({
       registros: asArray(registros),
       equipamentos: equipamentosList,
-      clientes: clientesList,
-      setores: setoresList,
-      isPro,
-      buildClientePmocDetails,
       now,
     }),
     summary: {

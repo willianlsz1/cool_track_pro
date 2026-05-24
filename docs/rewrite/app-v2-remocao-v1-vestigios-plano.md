@@ -842,6 +842,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58E remove a superficie PMOC do Dashboard legado: o card de clientes deixa
   de consumir `buildClientePmocDetails` e a proxima acao deixa de priorizar
   alertas por texto `PMOC`.
+- CP-58F remove a superficie PMOC do Historico legado: os itens de atencao
+  `pmoc-*` deixam de existir e `buildClientePmocDetails` deixa de ser injetado
+  no view model/helpers de Historico.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

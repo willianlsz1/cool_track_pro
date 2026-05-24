@@ -40,9 +40,6 @@ vi.mock('../core/equipmentRules.js', () => ({
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPro: vi.fn(() => false),
 }));
-vi.mock('../core/clientePmoc.js', () => ({
-  buildClientePmocDetails: vi.fn(() => ({ status: 'em_dia', statusLabel: 'Em dia' })),
-}));
 beforeEach(() => {
   vi.clearAllMocks();
 });
