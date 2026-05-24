@@ -87,7 +87,7 @@
 /* ── Sem setor CTA ────────────────────────────────────────────
    Inline sob o subtítulo, só aparece quando kpis.semSetor > 0.
    Bifurca pelo plano: Pro leva ao filtro (ação imediata), Free/Plus
-   abre pricing com highlight no Pro (upsell educacional).
+   abre aviso de recurso comercial desativado (upsell educacional).
    Pro = pílula sólida cyan (ação). Upsell = pílula outline amber
    com ícone estrela (sinaliza feature premium sem gritar). */
 .equip-hero__cta {

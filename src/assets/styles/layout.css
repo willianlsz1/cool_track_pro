@@ -175,7 +175,7 @@ body {
    HEADER V2REFINED — logo enxuto + tier pill + gear + avatar
    ════════════════════════════════════════════════════════ */
 
-/* Paleta por tier — alinhada com pricing + account modal:
+/* Paleta por tier — alinhada com account modal:
    - Free: cyan (brand) — é o default; o PILL "FREE" recebe override neutro
      logo abaixo pra não parecer premium
    - Plus: azul (#3a8ee6)
@@ -250,7 +250,7 @@ body {
   color: var(--text-2);
 }
 
-/* PLUS: azul sóbrio — alinhado com pricing + account modal. */
+/* PLUS: azul sóbrio — alinhado com account modal. */
 .app-logo__pill[data-tier='plus'] {
   background: rgba(58, 142, 230, 0.14);
   color: #3a8ee6;

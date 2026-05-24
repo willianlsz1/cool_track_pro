@@ -9708,9 +9708,7 @@ mark,
   }
 }
 
-/* ─── PRICING ─── */
-/* Canonical rules live in ./components/_pricing.css (imported no topo).
-   Mantenha só um: deduplicado em 2026-04 pra destravar classes novas (--plus, --three-col). */
+/* UPGRADE NUDGE */
 
 .upgrade-nudge-card {
   position: relative;
@@ -9726,8 +9724,7 @@ mark,
   gap: 14px;
 }
 
-/* Badge "PRO ATIVO" — dourado #e8b94a alinhado à paleta canônica
-   (espelhado em _pricing.css para sobreviver ordem de cascade). */
+/* Badge "PRO ATIVO" - dourado #e8b94a alinhado a paleta canonica. */
 .upgrade-nudge-card__badge {
   position: absolute;
   top: 12px;
@@ -9768,12 +9765,6 @@ mark,
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.4;
-}
-
-@media (max-width: 768px) {
-  .pricing-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -10437,7 +10428,7 @@ mark,
 }
 
 /* ── Card base ─────────────────────────────────────────── */
-/* Stripe superior + borda esquerda com a cor do setor: dupla identidade
+/* Faixa superior + borda esquerda com a cor do setor: dupla identidade
    visual pra a cor virar linguagem de navegação, não só enfeite sutil. */
 .setor-card {
   position: relative;
@@ -10475,7 +10466,7 @@ mark,
 }
 
 /* Fallback muted — "Sem setor": agrupamento automático de equipamentos órfãos.
-   Sem cor, sem stripe lateral, borda tracejada em cor mais presente, sem KPIs,
+   Sem cor, sem faixa lateral, borda tracejada em cor mais presente, sem KPIs,
    tipografia apagada: sinaliza que é um container técnico, não um setor real
    do usuário. A presença do dashed precisa ser visível o suficiente pra o
    olho perceber de relance que é uma categoria diferente. */
@@ -10964,7 +10955,7 @@ mark,
    do Account Modal V2Refined. NADA novo de cor além dos 10 tokens base.
    ============================================================ */
 
-/* Paleta canônica por tier (alinhada com pricing + account modal + header):
+/* Paleta canônica por tier (alinhada com account modal + header):
    Free = cinza neutro (ghost/muted, reforça "desbloqueia ao fazer upgrade")
    Plus = azul  #3a8ee6
    Pro  = dourado #e8b94a
@@ -15128,7 +15119,7 @@ select option {
 
 /* ── Variante --locked ──
    Quando o usuário é Free, o avatar + CTA deixam de parecer "adicionar foto"
-   e passam a parecer explicitamente um gate. O clique abre o upsell pricing;
+   e passam a parecer explicitamente um gate. O clique abre o aviso de recurso comercial desativado;
    o visual evita induzir o usuário a pensar que vai abrir a câmera. */
 .eq-detail-avatar--locked {
   background: var(--surface-alt, #f3f4f6);
@@ -15998,7 +15989,7 @@ select option {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Dashboard V11 — Polish SaaS premium (Stripe / Linear / Notion vibes)
+   Dashboard V11 — Polish SaaS premium (Linear / Notion vibes)
    Foco: hover states, transitions, hierarquia visual, profundidade sutil.
    So adicionamos overrides minimalistas — markup permanece intacto.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -16030,7 +16021,7 @@ select option {
     0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
 
-/* Hover state em todos os cards — Stripe-style lift sutil */
+/* Hover state em todos os cards — lift sutil */
 .dash__kpi,
 .dash__card,
 .dash__pair article,
