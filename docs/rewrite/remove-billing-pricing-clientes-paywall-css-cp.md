@@ -11,8 +11,10 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 - Removidos overrides `.clientes-paywall*` de `src/assets/styles/redesign.css`.
 - Removido o stub comercial `src/ui/components/upgradeNudge.js`, que ja
   retornava string vazia depois da retirada de billing/pricing.
+- Removido o contrato morto `upgradeCta` do bloco operacional do Dashboard,
+  incluindo o renderer escondido `appendUpgradeContract`.
 - Adicionado contrato automatizado para impedir retorno desse CSS orfao e do
-  stub de upgrade.
+  stub/CTA de upgrade.
 
 ## Contratos preservados
 
@@ -20,6 +22,8 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
   novo foi alterado.
 - O slot publico `dash-upgrade-inline-hint` foi preservado e segue limpo no
   runtime.
+- Os cards operacionais do Dashboard continuam renderizando alertas, clientes
+  em risco e rascunho em andamento sem CTA comercial escondido.
 - A camada tecnica de planos/limites permanece como compatibilidade operacional
   para fluxos legados que ainda dependem desses helpers.
 
@@ -37,6 +41,10 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
   falhou enquanto `.clientes-paywall*` ainda existia nos CSS legados.
 - GREEN: o mesmo teste passou apos a remocao dos blocos orfaos.
 - RED adicional: o teste falhou enquanto o stub `upgradeNudge.js` existia.
+- RED adicional: o teste falhou enquanto `upgradeCta` ainda existia no modelo
+  do Dashboard.
+- GREEN adicional: `billingPricingCleanupContracts` e
+  `dashboardLegacyProDraftContracts` passaram apos remover o contrato morto.
 
 ## Riscos remanescentes
 

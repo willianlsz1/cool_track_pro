@@ -4,7 +4,6 @@ const EMPTY_PRO_DRAFT = Object.freeze({
   tier: 'free',
   proCards: {
     visible: false,
-    upgradeCta: null,
     critical: {
       label: 'Alertas criticos',
       title: 'Tudo sob controle',
@@ -103,19 +102,6 @@ function appendProAction(parent, action) {
   setOptionalDataAttribute(button, 'data-id', action?.id);
   setOptionalDataAttribute(button, 'data-nav', action?.nav);
   button.textContent = label;
-  parent.appendChild(button);
-  return button;
-}
-
-function appendUpgradeContract(parent, cta) {
-  if (!cta) return null;
-
-  const button = document.createElement('button');
-  button.className = 'dash__card-cta';
-  button.type = 'button';
-  button.hidden = true;
-  setOptionalDataAttribute(button, 'data-nav', cta.nav);
-  button.textContent = text(cta.label, 'Conhecer Pro');
   parent.appendChild(button);
   return button;
 }
@@ -253,7 +239,6 @@ export function renderProDraftBlocksDom(root, { proDraft, draftRoot = null } = {
     },
     EMPTY_PRO_DRAFT.proCards.riskClients,
   );
-  appendUpgradeContract(root, cards?.upgradeCta);
 
   if (resolvedDraftRoot) {
     resolvedDraftRoot.replaceChildren();

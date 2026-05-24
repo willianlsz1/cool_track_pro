@@ -1094,7 +1094,6 @@ function _buildProDraftModel({
     tier,
     proCards: {
       visible: Boolean(isEmpresaPro),
-      upgradeCta: null,
       critical,
       riskClients,
     },

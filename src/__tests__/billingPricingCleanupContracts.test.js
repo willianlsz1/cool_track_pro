@@ -21,4 +21,13 @@ describe('billing/pricing cleanup contracts', () => {
     expect(dashboardSource).not.toContain('UpgradeNudge');
     expect(dashboardSource).not.toContain('upgradeNudge');
   });
+
+  it('does not keep hidden dashboard upgrade CTA contracts after commercial removal', () => {
+    const dashboardSource = readSource('src/ui/views/dashboard.js');
+    const proDraftSource = readSource('src/ui/views/dashboard/proDraft.js');
+
+    expect(dashboardSource).not.toContain('upgradeCta');
+    expect(proDraftSource).not.toContain('upgradeCta');
+    expect(proDraftSource).not.toContain('appendUpgradeContract');
+  });
 });
