@@ -56,12 +56,11 @@ import {
 } from '../viewModels/dashboardViewModel.js';
 import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
+import { renderOnboardingBlocksDom, unmountOnboardingBlocksDom } from './dashboard/onboarding.js';
 import { renderProDraftBlocksDom, unmountProDraftBlocksDom } from './dashboard/proDraft.js';
 import { renderReadOnlyBlocksDom } from './dashboard/readOnlyBlocks.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardOnboardingBridgePromise = null;
-let dashboardOnboardingBridge = null;
 const refreshDashboardCharts = createDashboardChartsRefresher({
   loadCharts: () => import('../components/charts.js').then((module) => module.Charts),
 });
@@ -101,16 +100,7 @@ function getProDraftPortalRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.proDraftRoot);
 }
 
-function loadDashboardOnboardingBridge() {
-  dashboardOnboardingBridgePromise ??=
-    import('../../react/entrypoints/dashboardOnboardingIsland.jsx').then((bridge) => {
-      dashboardOnboardingBridge = bridge;
-      return bridge;
-    });
-  return dashboardOnboardingBridgePromise;
-}
-
-function getDashboardOnboardingRoot() {
+function getOnboardingRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.onboarding);
 }
 
@@ -168,15 +158,9 @@ export function unmountProDraftBlocks(root = getProDraftRoot()) {
 // ═══════════════════════════════════════════════════════
 // Helpers de métricas (preservados)
 // ═══════════════════════════════════════════════════════
-export function unmountDashboardOnboarding(root = getDashboardOnboardingRoot()) {
-  if (!root) return undefined;
-  if (dashboardOnboardingBridge?.unmountDashboardOnboardingReact) {
-    dashboardOnboardingBridge.unmountDashboardOnboardingReact(root);
-    return undefined;
-  }
-  return loadDashboardOnboardingBridge().then(({ unmountDashboardOnboardingReact }) => {
-    unmountDashboardOnboardingReact(root);
-  });
+export function unmountOnboardingBlocks(root = getOnboardingRoot()) {
+  unmountOnboardingBlocksDom(root, getDashboardEmptyRoot(), getDashboardOverflowRoot());
+  return undefined;
 }
 
 function _getMostSevereAlert(alerts = []) {
@@ -1126,7 +1110,7 @@ function _buildProDraftModel({
   };
 }
 
-function _buildDashboardOnboardingModel({
+function _buildOnboardingBlocksModel({
   tier,
   dashboardReadModel,
   equipamentos,
@@ -1165,23 +1149,15 @@ function _buildDashboardOnboardingModel({
 }
 
 function _renderOnboardingBlocks({ onboarding }) {
-  const root = getDashboardOnboardingRoot();
+  const root = getOnboardingRoot();
   if (!root || !onboarding) return Promise.resolve();
 
-  const props = {
+  renderOnboardingBlocksDom(root, {
     onboarding,
     emptyRoot: getDashboardEmptyRoot(),
     overflowRoot: getDashboardOverflowRoot(),
-  };
-
-  if (dashboardOnboardingBridge?.mountDashboardOnboardingReact) {
-    dashboardOnboardingBridge.mountDashboardOnboardingReact(root, props);
-    return Promise.resolve();
-  }
-
-  return loadDashboardOnboardingBridge().then(({ mountDashboardOnboardingReact }) => {
-    mountDashboardOnboardingReact(root, props);
   });
+  return Promise.resolve();
 }
 
 function _renderProDraftBlocks({ proDraft }) {
@@ -1459,7 +1435,7 @@ export async function renderDashboard() {
     // painel até o usuário completar 5/5 ou dispensar. Auto-detecta cliente,
     // equipamento e serviço via getState(). Relatório e PDF requerem hooks
     // explícitos (já plugados em routes.js + shareReport.js).
-    const onboarding = _buildDashboardOnboardingModel({
+    const onboarding = _buildOnboardingBlocksModel({
       tier,
       dashboardReadModel,
       equipamentos,

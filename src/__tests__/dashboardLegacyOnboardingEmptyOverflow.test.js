@@ -336,7 +336,7 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
     expect(overflowHost?.textContent).not.toContain('onerror');
   });
 
-  it('keeps current adapter contracts delegated to the React island and away from createRoot', () => {
+  it('keeps current adapter contracts delegated to the DOM renderer and away from createRoot', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
@@ -372,13 +372,15 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
         'data-highlight-plan',
       ]),
     );
-    expect(dashboardSource).toContain('dashboardOnboardingIsland.jsx');
-    expect(dashboardSource).toContain('mountDashboardOnboardingReact');
-    expect(dashboardSource).toContain('_buildDashboardOnboardingModel');
+    expect(dashboardSource).toContain('./dashboard/onboarding.js');
+    expect(dashboardSource).toContain('renderOnboardingBlocksDom');
+    expect(dashboardSource).toContain('_buildOnboardingBlocksModel');
     expect(dashboardSource).toContain('InstallAppPrompt.getRenderState');
     expect(dashboardSource).toContain('OnboardingChecklist.getRenderModel');
     expect(dashboardSource).toContain('OnboardingBanner.render');
     expect(dashboardSource).toContain('OverflowBanner.computeState');
+    expect(dashboardSource).not.toContain('dashboardOnboardingIsland.jsx');
+    expect(dashboardSource).not.toContain('mountDashboardOnboardingReact');
     expect(dashboardSource).not.toContain('emptyStateHtml(');
     expect(dashboardSource).not.toContain("InstallAppPrompt.render('dash-onboarding')");
     expect(dashboardSource).not.toContain("OnboardingChecklist.render('dash-onboarding')");
