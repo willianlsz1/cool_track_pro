@@ -53,6 +53,7 @@ const retiredLegacyBarrelFiles = ['src/ui/views/clientes/renderers.js'];
 const retiredLegacyHelperFiles = [
   'src/ui/helpers/equipamentosPure.js',
   'src/ui/helpers/registroPure.js',
+  'src/ui/views/dashboard/alerts.js',
   'src/ui/views/clientes/cardRenderer.js',
   'src/ui/views/clientes/emptyStateRenderer.js',
   'src/ui/views/clientes/filtersRenderer.js',
