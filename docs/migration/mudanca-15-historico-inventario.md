@@ -435,7 +435,7 @@ Justificativa: o contrato de atributos e a extracao segura dos helpers de menu r
 ## 17. CP-G - Mapear Historico -> Registro
 
 - CP-G aplicado.
-- Documento criado: `docs/migration/mudanca-15-cp-g-historico-registro-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum `src/` alterado.
 - Nenhum teste alterado.
 - Integracao Historico -> Registro mapeada em modo read-only.
@@ -656,7 +656,7 @@ Justificativa: os helpers seguros de delete ja foram extraidos e o contrato Hist
 ## 21. CP-K - Mapear Historico -> PDF/WhatsApp
 
 - CP-K aplicado.
-- Documento criado: `docs/migration/mudanca-15-cp-k-historico-pdf-whatsapp-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum `src/` alterado.
 - Nenhum teste alterado.
 - Integracao Historico -> PDF/WhatsApp mapeada em modo read-only.
@@ -797,7 +797,7 @@ Justificativa: o caminho PDF/WhatsApp por card esta protegido por CP-L e nao pos
 ## 24. CP-N - Mapeamento filtros Historico
 
 - CP-N aplicado em modo read-only + documentacao.
-- Documento criado: `docs/migration/mudanca-15-cp-n-historico-filtros-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum `src/` alterado.
 - Nenhum teste alterado.
 - Filtros do Historico mapeados: DOM, cache local `_histFilterValues`, `sessionStorage`, URL/query params, React filters island, filters sheet, view model, timeline, reset/clear e interacao indireta com export/report.

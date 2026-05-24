@@ -288,7 +288,7 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 ## 17. CP-G - Mapear domain/pdf
 
 - Status: aplicado.
-- Documento criado: `docs/migration/mudanca-13-cp-g-domain-pdf-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - CP documental/read-only: nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
 - Domain PDF mapeado:
   - `src/domain/pdf.js` como orquestrador de `PDFGenerator.generateMaintenanceReport`;
@@ -535,7 +535,7 @@ Confianca: 90%+. O inventario mostra cobertura relevante ja existente, mas `repo
 ## 27. CP-Q - Mapear/desacoplar import UI de assinatura no domain/pdf
 
 - Status: aplicado.
-- Documento criado: `docs/migration/mudanca-13-cp-q-signature-ui-import-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - CP documental/read-only: nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
 - Acoplamento mapeado:
   - `src/domain/pdf.js` importa `resolveSignatureForRecord` de `../ui/components/signature.js`;

@@ -5,7 +5,7 @@
 - Branch: `main`
 - HEAD: `362946519866f671fe7ab538df8d1960ce5f8117`
 - Data: 2026-05-09
-- Arquivos analisados: `src/ui/controller/handlers/reportExportHandlers.js`, `src/domain/pdf.js`, `src/domain/pdf/**`, `src/ui/views/relatorio.js`, `src/ui/views/historico.js`, `src/__tests__/**`, `src/features/relatorio/**`, `docs/migration/mudanca-13-relatorio-pdf-inventario.md`, `docs/migration/mudanca-13-cp-g-domain-pdf-map.md`, `docs/migration/mudanca-13-cp-q-signature-ui-import-map.md`.
+- Arquivos analisados: `src/ui/controller/handlers/reportExportHandlers.js`, `src/domain/pdf.js`, `src/domain/pdf/**`, `src/ui/views/relatorio.js`, `src/ui/views/historico.js`, `src/__tests__/**`, `src/features/relatorio/**`, `docs/migration/mudanca-13-relatorio-pdf-inventario.md` e historico consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - LOC principais:
   - `src/ui/controller/handlers/reportExportHandlers.js`: 727
   - `src/domain/pdf.js`: 177

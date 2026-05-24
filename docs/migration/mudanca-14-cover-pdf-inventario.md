@@ -292,7 +292,7 @@ Justificativa: os helpers puros já foram movidos e testados. O próximo risco a
 ## 14. CP-E - Mapear acoplamento cover -> checklist
 
 - Status: aplicado.
-- Documento criado: `docs/migration/mudanca-14-cp-e-cover-checklist-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Arquivos de produção alterados: nenhum.
 - Testes alterados: nenhum.
 - `cover.js`, `coverHelpers.js`, `checklist.js` e `checklistHelpers.js` permaneceram inalterados.

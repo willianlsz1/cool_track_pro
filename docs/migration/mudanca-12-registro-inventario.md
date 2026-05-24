@@ -266,7 +266,7 @@ Status: aplicado em 2026-05-08.
 
 Status: aplicado em 2026-05-08.
 
-- Documento criado: `docs/migration/mudanca-12-cp-g-signature-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
 - Fluxo de assinatura mapeado: hint React, handlers legacy, `SignatureModal`, gating Plus+, data URL segura, upload/cache/fila offline, payload `assinatura`, reset, PDF/relatorio/historico.
 - Contratos mapeados: `#registro-signature-hint`, `data-action="registro-signature-capture"`, `data-action="registro-signature-open"`, `data-action="registro-signature-remove"`, `signature-upsell-cta`, `data-r-action`, classes `registro-sig-*`, cache `cooltrack-sig-*`, queue `cooltrack-sig-pending-upload`, modal capture/viewer.
@@ -363,7 +363,7 @@ Status: aplicado em 2026-05-09.
 
 Status: aplicado em 2026-05-09.
 
-- Documento criado: `docs/migration/mudanca-12-cp-n-report-pdf-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
 - Fluxo relatório/PDF/WhatsApp mapeado de ponta a ponta: `save-and-share-registro`, `save-and-share-other-registro`, `andShare`, `postSave` CP-M, `exportPdfFlow`, `shareWhatsAppFlow`, `CardActions`, view relatório, histórico, `PDFGenerator`, `filterRegistrosForReport`, fotos, assinatura e quota.
 - Contratos mapeados: `data-action="save-and-share-registro"`, `data-action="save-and-share-other-registro"`, `data-action="export-pdf"`, `data-action="whatsapp-export"`, `data-registro-id`, rota `goTo('relatorio', { equipId, intent, registroId })`, `filters.registroId`, campos de cliente, fotos e assinatura usados pelo PDF.
@@ -431,7 +431,7 @@ Status: aplicado em 2026-05-09.
 
 Status: aplicado em 2026-05-09.
 
-- Documento criado: `docs/migration/mudanca-12-cp-s-save-wrappers-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
 - Wrappers restantes do `saveRegistro` mapeados e classificados: DOM/form, validacao/Toast/focus, Profile/sessionStorage, `setState`, post-save orquestrador e checklist/PMOC.
 - APIs publicas restantes do adapter mapeadas: `initRegistro`, `saveRegistro`, `clearRegistro`, `loadRegistroForEdit`, quick templates, handlers de assinatura/hint, handlers de checklist e unmounts das ilhas React.
@@ -444,7 +444,7 @@ Status: aplicado em 2026-05-09.
 
 Status: aplicado em 2026-05-09.
 
-- Documento criado: `docs/migration/mudanca-12-cp-t-checklist-pmoc-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
 - Checklist/PMOC mapeado: estado `_currentChecklist`, gate Pro, templates NBR 13971, ilha React, handlers delegados, snapshot para save, warning soft-required, create/edit, reset, edit load, PDF/relatorio, historico e prompt de proxima preventiva.
 - Contratos mapeados: `#r-checklist-body`, `#r-checklist-details`, `#r-checklist-summary`, `#r-checklist-upsell`, `data-action="r-checklist-set"`, `data-action="r-checklist-obs"`, `data-action="r-checklist-measure"`, `data-item-id`, `data-status`, `data-unit`, classes `r-checklist__*` e shape `registro.checklist`.
@@ -495,7 +495,7 @@ Status: aplicado em 2026-05-09.
 
 Status: aplicado em 2026-05-09.
 
-- Documento criado: `docs/migration/mudanca-12-cp-x-lifecycle-map.md`.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Nenhum arquivo em `src/` foi alterado; nenhum teste foi alterado.
 - Fluxos publicos mapeados: `initRegistro`, `clearRegistro` e `loadRegistroForEdit`.
 - `initRegistro` mapeado: entrada de rota, root DOM, params/equipamento, contexto, skeleton/header React, binds idempotentes, datetime UX, defaults, Profile, fotos, assinatura, checklist/PMOC e estado inicial.

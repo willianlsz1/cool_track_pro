@@ -30,7 +30,7 @@ dependencia foi iniciada.
 - `docs/security/mudanca-17-final-report.md`
 - `docs/security/mudanca-17-codex-security-triage.md`
 - `docs/migration/mudanca-16-stability-e2e-cache-inventario.md`
-- `docs/migration/mudanca-16-cp-g-chunks-dynamic-import-map.md`
+- `docs/rewrite/checkpoints-recentes-resumo.md`
 
 Conclusao documental:
 

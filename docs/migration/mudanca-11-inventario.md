@@ -1765,7 +1765,7 @@ Status: **CP-H.0 aplicado**.
 
 ### Escopo aplicado
 
-Criado `docs/migration/mudanca-11-cp-h0-fachadas.md` com o mapeamento pos CP-G.6 de responsabilidades restantes no adapter, modulos feature ja extraidos, dependencias via DI, riscos de import circular, avaliacao de fachada/shim e sequencia recomendada de proximos CPs.
+Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 ### Estado analisado
 
@@ -1782,7 +1782,7 @@ Nao criar fachada/shim neste CP. O adapter ainda e a fronteira de composicao ent
 
 ### Arquivos alterados
 
-- `docs/migration/mudanca-11-cp-h0-fachadas.md` criado.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - `docs/migration/mudanca-11-inventario.md` atualizado.
 - Nenhum arquivo em `src/` alterado.
 
@@ -1798,7 +1798,7 @@ Status: **CP-H.1 aplicado**.
 
 ### Escopo aplicado
 
-Criado `docs/migration/mudanca-11-cp-h1-edit-delete-map.md` com o mapeamento read-only dos fluxos `deleteEquip` e `openEditEquip`, helpers acoplados, testes relacionados, riscos principais e opcoes de proximo CP.
+Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 ### Estado analisado
 
@@ -1816,7 +1816,7 @@ Nao criar fachada, shim, pre-split ou movimentacao neste CP. `openEditEquip` con
 
 ### Arquivos alterados
 
-- `docs/migration/mudanca-11-cp-h1-edit-delete-map.md` criado.
+- Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 - `docs/migration/mudanca-11-inventario.md` atualizado.
 - Nenhum arquivo em `src/` alterado.
 - Nenhum teste alterado.
@@ -2040,7 +2040,7 @@ Status: **CP-H.6 aplicado**.
 
 ### Escopo aplicado
 
-Criado `docs/migration/mudanca-11-cp-h6-list-branch-map.md` com mapeamento read-only de `renderFlatList`, `_setToolbar`, `mountEquipamentosHeader`, roots/bridges, testes relacionados, riscos principais e opcoes de proximo CP.
+Historico detalhado consolidado em `docs/rewrite/checkpoints-recentes-resumo.md`.
 
 Nenhum arquivo em `src/` foi alterado e nenhum teste foi alterado.
 

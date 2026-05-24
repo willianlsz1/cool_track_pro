@@ -278,7 +278,7 @@ Mapear o estado geral de estabilidade do app antes de novos cortes profundos, co
 
 - Escopo: mapeamento read-only dos warnings Vite de dynamic/static import e chunks grandes.
 - Documento criado:
-  - `docs/migration/mudanca-16-cp-g-chunks-dynamic-import-map.md`.
+  - `docs/rewrite/checkpoints-recentes-resumo.md`.
 - Estado observado:
   - `npm run check` passou;
   - `npm run build` passou;

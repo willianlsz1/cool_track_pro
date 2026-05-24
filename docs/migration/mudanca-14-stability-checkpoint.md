@@ -15,7 +15,7 @@
   - `src/__tests__/pdfCover.helpers.test.js`
   - `src/__tests__/pdfCoverChecklistCursor.contract.test.js`
   - `docs/migration/mudanca-14-cover-pdf-inventario.md`
-  - `docs/migration/mudanca-14-cp-e-cover-checklist-map.md`
+  - `docs/rewrite/checkpoints-recentes-resumo.md`
 - LOC principais:
   - `src/domain/pdf/sections/cover.js`: 581
   - `src/domain/pdf/sections/coverHelpers.js`: 199
