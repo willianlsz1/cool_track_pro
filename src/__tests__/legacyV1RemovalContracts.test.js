@@ -549,11 +549,22 @@ describe('legacy v1 removal contracts', () => {
     expect(subscriptionPlansSource).not.toContain('digital_signature');
   });
 
-  it('does not keep the legacy photo resolver dedicated to PDF generation', () => {
-    const photoStorageSource = readSource('src/core/photoStorage.js');
+  it('does not keep the legacy photo storage/upload runtime', () => {
+    expect(existsSync('src/core/photoStorage.js')).toBe(false);
+    expect(existsSync('src/core/storage/storageMigrations.js')).toBe(false);
+    expect(existsSync('src/__tests__/photoStorage.test.js')).toBe(false);
 
-    expect(photoStorageSource).not.toContain('resolvePhotoDataUrlForPdf');
-    expect(photoStorageSource).not.toContain('blobToDataUrl');
+    const storageSource = readSource('src/core/storage.js');
+    const photoRefsSource = readSource('src/core/storage/photoRefs.js');
+
+    expect(storageSource).not.toContain('flushPendingPhotos');
+    expect(storageSource).not.toContain('migrateLegacyPhotosInState');
+    expect(storageSource).not.toContain('_migrateLegacyPhotosAsync');
+    expect(photoRefsSource).not.toContain('supabase');
+    expect(photoRefsSource).not.toContain('createSignedUrl');
+    expect(photoRefsSource).not.toContain('uploadPendingPhotos');
+    expect(photoRefsSource).not.toContain('localStorage');
+    expect(photoRefsSource).not.toContain('registro-fotos');
   });
 
   it('does not keep the duplicate legacy photo migration bridge in storage normalizers', () => {
@@ -561,9 +572,6 @@ describe('legacy v1 removal contracts', () => {
 
     expect(storageNormalizersSource).not.toContain('migrateLegacyPhotosInState');
     expect(storageNormalizersSource).not.toContain('migrateLegacyPhotosForRegistros');
-    expect(readSource('src/core/storage/storageMigrations.js')).toContain(
-      'migrateLegacyPhotosInState',
-    );
   });
 
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {

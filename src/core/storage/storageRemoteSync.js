@@ -1,5 +1,5 @@
 import { supabase } from '../supabase.js';
-import { normalizePhotoList } from '../photoStorage.js';
+import { normalizePhotoList } from './photoRefs.js';
 import { AppError, ErrorCodes } from '../errors.js';
 import {
   normalizeCriticidade,

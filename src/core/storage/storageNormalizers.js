@@ -1,4 +1,4 @@
-import { normalizePhotoList } from '../photoStorage.js';
+import { normalizePhotoList } from './photoRefs.js';
 import {
   normalizeCriticidade,
   normalizePrioridadeOperacional,

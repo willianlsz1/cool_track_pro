@@ -148,7 +148,7 @@ vi.mock('../ui/components/photos.js', () => ({
   Photos: {},
 }));
 
-vi.mock('../core/photoStorage.js', () => ({
+vi.mock('../core/storage/photoRefs.js', () => ({
   normalizePhotoList: mocks.normalizePhotoList,
 }));
 

@@ -7,7 +7,6 @@
 import { STORAGE_KEY, Utils } from './utils.js';
 import { Toast } from './toast.js';
 import { supabase } from './supabase.js';
-import { flushPendingPhotos } from './photoStorage.js';
 import { ErrorCodes, handleError } from './errors.js';
 import { sanitizePersistedSetor } from './inputValidation.js';
 import {
@@ -15,7 +14,6 @@ import {
   normalizeRegistro,
   sanitizePersistedCliente,
 } from './storage/storageNormalizers.js';
-import { migrateLegacyPhotosInState } from './storage/storageMigrations.js';
 import {
   clearDirty,
   getCacheOwner,
@@ -196,18 +194,6 @@ export const Storage = {
       syncState.clearDirty();
       syncState.updateSyncStatus({ state: 'synced', message: 'Dados sincronizados.' });
 
-      // Migração gradual de fotos legadas (base64) para Storage sem bloquear o bootstrap
-      this._migrateLegacyPhotosAsync(state, userId);
-
-      flushPendingPhotos().catch((err) => {
-        handleError(err, {
-          code: ErrorCodes.SYNC_FAILED,
-          severity: 'info',
-          message: 'Falha ao sincronizar fotos pendentes.',
-          context: { action: 'loadFromSupabase.flushPendingPhotos' },
-        });
-      });
-
       return state;
     } catch (err) {
       handleError(err, {
@@ -320,24 +306,14 @@ export const Storage = {
     try {
       await flushPendingDeletions(userId);
 
-      const migration = await migrateLegacyPhotosInState(state, userId, {
-        storageKey: STORAGE_KEY,
-      });
-      const stateToSync = migration.state;
-
       // IMPORTANTE: push setores ANTES de equipamentos para não violar FK.
       // (equipamentos.setor_id referencia setores.id)
-      await pushClientes(stateToSync.clientes || [], userId);
-      await pushSetores(stateToSync.setores || [], userId);
-      await pushEquipamentos(stateToSync.equipamentos, userId);
-      await pushRegistros(stateToSync.registros, userId);
-      await pushTecnicos(stateToSync.tecnicos, userId);
+      await pushClientes(state.clientes || [], userId);
+      await pushSetores(state.setores || [], userId);
+      await pushEquipamentos(state.equipamentos, userId);
+      await pushRegistros(state.registros, userId);
+      await pushTecnicos(state.tecnicos, userId);
 
-      if (migration.failedCount > 0) {
-        Toast.warning(
-          'Algumas fotos não foram enviadas para a nuvem e permaneceram salvas localmente.',
-        );
-      }
       syncState.clearDirty();
       _setCacheOwner(userId);
       syncState.updateSyncStatus({ state: 'synced', message: 'Dados sincronizados.' });
@@ -374,28 +350,6 @@ export const Storage = {
         errorKind: isNetworkErr ? 'offline' : 'server',
       });
       return false;
-    }
-  },
-
-  async _migrateLegacyPhotosAsync(state, userId) {
-    try {
-      const migration = await migrateLegacyPhotosInState(state, userId, {
-        storageKey: STORAGE_KEY,
-      });
-      if (!migration.migratedCount) return;
-
-      await pushRegistros(migration.state.registros, userId);
-      if (migration.failedCount > 0) {
-        Toast.warning('Algumas fotos antigas não puderam ser migradas e seguem salvas localmente.');
-      }
-    } catch (error) {
-      handleError(error, {
-        code: ErrorCodes.SYNC_FAILED,
-        severity: 'warning',
-        message: 'Migração de fotos pendente. Tentaremos novamente automaticamente.',
-        context: { action: 'storage._migrateLegacyPhotosAsync' },
-        showToast: false,
-      });
     }
   },
 

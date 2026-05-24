@@ -691,6 +691,12 @@ Progresso executado:
   `src/ui/components/photos.js`, `Photos.openLightbox`, `hist-open-photo`,
   `data-photo-url`, o handler `close-lightbox` e o markup `#lightbox`. Fotos
   antigas seguem apenas como imagens estaticas ate o CP de storage.
+- CP-57G aposenta o runtime client-side legado de storage/upload de fotos:
+  remove `src/core/photoStorage.js`, a fila/migracao automatica em
+  `src/core/storage.js`, `src/core/storage/storageMigrations.js` e o teste
+  dedicado de upload/signing. O CP preserva apenas normalizacao pura de
+  referencias em `src/core/storage/photoRefs.js`; buckets, policies, migrations
+  e upload/storage real ficam fora para etapa app-v2-native propria.
 
 Controle:
 

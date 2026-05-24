@@ -10,7 +10,7 @@ import {
   saveDeletionQueue,
   setCacheOwner,
 } from '../core/storage/storageLocalCache.js';
-import { normalizePhotoEntry } from '../core/photoStorage.js';
+import { normalizePhotoEntry } from '../core/storage/photoRefs.js';
 
 const DIRTY_KEY = 'cooltrack-sync-dirty-v1';
 const DELETIONS_KEY = 'cooltrack-sync-deletions-v1';

@@ -4,7 +4,7 @@
  * (equipamentos/registros) e o shape persistido (localStorage / Supabase).
  */
 
-import { normalizePhotoList } from '../photoStorage.js';
+import { normalizePhotoList } from './photoRefs.js';
 import {
   normalizeCriticidade,
   normalizePeriodicidadePreventivaDias,

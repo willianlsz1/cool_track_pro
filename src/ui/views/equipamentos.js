@@ -29,7 +29,7 @@ import { buildEquipamentosViewModel } from '../viewModels/equipamentosViewModel.
 import { buildEquipamentosHeaderViewModel } from '../viewModels/equipamentosHeaderModel.js';
 import { validateEquipamentoPayload } from '../../core/inputValidation.js';
 import { resetCamposExtrasState, setCamposExtrasState } from '../components/nameplateCapture.js';
-import { normalizePhotoList } from '../../core/photoStorage.js';
+import { normalizePhotoList } from '../../core/storage/photoRefs.js';
 import { isCachedPlanPro } from '../../core/plans/planCache.js';
 import { SETOR_NOME_MAX } from '../../core/setorRules.js';
 import {
