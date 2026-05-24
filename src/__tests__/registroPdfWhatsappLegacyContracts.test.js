@@ -305,9 +305,9 @@ async function mountAndFillRegistro(registro, overrides = {}) {
   expect(document.getElementById('registro-photos-root')?.dataset.reactRegistroPhotosMounted).toBe(
     'true',
   );
-  expect(
-    document.getElementById('registro-signature-hint')?.dataset.reactRegistroSignatureMounted,
-  ).toBe('true');
+  expect(document.getElementById('registro-signature-hint')?.dataset.registroSignatureMounted).toBe(
+    'true',
+  );
 }
 
 function findOptionValue(selectId, labelPart) {

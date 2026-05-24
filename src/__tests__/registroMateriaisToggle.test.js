@@ -106,10 +106,6 @@ vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({
   mountRegistroChecklistReact: vi.fn(),
   unmountRegistroChecklistReact: vi.fn(),
 }));
-vi.mock('../react/entrypoints/registroSignatureIsland.jsx', () => ({
-  mountRegistroSignatureReact: vi.fn(),
-  unmountRegistroSignatureReact: vi.fn(),
-}));
 
 function mountRegistroDom({ materialOpen = false } = {}) {
   document.body.innerHTML = `

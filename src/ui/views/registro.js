@@ -33,6 +33,10 @@ import {
   isSafeRegistroSignatureSrc,
 } from '../viewModels/registroSignatureModel.js';
 import {
+  renderRegistroSignatureHint,
+  unmountRegistroSignatureHint,
+} from './registro/signatureHint.js';
+import {
   buildRegistroPayloadDraft,
   buildRegistroPersistPayload,
   normalizeRegistroServiceTypeValue,
@@ -197,8 +201,6 @@ let _registroHeaderRenderGeneration = 0;
 let _registroChecklistBridgePromise = null;
 let _registroChecklistBridge = null;
 let _registroChecklistRenderGeneration = 0;
-let _registroSignatureBridgePromise = null;
-let _registroSignatureBridge = null;
 let _registroSignatureRenderGeneration = 0;
 let _registroSignatureDraftSrc = '';
 let _isSavingRegistro = false;
@@ -919,23 +921,7 @@ export function unmountRegistroPhotos() {
   return Photos.unmount?.();
 }
 
-function loadRegistroSignatureBridge() {
-  if (_registroSignatureBridge) return Promise.resolve(_registroSignatureBridge);
-  if (!_registroSignatureBridgePromise) {
-    _registroSignatureBridgePromise = import('../../react/entrypoints/registroSignatureIsland.jsx')
-      .then((bridge) => {
-        _registroSignatureBridge = bridge;
-        return bridge;
-      })
-      .catch((error) => {
-        _registroSignatureBridgePromise = null;
-        throw error;
-      });
-  }
-  return _registroSignatureBridgePromise;
-}
-
-function buildRegistroSignatureReactProps() {
+function buildRegistroSignatureProps() {
   return {
     isPlusOrHigher: PlanCache.isCachedPlanPlusOrHigher(),
     signatureSrc: _registroSignatureDraftSrc,
@@ -953,18 +939,12 @@ function mountRegistroSignature() {
   if (!root) return null;
 
   const renderGeneration = (_registroSignatureRenderGeneration += 1);
-  const props = buildRegistroSignatureReactProps();
+  const props = buildRegistroSignatureProps();
 
-  const mountWithBridge = (bridge) => {
+  return Promise.resolve().then(() => {
     if (renderGeneration !== _registroSignatureRenderGeneration) return null;
-    return bridge.mountRegistroSignatureReact(root, props);
-  };
-
-  if (_registroSignatureBridge?.mountRegistroSignatureReact) {
-    return mountWithBridge(_registroSignatureBridge);
-  }
-
-  return loadRegistroSignatureBridge().then(mountWithBridge);
+    return renderRegistroSignatureHint(root, props);
+  });
 }
 
 export function unmountRegistroSignature() {
@@ -972,16 +952,7 @@ export function unmountRegistroSignature() {
   if (typeof document === 'undefined') return null;
 
   const root = document.getElementById(REGISTRO_SIGNATURE_ROOT_ID);
-  if (!root?.dataset.reactRegistroSignatureMounted) return null;
-
-  if (_registroSignatureBridge?.unmountRegistroSignatureReact) {
-    _registroSignatureBridge.unmountRegistroSignatureReact(root);
-    return null;
-  }
-
-  return loadRegistroSignatureBridge().then((bridge) => {
-    bridge.unmountRegistroSignatureReact?.(root);
-  });
+  return unmountRegistroSignatureHint(root);
 }
 
 function getRegistroSignatureDraftRecordId(el = null) {

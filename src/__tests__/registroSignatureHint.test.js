@@ -1,13 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  mountRegistroSignatureReact,
-  unmountRegistroSignatureReact,
-} from '../react/entrypoints/registroSignatureIsland.jsx';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  renderRegistroSignatureHint,
+  unmountRegistroSignatureHint,
+} from '../ui/views/registro/signatureHint.js';
 
 const SAFE_PNG =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
@@ -44,33 +41,27 @@ function expectNoInjectedMarkup(root) {
   });
 }
 
-describe('registro signature React island', () => {
-  afterEach(async () => {
-    await act(async () => {
-      unmountRegistroSignatureReact();
-    });
+describe('registro signature DOM hint', () => {
+  afterEach(() => {
+    unmountRegistroSignatureHint();
     document.body.innerHTML = '';
     vi.restoreAllMocks();
   });
 
-  it('monta no bloco de assinatura preservando estado free e CTA legado', async () => {
+  it('monta no bloco de assinatura preservando estado free e CTA legado', () => {
     const root = setRoot();
     const onUpsellClick = vi.fn();
 
-    await act(async () => {
-      mountRegistroSignatureReact(root, {
-        isPlusOrHigher: false,
-        onUpsellClick,
-      });
+    renderRegistroSignatureHint(root, {
+      isPlusOrHigher: false,
+      onUpsellClick,
     });
 
-    expect(root?.dataset.reactRegistroSignatureMounted).toBe('true');
+    expect(root?.dataset.registroSignatureMounted).toBe('true');
     expect(root?.hidden).toBe(false);
     expect(root?.classList.contains('registro-sig-hint')).toBe(true);
     expect(root?.classList.contains('registro-sig-hint--upsell')).toBe(true);
-    expect(
-      document.querySelectorAll('[data-react-registro-signature-mounted="true"]'),
-    ).toHaveLength(1);
+    expect(document.querySelectorAll('[data-registro-signature-mounted="true"]')).toHaveLength(1);
     expect(root?.querySelector('.registro-sig-hint__title')?.textContent).toContain(
       'Assinatura do cliente',
     );
@@ -80,21 +71,17 @@ describe('registro signature React island', () => {
     expect(cta?.tagName).toBe('BUTTON');
     expect(cta?.getAttribute('type')).toBe('button');
 
-    await act(async () => {
-      cta?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
+    cta?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(onUpsellClick).toHaveBeenCalledTimes(1);
     expect(document.querySelector('[data-action="save-registro"]')).not.toBeNull();
     expectNoInjectedMarkup(root);
   });
 
-  it('renderiza estado Plus sem assinatura sem abrir captura real', async () => {
+  it('renderiza estado Plus sem assinatura sem abrir captura real', () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountRegistroSignatureReact(root, { isPlusOrHigher: true });
-    });
+    renderRegistroSignatureHint(root, { isPlusOrHigher: true });
 
     expect(root?.classList.contains('registro-sig-hint--upsell')).toBe(false);
     expect(root?.querySelector('.registro-sig-hint__title')?.textContent).toBe(
@@ -106,21 +93,19 @@ describe('registro signature React island', () => {
     expectNoInjectedMarkup(root);
   });
 
-  it('renderiza preview seguro e contratos de capturar, abrir e remover quando fornecidos', async () => {
+  it('renderiza preview seguro e contratos de capturar, abrir e remover quando fornecidos', () => {
     const root = setRoot();
     const onCapture = vi.fn();
     const onOpen = vi.fn();
     const onRemove = vi.fn();
 
-    await act(async () => {
-      mountRegistroSignatureReact(root, {
-        isPlusOrHigher: true,
-        signatureSrc: SAFE_PNG,
-        showCaptureAction: true,
-        onCaptureSignature: onCapture,
-        onOpenSignature: onOpen,
-        onRemoveSignature: onRemove,
-      });
+    renderRegistroSignatureHint(root, {
+      isPlusOrHigher: true,
+      signatureSrc: SAFE_PNG,
+      showCaptureAction: true,
+      onCaptureSignature: onCapture,
+      onOpenSignature: onOpen,
+      onRemoveSignature: onRemove,
     });
 
     const image = root?.querySelector('.registro-sig-hint__preview-img');
@@ -135,11 +120,9 @@ describe('registro signature React island', () => {
     expect(open?.getAttribute('type')).toBe('button');
     expect(remove?.getAttribute('type')).toBe('button');
 
-    await act(async () => {
-      capture?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      open?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      remove?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    });
+    capture?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    open?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    remove?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(onCapture).toHaveBeenCalledTimes(1);
     expect(onOpen).toHaveBeenCalledWith(SAFE_PNG);
@@ -147,16 +130,14 @@ describe('registro signature React island', () => {
     expectNoInjectedMarkup(root);
   });
 
-  it('bloqueia assinatura insegura e payloads HTML sem preview clicavel', async () => {
+  it('bloqueia assinatura insegura e payloads HTML sem preview clicavel', () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountRegistroSignatureReact(root, {
-        isPlusOrHigher: true,
-        signatureSrc: `data:text/html,${MALICIOUS}`,
-        label: MALICIOUS,
-        description: MALICIOUS,
-      });
+    renderRegistroSignatureHint(root, {
+      isPlusOrHigher: true,
+      signatureSrc: `data:text/html,${MALICIOUS}`,
+      label: MALICIOUS,
+      description: MALICIOUS,
     });
 
     expect(root?.querySelector('.registro-sig-hint__preview-img')).toBeNull();
@@ -165,11 +146,9 @@ describe('registro signature React island', () => {
     expect(root?.textContent).toContain(MALICIOUS);
     expectNoInjectedMarkup(root);
 
-    await act(async () => {
-      mountRegistroSignatureReact(root, {
-        isPlusOrHigher: true,
-        signatureSrc: 'data:image/svg+xml,<svg onload="alert(1)"></svg>',
-      });
+    renderRegistroSignatureHint(root, {
+      isPlusOrHigher: true,
+      signatureSrc: 'data:image/svg+xml,<svg onload="alert(1)"></svg>',
     });
 
     expect(root?.querySelector('.registro-sig-hint__preview-img')).toBeNull();
@@ -177,31 +156,23 @@ describe('registro signature React island', () => {
     expectNoInjectedMarkup(root);
   });
 
-  it('atualiza o mesmo root sem multiplos createRoot e desmonta com seguranca', async () => {
+  it('atualiza o mesmo root e desmonta com seguranca', () => {
     const root = setRoot();
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      mountRegistroSignatureReact(root, { isPlusOrHigher: true, signatureSrc: SAFE_PNG });
-      mountRegistroSignatureReact(root, { isPlusOrHigher: true, signatureSrc: SAFE_JPEG });
-      unmountRegistroSignatureReact(root);
-      unmountRegistroSignatureReact(root);
-    });
+    renderRegistroSignatureHint(root, { isPlusOrHigher: true, signatureSrc: SAFE_PNG });
+    renderRegistroSignatureHint(root, { isPlusOrHigher: true, signatureSrc: SAFE_JPEG });
+    unmountRegistroSignatureHint(root);
+    unmountRegistroSignatureHint(root);
 
-    expect(root?.dataset.reactRegistroSignatureMounted).toBeUndefined();
+    expect(root?.dataset.registroSignatureMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
-    expect(consoleError).not.toHaveBeenCalledWith(
-      expect.stringContaining(
-        'createRoot() on a container that has already been passed to createRoot()',
-      ),
-    );
   });
 
-  it('mantem React isolado do adapter legado de Registro', () => {
-    const componentSource = readFileSync('src/react/pages/RegistroSignature.jsx', 'utf8');
+  it('mantem renderizador DOM isolado do adapter legado de Registro', () => {
+    const rendererSource = readFileSync('src/ui/views/registro/signatureHint.js', 'utf8');
     const adapterSource = readFileSync('src/ui/views/registro.js', 'utf8');
 
-    expect(componentSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML|document\.|window\./);
+    expect(rendererSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML\s*=/);
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
     expect(adapterSource).not.toMatch(/dangerouslySetInnerHTML/);

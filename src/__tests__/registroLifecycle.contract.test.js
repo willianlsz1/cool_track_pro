@@ -46,12 +46,6 @@ const mocks = vi.hoisted(() => ({
   unmountRegistroChecklistReact: vi.fn((root) => {
     delete root.dataset.reactRegistroChecklistMounted;
   }),
-  mountRegistroSignatureReact: vi.fn((root) => {
-    root.dataset.reactRegistroSignatureMounted = 'true';
-  }),
-  unmountRegistroSignatureReact: vi.fn((root) => {
-    delete root.dataset.reactRegistroSignatureMounted;
-  }),
 }));
 
 vi.mock('../core/state.js', () => ({
@@ -145,11 +139,6 @@ vi.mock('../react/entrypoints/registroHeaderIsland.jsx', () => ({
 vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({
   mountRegistroChecklistReact: mocks.mountRegistroChecklistReact,
   unmountRegistroChecklistReact: mocks.unmountRegistroChecklistReact,
-}));
-
-vi.mock('../react/entrypoints/registroSignatureIsland.jsx', () => ({
-  mountRegistroSignatureReact: mocks.mountRegistroSignatureReact,
-  unmountRegistroSignatureReact: mocks.unmountRegistroSignatureReact,
 }));
 
 const CHECKLIST = {
@@ -277,7 +266,7 @@ describe('registro lifecycle contract', () => {
       document.getElementById('registro-header-root')?.dataset.reactRegistroHeaderMounted,
     ).toBe('true');
     expect(
-      document.getElementById('registro-signature-hint')?.dataset.reactRegistroSignatureMounted,
+      document.getElementById('registro-signature-hint')?.dataset.registroSignatureMounted,
     ).toBe('true');
     expect(document.getElementById('r-equip')?.value).toBe('eq-1');
     expect(document.getElementById('r-data')?.value).toBe('2026-05-01T09:30');
@@ -313,7 +302,9 @@ describe('registro lifecycle contract', () => {
     expect(document.getElementById('view-registro')?.dataset.editMode).toBe('0');
     expect(mocks.clearRouteGuard).toHaveBeenCalled();
     expect(mocks.photosClear).toHaveBeenCalledTimes(1);
-    expect(mocks.mountRegistroSignatureReact).toHaveBeenCalled();
+    expect(
+      document.getElementById('registro-signature-hint')?.dataset.registroSignatureMounted,
+    ).toBe('true');
     expect(registro.getCurrentChecklist()).toBeNull();
   });
 

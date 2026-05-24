@@ -20,14 +20,13 @@ const sourceFiles = [
   'src/ui/components/photos.js',
   'src/ui/controller/handlers/registroHandlers.js',
   'src/ui/shell/templates/views.js',
+  'src/ui/views/registro/signatureHint.js',
   'src/ui/viewModels/registroPhotosModel.js',
   'src/ui/viewModels/registroSignatureModel.js',
   'src/react/entrypoints/registroHeaderIsland.jsx',
   'src/react/entrypoints/registroChecklistIsland.jsx',
-  'src/react/entrypoints/registroSignatureIsland.jsx',
   'src/react/pages/RegistroHeader.jsx',
   'src/react/pages/RegistroChecklist.jsx',
-  'src/react/pages/RegistroSignature.jsx',
 ].map(source);
 
 const combinedSource = sourceFiles.join('\n');

@@ -84,10 +84,6 @@ vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
   shareWhatsAppFlow: mocks.shareWhatsAppFlow,
 }));
 vi.mock('../core/phoneMask.js', () => ({ bindSmartContactMaskInput: vi.fn() }));
-vi.mock('../react/entrypoints/registroSignatureIsland.jsx', () => ({
-  mountRegistroSignatureReact: vi.fn(),
-  unmountRegistroSignatureReact: vi.fn(),
-}));
 
 function mountRegistroDom() {
   document.body.innerHTML = `

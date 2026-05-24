@@ -3,6 +3,7 @@ import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { REGISTRO_SIGNATURE_ACTIONS } from '../ui/viewModels/registroSignatureModel.js';
+import { renderRegistroSignatureHint } from '../ui/views/registro/signatureHint.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -191,10 +192,8 @@ async function setupHandlers() {
 
 async function mountSignatureRoot(props = {}) {
   const root = setupDom();
-  const { mountRegistroSignatureReact } =
-    await import('../react/entrypoints/registroSignatureIsland.jsx');
   await act(async () => {
-    mountRegistroSignatureReact(root, {
+    renderRegistroSignatureHint(root, {
       isPlusOrHigher: true,
       showCaptureAction: true,
       ...props,
@@ -257,7 +256,7 @@ describe('registro signature React block legacy handlers contract', () => {
     const root = await mountSignatureRoot();
     const capture = root.querySelector('[data-r-action="registro-signature-capture"]');
 
-    expect(root.dataset.reactRegistroSignatureMounted).toBe('true');
+    expect(root.dataset.registroSignatureMounted).toBe('true');
     expect(capture?.dataset.rAction).toBe(REGISTRO_SIGNATURE_ACTIONS.capture);
     expect(capture?.dataset.action).toBe(REGISTRO_SIGNATURE_ACTIONS.capture);
 
@@ -289,10 +288,8 @@ describe('registro signature React block legacy handlers contract', () => {
     );
 
     mocks.signatureViewerOpen.mockClear();
-    const { mountRegistroSignatureReact } =
-      await import('../react/entrypoints/registroSignatureIsland.jsx');
     await act(async () => {
-      mountRegistroSignatureReact(root, {
+      renderRegistroSignatureHint(root, {
         isPlusOrHigher: true,
         signatureSrc: UNSAFE_SIGNATURE,
         label: MALICIOUS,
