@@ -177,7 +177,7 @@ beforeEach(() => {
   document.body.innerHTML = `
     ${renderShellModals()}
     <section id="view-equipamentos">
-      <section id="equip-hero" data-react-equipamentos-header-mounted="true"></section>
+      <section id="equip-hero" data-equipamentos-header-mounted="true"></section>
       <nav id="equip-filters"></nav>
       <div id="equip-context-chip"></div>
       <div id="lista-equip" data-react-equipamentos-list-mounted="true"></div>

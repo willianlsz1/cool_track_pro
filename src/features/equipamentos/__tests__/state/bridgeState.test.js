@@ -53,7 +53,7 @@ describe('state/bridgeState', () => {
   });
 
   it('faz set/get/clear do header bridge', () => {
-    const bridge = { mountEquipamentosHeaderReact() {} };
+    const bridge = { mountEquipamentosHeader() {} };
 
     setEquipamentosHeaderBridge(bridge);
     expect(getEquipamentosHeaderBridge()).toBe(bridge);

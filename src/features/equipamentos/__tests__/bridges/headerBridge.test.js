@@ -10,19 +10,7 @@ import {
   getEquipamentosHeaderBridge,
   getEquipamentosHeaderBridgePromise,
   getEquipamentosHeaderRenderGeneration,
-  setEquipamentosHeaderBridge,
 } from '../../state/bridgeState.js';
-import {
-  mountEquipamentosHeaderReact,
-  unmountEquipamentosHeaderReact,
-} from '../../../../react/entrypoints/equipamentosHeaderIsland.jsx';
-
-vi.mock('../../../../react/entrypoints/equipamentosHeaderIsland.jsx', () => ({
-  mountEquipamentosHeaderReact: vi.fn(() => 'mounted-header'),
-  unmountEquipamentosHeaderReact: vi.fn((root) => {
-    delete root.dataset.reactEquipamentosHeaderMounted;
-  }),
-}));
 
 describe('bridges/headerBridge', () => {
   beforeEach(() => {
@@ -31,39 +19,58 @@ describe('bridges/headerBridge', () => {
     vi.clearAllMocks();
   });
 
-  it('load header bridge usa dynamic import memoizado', async () => {
+  it('load header bridge uses a memoized local bridge promise without importing React', async () => {
     const first = loadEquipamentosHeaderBridge();
     const second = loadEquipamentosHeaderBridge();
 
     expect(second).toBe(first);
     expect(getEquipamentosHeaderBridgePromise()).toBe(first);
-    await first;
+
+    const bridge = await first;
+    expect(bridge.mountEquipamentosHeader).toEqual(expect.any(Function));
+    expect(bridge.unmountEquipamentosHeader).toEqual(expect.any(Function));
   });
 
-  it('bridge carregada fica cacheada em bridgeState', async () => {
+  it('caches the loaded bridge in bridgeState', async () => {
     const bridge = await loadEquipamentosHeaderBridge();
 
     expect(getEquipamentosHeaderBridge()).toBe(bridge);
-    expect(bridge.mountEquipamentosHeaderReact).toBe(mountEquipamentosHeaderReact);
   });
 
-  it('mount incrementa generation e monta quando generation ainda é atual', async () => {
-    document.body.innerHTML = '<section id="equip-hero"></section><nav id="equip-filters"></nav>';
+  it('mount increments generation and renders when generation is current', async () => {
+    document.body.innerHTML =
+      '<section id="equip-hero"></section><nav id="equip-filters"></nav><div id="equip-context-chip"></div>';
     const root = document.getElementById('equip-hero');
     const filtersRoot = document.getElementById('equip-filters');
+    const contextRoot = document.getElementById('equip-context-chip');
 
-    const result = await mountEquipamentosHeader({ root, filtersRoot, viewModel: { hero: {} } });
-
-    expect(result).toBe('mounted-header');
-    expect(getEquipamentosHeaderRenderGeneration()).toBe(1);
-    expect(mountEquipamentosHeaderReact).toHaveBeenCalledWith(root, {
-      viewModel: { hero: {} },
+    const result = await mountEquipamentosHeader({
+      root,
       filtersRoot,
-      contextRoot: undefined,
+      contextRoot,
+      viewModel: {
+        hero: {
+          visible: true,
+          title: 'Atencao',
+          items: [{ id: 'eq-1', name: 'Split Alpha' }],
+        },
+        filters: {
+          visible: true,
+          chips: [{ id: 'todos', label: 'Todos', count: 1, active: true }],
+        },
+        context: { visible: true, label: 'Cliente Alpha' },
+      },
     });
+
+    expect(result).toBe(root);
+    expect(getEquipamentosHeaderRenderGeneration()).toBe(1);
+    expect(root.dataset.equipamentosHeaderMounted).toBe('true');
+    expect(root.querySelector('[data-action="go-register-equip"]')?.dataset.id).toBe('eq-1');
+    expect(filtersRoot.querySelector('[data-action="equip-quickfilter"]')).not.toBeNull();
+    expect(contextRoot.querySelector('[data-action="equip-clear-cliente-filter"]')).not.toBeNull();
   });
 
-  it('mount respeita generation guard e ignora mount stale', async () => {
+  it('respects generation guard and ignores stale mount', async () => {
     document.body.innerHTML = '<section id="equip-hero"></section>';
     const root = document.getElementById('equip-hero');
 
@@ -72,35 +79,39 @@ describe('bridges/headerBridge', () => {
     const result = await pendingMount;
 
     expect(result).toBeNull();
-    expect(mountEquipamentosHeaderReact).not.toHaveBeenCalled();
+    expect(root.dataset.equipamentosHeaderMounted).toBeUndefined();
   });
 
-  it('unmount retorna null quando root não está montado', () => {
+  it('unmount returns null when root is not mounted', () => {
     document.body.innerHTML = '<section id="equip-hero"></section>';
 
     expect(unmountEquipamentosHeader()).toBeNull();
-    expect(unmountEquipamentosHeaderReact).not.toHaveBeenCalled();
   });
 
-  it('unmount usa bridge cache quando disponível', () => {
+  it('unmount clears mounted DOM content', async () => {
     document.body.innerHTML =
-      '<section id="equip-hero" data-react-equipamentos-header-mounted="true"></section>';
+      '<section id="equip-hero"></section><nav id="equip-filters"></nav><div id="equip-context-chip"></div>';
     const root = document.getElementById('equip-hero');
-    setEquipamentosHeaderBridge({ unmountEquipamentosHeaderReact });
+    const filtersRoot = document.getElementById('equip-filters');
+    const contextRoot = document.getElementById('equip-context-chip');
 
-    expect(unmountEquipamentosHeader()).toBeNull();
+    await mountEquipamentosHeader({
+      root,
+      filtersRoot,
+      contextRoot,
+      viewModel: {
+        hero: { visible: true },
+        filters: { visible: true, chips: [{ id: 'todos', label: 'Todos', count: 1 }] },
+        context: { visible: true, label: 'Cliente' },
+      },
+    });
 
-    expect(unmountEquipamentosHeaderReact).toHaveBeenCalledWith(root);
-  });
-
-  it('fallback async de unmount funciona quando bridge cache ainda não existe', async () => {
-    document.body.innerHTML =
-      '<section id="equip-hero" data-react-equipamentos-header-mounted="true"></section>';
-    const root = document.getElementById('equip-hero');
-
-    const result = await unmountEquipamentosHeader();
+    const result = unmountEquipamentosHeader();
 
     expect(result).toBeNull();
-    expect(unmountEquipamentosHeaderReact).toHaveBeenCalledWith(root);
+    expect(root.dataset.equipamentosHeaderMounted).toBeUndefined();
+    expect(root.innerHTML).toBe('');
+    expect(filtersRoot.innerHTML).toBe('');
+    expect(contextRoot.innerHTML).toBe('');
   });
 });

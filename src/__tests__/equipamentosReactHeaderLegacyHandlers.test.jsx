@@ -1,4 +1,3 @@
-import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -6,9 +5,9 @@ import { bindEvents } from '../core/events.js';
 import { bindEquipmentHandlers } from '../ui/controller/handlers/equipmentHandlers.js';
 import { bindNavigationHandlers } from '../ui/controller/handlers/navigationHandlers.js';
 import {
-  mountEquipamentosHeaderReact,
-  unmountEquipamentosHeaderReact,
-} from '../react/entrypoints/equipamentosHeaderIsland.jsx';
+  mountEquipamentosHeader,
+  unmountEquipamentosHeader,
+} from '../features/equipamentos/bridges/headerBridge.js';
 import {
   EQUIPAMENTOS_ACTIONS,
   EQUIPAMENTOS_PUBLIC_IDS,
@@ -211,8 +210,6 @@ vi.mock('../ui/components/installAppPrompt.js', () => ({
   },
 }));
 
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-
 function setShell() {
   document.body.innerHTML = `
     <section id="${EQUIPAMENTOS_PUBLIC_IDS.view}">
@@ -285,8 +282,11 @@ function createHeaderViewModel(overrides = {}) {
 
 async function mountHeader(viewModel = createHeaderViewModel()) {
   const root = document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.hero);
-  await act(async () => {
-    mountEquipamentosHeaderReact(root, { viewModel });
+  await mountEquipamentosHeader({
+    root,
+    filtersRoot: document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.filters),
+    contextRoot: document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.contextChip),
+    viewModel,
   });
   return root;
 }
@@ -316,11 +316,8 @@ beforeEach(() => {
   bindNavigationHandlers();
 });
 
-afterEach(async () => {
-  const root = document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.hero);
-  await act(async () => {
-    unmountEquipamentosHeaderReact(root);
-  });
+afterEach(() => {
+  unmountEquipamentosHeader();
   delete window.__setEquipViewMode;
   document.body.innerHTML = '';
 });
@@ -343,7 +340,7 @@ describe('equipamentos React header with legacy handlers', () => {
       document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.list)?.dataset.reactEquipamentosListMounted,
     ).toBe('true');
     expect(document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.hero)?.dataset).toMatchObject({
-      reactEquipamentosHeaderMounted: 'true',
+      equipamentosHeaderMounted: 'true',
     });
   });
 

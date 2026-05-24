@@ -1,17 +1,14 @@
-import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  mountEquipamentosHeaderReact,
-  unmountEquipamentosHeaderReact,
-} from '../react/entrypoints/equipamentosHeaderIsland.jsx';
+  mountEquipamentosHeader,
+  unmountEquipamentosHeader,
+} from '../features/equipamentos/bridges/headerBridge.js';
 import {
   EQUIPAMENTOS_ACTIONS,
   EQUIPAMENTOS_PUBLIC_IDS,
 } from '../ui/viewModels/equipamentosContracts.js';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 function setShell() {
   document.body.innerHTML = `
@@ -93,8 +90,18 @@ function createHeaderViewModel(overrides = {}) {
   };
 }
 
-describe('equipamentos header React island', () => {
+function mountHeader(viewModel = createHeaderViewModel()) {
+  return mountEquipamentosHeader({
+    root: document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.hero),
+    filtersRoot: document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.filters),
+    contextRoot: document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.contextChip),
+    viewModel,
+  });
+}
+
+describe('equipamentos header DOM bridge', () => {
   afterEach(() => {
+    unmountEquipamentosHeader();
     document.body.innerHTML = '';
     vi.restoreAllMocks();
   });
@@ -102,11 +109,9 @@ describe('equipamentos header React island', () => {
   it('mounts on #equip-hero and preserves public roots without touching list, toolbar or search', async () => {
     const root = setShell();
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, { viewModel: createHeaderViewModel() });
-    });
+    await mountHeader();
 
-    expect(root?.dataset.reactEquipamentosHeaderMounted).toBe('true');
+    expect(root?.dataset.equipamentosHeaderMounted).toBe('true');
     expect(root?.id).toBe(EQUIPAMENTOS_PUBLIC_IDS.hero);
     expect(root?.classList.contains('equip-hero')).toBe(true);
     expect(root?.hasAttribute('hidden')).toBe(false);
@@ -125,14 +130,12 @@ describe('equipamentos header React island', () => {
   it('renders empty state as hidden hero and filters without requiring list, sectors, photos or CRUD', async () => {
     const root = setShell();
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, {
-        viewModel: createHeaderViewModel({
-          hero: { visible: false, subtitle: '', items: [] },
-          filters: { visible: false, chips: [] },
-        }),
-      });
-    });
+    await mountHeader(
+      createHeaderViewModel({
+        hero: { visible: false, subtitle: '', items: [] },
+        filters: { visible: false, chips: [] },
+      }),
+    );
 
     expect(root?.hasAttribute('hidden')).toBe(true);
     expect(document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.filters)?.hasAttribute('hidden')).toBe(
@@ -146,9 +149,7 @@ describe('equipamentos header React island', () => {
   it('preserves hero and quick filter contracts with equipment data', async () => {
     const root = setShell();
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, { viewModel: createHeaderViewModel() });
-    });
+    await mountHeader();
 
     expect(root?.querySelector('#equip-hero-title')?.textContent).toBe('Atencao agora');
     expect(root?.querySelector('#equip-hero-sub')?.textContent).toContain('1 equipamento');
@@ -173,15 +174,13 @@ describe('equipamentos header React island', () => {
   });
 
   it('renders cliente and setor contexts preserving clear action', async () => {
-    const root = setShell();
+    setShell();
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, {
-        viewModel: createHeaderViewModel({
-          context: { visible: true, label: 'Filtrando: Cliente Alpha' },
-        }),
-      });
-    });
+    await mountHeader(
+      createHeaderViewModel({
+        context: { visible: true, label: 'Filtrando: Cliente Alpha' },
+      }),
+    );
 
     const contextRoot = document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.contextChip);
     expect(contextRoot?.querySelector('.equip-breadcrumb')).not.toBeNull();
@@ -192,13 +191,11 @@ describe('equipamentos header React island', () => {
       contextRoot?.querySelector(`[data-action="${EQUIPAMENTOS_ACTIONS.clearClienteFilter}"]`),
     ).not.toBeNull();
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, {
-        viewModel: createHeaderViewModel({
-          context: { visible: true, label: 'Filtrando: Setor' },
-        }),
-      });
-    });
+    await mountHeader(
+      createHeaderViewModel({
+        context: { visible: true, label: 'Filtrando: Setor' },
+      }),
+    );
 
     expect(contextRoot?.querySelector('.equip-breadcrumb__item--current')?.textContent).toBe(
       'Filtrando: Setor',
@@ -206,98 +203,86 @@ describe('equipamentos header React island', () => {
     expect(contextRoot?.querySelectorAll('.equip-breadcrumb')).toHaveLength(1);
   });
 
-  it('updates repeated mounts without duplicate roots or duplicate content', async () => {
+  it('updates repeated mounts without duplicate content', async () => {
     const root = setShell();
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, { viewModel: createHeaderViewModel() });
-      mountEquipamentosHeaderReact(root, {
-        viewModel: createHeaderViewModel({
-          hero: {
-            subtitle: '2 equipamentos precisando acao imediata.',
-            items: [
-              { id: 'eq-1', name: 'Split Alpha' },
-              { id: 'eq-2', name: 'Camara Beta' },
-            ],
-          },
-          filters: {
-            chips: [
-              {
-                id: 'todos',
-                label: 'Todos',
-                count: 2,
-                tone: 'neutral',
-                active: false,
-                empty: false,
-              },
-              {
-                id: 'criticos',
-                label: 'Criticos',
-                count: 2,
-                tone: 'danger',
-                active: true,
-                empty: false,
-              },
-            ],
-          },
-        }),
-      });
-    });
+    await mountHeader();
+    await mountHeader(
+      createHeaderViewModel({
+        hero: {
+          subtitle: '2 equipamentos precisando acao imediata.',
+          items: [
+            { id: 'eq-1', name: 'Split Alpha' },
+            { id: 'eq-2', name: 'Camara Beta' },
+          ],
+        },
+        filters: {
+          chips: [
+            {
+              id: 'todos',
+              label: 'Todos',
+              count: 2,
+              tone: 'neutral',
+              active: false,
+              empty: false,
+            },
+            {
+              id: 'criticos',
+              label: 'Criticos',
+              count: 2,
+              tone: 'danger',
+              active: true,
+              empty: false,
+            },
+          ],
+        },
+      }),
+    );
 
     expect(root?.querySelectorAll('#equip-hero-title')).toHaveLength(1);
     expect(root?.querySelectorAll('.equip-hero__kpi')).toHaveLength(2);
     expect(document.querySelectorAll('#equip-filters .equip-filter')).toHaveLength(2);
-    expect(consoleError).not.toHaveBeenCalledWith(
-      expect.stringContaining(
-        'createRoot() on a container that has already been passed to createRoot()',
-      ),
-    );
   });
 
-  it('unmounts safely and clears portal content', async () => {
+  it('unmounts safely and clears contextual content', async () => {
     const root = setShell();
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, { viewModel: createHeaderViewModel() });
-      unmountEquipamentosHeaderReact(root);
-      unmountEquipamentosHeaderReact(root);
-    });
+    await mountHeader();
+    unmountEquipamentosHeader();
+    unmountEquipamentosHeader();
 
-    expect(root?.dataset.reactEquipamentosHeaderMounted).toBeUndefined();
+    expect(root?.dataset.equipamentosHeaderMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
     expect(document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.filters)?.innerHTML).toBe('');
     expect(document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.contextChip)?.innerHTML).toBe('');
   });
 
-  it('keeps malicious labels inert and avoids unsafe React APIs', async () => {
-    const root = setShell();
+  it('keeps malicious labels inert and avoids unsafe HTML injection', async () => {
+    setShell();
     const malicious = '"><img src=x onerror=alert(1)><script>alert(2)</script>';
 
-    await act(async () => {
-      mountEquipamentosHeaderReact(root, {
-        viewModel: createHeaderViewModel({
-          hero: {
-            title: malicious,
-            subtitle: malicious,
-            items: [{ id: 'eq-xss', name: malicious }],
-          },
-          filters: {
-            chips: [
-              {
-                id: 'todos',
-                label: malicious,
-                count: 1,
-                tone: 'neutral',
-                active: true,
-                empty: false,
-              },
-            ],
-          },
-          context: { visible: true, label: malicious },
-        }),
-      });
-    });
+    await mountHeader(
+      createHeaderViewModel({
+        hero: {
+          title: malicious,
+          subtitle: malicious,
+          items: [{ id: 'eq-xss', name: malicious }],
+        },
+        filters: {
+          chips: [
+            {
+              id: 'todos',
+              label: malicious,
+              count: 1,
+              tone: 'neutral',
+              active: true,
+              empty: false,
+            },
+          ],
+        },
+        context: { visible: true, label: malicious },
+      }),
+    );
 
     const view = document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.view);
     expect(view?.textContent).toContain(malicious);
@@ -306,18 +291,16 @@ describe('equipamentos header React island', () => {
     expect(view?.querySelector('[onerror]')).toBeNull();
     expect(view?.querySelector('[onclick]')).toBeNull();
 
-    const componentSource = readFileSync('src/react/pages/EquipamentosHeader.jsx', 'utf8');
-    const islandSource = readFileSync('src/react/entrypoints/equipamentosHeaderIsland.jsx', 'utf8');
-    expect(componentSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML|document\.|window\./);
-    expect(islandSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML/);
+    const bridgeSource = readFileSync('src/features/equipamentos/bridges/headerBridge.js', 'utf8');
+    expect(bridgeSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML\s*=/);
   });
 
-  it('keeps React entrypoint dynamic import in the header bridge, not the legacy adapter', () => {
+  it('keeps the legacy adapter free from React imports', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
     const bridgeSource = readFileSync('src/features/equipamentos/bridges/headerBridge.js', 'utf8');
 
     expect(adapterSource).not.toContain('equipamentosHeaderIsland.jsx');
-    expect(bridgeSource).toContain('../../../react/entrypoints/equipamentosHeaderIsland.jsx');
+    expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosHeaderIsland.jsx');
     expect(adapterSource).not.toMatch(/react-dom\/client|createRoot/);
   });
 });
