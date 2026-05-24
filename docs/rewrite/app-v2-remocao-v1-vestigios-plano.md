@@ -723,6 +723,9 @@ Progresso executado:
   remove-lo do delete-user-account agora pode deixar arquivos antigos sem
   limpeza em exclusao de conta. Nenhum runtime, bucket, migration ou policy foi
   alterado.
+- CP-58B adiciona contrato de drenagem: o runtime client-side em `src/` nao pode
+  voltar a conter `registro-fotos`, enquanto delete-user-account e migrations
+  historicas seguem fora do escopo ate etapa propria de storage/Supabase.
 
 Controle:
 

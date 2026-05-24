@@ -573,6 +573,14 @@ describe('legacy v1 removal contracts', () => {
     expect(photoRefsSource).not.toContain('registro-fotos');
   });
 
+  it('does not reintroduce client-side writes to the legacy registro-fotos bucket', () => {
+    const runtimeFiles = listSourceFiles('src').filter(
+      (file) => !file.startsWith('src/__tests__/'),
+    );
+
+    expect(findMatches(runtimeFiles, /registro-fotos/)).toEqual([]);
+  });
+
   it('does not keep stale photoStorage mocks in tests after removing the runtime', () => {
     expect(existsSync('src/ui/viewModels/registroPhotosModel.js')).toBe(false);
 
