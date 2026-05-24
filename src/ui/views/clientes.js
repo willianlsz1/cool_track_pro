@@ -423,7 +423,7 @@ export async function populateClienteSelect() {
 
 /**
  * Abre o ClienteModal em modo edição para um cliente especifico (por id).
- * Usado pelo clienteHandlers (kebab menu, edit action) e pelo card "Editar"
+ * Usado pelos fluxos legados de cliente e pelo card "Editar"
  * dentro da view. Se o cliente não existir mais, mostra Toast e cancela.
  */
 export function openClienteModalForId(id) {

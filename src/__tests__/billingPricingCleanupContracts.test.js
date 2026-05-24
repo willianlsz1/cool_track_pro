@@ -112,8 +112,9 @@ describe('billing/pricing cleanup contracts', () => {
       readSource('src/ui/views/registro.js'),
       readSource('src/ui/components/accountModal.js'),
       readSource('src/ui/shell/templates/modals.js'),
-      readSource('src/ui/controller/handlers/profileAccountHandlers.js'),
     ];
+
+    expect(existsSync('src/ui/controller/handlers/profileAccountHandlers.js')).toBe(false);
 
     for (const source of sources) {
       expect(source).not.toContain('planos pagos');

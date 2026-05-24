@@ -157,6 +157,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   seus testes de lifecycle/contrato dedicados, apos confirmar que nao havia
   import ativo no runtime principal, app-v2, e2e ou configuracao. Handlers e
   views legadas permanecem para desmontagem por dominio.
+- CP-20 removeu os handlers orfaos
+  `src/ui/controller/handlers/clienteHandlers.js` e
+  `src/ui/controller/handlers/profileAccountHandlers.js`, preservando handlers
+  ainda cobertos por consumidores ativos ou areas sensiveis.
 
 ## 3. Superficies v1 mapeadas
 
