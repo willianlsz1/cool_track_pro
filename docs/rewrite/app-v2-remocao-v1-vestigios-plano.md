@@ -492,6 +492,10 @@ Progresso executado:
   legada. `src/features`, `src/react` e `src/assets/styles` nao possuem arquivos
   rastreados restantes, mas a remocao em massa de `src/ui` segue bloqueada por
   PDF/share, assinatura, fotos, auth, storage, PMOC, router e contratos DOM.
+- CP-50 removeu `src/ui/viewModels/relatorioCompanyPmocModel.js`, que restava
+  apenas como model test-only sem consumidor runtime. Os testes que protegem o
+  comportamento atual do slot legado e do hero PMOC em Relatorios foram
+  preservados.
 
 Controle:
 

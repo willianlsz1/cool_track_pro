@@ -64,6 +64,8 @@ const retiredLegacyHelperFiles = [
   'src/ui/views/clientes/summaryRenderer.js',
 ];
 
+const retiredLegacyViewModelFiles = ['src/ui/viewModels/relatorioCompanyPmocModel.js'];
+
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/shell/navigationMode.js',
   'src/ui/shell/templates/modals.js',
@@ -103,6 +105,9 @@ describe('legacy shell retirement gate', () => {
       retiredOrphanLegacyOnboardingFragments.filter((path) => existsSync(path));
     const stillPresentLegacyBarrels = retiredLegacyBarrelFiles.filter((path) => existsSync(path));
     const stillPresentLegacyHelpers = retiredLegacyHelperFiles.filter((path) => existsSync(path));
+    const stillPresentLegacyViewModels = retiredLegacyViewModelFiles.filter((path) =>
+      existsSync(path),
+    );
     const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
       (path) => !existsSync(path),
     );
@@ -118,6 +123,7 @@ describe('legacy shell retirement gate', () => {
     expect(stillPresentOrphanLegacyOnboardingFragments).toEqual([]);
     expect(stillPresentLegacyBarrels).toEqual([]);
     expect(stillPresentLegacyHelpers).toEqual([]);
+    expect(stillPresentLegacyViewModels).toEqual([]);
     expect(missingLaterCheckpointFiles).toEqual([]);
   });
 

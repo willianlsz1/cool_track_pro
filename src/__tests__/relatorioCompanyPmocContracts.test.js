@@ -3,12 +3,7 @@ import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderShellViews } from '../ui/shell/templates/views.js';
-import {
-  RELATORIO_ACTIONS,
-  RELATORIO_NAV_TARGETS,
-  RELATORIO_PUBLIC_IDS,
-} from '../ui/viewModels/relatorioContracts.js';
-import { buildRelatorioCompanyPmocModel } from '../ui/viewModels/relatorioCompanyPmocModel.js';
+import { RELATORIO_PUBLIC_IDS } from '../ui/viewModels/relatorioContracts.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -122,32 +117,6 @@ function expectNoExecutableHtml(root) {
   expect(root?.querySelector('[href^="javascript:"], [src^="javascript:"]')).toBeNull();
   expect(root?.querySelector('[data-nav^="javascript:"]')).toBeNull();
 }
-
-describe('relatorio company PMOC model', () => {
-  it('mantem o bloco invisivel para planos nao Pro', () => {
-    expect(buildRelatorioCompanyPmocModel({ isPro: false })).toEqual(
-      expect.objectContaining({
-        visible: false,
-        showAttention: false,
-      }),
-    );
-  });
-
-  it('expõe contrato visual Pro com acao PMOC e navegacao de pendencias sob atencao', () => {
-    expect(buildRelatorioCompanyPmocModel({ isPro: true, hasPmocAttention: true })).toEqual(
-      expect.objectContaining({
-        visible: true,
-        title: 'PMOC',
-        primaryAction: RELATORIO_ACTIONS.openPmocModal,
-        primaryLabel: 'Gerar PMOC formal',
-        showAttention: true,
-        attentionLabel: 'PMOC precisa de aten\u00e7\u00e3o',
-        secondaryNav: RELATORIO_NAV_TARGETS.clientes,
-        secondaryLabel: 'Ver pend\u00eancias',
-      }),
-    );
-  });
-});
 
 describe('relatorio legacy #rel-company-pmoc-slot contracts', () => {
   beforeEach(() => {
