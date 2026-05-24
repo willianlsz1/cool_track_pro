@@ -578,6 +578,11 @@ Progresso executado:
   `src/domain/pdf/sections/checklist*.js`, `upsell`, `safeLinks`, `sanitizers`,
   `constants` e `primitives`) preservando o checklist operacional de Registro e
   os resumos PMOC de cliente/equipamento para CPs proprios.
+- CP-55 mapeia a assinatura digital legada restante e define a ordem de corte
+  por Registro, Historico, UI/modal e storage real. A remocao direta continua
+  insegura porque ainda cruza contratos `data-action`, `hist-view-signature`,
+  overlays de router, `src/core/signatureStorage.js`, `src/core/storage.js` e o
+  campo persistido `registros.assinatura`.
 
 Controle:
 
