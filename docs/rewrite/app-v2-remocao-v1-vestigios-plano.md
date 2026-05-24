@@ -236,6 +236,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-40 removeu a folha legada `src/assets/styles/theme-premium.css`. O
   entrypoint app-v2 nao carregava esse arquivo, `src/app-v2/**` nao o importava
   e as ocorrencias restantes eram apenas documentais ou no proprio CSS.
+- CP-41 removeu a folha legada `src/assets/styles/ux-polish.css`. O entrypoint
+  app-v2 nao carregava esse arquivo, `src/app-v2/**` nao o importava e as
+  ocorrencias restantes eram apenas documentais ou no proprio CSS.
 
 ## 3. Superficies v1 mapeadas
 

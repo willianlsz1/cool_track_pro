@@ -235,11 +235,13 @@ describe('legacy v1 removal contracts', () => {
     expect(componentsCss).not.toContain('_configuracoes.css');
   });
 
-  it('does not keep the orphan legacy premium theme stylesheet after v2 promotion', () => {
+  it('does not keep orphan legacy premium polish stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 
     expect(existsSync('src/assets/styles/theme-premium.css')).toBe(false);
+    expect(existsSync('src/assets/styles/ux-polish.css')).toBe(false);
     expect(primaryHtml).not.toContain('theme-premium.css');
+    expect(primaryHtml).not.toContain('ux-polish.css');
   });
 
   it('does not keep the legacy privacidade route or internal static view', () => {
