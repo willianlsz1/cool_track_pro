@@ -876,6 +876,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58P remove promessas sensiveis restantes nas paginas legais publicas sobre
   PDF, assinatura digital, fotos e offline, mantendo Service Worker apenas como
   cache tecnico descrito de forma neutra.
+- CP-58Q remove imagens publicas antigas da landing v1 em `public/brand/`,
+  incluindo `passo-3-pdf.png`, apos confirmar que o app-v2 principal nao
+  referencia essas imagens. Favicons foram preservados.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

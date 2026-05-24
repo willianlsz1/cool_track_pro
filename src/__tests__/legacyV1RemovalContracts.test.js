@@ -598,6 +598,38 @@ describe('legacy v1 removal contracts', () => {
     ).toEqual([]);
   });
 
+  it('does not keep legacy public landing images after app-v2 promotion', () => {
+    const checkedSources = [
+      'index.html',
+      'public/manifest.json',
+      'public/sw.js',
+      'public/sw-register.js',
+      ...listSourceFiles('src').filter(
+        (file) => file !== 'src/__tests__/legacyV1RemovalContracts.test.js',
+      ),
+    ];
+
+    [
+      'public/brand/antes.png',
+      'public/brand/depois.png',
+      'public/brand/hero-app-equipamentos.png',
+      'public/brand/passo-1-cadastro.png',
+      'public/brand/passo-2-registro.png',
+      'public/brand/passo-3-pdf.png',
+      'public/brand/Perfil.jpg',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(false);
+    });
+
+    expect(existsSync('public/brand/favicon.svg')).toBe(true);
+    expect(
+      findMatches(
+        checkedSources,
+        /\/brand\/(?:antes|depois|hero-app-equipamentos|passo-[123]-|Perfil)|passo-3-pdf|hero-app-equipamentos/,
+      ),
+    ).toEqual([]);
+  });
+
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
       readSource('src/ui/components/clienteModal.js'),
