@@ -58,8 +58,6 @@ import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboard
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardMonthSummaryBridgePromise = null;
-let dashboardMonthSummaryBridge = null;
 let dashboardReadOnlyBlocksBridgePromise = null;
 let dashboardReadOnlyBlocksBridge = null;
 let dashboardProDraftBridgePromise = null;
@@ -89,16 +87,7 @@ function getDashboardLastServiceRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.lastServiceCard);
 }
 
-function loadDashboardMonthSummaryBridge() {
-  dashboardMonthSummaryBridgePromise ??=
-    import('../../react/entrypoints/dashboardMonthSummaryIsland.jsx').then((bridge) => {
-      dashboardMonthSummaryBridge = bridge;
-      return bridge;
-    });
-  return dashboardMonthSummaryBridgePromise;
-}
-
-function getDashboardMonthSummaryRoot() {
+function getMonthSectionRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.monthSection);
 }
 
@@ -179,15 +168,10 @@ export function unmountDashboardLastService(root = getDashboardLastServiceRoot()
   return undefined;
 }
 
-export function unmountDashboardMonthSummary(root = getDashboardMonthSummaryRoot()) {
+export function unmountMonthSection(root = getMonthSectionRoot()) {
   if (!root) return undefined;
-  if (dashboardMonthSummaryBridge?.unmountDashboardMonthSummaryReact) {
-    dashboardMonthSummaryBridge.unmountDashboardMonthSummaryReact(root);
-    return undefined;
-  }
-  return loadDashboardMonthSummaryBridge().then(({ unmountDashboardMonthSummaryReact }) => {
-    unmountDashboardMonthSummaryReact(root);
-  });
+  root.replaceChildren();
+  return undefined;
 }
 
 export function unmountDashboardReadOnlyBlocks(root = getDashboardReadOnlyBlocksRoot()) {
@@ -1000,18 +984,72 @@ function _renderLastServiceCard({ viewModel }) {
   return Promise.resolve();
 }
 
+const EMPTY_DASHBOARD_MONTH = Object.freeze({
+  label: 'Seu m\u00eas em campo',
+  servicesCount: 0,
+  equipmentsCount: 0,
+  pendingCount: 0,
+  trendLabel: 'Sem dados anteriores',
+});
+
+function appendDashboardMonthKpi(root, { label, valueId, value, subId }) {
+  const article = document.createElement('article');
+  article.className = 'dash__kpi';
+  appendDashboardText(article, 'div', 'dash__kpi-label', label);
+  if (subId) {
+    appendDashboardText(article, 'div', 'dash__kpi-sub', value, { id: subId });
+  } else {
+    appendDashboardText(article, 'div', 'dash__kpi-value', value, { id: valueId });
+  }
+  root.appendChild(article);
+}
+
+function renderDashboardMonthDom(root, month = EMPTY_DASHBOARD_MONTH) {
+  const model = month || EMPTY_DASHBOARD_MONTH;
+
+  root.replaceChildren();
+  root.classList.add('dash__section');
+
+  const header = document.createElement('header');
+  header.className = 'dash__section-header';
+  appendDashboardText(
+    header,
+    'span',
+    'dash__section-label',
+    heroText(model.label, EMPTY_DASHBOARD_MONTH.label),
+    { id: DASHBOARD_PUBLIC_IDS.monthLabel },
+  );
+  root.appendChild(header);
+
+  const grid = document.createElement('div');
+  grid.className = 'dash__kpi-grid';
+  appendDashboardMonthKpi(grid, {
+    label: 'Servi\u00e7os no m\u00eas',
+    valueId: DASHBOARD_PUBLIC_IDS.monthServices,
+    value: heroText(model.servicesCount, '0'),
+  });
+  appendDashboardMonthKpi(grid, {
+    label: 'Equipamentos atendidos',
+    valueId: DASHBOARD_PUBLIC_IDS.monthEquipments,
+    value: heroText(model.equipmentsCount, '0'),
+  });
+  appendDashboardMonthKpi(grid, {
+    label: 'Pend\u00eancias',
+    valueId: DASHBOARD_PUBLIC_IDS.monthPending,
+    value: heroText(model.pendingCount, '0'),
+  });
+  appendDashboardMonthKpi(grid, {
+    label: 'Varia\u00e7\u00e3o',
+    subId: DASHBOARD_PUBLIC_IDS.monthTrend,
+    value: heroText(model.trendLabel, EMPTY_DASHBOARD_MONTH.trendLabel),
+  });
+  root.appendChild(grid);
+}
+
 function _renderMonthView({ viewModel }) {
   const model = viewModel?.month;
-  const root = getDashboardMonthSummaryRoot();
-  if (root && model) {
-    if (dashboardMonthSummaryBridge?.mountDashboardMonthSummaryReact) {
-      dashboardMonthSummaryBridge.mountDashboardMonthSummaryReact(root, { month: model });
-      return Promise.resolve();
-    }
-    return loadDashboardMonthSummaryBridge().then(({ mountDashboardMonthSummaryReact }) => {
-      mountDashboardMonthSummaryReact(root, { month: model });
-    });
-  }
+  const root = getMonthSectionRoot();
+  if (root) renderDashboardMonthDom(root, model);
 
   return Promise.resolve();
 }
