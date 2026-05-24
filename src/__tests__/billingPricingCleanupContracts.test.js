@@ -30,4 +30,10 @@ describe('billing/pricing cleanup contracts', () => {
     expect(proDraftSource).not.toContain('upgradeCta');
     expect(proDraftSource).not.toContain('appendUpgradeContract');
   });
+
+  it('does not keep PMOC blocked-state controls named as commercial upgrade actions', () => {
+    const pmocModalSource = readSource('src/ui/components/pmocModal.js');
+
+    expect(pmocModalSource).not.toContain('pmoc-upgrade');
+  });
 });

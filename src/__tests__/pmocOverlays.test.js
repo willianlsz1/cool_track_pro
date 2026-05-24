@@ -56,7 +56,8 @@ describe('PMOC overlay surfaces', () => {
     const overlay = document.getElementById('pmoc-modal-overlay');
     expect(overlay).toBeTruthy();
     expect(overlay?.dataset.surface).toBe('blocked');
-    expect(overlay?.querySelector('#pmoc-upgrade')?.dataset.highlightPlan).toBeUndefined();
+    expect(overlay?.querySelector('#pmoc-upgrade')).toBeNull();
+    expect(overlay?.querySelector('#pmoc-unavailable')?.dataset.highlightPlan).toBeUndefined();
     expect(overlay?.textContent).toContain('PMOC formal anual indisponivel nesta versao');
   });
 

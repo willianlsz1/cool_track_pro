@@ -13,6 +13,9 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
   retornava string vazia depois da retirada de billing/pricing.
 - Removido o contrato morto `upgradeCta` do bloco operacional do Dashboard,
   incluindo o renderer escondido `appendUpgradeContract`.
+- Renomeado o controle bloqueado do modal PMOC de `pmoc-upgrade` para
+  `pmoc-unavailable`, mantendo a mensagem local de indisponibilidade sem nome
+  de acao comercial.
 - Adicionado contrato automatizado para impedir retorno desse CSS orfao e do
   stub/CTA de upgrade.
 
@@ -43,6 +46,8 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 - RED adicional: o teste falhou enquanto o stub `upgradeNudge.js` existia.
 - RED adicional: o teste falhou enquanto `upgradeCta` ainda existia no modelo
   do Dashboard.
+- RED adicional: o teste falhou enquanto o modal PMOC bloqueado ainda continha
+  o id comercial `pmoc-upgrade`.
 - GREEN adicional: `billingPricingCleanupContracts` e
   `dashboardLegacyProDraftContracts` passaram apos remover o contrato morto.
 

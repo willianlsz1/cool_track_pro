@@ -92,7 +92,7 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
               ? `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-generate">
                   Gerar PMOC formal
                 </button>`
-              : `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-upgrade"
+              : `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-unavailable"
                   disabled aria-disabled="true">
                   Indisponivel nesta versao
                 </button>`
