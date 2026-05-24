@@ -268,7 +268,7 @@ vi.mock('../ui/views/equipamentos/contextState.js', () => ({
   })),
 }));
 
-vi.mock('../features/equipamentos/setor/setorUI.js', () => ({
+vi.mock('../ui/views/equipamentos/setor/setorUI.js', () => ({
   configureSetorUI: vi.fn(),
   renderSetorGrid: vi.fn(() => undefined),
   renderSetorGridForCliente: vi.fn(() => undefined),

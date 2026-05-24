@@ -5,7 +5,7 @@ import {
   _renderSetorGridForClienteHtml,
   configureSetorUI,
   renderSetorGrid,
-} from '../../setor/setorUI.js';
+} from '../ui/views/equipamentos/setor/setorUI.js';
 
 const Utils = {
   escapeAttr: (value) => String(value).replaceAll('"', '&quot;'),

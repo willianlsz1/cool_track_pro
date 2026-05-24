@@ -100,7 +100,7 @@ import {
   configureSetorUI,
   renderSetorGrid,
   renderSetorGridForCliente,
-} from '../../features/equipamentos/setor/setorUI.js';
+} from './equipamentos/setor/setorUI.js';
 import {
   configureSetorNavigation,
   setActiveSector,
@@ -146,7 +146,7 @@ import {
 } from '../../features/equipamentos/ui/openEditEquip.js';
 import { startServiceRegistration } from '../controller/serviceRegistrationEntry.js';
 import { configureRenderFlatList, renderFlatList } from './equipamentos/ui/renderFlatList.js';
-import { configureRenderEquip, renderEquip } from '../../features/equipamentos/ui/renderEquip.js';
+import { configureRenderEquip, renderEquip } from './equipamentos/ui/renderEquip.js';
 import { configureHeaderMount, mountEquipamentosHeader } from './equipamentos/ui/headerMount.js';
 import { configureToolbar, setToolbar as _setToolbar } from './equipamentos/ui/toolbar.js';
 import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/viewEquip.js';

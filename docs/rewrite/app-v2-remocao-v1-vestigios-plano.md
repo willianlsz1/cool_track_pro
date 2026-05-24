@@ -66,6 +66,12 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/ui/renderFlatList.js` foi removido no CP-9m;
   orquestrador da lista flat de Equipamentos foi co-localizado em
   `src/ui/views/equipamentos/ui/renderFlatList.js`.
+- `src/features/equipamentos/ui/renderEquip.js`,
+  `src/features/equipamentos/setor/setorUI.js` e
+  `src/features/equipamentos/setor/setorState.js` foram removidos no CP-9n;
+  render/model local de Equipamentos foi co-localizado em
+  `src/ui/views/equipamentos/ui/renderEquip.js` e
+  `src/ui/views/equipamentos/setor/**`.
 
 ## 3. Superficies v1 mapeadas
 

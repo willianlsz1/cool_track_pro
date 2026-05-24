@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildSetorGridForClienteModel } from '../../setor/setorState.js';
+import { buildSetorGridForClienteModel } from '../ui/views/equipamentos/setor/setorState.js';
 
 describe('buildSetorGridForClienteModel', () => {
   it('inclui setor vinculado diretamente pelo clienteId', () => {
