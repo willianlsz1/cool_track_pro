@@ -132,6 +132,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-13 adicionou contrato executavel garantindo que `index.html`, `vite.config.js`
   e `src/app-v2/**` nao referenciam `src/ui/shell` ou `src/ui/controller`,
   preparando a remocao futura do shell v1 sem apagar runtime ainda.
+- CP-14 inventariou 67 arquivos de teste ainda ligados a `ui/shell` ou
+  `ui/controller` e classificou a cobertura entre aposentadoria junto com
+  shell/router, migracao para app-v2/helper puro, etapa sensivel dedicada e
+  contratos de transicao.
 
 ## 3. Superficies v1 mapeadas
 
