@@ -219,12 +219,17 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   tinha import ativo. As funcoes de alerta ainda usadas pelo Dashboard legado
   permanecem em `src/ui/views/dashboard.js` e
   `src/ui/views/dashboard/readOnlyBlocks.js`.
+- CP-37 removeu os helpers legados `src/ui/views/dashboard/metrics.js` e
+  `src/ui/views/dashboard/constants.js`. `metrics.js` nao tinha import ativo e
+  `constants.js` era usado apenas por ele; as funcoes equivalentes usadas pelo
+  Dashboard permanecem em `src/ui/views/dashboard.js` e
+  `src/ui/viewModels/dashboardViewModel.js`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 151 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 149 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
