@@ -26,9 +26,9 @@ Fora do escopo:
 - `src/domain/priorityEngine.js`
 - `src/domain/suggestedAction.js`
 - `src/domain/whatsapp.js`
-- `src/features/equipamentos/crud/payload.js`
-- `src/features/equipamentos/crud/persist.js`
-- `src/features/equipamentos/crud/postActions.js`
+- `src/ui/views/equipamentos/crud/payload.js`
+- `src/ui/views/equipamentos/crud/persist.js`
+- `src/ui/views/equipamentos/crud/postActions.js`
 - `src/features/registro/save/payload.js`
 - `src/features/registro/save/persistence.js`
 - `src/features/registro/save/postSave.js`

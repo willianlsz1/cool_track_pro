@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { checkSaveEquipPlanLimit, validateSaveEquipPayload } from '../../crud/validate.js';
+import {
+  checkSaveEquipPlanLimit,
+  validateSaveEquipPayload,
+} from '../ui/views/equipamentos/crud/validate.js';
 
 describe('crud/validate', () => {
   it('validateSaveEquipPayload retorna validacao quando payload e valido', () => {

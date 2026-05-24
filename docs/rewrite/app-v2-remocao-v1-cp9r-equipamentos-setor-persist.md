@@ -34,8 +34,6 @@ git diff --check
 git diff --cached --check
 ```
 
-## Risco remanescente
+## Continuidade
 
-Ainda resta `src/features/equipamentos/crud/**`. Esse grupo deve ser movido em
-checkpoint proprio porque concentra validacao, payload, persistencia local,
-post-save e orquestracao de salvamento de equipamento.
+O grupo `src/features/equipamentos/crud/**` foi tratado depois no CP-9s.

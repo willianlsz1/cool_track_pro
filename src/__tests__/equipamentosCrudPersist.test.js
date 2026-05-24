@@ -3,7 +3,7 @@ import {
   applySaveEquipToState,
   createSaveEquipInState,
   updateSaveEquipInState,
-} from '../../crud/persist.js';
+} from '../ui/views/equipamentos/crud/persist.js';
 
 function createPayload(overrides = {}) {
   return {

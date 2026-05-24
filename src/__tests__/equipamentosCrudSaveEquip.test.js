@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureSaveEquip, saveEquip } from '../../crud/saveEquip.js';
+import { configureSaveEquip, saveEquip } from '../ui/views/equipamentos/crud/saveEquip.js';
 
 function createDeps(overrides = {}) {
   const calls = [];

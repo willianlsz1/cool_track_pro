@@ -25,7 +25,7 @@ describe('contracts/selectors (static)', () => {
     source('src/ui/views/equipamentos/ui/detail.js'),
     source('src/ui/views/equipamentos/ui/renderEquip.js'),
     source('src/ui/views/equipamentos/setor/setorUI.js'),
-    source('src/features/equipamentos/crud/postActions.js'),
+    source('src/ui/views/equipamentos/crud/postActions.js'),
     source('src/ui/views/equipamentos/setores.js'),
   ].join('\n');
   const registro = source('src/ui/views/registro.js');

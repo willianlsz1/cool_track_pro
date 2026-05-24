@@ -88,15 +88,18 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/setor/setorPersist.js` foi removido no CP-9r; a
   persistencia local de Setores da UI legada de Equipamentos foi co-localizada
   em `src/ui/views/equipamentos/setor/setorPersist.js`.
+- `src/features/equipamentos/crud/**` foi removido no CP-9s; validacao,
+  payload, persistencia local, post-save e orquestracao de salvamento da UI
+  legada de Equipamentos foram co-localizados em
+  `src/ui/views/equipamentos/crud/**`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 135 arquivos restantes.
+- `src/ui/`: 169 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: ainda existe, concentrado em `equipamentos` sem os subgrupos
-  `state`, `bridges`, `utils` e `nameplate`, `registro` e `userData.js`.
+- `src/features/`: ainda existe, concentrado em `registro` e `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
@@ -105,8 +108,8 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 ### 3.2 Acoplamentos que impedem delecao em massa
 
 - `src/domain/pdf/shareReport.js` importa componente de onboarding legado.
-- `src/features/equipamentos/**` ainda importa helpers e componentes de
-  `src/ui/**`.
+- `src/features/registro/**` ainda cruza fluxo legado de registro, PMOC,
+  fotos, assinatura, relatorio e share.
 - Testes legados cobrem seguranca de assinatura, storage, PDF, WhatsApp,
   relatorios e contratos DOM.
 

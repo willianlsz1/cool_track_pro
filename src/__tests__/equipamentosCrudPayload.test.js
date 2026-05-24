@@ -5,7 +5,7 @@ import {
   collectSaveEquipBaseFormValues,
   collectSaveEquipContextFormValues,
   collectSaveEquipExtraFormValues,
-} from '../../crud/payload.js';
+} from '../ui/views/equipamentos/crud/payload.js';
 
 const baseFormValues = {
   tipo: 'Split Hi-Wall',

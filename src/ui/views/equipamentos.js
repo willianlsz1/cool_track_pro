@@ -110,25 +110,22 @@ import {
   moveEquipsToSetor,
   saveSetor,
 } from './equipamentos/setor/setorPersist.js';
-import {
-  checkSaveEquipPlanLimit,
-  validateSaveEquipPayload,
-} from '../../features/equipamentos/crud/validate.js';
+import { checkSaveEquipPlanLimit, validateSaveEquipPayload } from './equipamentos/crud/validate.js';
 import {
   buildSaveEquipPayload,
   collectSaveEquipBaseFormValues,
   collectSaveEquipContextFormValues,
   collectSaveEquipExtraFormValues,
-} from '../../features/equipamentos/crud/payload.js';
+} from './equipamentos/crud/payload.js';
 import {
   applySaveEquipToState,
   createSaveEquipInState,
   updateSaveEquipInState,
-} from '../../features/equipamentos/crud/persist.js';
+} from './equipamentos/crud/persist.js';
 import { collectSaveEquipDadosPlaca } from './equipamentos/nameplate/dadosPlaca.js';
-import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
-import { runSaveEquipPostActions } from '../../features/equipamentos/crud/postActions.js';
-import { configureSaveEquip, saveEquip } from '../../features/equipamentos/crud/saveEquip.js';
+import { finishSaveEquipSuccess } from './equipamentos/crud/postSave.js';
+import { runSaveEquipPostActions } from './equipamentos/crud/postActions.js';
+import { configureSaveEquip, saveEquip } from './equipamentos/crud/saveEquip.js';
 import {
   bindViewEquipDetailCoverActions,
   mountViewEquipDetail,

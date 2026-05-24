@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { finishSaveEquipSuccess } from '../../crud/postSave.js';
+import { finishSaveEquipSuccess } from '../ui/views/equipamentos/crud/postSave.js';
 
 function createHarness(overrides = {}) {
   const calls = [];

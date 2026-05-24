@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { runSaveEquipPostActions } from '../../crud/postActions.js';
+import { runSaveEquipPostActions } from '../ui/views/equipamentos/crud/postActions.js';
 
 function createHarness() {
   document.body.innerHTML = `
