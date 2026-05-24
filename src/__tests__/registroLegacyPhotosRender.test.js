@@ -108,6 +108,9 @@ describe('registro legacy photos render adapter', () => {
     expect(preview.classList.contains('photo-grid')).toBe(true);
     expect(preview.getAttribute('role')).toBe('list');
     expect(preview.children).toHaveLength(0);
+    expect(
+      document.getElementById('registro-photos-root')?.dataset.reactRegistroPhotosMounted,
+    ).toBe('true');
     expectExternalFlowsNotExecuted();
   });
 
@@ -133,6 +136,41 @@ describe('registro legacy photos render adapter', () => {
     expect(remove.getAttribute('aria-label')).toBe('Remover foto 1');
     expect(Photos.pending).toHaveLength(2);
     expectExternalFlowsNotExecuted();
+  });
+
+  it('aciona callbacks DOM de adicionar, abrir e remover fotos', async () => {
+    Photos.pending = [SAFE_JPEG, SAFE_PNG];
+
+    await renderPhotos();
+
+    const galleryInput = document.getElementById('input-fotos');
+    const firstImage = document.querySelector('#photo-preview img');
+    const secondRemove = document.querySelectorAll('#photo-preview .photo-thumb__remove')[1];
+
+    await act(async () => {
+      galleryInput.dispatchEvent(new Event('change', { bubbles: true }));
+      firstImage.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      secondRemove.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(document.getElementById('lightbox')?.classList.contains('is-open')).toBe(true);
+    expect(document.getElementById('lightbox-img')?.src).toContain('data:image/jpeg;base64');
+    expect(Photos.pending).toEqual([SAFE_JPEG]);
+  });
+
+  it('desmonta com seguranca e tolera chamadas repetidas', async () => {
+    Photos.pending = [SAFE_JPEG];
+
+    await renderPhotos();
+
+    await act(async () => {
+      Photos.unmount();
+      Photos.unmount();
+    });
+
+    const root = document.getElementById('registro-photos-root');
+    expect(root?.dataset.reactRegistroPhotosMounted).toBeUndefined();
+    expect(root?.innerHTML).toBe('');
   });
 
   it('bloqueia URLs inseguras e payloads HTML sem renderizar preview clicavel', async () => {

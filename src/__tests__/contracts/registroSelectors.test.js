@@ -24,11 +24,9 @@ const sourceFiles = [
   'src/ui/viewModels/registroSignatureModel.js',
   'src/react/entrypoints/registroHeaderIsland.jsx',
   'src/react/entrypoints/registroChecklistIsland.jsx',
-  'src/react/entrypoints/registroPhotosIsland.jsx',
   'src/react/entrypoints/registroSignatureIsland.jsx',
   'src/react/pages/RegistroHeader.jsx',
   'src/react/pages/RegistroChecklist.jsx',
-  'src/react/pages/RegistroPhotos.jsx',
   'src/react/pages/RegistroSignature.jsx',
 ].map(source);
 
