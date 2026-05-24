@@ -23,16 +23,16 @@ const stateMocks = vi.hoisted(() => ({
   setState: vi.fn(),
 }));
 
-const listIslandMocks = vi.hoisted(() => ({
-  mountEquipamentosListReact: vi.fn((root, { viewModel } = {}) => {
-    root.dataset.reactEquipamentosListMounted = 'true';
+const listRendererMocks = vi.hoisted(() => ({
+  mountEquipamentosListDom: vi.fn((root, { viewModel } = {}) => {
+    root.dataset.equipamentosListMounted = 'true';
     root.innerHTML = viewModel?.emptyState
       ? '<div class="empty-state" data-testid="equip-list-react-empty"></div>'
       : '<div data-testid="equip-list-react-mounted"></div>';
     return root;
   }),
-  unmountEquipamentosListReact: vi.fn((root) => {
-    delete root.dataset.reactEquipamentosListMounted;
+  unmountEquipamentosListDom: vi.fn((root) => {
+    delete root.dataset.equipamentosListMounted;
     root.innerHTML = '';
   }),
 }));
@@ -51,9 +51,9 @@ vi.mock('../core/router.js', () => ({
   goTo: vi.fn(),
 }));
 
-vi.mock('../react/entrypoints/equipamentosListIsland.jsx', () => ({
-  mountEquipamentosListReact: listIslandMocks.mountEquipamentosListReact,
-  unmountEquipamentosListReact: listIslandMocks.unmountEquipamentosListReact,
+vi.mock('../features/equipamentos/ui/listRenderer.js', () => ({
+  mountEquipamentosListDom: listRendererMocks.mountEquipamentosListDom,
+  unmountEquipamentosListDom: listRendererMocks.unmountEquipamentosListDom,
 }));
 
 vi.mock('../ui/components/skeleton.js', () => ({
@@ -348,10 +348,8 @@ describe('equipamentos legacy hero, filters and context contracts', () => {
         '#equip-toolbar-actions [data-action="open-modal"][data-id="modal-add-eq"]',
       ),
     ).not.toBeNull();
-    expect(listIslandMocks.mountEquipamentosListReact).toHaveBeenCalledTimes(1);
-    expect(document.getElementById('lista-equip')?.dataset.reactEquipamentosListMounted).toBe(
-      'true',
-    );
+    expect(listRendererMocks.mountEquipamentosListDom).toHaveBeenCalledTimes(1);
+    expect(document.getElementById('lista-equip')?.dataset.equipamentosListMounted).toBe('true');
   });
 
   it('preserva hero, filtros rapidos, busca e toolbar com equipamentos', async () => {
@@ -429,7 +427,7 @@ describe('equipamentos legacy hero, filters and context contracts', () => {
         '#equip-toolbar-actions [data-action="equip-quickfilter"][data-id="todos"]',
       ),
     ).not.toBeNull();
-    expect(listIslandMocks.mountEquipamentosListReact).toHaveBeenCalledTimes(1);
+    expect(listRendererMocks.mountEquipamentosListDom).toHaveBeenCalledTimes(1);
     expect(document.querySelector('[data-action="open-setor"]')).toBeNull();
     expect(document.querySelector('[data-action="delete-equip"]')).toBeNull();
   });

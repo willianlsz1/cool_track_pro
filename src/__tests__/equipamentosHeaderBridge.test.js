@@ -28,7 +28,7 @@ function setShell() {
           <button type="button" class="equip-view-toggle__btn" data-action="equip-set-view-mode" data-mode="grid">Grade</button>
         </div>
       </div>
-      <div id="${EQUIPAMENTOS_PUBLIC_IDS.list}" role="list" data-react-equipamentos-list-mounted="true"></div>
+      <div id="${EQUIPAMENTOS_PUBLIC_IDS.list}" role="list" data-equipamentos-list-mounted="true"></div>
     </section>
   `;
   return document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.hero);
@@ -123,7 +123,7 @@ describe('equipamentos header DOM bridge', () => {
       'modal-add-eq',
     );
     expect(
-      document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.list)?.dataset.reactEquipamentosListMounted,
+      document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.list)?.dataset.equipamentosListMounted,
     ).toBe('true');
   });
 

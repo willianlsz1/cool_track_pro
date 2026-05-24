@@ -87,7 +87,7 @@ function resolveRenderFlatListIdleCluster(viewModel) {
   );
 }
 
-function buildRenderFlatListReactViewModel(context, viewModel) {
+function buildRenderFlatListListViewModel(context, viewModel) {
   const clusterActive = resolveRenderFlatListIdleCluster(viewModel);
 
   return getRenderFlatListDep('buildReactListViewModel')(viewModel, {
@@ -102,14 +102,14 @@ function bindRenderFlatListImageFallbacks(root) {
   getRenderFlatListDep('bindEquipCardImageFallbacks')(root);
 }
 
-function mountRenderFlatListReactIsland(root, viewModel, reactViewModel) {
+function mountRenderFlatListDomRenderer(root, viewModel, listViewModel) {
   return getRenderFlatListDep('withSkeleton')(
     root,
     { enabled: true, variant: 'equipment', count: viewModel.skeletonCount },
     () =>
       getRenderFlatListDep('mountEquipamentosList')({
         root,
-        viewModel: reactViewModel,
+        viewModel: listViewModel,
         onMounted: () => bindRenderFlatListImageFallbacks(root),
       }),
   );
@@ -118,7 +118,7 @@ function mountRenderFlatListReactIsland(root, viewModel, reactViewModel) {
 /** Renderiza a lista flat de equipamentos (FREE ou drill-down de um setor). */
 /**
  * @sliceSplit
- *   ui/list: build do reactViewModel + render skeleton + mount React
+ *   ui/list: build do viewModel da lista + render skeleton + mount DOM
  *   controller/render: orquestra fetch state, viewModel build, generation counter
  */
 export function renderFlatList(filtro = '', options = {}, setorId = null) {
@@ -127,6 +127,6 @@ export function renderFlatList(filtro = '', options = {}, setorId = null) {
   const root = resolveRenderFlatListRoot();
   if (!root) return;
 
-  const reactViewModel = buildRenderFlatListReactViewModel(context, viewModel);
-  return mountRenderFlatListReactIsland(root, viewModel, reactViewModel);
+  const listViewModel = buildRenderFlatListListViewModel(context, viewModel);
+  return mountRenderFlatListDomRenderer(root, viewModel, listViewModel);
 }

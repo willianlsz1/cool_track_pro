@@ -240,7 +240,7 @@ function setShell() {
         data-action="${EQUIPAMENTOS_ACTIONS.openSetor}"
         data-id="setor-1"
         data-setor-id="setor-1">Setor</article>
-      <div id="${EQUIPAMENTOS_PUBLIC_IDS.list}" data-react-equipamentos-list-mounted="true"></div>
+      <div id="${EQUIPAMENTOS_PUBLIC_IDS.list}" data-equipamentos-list-mounted="true"></div>
     </section>
     <select id="eq-tipo"><option value="Split">Split</option></select>
     <select id="eq-setor"><option value="setor-1">Setor 1</option></select>
@@ -337,7 +337,7 @@ describe('equipamentos React header with legacy handlers', () => {
 
     expect(mocks.setActiveQuickFilter).toHaveBeenCalledWith('criticos');
     expect(
-      document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.list)?.dataset.reactEquipamentosListMounted,
+      document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.list)?.dataset.equipamentosListMounted,
     ).toBe('true');
     expect(document.getElementById(EQUIPAMENTOS_PUBLIC_IDS.hero)?.dataset).toMatchObject({
       equipamentosHeaderMounted: 'true',

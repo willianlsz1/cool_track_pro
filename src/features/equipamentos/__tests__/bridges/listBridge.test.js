@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -12,15 +13,12 @@ import {
   getEquipamentosListRenderGeneration,
   setEquipamentosListBridge,
 } from '../../state/bridgeState.js';
-import {
-  mountEquipamentosListReact,
-  unmountEquipamentosListReact,
-} from '../../../../react/entrypoints/equipamentosListIsland.jsx';
+import { mountEquipamentosListDom, unmountEquipamentosListDom } from '../../ui/listRenderer.js';
 
-vi.mock('../../../../react/entrypoints/equipamentosListIsland.jsx', () => ({
-  mountEquipamentosListReact: vi.fn(() => 'mounted-list'),
-  unmountEquipamentosListReact: vi.fn((root) => {
-    delete root.dataset.reactEquipamentosListMounted;
+vi.mock('../../ui/listRenderer.js', () => ({
+  mountEquipamentosListDom: vi.fn(() => 'mounted-list'),
+  unmountEquipamentosListDom: vi.fn((root) => {
+    delete root.dataset.equipamentosListMounted;
   }),
 }));
 
@@ -44,7 +42,7 @@ describe('bridges/listBridge', () => {
     const bridge = await loadEquipamentosListBridge();
 
     expect(getEquipamentosListBridge()).toBe(bridge);
-    expect(bridge.mountEquipamentosListReact).toBe(mountEquipamentosListReact);
+    expect(bridge.mountEquipamentosListDom).toBe(mountEquipamentosListDom);
   });
 
   it('mount/list render incrementa generation, monta e chama onMounted após mount', async () => {
@@ -56,7 +54,7 @@ describe('bridges/listBridge', () => {
 
     expect(result).toBe('mounted-list');
     expect(getEquipamentosListRenderGeneration()).toBe(1);
-    expect(mountEquipamentosListReact).toHaveBeenCalledWith(root, { viewModel: { cards: [] } });
+    expect(mountEquipamentosListDom).toHaveBeenCalledWith(root, { viewModel: { cards: [] } });
     expect(onMounted).toHaveBeenCalledTimes(1);
   });
 
@@ -70,7 +68,7 @@ describe('bridges/listBridge', () => {
     const result = await pendingMount;
 
     expect(result).toBeNull();
-    expect(mountEquipamentosListReact).not.toHaveBeenCalled();
+    expect(mountEquipamentosListDom).not.toHaveBeenCalled();
     expect(onMounted).not.toHaveBeenCalled();
   });
 
@@ -78,28 +76,35 @@ describe('bridges/listBridge', () => {
     document.body.innerHTML = '<div id="lista-equip"></div>';
 
     expect(unmountEquipamentosList()).toBeNull();
-    expect(unmountEquipamentosListReact).not.toHaveBeenCalled();
+    expect(unmountEquipamentosListDom).not.toHaveBeenCalled();
   });
 
   it('unmount usa bridge cache quando disponível', () => {
-    document.body.innerHTML =
-      '<div id="lista-equip" data-react-equipamentos-list-mounted="true"></div>';
+    document.body.innerHTML = '<div id="lista-equip" data-equipamentos-list-mounted="true"></div>';
     const root = document.getElementById('lista-equip');
-    setEquipamentosListBridge({ unmountEquipamentosListReact });
+    setEquipamentosListBridge({ unmountEquipamentosListDom });
 
     expect(unmountEquipamentosList()).toBeNull();
 
-    expect(unmountEquipamentosListReact).toHaveBeenCalledWith(root);
+    expect(unmountEquipamentosListDom).toHaveBeenCalledWith(root);
   });
 
   it('fallback async de unmount funciona quando bridge cache ainda não existe', async () => {
-    document.body.innerHTML =
-      '<div id="lista-equip" data-react-equipamentos-list-mounted="true"></div>';
+    document.body.innerHTML = '<div id="lista-equip" data-equipamentos-list-mounted="true"></div>';
     const root = document.getElementById('lista-equip');
 
     const result = await unmountEquipamentosList();
 
     expect(result).toBeNull();
-    expect(unmountEquipamentosListReact).toHaveBeenCalledWith(root);
+    expect(unmountEquipamentosListDom).toHaveBeenCalledWith(root);
+  });
+
+  it('usa renderer DOM da lista em vez da ilha React legada', () => {
+    const bridgeSource = readFileSync('src/features/equipamentos/bridges/listBridge.js', 'utf8');
+
+    expect(bridgeSource).toContain('../ui/listRenderer.js');
+    expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
+    expect(bridgeSource).not.toContain(['mountEquipamentos', 'ListReact'].join(''));
+    expect(bridgeSource).not.toContain(['unmountEquipamentos', 'ListReact'].join(''));
   });
 });

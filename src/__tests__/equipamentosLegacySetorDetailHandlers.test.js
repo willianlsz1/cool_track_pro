@@ -164,7 +164,7 @@ function setShell() {
       <section id="equip-hero" data-equipamentos-header-mounted="true"></section>
       <nav id="equip-filters"></nav>
       <div id="equip-context-chip"></div>
-      <div id="lista-equip" data-react-equipamentos-list-mounted="true"></div>
+      <div id="lista-equip" data-equipamentos-list-mounted="true"></div>
       <div id="equip-toolbar-actions"></div>
       <div class="setor-grid"></div>
       <div id="eq-det-corpo"></div>

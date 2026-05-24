@@ -63,7 +63,7 @@ describe('state/bridgeState', () => {
   });
 
   it('faz set/get/clear do list bridge', () => {
-    const bridge = { mountEquipamentosListReact() {} };
+    const bridge = { mountEquipamentosListDom() {} };
 
     setEquipamentosListBridge(bridge);
     expect(getEquipamentosListBridge()).toBe(bridge);

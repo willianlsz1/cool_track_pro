@@ -1,14 +1,11 @@
-import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  mountEquipamentosListReact,
-  unmountEquipamentosListReact,
-} from '../react/entrypoints/equipamentosListIsland.jsx';
+  mountEquipamentosListDom,
+  unmountEquipamentosListDom,
+} from '../features/equipamentos/ui/listRenderer.js';
 import { EQUIPAMENTOS_ACTIONS } from '../ui/viewModels/equipamentosContracts.js';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 function createCard(overrides = {}) {
   return {
@@ -58,7 +55,7 @@ function createViewModel(overrides = {}) {
   };
 }
 
-describe('equipamentos React flat list island', () => {
+describe('equipamentos DOM flat list renderer', () => {
   afterEach(() => {
     document.body.innerHTML = '';
     vi.restoreAllMocks();
@@ -69,12 +66,10 @@ describe('equipamentos React flat list island', () => {
       '<section id="view-equipamentos"><div id="lista-equip"></div></section>';
     const root = document.getElementById('lista-equip');
 
-    await act(async () => {
-      mountEquipamentosListReact(root, { viewModel: createViewModel() });
-    });
+    mountEquipamentosListDom(root, { viewModel: createViewModel() });
 
-    expect(root?.dataset.reactEquipamentosListMounted).toBe('true');
-    expect(document.getElementById('view-equipamentos')?.dataset.reactEquipamentosListMounted).toBe(
+    expect(root?.dataset.equipamentosListMounted).toBe('true');
+    expect(document.getElementById('view-equipamentos')?.dataset.equipamentosListMounted).toBe(
       undefined,
     );
     expect(root?.querySelector('[data-testid="equipamentos-list"]')).not.toBeNull();
@@ -99,18 +94,16 @@ describe('equipamentos React flat list island', () => {
     const root = document.getElementById('lista-equip');
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      mountEquipamentosListReact(root, { viewModel: createViewModel() });
-      mountEquipamentosListReact(root, {
-        viewModel: createViewModel({
-          cards: [
-            createCard({ id: 'eq-2', name: 'Camara Beta', visual: { initials: 'CB', tone: 1 } }),
-          ],
-          activeCards: [
-            createCard({ id: 'eq-2', name: 'Camara Beta', visual: { initials: 'CB', tone: 1 } }),
-          ],
-        }),
-      });
+    mountEquipamentosListDom(root, { viewModel: createViewModel() });
+    mountEquipamentosListDom(root, {
+      viewModel: createViewModel({
+        cards: [
+          createCard({ id: 'eq-2', name: 'Camara Beta', visual: { initials: 'CB', tone: 1 } }),
+        ],
+        activeCards: [
+          createCard({ id: 'eq-2', name: 'Camara Beta', visual: { initials: 'CB', tone: 1 } }),
+        ],
+      }),
     });
 
     expect(root?.querySelectorAll('.equip-card')).toHaveLength(1);
@@ -127,13 +120,11 @@ describe('equipamentos React flat list island', () => {
     document.body.innerHTML = '<div id="lista-equip"></div>';
     const root = document.getElementById('lista-equip');
 
-    await act(async () => {
-      mountEquipamentosListReact(root, { viewModel: createViewModel() });
-      unmountEquipamentosListReact(root);
-      unmountEquipamentosListReact(root);
-    });
+    mountEquipamentosListDom(root, { viewModel: createViewModel() });
+    unmountEquipamentosListDom(root);
+    unmountEquipamentosListDom(root);
 
-    expect(root?.dataset.reactEquipamentosListMounted).toBeUndefined();
+    expect(root?.dataset.equipamentosListMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
   });
 
@@ -141,26 +132,24 @@ describe('equipamentos React flat list island', () => {
     document.body.innerHTML = '<div id="lista-equip"></div>';
     const root = document.getElementById('lista-equip');
 
-    await act(async () => {
-      mountEquipamentosListReact(root, {
-        viewModel: createViewModel({
-          cards: [],
-          activeCards: [],
-          emptyState: {
-            icon: '-',
-            title: 'Nenhum equipamento ainda',
-            description: 'Cadastre o primeiro equipamento.',
-            cta: {
-              label: '+ Novo equipamento',
-              action: EQUIPAMENTOS_ACTIONS.openModal,
-              id: 'modal-add-eq',
-              tone: 'primary',
-              size: 'sm',
-              autoWidth: true,
-            },
+    mountEquipamentosListDom(root, {
+      viewModel: createViewModel({
+        cards: [],
+        activeCards: [],
+        emptyState: {
+          icon: '-',
+          title: 'Nenhum equipamento ainda',
+          description: 'Cadastre o primeiro equipamento.',
+          cta: {
+            label: '+ Novo equipamento',
+            action: EQUIPAMENTOS_ACTIONS.openModal,
+            id: 'modal-add-eq',
+            tone: 'primary',
+            size: 'sm',
+            autoWidth: true,
           },
-        }),
-      });
+        },
+      }),
     });
 
     expect(root?.querySelector('.empty-state')?.textContent).toContain('Nenhum equipamento ainda');
@@ -182,18 +171,16 @@ describe('equipamentos React flat list island', () => {
       delegatedHandler(target?.getAttribute('data-action'));
     });
 
-    await act(async () => {
-      mountEquipamentosListReact(root, {
-        viewModel: createViewModel({
-          cards: [createCard({ id: 'eq-1' }), createCard({ id: 'eq-2', name: 'Split Beta' })],
-          activeCards: [createCard({ id: 'eq-1' }), createCard({ id: 'eq-2', name: 'Split Beta' })],
-          quickMove: {
-            equipIds: ['eq-1', 'eq-2'],
-            setoresDoCliente: [{ id: 's1', nome: 'Sala tecnica' }],
-            setoresOrfaos: [{ id: 's2', nome: 'Sem cliente' }],
-          },
-        }),
-      });
+    mountEquipamentosListDom(root, {
+      viewModel: createViewModel({
+        cards: [createCard({ id: 'eq-1' }), createCard({ id: 'eq-2', name: 'Split Beta' })],
+        activeCards: [createCard({ id: 'eq-1' }), createCard({ id: 'eq-2', name: 'Split Beta' })],
+        quickMove: {
+          equipIds: ['eq-1', 'eq-2'],
+          setoresDoCliente: [{ id: 's1', nome: 'Sala tecnica' }],
+          setoresOrfaos: [{ id: 's2', nome: 'Sem cliente' }],
+        },
+      }),
     });
 
     expect(root?.querySelector('.quick-move-banner')?.getAttribute('data-equip-ids')).toBe(
@@ -219,27 +206,25 @@ describe('equipamentos React flat list island', () => {
     const root = document.getElementById('lista-equip');
     const malicious = '"><img src=x onerror=alert(1)><script>alert(2)</script>';
 
-    await act(async () => {
-      mountEquipamentosListReact(root, {
-        viewModel: createViewModel({
-          cards: [
-            createCard({
-              id: 'eq-xss',
-              name: malicious,
-              tagParts: [malicious, malicious, malicious],
-              subtitle: malicious,
-              primaryTitle: malicious,
-              risk: {
-                classification: 'medio',
-                label: malicious,
-                score: 9,
-                factors: [malicious],
-              },
-            }),
-          ],
-          activeCards: [],
-        }),
-      });
+    mountEquipamentosListDom(root, {
+      viewModel: createViewModel({
+        cards: [
+          createCard({
+            id: 'eq-xss',
+            name: malicious,
+            tagParts: [malicious, malicious, malicious],
+            subtitle: malicious,
+            primaryTitle: malicious,
+            risk: {
+              classification: 'medio',
+              label: malicious,
+              score: 9,
+              factors: [malicious],
+            },
+          }),
+        ],
+        activeCards: [],
+      }),
     });
 
     const html = root?.innerHTML || '';
@@ -250,16 +235,17 @@ describe('equipamentos React flat list island', () => {
     expect(root?.querySelector('img[src="x"]')).toBeNull();
     expect(root?.querySelector('[onerror]')).toBeNull();
 
-    const pageSource = readFileSync('src/react/pages/EquipamentosListPage.jsx', 'utf8');
-    expect(pageSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML/);
+    const pageSource = readFileSync('src/features/equipamentos/ui/listRenderer.js', 'utf8');
+    expect(pageSource).not.toMatch(/dangerouslySetInnerHTML/);
   });
 
-  it('keeps React entrypoint dynamic import in the list bridge, not the legacy adapter', () => {
+  it('keeps DOM renderer in the list bridge, not the legacy adapter or React island', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
     const bridgeSource = readFileSync('src/features/equipamentos/bridges/listBridge.js', 'utf8');
 
     expect(adapterSource).not.toContain('equipamentosListIsland.jsx');
-    expect(bridgeSource).toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
+    expect(bridgeSource).toContain('../ui/listRenderer.js');
+    expect(bridgeSource).not.toContain('../../../react/entrypoints/equipamentosListIsland.jsx');
     expect(adapterSource).not.toMatch(/from ['"]react['"]/);
     expect(adapterSource).not.toMatch(/createRoot/);
   });
