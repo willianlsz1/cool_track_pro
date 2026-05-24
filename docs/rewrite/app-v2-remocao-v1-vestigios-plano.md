@@ -523,6 +523,11 @@ Progresso executado:
   `src/ui/viewModels/orcamentosViewModel.js`). O fluxo app-v2 permanece em
   `Servicos > Orcamentos`; `src/core/orcamentos.js` e contratos reais ficam
   fora deste corte.
+- CP-54B registrou a prontidao para remover Relatorio v1 sem misturar
+  PDF/share, WhatsApp ou PMOC. O diagnostico confirmou que
+  `src/ui/views/relatorio.js` ainda cruza renderers DOM, handlers de exportacao
+  e PMOC; o corte de codigo deve ser dividido em CP54B1 (view/renderers),
+  CP54C (PDF/share/WhatsApp) e CP54F (PMOC).
 
 Controle:
 

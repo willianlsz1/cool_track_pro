@@ -72,6 +72,15 @@ describe('legacy v1 removal contracts', () => {
     expect(clientesPageSource).not.toContain('Novo orçamento');
   });
 
+  it('keeps app-v2 independent from legacy relatorio, PDF/share and PMOC runtime', () => {
+    const appV2Sources = listSourceFiles('src/app-v2');
+    const forbiddenLegacyRuntimePattern =
+      /(?:ui\/views\/relatorio|ui\\views\\relatorio|ui\/controller\/handlers\/reportExportHandlers|ui\\controller\\handlers\\reportExportHandlers|domain\/pdf|domain\\pdf|components\/pmocModal|components\\pmocModal|components\/pmocInfoModal|components\\pmocInfoModal)/;
+
+    expect(existsSync('docs/rewrite/app-v2-remocao-v1-cp54b-relatorio-readiness.md')).toBe(true);
+    expect(findMatches(appV2Sources, forbiddenLegacyRuntimePattern)).toEqual([]);
+  });
+
   it('does not keep the legacy historico functional e2e after v2 promotion', () => {
     expect(existsSync('e2e/specs/historico-functional-smoke.spec.js')).toBe(false);
   });
