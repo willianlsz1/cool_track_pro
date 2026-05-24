@@ -92,14 +92,18 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   payload, persistencia local, post-save e orquestracao de salvamento da UI
   legada de Equipamentos foram co-localizados em
   `src/ui/views/equipamentos/crud/**`.
+- `src/features/registro/lifecycle/**` foi removido no CP-9t; helpers puros de
+  limpeza, edicao e inicializacao da UI legada de Registro foram co-localizados
+  em `src/ui/views/registro/lifecycle/**`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 169 arquivos restantes.
+- `src/ui/`: 170 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: ainda existe, concentrado em `registro` e `userData.js`.
+- `src/features/`: ainda existe, concentrado em `registro/checklist`,
+  `registro/save` e `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.

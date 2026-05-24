@@ -4,7 +4,7 @@ import {
   getClearRegistroFieldIds,
   resolveRegistroEditTarget,
   resolveRegistroInitEquipId,
-} from '../../lifecycle/helpers.js';
+} from '../ui/views/registro/lifecycle/helpers.js';
 
 describe('registro lifecycle helpers', () => {
   it('getClearRegistroFieldIds preserva r-equip quando preserveEquip=true', () => {
@@ -47,9 +47,9 @@ describe('registro lifecycle helpers', () => {
     expect(resolveRegistroInitEquipId()).toBe('');
   });
 
-  it('mantem modulo feature sem import do adapter legado', async () => {
+  it('mantem modulo de lifecycle sem import do adapter legado', async () => {
     const moduleText = await import('node:fs/promises').then((fs) =>
-      fs.readFile('src/features/registro/lifecycle/helpers.js', 'utf8'),
+      fs.readFile('src/ui/views/registro/lifecycle/helpers.js', 'utf8'),
     );
 
     expect(moduleText).not.toMatch(/ui\/views\/registro|views\/registro|registro\.js/);

@@ -79,7 +79,7 @@ import {
   getClearRegistroFieldIds,
   resolveRegistroEditTarget,
   resolveRegistroInitEquipId,
-} from '../../features/registro/lifecycle/helpers.js';
+} from './registro/lifecycle/helpers.js';
 import {
   applyRegistroSavedHighlight,
   notifyRegistroCreateSaved,

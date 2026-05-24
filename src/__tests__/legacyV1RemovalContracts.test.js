@@ -124,6 +124,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/equipamentos/crud')).toBe(false);
   });
 
+  it('does not keep registro lifecycle helpers under src/features after co-locating with the v1 view', () => {
+    expect(existsSync('src/features/registro/lifecycle')).toBe(false);
+  });
+
   it('does not keep equipamentos detail/view helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/equipamentos/ui/detail.js')).toBe(false);
     expect(existsSync('src/features/equipamentos/ui/detailController.js')).toBe(false);

@@ -108,7 +108,8 @@ registro, PDF/share e WhatsApp.
 ### Registro
 
 `src/features/registro/**` cobre payload, persistencia, fotos, assinatura,
-checklist PMOC, lifecycle, report/share e pos-salvamento.
+checklist PMOC, report/share e pos-salvamento. O subgrupo `lifecycle` foi
+tratado depois no CP-9t por conter apenas helpers puros locais da view.
 
 Classificacao: adiar. A area toca storage, assinatura, PMOC, PDF/share e
 regressoes historicas.
