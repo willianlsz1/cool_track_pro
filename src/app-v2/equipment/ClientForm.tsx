@@ -66,9 +66,7 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
 
       setLocalError(saveError);
     } catch (error) {
-      setLocalError(
-        error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel salvar o cliente.',
-      );
+      setLocalError(error instanceof Error ? error.message : 'Não foi possível salvar o cliente.');
     }
   }
 
