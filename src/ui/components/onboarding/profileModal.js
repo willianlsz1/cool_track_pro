@@ -174,7 +174,7 @@ export const ProfileModal = {
               <label class="profile-modal__label" for="prof-nome">
                 Nome completo <span class="profile-modal__required" aria-hidden="true">*</span>
               </label>
-              <span class="profile-modal__field-hint">Aparece no cabeçalho dos PDFs</span>
+              <span class="profile-modal__field-hint">Aparece nos relatorios</span>
               <input id="prof-nome" class="form-control profile-modal__input" type="text"
                 value="${Utils.escapeAttr(profile.nome || '')}"
                 placeholder="Ex: Carlos Figueiredo"

@@ -13,8 +13,7 @@ export const REGISTRO_FIELD_LIMITS = Object.freeze({
   obs: 2000,
   pecas: 800,
   tecnico: 120,
-  // Dados do cliente — opcionais. Vão para a capa do PDF (bloco CLIENTE/LOCAL)
-  // e para a página de assinatura (nome + documento).
+  // Dados do cliente - opcionais para o contexto do atendimento.
   clienteNome: 200,
   clienteDocumento: 30,
   localAtendimento: 300,
@@ -183,7 +182,7 @@ export function validateRegistroPayload(
     multiline: true,
   });
 
-  // Campos opcionais do cliente (capa do PDF + página de assinatura)
+  // Campos opcionais do cliente para o contexto do atendimento.
   const clienteNome = validateTextField({
     name: 'Nome do cliente',
     value: payload?.clienteNome,

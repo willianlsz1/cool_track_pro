@@ -837,6 +837,24 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/assets/styles/components.css')).toBe(false);
   });
 
+  it('does not keep visible legacy PDF promises in onboarding and profile copy', () => {
+    const copySources = [
+      'src/ui/components/onboarding/onboardingChecklist.js',
+      'src/ui/components/onboarding/profileModal.js',
+      'src/ui/components/clienteModal.js',
+      'src/ui/shell/templates/views.js',
+      'src/core/inputValidation.js',
+    ].map(readSource);
+
+    const joined = copySources.join('\n');
+
+    expect(joined).not.toContain('Gere seu primeiro PDF');
+    expect(joined).not.toContain('capa do PDF');
+    expect(joined).not.toContain('PDFs');
+    expect(joined).not.toContain('PDF do cliente');
+    expect(joined).not.toContain('pdf gerado');
+  });
+
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 

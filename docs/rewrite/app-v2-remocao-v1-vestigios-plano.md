@@ -881,6 +881,8 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
   referencia essas imagens. Favicons foram preservados.
 - CP-58R neutraliza a copia visivel `Baixar PDF futuro` em
   `Servicos > Relatorios` no app-v2, mantendo PDF/share para etapa propria.
+- CP-58S neutraliza copias legadas visiveis/documentais de PDF em onboarding,
+  perfil, cliente e registro, preservando runtime e IDs internos antigos.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

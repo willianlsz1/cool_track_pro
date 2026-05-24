@@ -430,7 +430,7 @@
 
               <!-- Campo custom aparece só quando tipo = "Outro". Controlado via JS
                    em registro.js (_bindTipoCustomToggle). Limite 40 chars: entra
-                   compacto no PDF / histórico / relatório como "Outro · {custom}". -->
+                   compacto no historico / relatorio como "Outro · {custom}". -->
               <div class="registro-field registro-field--tipo-custom" id="r-tipo-custom-wrap" hidden>
                 <label class="registro-field__label" for="r-tipo-custom">Qual serviço?<span class="req">*</span></label>
                 <input id="r-tipo-custom" class="registro-field__input" type="text"
@@ -474,7 +474,7 @@
                 <span class="registro-details__icon" aria-hidden="true"><svg><use href="#ri-user"/></svg></span>
                 <div class="registro-details__titles">
                   <div class="registro-details__title">Cliente do serviço</div>
-                  <div class="registro-details__subtitle">opcional — aparece na capa do PDF</div>
+                  <div class="registro-details__subtitle">opcional - aparece no resumo do atendimento</div>
                 </div>
                 <span class="registro-details__add" aria-hidden="true"><svg><use href="#ri-plus"/></svg><span class="registro-details__add-label"> Adicionar</span></span>
               </summary>

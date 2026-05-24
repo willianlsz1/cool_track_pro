@@ -8,12 +8,12 @@
  *   2) Cadastrar 1 equipamento
  *   3) Registrar 1 serviço
  *   4) Abrir um relatório
- *   5) Gerar/baixar 1 PDF
+ *   5) Revisar historico do atendimento
  *
  * Estratégia de detecção:
  *   - Os 3 primeiros são detectados AUTOMATICAMENTE via getState()
  *     quando o card é renderizado (length > 0 nas listas).
- *   - Os 2 últimos exigem hook explícito (relatorio aberto, pdf gerado)
+ *   - Os 2 últimos exigem hook explícito (relatorio aberto, historico revisado)
  *     via OnboardingChecklist.markStep('relatorio'|'pdf').
  *
  * Persistência:
@@ -38,7 +38,7 @@ const STEPS = [
   {
     id: 'cliente',
     label: 'Cadastre seu primeiro cliente',
-    sub: 'Pra associar a serviços e PDFs',
+    sub: 'Pra associar a serviços',
     nav: 'clientes',
     requiresPro: true,
   },
@@ -62,8 +62,8 @@ const STEPS = [
   },
   {
     id: 'pdf',
-    label: 'Gere seu primeiro PDF',
-    sub: 'Compartilhe com o cliente em segundos',
+    label: 'Revise seu primeiro historico',
+    sub: 'Use como referencia interna',
     nav: 'historico',
   },
 ];

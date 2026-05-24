@@ -206,7 +206,7 @@ function buildOverlayHtml(cliente) {
             <label class="cliente-modal__label" for="cli-observacoes">Observações</label>
             <textarea id="cli-observacoes" class="form-control cliente-modal__input cliente-modal__textarea"
               rows="3" maxlength="500"
-              placeholder="Notas privadas (não vão pro PDF do cliente)">${Utils.escapeHtml(c.observacoes || '')}</textarea>
+              placeholder="Notas privadas para uso interno">${Utils.escapeHtml(c.observacoes || '')}</textarea>
           </div>
         </section>
 
