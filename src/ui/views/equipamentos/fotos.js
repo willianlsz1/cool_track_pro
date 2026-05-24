@@ -27,9 +27,8 @@ export function syncContextGroupVisibility() {
 
 /**
  * Wire do CTA do locked state. Idempotente — chamado toda vez que o modal
- * abre pra Free, mas o listener é bound uma única vez via dataset flag.
- * Click -> telemetria + aviso local de planos pagos removidos.
- * para manter telemetria da tentativa enquanto a area comercial esta desligada.
+ * abre em estado bloqueado, mas o listener é bound uma única vez via dataset flag.
+ * Click -> telemetria + aviso local de recurso indisponivel.
  */
 function _bindPhotosUpsellCta() {
   const cta = document.querySelector('#equip-photo-locked [data-action="photos-upsell-cta"]');
@@ -43,16 +42,15 @@ function _bindPhotosUpsellCta() {
 
 /**
  * Mostra o bloco de fotos do equipamento no modal.
- * - Plus+/Pro → dropzone normal (user pode tirar/carregar fotos)
- * - Free → mesmo wrapper visível, mas troca o conteúdo pro locked state
- *   (card com lock + CTA "Desbloquear com Plus"). A visibilidade é feita
+ * - acesso liberado -> dropzone normal (user pode tirar/carregar fotos)
+ * - bloqueado -> mesmo wrapper visível, mas troca o conteúdo pro locked state.
+ *   A visibilidade é feita
  *   via classe `.equip-photo-block--locked` no CSS, então os listeners
  *   dos file inputs ficam intactos e funcionam de volta quando o estado muda.
  *
- * Motivação da mudança (v3.5): antes escondiamos o bloco inteiro pra Free.
- * Isso tirava a feature do radar do usuário e reduzia conversão. Mostrar
- * um upsell contextual ("ah, fotos seriam úteis aqui") é mais efetivo que
- * mencionar apenas no aviso local.
+ * Motivação da mudança (v3.5): antes escondiamos o bloco inteiro.
+ * Isso tirava a feature do radar do usuário. Mostrar o estado contextual é
+ * mais claro que mencionar apenas no aviso local.
  */
 export function applyEquipPhotosGate(isPlusOrPro = false) {
   const wrapper = Utils.getEl('eq-fotos-wrapper');
@@ -65,12 +63,12 @@ export function applyEquipPhotosGate(isPlusOrPro = false) {
   const locked = Utils.getEl('equip-photo-locked');
 
   if (isPlusOrPro) {
-    // Plano pago → dropzone normal + preview.
+    // Acesso liberado -> dropzone normal + preview.
     if (block) block.classList.remove('equip-photo-block--locked');
     if (locked) locked.hidden = true;
   } else {
-    // Free → card de upsell. Limpa o state do componente pra evitar que
-    // fotos "fantasma" persistam depois de um downgrade (defesa em
+    // Estado bloqueado. Limpa o state do componente pra evitar que
+    // fotos "fantasma" persistam depois de mudanca de acesso (defesa em
     // profundidade — a view já é escondida via CSS).
     if (block) block.classList.add('equip-photo-block--locked');
     if (locked) locked.hidden = false;
@@ -95,7 +93,7 @@ export function applyEquipPhotosGate(isPlusOrPro = false) {
 // ── Photos editor (V4): modal dedicado aberto do detail view ──────────────
 
 /**
- * Wire do CTA upsell do modal-eq-photos (Free vê card de locked + CTA).
+ * Wire do CTA do modal-eq-photos em estado bloqueado.
  * Idempotente via dataset flag — bound uma vez por lifecycle do elemento.
  */
 function _bindEqPhotosUpsellCta() {
@@ -115,10 +113,9 @@ function _bindEqPhotosUpsellCta() {
 }
 
 /**
- * Gate Plus+/Pro do editor de fotos (modal-eq-photos).
- * Plus+/Pro: dropzone + preview normais. Free: card de upsell.
- * Na prática esse modal nem é aberto pra Free (o CTA no detail view vai
- * direto para area comercial removida), mas deixamos o gate como defense-in-depth pra caso
+ * Gate operacional do editor de fotos (modal-eq-photos).
+ * Acesso liberado: dropzone + preview normais. Bloqueado: card informativo.
+ * Na prática esse modal não deve abrir sem acesso, mas deixamos o gate como defense-in-depth pra caso
  * alguém force a abertura do modal via devtools.
  */
 export function applyEquipPhotosEditorGate(isPlusOrPro = false) {
@@ -170,7 +167,7 @@ export async function openEquipPhotosEditor(equipId) {
   });
   EquipmentPhotos.setExisting(normalizePhotoList(eq.fotos));
 
-  // Gate sync inicial (via cache). Modal-eq-photos aceita só Plus+/Pro.
+  // Gate sync inicial (via cache).
   const cachedIsPlusOrPro = isCachedPlanPlusOrHigher();
   applyEquipPhotosEditorGate(cachedIsPlusOrPro);
 
@@ -222,8 +219,8 @@ export async function saveEquipPhotos() {
     return false;
   }
 
-  // Runtime gate: mesmo padrão do saveEquip. Se o user degradou o plano
-  // pra Free, as pending são descartadas e só as existing são persistidas.
+  // Runtime gate: mesmo padrão do saveEquip. Sem acesso operacional,
+  // as pending são descartadas e só as existing são persistidas.
   const canUploadPhotos = isCachedPlanPlusOrHigher();
   let fotosPayload = [];
 

@@ -42,10 +42,10 @@ export function bindProfileAccountHandlers() {
   on('open-profile-modal', () => openAccountPage());
 
   // Bug fix #117: actions disparadas pela view /conta (cards "Editar perfil"
-  // e "Gerenciar plano"). Antes geravam warning "Sem handler" no console
+  // e status operacional). Antes geravam warning "Sem handler" no console
   // porque essas actions eram declaradas em data-action mas nunca foram
-  // bindadas em lugar nenhum. Editar perfil abre o ProfileModal; gerenciar
-  // plano exibe aviso local enquanto planos pagos estao fora do produto.
+  // bindadas em lugar nenhum. Editar perfil abre o ProfileModal; status
+  // operacional exibe aviso local enquanto a area comercial fica fora do produto.
   on('conta-edit-profile', () => ProfileModal.open());
   on('conta-manage-plan', () => Toast.warning('Recurso indisponivel nesta etapa.'));
 

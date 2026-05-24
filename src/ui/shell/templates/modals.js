@@ -92,7 +92,7 @@ export function renderShellModals() {
             <button type="button"
               class="btn btn--primary btn--sm nameplate-cta__btn nameplate-cta__btn--locked"
               id="nameplate-cta-btn-locked">
-              Desbloquear com Plus →
+              Recurso indisponível
             </button>
           </div>
           <!--
@@ -702,7 +702,6 @@ export function renderShellModals() {
             <div class="equip-photo-locked__text">
               <div class="equip-photo-locked__title">
                 Fotos do equipamento
-                <span class="plus-badge plus-badge--inline" aria-hidden="true">PLUS</span>
               </div>
               <p class="equip-photo-locked__sub">
                 Identifique equipamentos em campo pelas fotos — até 3 por equipamento.
@@ -710,7 +709,7 @@ export function renderShellModals() {
             </div>
             <button type="button" class="btn btn--primary btn--sm equip-photo-locked__cta"
               data-action="eq-photos-upsell-cta">
-              Desbloquear com Plus →
+              Recurso indisponível
             </button>
           </div>
         </div>

@@ -1416,10 +1416,9 @@ function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId 
 
   applyRegistroInitPriorityDefault();
 
-  // Hint de assinatura: Plus/Pro veem "Incluso" confirmando que a captura
-  // vai rolar no save. Free vê variante upsell clicável que leva pro
-  // slot hidden legado de planos pagos removidos. O elemento vem `hidden` do template pra
-  // evitar flash de conteúdo indevido enquanto o plano ainda carrega.
+  // Hint de assinatura: acesso liberado mostra "Incluso" confirmando que a
+  // captura vai rolar no save. Sem acesso, a variante informativa fica
+  // escondida por padrão para evitar flash de conteúdo indevido.
   applyRegistroInitSignatureHint();
 }
 
@@ -1735,8 +1734,8 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
     const novoId = resolveRegistroCreateId({ uid: () => Utils.uid() });
     const photoState = getRegistroPhotoState({ Photos, isSafeRegistroPhotoSrc });
 
-    // D1: assinatura digital — recurso exclusivo Plus+ (diferencial pago).
-    // Para Free, pulamos silenciosamente o modal para não interromper o fluxo.
+    // D1: assinatura digital — recurso controlado por gate operacional.
+    // Sem acesso, pulamos silenciosamente o modal para não interromper o fluxo.
     const signatureState = getRegistroSignatureState({
       registroId: novoId,
       canUseSignature: PlanCache.isCachedPlanPlusOrHigher(),
@@ -1763,7 +1762,7 @@ export async function saveRegistro({ andShare = false, forceClientFork = false }
         ErrorCodes,
       },
     );
-    // Reference do Storage quando upload OK; null quando offline ou plano Free.
+    // Reference do Storage quando upload OK; null quando offline ou sem acesso.
     // Shape: { version, provider, bucket, path, url, urlExpiresAt, ... }
     const signatureReference = await persistRegistroSignatureForSave(
       {

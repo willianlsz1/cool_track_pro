@@ -101,6 +101,25 @@ describe('billing/pricing cleanup contracts', () => {
       expect(source).not.toContain('Faça upgrade');
       expect(source).not.toContain('Assine o Plus');
       expect(source).not.toContain('sugere Pro');
+      expect(source).not.toContain('Cota mensal do Plus');
+      expect(source).not.toContain('Cota mensal do Pro');
+    }
+  });
+
+  it('does not keep paid-plan copy in legacy runtime gates', () => {
+    const sources = [
+      readSource('src/ui/views/equipamentos/fotos.js'),
+      readSource('src/ui/views/registro.js'),
+      readSource('src/ui/components/accountModal.js'),
+      readSource('src/ui/shell/templates/modals.js'),
+      readSource('src/ui/controller/handlers/profileAccountHandlers.js'),
+    ];
+
+    for (const source of sources) {
+      expect(source).not.toContain('planos pagos');
+      expect(source).not.toContain('diferencial pago');
+      expect(source).not.toContain('Desbloquear com Plus');
+      expect(source).not.toContain('area comercial removida');
     }
   });
 

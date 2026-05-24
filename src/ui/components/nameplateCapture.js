@@ -9,7 +9,7 @@
  *        - "active" (acesso operacional): botão direto
  *        - "trial"  (Free com quota): botão direto + badge "teste grátis"
  *        - "locked" (quota esgotada OU plano desconhecido): botão bloqueado
- *      Chamado no open-modal + quando o plano/quota muda.
+ *      Chamado no open-modal + quando o estado operacional/quota muda.
  *
  *   2. Listener `change` no input file escondido. Quando o user seleciona
  *      uma foto:
@@ -21,8 +21,8 @@
  *          detectado — toque pra preencher" nos que a IA não devolveu.
  *        - Abre o step 2 e faz scroll suave até Detalhes técnicos.
  *
- *   3. Click no botao legado de desbloqueio mostra aviso local de planos pagos
- *      removidos desta versao.
+ *   3. Click no botao legado de desbloqueio mostra aviso local de recurso
+ *      indisponivel nesta etapa.
  *
  * Design intencional: o componente é idempotente e defensivo. `bindOnce()`
  * só amarra listeners uma vez (via dataset flag), então pode ser chamado
@@ -145,7 +145,7 @@ const REVIEW_FIELDS = [
 ];
 
 /**
- * Aplica o gate de plano no CTA. Três estados possíveis:
+ * Aplica o gate operacional no CTA. Três estados possíveis:
  *
  *  - `active`: botão primário que abre o file picker.
  *  - `trial` (Free com quota restante): mesmo botão, mas com badge "teste
@@ -198,7 +198,7 @@ export function applyNameplateCtaGate(config = false) {
 }
 
 /**
- * Decide estado + microcopy do CTA a partir do plano e quota mensal.
+ * Decide estado + microcopy do CTA a partir do acesso e quota mensal.
  * Isolado pra facilitar testes e pra deixar a lógica de "qual mensagem em
  * qual estado" numa única função auditável.
  */
@@ -207,9 +207,9 @@ function resolveCtaPresentation({ isPlusOrPro, trialRemaining }) {
     return { state: 'active', subtitle: DEFAULT_SUB, trialRemaining: null };
   }
   if (trialRemaining === null) {
-    // Plano desconhecido (cache stale, fetch falhou). Default conservador:
-    // trata como locked — mostra upsell. Se o re-check async chegar e
-    // descobrir que é Plus ou tem quota, reaplica o gate.
+    // Estado desconhecido (cache stale, fetch falhou). Default conservador:
+    // trata como locked. Se o re-check async confirmar acesso ou quota,
+    // reaplica o gate.
     return { state: 'locked', subtitle: DEFAULT_SUB, trialRemaining: null };
   }
   const remaining = Number.isFinite(trialRemaining) ? Math.max(0, Math.round(trialRemaining)) : 0;
@@ -371,7 +371,7 @@ async function handleFile(file) {
 
     // Trial consumption telemetry: se a resposta traz `_trial`, o user era
     // Free e acabou de gastar 1 uso. Emite evento dedicado pra separar o
-    // funil "usou o teste grátis" do funil "usou análise normal (Plus+)".
+    // funil "usou o teste grátis" do fluxo operacional normal.
     const trialMeta = fields?._trial ?? null;
     if (trialMeta?.consumed) {
       trackEvent('nameplate_free_trial_used', {
@@ -399,7 +399,7 @@ async function handleFile(file) {
     );
     // Reconcilia estado do CTA pós-análise. Se o user era Free e acabou de
     // gastar o último uso, vira 'locked' — pra próxima tentativa não passar.
-    // Se era trial com quota remanescente, fica 'trial'. Plus+ fica 'active'.
+    // Se era trial com quota remanescente, fica 'trial'. Acesso liberado fica 'active'.
     if (trialMeta?.consumed) {
       applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: trialMeta.remaining ?? 0 });
     } else {
@@ -438,12 +438,12 @@ async function handleFile(file) {
       const quotaExhausted = Boolean(details.quotaExhausted ?? details.trialExhausted);
 
       if (currentPlan === 'pro' && quotaExhausted) {
-        stageMsg = 'Cota mensal do Pro atingida';
-        setSubtitle('Você atingiu 200 análises/mês no Pro. Reseta no dia 1º.');
+        stageMsg = 'Cota mensal atingida';
+        setSubtitle('Voce atingiu o limite operacional de analises neste mes.');
         cta.dataset.state = prevState === 'locked' ? 'locked' : 'active';
         trackEvent('nameplate_quota_hit', { source: 'equip_modal', plan: 'pro' });
       } else if (currentPlan === 'plus' && quotaExhausted) {
-        stageMsg = 'Cota mensal do Plus atingida';
+        stageMsg = 'Cota mensal atingida';
         setSubtitle(
           'Voce atingiu o limite operacional de analises neste mes. Aguarde o proximo ciclo.',
         );

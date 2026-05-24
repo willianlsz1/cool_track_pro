@@ -1,7 +1,7 @@
 // Account Modal — implementação fiel ao V2Refined (Claude Design final).
-// Hero card do plano com badge + nome grande + tagline + chips + bar/CTA,
+// Hero card operacional com badge + nome grande + tagline + chips + barra,
 // seguido de identity row e ações. Paleta e layout replicam o mockup
-// aprovado; valores dinâmicos (count equipamentos, renova, nome, email)
+// aprovado; valores dinâmicos (count equipamentos, nome, email)
 // vêm do state + profile + user real.
 
 import { Profile } from '../../core/profile.js';
@@ -70,7 +70,7 @@ const ICON_TRASH = `
   </svg>`;
 const DELETE_CONFIRM_PHRASE = 'EXCLUIR MINHA CONTA';
 
-// Ícone do badge do plano no header do hero.
+// Ícone do badge operacional no header do hero.
 function getPlanBadgeIconHtml(planCode) {
   if (planCode === PLAN_CODE_PRO) return ICON_CROWN;
   if (planCode === PLAN_CODE_FREE) return ICON_SPARK;
@@ -131,14 +131,13 @@ function getEquipmentCount() {
   }
 }
 
-// Renderiza a seção inferior do hero: CTA primário no Free, bar de uso
-// no Plus/Pro. Plus mostra "count / 15", Pro mostra "count · ilimitado".
+// Renderiza a seção inferior do hero com barra de uso operacional.
 function renderHeroFooter(_planCode, planData) {
   const count = getEquipmentCount();
   const limit = planData.limits.equipamentos;
   const isUnlimited = !Number.isFinite(limit);
   const valueLabel = isUnlimited ? `${count} · ilimitado` : `${count} / ${limit}`;
-  // No Pro o fill é decorativo (shimmer), então width 100%. No Plus é real.
+  // Quando ilimitado, o fill é decorativo; caso contrário, reflete uso real.
   const percent = isUnlimited ? 100 : Math.min(100, Math.max(4, Math.round((count / limit) * 100)));
 
   return `
@@ -168,8 +167,7 @@ export function openAccountModal(
   closeAccountModal();
 
   // Nome/email vêm do perfil local (controlado pelo ProfileModal);
-  // plano e renovação vêm do operationalProfile (Supabase), que é a fonte da verdade
-  // para status da assinatura. Fallback para o perfil local mantém
+  // status operacional vem do operationalProfile (Supabase). Fallback para o perfil local mantém
   // compatibilidade caso o fetch falhe (offline/erro de rede).
   const localProfile = Profile.get() || {};
   const planProfile = operationalProfile || localProfile;
