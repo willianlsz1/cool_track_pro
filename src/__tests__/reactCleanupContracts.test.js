@@ -15,6 +15,7 @@ describe('React cleanup contracts', () => {
   it('does not keep stale React island names on legacy DOM handler tests', () => {
     expect(existsSync('src/__tests__/registroReactFieldHandlers.test.js')).toBe(false);
     expect(existsSync('src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx')).toBe(false);
+    expect(existsSync('e2e/specs/react-islands-lifecycle.spec.js')).toBe(false);
   });
 
   it('does not keep stale React naming in legacy relatorio runtime helpers', () => {
