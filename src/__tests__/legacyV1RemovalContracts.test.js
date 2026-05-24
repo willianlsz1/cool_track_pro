@@ -223,7 +223,6 @@ describe('legacy v1 removal contracts', () => {
 
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
-    const redesignCss = readSource('src/assets/styles/redesign.css');
     const componentsCss = readSource('src/assets/styles/components.css');
 
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
@@ -231,7 +230,7 @@ describe('legacy v1 removal contracts', () => {
     expect(shellViewsSource).not.toContain('view-configuracoes');
     expect(existsSync('src/ui/shell/templates/sidebar.js')).toBe(false);
     expect(existsSync('src/ui/shell/templates/header.js')).toBe(false);
-    expect(redesignCss).not.toContain('view-configuracoes');
+    expect(existsSync('src/assets/styles/redesign.css')).toBe(false);
     expect(componentsCss).not.toContain('_configuracoes.css');
   });
 
@@ -243,6 +242,7 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/assets/styles/equipment-detail-cp-h.css')).toBe(false);
     expect(existsSync('src/assets/styles/equipment-list-cp-i.css')).toBe(false);
     expect(existsSync('src/assets/styles/layout.css')).toBe(false);
+    expect(existsSync('src/assets/styles/redesign.css')).toBe(false);
     expect(existsSync('src/assets/styles/theme-premium.css')).toBe(false);
     expect(existsSync('src/assets/styles/tokens.css')).toBe(false);
     expect(existsSync('src/assets/styles/ux-polish.css')).toBe(false);
@@ -251,6 +251,7 @@ describe('legacy v1 removal contracts', () => {
     expect(primaryHtml).not.toContain('equipment-detail-cp-h.css');
     expect(primaryHtml).not.toContain('equipment-list-cp-i.css');
     expect(primaryHtml).not.toContain('layout.css');
+    expect(primaryHtml).not.toContain('redesign.css');
     expect(primaryHtml).not.toContain('theme-premium.css');
     expect(primaryHtml).not.toContain('tokens.css');
     expect(primaryHtml).not.toContain('ux-polish.css');

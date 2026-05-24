@@ -115,7 +115,7 @@ describe('Tour', () => {
   // Removido: slide "Score de Risco" foi cortado na refatoração de
   // 2026-04 (Tour modernizado de 6 → 4 slides). Score técnico demais
   // pro primeiro contato — pertence a uma página de ajuda dedicada,
-  // não ao onboarding inicial. Ver redesign.css/_tour.css.
+  // não ao onboarding inicial.
   it.skip('includes a dedicated slide explaining the Score de Risco', () => {});
 
   it('fails if inline event handlers appear in hardened files', () => {

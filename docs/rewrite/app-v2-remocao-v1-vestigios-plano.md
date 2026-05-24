@@ -481,6 +481,8 @@ Progresso executado:
   `desktop-fonts.css`, `base.css`, `layout.css` e `tokens.css`.
 - Removidos assets visuais legados de equipamentos
   `equipment-detail-cp-h.css` e `equipment-list-cp-i.css`.
+- Removido `redesign.css`, que nao era carregado pelo entrypoint principal
+  app-v2.
 - Contratos de remocao ampliados em `legacyV1RemovalContracts`.
 
 Controle:
