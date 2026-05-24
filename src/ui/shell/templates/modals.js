@@ -267,7 +267,7 @@ export function renderShellModals() {
               </div>
 
               <!--
-                PMOC Fase 2: vínculo equipamento ↔ cliente. Só aparece quando
+                Vinculo equipamento -> cliente. So aparece quando
                 o user já tem ao menos 1 cliente cadastrado (populateClienteSelect
                 em views/clientes.js controla a visibilidade). Vínculo é opcional.
               -->

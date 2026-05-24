@@ -99,9 +99,8 @@ const ICON_SAVE = `
     <polyline points="7 3 7 8 15 8"/>
   </svg>`;
 
-// Snapshot dos valores do form — usado pelo dirty-check. Compara os 8 campos
-// pós-trim (4 originais + 4 PMOC adicionados em abr/2026). Retornamos um
-// objeto plano pra facilitar shallow equal.
+// Snapshot dos valores do form: compara campos pos-trim e retorna um objeto
+// plano para facilitar shallow equal.
 function captureFormSnapshot(overlay) {
   const get = (id) => overlay.querySelector(`#${id}`)?.value.trim() || '';
   return {
@@ -113,7 +112,6 @@ function captureFormSnapshot(overlay) {
     cnpj: get('prof-cnpj'),
     inscricao_estadual: get('prof-ie'),
     inscricao_municipal: get('prof-im'),
-    // V2 (#115): campos PMOC obrigatorios pra geracao do termo de RT formal
     responsavel_tecnico: get('prof-rt'),
     art_rrt: get('prof-art-rrt'),
     cidade: get('prof-cidade'),
@@ -245,7 +243,7 @@ export const ProfileModal = {
                 <h3 class="profile-modal__section-title">
                   Dados legais <span class="profile-modal__section-tag">(opcional)</span>
                 </h3>
-                <p class="profile-modal__section-sub">Necessário para emitir relatórios PMOC formais</p>
+                <p class="profile-modal__section-sub">Dados opcionais para documentos tecnicos</p>
               </div>
             </header>
 
@@ -305,8 +303,7 @@ export const ProfileModal = {
                 autocomplete="off" />
             </div>
 
-            <!-- V2 (#115): campos especificos PMOC. Aparecem agrupados com hint
-                 explicando o uso (ART/RRT eh obrigatoria pra PMOC formal). -->
+            <!-- Campos profissionais adicionais. -->
             <div class="profile-modal__row profile-modal__row--two">
               <div class="profile-modal__field">
                 <label class="profile-modal__label" for="prof-rt">Responsável Técnico</label>
@@ -329,7 +326,7 @@ export const ProfileModal = {
 
             <div class="profile-modal__field">
               <label class="profile-modal__label" for="prof-cidade">Cidade</label>
-              <span class="profile-modal__field-hint">Aparece no termo do PMOC: "Cidade, data."</span>
+              <span class="profile-modal__field-hint">Aparece em documentos tecnicos quando preenchida</span>
               <input id="prof-cidade" class="form-control profile-modal__input" type="text"
                 value="${Utils.escapeAttr(profile.cidade || '')}"
                 placeholder="Ex: Belo Horizonte/MG"
@@ -339,7 +336,7 @@ export const ProfileModal = {
             <!-- Info banner explicando o opcional -->
             <div class="profile-modal__info-banner" role="note">
               <span class="profile-modal__info-banner-icon" aria-hidden="true">${ICON_INFO}</span>
-              <span>Essas informações são opcionais, mas obrigatórias para gerar PMOC formal completo.</span>
+              <span>Essas informacoes sao opcionais e ajudam a completar documentos tecnicos.</span>
             </div>
           </div>
 
@@ -442,9 +439,7 @@ export const ProfileModal = {
         nomeInput?.focus();
         return;
       }
-      // V2 fix (#115): usa captureFormSnapshot() pra puxar TODOS os campos
-      // (incluindo PMOC: razao_social, cnpj, IE, IM, RT, ART/RRT, cidade).
-      // Antes salvava só 4 campos e os outros se perdiam ao fechar o modal.
+      // Usa captureFormSnapshot() para salvar todos os campos do perfil.
       const payload = captureFormSnapshot(overlay);
       payload.nome = nome;
       Profile.save(payload);

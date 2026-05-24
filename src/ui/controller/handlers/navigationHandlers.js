@@ -123,7 +123,7 @@ export function bindNavigationHandlers() {
       import('../../components/eqContextPicker.js').then((m) => {
         m.initEqContextPickers?.();
       });
-      // PMOC Fase 2: popula select de clientes (lazy hydrate). Fire-and-forget;
+      // Popula select de clientes (lazy hydrate). Fire-and-forget;
       // se falhar, o wrapper fica hidden (default) e o campo simplesmente
       // não aparece — não quebra o cadastro.
       Promise.resolve(populateClienteSelect())

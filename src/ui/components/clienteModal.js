@@ -1,9 +1,9 @@
 /**
- * CoolTrack Pro - ClienteModal (Fase 2 PMOC, abr/2026)
+ * CoolTrack Pro - ClienteModal
  *
  * Modal de cadastro/edição de cliente. Padrão similar ao setorModal mas
- * com mais campos (PMOC exige razão social, CNPJ, IE, IM, endereço, contato,
- * URL chamados). Validação CNPJ permissiva — warning amarelo, não bloqueia.
+ * com campos legais, CNPJ/CPF, inscricoes, endereco, contato e URL de chamados.
+ * Validacao CNPJ permissiva: warning amarelo, nao bloqueia.
  *
  * Uso:
  *   import { ClienteModal } from './ui/components/clienteModal.js';
@@ -84,7 +84,7 @@ function buildOverlayHtml(cliente) {
             ${isEdit ? 'Editar cliente' : 'Novo cliente'}
           </h2>
           <p class="cliente-modal__sub">
-            Identifica o cliente no relatório técnico e no PMOC formal quando aplicável.
+            Identifica o cliente nos registros e relatorios tecnicos.
           </p>
         </div>
         <button type="button" class="cliente-modal__close" id="cli-close" aria-label="Fechar">
@@ -176,14 +176,11 @@ function buildOverlayHtml(cliente) {
               maxlength="240" autocomplete="off" />
             <div class="cliente-modal__hint">
               Canal usado pelo cliente para solicitar atendimento: WhatsApp,
-              portal, formulário ou e-mail. Aparece no PMOC formal quando preenchido.
+              portal, formulario ou e-mail.
             </div>
           </div>
 
-          <!-- V2 (#116): finalidade do ambiente — usado em
-               "Informações do Sistema" do PMOC formal. Dropdown com
-               categorias da NBR 13971 (Anexo A — classificacao de
-               ambientes coletivos). -->
+          <!-- Finalidade do ambiente para classificar o contexto operacional. -->
           <div class="cliente-modal__field">
             <label class="cliente-modal__label" for="cli-finalidade">Finalidade do ambiente</label>
             <select id="cli-finalidade" class="form-control cliente-modal__input">
@@ -197,7 +194,7 @@ function buildOverlayHtml(cliente) {
               <option value="Outro"${c.finalidade === 'Outro' ? ' selected' : ''}>Outro</option>
             </select>
             <div class="cliente-modal__hint">
-              Ajuda a classificar o ambiente no PMOC formal.
+              Ajuda a classificar o ambiente do cliente.
             </div>
           </div>
         </section>

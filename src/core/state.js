@@ -10,7 +10,7 @@ const INITIAL_STATE = {
   registros: [],
   tecnicos: [],
   setores: [],
-  // V2 PMOC (abr/2026): clientes (carteira do técnico). Também entra no
+  // Clientes (carteira do tecnico). Tambem entra no
   // snapshot offline-first para preservar vínculos temporários com setores e
   // equipamentos quando a criação ocorre sem conectividade.
   clientes: [],

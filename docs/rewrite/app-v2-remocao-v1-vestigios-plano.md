@@ -858,6 +858,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
   passa de `pmocContext` para `preventiveContext`, o bloco DOM passa de
   `eq-pmoc-context` para `eq-preventive-context` e o detalhe deixa de importar
   `domain/pmoc/serviceType`.
+- CP-58K remove copias e comentarios residuais de PMOC em Cliente, Perfil,
+  Equipamentos e shell legado, mantendo campos/payloads intactos e deixando
+  Registro/checklist PMOC para CP proprio.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

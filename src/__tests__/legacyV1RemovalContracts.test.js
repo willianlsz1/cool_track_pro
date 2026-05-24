@@ -564,6 +564,28 @@ describe('legacy v1 removal contracts', () => {
     expect(detailModelSource).not.toContain('isPreventivaOrPmocServiceType');
   });
 
+  it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
+    const checkedSources = [
+      readSource('src/ui/components/clienteModal.js'),
+      readSource('src/ui/components/onboarding/profileModal.js'),
+      readSource('src/ui/views/equipamentos.js'),
+      readSource('src/ui/views/equipamentos/setor/setorUI.js'),
+      readSource('src/ui/views/equipamentos/crud/payload.js'),
+      readSource('src/core/clientes.js'),
+      readSource('src/core/state.js'),
+      readSource('src/ui/controller/handlers/navigationHandlers.js'),
+      readSource('src/ui/shell/templates/modals.js'),
+    ];
+
+    for (const source of checkedSources) {
+      expect(source).not.toMatch(/PMOC|NBR 13971|pmoc_clientes_empresa/);
+    }
+
+    expect(readSource('src/ui/shell/templates/views.js')).not.toContain(
+      'Checklist PMOC aparece só quando fizer sentido para o equipamento.',
+    );
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');

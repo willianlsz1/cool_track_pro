@@ -547,7 +547,7 @@
                 <ul class="registro-side-card__list">
                   <li>Campos obrigatórios salvam o serviço e geram o relatório técnico.</li>
                   <li>Observações e checklist registram o contexto operacional.</li>
-                  <li>Checklist PMOC aparece só quando fizer sentido para o equipamento.</li>
+                  <li>Checklist aparece quando fizer sentido para o equipamento.</li>
                 </ul>
               </section>
 

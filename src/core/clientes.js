@@ -1,5 +1,5 @@
 /**
- * CoolTrack Pro - Clientes (Fase 2 PMOC, abr/2026)
+ * CoolTrack Pro - Clientes
  * ─────────────────────────────────────────────────────────────────────────
  *
  * Módulo dedicado pra CRUD de clientes. NÃO replica a infra completa do
@@ -14,7 +14,7 @@
  *
  * Estado: state.clientes (Map-friendly array). Hidratado on-demand.
  * Persistência: tabela `public.clientes` no Supabase. RLS já aplicada
- *   pela migration 20260425120000_pmoc_clientes_empresa.sql.
+ *   pelas migrations de clientes da base legada.
  */
 
 import { supabase } from './supabase.js';

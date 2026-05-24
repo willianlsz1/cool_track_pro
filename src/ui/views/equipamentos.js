@@ -490,7 +490,7 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
 
   if (subtitleEl) {
     subtitleEl.innerHTML =
-      'Organize o parque do cliente por setor e mantenha PMOC/relatórios consistentes.';
+      'Organize o parque do cliente por setor e mantenha relatorios consistentes.';
   }
 
   if (hasLockedCtx) {

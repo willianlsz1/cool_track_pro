@@ -19,7 +19,7 @@ export function collectSaveEquipContextFormValues({
     baseFormValues.criticidade,
   );
   const setorId = getForcedEquipContext?.()?.setorId || getValue('eq-setor') || null;
-  // PMOC Fase 2: vínculo opcional. Vazio → null (equipamento próprio/demo).
+  // Vinculo opcional. Vazio -> null (equipamento proprio/demo).
   const clienteId = saveWithoutClient
     ? null
     : getForcedEquipContext?.()?.clienteId || getValue('eq-cliente') || null;

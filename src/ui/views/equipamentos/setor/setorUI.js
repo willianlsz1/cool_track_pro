@@ -190,8 +190,8 @@ export function _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId,
           <h2 class="setor-cliente-empty__title">Setores sao opcionais para ${deps.Utils.escapeHtml(safeNome)}</h2>
           <p class="setor-cliente-empty__sub">Voce pode manter equipamentos direto no cliente e criar setores depois.</p>
           <p class="setor-cliente-empty__sub">
-            Setores agrupam equipamentos por área, andar ou bloco. Ajuda a organizar
-            grandes carteiras (matriz, filial, sala tecnica) e gerar PMOC certinho.
+            Setores agrupam equipamentos por area, andar ou bloco. Ajuda a organizar
+            grandes carteiras (matriz, filial, sala tecnica) e manter o atendimento claro.
           </p>
           <button type="button" class="setor-cliente-empty__cta"
             data-action="open-setor-modal" data-cliente-id="${deps.Utils.escapeAttr(clienteId)}">
@@ -213,7 +213,7 @@ export function _renderSetorGridForClienteEmptyHtml({ equipsSemSetor, clienteId,
             </div>
             <div class="setor-cliente-empty__hint">
               <span class="setor-cliente-empty__hint-num">3</span>
-              <span>Registre manutenções e gere relatórios PMOC</span>
+              <span>Registre manutencoes e gere relatorios tecnicos</span>
             </div>
           </div>
         </div>
