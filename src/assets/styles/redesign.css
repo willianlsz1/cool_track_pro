@@ -7,7 +7,7 @@
  *
  * Importado por último em index.html — vence cascata.
  *
- * Usa tokens.css como fonte de cores (var(--ct-*)).
+ * Mantem overrides visuais legados baseados em variaveis --ct-*.
  */
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1209,9 +1209,9 @@ body:not(.landing-active) #app {
     border-color: rgba(181, 194, 209, 0.12) !important;
   }
 
-  /* Fase 3: legibilidade sistêmica no desktop dark.
-     Os tokens desktop vêm de tokens.css; aqui só conectamos componentes
-     reutilizáveis aos níveis primário/secundário/terciário sem alterar layout. */
+  /* Fase 3: legibilidade sistemica no desktop dark.
+     Conecta componentes reutilizaveis aos niveis primario, secundario e
+     terciario sem alterar layout. */
   body:not(.landing-active)
     #app
     :is(

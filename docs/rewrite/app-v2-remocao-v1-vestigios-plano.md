@@ -248,6 +248,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-44 removeu a folha legada `src/assets/styles/layout.css`. O entrypoint
   app-v2 nao carregava esse arquivo, `src/app-v2/**` nao o importava e a unica
   ocorrencia runtime restante antes da remocao era comentario em `tokens.css`.
+- CP-45 removeu a folha legada `src/assets/styles/tokens.css` e o teste
+  historico `src/__tests__/internalVisualIdentity.test.js`, que validava a
+  identidade visual do runtime legado em vez da entrada principal app-v2.
 
 ## 3. Superficies v1 mapeadas
 
