@@ -114,7 +114,6 @@ function _applyNavigationMode() {
     'historico',
     'relatorio',
     'orcamentos',
-    'alertas',
   ];
   sidebarAll.forEach((route) => {
     const el = document.getElementById(`sidenav-${route}`);

@@ -7,7 +7,6 @@ import {
   unmountEquipamentosList,
 } from '../views/equipamentos.js';
 import { renderHist, setHistClienteFilter, clearHistClienteFilter } from '../views/historico.js';
-import { renderAlertas, unmountAlertas } from '../views/alertas.js';
 import {
   renderRelatorio,
   populateRelatorioSelects,
@@ -104,18 +103,6 @@ export function registerAppRoutes() {
         mod.unmountHistoricoFilters?.();
         mod.unmountHistoricoTimeline?.();
       }),
-  );
-
-  registerRoute(
-    'alertas',
-    () => {
-      const renderResult = renderAlertas();
-      updateHeader();
-      return renderResult;
-    },
-    () => {
-      unmountAlertas();
-    },
   );
 
   registerRoute(

@@ -257,10 +257,6 @@ export function bindNavigationHandlers() {
     goTo('registro', { editRegistroId: el.dataset.id });
   });
 
-  on('go-alertas', () => {
-    goTo('alertas');
-  });
-
   // V2 (#127): atalho do menu mobile (engrenagem) — bottom nav já tem 5
   // slots, então Orçamentos vive no header help menu como item mobile-only.
   on('go-orcamentos', () => {

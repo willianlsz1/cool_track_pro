@@ -71,30 +71,6 @@ export function updateGlobalHeader({ equipamentos, registros, alerts } = {}) {
     badge.classList.toggle('is-visible', alertCount > 0);
   }
 
-  const preventivas7dCount = Alerts.countPreventivas7Dias();
-  const headerAlertPill = Utils.getEl('header-alert-pill');
-  const headerAlertTooltip = Utils.getEl('header-alert-tooltip');
-  const headerAlertBtn = document.querySelector('.header-alert-btn');
-  if (headerAlertPill && headerAlertTooltip && headerAlertBtn) {
-    headerAlertPill.textContent = String(preventivas7dCount);
-    headerAlertPill.hidden = preventivas7dCount <= 0;
-    headerAlertPill.classList.toggle('is-visible', preventivas7dCount > 0);
-    headerAlertTooltip.textContent = `${preventivas7dCount} equipamento${preventivas7dCount > 1 ? 's' : ''} com preventiva nos próximos 7 dias`;
-    headerAlertTooltip.hidden = preventivas7dCount <= 0;
-    headerAlertBtn.setAttribute('title', headerAlertTooltip.textContent);
-  }
-
-  const helpMenuBadge = Utils.getEl('header-help-menu-alert-badge');
-  if (helpMenuBadge) {
-    helpMenuBadge.textContent = String(preventivas7dCount);
-    helpMenuBadge.hidden = preventivas7dCount <= 0;
-  }
-  const helpBtn = Utils.getEl('header-help-btn');
-  if (helpBtn) {
-    if (preventivas7dCount > 0) helpBtn.setAttribute('data-has-alerts', '1');
-    else helpBtn.removeAttribute('data-has-alerts');
-  }
-
   const statusSistema = Utils.getEl('status-sistema');
   const statusFalhas = Utils.getEl('status-falhas');
   const statusFalhasTxt = Utils.getEl('status-falhas-txt');

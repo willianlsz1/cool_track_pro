@@ -47,7 +47,6 @@ describe('navigationMode', () => {
         'equipamentos',
         'historico',
         'relatorio',
-        'alertas',
         'orcamentos',
       ],
       sidebarSecondary: [],

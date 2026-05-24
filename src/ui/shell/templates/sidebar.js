@@ -37,12 +37,6 @@ const ICON_FILE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
   <line x1="9" y1="11" x2="15" y2="11"/>
 </svg>`;
 
-const ICON_BELL = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9Z"/>
-  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-</svg>`;
-
 const ICON_CROWN = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
   stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
   <path d="M2 8l5 5 5-9 5 9 5-5-2 12H4z"/>
@@ -131,11 +125,6 @@ export function renderShellSidebar() {
 
     <div class="app-sidebar__section">
       <div class="app-sidebar__section-kicker">Sistema</div>
-      <button type="button" class="app-sidebar__nav-item"
-        id="sidenav-alertas" data-nav="alertas">
-        ${ICON_BELL}<span>Alertas</span>
-        <span class="app-sidebar__nav-badge" id="sidenav-alerta-badge" hidden>0</span>
-      </button>
       <button type="button" class="app-sidebar__nav-item"
         id="sidenav-orcamentos" data-nav="orcamentos">
         ${ICON_FILE_TEXT}<span>Orçamentos</span>

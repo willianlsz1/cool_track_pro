@@ -171,7 +171,6 @@ describe('global header legacy contracts', () => {
         'app-header__actions',
         'header-sync',
         'header-icon-btn',
-        'header-alert-btn',
         'header-help-menu',
         'header-avatar',
         'header-stats-bar',
@@ -183,7 +182,6 @@ describe('global header legacy contracts', () => {
     );
 
     [
-      HEADER_ACTIONS.goAlertas,
       HEADER_ACTIONS.goOrcamentos,
       HEADER_ACTIONS.openPmocModal,
       HEADER_ACTIONS.openPmocInfo,
@@ -225,17 +223,14 @@ describe('global header legacy contracts', () => {
     const header = document.getElementById(HEADER_PUBLIC_IDS.root);
     const sync = document.getElementById(HEADER_PUBLIC_IDS.syncStatus);
     const syncText = document.getElementById(HEADER_PUBLIC_IDS.syncStatusText);
-    const alertPill = document.getElementById(HEADER_PUBLIC_IDS.alertPill);
-    const alertTooltip = document.getElementById(HEADER_PUBLIC_IDS.alertTooltip);
 
     expect(sync?.hidden).toBe(false);
     expect(sync?.classList.contains('status-indicator--warn')).toBe(true);
     expect(syncText?.textContent).toContain('(2)');
-    expect(alertPill?.hidden).toBe(false);
-    expect(alertPill?.textContent).toBe('2');
-    expect(alertTooltip?.textContent).toContain('2');
-    expect(document.getElementById(HEADER_PUBLIC_IDS.helpAlertBadge)?.textContent).toBe('2');
-    expect(document.getElementById(HEADER_PUBLIC_IDS.helpButton)?.dataset.hasAlerts).toBe('1');
+    expect(document.querySelector('.header-alert-btn')).toBeNull();
+    expect(
+      document.getElementById(HEADER_PUBLIC_IDS.helpButton)?.dataset.hasAlerts,
+    ).toBeUndefined();
     expect(document.getElementById(HEADER_PUBLIC_IDS.statsTotal)?.textContent).toBe('1/2');
     expect(document.getElementById(HEADER_PUBLIC_IDS.statsAlert)?.textContent).toBe('1');
     assertNoUnsafeHtml(header);

@@ -126,7 +126,6 @@
               <section class="dash__section" id="dash-alerts-section" hidden>
                 <header class="dash__section-header">
                   <span class="dash__section-label">Alertas de manutenção</span>
-                  <button class="btn btn--ghost btn--sm" type="button" data-action="go-alertas">Ver todos</button>
                 </header>
                 <div id="dash-alertas-mini"></div>
               </section>
@@ -841,13 +840,6 @@
             Mais recente primeiro
           </div>
           <div id="timeline" role="list"></div>
-        </div>
-
-        <!-- ALERTAS -->
-        <div class="view" id="view-alertas">
-          <div class="section-title">Alertas e Anormalidades registradas</div>
-          <div id="alertas-contextual"></div>
-          <div id="lista-alertas" role="list"></div>
         </div>
 
         <!-- CLIENTES (full redesign abr/2026: KPIs + alert + filtros + cards + paginacao).

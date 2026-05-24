@@ -6,7 +6,6 @@ const routeIds = [
   'equipamentos',
   'registro',
   'historico',
-  'alertas',
   'relatorio',
   'clientes',
   'conta',
@@ -46,10 +45,6 @@ vi.mock('../../ui/views/historico.js', () => ({
   clearHistClienteFilter: vi.fn(),
   unmountHistoricoFilters: vi.fn(),
   unmountHistoricoTimeline: vi.fn(),
-}));
-vi.mock('../../ui/views/alertas.js', () => ({
-  renderAlertas: makeRenderSpy('alertas'),
-  unmountAlertas: vi.fn(),
 }));
 vi.mock('../../ui/views/relatorio.js', () => ({
   renderRelatorio: makeRenderSpy('relatorio'),
@@ -95,7 +90,6 @@ describe('contracts/routes', () => {
 
   it('keeps the public route list without commercial route', () => {
     expect([...routeIds].sort()).toEqual([
-      'alertas',
       'clientes',
       'conta',
       'equipamentos',

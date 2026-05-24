@@ -14,7 +14,6 @@ const PRIMARY_NAV_LAYOUT = {
     'equipamentos',
     'historico',
     'relatorio',
-    'alertas',
     'orcamentos',
   ],
   sidebarSecondary: [],

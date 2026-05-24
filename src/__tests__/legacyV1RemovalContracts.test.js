@@ -36,4 +36,28 @@ describe('legacy v1 removal contracts', () => {
     expect(contaSource).not.toContain("goTo('privacidade')");
     expect(contaSource).toContain('/legal/privacidade.html');
   });
+
+  it('does not keep the legacy alertas standalone route, view or shell shortcuts', () => {
+    const routesSource = readSource('src/ui/controller/routes.js');
+    const shellViewsSource = readSource('src/ui/shell/templates/views.js');
+    const sidebarSource = readSource('src/ui/shell/templates/sidebar.js');
+    const headerSource = readSource('src/ui/shell/templates/header.js');
+    const headerComposableSource = readSource('src/ui/composables/header.js');
+    const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
+    const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
+
+    expect(existsSync('src/ui/views/alertas.js')).toBe(false);
+    expect(existsSync('src/ui/viewModels/alertasViewModel.js')).toBe(false);
+    expect(routesSource).not.toContain('renderAlertas');
+    expect(routesSource).not.toContain("registerRoute('alertas'");
+    expect(shellViewsSource).not.toContain('view-alertas');
+    expect(shellViewsSource).not.toContain('alertas-contextual');
+    expect(shellViewsSource).not.toContain('lista-alertas');
+    expect(sidebarSource).not.toContain('data-nav="alertas"');
+    expect(headerSource).not.toContain('data-action="go-alertas"');
+    expect(headerComposableSource).not.toContain('header-alert-pill');
+    expect(headerComposableSource).not.toContain('header-help-menu-alert-badge');
+    expect(navigationHandlersSource).not.toContain("on('go-alertas'");
+    expect(navigationModeSource).not.toContain("'alertas'");
+  });
 });

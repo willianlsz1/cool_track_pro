@@ -32,7 +32,6 @@ describe('contracts/selectors (static)', () => {
   const historico = source('src/ui/views/historico.js');
   const relatorio = source('src/ui/views/relatorio.js');
   const clientes = source('src/ui/views/clientes.js');
-  const alertas = source('src/ui/views/alertas.js');
 
   describe('dashboard', () => {
     it('data-action', () => expect(extract(dashboard, 'data-action')).toMatchInlineSnapshot(`[]`));
@@ -111,10 +110,5 @@ describe('contracts/selectors (static)', () => {
     it('data-action', () => expect(extract(clientes, 'data-action')).toMatchInlineSnapshot(`[]`));
     it('data-nav', () => expect(extract(clientes, 'data-nav')).toMatchInlineSnapshot(`[]`));
     it('data-id', () => expect(extract(clientes, 'data-id')).toMatchInlineSnapshot(`[]`));
-  });
-  describe('alertas', () => {
-    it('data-action', () => expect(extract(alertas, 'data-action')).toMatchInlineSnapshot(`[]`));
-    it('data-nav', () => expect(extract(alertas, 'data-nav')).toMatchInlineSnapshot(`[]`));
-    it('data-id', () => expect(extract(alertas, 'data-id')).toMatchInlineSnapshot(`[]`));
   });
 });

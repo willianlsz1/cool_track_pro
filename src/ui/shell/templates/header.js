@@ -26,21 +26,6 @@
             <span class="header-sync__text" id="sync-status-txt">pendente</span>
           </div>
 
-          <!-- Alertas (sino com pill de contagem) -->
-          <button
-            class="header-icon-btn header-alert-btn"
-            data-action="go-alertas"
-            aria-label="Abrir alertas"
-            title="Abrir alertas"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 8a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-              <path d="M10 18a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <span class="header-alert-pill" id="header-alert-pill" hidden>0</span>
-            <span class="header-alert-tooltip" id="header-alert-tooltip" role="tooltip" hidden></span>
-          </button>
-
           <!-- Gear de ajuda operacional -->
           <div class="header-settings">
             <button
@@ -68,10 +53,6 @@
 
               <section class="header-help-menu__section" aria-label="Actions">
                 <p class="header-help-menu__section-title">ACTIONS</p>
-                <button type="button" class="header-help-menu__item" data-action="go-alertas">
-                  🔔 Alertas
-                  <span class="header-help-menu__badge" id="header-help-menu-alert-badge" hidden>0</span>
-                </button>
                 <button type="button" class="header-help-menu__item" data-action="go-orcamentos">
                   🧾 Orçamentos
                 </button>

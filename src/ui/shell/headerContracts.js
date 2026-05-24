@@ -4,11 +4,8 @@ export const HEADER_PUBLIC_IDS = Object.freeze({
   logoPillText: 'app-logo-pill-text',
   syncStatus: 'sync-status',
   syncStatusText: 'sync-status-txt',
-  alertPill: 'header-alert-pill',
-  alertTooltip: 'header-alert-tooltip',
   helpButton: 'header-help-btn',
   helpMenu: 'header-help-menu',
-  helpAlertBadge: 'header-help-menu-alert-badge',
   helpGoClientes: 'header-help-go-clientes',
   helpClientesUpsell: 'header-help-clientes-upsell',
   avatar: 'header-avatar',
@@ -37,9 +34,6 @@ export const HEADER_PUBLIC_CLASSES = Object.freeze([
   'header-sync__icon',
   'header-sync__text',
   'header-icon-btn',
-  'header-alert-btn',
-  'header-alert-pill',
-  'header-alert-tooltip',
   'header-settings',
   'header-help-menu',
   'header-help-menu__top-cta',
@@ -70,7 +64,6 @@ export const HEADER_PUBLIC_CLASSES = Object.freeze([
 ]);
 
 export const HEADER_ACTIONS = Object.freeze({
-  goAlertas: 'go-alertas',
   toggleHelpMenu: 'toggle-help-menu',
   goOrcamentos: 'go-orcamentos',
   openPmocModal: 'open-pmoc-modal',

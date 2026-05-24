@@ -34,11 +34,6 @@ vi.mock('../ui/views/historico.js', () => ({
   clearHistClienteFilter: vi.fn(),
 }));
 
-vi.mock('../ui/views/alertas.js', () => ({
-  renderAlertas: vi.fn(),
-  unmountAlertas: vi.fn(),
-}));
-
 vi.mock('../ui/views/relatorio.js', () => ({
   renderRelatorio: vi.fn(),
   populateRelatorioSelects: vi.fn(),
