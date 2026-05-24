@@ -1,5 +1,4 @@
-const closeSignatureCaptureIfOpen = vi.fn(() => true);
-const closeSignatureViewerIfOpen = vi.fn(() => true);
+const closeCustomBlockingLayer = vi.fn(() => true);
 
 function mountRouterDom() {
   document.body.innerHTML = `
@@ -21,24 +20,12 @@ async function loadRouterModule() {
   vi.resetModules();
   const mod = await import('../core/router.js');
   routerModule = mod;
-  // Refactor pos-PR: router nao importa mais de ui/* — quem registra os
-  // blocking layers e o controller. Nos testes, simulamos isso aqui pra
-  // manter cobertura do comportamento (popstate fechar signature modals).
   mod.registerBlockingLayer({
-    id: 'signature-capture',
+    id: 'custom-blocking-layer',
     isOpen: () =>
-      Boolean(document.getElementById('modal-signature-overlay')?.classList.contains('is-open')),
-    close: () => closeSignatureCaptureIfOpen(),
-    getElement: () => document.getElementById('modal-signature-overlay'),
-  });
-  mod.registerBlockingLayer({
-    id: 'signature-viewer',
-    isOpen: () =>
-      Boolean(
-        document.getElementById('modal-signature-viewer-overlay')?.classList.contains('is-open'),
-      ),
-    close: () => closeSignatureViewerIfOpen(),
-    getElement: () => document.getElementById('modal-signature-viewer-overlay'),
+      Boolean(document.getElementById('custom-blocking-overlay')?.classList.contains('is-open')),
+    close: () => closeCustomBlockingLayer(),
+    getElement: () => document.getElementById('custom-blocking-overlay'),
   });
   return mod;
 }
@@ -47,8 +34,7 @@ describe('router', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.useRealTimers();
-    closeSignatureCaptureIfOpen.mockClear();
-    closeSignatureViewerIfOpen.mockClear();
+    closeCustomBlockingLayer.mockClear();
     mountRouterDom();
   });
 
@@ -402,14 +388,14 @@ describe('router', () => {
     expect(pushSpy).toHaveBeenCalledTimes(pushesAntes);
   });
 
-  it('consome popstate para fechar assinatura (capture) sem trocar rota', async () => {
+  it('consome popstate para fechar camada bloqueante customizada sem trocar rota', async () => {
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
     const pushSpy = vi.spyOn(window.history, 'pushState');
 
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="modal-signature-overlay" class="sig-capture-modal is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
 
     registerRoute('inicio', vi.fn());
@@ -420,30 +406,7 @@ describe('router', () => {
 
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
 
-    expect(closeSignatureCaptureIfOpen).toHaveBeenCalled();
-    expect(onEnterRegistros).not.toHaveBeenCalled();
-    expect(pushSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('consome popstate para fechar assinatura (viewer) sem trocar rota', async () => {
-    const { registerRoute, goTo, initHistory } = await loadRouterModule();
-    const onEnterRegistros = vi.fn();
-    const pushSpy = vi.spyOn(window.history, 'pushState');
-
-    document.body.insertAdjacentHTML(
-      'beforeend',
-      `<div id="modal-signature-viewer-overlay" class="hist-signature-modal is-open"></div>`,
-    );
-
-    registerRoute('inicio', vi.fn());
-    registerRoute('registros', onEnterRegistros);
-
-    goTo('inicio');
-    initHistory();
-
-    window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
-
-    expect(closeSignatureViewerIfOpen).toHaveBeenCalled();
+    expect(closeCustomBlockingLayer).toHaveBeenCalled();
     expect(onEnterRegistros).not.toHaveBeenCalled();
     expect(pushSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
   });
@@ -452,7 +415,7 @@ describe('router', () => {
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
 
-    // Ordem no DOM define topo: modal padrão -> lightbox -> assinatura viewer (topo).
+    // Ordem no DOM define topo: modal padrão -> lightbox -> camada customizada.
     document.body.insertAdjacentHTML(
       'beforeend',
       `<div id="modal-add-eq" class="modal-overlay is-open"></div>`,
@@ -463,7 +426,7 @@ describe('router', () => {
     );
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="modal-signature-viewer-overlay" class="hist-signature-modal is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
 
     registerRoute('inicio', vi.fn());
@@ -474,7 +437,7 @@ describe('router', () => {
 
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
 
-    expect(closeSignatureViewerIfOpen).toHaveBeenCalled();
+    expect(closeCustomBlockingLayer).toHaveBeenCalled();
     expect(document.getElementById('modal-add-eq').classList.contains('is-open')).toBe(true);
     expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(true);
     expect(onEnterRegistros).not.toHaveBeenCalled();

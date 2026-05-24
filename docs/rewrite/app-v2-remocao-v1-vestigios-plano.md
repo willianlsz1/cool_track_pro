@@ -607,6 +607,12 @@ Progresso executado:
   assinaturas pendentes em `src/core/storage.js` e os testes dedicados de
   storage/flush/resolver. Router global e campo persistido
   `registros.assinatura` permanecem para CPs proprios.
+- CP-55E remove do router os IDs legados dos modais de assinatura
+  (`modal-signature-overlay`, `modal-signature-viewer-overlay`,
+  `signature-capture` e `signature-viewer`) e preserva apenas a API generica
+  `registerBlockingLayer` para outras camadas bloqueantes. A superficie inerte
+  de assinatura no Registro e o campo `registros.assinatura` permanecem para
+  CPs proprios.
 
 Controle:
 

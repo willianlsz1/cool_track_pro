@@ -131,7 +131,7 @@ function closeTopBlockingLayer() {
     });
   }
 
-  // Camadas registradas via registerBlockingLayer (signature modals etc.).
+  // Camadas registradas via registerBlockingLayer.
   // Inversao de dependencia — core não importa de ui/* mais.
   _blockingLayerRegistry.forEach((entry) => {
     if (!entry.isOpen()) return;
@@ -182,20 +182,13 @@ function countOpenBlockingLayers() {
   if (typeof document === 'undefined') return 0;
   const modalCount = document.querySelectorAll('.modal-overlay.is-open').length;
   const lightboxCount = document.getElementById('lightbox')?.classList.contains('is-open') ? 1 : 0;
-  const sigCaptureCount = document
-    .getElementById('modal-signature-overlay')
-    ?.classList.contains('is-open')
-    ? 1
-    : 0;
-  const sigViewerCount = document
-    .getElementById('modal-signature-viewer-overlay')
-    ?.classList.contains('is-open')
-    ? 1
-    : 0;
+  const registeredLayerCount = [..._blockingLayerRegistry.values()].filter((entry) =>
+    entry.isOpen(),
+  ).length;
   // Overflow modal existe no DOM só enquanto aberto (sem class is-open),
   // então basta checar presença (audit §1.3).
   const overflowCount = document.getElementById('dash-overflow-modal') ? 1 : 0;
-  return modalCount + lightboxCount + sigCaptureCount + sigViewerCount + overflowCount;
+  return modalCount + lightboxCount + registeredLayerCount + overflowCount;
 }
 
 function syncBlockingLayerHistoryDepth() {

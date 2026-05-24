@@ -339,6 +339,15 @@ describe('legacy v1 removal contracts', () => {
     expect(storageSource).not.toContain('signatureStorage');
   });
 
+  it('does not keep legacy signature modal ids in router blocking layers', () => {
+    const routerSource = readSource('src/core/router.js');
+
+    expect(routerSource).not.toContain('modal-signature-overlay');
+    expect(routerSource).not.toContain('modal-signature-viewer-overlay');
+    expect(routerSource).not.toContain('signature-capture');
+    expect(routerSource).not.toContain('signature-viewer');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);
