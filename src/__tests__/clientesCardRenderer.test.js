@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderCard } from '../ui/views/clientes/cardRenderer.js';
+import { renderCard } from '../ui/views/clientes/pageRenderer.js';
 
 describe('clientes cardRenderer', () => {
   it('renderCard suporta data indefinido sem quebrar', () => {

@@ -203,12 +203,16 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `openRegistroEquipPicker` e `syncRegistroEquipLabel` nao tinham import ativo
   fora da propria cobertura legada; os seletores CSS/markup remanescentes ficam
   para CP de CSS/runtime v1.
+- CP-33 removeu o renderer legado `src/ui/views/clientes/cardRenderer.js`,
+  co-localizando `renderCard` em `src/ui/views/clientes/pageRenderer.js`, que e
+  seu unico consumidor runtime. O teste dedicado passou a importar pelo
+  renderer da pagina.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 155 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 154 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
