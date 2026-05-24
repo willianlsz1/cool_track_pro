@@ -8,7 +8,7 @@ import {
   normalizeRegistroServiceTypeValue,
   validateRegistroOperationalFieldsData,
   validateRegistroPayloadDraftData,
-} from '../../save/payload.js';
+} from '../ui/views/registro/save/payload.js';
 
 const baseValues = {
   equipId: 'eq-1',
@@ -144,7 +144,7 @@ describe('registro save payload helpers', () => {
 
   it('nao importa o adapter legado de Registro', () => {
     const source = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/features/registro/save/payload.js'),
+      path.resolve(process.cwd(), 'src/ui/views/registro/save/payload.js'),
       'utf8',
     );
 

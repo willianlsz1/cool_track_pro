@@ -1,5 +1,5 @@
-import { validateOperationalPayload } from '../../../core/equipmentRules.js';
-import { validateRegistroPayload } from '../../../core/inputValidation.js';
+import { validateOperationalPayload } from '../../../../core/equipmentRules.js';
+import { validateRegistroPayload } from '../../../../core/inputValidation.js';
 
 export function normalizeRegistroServiceTypeValue(
   values,

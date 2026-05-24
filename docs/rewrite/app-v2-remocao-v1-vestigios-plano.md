@@ -98,6 +98,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/registro/checklist/**` foi removido no CP-9u; helpers puros de
   checklist PMOC da UI legada de Registro foram co-localizados em
   `src/ui/views/registro/checklist/**`.
+- `src/features/registro/save/payload.js` foi removido no CP-9v; helpers puros
+  de payload/validacao do save de Registro foram co-localizados em
+  `src/ui/views/registro/save/payload.js`, com teste movido para
+  `src/__tests__/registroSavePayloadHelpers.test.js`.
 
 ## 3. Superficies v1 mapeadas
 
@@ -105,8 +109,8 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 
 - `src/ui/`: 171 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: ainda existe, concentrado em `registro/save` e
-  `userData.js`.
+- `src/features/`: ainda existe, concentrado nos demais helpers de
+  `registro/save` e em `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
@@ -115,8 +119,8 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 ### 3.2 Acoplamentos que impedem delecao em massa
 
 - `src/domain/pdf/shareReport.js` importa componente de onboarding legado.
-- `src/features/registro/save/**` ainda cruza fluxo legado de registro, fotos,
-  assinatura, relatorio, share e persistencia local.
+- Os helpers restantes de `src/features/registro/save/**` ainda cruzam fluxo
+  legado de registro, fotos, assinatura, relatorio, share e persistencia local.
 - Testes legados cobrem seguranca de assinatura, storage, PDF, WhatsApp,
   relatorios e contratos DOM.
 

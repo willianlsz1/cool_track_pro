@@ -47,7 +47,7 @@ import {
   normalizeRegistroServiceTypeValue,
   validateRegistroOperationalFieldsData,
   validateRegistroPayloadDraftData,
-} from '../../features/registro/save/payload.js';
+} from './registro/save/payload.js';
 import {
   buildRegistroPhotoPayload,
   getRegistroPhotoState,

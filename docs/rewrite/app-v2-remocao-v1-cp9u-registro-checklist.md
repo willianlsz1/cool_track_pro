@@ -38,5 +38,6 @@ git diff --cached --check
 
 Restam `src/features/registro/save/**` e `src/features/userData.js`.
 `registro/save` deve ser tratado em subgrupos pequenos porque cruza payload,
-persistencia, fotos, assinatura, relatorio e share. `userData.js` permanece
-sensivel por envolver auth, LGPD e Edge Functions.
+persistencia, fotos, assinatura, relatorio e share. O subgrupo mais seguro para
+o proximo checkpoint e `payload.js`, por ser helper puro sem DOM/Toast/Storage.
+`userData.js` permanece sensivel por envolver auth, LGPD e Edge Functions.
