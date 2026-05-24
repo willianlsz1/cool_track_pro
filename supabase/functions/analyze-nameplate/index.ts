@@ -222,12 +222,12 @@ function planGateCode(planCode: string): string {
 }
 
 /**
- * Pricing table do modelo usado. Valores em USD por 1M tokens (fonte:
- * https://www.anthropic.com/pricing#api — snapshot de 2026-04). Se trocarmos
+ * Cost table do modelo usado. Valores em USD por 1M tokens (fonte:
+ * documentacao publica do provedor, snapshot de 2026-04). Se trocarmos
  * o modelo, atualizar aqui. Cache mais novo é ignorado: nameplate tem
  * mensagem sempre nova (imagem única), cache hit ratio ~0.
  */
-const CLAUDE_SONNET_4_6_PRICING = {
+const CLAUDE_SONNET_4_6_COSTS = {
   inputUsdPer1M: 3, // $3 por 1M tokens de input
   outputUsdPer1M: 15, // $15 por 1M tokens de output
 };
@@ -235,7 +235,7 @@ const CLAUDE_SONNET_4_6_PRICING = {
 function computeCostUsd(model: string, inputTokens: number, outputTokens: number): number {
   // Só Sonnet 4-6 por enquanto — se adicionarmos mais modelos, generalizar.
   if (model !== 'claude-sonnet-4-6') return 0;
-  const p = CLAUDE_SONNET_4_6_PRICING;
+  const p = CLAUDE_SONNET_4_6_COSTS;
   const cost =
     (Math.max(0, inputTokens) * p.inputUsdPer1M) / 1_000_000 +
     (Math.max(0, outputTokens) * p.outputUsdPer1M) / 1_000_000;

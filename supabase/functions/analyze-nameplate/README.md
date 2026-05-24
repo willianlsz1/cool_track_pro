@@ -29,7 +29,7 @@ Fluxo de UI: ver `src/ui/components/nameplateCapture.js` (hero CTA) + `src/domai
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-api03-...
 ```
 
-Pega a chave em [console.anthropic.com](https://console.anthropic.com) → Settings → API Keys. Coloca crédito no Billing (~US$5 rende ~700 análises).
+Pega a chave em [console.anthropic.com](https://console.anthropic.com) -> Settings -> API Keys. Coloca crédito na conta do provedor (~US$5 rende ~700 análises).
 
 ### 2. Deploy
 
