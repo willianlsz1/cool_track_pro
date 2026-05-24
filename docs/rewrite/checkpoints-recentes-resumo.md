@@ -97,6 +97,8 @@ decisao, do escopo e do risco remanescente.
   Pocock vendorizadas em `matt-pocock-skills/skills/`.
 - Documentos de CP, inventarios, auditorias, planos antigos e READMEs foram
   removidos do controle de versao.
+- A copia duplicada `.agents/skills/` foi removida; a referencia versionada das
+  skills fica em `matt-pocock-skills/skills/`.
 - Novos CPs devem ser resumidos aqui, de forma curta e objetiva, sem recriar
   arquivos `.md` separados.
 - Esta politica nao remove favicon, assets publicos nao Markdown, codigo,
