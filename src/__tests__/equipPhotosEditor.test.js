@@ -99,7 +99,7 @@ vi.mock('../core/modal.js', () => ({
 vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: vi.fn(async () => ({ profile: null })),
 }));
-// subscriptionPlans é importado transitivamente por upgradeNudge/dashboard,
+// subscriptionPlans e importado transitivamente pelo dashboard,
 // então precisamos expor também as constantes (senão importOriginal é o caminho).
 vi.mock('../core/plans/subscriptionPlans.js', async (importOriginal) => {
   const actual = await importOriginal();

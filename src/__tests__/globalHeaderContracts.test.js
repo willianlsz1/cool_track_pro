@@ -119,10 +119,6 @@ async function setupDashboardHeaderModule({
     withSkeleton: (_el, _options, renderFn) => renderFn(),
   }));
 
-  vi.doMock('../ui/components/upgradeNudge.js', () => ({
-    UpgradeNudge: { renderInlineHint: vi.fn(() => '') },
-  }));
-
   vi.doMock('../ui/components/overflowBanner.js', () => ({
     OverflowBanner: {
       computeState: vi.fn(() => ({ overLimit: false })),
@@ -150,7 +146,6 @@ describe('global header legacy contracts', () => {
       '../ui/components/onboarding/onboardingChecklist.js',
       '../ui/components/installAppPrompt.js',
       '../ui/components/skeleton.js',
-      '../ui/components/upgradeNudge.js',
       '../ui/components/overflowBanner.js',
     ].forEach((modulePath) => vi.doUnmock(modulePath));
     document.body.innerHTML = '';

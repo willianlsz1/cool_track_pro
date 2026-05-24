@@ -252,10 +252,6 @@ async function setupDashboardModule({ state = emptyState(), alerts = [] } = {}) 
     InstallAppPrompt: { render: vi.fn() },
   }));
 
-  vi.doMock('../ui/components/upgradeNudge.js', () => ({
-    UpgradeNudge: { renderInlineHint: vi.fn(() => '') },
-  }));
-
   vi.doMock('../ui/components/overflowBanner.js', () => ({
     OverflowBanner: {
       computeState: vi.fn(() => ({ overLimit: false })),

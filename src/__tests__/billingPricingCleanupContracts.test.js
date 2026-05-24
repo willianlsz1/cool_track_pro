@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 function readSource(path) {
@@ -12,5 +12,13 @@ describe('billing/pricing cleanup contracts', () => {
 
     expect(componentsCss).not.toContain('clientes-paywall');
     expect(redesignCss).not.toContain('clientes-paywall');
+  });
+
+  it('does not keep the removed commercial upgrade nudge runtime stub', () => {
+    const dashboardSource = readSource('src/ui/views/dashboard.js');
+
+    expect(existsSync('src/ui/components/upgradeNudge.js')).toBe(false);
+    expect(dashboardSource).not.toContain('UpgradeNudge');
+    expect(dashboardSource).not.toContain('upgradeNudge');
   });
 });

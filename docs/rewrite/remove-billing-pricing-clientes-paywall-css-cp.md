@@ -9,12 +9,17 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 
 - Removido o bloco `.clientes-paywall*` de `src/assets/styles/components.css`.
 - Removidos overrides `.clientes-paywall*` de `src/assets/styles/redesign.css`.
-- Adicionado contrato automatizado para impedir retorno desse CSS orfao.
+- Removido o stub comercial `src/ui/components/upgradeNudge.js`, que ja
+  retornava string vazia depois da retirada de billing/pricing.
+- Adicionado contrato automatizado para impedir retorno desse CSS orfao e do
+  stub de upgrade.
 
 ## Contratos preservados
 
 - Nenhum renderer, rota, storage, PDF/share, WhatsApp, Supabase/RLS ou billing
   novo foi alterado.
+- O slot publico `dash-upgrade-inline-hint` foi preservado e segue limpo no
+  runtime.
 - A camada tecnica de planos/limites permanece como compatibilidade operacional
   para fluxos legados que ainda dependem desses helpers.
 
@@ -31,6 +36,7 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 - RED inicial: `npm test -- src/__tests__/billingPricingCleanupContracts.test.js --run`
   falhou enquanto `.clientes-paywall*` ainda existia nos CSS legados.
 - GREEN: o mesmo teste passou apos a remocao dos blocos orfaos.
+- RED adicional: o teste falhou enquanto o stub `upgradeNudge.js` existia.
 
 ## Riscos remanescentes
 

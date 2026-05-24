@@ -245,10 +245,6 @@ async function setupDashboardModule({
     InstallAppPrompt: { getRenderState: installGetRenderState, render: installRender },
   }));
 
-  vi.doMock('../ui/components/upgradeNudge.js', () => ({
-    UpgradeNudge: { renderInlineHint: vi.fn(() => '') },
-  }));
-
   vi.doMock('../ui/components/overflowBanner.js', async () => {
     const actual = await vi.importActual('../ui/components/overflowBanner.js');
     return {

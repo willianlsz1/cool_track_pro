@@ -19,7 +19,6 @@ import { OnboardingBanner, Profile } from '../components/onboarding.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 import { ContextualOnboarding } from '../components/onboarding/contextualOnboarding.js';
 import { InstallAppPrompt } from '../components/installAppPrompt.js';
-import { UpgradeNudge } from '../components/upgradeNudge.js';
 import { OverflowBanner } from '../components/overflowBanner.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { fetchOperationalProfile } from '../../core/plans/operationalPlan.js';
@@ -1320,15 +1319,9 @@ function _buildReadOnlyBlocksModel({ equipamentos, registros, alerts, isEmpresaP
 function _renderReadOnlyBlocksUpgradeHint({ alerts, planContext }) {
   const hint = document.getElementById(DASHBOARD_PUBLIC_IDS.upgradeInlineHint);
   if (!hint) return;
-  if (!alerts.length || planContext.hasPro) {
-    hint.innerHTML = '';
-    return;
-  }
-
-  hint.innerHTML = UpgradeNudge.renderInlineHint('Exportar relatório em lote', {
-    planCode: planContext.planCode,
-    requiredPlan: 'plus',
-  });
+  void alerts;
+  void planContext;
+  hint.innerHTML = '';
 }
 
 function _renderReadOnlyBlocks({
