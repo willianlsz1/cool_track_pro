@@ -513,6 +513,18 @@ describe('legacy v1 removal contracts', () => {
     expect(historicoRenderHelpersSource).not.toContain('buildClientePmocDetails');
   });
 
+  it('does not keep the legacy Cliente PMOC core helper after removing PMOC surfaces', () => {
+    const runtimeSources = listSourceFiles('src').filter(
+      (file) =>
+        !file.startsWith('src/__tests__/') &&
+        file !== 'src/__tests__/legacyV1RemovalContracts.test.js',
+    );
+
+    expect(existsSync('src/core/clientePmoc.js')).toBe(false);
+    expect(existsSync('src/__tests__/clientePmoc.test.js')).toBe(false);
+    expect(findMatches(runtimeSources, /buildClientePmocDetails|clientePmoc/)).toEqual([]);
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');

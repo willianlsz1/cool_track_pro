@@ -845,6 +845,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58F remove a superficie PMOC do Historico legado: os itens de atencao
   `pmoc-*` deixam de existir e `buildClientePmocDetails` deixa de ser injetado
   no view model/helpers de Historico.
+- CP-58G remove o helper core legado `src/core/clientePmoc.js` e seu teste
+  dedicado depois que nao ha mais consumidor runtime desse resumo PMOC por
+  cliente.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.
