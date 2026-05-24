@@ -39,7 +39,7 @@ contratos publicos ainda cobertos por testes de equipamentos.
 ## Validacao esperada
 
 ```bash
-npm test -- src/__tests__/equipamentosHeaderBridge.test.js src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/ui/headerMount.test.js --run
+npm test -- src/__tests__/equipamentosHeaderBridge.test.js src/__tests__/equipamentosLegacyHeaderHandlers.test.js src/features/equipamentos/__tests__/bridges/headerBridge.test.js src/features/equipamentos/__tests__/ui/headerMount.test.js --run
 rg -n "equipamentosHeaderIsland|EquipamentosHeader|mountEquipamentosHeaderReact|unmountEquipamentosHeaderReact|reactEquipamentosHeaderMounted|data-react-equipamentos-header" src\ui src\features src\react index.html public -S
 npm run format
 npm run build

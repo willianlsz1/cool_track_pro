@@ -327,8 +327,8 @@ afterAll(() => {
   delete document.body.dataset.helpMenuBound;
 });
 
-describe('equipamentos React header with legacy handlers', () => {
-  it('keeps quick filters delegated to the legacy filter state while the React list remains mounted', async () => {
+describe('equipamentos DOM header with legacy handlers', () => {
+  it('keeps quick filters delegated to the legacy filter state while the DOM list remains mounted', async () => {
     await mountHeader();
 
     await click(

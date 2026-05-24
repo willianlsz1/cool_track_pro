@@ -44,7 +44,7 @@ Supabase/RLS, billing ou pricing.
 Executada validacao focada:
 
 ```bash
-npm test -- src/features/equipamentos/__tests__/bridges/listBridge.test.js src/__tests__/equipamentosListRenderer.test.js src/features/equipamentos/__tests__/state/bridgeState.test.js src/features/equipamentos/__tests__/ui/renderFlatList.test.js src/__tests__/equipamentosLegacyHeroFiltersContext.test.js src/__tests__/equipamentosHeaderBridge.test.js src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosLegacyPhotosNameplatePaywall.test.js --run
+npm test -- src/features/equipamentos/__tests__/bridges/listBridge.test.js src/__tests__/equipamentosListRenderer.test.js src/features/equipamentos/__tests__/state/bridgeState.test.js src/features/equipamentos/__tests__/ui/renderFlatList.test.js src/__tests__/equipamentosLegacyHeroFiltersContext.test.js src/__tests__/equipamentosHeaderBridge.test.js src/__tests__/equipamentosLegacyHeaderHandlers.test.js src/__tests__/equipamentosLegacySetorDetailHandlers.test.js src/__tests__/equipamentosLegacyPhotosNameplatePaywall.test.js --run
 ```
 
 Validacao final planejada:

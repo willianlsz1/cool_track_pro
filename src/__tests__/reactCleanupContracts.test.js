@@ -12,6 +12,11 @@ describe('React cleanup contracts', () => {
     expect(existsSync('src/react')).toBe(false);
   });
 
+  it('does not keep stale React island names on legacy DOM handler tests', () => {
+    expect(existsSync('src/__tests__/registroReactFieldHandlers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx')).toBe(false);
+  });
+
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {
     const appEntry = readSource('src/app.js');
     const routesEntry = readSource('src/ui/controller/routes.js');

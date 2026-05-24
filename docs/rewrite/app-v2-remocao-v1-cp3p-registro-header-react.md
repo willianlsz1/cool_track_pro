@@ -53,8 +53,8 @@ PDF/WhatsApp e ciclo de rota.
 ## Validacao executada
 
 ```bash
-npm test -- src/__tests__/registroLegacyHeaderRender.test.js src/__tests__/registroReactFieldHandlers.test.js --run
-npm test -- src/__tests__/registroLegacyHeaderRender.test.js src/__tests__/registroReactFieldHandlers.test.js src/__tests__/registroLegacyChecklistRender.test.js src/__tests__/registroChecklistHandlers.test.js src/__tests__/registroLifecycle.contract.test.js src/__tests__/registroLegacySignatureRender.test.js src/__tests__/registroMateriaisToggle.test.js src/__tests__/registroPdfWhatsappLegacyContracts.test.js src/__tests__/registroPostSaveLegacyFlow.test.js src/__tests__/registroSaveSignatureHandlers.test.js src/__tests__/contracts/registroSelectors.test.js src/__tests__/contracts/routes.test.js src/__tests__/registroRouteLifecycle.test.js --run
+npm test -- src/__tests__/registroLegacyHeaderRender.test.js src/__tests__/registroLegacyFieldHandlers.test.js --run
+npm test -- src/__tests__/registroLegacyHeaderRender.test.js src/__tests__/registroLegacyFieldHandlers.test.js src/__tests__/registroLegacyChecklistRender.test.js src/__tests__/registroChecklistHandlers.test.js src/__tests__/registroLifecycle.contract.test.js src/__tests__/registroLegacySignatureRender.test.js src/__tests__/registroMateriaisToggle.test.js src/__tests__/registroPdfWhatsappLegacyContracts.test.js src/__tests__/registroPostSaveLegacyFlow.test.js src/__tests__/registroSaveSignatureHandlers.test.js src/__tests__/contracts/registroSelectors.test.js src/__tests__/contracts/routes.test.js src/__tests__/registroRouteLifecycle.test.js --run
 ```
 
 Observacao: o conjunto focado ainda emite warning de `act(...)` associado ao

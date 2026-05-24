@@ -21,6 +21,10 @@ renderers DOM, sem alterar o app-v2 React/TypeScript em `src/app-v2/`.
 - O comentario congelado de `src/assets/styles/components.css` passou a apontar
   novas UIs para `src/app-v2` e Tailwind `tw-*`.
 - `reactCleanupContracts.test.js` agora protege a ausencia da arvore `src/react`.
+- Testes legados que ja cobrem handlers DOM tiveram nomes atualizados para
+  remover referencias stale a ilhas React:
+  - `src/__tests__/registroLegacyFieldHandlers.test.js`
+  - `src/__tests__/equipamentosLegacyHeaderHandlers.test.js`
 
 ## Contratos preservados
 
@@ -41,6 +45,8 @@ renderers DOM, sem alterar o app-v2 React/TypeScript em `src/app-v2/`.
 
 - RED inicial: `npm test -- src/__tests__/reactCleanupContracts.test.js --run`
   falhou porque `src/react` ainda existia.
+- RED adicional: o mesmo contrato falhou enquanto nomes antigos de testes
+  legados ainda continham `React`.
 - Validacao final deve incluir:
   - `npm test -- src/__tests__/reactCleanupContracts.test.js --run`
   - `npm run format`
