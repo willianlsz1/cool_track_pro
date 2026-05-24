@@ -31,6 +31,7 @@ const retiredOrphanControllerHandlerFiles = [
 const retiredOrphanLegacyComponentFiles = [
   'src/ui/components/accountModal.js',
   'src/ui/components/offlineBanner.js',
+  'src/ui/components/orcamentoSignaturePage.js',
   'src/ui/components/postSaveRegistroCompletion.js',
   'src/ui/components/registroEquipPicker.js',
   'src/ui/components/usageMeter.js',

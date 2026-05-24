@@ -228,12 +228,17 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/ui/components/onboarding.js`. O Dashboard agora importa `Profile`
   diretamente de `src/core/profile.js`, enquanto o barrel segue limitado a
   onboarding e ao contrato legado `SavedHighlight`.
+- CP-39 removeu o componente legado orfao
+  `src/ui/components/orcamentoSignaturePage.js`. O arquivo declarava uma
+  pagina standalone para `?orc-sign=TOKEN`, mas nao havia import nem bootstrap
+  runtime que chamasse `OrcamentoSignaturePage.mount(token)`. Helpers reais de
+  token/assinatura em `src/core/orcamentos.js` ficaram fora do escopo.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 149 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 148 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,

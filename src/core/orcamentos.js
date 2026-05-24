@@ -332,9 +332,9 @@ export function markExpiredLocally(orcamentos) {
 //   2) generateShareToken() gera UUID + expiração 30d, persiste no orçamento,
 //      muda status para 'aguardando_assinatura'
 //   3) Técnico compartilha link via WhatsApp: ${origin}/?orc-sign=<TOKEN>
-//   4) Cliente abre o link no celular — bootstrap da SPA detecta o param,
-//      monta a view standalone OrcamentoSignaturePage e chama
-//      fetchOrcamentoByToken() (RPC pública)
+//   4) Cliente abre o link no celular — a pagina publica dedicada de assinatura
+//      deve chamar fetchOrcamentoByToken() (RPC publica). A antiga view
+//      standalone v1 foi removida no CP39 de retirada de vestigios.
 //   5) Cliente assina no canvas + nome → signOrcamentoByToken() grava
 //      a assinatura, status vira 'aprovado' automaticamente
 //
@@ -427,7 +427,8 @@ export function buildShareUrl(token) {
 }
 
 /**
- * Lê orçamento via token público — chamado pela view standalone OrcamentoSignaturePage.
+ * Lê orçamento via token público — reservado para a futura página pública de
+ * assinatura de orçamento.
  * NÃO requer auth.
  */
 export async function fetchOrcamentoByToken(token) {
