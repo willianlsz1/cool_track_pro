@@ -28,7 +28,7 @@ import {
 import { goTo } from '../../core/router.js';
 import { getState } from '../../core/state.js';
 import { Toast } from '../../core/toast.js';
-import { exportUserData, deleteUserAccount } from '../../features/userData.js';
+import { exportUserData, deleteUserAccount } from '../account/userData.js';
 import { ProfileModal } from '../components/onboarding.js';
 import { PushOptInCard } from '../components/pushOptInCard.js';
 import { USAGE_RESOURCE_WHATSAPP_SHARE, getMonthlyUsageSnapshot } from '../../core/usageLimits.js';

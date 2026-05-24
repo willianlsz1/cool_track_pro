@@ -30,7 +30,7 @@ vi.mock('../core/errors.js', () => ({
 vi.stubEnv('VITE_SUPABASE_URL', 'https://mock.supabase.co');
 vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'anon-key');
 
-const { exportUserData, deleteUserAccount } = await import('../features/userData.js');
+const { exportUserData, deleteUserAccount } = await import('../ui/account/userData.js');
 
 describe('userData — exportUserData', () => {
   beforeEach(() => {

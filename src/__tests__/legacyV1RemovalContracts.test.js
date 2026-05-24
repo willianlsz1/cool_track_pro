@@ -159,6 +159,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/registro/__tests__/save/reportShare.test.js')).toBe(false);
   });
 
+  it('does not keep user data account handlers under src/features after co-locating with account UI', () => {
+    expect(existsSync('src/features/userData.js')).toBe(false);
+  });
+
   it('does not keep equipamentos detail/view helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/equipamentos/ui/detail.js')).toBe(false);
     expect(existsSync('src/features/equipamentos/ui/detailController.js')).toBe(false);

@@ -14,9 +14,9 @@
  * programático — padrão navegador sem dependência externa.
  */
 
-import { supabase } from '../core/supabase.js';
-import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
-import { AppError, ErrorCodes, handleError } from '../core/errors.js';
+import { supabase } from '../../core/supabase.js';
+import { getSupabaseBrowserConfig } from '../../core/supabaseConfig.js';
+import { AppError, ErrorCodes, handleError } from '../../core/errors.js';
 
 const EXPORT_FN_PATH = '/functions/v1/export-user-data';
 const DELETE_FN_PATH = '/functions/v1/delete-user-account';

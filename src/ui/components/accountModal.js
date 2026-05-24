@@ -14,7 +14,7 @@ import {
 import { getState } from '../../core/state.js';
 import { attachDialogA11y } from '../../core/modal.js';
 import { Toast } from '../../core/toast.js';
-import { exportUserData, deleteUserAccount } from '../../features/userData.js';
+import { exportUserData, deleteUserAccount } from '../account/userData.js';
 
 const ACCOUNT_MODAL_ID = 'account-modal-overlay';
 // Handle do cleanup do focus trap / Escape para o overlay atual.

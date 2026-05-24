@@ -117,6 +117,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/features/registro/save/reportShare.js` foram removidos no CP-9z; helpers
   de pos-salvamento/share de Registro foram co-localizados em
   `src/ui/views/registro/save/`, preservando PDF/WhatsApp por DI.
+- `src/features/userData.js` foi removido no CP-10; handlers client-side de
+  exportacao/exclusao de dados foram co-localizados em
+  `src/ui/account/userData.js`, preservando Supabase Edge Functions por DI
+  implicita existente.
 
 ## 3. Superficies v1 mapeadas
 
@@ -124,7 +128,7 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 
 - `src/ui/`: 171 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: ainda existe, concentrado em `userData.js`.
+- `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
@@ -299,10 +303,11 @@ Commit sugerido:
 
 ### CP-5 - Remover features legadas apos extracao
 
-Objetivo: remover `src/features/**` que servia apenas ao v1, preservando apenas
-modulos que forem formalmente reclassificados como `domain` ou `core`.
+Objetivo: remover `src/features/**` que servia apenas ao v1. Concluido por
+checkpoints pequenos entre CP-9a e CP-10, com co-localizacao em `src/ui/**` ou
+reclassificacao para areas existentes quando aplicavel.
 
-Escopo provavel:
+Escopo removido:
 
 - `src/features/equipamentos/**`
 - `src/features/historico/**`
@@ -311,9 +316,9 @@ Escopo provavel:
 
 Controle:
 
-- Cada dominio deve ter `rg` de import antes da remocao.
-- Regras reutilizaveis devem ser movidas para `src/domain/**` com testes puros,
-  nao copiadas para app-v2.
+- Cada dominio teve `rg` de import antes da remocao.
+- Regras reutilizaveis foram co-localizadas junto ao adapter legado ou mantidas
+  nas areas `core/domain/ui` existentes, sem copiar logica para app-v2.
 
 Validacao:
 
