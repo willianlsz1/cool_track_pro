@@ -212,12 +212,15 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `renderAlertStrip` em `src/ui/views/clientes/pageRenderer.js`, que e seu unico
   consumidor runtime. O teste dedicado passou a importar pelo renderer da
   pagina e os textos tocados do resumo foram corrigidos para portugues legivel.
+- CP-35 removeu o helper legado `src/ui/helpers/equipamentosPure.js` e seu teste
+  dedicado. O helper nao tinha consumidor runtime; as funcoes equivalentes
+  usadas por Equipamentos permanecem em `src/ui/views/equipamentos/helpers.js`.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 153 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 152 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
