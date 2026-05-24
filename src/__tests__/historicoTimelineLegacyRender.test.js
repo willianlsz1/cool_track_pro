@@ -220,7 +220,7 @@ describe('historico legacy #timeline render', () => {
     ).not.toBeNull();
     expect(
       timeline.querySelector(
-        '[data-hist-action="hist-open-photo"][data-photo-url="https://cdn.example/foto-1.jpg"]',
+        '.timeline__item__photos-thumb img[src="https://cdn.example/foto-1.jpg"]',
       ),
     ).not.toBeNull();
     expect(

@@ -3,7 +3,6 @@ import {
   handleError as defaultHandleError,
 } from '../../../../core/errors.js';
 import { Utils as defaultUtils } from '../../../../core/utils.js';
-import { Photos as defaultPhotos } from '../../../components/photos.js';
 
 function defaultImportModal() {
   return import('../../../../core/modal.js');
@@ -17,7 +16,6 @@ export function mountViewEquipDetail(html, deps = {}) {
 export function bindViewEquipDetailCoverActions(firstPhotoUrl, deps = {}) {
   const documentRef = deps.documentRef ?? document;
   const HTMLImageElementCtor = deps.HTMLImageElementCtor ?? HTMLImageElement;
-  const Photos = deps.Photos ?? defaultPhotos;
 
   const coverImg = documentRef.querySelector('.eq-detail-cover__img');
   if (coverImg instanceof HTMLImageElementCtor) {
@@ -37,12 +35,7 @@ export function bindViewEquipDetailCoverActions(firstPhotoUrl, deps = {}) {
       { once: true },
     );
   }
-  const coverPreviewHit = documentRef.querySelector('.eq-detail-cover__preview-hit');
-  if (coverPreviewHit && firstPhotoUrl) {
-    coverPreviewHit.addEventListener('click', () => {
-      Photos.openLightbox(firstPhotoUrl);
-    });
-  }
+  void firstPhotoUrl;
 }
 
 export async function openViewEquipDetailModal(id, deps = {}) {

@@ -66,14 +66,7 @@ export function renderViewEquipCoverBlock(model, deps) {
     </div>`;
   const coverInner = firstPhotoUrl
     ? `<img class="eq-detail-cover__img" src="${Utils.escapeAttr(firstPhotoUrl)}" alt="Foto de ${Utils.escapeAttr(eq.nome)}" loading="lazy" />
-       ${coverFallback}
-       <button type="button" class="eq-detail-cover__preview-hit" aria-label="Ampliar foto de ${Utils.escapeAttr(eq.nome)}"></button>
-       <span class="eq-detail-cover__zoom-hint" aria-hidden="true">
-         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-           <circle cx="11" cy="11" r="7"/><path d="M11 8v6M8 11h6M20 20l-3.5-3.5"/>
-         </svg>
-         ampliar
-       </span>`
+       ${coverFallback}`
     : coverFallback;
   const coverHasPhotoClass = firstPhotoUrl
     ? ' eq-detail-cover--has-photo'

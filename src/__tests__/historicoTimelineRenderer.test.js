@@ -214,7 +214,7 @@ describe('historico timeline DOM renderer', () => {
 
     expect(
       root?.querySelector(
-        '[data-hist-action="hist-open-photo"][data-photo-url="https://cdn.example/foto-safe.jpg"]',
+        '.timeline__item__photos-thumb img[src="https://cdn.example/foto-safe.jpg"]',
       ),
     ).not.toBeNull();
     expect(root?.querySelector('[data-photo-url^="javascript:"]')).toBeNull();
@@ -244,13 +244,10 @@ describe('historico timeline DOM renderer', () => {
     root
       ?.querySelector('[data-action="delete-reg"][data-id="reg-1"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    root
-      ?.querySelector('[data-hist-action="hist-open-photo"]')
-      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(delegatedHandler).toHaveBeenCalledWith('edit-reg');
     expect(delegatedHandler).toHaveBeenCalledWith('delete-reg');
-    expect(delegatedHandler).toHaveBeenCalledWith('hist-open-photo');
+    expect(delegatedHandler).not.toHaveBeenCalledWith('hist-open-photo');
     expect(root?.querySelector('[data-hist-action="hist-view-signature"]')).toBeNull();
     expect(delegatedHandler).not.toHaveBeenCalledWith('hist-view-signature');
   });

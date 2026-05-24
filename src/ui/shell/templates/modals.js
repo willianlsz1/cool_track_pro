@@ -1020,11 +1020,6 @@ export function renderShellModals() {
     </div>
   </div>
 
-  <!-- LIGHTBOX -->
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visualizar foto">
-    <button class="lightbox__close" aria-label="Fechar">✕</button>
-    <img class="lightbox__img" id="lightbox-img" src="" alt="Registro fotográfico" />
-  </div>
 
 `;
 }

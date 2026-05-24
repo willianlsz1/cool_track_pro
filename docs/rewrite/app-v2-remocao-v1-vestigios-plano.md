@@ -687,6 +687,10 @@ Progresso executado:
   `open-eq-photos-editor`, `save-eq-photos`, `modal-eq-photos`,
   `EquipmentPhotos` e o modulo `src/ui/views/equipamentos/fotos.js`. A leitura
   de fotos existentes como capa/preview permanece ate o CP de Historico/storage.
+- CP-57F aposenta o runtime legado de lightbox de fotos: remove
+  `src/ui/components/photos.js`, `Photos.openLightbox`, `hist-open-photo`,
+  `data-photo-url`, o handler `close-lightbox` e o markup `#lightbox`. Fotos
+  antigas seguem apenas como imagens estaticas ate o CP de storage.
 
 Controle:
 

@@ -1,7 +1,6 @@
 ﻿import { on } from '../../../core/events.js';
 import { Modal } from '../../../core/modal.js';
 import { goTo } from '../../../core/router.js';
-import { Photos } from '../../components/photos.js';
 import { SupportFeedbackModal } from '../../components/supportFeedbackModal.js';
 import { Toast } from '../../../core/toast.js';
 import { Tour } from '../../components/tour.js';
@@ -291,7 +290,6 @@ export function bindNavigationHandlers() {
     });
   });
 
-  on('close-lightbox', () => Photos.closeLightbox());
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"
   on('onboarding-dismiss', () => {
     OnboardingChecklist.dismiss();

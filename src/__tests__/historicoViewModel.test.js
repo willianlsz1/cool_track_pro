@@ -202,9 +202,9 @@ describe('historico view model', () => {
       editReg: 'edit-reg',
       deleteReg: 'delete-reg',
       filterEquip: 'hist-filter-equip',
-      openPhoto: 'hist-open-photo',
       clearAll: 'hist-clear-all',
     });
+    expect(HISTORICO_ACTIONS).not.toHaveProperty('openPhoto');
     expect(HISTORICO_ACTIONS).not.toHaveProperty('viewSignature');
     expect(HISTORICO_DATA_ATTRIBUTES).toEqual(
       expect.arrayContaining(['data-hist-action', 'data-action', 'data-reg-id', 'data-equip-id']),

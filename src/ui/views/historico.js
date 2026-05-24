@@ -16,7 +16,6 @@ import { Storage } from '../../core/storage.js';
 import { Toast } from '../../core/toast.js';
 import { goTo } from '../../core/router.js';
 import { SavedHighlight } from '../components/onboarding.js';
-import { Photos } from '../components/photos.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
 import { updateGlobalHeader } from '../composables/header.js';
@@ -1411,14 +1410,7 @@ function bindHistoricoCardMenuDelegation(container) {
   });
 }
 
-function bindHistoricoCardLocalActions({ each }) {
-  each('[data-hist-action="hist-open-photo"]', (btn) =>
-    btn.addEventListener('click', () => {
-      const url = btn.dataset.photoUrl;
-      if (url) Photos.openLightbox(url);
-    }),
-  );
-}
+function bindHistoricoCardLocalActions() {}
 
 function attachFilterHandlers(container) {
   // Toggle do card de Insights (collapsed/expanded). Persiste a escolha em

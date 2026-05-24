@@ -219,11 +219,11 @@ function renderPhotoStrip(item) {
       .slice(0, 3)
       .map(
         (url, index) =>
-          `<button type="button" class="timeline__item__photos-thumb" data-hist-action="${
-            HISTORICO_ACTIONS.openPhoto
-          }" data-photo-url="${escapeAttr(url)}" aria-label="Abrir foto ${
+          `<span class="timeline__item__photos-thumb" aria-label="Foto ${
             index + 1
-          }"><img src="${escapeAttr(url)}" alt="Foto ${index + 1} do servico" loading="lazy"></button>`,
+          } do servico"><img src="${escapeAttr(url)}" alt="Foto ${
+            index + 1
+          } do servico" loading="lazy"></span>`,
       )
       .join('')}
     ${

@@ -26,7 +26,6 @@ export const HISTORICO_ACTIONS = Object.freeze({
   clearClienteFilter: 'clear-cliente-filter',
   clearAll: 'hist-clear-all',
   filterEquip: 'hist-filter-equip',
-  openPhoto: 'hist-open-photo',
   toggleCardMenu: 'toggle-card-menu',
   toggleSummary: 'toggle-summary',
   commercialRemovedLink: 'hist-commercial-removed-link',
@@ -47,7 +46,6 @@ export const HISTORICO_DATA_ATTRIBUTES = Object.freeze([
   'data-id',
   'data-reg-id',
   'data-equip-id',
-  'data-photo-url',
   'data-period',
   'data-tipo-id',
 ]);

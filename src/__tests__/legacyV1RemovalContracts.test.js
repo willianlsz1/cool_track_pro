@@ -318,8 +318,7 @@ describe('legacy v1 removal contracts', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const registroTemplateSource = readSource('src/ui/shell/templates/views.js');
     const registroContractsSource = readSource('src/ui/viewModels/registroContracts.js');
-    const photosSource = readSource('src/ui/components/photos.js');
-
+    expect(existsSync('src/ui/components/photos.js')).toBe(false);
     expect(existsSync('src/ui/views/registro/save/photos.js')).toBe(false);
     expect(existsSync('src/__tests__/registroSavePhotosHelpers.test.js')).toBe(false);
     expect(existsSync('src/__tests__/registroLegacyPhotosRender.test.js')).toBe(false);
@@ -334,8 +333,28 @@ describe('legacy v1 removal contracts', () => {
     expect(registroTemplateSource).not.toContain('photo-drop-zone');
     expect(registroContractsSource).not.toContain('inputFotos');
     expect(registroContractsSource).not.toContain('photosRoot');
-    expect(photosSource).not.toContain('MAX_PHOTOS_PER_RECORD');
-    expect(photosSource).not.toContain('renderRegistroPhotosDom');
+  });
+
+  it('does not keep legacy photo lightbox runtime surface', () => {
+    const historicoSource = readSource('src/ui/views/historico.js');
+    const historicoTimelineSource = readSource('src/ui/views/historico/timelineRenderer.js');
+    const equipamentosDetailControllerSource = readSource(
+      'src/ui/views/equipamentos/ui/detailController.js',
+    );
+    const shellModalsSource = readSource('src/ui/shell/templates/modals.js');
+    const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
+
+    expect(existsSync('src/ui/components/photos.js')).toBe(false);
+    expect(historicoSource).not.toContain('Photos.openLightbox');
+    expect(historicoSource).not.toContain('components/photos');
+    expect(historicoTimelineSource).not.toContain('hist-open-photo');
+    expect(historicoTimelineSource).not.toContain('data-photo-url');
+    expect(equipamentosDetailControllerSource).not.toContain('Photos.openLightbox');
+    expect(equipamentosDetailControllerSource).not.toContain('components/photos');
+    expect(shellModalsSource).not.toContain('id="lightbox"');
+    expect(shellModalsSource).not.toContain('lightbox-img');
+    expect(navigationHandlersSource).not.toContain('close-lightbox');
+    expect(navigationHandlersSource).not.toContain('components/photos');
   });
 
   it('does not keep equipamentos v1 photo editor/upload surface', () => {

@@ -81,7 +81,7 @@ describe('equipamentos DOM flat list renderer', () => {
       root?.querySelector(
         `.equip-card__type-icon[data-action="${EQUIPAMENTOS_ACTIONS.openPhotosEditor}"][data-id="eq-1"]`,
       ),
-    ).not.toBeNull();
+    ).toBeNull();
     expect(
       root?.querySelector(
         `.equip-card__primary-cta[data-action="${EQUIPAMENTOS_ACTIONS.goRegisterEquip}"][data-id="eq-1"]`,

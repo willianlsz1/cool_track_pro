@@ -57,30 +57,24 @@ describe('detailController', () => {
     expect(document.querySelector('.eq-detail-cover__img')).toBeNull();
   });
 
-  it('bindViewEquipDetailCoverActions abre lightbox ao clicar no cover preview', () => {
-    const Photos = { openLightbox: vi.fn() };
+  it('bindViewEquipDetailCoverActions nao abre lightbox legado ao clicar no cover preview', () => {
     document.body.innerHTML = `
       <div class="eq-detail-cover">
         <button type="button" class="eq-detail-cover__preview-hit"></button>
       </div>`;
 
-    bindViewEquipDetailCoverActions('https://cdn.test/foto.jpg', { Photos });
+    expect(() => bindViewEquipDetailCoverActions('https://cdn.test/foto.jpg')).not.toThrow();
     document.querySelector('.eq-detail-cover__preview-hit')?.dispatchEvent(new Event('click'));
-
-    expect(Photos.openLightbox).toHaveBeenCalledWith('https://cdn.test/foto.jpg');
   });
 
-  it('bindViewEquipDetailCoverActions não abre lightbox sem firstPhotoUrl', () => {
-    const Photos = { openLightbox: vi.fn() };
+  it('bindViewEquipDetailCoverActions nao exige firstPhotoUrl', () => {
     document.body.innerHTML = `
       <div class="eq-detail-cover">
         <button type="button" class="eq-detail-cover__preview-hit"></button>
       </div>`;
 
-    bindViewEquipDetailCoverActions(null, { Photos });
+    expect(() => bindViewEquipDetailCoverActions(null)).not.toThrow();
     document.querySelector('.eq-detail-cover__preview-hit')?.dispatchEvent(new Event('click'));
-
-    expect(Photos.openLightbox).not.toHaveBeenCalled();
   });
 
   it('openViewEquipDetailModal chama Modal.open com modal-eq-det', async () => {
