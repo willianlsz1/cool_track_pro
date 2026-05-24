@@ -187,9 +187,9 @@ function syncRenderEquipListToolbar(context, searchBar) {
     return;
   }
 
-  // Vista FREE/Plus: toolbar SEM "+ Novo setor". Setores depende de
-  // Clientes (Pro-only) - sem clientes cadastrados, o botao vira ruido.
-  // O upgrade aparece naturalmente no hero/empty state quando o user
+  // Vista operacional simples: toolbar SEM "+ Novo setor". Setores depende de
+  // clientes cadastrados; sem clientes, o botao vira ruido.
+  // O aviso aparece naturalmente no hero/empty state quando o usuario
   // ja tem 5+ equipamentos sem setor (ver hero.js).
   getRequiredRenderEquipDep('setToolbar')({
     title: 'Equipamentos',
