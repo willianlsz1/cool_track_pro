@@ -299,7 +299,7 @@ async function mountAndFillRegistro(registro, overrides = {}) {
   expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
-  expect(document.getElementById('r-checklist-body')?.dataset.reactRegistroChecklistMounted).toBe(
+  expect(document.getElementById('r-checklist-body')?.dataset.registroChecklistMounted).toBe(
     'true',
   );
   expect(document.getElementById('registro-photos-root')?.dataset.reactRegistroPhotosMounted).toBe(
@@ -352,7 +352,7 @@ function expectNoUnsafeMarkup(root = document.body) {
   });
 }
 
-describe('registro legacy PDF/WhatsApp contracts with React islands data', () => {
+describe('registro legacy PDF/WhatsApp contracts with DOM renderer data', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();

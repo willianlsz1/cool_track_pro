@@ -56,7 +56,7 @@ function buildChecklist() {
 }
 
 describe('pmocChecklist feature helpers', () => {
-  it('buildRegistroChecklistViewModel preserva shape da ilha React', () => {
+  it('buildRegistroChecklistViewModel preserva shape do renderer DOM', () => {
     const viewModel = buildRegistroChecklistViewModel(template, buildChecklist());
 
     expect(viewModel).toEqual({

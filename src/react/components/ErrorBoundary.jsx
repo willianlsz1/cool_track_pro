@@ -17,8 +17,8 @@ import { captureError } from '../../core/observability.js';
  *   - Erros no próprio ErrorBoundary
  *
  * COMO USAR:
- *   <ErrorBoundary name="registroChecklistIsland">
- *     <RegistroChecklist />
+ *   <ErrorBoundary name="nomeDaIsland">
+ *     <MinhaIsland />
  *   </ErrorBoundary>
  *
  * PROPS:

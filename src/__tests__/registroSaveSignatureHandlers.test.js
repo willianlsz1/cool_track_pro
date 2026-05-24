@@ -286,7 +286,7 @@ async function prepareRegistroForm(registro, { equipId = 'eq-1' } = {}) {
   expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
-  expect(document.getElementById('r-checklist-body')?.dataset.reactRegistroChecklistMounted).toBe(
+  expect(document.getElementById('r-checklist-body')?.dataset.registroChecklistMounted).toBe(
     'true',
   );
 }
@@ -361,7 +361,7 @@ describe('registro legacy save handlers with signature contracts', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('salva via save-registro lendo campos DOM, checklist React e fotos legadas', async () => {
+  it('salva via save-registro lendo campos DOM, checklist DOM e fotos legadas', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: false });

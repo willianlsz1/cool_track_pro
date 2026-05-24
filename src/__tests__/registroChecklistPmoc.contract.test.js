@@ -1,5 +1,3 @@
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,7 +8,7 @@ import {
   REGISTRO_PUBLIC_IDS,
   REGISTRO_REACT_ROOTS,
 } from '../ui/viewModels/registroContracts.js';
-import { RegistroChecklist } from '../react/pages/RegistroChecklist.jsx';
+import { renderRegistroChecklistHtml } from '../ui/views/registro/checklistRenderer.js';
 import { buildEmptyChecklist, validateChecklist } from '../domain/pmoc/checklistTemplates.js';
 import {
   buildEditedRegistro,
@@ -384,42 +382,40 @@ describe('registro Checklist/PMOC contract', () => {
       ]),
     );
 
-    const html = renderToStaticMarkup(
-      React.createElement(RegistroChecklist, {
-        checklist: {
-          label: 'Split Hi-Wall (NBR 13971)',
-          groups: [
-            {
-              label: 'Mecanico',
-              items: [
-                {
-                  id: 'filtros_limpeza',
-                  label: 'Limpeza dos filtros de ar',
-                  mandatory: true,
-                  status: 'ok',
-                  obs: 'Filtro limpo.',
-                },
-                {
-                  id: 'tensao_alimentacao',
-                  label: 'Tensao de alimentacao',
-                  mandatory: true,
-                  status: null,
-                  obs: '',
-                  measurable: true,
-                  unit: 'V',
-                  measureValue: 220,
-                },
-              ],
-            },
-          ],
-        },
-        actions: {
-          checklistSet: { action: REGISTRO_ACTIONS.checklistSet },
-          checklistObs: { action: REGISTRO_ACTIONS.checklistObs },
-          checklistMeasure: { action: REGISTRO_ACTIONS.checklistMeasure },
-        },
-      }),
-    );
+    const html = renderRegistroChecklistHtml({
+      checklist: {
+        label: 'Split Hi-Wall (NBR 13971)',
+        groups: [
+          {
+            label: 'Mecanico',
+            items: [
+              {
+                id: 'filtros_limpeza',
+                label: 'Limpeza dos filtros de ar',
+                mandatory: true,
+                status: 'ok',
+                obs: 'Filtro limpo.',
+              },
+              {
+                id: 'tensao_alimentacao',
+                label: 'Tensao de alimentacao',
+                mandatory: true,
+                status: null,
+                obs: '',
+                measurable: true,
+                unit: 'V',
+                measureValue: 220,
+              },
+            ],
+          },
+        ],
+      },
+      actions: {
+        checklistSet: { action: REGISTRO_ACTIONS.checklistSet },
+        checklistObs: { action: REGISTRO_ACTIONS.checklistObs },
+        checklistMeasure: { action: REGISTRO_ACTIONS.checklistMeasure },
+      },
+    });
 
     expect(html).toContain('class="r-checklist__row');
     expect(html).toContain('data-action="r-checklist-set"');

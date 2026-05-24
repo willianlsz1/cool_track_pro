@@ -98,10 +98,6 @@ vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
   shareWhatsAppFlow: vi.fn(),
 }));
 vi.mock('../core/phoneMask.js', () => ({ bindSmartContactMaskInput: vi.fn() }));
-vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({
-  mountRegistroChecklistReact: vi.fn(),
-  unmountRegistroChecklistReact: vi.fn(),
-}));
 
 function mountRegistroDom({ materialOpen = false } = {}) {
   document.body.innerHTML = `

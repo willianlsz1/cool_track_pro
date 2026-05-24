@@ -1,13 +1,10 @@
 import { readFileSync } from 'node:fs';
-import { act } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  mountRegistroChecklistReact,
-  unmountRegistroChecklistReact,
-} from '../react/entrypoints/registroChecklistIsland.jsx';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  mountRegistroChecklistDom,
+  unmountRegistroChecklistDom,
+} from '../ui/views/registro/checklistRenderer.js';
 
 const MALICIOUS = '<img src=x onerror=alert(1)><script>alert(2)</script>';
 
@@ -77,31 +74,27 @@ function expectNoInjectedMarkup(root) {
   expect(root?.querySelector('[href^="javascript:"], [src^="javascript:"]')).toBeNull();
 }
 
-describe('registro checklist React island', () => {
-  afterEach(async () => {
-    await act(async () => {
-      unmountRegistroChecklistReact();
-    });
+describe('registro checklist DOM renderer', () => {
+  afterEach(() => {
+    unmountRegistroChecklistDom();
     document.body.innerHTML = '';
     vi.restoreAllMocks();
   });
 
-  it('monta somente em #r-checklist-body preservando contratos do checklist', async () => {
+  it('monta somente em #r-checklist-body preservando contratos do checklist', () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountRegistroChecklistReact(root, {
-        checklist: createChecklist(),
-        actions: {
-          checklistSet: { action: 'r-checklist-set' },
-          checklistObs: { action: 'r-checklist-obs' },
-          checklistMeasure: { action: 'r-checklist-measure' },
-        },
-      });
+    mountRegistroChecklistDom(root, {
+      checklist: createChecklist(),
+      actions: {
+        checklistSet: { action: 'r-checklist-set' },
+        checklistObs: { action: 'r-checklist-obs' },
+        checklistMeasure: { action: 'r-checklist-measure' },
+      },
     });
 
-    expect(root?.dataset.reactRegistroChecklistMounted).toBe('true');
-    expect(document.getElementById('view-registro')?.dataset.reactRegistroChecklistMounted).toBe(
+    expect(root?.dataset.registroChecklistMounted).toBe('true');
+    expect(document.getElementById('view-registro')?.dataset.registroChecklistMounted).toBe(
       undefined,
     );
     expect(document.getElementById('r-checklist-details')).not.toBeNull();
@@ -152,33 +145,31 @@ describe('registro checklist React island', () => {
     expect(document.querySelector('[data-action="save-registro"]')).not.toBeNull();
   });
 
-  it('atualiza root existente sem criar multiplos roots ou render duplicado', async () => {
+  it('atualiza root existente sem criar multiplos roots ou render duplicado', () => {
     const root = setRoot();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      mountRegistroChecklistReact(root, { checklist: createChecklist() });
-      mountRegistroChecklistReact(root, {
-        checklist: createChecklist({
-          groups: [
-            {
-              label: 'Mecanico',
-              items: [
-                {
-                  id: 'filtros_limpeza',
-                  label: 'Limpeza dos filtros de ar',
-                  mandatory: true,
-                  status: 'fail',
-                  obs: 'Filtro saturado.',
-                  measurable: false,
-                  unit: '',
-                  measureValue: '',
-                },
-              ],
-            },
-          ],
-        }),
-      });
+    mountRegistroChecklistDom(root, { checklist: createChecklist() });
+    mountRegistroChecklistDom(root, {
+      checklist: createChecklist({
+        groups: [
+          {
+            label: 'Mecanico',
+            items: [
+              {
+                id: 'filtros_limpeza',
+                label: 'Limpeza dos filtros de ar',
+                mandatory: true,
+                status: 'fail',
+                obs: 'Filtro saturado.',
+                measurable: false,
+                unit: '',
+                measureValue: '',
+              },
+            ],
+          },
+        ],
+      }),
     });
 
     expect(root?.querySelectorAll('.r-checklist__intro')).toHaveLength(1);
@@ -196,27 +187,23 @@ describe('registro checklist React island', () => {
     );
   });
 
-  it('desmonta com seguranca e tolera chamadas repetidas', async () => {
+  it('desmonta com seguranca e tolera chamadas repetidas', () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountRegistroChecklistReact(root, { checklist: createChecklist() });
-      unmountRegistroChecklistReact(root);
-      unmountRegistroChecklistReact(root);
-    });
+    mountRegistroChecklistDom(root, { checklist: createChecklist() });
+    unmountRegistroChecklistDom(root);
+    unmountRegistroChecklistDom(root);
 
-    expect(root?.dataset.reactRegistroChecklistMounted).toBeUndefined();
+    expect(root?.dataset.registroChecklistMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
   });
 
-  it('renderiza estado inicial e estado sem equipamento sem depender de fluxos legados', async () => {
+  it('renderiza estado inicial e estado sem equipamento sem depender de fluxos legados', () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountRegistroChecklistReact(root, { checklist: createChecklist({ groups: [] }) });
-    });
+    mountRegistroChecklistDom(root, { checklist: createChecklist({ groups: [] }) });
 
-    expect(root?.dataset.reactRegistroChecklistMounted).toBe('true');
+    expect(root?.dataset.registroChecklistMounted).toBe('true');
     expect(root?.querySelector('.r-checklist__intro strong')?.textContent).toBe(
       'Split Hi-Wall (NBR 13971)',
     );
@@ -226,32 +213,30 @@ describe('registro checklist React island', () => {
     expect(root?.querySelector('#registro-signature-hint')).toBeNull();
   });
 
-  it('renderiza dados maliciosos como texto sem HTML/script/event handler injection', async () => {
+  it('renderiza dados maliciosos como texto sem HTML/script/event handler injection', () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountRegistroChecklistReact(root, {
-        checklist: createChecklist({
-          label: MALICIOUS,
-          groups: [
-            {
-              label: MALICIOUS,
-              items: [
-                {
-                  id: 'xss_item',
-                  label: MALICIOUS,
-                  mandatory: true,
-                  status: null,
-                  obs: MALICIOUS,
-                  measurable: true,
-                  unit: 'V" onclick="alert(1)',
-                  measureValue: '220"><img src=x onerror=alert(1)>',
-                },
-              ],
-            },
-          ],
-        }),
-      });
+    mountRegistroChecklistDom(root, {
+      checklist: createChecklist({
+        label: MALICIOUS,
+        groups: [
+          {
+            label: MALICIOUS,
+            items: [
+              {
+                id: 'xss_item',
+                label: MALICIOUS,
+                mandatory: true,
+                status: null,
+                obs: MALICIOUS,
+                measurable: true,
+                unit: 'V" onclick="alert(1)',
+                measureValue: '220"><img src=x onerror=alert(1)>',
+              },
+            ],
+          },
+        ],
+      }),
     });
 
     expect(root?.textContent).toContain('<script>alert(2)</script>');
@@ -261,12 +246,12 @@ describe('registro checklist React island', () => {
     expectNoInjectedMarkup(root);
   });
 
-  it('mantem o componente puro e createRoot fora do adapter legado de Registro', () => {
-    const componentSource = readFileSync('src/react/pages/RegistroChecklist.jsx', 'utf8');
+  it('mantem o renderer isolado e createRoot fora do adapter legado de Registro', () => {
+    const componentSource = readFileSync('src/ui/views/registro/checklistRenderer.js', 'utf8');
     const adapterSource = readFileSync('src/ui/views/registro.js', 'utf8');
 
-    expect(componentSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML|document\.|window\./);
-    expect(adapterSource).toContain('../../react/entrypoints/registroChecklistIsland.jsx');
+    expect(componentSource).not.toMatch(/dangerouslySetInnerHTML/);
+    expect(adapterSource).toContain('./registro/checklistRenderer.js');
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
     expect(adapterSource).not.toMatch(/dangerouslySetInnerHTML/);

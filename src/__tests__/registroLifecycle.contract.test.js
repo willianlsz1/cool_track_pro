@@ -34,12 +34,6 @@ const mocks = vi.hoisted(() => ({
   profileSave: vi.fn(),
   profileSaveLastTecnico: vi.fn(),
   handleError: vi.fn(),
-  mountRegistroChecklistReact: vi.fn((root) => {
-    root.dataset.reactRegistroChecklistMounted = 'true';
-  }),
-  unmountRegistroChecklistReact: vi.fn((root) => {
-    delete root.dataset.reactRegistroChecklistMounted;
-  }),
 }));
 
 vi.mock('../core/state.js', () => ({
@@ -123,11 +117,6 @@ vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
 
 vi.mock('../core/phoneMask.js', () => ({
   bindSmartContactMaskInput: mocks.bindSmartContactMaskInput,
-}));
-
-vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({
-  mountRegistroChecklistReact: mocks.mountRegistroChecklistReact,
-  unmountRegistroChecklistReact: mocks.unmountRegistroChecklistReact,
 }));
 
 const CHECKLIST = {

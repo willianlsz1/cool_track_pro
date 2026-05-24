@@ -221,7 +221,7 @@ async function renderRegistroChecklist(state = baseState()) {
   expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
-  expect(body?.dataset.reactRegistroChecklistMounted).toBe('true');
+  expect(body?.dataset.registroChecklistMounted).toBe('true');
 
   return {
     registro,
@@ -257,7 +257,7 @@ function getChecklistItem(registro, id) {
   return registro.getCurrentChecklist()?.items.find((item) => item.id === id);
 }
 
-describe('registro React checklist legacy handlers contract', () => {
+describe('registro DOM checklist legacy handlers contract', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -348,7 +348,7 @@ describe('registro React checklist legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('mantem checklist React compativel apos quick-service-template sem salvar registro', async () => {
+  it('mantem checklist DOM compativel apos quick-service-template sem salvar registro', async () => {
     const { body, quickTemplateHandler, statusHandler } = await renderRegistroChecklist();
     const chip = document.querySelector(
       '#registro-header-root [data-action="quick-service-template"][data-template="limpeza"]',
@@ -362,7 +362,7 @@ describe('registro React checklist legacy handlers contract', () => {
     });
 
     expect(document.getElementById('r-tipo')?.value).toBe('Limpeza de Filtros');
-    expect(body.dataset.reactRegistroChecklistMounted).toBe('true');
+    expect(body.dataset.registroChecklistMounted).toBe('true');
     expect(body.querySelector('[data-action="r-checklist-set"][data-item-id]')).not.toBeNull();
 
     await act(async () => {

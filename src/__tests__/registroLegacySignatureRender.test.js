@@ -35,12 +35,6 @@ const mocks = vi.hoisted(() => ({
     toDataUrl: vi.fn(() => 'data:image/png;base64,aW1hZ2U='),
   })),
   toastWarning: vi.fn(),
-  mountRegistroChecklistReact: vi.fn((root) => {
-    root.dataset.reactRegistroChecklistMounted = 'true';
-  }),
-  unmountRegistroChecklistReact: vi.fn((root) => {
-    delete root.dataset.reactRegistroChecklistMounted;
-  }),
 }));
 
 vi.mock('../core/state.js', () => ({
@@ -127,11 +121,6 @@ vi.mock('../ui/components/signature/signature-storage.js', () => ({
 
 vi.mock('../ui/components/signature/signature-canvas.js', () => ({
   createSignatureCanvas: mocks.createSignatureCanvas,
-}));
-
-vi.mock('../react/entrypoints/registroChecklistIsland.jsx', () => ({
-  mountRegistroChecklistReact: mocks.mountRegistroChecklistReact,
-  unmountRegistroChecklistReact: mocks.unmountRegistroChecklistReact,
 }));
 
 const SAFE_SIGNATURE =

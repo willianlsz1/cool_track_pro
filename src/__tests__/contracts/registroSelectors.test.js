@@ -21,11 +21,10 @@ const sourceFiles = [
   'src/ui/controller/handlers/registroHandlers.js',
   'src/ui/shell/templates/views.js',
   'src/ui/views/registro/headerRenderer.js',
+  'src/ui/views/registro/checklistRenderer.js',
   'src/ui/views/registro/signatureHint.js',
   'src/ui/viewModels/registroPhotosModel.js',
   'src/ui/viewModels/registroSignatureModel.js',
-  'src/react/entrypoints/registroChecklistIsland.jsx',
-  'src/react/pages/RegistroChecklist.jsx',
 ].map(source);
 
 const combinedSource = sourceFiles.join('\n');

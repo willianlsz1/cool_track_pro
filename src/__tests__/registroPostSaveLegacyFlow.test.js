@@ -290,7 +290,7 @@ async function prepareNewRegistro(registro, overrides = {}) {
   expect(document.getElementById('registro-header-root')?.dataset.registroHeaderMounted).toBe(
     'true',
   );
-  expect(document.getElementById('r-checklist-body')?.dataset.reactRegistroChecklistMounted).toBe(
+  expect(document.getElementById('r-checklist-body')?.dataset.registroChecklistMounted).toBe(
     'true',
   );
 }
@@ -337,7 +337,7 @@ function expectNoUnsafeMarkup(root = document.body) {
   });
 }
 
-describe('registro legacy post-save flow with React fields and checklist', () => {
+describe('registro legacy post-save flow with DOM fields and checklist', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();

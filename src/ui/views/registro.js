@@ -36,6 +36,10 @@ import {
   renderRegistroSignatureHint,
   unmountRegistroSignatureHint,
 } from './registro/signatureHint.js';
+import {
+  mountRegistroChecklistDom,
+  unmountRegistroChecklistDom,
+} from './registro/checklistRenderer.js';
 import { renderRegistroHeader, unmountRegistroHeaderDom } from './registro/headerRenderer.js';
 import {
   buildRegistroPayloadDraft,
@@ -196,8 +200,6 @@ function _prefillObsFromTipo(tipo) {
 }
 
 const EDITING_KEY = 'cooltrack-editing-id';
-let _registroChecklistBridgePromise = null;
-let _registroChecklistBridge = null;
 let _registroChecklistRenderGeneration = 0;
 let _registroSignatureRenderGeneration = 0;
 let _registroSignatureDraftSrc = '';
@@ -816,23 +818,7 @@ function clearRegistroChecklistState() {
   return setRegistroChecklistState(null);
 }
 
-function loadRegistroChecklistBridge() {
-  if (_registroChecklistBridge) return Promise.resolve(_registroChecklistBridge);
-  if (!_registroChecklistBridgePromise) {
-    _registroChecklistBridgePromise = import('../../react/entrypoints/registroChecklistIsland.jsx')
-      .then((bridge) => {
-        _registroChecklistBridge = bridge;
-        return bridge;
-      })
-      .catch((error) => {
-        _registroChecklistBridgePromise = null;
-        throw error;
-      });
-  }
-  return _registroChecklistBridgePromise;
-}
-
-function buildRegistroChecklistReactProps(template) {
+function buildRegistroChecklistDomProps(template) {
   const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
 
   return {
@@ -848,18 +834,10 @@ function mountRegistroChecklist(template) {
   if (!root) return null;
 
   const renderGeneration = (_registroChecklistRenderGeneration += 1);
-  const props = buildRegistroChecklistReactProps(template);
+  const props = buildRegistroChecklistDomProps(template);
 
-  const mountWithBridge = (bridge) => {
-    if (renderGeneration !== _registroChecklistRenderGeneration) return null;
-    return bridge.mountRegistroChecklistReact(root, props);
-  };
-
-  if (_registroChecklistBridge?.mountRegistroChecklistReact) {
-    return mountWithBridge(_registroChecklistBridge);
-  }
-
-  return loadRegistroChecklistBridge().then(mountWithBridge);
+  if (renderGeneration !== _registroChecklistRenderGeneration) return null;
+  return mountRegistroChecklistDom(root, props);
 }
 
 export function unmountRegistroChecklist() {
@@ -867,16 +845,10 @@ export function unmountRegistroChecklist() {
   if (typeof document === 'undefined') return null;
 
   const root = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
-  if (!root?.dataset.reactRegistroChecklistMounted) return null;
+  if (!root?.dataset.registroChecklistMounted) return null;
 
-  if (_registroChecklistBridge?.unmountRegistroChecklistReact) {
-    _registroChecklistBridge.unmountRegistroChecklistReact(root);
-    return null;
-  }
-
-  return loadRegistroChecklistBridge().then((bridge) => {
-    bridge.unmountRegistroChecklistReact?.(root);
-  });
+  unmountRegistroChecklistDom(root);
+  return null;
 }
 
 export function unmountRegistroPhotos() {
