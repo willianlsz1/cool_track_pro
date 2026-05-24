@@ -8,7 +8,7 @@
            - script-src: self
            - style-src: self + Google Fonts + 'unsafe-inline' (componentes usam style="...")
            - font-src: Google Fonts CDN
-           - img-src: self + data: (icons inline) + blob: (canvas exports) + https: (Supabase Storage URLs)
+           - img-src: self + data: (icons inline) + blob: (canvas exports) + https: (remote assets)
            - connect-src: Supabase REST/Realtime + telemetry self
            - frame-src: self
            - object-src 'none' impede plugins legacy
@@ -22,46 +22,37 @@
     </title>
     <meta
       name="description"
-      content="Sistema de gest&atilde;o de manuten&ccedil;&atilde;o para t&eacute;cnicos aut&ocirc;nomos de climatiza&ccedil;&atilde;o e refrigera&ccedil;&atilde;o. Registre servi&ccedil;os, gere relat&oacute;rios PDF e assine digitalmente."
+      content="Sistema de gest&atilde;o de manuten&ccedil;&atilde;o para t&eacute;cnicos de climatiza&ccedil;&atilde;o e refrigera&ccedil;&atilde;o. Organize clientes, equipamentos, servi&ccedil;os e alertas operacionais."
     />
     <link rel="canonical" href="https://cool-track-pro.pages.dev/" />
 
-    <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CoolTrack Pro" />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:url" content="https://cool-track-pro.pages.dev/" />
-    <meta
-      property="og:title"
-      content="CoolTrack Pro — Gestão de manutenção HVAC que funciona offline"
-    />
+    <meta property="og:title" content="CoolTrack Pro — Gestão de manutenção HVAC para campo" />
     <meta
       property="og:description"
-      content="Chega de planilha. Técnico registra no celular com foto e assinatura, funciona sem internet e gera PDF pronto em 30 segundos."
+      content="Organize clientes, equipamentos e atendimentos em uma experiência web focada na operação técnica."
     />
     <meta property="og:image" content="https://cool-track-pro.pages.dev/icons/og-image.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta
-      property="og:image:alt"
-      content="CoolTrack Pro — Chega de planilha. Seu relatório pronto em 30 segundos."
-    />
+    <meta property="og:image:alt" content="CoolTrack Pro — Gestão de manutenção HVAC para campo." />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="CoolTrack Pro — Gestão de manutenção HVAC que funciona offline"
-    />
+    <meta name="twitter:title" content="CoolTrack Pro — Gestão de manutenção HVAC para campo" />
     <meta
       name="twitter:description"
-      content="Chega de planilha. Técnico registra no celular com foto e assinatura, funciona sem internet e gera PDF pronto em 30 segundos."
+      content="Organize clientes, equipamentos e atendimentos em uma experiência web focada na operação técnica."
     />
     <meta name="twitter:image" content="https://cool-track-pro.pages.dev/icons/og-image.png" />
     <meta
       name="twitter:image:alt"
-      content="CoolTrack Pro — Chega de planilha. Seu relatório pronto em 30 segundos."
+      content="CoolTrack Pro — Gestão de manutenção HVAC para campo."
     />
 
     <!-- PWA -->
@@ -97,14 +88,14 @@
         "@type": "SoftwareApplication",
         "name": "CoolTrack Pro",
         "alternateName": "CoolTrack",
-        "description": "Sistema de gestão de manutenção para técnicos de climatização e refrigeração. Registre serviços em campo, gere relatórios PDF com assinatura digital e funcione offline.",
+        "description": "Sistema de gestão de manutenção para técnicos de climatização e refrigeração. Organize clientes, equipamentos, serviços e alertas operacionais.",
         "url": "https://cool-track-pro.pages.dev/",
         "image": "https://cool-track-pro.pages.dev/icons/icon-512x512.png",
         "inLanguage": "pt-BR",
         "applicationCategory": "BusinessApplication",
         "applicationSubCategory": "MaintenanceManagement",
         "operatingSystem": "Web, iOS, Android",
-        "featureList": "Registro de serviços offline, PDF com assinatura digital do cliente, fotos por equipamento, histórico completo de manutenções, alertas de preventiva, compartilhamento via WhatsApp"
+        "featureList": "Clientes, equipamentos, setores, registros de serviços, relatórios operacionais, orçamentos locais, alertas de preventiva"
       }
     </script>
 

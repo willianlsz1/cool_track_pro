@@ -870,6 +870,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58N remove a copia visivel PMOC restante no checklist do Registro legado,
   tratando a superficie como checklist preventivo/NBR enquanto a remocao
   estrutural de templates e caminhos `pmoc` fica para CP dedicado.
+- CP-58O remove promessas publicas antigas no `index.html` sobre PDF,
+  assinatura, fotos, WhatsApp, offline e Supabase Storage, mantendo essas areas
+  como app-v2-native futuras.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.
