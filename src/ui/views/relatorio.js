@@ -100,7 +100,7 @@ export function unmountRelatorioCards() {
   return unmountRelatorioCardsDom(root);
 }
 
-// tone = classe CSS .rel-tipo--<tone> (cores no components.css)
+// tone = classe CSS legada .rel-tipo--<tone>
 const TIPO_META = {
   'Manutenção Preventiva': { tone: 'cyan', icon: 'shieldCheck' },
   'Inspeção Geral': { tone: 'cyan', icon: 'shieldCheck' },

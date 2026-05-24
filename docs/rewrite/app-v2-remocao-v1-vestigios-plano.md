@@ -483,6 +483,9 @@ Progresso executado:
   `equipment-detail-cp-h.css` e `equipment-list-cp-i.css`.
 - Removido `redesign.css`, que nao era carregado pelo entrypoint principal
   app-v2.
+- Removidos `components.css` e os parciais remanescentes em
+  `src/assets/styles/components/`, que nao eram carregados pelo entrypoint
+  principal app-v2.
 - Contratos de remocao ampliados em `legacyV1RemovalContracts`.
 
 Controle:

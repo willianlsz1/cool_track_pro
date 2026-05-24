@@ -223,7 +223,6 @@ describe('legacy v1 removal contracts', () => {
 
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
-    const componentsCss = readSource('src/assets/styles/components.css');
 
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/ui/views/configuracoes.js')).toBe(false);
@@ -231,13 +230,14 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/ui/shell/templates/sidebar.js')).toBe(false);
     expect(existsSync('src/ui/shell/templates/header.js')).toBe(false);
     expect(existsSync('src/assets/styles/redesign.css')).toBe(false);
-    expect(componentsCss).not.toContain('_configuracoes.css');
+    expect(existsSync('src/assets/styles/components.css')).toBe(false);
   });
 
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 
     expect(existsSync('src/assets/styles/base.css')).toBe(false);
+    expect(existsSync('src/assets/styles/components.css')).toBe(false);
     expect(existsSync('src/assets/styles/desktop-fonts.css')).toBe(false);
     expect(existsSync('src/assets/styles/equipment-detail-cp-h.css')).toBe(false);
     expect(existsSync('src/assets/styles/equipment-list-cp-i.css')).toBe(false);
@@ -247,6 +247,7 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/assets/styles/tokens.css')).toBe(false);
     expect(existsSync('src/assets/styles/ux-polish.css')).toBe(false);
     expect(primaryHtml).not.toContain('base.css');
+    expect(primaryHtml).not.toContain('components.css');
     expect(primaryHtml).not.toContain('desktop-fonts.css');
     expect(primaryHtml).not.toContain('equipment-detail-cp-h.css');
     expect(primaryHtml).not.toContain('equipment-list-cp-i.css');
@@ -255,6 +256,24 @@ describe('legacy v1 removal contracts', () => {
     expect(primaryHtml).not.toContain('theme-premium.css');
     expect(primaryHtml).not.toContain('tokens.css');
     expect(primaryHtml).not.toContain('ux-polish.css');
+  });
+
+  it('does not keep orphan legacy component stylesheets after v2 promotion', () => {
+    const legacyComponentStyles = [
+      'src/assets/styles/components/_checklist.css',
+      'src/assets/styles/components/_clientes.css',
+      'src/assets/styles/components/_equip-hero.css',
+      'src/assets/styles/components/_install-app.css',
+      'src/assets/styles/components/_onboarding-checklist.css',
+      'src/assets/styles/components/_orcamento-modal.css',
+      'src/assets/styles/components/_pmoc.css',
+      'src/assets/styles/components/_push-optin.css',
+      'src/assets/styles/components/_setor-card.css',
+      'src/assets/styles/components/_setor-modal.css',
+      'src/assets/styles/components/_tour.css',
+    ];
+
+    expect(legacyComponentStyles.filter((path) => existsSync(path))).toEqual([]);
   });
 
   it('does not keep the legacy privacidade route or internal static view', () => {

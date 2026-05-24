@@ -34,10 +34,8 @@ describe('billing/pricing cleanup contracts', () => {
   });
 
   it('does not keep orphan clientes paywall styles after removing commercial surfaces', () => {
-    const componentsCss = readSource('src/assets/styles/components.css');
-
+    expect(existsSync('src/assets/styles/components.css')).toBe(false);
     expect(existsSync('src/assets/styles/redesign.css')).toBe(false);
-    expect(componentsCss).not.toContain('clientes-paywall');
   });
 
   it('does not keep the removed commercial upgrade nudge runtime stub', () => {
@@ -65,15 +63,9 @@ describe('billing/pricing cleanup contracts', () => {
   });
 
   it('does not keep commercial upgrade style hooks after billing removal', () => {
-    const componentsCss = readSource('src/assets/styles/components.css');
-    const pmocCss = readSource('src/assets/styles/components/_pmoc.css');
-
+    expect(existsSync('src/assets/styles/components.css')).toBe(false);
+    expect(existsSync('src/assets/styles/components/_pmoc.css')).toBe(false);
     expect(existsSync('src/assets/styles/redesign.css')).toBe(false);
-    expect(componentsCss).not.toContain('upgrade-inline-hint');
-    expect(componentsCss).not.toContain('upgrade-nudge-card');
-    expect(componentsCss).not.toContain('app-sidebar__nav-item--upgrade');
-    expect(componentsCss).not.toContain('conta-hero__upgrade-cta');
-    expect(pmocCss).not.toContain('pmoc-info-modal__btn--upgrade');
   });
 
   it('does not keep account actions named as billing or upgrade flows', () => {

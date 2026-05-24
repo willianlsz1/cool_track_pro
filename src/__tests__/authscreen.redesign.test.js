@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 
 async function loadAuthScreen(overrides = {}) {
   vi.resetModules();
@@ -45,11 +45,7 @@ describe('AuthScreen V2Refined redesign', () => {
   });
 
   it('does not ship legacy global auth CSS that competes with the inline redesign', () => {
-    const css = readFileSync('src/assets/styles/components.css', 'utf8');
-
-    expect(css).not.toMatch(/\.auth-screen\s*\{/);
-    expect(css).not.toMatch(/\.auth-btn-google\s*\{/);
-    expect(css).not.toMatch(/\.auth-logo(?:__|-)/);
+    expect(existsSync('src/assets/styles/components.css')).toBe(false);
   });
 
   it('does not render legacy gold/demo visual residues in the auth overlay', async () => {
