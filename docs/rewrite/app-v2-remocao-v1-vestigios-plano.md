@@ -559,6 +559,11 @@ Progresso executado:
   dedicados a esse runtime e limpou mocks residuais em testes de Registro,
   fotos e assinatura. O dominio PDF/share/WhatsApp permanece para CP54C3 como
   etapa sensivel propria.
+- CP-54C3 removeu os helpers legados de share/WhatsApp sem consumidor runtime:
+  `src/domain/pdf/shareReport.js`, `src/domain/pdf/shareReportHelpers.js`,
+  `src/domain/whatsapp.js` e `src/domain/reportExportHelpers.js`, alem dos
+  testes dedicados. O gerador PDF comum e PMOC nao foram removidos neste corte
+  para evitar misturar PDF, assinatura, checklist e PMOC no mesmo CP.
 
 Controle:
 
