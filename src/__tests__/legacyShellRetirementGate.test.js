@@ -56,6 +56,7 @@ const retiredLegacyHelperFiles = [
   'src/ui/views/clientes/emptyStateRenderer.js',
   'src/ui/views/clientes/filtersRenderer.js',
   'src/ui/views/clientes/paginationRenderer.js',
+  'src/ui/views/clientes/summaryRenderer.js',
 ];
 
 const legacyRuntimeKeptForLaterCheckpoints = [

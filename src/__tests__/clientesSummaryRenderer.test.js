@@ -3,7 +3,7 @@ import {
   renderActiveContext,
   renderAlertStrip,
   renderSummary,
-} from '../ui/views/clientes/summaryRenderer.js';
+} from '../ui/views/clientes/pageRenderer.js';
 
 describe('clientes summaryRenderer', () => {
   it('renderActiveContext escapa termos dinâmicos', () => {
