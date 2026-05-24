@@ -177,10 +177,6 @@ async function setupDashboardModule({
     getEquipmentVisualMeta: vi.fn(() => ({ icon: 'HVAC', label: 'Equipamento' })),
   }));
 
-  vi.doMock('../core/clientePmoc.js', () => ({
-    buildClientePmocDetails: vi.fn(() => ({ hasPmoc: false, status: 'ok' })),
-  }));
-
   vi.doMock('../ui/components/skeleton.js', () => ({
     withSkeleton: (_el, _options, renderFn) => renderFn(),
   }));

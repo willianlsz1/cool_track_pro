@@ -192,15 +192,15 @@ describe('dashboard view model', () => {
     });
   });
 
-  it('prioriza PMOC, critico, vencido, proximo, ultimo servico e vazio', () => {
+  it('prioriza critico, vencido, proximo, ultimo servico e vazio', () => {
     const registros = [{ id: 'r1', equipId: 'eq1', data: '2026-04-20T09:00:00' }];
     expect(
       selectNextDashboardAction({
-        alerts: [{ kind: 'upcoming', title: 'PMOC atrasado' }],
+        alerts: [{ kind: 'upcoming', title: 'Preventiva proxima' }],
         equipamentos: [{ id: 'eq1' }],
         registros,
       }),
-    ).toMatchObject({ priority: 1, kind: 'pmoc' });
+    ).toMatchObject({ priority: 4, kind: 'upcoming' });
     expect(
       selectNextDashboardAction({
         alerts: [{ kind: 'critical', title: 'Critico' }],

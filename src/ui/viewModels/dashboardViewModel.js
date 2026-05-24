@@ -273,10 +273,6 @@ export function selectNextDashboardAction({ alerts = [], equipamentos = [], regi
   const safeAlerts = asArray(alerts);
   const safeEquipamentos = asArray(equipamentos);
   const safeRegistros = asArray(registros);
-  const pmocLate = safeAlerts.find((alert) =>
-    safeString(alert?.title).toLowerCase().includes('pmoc'),
-  );
-  if (pmocLate) return { priority: 1, kind: 'pmoc', alert: pmocLate };
   const critical = safeAlerts.find((alert) => alert?.kind === 'critical');
   if (critical) return { priority: 2, kind: 'critical', alert: critical };
   const overdue = safeAlerts.find((alert) => alert?.kind === 'overdue');

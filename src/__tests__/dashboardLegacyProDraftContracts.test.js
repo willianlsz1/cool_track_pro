@@ -31,7 +31,7 @@ function buildDashboardDom() {
             <div class="dash__card-desc" id="dash-critical-alerts-list"></div>
           </article>
           <article class="dash__card" id="dash-risk-clients-card">
-            <div class="dash__card-label">Clientes em risco</div>
+            <div class="dash__card-label">Clientes</div>
             <div class="dash__card-title" id="dash-risk-clients-title">Clientes em dia</div>
             <div class="dash__card-sub" id="dash-risk-clients-sub">Nenhum cliente exige atencao agora.</div>
             <div class="dash__card-desc" id="dash-risk-clients-list"></div>
@@ -195,14 +195,6 @@ async function setupDashboardModule({
     })),
   }));
 
-  vi.doMock('../core/clientePmoc.js', () => ({
-    buildClientePmocDetails: vi.fn(({ cliente }) => ({
-      hasPmoc: true,
-      status: cliente?.__pmocStatus ?? 'ok',
-      statusLabel: cliente?.__pmocStatusLabel ?? 'Em dia',
-    })),
-  }));
-
   vi.doMock('../ui/components/skeleton.js', () => ({
     withSkeleton: (_el, _options, renderFn) => renderFn(),
   }));
@@ -298,8 +290,6 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
           {
             id: 'cli-pro',
             nome: malicious,
-            __pmocStatus: 'atencao',
-            __pmocStatusLabel: malicious,
           },
         ],
         setores: [{ id: 'set-pro', nome: malicious }],
@@ -322,20 +312,16 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     const criticalAction = byId(DASHBOARD_PUBLIC_IDS.criticalAlertsList)?.querySelector(
       '.dash__card-cta',
     );
-    const clientAction = byId(DASHBOARD_PUBLIC_IDS.riskClientsList)?.querySelector(
-      '.dash__card-cta',
-    );
 
     expect(row?.hidden).toBe(false);
     expect(row?.classList.contains('dash__pair')).toBe(true);
     expect(byId(DASHBOARD_PUBLIC_IDS.criticalAlertsTitle)?.textContent).toBe('Alertas críticos');
-    expect(byId(DASHBOARD_PUBLIC_IDS.riskClientsTitle)?.textContent).toBe('Clientes em risco');
+    expect(byId(DASHBOARD_PUBLIC_IDS.riskClientsTitle)?.textContent).toBe('Carteira em dia');
     expect(criticalAction?.getAttribute('data-action')).toBe(DASHBOARD_ACTIONS.goRegisterEquip);
     expect(criticalAction?.getAttribute('data-id')).toBe('eq-pro');
-    expect(clientAction?.getAttribute('data-nav')).toBe('clientes');
-    expect(clientAction?.hasAttribute('data-action')).toBe(false);
+    expect(byId(DASHBOARD_PUBLIC_IDS.riskClientsList)?.children).toHaveLength(0);
     expect(row?.querySelectorAll('.dash__card')).toHaveLength(2);
-    expect(row?.querySelectorAll('.dash__card-cta')).toHaveLength(2);
+    expect(row?.querySelectorAll('.dash__card-cta')).toHaveLength(1);
     assertNoUnsafeHtml(row);
   });
 

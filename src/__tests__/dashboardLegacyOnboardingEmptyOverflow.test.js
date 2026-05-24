@@ -217,14 +217,6 @@ async function setupDashboardModule({
     })),
   }));
 
-  vi.doMock('../core/clientePmoc.js', () => ({
-    buildClientePmocDetails: vi.fn(({ cliente }) => ({
-      hasPmoc: true,
-      status: cliente?.__pmocStatus ?? 'ok',
-      statusLabel: cliente?.__pmocStatusLabel ?? 'Em dia',
-    })),
-  }));
-
   vi.doMock('../ui/components/skeleton.js', () => ({
     withSkeleton: (_el, _options, renderFn) => renderFn(),
   }));

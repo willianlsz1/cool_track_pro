@@ -229,14 +229,6 @@ async function setupDashboardModule({
     })),
   }));
 
-  vi.doMock('../core/clientePmoc.js', () => ({
-    buildClientePmocDetails: vi.fn(({ cliente }) => ({
-      hasPmoc: true,
-      status: cliente?.__pmocStatus ?? 'ok',
-      statusLabel: cliente?.__pmocStatusLabel ?? 'Em dia',
-    })),
-  }));
-
   vi.doMock('../ui/components/skeleton.js', () => ({
     withSkeleton: (_el, _options, renderFn) => renderFn(),
   }));
@@ -325,8 +317,6 @@ describe('dashboard legacy read-only blocks render adapter', () => {
           {
             id: 'cli-risk',
             nome: malicious,
-            __pmocStatus: 'atencao',
-            __pmocStatusLabel: malicious,
           },
         ],
         setores: [{ id: 'set-risk', nome: malicious }],
@@ -410,10 +400,8 @@ describe('dashboard legacy read-only blocks render adapter', () => {
         '[data-action="go-register-equip"]',
       ),
     ).not.toBeNull();
-    expect(byId(DASHBOARD_PUBLIC_IDS.riskClientsTitle)?.textContent).toBe('Clientes em risco');
-    expect(
-      byId(DASHBOARD_PUBLIC_IDS.riskClientsList)?.querySelector('[data-nav="clientes"]'),
-    ).not.toBeNull();
+    expect(byId(DASHBOARD_PUBLIC_IDS.riskClientsTitle)?.textContent).toBe('Carteira em dia');
+    expect(byId(DASHBOARD_PUBLIC_IDS.riskClientsList)?.children).toHaveLength(0);
 
     assertNoUnsafeHtml(alertsSection);
     assertNoUnsafeHtml(criticalSection);

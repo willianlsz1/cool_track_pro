@@ -43,7 +43,6 @@ import { getActionPriorityScore } from '../../domain/actionPriority.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
 import { getEquipmentVisualMeta } from '../components/equipmentVisual.js';
 import { ALERT_SEVERITY_WEIGHT } from '../../domain/constants/alerts.js';
-import { buildClientePmocDetails } from '../../core/clientePmoc.js';
 import { NAV_MODE_EMPRESA, getNavigationMode } from '../shell/navigationMode.js';
 import {
   STATUS_OPERACIONAL,
@@ -1021,15 +1020,7 @@ function _buildContinueDraftModel({ equipamentos = [], registros = [] }) {
   };
 }
 
-function _buildProDraftModel({
-  tier,
-  isEmpresaPro,
-  clientes,
-  equipamentos,
-  registros,
-  alerts,
-  setores,
-}) {
+function _buildProDraftModel({ tier, isEmpresaPro, clientes, equipamentos, registros, alerts }) {
   const criticalAlerts = (alerts || [])
     .filter(
       (alert) =>
@@ -1062,34 +1053,14 @@ function _buildProDraftModel({
         actions: [],
       };
 
-  const riscoClientes = (clientes || [])
-    .map((cliente) => {
-      const summary = buildClientePmocDetails({
-        cliente,
-        equipamentos,
-        registros,
-        setores,
-      });
-      return { cliente, summary };
-    })
-    .filter(({ summary }) => summary?.status === 'atrasado' || summary?.status === 'atencao')
-    .slice(0, 3);
-  const riskClients = riscoClientes.length
-    ? {
-        label: 'Clientes em risco',
-        title: 'Clientes em risco',
-        subtitle: `${riscoClientes.length} clientes exigem atenção`,
-        actions: riscoClientes.map(({ cliente, summary }) => ({
-          label: `${cliente?.nome || 'Cliente'} · ${summary.statusLabel} · Ver cliente`,
-          nav: 'clientes',
-        })),
-      }
-    : {
-        label: 'Clientes em risco',
-        title: 'Clientes em dia',
-        subtitle: 'Nenhum cliente exige atenção agora.',
-        actions: [],
-      };
+  const riskClients = {
+    label: 'Clientes',
+    title: 'Carteira em dia',
+    subtitle: clientes?.length
+      ? `${clientes.length} clientes sem alerta operacional ativo.`
+      : 'Nenhum cliente cadastrado nesta carteira.',
+    actions: [],
+  };
 
   return {
     tier,
@@ -1382,7 +1353,6 @@ export async function renderDashboard() {
       equipamentos,
       registros,
       alerts,
-      setores,
     });
     let dashboardReadModel = _buildDashboardReadModel({
       equipamentos,

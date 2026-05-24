@@ -490,6 +490,15 @@ describe('legacy v1 removal contracts', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('does not keep legacy Dashboard PMOC client risk surface', () => {
+    const dashboardSource = readSource('src/ui/views/dashboard.js');
+    const dashboardViewModelSource = readSource('src/ui/viewModels/dashboardViewModel.js');
+
+    expect(dashboardSource).not.toContain('buildClientePmocDetails');
+    expect(dashboardSource).not.toContain('Clientes em risco');
+    expect(dashboardViewModelSource).not.toContain("kind: 'pmoc'");
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');
