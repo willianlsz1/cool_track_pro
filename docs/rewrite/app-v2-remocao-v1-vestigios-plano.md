@@ -72,6 +72,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   render/model local de Equipamentos foi co-localizado em
   `src/ui/views/equipamentos/ui/renderEquip.js` e
   `src/ui/views/equipamentos/setor/**`.
+- `src/features/equipamentos/setor/setorNavigation.js` foi removido no CP-9o;
+  a navegacao local de setor foi co-localizada em
+  `src/ui/views/equipamentos/setor/setorNavigation.js`.
 
 ## 3. Superficies v1 mapeadas
 

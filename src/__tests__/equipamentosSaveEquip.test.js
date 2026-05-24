@@ -274,7 +274,7 @@ vi.mock('../ui/views/equipamentos/setor/setorUI.js', () => ({
   renderSetorGridForCliente: vi.fn(() => undefined),
 }));
 
-vi.mock('../features/equipamentos/setor/setorNavigation.js', () => ({
+vi.mock('../ui/views/equipamentos/setor/setorNavigation.js', () => ({
   configureSetorNavigation: vi.fn(),
   setActiveSector: vi.fn(),
 }));

@@ -101,10 +101,7 @@ import {
   renderSetorGrid,
   renderSetorGridForCliente,
 } from './equipamentos/setor/setorUI.js';
-import {
-  configureSetorNavigation,
-  setActiveSector,
-} from '../../features/equipamentos/setor/setorNavigation.js';
+import { configureSetorNavigation, setActiveSector } from './equipamentos/setor/setorNavigation.js';
 import {
   assignEquipToSetor,
   configureSetorPersist,

@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureSetorNavigation, setActiveSector } from '../../setor/setorNavigation.js';
+import {
+  configureSetorNavigation,
+  setActiveSector,
+} from '../ui/views/equipamentos/setor/setorNavigation.js';
 
 describe('setActiveSector', () => {
   const navigateEquipCtx = vi.fn();
