@@ -22,6 +22,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('e2e/specs/unicode-escapes.spec.js')).toBe(false);
   });
 
+  it('does not keep the skipped legacy registro post-save e2e after v2 promotion', () => {
+    expect(existsSync('e2e/specs/registro-post-save.spec.js')).toBe(false);
+  });
+
   it('does not keep the unused legacy app bootstrap entrypoint', () => {
     const primaryHtml = readSource('index.html');
     const serviceWorkerRegisterSource = readSource('public/sw-register.js');
