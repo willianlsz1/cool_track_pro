@@ -11,7 +11,7 @@ import {
   runRegistroReportFallback,
   runRegistroWhatsappAction,
   runRegistroWhatsappShare,
-} from '../../save/reportShare.js';
+} from '../ui/views/registro/save/reportShare.js';
 
 describe('registro report/share helpers', () => {
   it('buildRegistroReportFilters preserva equipId e registroId', () => {
@@ -132,7 +132,7 @@ describe('registro report/share helpers', () => {
 
   it('nao importa adapters, handlers, relatorio ou dominio PDF', () => {
     const source = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/features/registro/save/reportShare.js'),
+      path.resolve(process.cwd(), 'src/ui/views/registro/save/reportShare.js'),
       'utf8',
     );
 

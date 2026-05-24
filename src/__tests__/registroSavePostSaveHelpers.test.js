@@ -12,7 +12,7 @@ import {
   runRegistroDirectShareAfterSave,
   runRegistroEditNavigationAfterSave,
   runRegistroPreventivaPromptAfterSave,
-} from '../../save/postSave.js';
+} from '../ui/views/registro/save/postSave.js';
 
 describe('registro save post-save helpers', () => {
   it('persiste ultimo cliente via callback injetado', () => {
@@ -219,7 +219,7 @@ describe('registro save post-save helpers', () => {
 
   it('nao importa o adapter legado nem efeitos concretos diretamente', () => {
     const source = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/features/registro/save/postSave.js'),
+      path.resolve(process.cwd(), 'src/ui/views/registro/save/postSave.js'),
       'utf8',
     );
 

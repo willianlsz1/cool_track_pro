@@ -35,6 +35,7 @@ git diff --cached --check
 
 ## Proximo risco
 
-Restam `postSave.js` e `reportShare.js`. Ambos cruzam saidas pos-salvamento,
-PDF e WhatsApp, entao devem ser tratados como checkpoints separados e com foco
-em contratos de fluxo pos-save.
+Proximo checkpoint recomendado: mover o cluster coeso `postSave.js` +
+`reportShare.js`, porque ambos compartilham saidas pos-salvamento, PDF e
+WhatsApp por DI. Manter testes de fallback/CTA antes de tocar em
+`src/features/userData.js`.

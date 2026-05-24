@@ -5,7 +5,7 @@ import { filterRegistrosForReport } from '../domain/pdf/reportModel.js';
 import {
   notifyRegistroCreateSaved,
   runRegistroDirectShareAfterSave,
-} from '../features/registro/save/postSave.js';
+} from '../ui/views/registro/save/postSave.js';
 import { buildReportFilters } from '../ui/controller/handlers/reportExportHandlers.js';
 import { REGISTRO_ACTIONS } from '../ui/viewModels/registroContracts.js';
 

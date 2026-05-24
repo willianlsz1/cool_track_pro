@@ -90,7 +90,7 @@ import {
   runRegistroDirectShareAfterSave,
   runRegistroEditNavigationAfterSave,
   runRegistroPreventivaPromptAfterSave,
-} from '../../features/registro/save/postSave.js';
+} from './registro/save/postSave.js';
 import {
   getChecklistTemplate,
   buildEmptyChecklist,

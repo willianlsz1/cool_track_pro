@@ -14,7 +14,7 @@ tecnico ve imediatamente depois de concluir o registro.
 
 Arquivos de referencia:
 
-- `src/features/registro/save/postSave.js`;
+- `src/ui/views/registro/save/postSave.js`;
 - `src/ui/components/registroProximaPreventivaPrompt.js`;
 - `docs/rewrite/etapa-0-inventario-fluxo-tecnico.md`.
 

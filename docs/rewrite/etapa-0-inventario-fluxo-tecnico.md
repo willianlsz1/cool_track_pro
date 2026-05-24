@@ -31,8 +31,8 @@ Fora do escopo:
 - `src/ui/views/equipamentos/crud/postActions.js`
 - `src/features/registro/save/payload.js`
 - `src/ui/views/registro/save/persistence.js`
-- `src/features/registro/save/postSave.js`
-- `src/features/registro/save/reportShare.js`
+- `src/ui/views/registro/save/postSave.js`
+- `src/ui/views/registro/save/reportShare.js`
 - `src/ui/controller/serviceRegistrationEntry.js`
 - `src/ui/viewModels/equipamentosViewModel.js`
 - `src/ui/viewModels/clientesViewModel.js`

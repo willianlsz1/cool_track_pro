@@ -113,6 +113,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   assinatura de Registro foram co-localizados em
   `src/ui/views/registro/save/signature.js`, preservando lazy import, storage e
   fallback por DI.
+- `src/features/registro/save/postSave.js` e
+  `src/features/registro/save/reportShare.js` foram removidos no CP-9z; helpers
+  de pos-salvamento/share de Registro foram co-localizados em
+  `src/ui/views/registro/save/`, preservando PDF/WhatsApp por DI.
 
 ## 3. Superficies v1 mapeadas
 
@@ -120,8 +124,7 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 
 - `src/ui/`: 171 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: ainda existe, concentrado nos demais helpers de
-  `registro/save` e em `userData.js`.
+- `src/features/`: ainda existe, concentrado em `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
@@ -130,8 +133,8 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 ### 3.2 Acoplamentos que impedem delecao em massa
 
 - `src/domain/pdf/shareReport.js` importa componente de onboarding legado.
-- Os helpers restantes de `src/features/registro/save/**` ainda cruzam fluxo
-  legado de registro, fotos, assinatura, relatorio, share e persistencia local.
+- `src/features/registro/save/**` foi removido por checkpoints pequenos entre
+  CP-9t e CP-9z, preservando contratos por testes focados.
 - Testes legados cobrem seguranca de assinatura, storage, PDF, WhatsApp,
   relatorios e contratos DOM.
 
