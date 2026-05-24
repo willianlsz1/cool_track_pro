@@ -17,46 +17,60 @@ Este plano e uma etapa de preparacao. Ele nao executa delecoes de codigo.
 - `src/main.js` nao existe mais como entrada principal.
 - O app-v2 permanece concentrado em `src/app-v2/`.
 
+Atualizacao de continuidade em `codex/remove-v1-dashboard-last-service-react-cp3f`
+apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
+
+- `src/react/` nao existe mais.
+- `src/app.js` nao existe mais.
+- `e2e/specs/` contem apenas specs app-v2:
+  - `app-v2-authenticated-primary.spec.js`;
+  - `app-v2-primary-entrypoint.spec.js`;
+  - `app-v2-service-layout.spec.js`.
+- Superficies publicas ativas de billing/pricing/checkout/portal ja foram
+  removidas; a migration `20260524010000_remove_stripe_billing_schema.sql`
+  permanece como evidencia de remocao do schema Stripe.
+- `src/app-v2/` nao importa `src/ui`, `src/features` ou `src/react`. As
+  ocorrencias `../ui/*` dentro de `src/app-v2` apontam para
+  `src/app-v2/ui/*`, nao para o runtime legado.
+- `src/domain` e `src/core` nao importam `src/ui`, `src/features` ou
+  `src/react` por caminho estatico direto no estado atual verificado.
+
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 132 arquivos.
-- `src/react/`: 70 arquivos.
-- `src/features/`: 86 arquivos.
+- `src/ui/`: 135 arquivos restantes.
+- `src/react/`: removido.
+- `src/features/`: 87 arquivos restantes, incluindo testes co-localizados.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
-- `src/__tests__/`: 211 arquivos de teste, muitos cobrindo contratos legados.
+- `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
+- `e2e/specs/`: 3 specs restantes, todas app-v2.
 
 ### 3.2 Acoplamentos que impedem delecao em massa
 
 - `src/domain/pdf.js` importa `Profile` de `src/features/profile.js`.
 - `src/domain/whatsapp.js` importa `Profile` de `src/features/profile.js`.
 - `src/domain/pdf/shareReport.js` importa componente de onboarding legado.
-- Entrypoints React legados importam contratos de `src/ui/viewModels`.
 - `src/features/equipamentos/**` ainda importa helpers e componentes de
   `src/ui/**`.
 - Testes legados cobrem seguranca de assinatura, storage, PDF, WhatsApp,
   relatorios e contratos DOM.
 
-Conclusao: `src/ui`, `src/react` e `src/features` devem ser removidos por
-checkpoint, depois de extrair ou substituir contratos compartilhados. Delecao
-direta dessas pastas e insegura.
+Conclusao: `src/ui` e `src/features` devem ser removidos por checkpoint, depois
+de extrair ou substituir contratos compartilhados. Delecao direta dessas pastas
+continua insegura. `src/react` ja foi removido e e protegido por
+`src/__tests__/reactCleanupContracts.test.js`.
 
 ### 3.3 Vestigios publicos e comerciais
 
-- `index.html` ainda contem CSP e comentarios com Stripe.
-- `index.html` ainda contem JSON-LD com ofertas Free, Plus e Pro.
-- Metadados sociais em `index.html` ainda tem textos antigos com caracteres
-  corrompidos.
-- `public/legal/termos.html` ainda referencia planos pagos, Stripe,
-  cancelamento e `/#planos`.
-- `public/legal/privacidade.html` ainda referencia dados de faturamento de
-  planos pagos.
-- `src/assets/styles/components.css` ainda importa estilos de pricing/paywall.
-
-Esses pontos devem ser tratados como checkpoint proprio de conteudo publico e
-nao misturados com remocao estrutural do v1.
+- O conteudo publico ativo de pricing/billing foi tratado em checkpoints
+  dedicados.
+- Permanecem mencoes historicas em `docs/**` e contratos legados de
+  compatibilidade operacional, que nao devem ser apagados junto com runtime.
+- Permanecem comentarios legados em CSS e testes sobre paywall/upgrade; devem
+  ser tratados como parte de CP-6 ou do checkpoint que remover o componente
+  correspondente, nao como limpeza solta.
 
 ## 4. Fora de escopo inicial
 
