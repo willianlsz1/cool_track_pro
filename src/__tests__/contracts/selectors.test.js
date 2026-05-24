@@ -51,7 +51,6 @@ describe('contracts/selectors (static)', () => {
           "equip-unlock-context",
           "go-register-equip",
           "open-modal",
-          "open-pmoc-modal",
           "open-setor",
           "open-setor-modal",
           "toggle-eq-detail-menu",

@@ -459,7 +459,7 @@ describe('legacy v1 removal contracts', () => {
     expect(historicoViewModelSource).not.toContain('hasSignature');
   });
 
-  it('does not keep legacy signature promises in onboarding and PMOC copy', () => {
+  it('does not keep legacy signature promises in onboarding copy', () => {
     const tourSource = readSource('src/ui/components/tour.js');
     const onboardingChecklistSource = readSource(
       'src/ui/components/onboarding/onboardingChecklist.js',
@@ -467,13 +467,19 @@ describe('legacy v1 removal contracts', () => {
     const firstTimeExperienceCss = readSource(
       'src/ui/components/onboarding/firstTimeExperience.css',
     );
-    const pmocInfoModalSource = readSource('src/ui/components/pmocInfoModal.js');
 
     expect(tourSource).not.toContain('assinatura');
     expect(onboardingChecklistSource).not.toContain('assinatura');
     expect(firstTimeExperienceCss).not.toContain('ftx-signature');
-    expect(pmocInfoModalSource).not.toContain('assinatura');
-    expect(pmocInfoModalSource).not.toContain('assinaturas');
+  });
+
+  it('does not keep the legacy PMOC formal modal surface', () => {
+    const uiSources = listSourceFiles('src/ui');
+    const offenders = findMatches(uiSources, /open-pmoc-modal/);
+
+    expect(existsSync('src/ui/components/pmocModal.js')).toBe(false);
+    expect(existsSync('src/ui/components/pmocInfoModal.js')).toBe(false);
+    expect(offenders).toEqual([]);
   });
 
   it('does not keep legacy assinatura field in Registro create payload', () => {

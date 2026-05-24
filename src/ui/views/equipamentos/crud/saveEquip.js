@@ -15,7 +15,7 @@ function getConfiguredSaveEquipDeps() {
  * @sliceSplit
  *   crud/equip: validacao + persistencia (state + storage + Supabase) + plan limit
  *   ui/modal: clearEditingState + closeModal + Toast feedback
- *   controller/post: dispatch das post-actions (clone, register, pmoc, save-without-client)
+ *   controller/post: dispatch das post-actions (clone, register, save-without-client)
  * @sliceObs orquestrador movido do adapter em CP-F.4; dependências de UI seguem injetadas.
  */
 export async function saveEquip(options = {}) {
@@ -57,8 +57,6 @@ export async function saveEquip(options = {}) {
     toastSuccess,
     runSaveEquipPostActions,
     focusNameInput,
-    requestAnimationFrameRef,
-    documentRef,
   } = getConfiguredSaveEquipDeps();
 
   const postActionContext = getSaveEquipPostActionContext(options);
@@ -131,13 +129,10 @@ export async function saveEquip(options = {}) {
   runSaveEquipPostActions({
     keepOpen: postActionContext.keepOpen,
     openRegistro: postActionContext.openRegistro,
-    openPmoc: postActionContext.openPmoc,
     payload,
     focusNameInput,
     goTo,
     startServiceRegistration,
-    requestAnimationFrameRef,
-    documentRef,
   });
 
   return true;

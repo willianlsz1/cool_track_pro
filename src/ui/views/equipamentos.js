@@ -245,8 +245,6 @@ configureSaveEquip({
   toastSuccess: Toast.success,
   runSaveEquipPostActions,
   focusNameInput: () => Utils.getEl('eq-nome')?.focus(),
-  requestAnimationFrameRef: (callback) => requestAnimationFrame(callback),
-  documentRef: globalThis.document,
 });
 configureOpenEditEquip({
   findEquip,
@@ -513,8 +511,8 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
     primaryBtn.dataset.postAction = '';
     secondaryBtn.textContent = 'Cadastrar outro neste setor';
     secondaryBtn.dataset.postAction = 'clone';
-    setEquipActionTrayButtonLabel(tertiaryBtn, 'Salvar e abrir PMOC');
-    tertiaryBtn.dataset.postAction = 'pmoc';
+    setEquipActionTrayButtonLabel(tertiaryBtn, 'Salvar e registrar servico');
+    tertiaryBtn.dataset.postAction = 'register';
     setEquipActionFooterHintVisible(false);
     return;
   }
@@ -1081,7 +1079,6 @@ function _getSaveEquipPostActionContext(options = {}) {
     postAction,
     keepOpen: postAction === 'clone',
     openRegistro: postAction === 'register',
-    openPmoc: postAction === 'pmoc',
     saveWithoutClient: postAction === 'save-without-client',
   };
 }

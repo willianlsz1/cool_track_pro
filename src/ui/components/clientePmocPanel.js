@@ -121,7 +121,6 @@ function buildHtml(summary) {
       </section>
       <footer class="cliente-pmoc__footer">
         <button type="button" class="btn btn--outline" data-pmoc-action="close">Fechar</button>
-        <button type="button" class="btn btn--primary" data-action="open-pmoc-modal" data-cliente-id="${Utils.escapeAttr(summary.cliente?.id || '')}">Gerar documento PMOC</button>
       </footer>
     </div>`;
 }
@@ -148,7 +147,7 @@ function open({ cliente, equipamentos = [], registros = [], setores = [] }) {
   document.body.appendChild(overlay);
 
   overlay.addEventListener('click', (event) => {
-    const actionEl = event.target.closest('[data-pmoc-action], [data-action="open-pmoc-modal"]');
+    const actionEl = event.target.closest('[data-pmoc-action]');
     if (event.target === overlay) {
       close();
       return;

@@ -9,7 +9,6 @@ function createDeps(overrides = {}) {
     postAction: '',
     keepOpen: false,
     openRegistro: false,
-    openPmoc: false,
     saveWithoutClient: false,
   };
 
@@ -86,8 +85,6 @@ function createDeps(overrides = {}) {
       calls.push('runSaveEquipPostActions');
     }),
     focusNameInput: vi.fn(),
-    requestAnimationFrameRef: vi.fn(),
-    documentRef: { querySelector: vi.fn() },
     ...overrides,
   };
 }
@@ -194,7 +191,6 @@ describe('crud/saveEquip', () => {
       postAction: 'register',
       keepOpen: false,
       openRegistro: true,
-      openPmoc: false,
       saveWithoutClient: false,
     };
     const deps = configure({
@@ -213,7 +209,6 @@ describe('crud/saveEquip', () => {
       expect.objectContaining({
         keepOpen: false,
         openRegistro: true,
-        openPmoc: false,
         payload: deps.payload,
         startServiceRegistration: deps.startServiceRegistration,
       }),

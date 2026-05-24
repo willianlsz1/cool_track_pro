@@ -831,3 +831,13 @@ Executar CP54C1: aposentar a superficie clicavel PDF/WhatsApp em Historico e
 Registro v1 antes de remover o handler central. O corte deve remover CTAs e
 fallbacks legados, ajustar os testes correspondentes e manter PDF/share,
 WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
+
+## 10. Atualizacao de continuidade
+
+- CP-58C remove a superficie formal PMOC v1 (`pmocModal`, `pmocInfoModal`,
+  `open-pmoc-modal` e post-action `openPmoc`).
+- V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
+  reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
+  ou Supabase.
+- Supabase deve ser refeito em etapa propria depois da limpeza das migrations e
+  artefatos v1.

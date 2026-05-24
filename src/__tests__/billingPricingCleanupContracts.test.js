@@ -72,10 +72,8 @@ describe('billing/pricing cleanup contracts', () => {
     expect(existsSync('src/ui/views/conta.js')).toBe(false);
   });
 
-  it('does not keep PMOC blocked-state controls named as commercial upgrade actions', () => {
-    const pmocModalSource = readSource('src/ui/components/pmocModal.js');
-
-    expect(pmocModalSource).not.toContain('pmoc-upgrade');
+  it('does not keep the removed legacy PMOC formal modal after commercial cleanup', () => {
+    expect(existsSync('src/ui/components/pmocModal.js')).toBe(false);
   });
 
   it('does not keep nameplate quota messages pointing to paid-plan conversion', () => {
