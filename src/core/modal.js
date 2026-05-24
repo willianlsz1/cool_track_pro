@@ -86,14 +86,6 @@ export const Modal = {
         if (e.key === 'Escape' && el.classList.contains('is-open')) this.close(el.id);
       });
     });
-
-    // Lightbox: fechar ao clicar no overlay (fix: lightbox sem fechar no overlay)
-    const lightbox = Utils.getEl('lightbox');
-    if (lightbox) {
-      lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) lightbox.classList.remove('is-open');
-      });
-    }
   },
 
   _enableTabTrap(modalEl) {

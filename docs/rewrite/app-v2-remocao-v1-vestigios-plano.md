@@ -707,6 +707,10 @@ Progresso executado:
   bloqueantes passam a depender apenas de modal padrao, camadas registradas via
   `registerBlockingLayer` e overflow modal. Nenhum storage, Supabase/RLS ou
   migration foi alterado.
+- CP-57J remove os ultimos tratamentos runtime diretos de `#lightbox` em
+  `src/core/modal.js` e `src/core/events.js`: clique no overlay e Escape deixam
+  de conhecer o lightbox legado, e o contrato passa a bloquear o retorno desse
+  vestigio em router/modal/events.
 
 Controle:
 
