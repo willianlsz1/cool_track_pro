@@ -16,7 +16,6 @@
 @import './components/_equip-hero.css';
 @import './components/_setor-modal.css';
 @import './components/_clientes.css';
-@import './components/_configuracoes.css';
 @import './components/_checklist.css';
 @import './components/_pmoc.css';
 @import './components/_orcamento-modal.css';
@@ -16486,19 +16485,11 @@ select option {
   justify-content: center;
 }
 
-/* Footer (Planos) */
+/* Footer */
 .app-sidebar__footer {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 12px;
   margin-top: 12px;
-}
-.app-sidebar__nav-item--upgrade {
-  color: var(--warning, #e8a020);
-  background: rgba(232, 160, 32, 0.06);
-}
-.app-sidebar__nav-item--upgrade:hover {
-  background: rgba(232, 160, 32, 0.12);
-  color: var(--warning, #e8a020);
 }
 
 /* Header app: em desktop com sidebar, padding-left ajusta porque sidebar
@@ -17067,34 +17058,6 @@ select option {
   display: block;
   width: 12px;
   height: 12px;
-}
-
-/* CTA upgrade no Free (substitui o renewal card) */
-.conta-hero__upgrade-cta {
-  position: relative;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  background: linear-gradient(120deg, #e8a020 0%, #f5b54a 100%);
-  color: #1a1100;
-  border: none;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(232, 160, 32, 0.25);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-  align-self: stretch;
-  justify-content: center;
-}
-.conta-hero__upgrade-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(232, 160, 32, 0.35);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -18704,12 +18667,12 @@ select option {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Sidebar V3 (abr/2026): 3 secoes + plan card melhorado + Configuracoes.
+   Sidebar V3 (abr/2026): 3 secoes + ajuda operacional.
    Override seletivo dos estilos existentes do app-sidebar.
    ═══════════════════════════════════════════════════════════════════════ */
 
 @media (min-width: 1024px) {
-  /* Sidebar maior: cabe sectioning + plan card + Configuracoes */
+  /* Sidebar maior: cabe sectioning + ajuda operacional */
   .app-shell--with-sidebar.app-content {
     grid-template-columns: 260px 1fr;
   }
@@ -18883,7 +18846,7 @@ select option {
     border-color: rgba(45, 212, 164, 0.18);
   }
 
-  /* ── Configuracoes row (rodape) ── */
+  /* ── Ajuda row (rodape) ── */
   .app-sidebar__settings {
     display: flex;
     align-items: center;
@@ -19449,7 +19412,7 @@ select option {
 /* ═══════════════════════════════════════════════════════════════════════
    Header: esconde elementos redundantes em desktop (sidebar ja cobre).
    - Sino: sidebar tem item Alertas com badge
-   - Engrenagem: sidebar tem rodape Configuracoes
+   - Engrenagem: sidebar tem rodape Ajuda
    - Avatar: sidebar tem user chip (Fernando Ruan / Administrador)
    - Sync status: vai pro rodape da sidebar (style abaixo)
    Mantemos: brand + (sync status escondido aqui pq o da sidebar assume)
@@ -19458,7 +19421,7 @@ select option {
 @media (min-width: 1024px) {
   /* Desktop: sidebar cobre tudo. Esconde sino, avatar, sync e o BOTAO da
      engrenagem do header (mas NAO o wrapper .header-settings — ele continua
-     hospedando o #header-help-menu que eh aberto pela "Configuracoes" do
+     hospedando o #header-help-menu que eh aberto pela "Ajuda" do
      sidebar via re-posicionamento JS).
 
      ATENCAO: header-help-btn e header-alert-btn sao IDs no DOM (com

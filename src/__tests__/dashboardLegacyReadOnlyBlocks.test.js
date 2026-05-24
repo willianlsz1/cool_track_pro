@@ -49,7 +49,6 @@ function buildDashboardDom() {
               <span class="dash__section-label">Alertas ativos</span>
             </header>
             <div id="dash-alertas-mini"></div>
-            <div id="dash-upgrade-inline-hint"></div>
           </section>
 
           <section class="dash__section" id="dash-criticos-section" hidden>

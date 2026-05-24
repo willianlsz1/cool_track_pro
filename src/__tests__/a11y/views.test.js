@@ -63,23 +63,14 @@ describe('a11y — views internas (templates shell)', () => {
     await expectNoSeriousViolations(getView(host, 'view-historico'));
   });
 
-  // Clientes e Configurações são containers vazios no template shell —
-  // o conteúdo é populado em runtime por renderClientes()/configurações
-  // dinâmicas que dependem de state mockado (Supabase, plano, etc).
-  // Cobrir essas views requer setup que foge do escopo da Mudança 10.
+  // Clientes é container vazio no template shell. O conteúdo é populado
+  // em runtime por renderClientes(), que depende de state mockado.
+  // Cobrir essa view requer setup que foge do escopo da Mudança 10.
   it.skip('Clientes (#view-clientes) — sem violations serious/critical', async () => {
     // TODO(a11y): view shell é só `<div id="clientes-root"></div>`. Cobertura
     // real depende de renderClientes() em src/ui/views/clientes.js, que
     // requer state mockado completo (clientes, setores, plano). Endereçar
     // numa Mudança dedicada pra views dinâmicas.
     await expectNoSeriousViolations(getView(host, 'view-clientes'));
-  });
-
-  it.skip('Configurações (#view-configuracoes) — sem violations serious/critical', async () => {
-    // TODO(a11y): view shell é completamente vazia (`<div class="view"
-    // id="view-configuracoes"></div>`). Conteúdo é injetado em runtime
-    // por src/ui/views/configuracoes.js, dependente de plano + flags.
-    // Cobrir requer state mockado, fora do escopo da Mudança 10.
-    await expectNoSeriousViolations(getView(host, 'view-configuracoes'));
   });
 });

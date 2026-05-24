@@ -196,7 +196,9 @@ describe('global header legacy contracts', () => {
 
     expect(document.querySelector(`[data-nav="${HEADER_NAV_TARGETS.registro}"]`)).not.toBeNull();
     expect(document.querySelector(`[data-nav="${HEADER_NAV_TARGETS.clientes}"]`)).not.toBeNull();
-    expect(document.querySelector('#header-help-btn[data-nav="configuracoes"]')).not.toBeNull();
+    expect(
+      document.querySelector('#header-help-btn[data-action="toggle-help-menu"]'),
+    ).not.toBeNull();
 
     const helpMenu = document.getElementById(HEADER_PUBLIC_IDS.helpMenu);
     expect(helpMenu?.hasAttribute('hidden')).toBe(true);
@@ -280,9 +282,9 @@ describe('global header legacy contracts', () => {
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.root}"`);
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpMenu}"`);
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpButton}"`);
-    expect(headerSource).toContain(`data-nav="configuracoes"`);
-    expect(headerSource).toContain(`aria-label="Configurações e ajuda"`);
-    expect(headerSource).toContain(`title="Configurações e ajuda"`);
+    expect(headerSource).toContain(`data-action="${HEADER_ACTIONS.toggleHelpMenu}"`);
+    expect(headerSource).toContain(`aria-label="Ajuda operacional"`);
+    expect(headerSource).toContain(`title="Ajuda operacional"`);
     expect(headerSource).toContain(`id="${HEADER_PUBLIC_IDS.helpMenu}"`);
     expect(headerSource).toContain(`aria-hidden="true"`);
     expect(headerSource).toContain(`inert`);

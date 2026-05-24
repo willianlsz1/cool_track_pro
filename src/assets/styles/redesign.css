@@ -1948,41 +1948,6 @@ body:not(.landing-active)
     border-color: var(--ct-dx-border) !important;
   }
 
-  /* ─── Configurações (cards de seção e items) ────────────────── */
-  body:not(.landing-active) #view-configuracoes .cfg-page__header {
-    background-color: var(--ct-dx-surface-1) !important;
-    background-image: none !important;
-    border-color: var(--ct-dx-border) !important;
-  }
-
-  body:not(.landing-active) #view-configuracoes .cfg-page__section {
-    background-color: var(--ct-dx-surface-1) !important;
-    background-image: none !important;
-    border-color: var(--ct-dx-border) !important;
-    box-shadow: none !important;
-  }
-
-  body:not(.landing-active) #view-configuracoes .cfg-page__section-title {
-    color: var(--ct-desktop-text-tertiary, #adbac7) !important;
-  }
-
-  body:not(.landing-active) #view-configuracoes .cfg-page__item {
-    background-color: var(--ct-dx-surface-2) !important;
-    background-image: none !important;
-    border-color: var(--ct-dx-border) !important;
-    color: var(--ct-desktop-text-primary, #e6edf3) !important;
-  }
-
-  body:not(.landing-active) #view-configuracoes .cfg-page__item:hover,
-  body:not(.landing-active) #view-configuracoes .cfg-page__item:focus-visible {
-    background-color: var(--ct-dx-surface-1) !important;
-    border-color: var(--ct-dx-border-brand) !important;
-  }
-
-  body:not(.landing-active) #view-configuracoes .cfg-page__item-label {
-    color: var(--ct-desktop-text-primary, #e6edf3) !important;
-  }
-
   /* ─── Histórico: títulos em branco (não cyan apagado) ───────── */
   body:not(.landing-active) #view-historico .hist-title,
   body:not(.landing-active) #view-historico .timeline__item__service,
@@ -2002,8 +1967,6 @@ body:not(.landing-active)
      futura tentar reinjetar background-image. */
   body:not(.landing-active) #view-registro details.registro-details,
   body:not(.landing-active) #view-registro summary.registro-details__summary,
-  body:not(.landing-active) #view-configuracoes .cfg-page__section,
-  body:not(.landing-active) #view-configuracoes .cfg-page__item,
   body:not(.landing-active) #app .action-tray,
   body:not(.landing-active) #app .action-tray__row {
     background-image: none !important;

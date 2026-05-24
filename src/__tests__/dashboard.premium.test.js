@@ -47,7 +47,6 @@ function buildDom() {
         <div id="dash-critical-now-count"></div>
         <section id="dash-alerts-section"></section>
         <div id="dash-alertas-mini"></div>
-        <div id="dash-upgrade-inline-hint"></div>
         <section id="dash-criticos-section"></section>
         <div id="dash-criticos"></div>
         <section id="dash-recentes-section"></section>

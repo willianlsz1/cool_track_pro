@@ -799,20 +799,6 @@
 .pmoc-info-modal__btn {
   min-width: 110px;
 }
-.pmoc-info-modal__btn--upgrade {
-  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-  color: #fff;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
-}
-.pmoc-info-modal__btn--upgrade:hover {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
-}
 
 @media (max-width: 640px) {
   .pmoc-info-modal {

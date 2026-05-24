@@ -188,10 +188,10 @@ export function renderShellSidebar() {
     </button>
 
     <button type="button" class="app-sidebar__settings"
-      id="sidenav-settings" data-nav="configuracoes"
-      aria-label="Configurações e ajuda" title="Configurações e ajuda">
+      id="sidenav-settings" data-action="toggle-help-menu"
+      aria-label="Ajuda operacional" title="Ajuda operacional">
       <span class="app-sidebar__settings-icon" aria-hidden="true">${ICON_GEAR}</span>
-      <span class="app-sidebar__settings-label">Configurações</span>
+      <span class="app-sidebar__settings-label">Ajuda</span>
       <span class="app-sidebar__settings-chev" aria-hidden="true">${ICON_CHEV_R}</span>
     </button>
   </div>

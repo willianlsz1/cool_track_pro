@@ -11,7 +11,6 @@ const routeIds = [
   'clientes',
   'conta',
   'privacidade',
-  'configuracoes',
   'orcamentos',
 ];
 
@@ -68,9 +67,6 @@ vi.mock('../../ui/views/conta.js', () => ({ renderConta: makeRenderSpy('conta') 
 vi.mock('../../ui/views/privacidade.js', () => ({
   renderPrivacidade: makeRenderSpy('privacidade'),
 }));
-vi.mock('../../ui/views/configuracoes.js', () => ({
-  renderConfiguracoes: makeRenderSpy('configuracoes'),
-}));
 vi.mock('../../ui/views/orcamentos.js', () => ({
   loadAndRenderOrcamentos: makeRenderSpy('orcamentos'),
   unmountOrcamentos: vi.fn(),
@@ -105,7 +101,6 @@ describe('contracts/routes', () => {
     expect([...routeIds].sort()).toEqual([
       'alertas',
       'clientes',
-      'configuracoes',
       'conta',
       'equipamentos',
       'historico',

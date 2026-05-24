@@ -56,7 +56,6 @@ function buildDashboardDom() {
         <div id="dash-critical-now-count"></div>
         <section id="dash-alerts-section" hidden></section>
         <div id="dash-alertas-mini"></div>
-        <div id="dash-upgrade-inline-hint"></div>
         <section id="dash-criticos-section" hidden></section>
         <div id="dash-criticos"></div>
         <section id="dash-recentes-section" hidden></section>

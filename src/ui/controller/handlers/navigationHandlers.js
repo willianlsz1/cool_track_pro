@@ -60,7 +60,7 @@ function setHelpMenuState(open, anchorEl = null) {
     return;
   }
 
-  // Aberto via sidebar Configurações: move o menu pra ser filho direto do
+  // Aberto via Ajuda na sidebar: move o menu pra ser filho direto do
   // body com position fixed perto do anchor. Isso evita problemas de
   // containing block / overflow / display:contents do parent original.
   if (anchorEl) {
@@ -200,7 +200,7 @@ export function bindNavigationHandlers() {
     if (id === 'modal-eq-photos') clearEquipPhotosEditingState();
   });
   on('toggle-help-menu', (el) => {
-    // Se o trigger é o botao Configurações do sidebar, passa ele como anchor
+    // Se o trigger é o botao Ajuda do sidebar, passa ele como anchor
     // pra o menu ser reposicionado pra cima dele em vez do gear do header.
     const anchor = el?.id === 'sidenav-settings' ? el : null;
     setHelpMenuState(!isHelpOpen, anchor);

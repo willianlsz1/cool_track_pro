@@ -953,9 +953,6 @@
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>
 
-        <!-- CONFIGURAÇÕES -->
-        <div class="view" id="view-configuracoes"></div>
-
         <!-- CONTA (full-page Minha Conta) -->
         <div class="view" id="view-conta"></div>
 

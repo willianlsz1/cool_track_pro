@@ -41,14 +41,14 @@
             <span class="header-alert-tooltip" id="header-alert-tooltip" role="tooltip" hidden></span>
           </button>
 
-          <!-- Gear de configurações (acopla ajuda + tema) -->
+          <!-- Gear de ajuda operacional -->
           <div class="header-settings">
             <button
               class="header-icon-btn"
               id="header-help-btn"
-              data-nav="configuracoes"
-              aria-label="Configurações e ajuda"
-              title="Configurações e ajuda"
+              data-action="toggle-help-menu"
+              aria-label="Ajuda operacional"
+              title="Ajuda operacional"
               aria-expanded="false"
               >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
