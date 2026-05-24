@@ -327,6 +327,18 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/__tests__/registroLegacySignatureRender.test.js')).toBe(false);
   });
 
+  it('does not keep legacy signature storage after retiring signature flows', () => {
+    const storageSource = readSource('src/core/storage.js');
+
+    expect(existsSync('src/core/signatureStorage.js')).toBe(false);
+    expect(existsSync('src/ui/components/signature/signature-storage.js')).toBe(false);
+    expect(existsSync('src/__tests__/signatureStorage.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/signatureFlush.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/signatureResolver.test.js')).toBe(false);
+    expect(storageSource).not.toContain('flushPendingSignatures');
+    expect(storageSource).not.toContain('signatureStorage');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

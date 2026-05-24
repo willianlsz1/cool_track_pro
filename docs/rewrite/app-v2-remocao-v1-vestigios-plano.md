@@ -601,6 +601,12 @@ Progresso executado:
   `src/__tests__/registroLegacySignatureRender.test.js`. Storage real,
   router global e campo persistido `registros.assinatura` permanecem para CPs
   proprios.
+- CP-55D remove o storage legado de assinatura
+  (`src/core/signatureStorage.js` e
+  `src/ui/components/signature/signature-storage.js`), o flush automatico de
+  assinaturas pendentes em `src/core/storage.js` e os testes dedicados de
+  storage/flush/resolver. Router global e campo persistido
+  `registros.assinatura` permanecem para CPs proprios.
 
 Controle:
 

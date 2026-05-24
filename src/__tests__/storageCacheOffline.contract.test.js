@@ -11,19 +11,11 @@ import {
   setCacheOwner,
 } from '../core/storage/storageLocalCache.js';
 import { normalizePhotoEntry } from '../core/photoStorage.js';
-import {
-  enqueuePendingSignature,
-  listPendingSignatures,
-  normalizeSignatureEntry,
-} from '../core/signatureStorage.js';
 
 const DIRTY_KEY = 'cooltrack-sync-dirty-v1';
 const DELETIONS_KEY = 'cooltrack-sync-deletions-v1';
 const CACHE_OWNER_KEY = 'cooltrack-cache-owner-v1';
 const SIGNATURE_QUEUE_KEY = 'cooltrack-sig-pending-upload';
-
-const VALID_DATA_URL =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 function createSupabaseMock({
   userId = 'user-1',
@@ -220,7 +212,7 @@ describe('storage/cache/offline cross-area contract', () => {
     });
   });
 
-  it('trava shapes de fotos pendentes, assinatura legacy/pendente e cache de plano escopado', async () => {
+  it('trava shapes de fotos pendentes, retirada de assinatura legacy e cache de plano escopado', async () => {
     expect(
       normalizePhotoEntry({
         pending: true,
@@ -235,19 +227,7 @@ describe('storage/cache/offline cross-area contract', () => {
       index: 0,
     });
 
-    expect(normalizeSignatureEntry(VALID_DATA_URL)).toEqual({
-      version: 1,
-      legacy: true,
-      dataUrl: VALID_DATA_URL,
-    });
-    enqueuePendingSignature('reg-1', VALID_DATA_URL);
-    expect(localStorage.getItem(SIGNATURE_QUEUE_KEY)).toContain('reg-1');
-    expect(listPendingSignatures()).toEqual([
-      expect.objectContaining({
-        registroId: 'reg-1',
-        dataUrl: VALID_DATA_URL,
-      }),
-    ]);
+    expect(localStorage.getItem(SIGNATURE_QUEUE_KEY)).toBeNull();
 
     const { setCurrentUser, setCachedPlan, getCachedPlan, hasHydratedPlanInSession, trackEvent } =
       await loadPlanCache();
