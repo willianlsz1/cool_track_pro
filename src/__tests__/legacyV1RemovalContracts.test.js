@@ -42,6 +42,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('e2e/specs/registro-visual-smoke.spec.js')).toBe(false);
   });
 
+  it('does not keep the legacy relatorio export PMOC e2e after v2 promotion', () => {
+    expect(existsSync('e2e/specs/relatorio-export-pmoc.spec.js')).toBe(false);
+  });
+
   it('does not keep the unused legacy app bootstrap entrypoint', () => {
     const primaryHtml = readSource('index.html');
     const serviceWorkerRegisterSource = readSource('public/sw-register.js');
