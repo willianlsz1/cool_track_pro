@@ -4,7 +4,12 @@
 
 Remover o runtime legado/v1 e seus vestigios depois da confirmacao de que o
 app-v2 esta como entrada principal da `main`, sem quebrar contratos ainda usados
-por app-v2, Supabase, PDF/share, storage, autenticacao ou validacoes.
+por app-v2, Supabase, autenticacao ou validacoes.
+
+PDF/share, assinatura, fotos, storage e PMOC nao devem ser reaproveitados do v1
+para o app-v2. Essas areas passam a ter dois destinos separados: remover o
+legado em checkpoints pequenos e recriar solucoes app-v2-native em etapas
+proprias.
 
 Este plano e uma etapa de preparacao. Ele nao executa delecoes de codigo.
 
@@ -290,29 +295,30 @@ insegura. `src/react` ja foi removido e e protegido por
 
 ## 4. Fora de escopo inicial
 
-Nao remover nesta primeira sequencia sem etapa dedicada:
+Nao remover sem etapa dedicada:
 
 - Supabase functions e migrations relacionadas a billing/Stripe.
 - RLS, policies e schemas.
-- PDF/share real e `vendor-pdf`.
-- WhatsApp/share.
-- Upload/storage de arquivos.
 - Autenticacao.
-- PMOC real.
 - Orcamento real.
 - Router/deep links.
 - Dependencias em `package.json` ou `package-lock.json`, salvo etapa aprovada
   com evidencia de nao uso.
 
+PDF/share, WhatsApp/share, assinatura, fotos, upload/storage e PMOC agora podem
+ser removidos do v1 em CPs dedicados de desmontagem, desde que o CP tambem
+prove ausencia de dependencia do app-v2. A recriacao dessas areas deve ocorrer
+em planos app-v2-native separados, nao como adaptacao do codigo legado.
+
 ## 5. Riscos principais
 
-| Risco                                                | Impacto                                                          | Controle                                                   |
-| ---------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------- |
-| Remover helper legado ainda usado por `domain`       | Quebra PDF, WhatsApp ou testes de seguranca                      | Extrair contratos puros antes de deletar                   |
-| Remover testes legados antes de substituir cobertura | Regressao silenciosa em assinatura, storage ou relatorio         | Migrar ou aposentar teste com justificativa por checkpoint |
-| Limpar CSS legado antes de provar nao uso            | Regressao visual em telas ainda referenciadas por testes ou docs | Usar relatorio de CSS morto e smoke visual                 |
-| Remover billing backend junto com v1                 | Mistura area sensivel com limpeza estrutural                     | Manter billing backend para etapa propria                  |
-| Editar legal/SEO sem revisao                         | Texto publico inconsistente                                      | Checkpoint especifico de copy/legal                        |
+| Risco                                                | Impacto                                                          | Controle                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| Remover helper legado ainda usado por `domain`       | Quebra runtime remanescente ou testes de seguranca               | Desacoplar ou aposentar consumidor no mesmo checkpoint  |
+| Remover testes legados antes de substituir cobertura | Regressao silenciosa em area ainda ativa                         | Migrar, substituir ou aposentar teste com justificativa |
+| Limpar CSS legado antes de provar nao uso            | Regressao visual em telas ainda referenciadas por testes ou docs | Usar relatorio de CSS morto e smoke visual              |
+| Remover billing backend junto com v1                 | Mistura area sensivel com limpeza estrutural                     | Manter billing backend para etapa propria               |
+| Editar legal/SEO sem revisao                         | Texto publico inconsistente                                      | Checkpoint especifico de copy/legal                     |
 
 ## 6. Plano de implementacao por checkpoints
 
@@ -402,7 +408,7 @@ Commit sugerido:
 ### CP-4 - Remover shell, views e controllers v1
 
 Objetivo: remover a navegacao, views e handlers do app legado depois que
-contratos compartilhados ja estiverem isolados.
+contratos compartilhados ja estiverem isolados ou explicitamente aposentados.
 
 Escopo provavel:
 
@@ -414,8 +420,9 @@ Escopo provavel:
 
 Controle:
 
-- Nao remover componentes de PDF/share, assinatura ou storage se ainda forem
-  chamados por `domain` ou testes de seguranca.
+- Nao adaptar componentes sensiveis do v1 para o app-v2.
+- Se PDF/share, assinatura, fotos, storage ou PMOC estiverem acoplados a uma
+  view v1, remover em CP dedicado ou aposentar o consumidor no mesmo CP.
 - Apagar em lotes pequenos por dominio: dashboard, equipamentos, historico,
   registro, relatorios, conta.
 
@@ -496,6 +503,10 @@ Progresso executado:
   apenas como model test-only sem consumidor runtime. Os testes que protegem o
   comportamento atual do slot legado e do hero PMOC em Relatorios foram
   preservados.
+- CP-51 registrou a decisao de nao reutilizar PDF/share, assinatura, fotos,
+  storage e PMOC do v1. Essas areas deixam de ser destino de preservacao e
+  passam a ser removidas como legado, com reconstrucao app-v2-native planejada
+  em etapas proprias.
 
 Controle:
 
@@ -574,7 +585,7 @@ Commit sugerido:
 ## 7. Ordem recomendada
 
 1. CP-1 para travar inventario e evitar delecao por palpite.
-2. CP-2 para quebrar acoplamentos sensiveis.
+2. CP-2 para quebrar ou aposentar acoplamentos sensiveis.
 3. CP-3 a CP-5 para remover runtime v1 por lotes.
 4. CP-6 para limpar CSS depois que runtime v1 sair.
 5. CP-7 para limpar superficie publica e legal.
@@ -587,6 +598,8 @@ A remocao do v1 so deve ser considerada concluida quando:
 - `index.html` monta apenas app-v2.
 - `src/ui`, `src/react` e `src/features` nao existem mais ou restaram apenas
   arquivos reclassificados com justificativa documentada.
+- PDF/share, assinatura, fotos, storage e PMOC legados nao participam do app-v2;
+  a recriacao dessas areas esta documentada como app-v2-native.
 - `src/app-v2` nao importa runtime legado.
 - `src/domain` e `src/core` nao importam `src/ui`, `src/react` ou
   `src/features`.
@@ -595,7 +608,8 @@ A remocao do v1 so deve ser considerada concluida quando:
 
 ## 9. Proximo passo recomendado
 
-Executar o proximo corte em um lote pequeno de `src/ui/components` sem
-PDF/share, assinatura, fotos, storage, auth, PMOC ou router. Antes de apagar
-cada candidato, confirmar ausencia de consumidor runtime ativo com `rg`,
-aposentar ou migrar o teste correspondente e atualizar os gates de remocao.
+Executar o proximo corte em um lote pequeno de `src/ui/components`, agora com a
+premissa de que PDF/share, assinatura, fotos, storage e PMOC nao serao
+reaproveitados. Antes de apagar cada candidato, confirmar consumidores ativos
+com `rg`, aposentar ou migrar o teste correspondente e atualizar os gates de
+remocao.
