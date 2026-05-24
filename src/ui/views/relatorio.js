@@ -14,6 +14,10 @@ import {
   RELATORIO_VIEW_MODES,
 } from '../viewModels/relatorioContracts.js';
 import { buildReportContext, buildRelatorioViewModel } from '../viewModels/relatorioViewModel.js';
+import {
+  renderRelatorioControls,
+  unmountRelatorioControlsDom,
+} from './relatorio/controlsRenderer.js';
 
 export {
   buildPeriodNarrative,
@@ -34,8 +38,6 @@ const VIEW_MODE_COMPACT = RELATORIO_VIEW_MODES.compact;
 const VIEW_MODE_DETAILED = RELATORIO_VIEW_MODES.detailed;
 const PLAN_CODE_PRO = RELATORIO_PLAN_CODES.pro;
 let relatorioHeroRenderGeneration = 0;
-let relatorioControlsBridgePromise = null;
-let relatorioControlsBridge = null;
 let relatorioControlsRenderGeneration = 0;
 let relatorioCardsBridgePromise = null;
 let relatorioCardsBridge = null;
@@ -68,22 +70,6 @@ function rememberRelatorioFiltersFromDom() {
     de: Utils.getEl('rel-de') ? Utils.getVal('rel-de') : lastRelatorioFilters.de,
     ate: Utils.getEl('rel-ate') ? Utils.getVal('rel-ate') : lastRelatorioFilters.ate,
   };
-}
-
-function loadRelatorioControlsBridge() {
-  if (relatorioControlsBridge) return Promise.resolve(relatorioControlsBridge);
-  if (!relatorioControlsBridgePromise) {
-    relatorioControlsBridgePromise = import('../../react/entrypoints/relatorioControlsIsland.jsx')
-      .then((bridge) => {
-        relatorioControlsBridge = bridge;
-        return bridge;
-      })
-      .catch((error) => {
-        relatorioControlsBridgePromise = null;
-        throw error;
-      });
-  }
-  return relatorioControlsBridgePromise;
 }
 
 function loadRelatorioCardsBridge() {
@@ -120,16 +106,7 @@ export function unmountRelatorioControls() {
 
   rememberRelatorioFiltersFromDom();
   const root = document.getElementById('rel-controls-root');
-  if (!root?.dataset.reactRelatorioControlsMounted) return null;
-
-  if (relatorioControlsBridge?.unmountRelatorioControlsReact) {
-    relatorioControlsBridge.unmountRelatorioControlsReact(root);
-    return null;
-  }
-
-  return loadRelatorioControlsBridge().then((bridge) => {
-    bridge.unmountRelatorioControlsReact?.(root);
-  });
+  return unmountRelatorioControlsDom(root);
 }
 
 export function unmountRelatorioCards() {
@@ -517,7 +494,7 @@ function buildRelatorioHeroReactViewModel({
   };
 }
 
-function buildRelatorioControlsReactViewModel({
+function buildRelatorioControlsViewModel({
   modeCopy,
   viewMode,
   isPro,
@@ -703,16 +680,8 @@ function mountRelatorioControls({ root, controls }) {
   if (!root) return null;
   const renderGeneration = (relatorioControlsRenderGeneration += 1);
 
-  const mountWithBridge = (bridge) => {
-    if (renderGeneration !== relatorioControlsRenderGeneration) return null;
-    return bridge.mountRelatorioControlsReact(root, { controls });
-  };
-
-  if (relatorioControlsBridge?.mountRelatorioControlsReact) {
-    return mountWithBridge(relatorioControlsBridge);
-  }
-
-  return loadRelatorioControlsBridge().then(mountWithBridge);
+  if (renderGeneration !== relatorioControlsRenderGeneration) return null;
+  return renderRelatorioControls(root, { controls });
 }
 
 function mountRelatorioCards({ root, cards }) {
@@ -914,7 +883,7 @@ export function renderRelatorio(options = {}) {
   const rerender = (opts = {}) => renderRelatorio(opts);
 
   const renderContent = () => {
-    const controlsViewModel = buildRelatorioControlsReactViewModel({
+    const controlsViewModel = buildRelatorioControlsViewModel({
       modeCopy,
       viewMode,
       isPro,

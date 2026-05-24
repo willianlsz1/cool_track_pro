@@ -229,11 +229,11 @@ describe('report export public contracts', () => {
     expect(RELATORIO_ACTIONS.exportPdf).toBe('export-pdf');
     expect(RELATORIO_ACTIONS.whatsappExport).toBe('whatsapp-export');
 
-    const controlsSource = source('src/react/pages/RelatorioControls.jsx');
+    const controlsSource = source('src/ui/views/relatorio/controlsRenderer.js');
     const cardsSource = source('src/react/components/CardActions.jsx');
 
-    expect(controlsSource).toContain('data-action={RELATORIO_ACTIONS.exportPdf}');
-    expect(controlsSource).toContain('data-action={RELATORIO_ACTIONS.whatsappExport}');
+    expect(controlsSource).toContain('data-action="${RELATORIO_ACTIONS.exportPdf}"');
+    expect(controlsSource).toContain('data-action="${RELATORIO_ACTIONS.whatsappExport}"');
     expect(cardsSource).toContain('data-action="export-pdf"');
     expect(cardsSource).toContain('data-action="whatsapp-export"');
     expect(cardsSource).toContain('data-registro-id={registroId}');

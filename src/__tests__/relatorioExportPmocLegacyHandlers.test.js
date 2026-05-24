@@ -318,7 +318,7 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
     stubBlobDownload();
   });
 
-  it('aciona o handler legado de export-pdf usando filtros emitidos pela ilha React', async () => {
+  it('aciona o handler legado de export-pdf usando filtros emitidos pelos controles DOM', async () => {
     const ctx = await loadRelatorioWithExportHandlers();
 
     await renderRelatorio(ctx);
@@ -326,7 +326,7 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
 
     const controlsRoot = document.querySelector('#rel-controls-root');
     const pdfButton = document.querySelector('[data-action="export-pdf"]');
-    expect(controlsRoot?.dataset.reactRelatorioControlsMounted).toBe('true');
+    expect(controlsRoot?.dataset.relatorioControlsMounted).toBe('true');
     expect(pdfButton).not.toBeNull();
     expect(document.querySelector('#rel-equip')?.value).toBe('eq-1');
     expect(document.querySelector('#rel-de')?.value).toBe('2026-04-01');
@@ -391,7 +391,7 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
     expect(ctx.mocks.shareSuccessShow).toHaveBeenCalled();
   });
 
-  it('mantem toggle-export-dd operando sobre o dropdown renderizado pela ilha React', async () => {
+  it('mantem toggle-export-dd operando sobre o dropdown renderizado pelos controles DOM', async () => {
     const ctx = await loadRelatorioWithExportHandlers();
 
     await renderRelatorio(ctx);
@@ -503,7 +503,8 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
     expect(alertSpy).not.toHaveBeenCalled();
 
     const adapterSource = readFileSync('src/ui/views/relatorio.js', 'utf8');
-    expect(adapterSource).toContain('../../react/entrypoints/relatorioControlsIsland.jsx');
+    expect(adapterSource).toContain('./relatorio/controlsRenderer.js');
+    expect(adapterSource).toContain('../../react/entrypoints/relatorioCardsIsland.jsx');
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
     expect(adapterSource).not.toMatch(/dangerouslySetInnerHTML/);

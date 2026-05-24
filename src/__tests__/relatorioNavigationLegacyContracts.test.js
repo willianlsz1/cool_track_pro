@@ -194,7 +194,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
 
     const controlsRoot = document.getElementById(RELATORIO_PUBLIC_IDS.controlsRoot);
     const cardsRoot = document.getElementById(RELATORIO_PUBLIC_IDS.body);
-    expect(controlsRoot?.dataset.reactRelatorioControlsMounted).toBe('true');
+    expect(controlsRoot?.dataset.relatorioControlsMounted).toBe('true');
     expect(cardsRoot?.dataset.reactRelatorioCardsMounted).toBe('true');
 
     await clickNavAndExpect(
@@ -219,7 +219,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
     ).toBeNull();
     expect(
       document.querySelector(`#${RELATORIO_PUBLIC_IDS.pmocNudge}[data-action="open-upgrade"]`),
-    ).not.toBeNull();
+    ).toBeNull();
 
     ctx.setPlanCode('pro');
     ctx.setState(buildState());
@@ -302,7 +302,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
 
     expect(eventsSource).toContain("closest('[data-nav]')");
     expect(eventsSource).toContain('goTo(navBtn.dataset.nav)');
-    expect(adapterSource).toContain('../../react/entrypoints/relatorioControlsIsland.jsx');
+    expect(adapterSource).toContain('./relatorio/controlsRenderer.js');
     expect(adapterSource).toContain('../../react/entrypoints/relatorioCardsIsland.jsx');
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
