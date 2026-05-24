@@ -70,7 +70,7 @@ import {
 import {
   _stripRenderInternalOptions,
   buildReactListViewModel,
-} from '../../features/equipamentos/utils/viewModels.js';
+} from './equipamentos/utils/viewModels.js';
 import {
   getEditingEquipId,
   getEditingSetorId,
@@ -382,7 +382,7 @@ export function syncComponenteVisibility() {
 }
 
 // _stripRenderInternalOptions extraído pra
-// src/features/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
+// src/ui/views/equipamentos/utils/viewModels.js (Mudança 11 / CP-B).
 
 /** @sliceTarget ui/actionButtons */
 function setEquipActionButtonVisible(button, visible) {
@@ -1184,7 +1184,7 @@ async function _refreshSaveEquipViews() {
 }
 
 // _eqDetailSubtitle, _infoRowValueOrEmpty, _riskFactorChipHtml extraídos
-// pra src/features/equipamentos/utils/detail.js (Mudança 11 / CP-B).
+// pra src/ui/views/equipamentos/utils/detail.js (Mudança 11 / CP-B).
 
 /** @sliceTarget ui/detail */
 function _resolveViewEquipTarget(id) {

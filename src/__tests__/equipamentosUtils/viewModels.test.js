@@ -10,7 +10,10 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { _stripRenderInternalOptions, buildReactListEmptyState } from '../../utils/viewModels.js';
+import {
+  _stripRenderInternalOptions,
+  buildReactListEmptyState,
+} from '../../ui/views/equipamentos/utils/viewModels.js';
 
 describe('utils/viewModels', () => {
   describe('_stripRenderInternalOptions', () => {
@@ -97,14 +100,14 @@ describe('utils/viewModels', () => {
     beforeEach(async () => {
       vi.resetModules();
       // Mocks mínimos pras dependências externas
-      vi.doMock('../../../../core/state.js', () => ({
+      vi.doMock('../../core/state.js', () => ({
         regsForEquip: () => [],
         getState: () => ({ equipamentos: [], registros: [], setores: [], clientes: [] }),
         findEquip: () => null,
         findSetor: () => null,
         setState: () => {},
       }));
-      vi.doMock('../../../../core/utils.js', () => ({
+      vi.doMock('../../core/utils.js', () => ({
         Utils: {
           safeStatus: (s) => s || 'ok',
           escapeHtml: (s) => String(s),
@@ -112,35 +115,35 @@ describe('utils/viewModels', () => {
           daysDiff: () => 0,
         },
       }));
-      vi.doMock('../../../../domain/maintenance.js', () => ({
+      vi.doMock('../../domain/maintenance.js', () => ({
         calculateHealthScore: () => 100,
         getHealthClass: () => 'good',
       }));
-      vi.doMock('../../../../domain/suggestedAction.js', () => ({
+      vi.doMock('../../domain/suggestedAction.js', () => ({
         ACTION_CODE: { NONE: 'NONE', MONITOR: 'MONITOR', COLLECT_DATA: 'COLLECT_DATA' },
       }));
-      vi.doMock('../../../../ui/views/equipamentos/constants.js', () => ({
+      vi.doMock('../../ui/views/equipamentos/constants.js', () => ({
         PRIORIDADE_LABEL: { media: 'Média', alta: 'Alta' },
         RISK_CLASS_LABEL: { baixo: 'Baixo' },
         STATUS_OPERACIONAL: { ok: 'OK', danger: 'Crítico' },
       }));
-      vi.doMock('../../../../ui/views/equipamentos/helpers.js', () => ({
+      vi.doMock('../../ui/views/equipamentos/helpers.js', () => ({
         classifyRiskFactor: () => 'neutral',
         componentPillModel: () => null,
         ctaLabelForAction: () => 'Continuar',
         preventiveTimelineModel: () => null,
         recencia: () => 'há 1 dia',
       }));
-      vi.doMock('../../../../ui/components/equipmentVisual.js', () => ({
+      vi.doMock('../../ui/components/equipmentVisual.js', () => ({
         getEquipmentVisualMeta: () => ({ icon: '❄️' }),
       }));
-      viewModels = await import('../../utils/viewModels.js');
+      viewModels = await import('../../ui/views/equipamentos/utils/viewModels.js');
     });
 
     afterEach(() => {
       vi.resetModules();
-      vi.doUnmock('../../../../core/state.js');
-      vi.doUnmock('../../../../core/utils.js');
+      vi.doUnmock('../../core/state.js');
+      vi.doUnmock('../../core/utils.js');
     });
 
     it('buildEquipamentoListCardModel devolve objeto com campos esperados', () => {

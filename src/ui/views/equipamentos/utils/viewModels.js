@@ -6,23 +6,19 @@
  * estáveis (Utils, state helpers, domain) ou parâmetros (evalCtx).
  */
 
-import { Utils } from '../../../core/utils.js';
-import { regsForEquip } from '../../../core/state.js';
-import { calculateHealthScore, getHealthClass } from '../../../domain/maintenance.js';
-import { ACTION_CODE } from '../../../domain/suggestedAction.js';
-import {
-  PRIORIDADE_LABEL,
-  RISK_CLASS_LABEL,
-  STATUS_OPERACIONAL,
-} from '../../../ui/views/equipamentos/constants.js';
+import { Utils } from '../../../../core/utils.js';
+import { regsForEquip } from '../../../../core/state.js';
+import { calculateHealthScore, getHealthClass } from '../../../../domain/maintenance.js';
+import { ACTION_CODE } from '../../../../domain/suggestedAction.js';
+import { PRIORIDADE_LABEL, RISK_CLASS_LABEL, STATUS_OPERACIONAL } from '../constants.js';
 import {
   classifyRiskFactor,
   componentPillModel,
   ctaLabelForAction,
   preventiveTimelineModel,
   recencia,
-} from '../../../ui/views/equipamentos/helpers.js';
-import { getEquipmentVisualMeta } from '../../../ui/components/equipmentVisual.js';
+} from '../helpers.js';
+import { getEquipmentVisualMeta } from '../../../components/equipmentVisual.js';
 
 const EQUIP_TONE_LABELS = {
   ok: 'Estável',

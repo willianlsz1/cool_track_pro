@@ -48,6 +48,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/bridges/**` foi removido no CP-9g; bridges de
   mount/unmount da view legada foram co-localizadas em
   `src/ui/views/equipamentos/bridges/**`.
+- `src/features/equipamentos/utils/**` foi removido no CP-9h; helpers de detail
+  e view-model da view legada foram co-localizados em
+  `src/ui/views/equipamentos/utils/**`.
 
 ## 3. Superficies v1 mapeadas
 
@@ -56,7 +59,7 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/ui/`: 135 arquivos restantes.
 - `src/react/`: removido.
 - `src/features/`: ainda existe, concentrado em `equipamentos` sem os subgrupos
-  `state` e `bridges`, `registro` e `userData.js`.
+  `state`, `bridges` e `utils`, `registro` e `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.

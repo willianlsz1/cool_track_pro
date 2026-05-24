@@ -187,12 +187,12 @@ vi.mock('../ui/viewModels/equipamentosHeaderModel.js', () => ({
   buildEquipamentosHeaderViewModel: vi.fn(() => ({})),
 }));
 
-vi.mock('../features/equipamentos/utils/viewModels.js', () => ({
+vi.mock('../ui/views/equipamentos/utils/viewModels.js', () => ({
   _stripRenderInternalOptions: vi.fn((options) => options || {}),
   buildReactListViewModel: vi.fn((viewModel) => viewModel),
 }));
 
-vi.mock('../features/equipamentos/utils/detail.js', () => ({
+vi.mock('../ui/views/equipamentos/utils/detail.js', () => ({
   _eqDetailSubtitle: vi.fn(),
   _infoRowValueOrEmpty: vi.fn(),
   _riskFactorChipHtml: vi.fn(),

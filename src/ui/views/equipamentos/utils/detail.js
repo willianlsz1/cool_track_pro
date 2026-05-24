@@ -6,7 +6,7 @@
  * state, sem mutação, sem chamadas a Supabase / DOM.
  */
 
-import { Utils } from '../../../core/utils.js';
+import { Utils } from '../../../../core/utils.js';
 
 /**
  * Renderiza o subtítulo do detail card: "Local · TAG" (HTML escapado).

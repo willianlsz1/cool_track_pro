@@ -10,7 +10,7 @@ import {
   _eqDetailSubtitle,
   _infoRowValueOrEmpty,
   _riskFactorChipHtml,
-} from '../../utils/detail.js';
+} from '../../ui/views/equipamentos/utils/detail.js';
 
 describe('utils/detail', () => {
   describe('_eqDetailSubtitle', () => {
