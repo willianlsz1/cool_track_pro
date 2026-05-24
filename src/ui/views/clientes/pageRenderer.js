@@ -1,12 +1,9 @@
 import { CLIENTES_ACTIONS } from '../../viewModels/clientesContracts.js';
+import { renderCard } from './cardRenderer.js';
 import { renderActiveContext, renderAlertStrip, renderSummary } from './summaryRenderer.js';
-import {
-  renderCard,
-  renderEmptyFilter,
-  renderEmptyState,
-  renderFilters,
-  renderPagination,
-} from './renderers.js';
+import { renderEmptyFilter, renderEmptyState } from './emptyStateRenderer.js';
+import { renderFilters } from './filtersRenderer.js';
+import { renderPagination } from './paginationRenderer.js';
 import { ICON_PLUS } from './constants.js';
 
 function renderHeader() {

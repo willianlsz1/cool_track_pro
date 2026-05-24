@@ -45,6 +45,8 @@ const retiredOrphanLegacyOnboardingFragments = [
   'src/ui/components/onboarding/firstTimeExperience/styles.js',
 ];
 
+const retiredLegacyBarrelFiles = ['src/ui/views/clientes/renderers.js'];
+
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/shell/navigationMode.js',
   'src/ui/shell/templates/modals.js',
@@ -82,6 +84,7 @@ describe('legacy shell retirement gate', () => {
     );
     const stillPresentOrphanLegacyOnboardingFragments =
       retiredOrphanLegacyOnboardingFragments.filter((path) => existsSync(path));
+    const stillPresentLegacyBarrels = retiredLegacyBarrelFiles.filter((path) => existsSync(path));
     const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
       (path) => !existsSync(path),
     );
@@ -95,6 +98,7 @@ describe('legacy shell retirement gate', () => {
     expect(stillPresentOrphanLegacyComponents).toEqual([]);
     expect(stillPresentOrphanLegacyComponentTests).toEqual([]);
     expect(stillPresentOrphanLegacyOnboardingFragments).toEqual([]);
+    expect(stillPresentLegacyBarrels).toEqual([]);
     expect(missingLaterCheckpointFiles).toEqual([]);
   });
 
