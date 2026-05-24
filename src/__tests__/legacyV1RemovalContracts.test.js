@@ -6,6 +6,10 @@ function readSource(path) {
 }
 
 describe('legacy v1 removal contracts', () => {
+  it('does not keep the skipped legacy core-flow e2e smoke after v2 promotion', () => {
+    expect(existsSync('e2e/specs/core-flow-smoke.spec.js')).toBe(false);
+  });
+
   it('does not keep the unused legacy app bootstrap entrypoint', () => {
     const primaryHtml = readSource('index.html');
     const serviceWorkerRegisterSource = readSource('public/sw-register.js');
