@@ -27,7 +27,6 @@ const mocks = vi.hoisted(() => ({
     save: vi.fn(),
   },
   postSaveToast: { show: vi.fn(() => false) },
-  shareWhatsAppFlow: vi.fn(() => Promise.resolve(true)),
 }));
 
 vi.mock('../core/state.js', () => ({
@@ -75,10 +74,6 @@ vi.mock('../core/plans/planCache.js', () => ({
 }));
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: mocks.postSaveToast,
-}));
-vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: vi.fn(),
-  shareWhatsAppFlow: mocks.shareWhatsAppFlow,
 }));
 vi.mock('../core/phoneMask.js', () => ({ bindSmartContactMaskInput: vi.fn() }));
 
@@ -297,8 +292,6 @@ describe('registro próxima preventiva prompt', () => {
 
     await expect(savePromise).resolves.toBe(true);
     await flushAsyncWork();
-
-    expect(mocks.shareWhatsAppFlow).not.toHaveBeenCalled();
     expect(
       document.querySelector('[data-testid="registro-proxima-preventiva-prompt"]'),
     ).not.toBeNull();

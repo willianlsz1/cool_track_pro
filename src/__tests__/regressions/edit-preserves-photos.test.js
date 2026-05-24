@@ -89,10 +89,6 @@ vi.mock('../../core/plans/planCache.js', () => ({
 vi.mock('../../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: { show: vi.fn(() => false) },
 }));
-vi.mock('../../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: vi.fn(),
-  shareWhatsAppFlow: vi.fn(),
-}));
 vi.mock('../../core/phoneMask.js', () => ({ bindSmartContactMaskInput: vi.fn() }));
 vi.mock('../../ui/composables/registroContext.js', () => ({
   resolveRegistroContext: vi.fn(() => ({})),

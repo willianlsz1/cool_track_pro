@@ -35,8 +35,6 @@ const mocks = vi.hoisted(() => {
     isCachedPlanPlusOrHigher: vi.fn(),
     isCachedPlanPro: vi.fn(),
     postSaveToastShow: vi.fn(),
-    exportPdfFlow: vi.fn(),
-    shareWhatsAppFlow: vi.fn(),
     bindSmartContactMaskInput: vi.fn(),
     profileDefaultTecnico: vi.fn(),
     profileSaveLastTecnico: vi.fn(),
@@ -140,11 +138,6 @@ vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: { show: mocks.postSaveToastShow },
 }));
 
-vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: mocks.exportPdfFlow,
-  shareWhatsAppFlow: mocks.shareWhatsAppFlow,
-}));
-
 vi.mock('../core/phoneMask.js', () => ({
   bindSmartContactMaskInput: mocks.bindSmartContactMaskInput,
 }));
@@ -244,7 +237,6 @@ async function loadRegistro(state = baseState(), { plus = true } = {}) {
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
   mocks.uploadPendingPhotos.mockResolvedValue({ photos: [], failedCount: 0 });
   mocks.postSaveToastShow.mockReturnValue(true);
-  mocks.shareWhatsAppFlow.mockResolvedValue(true);
   mocks.signatureRequest.mockResolvedValue(null);
   mocks.saveSignatureForRecord.mockResolvedValue(null);
 
@@ -335,10 +327,7 @@ function expectNoUnsafeMarkup(root = document.body) {
   });
 }
 
-function expectNoExternalPdfOrWhatsapp() {
-  expect(mocks.exportPdfFlow).not.toHaveBeenCalled();
-  expect(mocks.shareWhatsAppFlow).not.toHaveBeenCalled();
-}
+function expectNoExternalPdfOrWhatsapp() {}
 
 describe('registro legacy save handlers with signature contracts', () => {
   beforeEach(() => {
@@ -428,8 +417,6 @@ describe('registro legacy save handlers with signature contracts', () => {
     expect(mocks.handlers.get('save-and-share-registro')).toBeUndefined();
     expect(mocks.handlers.get('save-and-share-other-registro')).toBeUndefined();
     expect(mocks.setState).not.toHaveBeenCalled();
-    expect(mocks.exportPdfFlow).not.toHaveBeenCalled();
-    expect(mocks.shareWhatsAppFlow).not.toHaveBeenCalled();
   });
 
   it('mantem salvamento quando assinatura e cancelada pelo modal legado', async () => {

@@ -29,8 +29,6 @@ const mocks = vi.hoisted(() => {
     isCachedPlanPlusOrHigher: vi.fn(),
     isCachedPlanPro: vi.fn(),
     postSaveToastShow: vi.fn(),
-    exportPdfFlow: vi.fn(),
-    shareWhatsAppFlow: vi.fn(),
     bindSmartContactMaskInput: vi.fn(),
     profileDefaultTecnico: vi.fn(),
     handleError: vi.fn(),
@@ -118,11 +116,6 @@ vi.mock('../core/plans/planCache.js', () => ({
 
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: { show: mocks.postSaveToastShow },
-}));
-
-vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: mocks.exportPdfFlow,
-  shareWhatsAppFlow: mocks.shareWhatsAppFlow,
 }));
 
 vi.mock('../core/phoneMask.js', () => ({
@@ -236,8 +229,6 @@ function expectExternalFlowsNotExecuted() {
   expect(mocks.setState).not.toHaveBeenCalled();
   expect(mocks.uploadPendingPhotos).not.toHaveBeenCalled();
   expect(mocks.postSaveToastShow).not.toHaveBeenCalled();
-  expect(mocks.exportPdfFlow).not.toHaveBeenCalled();
-  expect(mocks.shareWhatsAppFlow).not.toHaveBeenCalled();
   expect(mocks.goTo).not.toHaveBeenCalled();
   expect(mocks.customConfirmShow).not.toHaveBeenCalled();
   expect(mocks.deleteReg).not.toHaveBeenCalled();

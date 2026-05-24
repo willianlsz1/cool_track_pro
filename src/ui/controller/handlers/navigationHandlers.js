@@ -295,10 +295,6 @@ export function bindNavigationHandlers() {
     });
   });
 
-  // O handler 'print' foi movido para reportExportHandlers.js.
-  // Agora usa window.print() nativo + marca d'água CSS no plano Free, em vez
-  // de delegar ao botão "Exportar PDF" (que baixava jsPDF e gerava um arquivo
-  // em vez de abrir o diálogo nativo de impressão).
   on('close-lightbox', () => Photos.closeLightbox());
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"
   on('onboarding-dismiss', () => {

@@ -52,8 +52,6 @@ const mocks = vi.hoisted(() => {
     isCachedPlanPlusOrHigher: vi.fn(),
     isCachedPlanPro: vi.fn(),
     postSaveToastShow: vi.fn(),
-    exportPdfFlow: vi.fn(),
-    shareWhatsAppFlow: vi.fn(),
     bindSmartContactMaskInput: vi.fn(),
     profileDefaultTecnico: vi.fn(),
     profileSaveLastTecnico: vi.fn(),
@@ -157,11 +155,6 @@ vi.mock('../core/plans/planCache.js', () => ({
 
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: { show: mocks.postSaveToastShow },
-}));
-
-vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: mocks.exportPdfFlow,
-  shareWhatsAppFlow: mocks.shareWhatsAppFlow,
 }));
 
 vi.mock('../core/phoneMask.js', () => ({
@@ -286,7 +279,6 @@ async function loadRegistro(state = baseState()) {
   mocks.validateOperationalPayload.mockReturnValue({ valid: true, errors: [], value: {} });
   mocks.uploadPendingPhotos.mockResolvedValue({ photos: [], failedCount: 0 });
   mocks.postSaveToastShow.mockReturnValue(true);
-  mocks.shareWhatsAppFlow.mockResolvedValue(true);
 
   const registro = await import('../ui/views/registro.js');
   const { bindRegistroHandlers } = await import('../ui/controller/handlers/registroHandlers.js');

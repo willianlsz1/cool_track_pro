@@ -743,53 +743,6 @@ export function renderShellModals() {
     </div>
   </div>
 
-  <!-- MODAL: Pré-visualização do PDF — abre antes do download/share pra
-       o usuário conferir se o conteúdo está correto. Embed via iframe com
-       blob URL gerado em runtime; revogado ao fechar pra liberar memória. -->
-  <div class="modal-overlay" id="modal-pdf-preview" role="dialog" aria-modal="true"
-    aria-labelledby="pdf-preview-title">
-    <div class="modal modal--pdf-preview">
-      <header class="pdf-preview__header">
-        <div class="pdf-preview__title-wrap">
-          <h2 id="pdf-preview-title" class="pdf-preview__title">Pré-visualização do relatório</h2>
-          <p id="pdf-preview-subtitle" class="pdf-preview__subtitle">Confira antes de baixar</p>
-        </div>
-        <button type="button" class="pdf-preview__close"
-          data-action="pdf-preview-cancel" aria-label="Fechar pré-visualização">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </header>
-      <div class="pdf-preview__body">
-        <!-- <object> renderiza PDFs nativamente em mais browsers que <iframe>
-             (Chrome, Firefox, Edge desktop). type="application/pdf" deixa o
-             browser saber o handler certo. data="" inicial e setado via JS
-             em runtime quando o blob URL fica disponivel. -->
-        <object id="pdf-preview-frame" type="application/pdf" data=""
-          aria-label="Pré-visualização do relatório PDF">
-          <!-- Fallback nativo do <object>: aparece SO quando o browser não
-               consegue renderizar o tipo. Mais confiavel que timeout JS. -->
-          <div class="pdf-preview__fallback">
-            <p>Seu navegador não consegue exibir PDFs aqui.</p>
-            <a id="pdf-preview-fallback-link" href="#" target="_blank" rel="noopener"
-              class="btn btn--outline btn--sm">Abrir em nova aba</a>
-          </div>
-        </object>
-      </div>
-      <footer class="pdf-preview__footer">
-        <button type="button" class="btn btn--outline" data-action="pdf-preview-cancel">
-          Cancelar
-        </button>
-        <button type="button" class="btn btn--primary" id="pdf-preview-action-btn"
-          data-action="pdf-preview-confirm">
-          Baixar PDF
-        </button>
-      </footer>
-    </div>
-  </div>
-
   <!-- MODAL: Criar / Editar Setor (PRO) — premium redesign -->
   <div class="modal-overlay" id="modal-add-setor" role="dialog" aria-modal="true" aria-labelledby="modal-add-setor-title">
     <div class="modal setor-modal">

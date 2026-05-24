@@ -90,10 +90,6 @@ vi.mock('../core/plans/planCache.js', () => ({
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: mocks.postSaveToast,
 }));
-vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: vi.fn(),
-  shareWhatsAppFlow: vi.fn(),
-}));
 vi.mock('../core/phoneMask.js', () => ({ bindSmartContactMaskInput: vi.fn() }));
 
 function mountRegistroDom({ materialOpen = false } = {}) {

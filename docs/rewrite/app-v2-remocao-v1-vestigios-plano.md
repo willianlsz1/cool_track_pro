@@ -552,6 +552,13 @@ Progresso executado:
   `src/ui/components/registroClienteForkSheet.js` e testes que protegiam o
   fluxo legado removido. `reportExportHandlers.js`, toasts/badge/modal preview
   e dominio PDF/share/WhatsApp permanecem para CP54C2/CP54C3.
+- CP-54C2 removeu o handler central legado de PDF/share
+  (`src/ui/controller/handlers/reportExportHandlers.js`), os componentes de
+  feedback/quota (`pdfSuccessToast.js`, `shareSuccessToast.js` e
+  `pdfQuotaBadge.js`) e o modal `modal-pdf-preview`. Tambem removeu testes
+  dedicados a esse runtime e limpou mocks residuais em testes de Registro,
+  fotos e assinatura. O dominio PDF/share/WhatsApp permanece para CP54C3 como
+  etapa sensivel propria.
 
 Controle:
 

@@ -26,8 +26,6 @@ const mocks = vi.hoisted(() => ({
   isCachedPlanPlusOrHigher: vi.fn(),
   isCachedPlanPro: vi.fn(),
   postSaveToastShow: vi.fn(),
-  exportPdfFlow: vi.fn(),
-  shareWhatsAppFlow: vi.fn(),
   bindSmartContactMaskInput: vi.fn(),
   profileDefaultTecnico: vi.fn(),
   profileGet: vi.fn(() => ({})),
@@ -108,11 +106,6 @@ vi.mock('../core/plans/planCache.js', () => ({
 
 vi.mock('../ui/components/postSaveRegistroToast.js', () => ({
   PostSaveRegistroToast: { show: mocks.postSaveToastShow },
-}));
-
-vi.mock('../ui/controller/handlers/reportExportHandlers.js', () => ({
-  exportPdfFlow: mocks.exportPdfFlow,
-  shareWhatsAppFlow: mocks.shareWhatsAppFlow,
 }));
 
 vi.mock('../core/phoneMask.js', () => ({

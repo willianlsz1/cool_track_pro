@@ -82,6 +82,23 @@ describe('legacy v1 removal contracts', () => {
     expect(findMatches(appV2Sources, forbiddenLegacyRuntimePattern)).toEqual([]);
   });
 
+  it('does not keep the legacy PDF/share handler, feedback components or preview modal', () => {
+    const shellModalsSource = readSource('src/ui/shell/templates/modals.js');
+
+    expect(existsSync('src/ui/controller/handlers/reportExportHandlers.js')).toBe(false);
+    expect(existsSync('src/ui/components/pdfSuccessToast.js')).toBe(false);
+    expect(existsSync('src/ui/components/shareSuccessToast.js')).toBe(false);
+    expect(existsSync('src/ui/components/pdfQuotaBadge.js')).toBe(false);
+    expect(existsSync('src/__tests__/reportExportHandlers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/reportExportContracts.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfSuccessToast.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/shareSuccessToast.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfQuotaBadge.test.js')).toBe(false);
+    expect(shellModalsSource).not.toContain('modal-pdf-preview');
+    expect(shellModalsSource).not.toContain('pdf-preview-confirm');
+    expect(shellModalsSource).not.toContain('pdf-preview-frame');
+  });
+
   it('does not keep the legacy relatorio v1 DOM view or renderers', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
