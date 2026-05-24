@@ -97,6 +97,15 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/profile.js')).toBe(false);
   });
 
+  it('does not keep Profile re-exported by the legacy onboarding barrel', () => {
+    const onboardingBarrelSource = readSource('src/ui/components/onboarding.js');
+
+    expect(onboardingBarrelSource).not.toMatch(/export\s+\{\s*Profile\s*\}/);
+    expect(readSource('src/ui/views/dashboard.js')).toContain(
+      "import { Profile } from '../../core/profile.js';",
+    );
+  });
+
   it('does not keep the legacy relatorio feature helper after moving copy to domain', () => {
     expect(existsSync('src/features/relatorio/export/reportExportHelpers.js')).toBe(false);
     expect(existsSync('src/features/relatorio/__tests__/export/reportExportHelpers.test.js')).toBe(

@@ -15,7 +15,8 @@ import { Auth } from '../../core/auth.js';
 import { Alerts } from '../../domain/alerts.js';
 // Charts segue legado e dynamic-imported pelo adapter para manter Chart.js
 // fora do chunk principal do Dashboard.
-import { OnboardingBanner, Profile } from '../components/onboarding.js';
+import { Profile } from '../../core/profile.js';
+import { OnboardingBanner } from '../components/onboarding.js';
 import { OnboardingChecklist } from '../components/onboarding/onboardingChecklist.js';
 import { ContextualOnboarding } from '../components/onboarding/contextualOnboarding.js';
 import { InstallAppPrompt } from '../components/installAppPrompt.js';

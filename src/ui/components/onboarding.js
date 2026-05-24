@@ -4,7 +4,6 @@
 
 const HIGHLIGHT_KEY = 'cooltrack-highlight-id';
 
-export { Profile } from '../../core/profile.js';
 export { OnboardingBanner } from './onboarding/onboardingBanner.js';
 export { ProfileModal } from './onboarding/profileModal.js';
 export { FirstTimeExperience } from './onboarding/firstTimeExperience.js';

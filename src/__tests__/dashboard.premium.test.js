@@ -81,12 +81,14 @@ async function setupModule({ planCode = 'free', hasPro = false, state, alerts = 
   vi.doMock('../core/auth.js', () => ({
     Auth: { getUser: vi.fn(async () => ({ id: 'u1', email: 'user@acme.com', user_metadata: {} })) },
   }));
+  vi.doMock('../core/profile.js', () => ({
+    Profile: { get: () => ({ nome: 'Ana' }) },
+  }));
   vi.doMock('../ui/components/skeleton.js', () => ({
     withSkeleton: async (_el, _opts, fn) => fn(),
   }));
   vi.doMock('../ui/components/onboarding.js', () => ({
     OnboardingBanner: { render: vi.fn() },
-    Profile: { get: () => ({ nome: 'Ana' }) },
   }));
   vi.doMock('../ui/components/onboarding/onboardingChecklist.js', () => ({
     OnboardingChecklist: { render: vi.fn() },

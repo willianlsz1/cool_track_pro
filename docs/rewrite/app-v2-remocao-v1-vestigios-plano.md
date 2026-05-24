@@ -224,6 +224,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `constants.js` era usado apenas por ele; as funcoes equivalentes usadas pelo
   Dashboard permanecem em `src/ui/views/dashboard.js` e
   `src/ui/viewModels/dashboardViewModel.js`.
+- CP-38 desacoplou `Profile` do barrel legado
+  `src/ui/components/onboarding.js`. O Dashboard agora importa `Profile`
+  diretamente de `src/core/profile.js`, enquanto o barrel segue limitado a
+  onboarding e ao contrato legado `SavedHighlight`.
 
 ## 3. Superficies v1 mapeadas
 

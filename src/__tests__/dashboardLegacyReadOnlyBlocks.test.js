@@ -123,6 +123,10 @@ async function setupDashboardModule({
     },
   }));
 
+  vi.doMock('../core/profile.js', () => ({
+    Profile: { get: vi.fn(() => ({ nome: 'Ana' })) },
+  }));
+
   vi.doMock('../core/storage.js', () => ({
     Storage: {
       getSyncStatus: vi.fn(() => ({ state: 'idle', pendingOps: 0 })),
@@ -239,7 +243,6 @@ async function setupDashboardModule({
 
   vi.doMock('../ui/components/onboarding.js', () => ({
     OnboardingBanner: { render: vi.fn() },
-    Profile: { get: vi.fn(() => ({ nome: 'Ana' })) },
   }));
 
   vi.doMock('../ui/components/onboarding/onboardingChecklist.js', () => ({
