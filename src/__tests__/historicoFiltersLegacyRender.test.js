@@ -48,10 +48,6 @@ vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: mocks.applySavedHighlight },
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: { openLightbox: mocks.openLightbox },
-}));
-
 vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: (_el, _options, render) => render(),
 }));

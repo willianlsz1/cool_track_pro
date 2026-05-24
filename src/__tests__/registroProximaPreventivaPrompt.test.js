@@ -43,7 +43,6 @@ vi.mock('../core/router.js', () => ({
   setRouteGuard: mocks.setRouteGuard,
   clearRouteGuard: mocks.clearRouteGuard,
 }));
-vi.mock('../ui/components/photos.js', () => ({ Photos: mocks.photos }));
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));

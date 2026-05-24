@@ -37,7 +37,6 @@ vi.mock('../../core/toast.js', () => ({
   Toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 vi.mock('../../core/modal.js', () => ({ CustomConfirm: { show: vi.fn(async () => true) } }));
-vi.mock('../../ui/components/photos.js', () => ({ Photos: { pending: [], clear: vi.fn() } }));
 vi.mock('../../core/profile.js', () => ({
   Profile: {
     getDefaultTecnico: vi.fn(() => ''),

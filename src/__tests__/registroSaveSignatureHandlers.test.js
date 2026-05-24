@@ -77,10 +77,6 @@ vi.mock('../core/toast.js', () => ({
   },
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: mocks.photos,
-}));
-
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: mocks.markForHighlight },
 }));

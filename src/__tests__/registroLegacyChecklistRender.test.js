@@ -70,10 +70,6 @@ vi.mock('../core/toast.js', () => ({
   },
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: { clear: mocks.photosClear },
-}));
-
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));

@@ -711,6 +711,10 @@ Progresso executado:
   `src/core/modal.js` e `src/core/events.js`: clique no overlay e Escape deixam
   de conhecer o lightbox legado, e o contrato passa a bloquear o retorno desse
   vestigio em router/modal/events.
+- CP-57K remove mocks test-only que ainda apontavam para
+  `src/ui/components/photos.js` depois da remocao do componente legado. O
+  contrato passa a bloquear o retorno desses mocks junto de `photoStorage.js` e
+  `uploadPendingPhotos`.
 
 Controle:
 

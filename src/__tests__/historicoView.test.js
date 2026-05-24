@@ -25,9 +25,6 @@ vi.mock('../ui/components/emptyState.js', () => ({
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { applyIfPending: vi.fn() },
 }));
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: { openLightbox: vi.fn() },
-}));
 vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: (_el, _opts, fn) => fn(),
 }));
@@ -37,7 +34,6 @@ vi.mock('../ui/views/dashboard.js', () => ({
 vi.mock('../ui/composables/header.js', () => ({
   updateGlobalHeader: vi.fn(),
 }));
-
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'Em dia' })),
 }));

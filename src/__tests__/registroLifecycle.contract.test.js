@@ -50,15 +50,6 @@ vi.mock('../core/modal.js', () => ({
   CustomConfirm: { show: mocks.customConfirmShow },
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: {
-    pending: [],
-    clear: mocks.photosClear,
-    render: mocks.photosRender,
-    unmount: mocks.photosUnmount,
-  },
-}));
-
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));

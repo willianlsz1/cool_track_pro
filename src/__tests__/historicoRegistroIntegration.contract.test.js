@@ -98,10 +98,6 @@ vi.mock('../core/clientePmoc.js', () => ({
   buildClientePmocDetails: mocks.buildClientePmocDetails,
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: { openLightbox: mocks.openLightbox, closeLightbox: vi.fn() },
-}));
-
 vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: (_root, _options, render) => render(),
 }));

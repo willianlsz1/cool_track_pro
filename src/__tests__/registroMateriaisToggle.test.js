@@ -62,7 +62,6 @@ vi.mock('../core/router.js', () => ({
   clearRouteGuard: mocks.clearRouteGuard,
 }));
 vi.mock('../core/modal.js', () => ({ CustomConfirm: { ask: vi.fn(() => Promise.resolve(true)) } }));
-vi.mock('../ui/components/photos.js', () => ({ Photos: mocks.photos }));
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));

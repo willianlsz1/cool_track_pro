@@ -578,7 +578,9 @@ describe('legacy v1 removal contracts', () => {
       (file) => !file.endsWith('legacyV1RemovalContracts.test.js'),
     );
 
-    expect(findMatches(testFiles, /photoStorage\.js|uploadPendingPhotos/)).toEqual([]);
+    expect(
+      findMatches(testFiles, /photoStorage\.js|uploadPendingPhotos|ui\/components\/photos\.js/),
+    ).toEqual([]);
   });
 
   it('does not keep the duplicate legacy photo migration bridge in storage normalizers', () => {

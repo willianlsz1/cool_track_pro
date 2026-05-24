@@ -129,12 +129,6 @@ vi.mock('../core/telemetry.js', () => ({
   trackEvent: vi.fn(),
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: {
-    closeLightbox: vi.fn(),
-  },
-}));
-
 vi.mock('../ui/components/supportFeedbackModal.js', () => ({
   SupportFeedbackModal: {
     open: vi.fn(),

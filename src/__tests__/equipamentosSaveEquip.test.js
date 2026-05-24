@@ -144,10 +144,6 @@ vi.mock('../ui/components/nameplateCapture.js', () => ({
   setCamposExtrasState: vi.fn(),
 }));
 
-vi.mock('../ui/components/photos.js', () => ({
-  Photos: {},
-}));
-
 vi.mock('../core/storage/photoRefs.js', () => ({
   normalizePhotoList: mocks.normalizePhotoList,
 }));
