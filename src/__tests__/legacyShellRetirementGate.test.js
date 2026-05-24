@@ -19,6 +19,8 @@ const retiredControllerOrchestratorFiles = [
   'src/__tests__/controller.init.test.js',
 ];
 
+const retiredControllerHelperFiles = ['src/ui/controller/helpers/themeInitHelpers.js'];
+
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/controller/routes.js',
   'src/ui/shell/navigationMode.js',
@@ -40,6 +42,9 @@ describe('legacy shell retirement gate', () => {
     const stillPresentControllerOrchestrator = retiredControllerOrchestratorFiles.filter((path) =>
       existsSync(path),
     );
+    const stillPresentControllerHelpers = retiredControllerHelperFiles.filter((path) =>
+      existsSync(path),
+    );
     const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
       (path) => !existsSync(path),
     );
@@ -47,6 +52,7 @@ describe('legacy shell retirement gate', () => {
     expect(stillPresentShellFiles).toEqual([]);
     expect(stillPresentShellTests).toEqual([]);
     expect(stillPresentControllerOrchestrator).toEqual([]);
+    expect(stillPresentControllerHelpers).toEqual([]);
     expect(missingLaterCheckpointFiles).toEqual([]);
   });
 

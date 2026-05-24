@@ -149,6 +149,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-17 removeu apenas o orquestrador morto `src/ui/controller.js` e seu teste
   dedicado, preservando `src/ui/controller/**`, rotas, handlers e helpers para
   lotes futuros por dominio.
+- CP-18 removeu o helper orfao
+  `src/ui/controller/helpers/themeInitHelpers.js` apos confirmar que
+  `initControllerHelpers` nao tinha import ativo; rotas, handlers, views,
+  modais e areas sensiveis continuaram preservados para lotes futuros.
 
 ## 3. Superficies v1 mapeadas
 

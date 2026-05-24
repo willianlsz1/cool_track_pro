@@ -459,7 +459,7 @@ export function renderShellModals() {
             pegou. Por default ficam ocultos atrás desse toggle; clicar revela
             todo o bloco. Se a IA detecta qualquer valor nesses campos,
             applyFieldsToForm abre o bloco automaticamente (ver
-            expandEtiquetaMoreIfNeeded em themeInitHelpers.js).
+            expandEtiquetaMoreIfNeeded via runtime legado restante).
           -->
           <button type="button" class="eq-etiqueta-more-toggle"
                   id="eq-etiqueta-more-toggle" aria-expanded="false"
