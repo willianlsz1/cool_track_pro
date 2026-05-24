@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '../react/styles/tailwind.css';
+import './styles/tailwind.css';
 import './styles/print.css';
 import type { AppV2DataPort } from './data/appV2DataPort';
 import type { AppV2MockSnapshot } from './data/appV2MockStore';
