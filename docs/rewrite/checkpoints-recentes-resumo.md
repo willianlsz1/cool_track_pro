@@ -32,6 +32,13 @@
   real app-v2-native.
 - O favicon e os assets de marca preservados continuam fora da remoção ampla.
 
+## PMOC legado
+
+- Consolidado e removido o histórico antigo de PMOC contextual/Pro.
+- PMOC antigo não deve ser reutilizado como arquitetura do app-v2.
+- PMOC novo fica como etapa própria futura, com contrato, storage e PDF/share
+  redesenhados do zero.
+
 ## Validação padrão
 
 - Para CPs com código: testes focados, `npm run format`, `npm run build`,
