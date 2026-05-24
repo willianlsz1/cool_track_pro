@@ -587,6 +587,12 @@ Progresso executado:
   nao importa mais `../components/signature.js`, nao chama `SignatureModal`, nao
   chama `saveSignatureForRecord` e grava `assinatura: false`. Historico,
   UI/modal, router e storage real de assinatura permanecem para CPs proprios.
+- CP-55B aposenta a visualizacao de assinatura no Historico v1. A timeline nao
+  renderiza mais `.hist-signature-preview`, nao expoe mais
+  `hist-view-signature`, e `src/ui/views/historico.js` nao importa mais
+  `SignatureViewerModal`, `getSignatureForRecord` ou `cleanupOrphanSignatures`.
+  UI/modal, router global e storage real de assinatura permanecem para CPs
+  proprios.
 
 Controle:
 

@@ -16,11 +16,6 @@ import { Storage } from '../../core/storage.js';
 import { Toast } from '../../core/toast.js';
 import { goTo } from '../../core/router.js';
 import { SavedHighlight } from '../components/onboarding.js';
-import {
-  cleanupOrphanSignatures,
-  getSignatureForRecord,
-  SignatureViewerModal,
-} from '../components/signature.js';
 import { Photos } from '../components/photos.js';
 import { withSkeleton } from '../components/skeleton.js';
 import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
@@ -915,22 +910,6 @@ function buildTimelineMeta(registro) {
   return chunks;
 }
 
-function buildTimelineSignature(registro) {
-  if (!registro?.assinatura) return null;
-
-  const dataUrl = getSafeMediaUrl(getSignatureForRecord(registro.id));
-  if (!dataUrl) return null;
-
-  const clienteNome = registro.clienteNome?.trim() || '';
-  return {
-    url: dataUrl,
-    ariaLabel: clienteNome
-      ? `Ver assinatura de ${clienteNome} em tamanho grande`
-      : 'Ver assinatura do cliente em tamanho grande',
-    alt: `Assinatura registrada pelo cliente${clienteNome ? ' ' + clienteNome : ''}`,
-  };
-}
-
 function buildTimelineItemModel(
   registro,
   {
@@ -972,7 +951,7 @@ function buildTimelineItemModel(
     meta: buildTimelineMeta(registro),
     photoUrls: photoUrls.slice(0, 3),
     extraPhotoCount: Math.max(0, photoUrls.length - 3),
-    signature: buildTimelineSignature(registro),
+    signature: null,
     showFilterEquip: Boolean(registro?.equipId && currentFilterEquipId !== registro.equipId),
   };
 }
@@ -1323,8 +1302,6 @@ export function renderHist() {
   const { registros, equipamentos, setores, clientes } = buildHistoricoRenderState(
     getState() || {},
   );
-  cleanupOrphanSignatures(registros.map((r) => r?.id).filter(Boolean));
-
   syncSetorSelect();
 
   const filters = buildHistoricoRenderFilters();
@@ -1435,22 +1412,11 @@ function bindHistoricoCardMenuDelegation(container) {
   });
 }
 
-function bindHistoricoCardLocalActions({ each, registros, equipamentos }) {
+function bindHistoricoCardLocalActions({ each }) {
   each('[data-hist-action="hist-open-photo"]', (btn) =>
     btn.addEventListener('click', () => {
       const url = btn.dataset.photoUrl;
       if (url) Photos.openLightbox(url);
-    }),
-  );
-
-  each('[data-hist-action="hist-view-signature"]', (btn) =>
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      if (!id) return;
-      const registro = registros.find((r) => r.id === id);
-      if (!registro) return;
-      const eq = equipamentos.find((e) => e.id === registro.equipId);
-      SignatureViewerModal.open(registro, { equipNome: eq?.nome || '—' });
     }),
   );
 }

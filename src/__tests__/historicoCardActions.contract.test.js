@@ -133,6 +133,8 @@ describe('Historico card actions contract', () => {
     expect(timelineSource).not.toContain('data-action="export-pdf"');
     expect(timelineSource).not.toContain('data-action="whatsapp-export"');
     expect(timelineSource).not.toContain('data-registro-id="${escapeAttr(');
+    expect(timelineSource).not.toContain('hist-view-signature');
+    expect(timelineSource).not.toContain('hist-signature-preview');
 
     expect(navigationHandlersSource).toContain("on('edit-reg'");
     expect(navigationHandlersSource).toMatch(/editRegistroId:\s*el\.dataset\.id/);

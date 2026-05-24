@@ -240,7 +240,7 @@ describe('historico legacy #timeline render', () => {
     ).not.toBeNull();
     expect(
       timeline.querySelector('[data-hist-action="hist-view-signature"][data-id="reg-1"]'),
-    ).not.toBeNull();
+    ).toBeNull();
     expect(
       timeline.querySelector('[data-hist-action="hist-filter-equip"][data-equip-id="eq-1"]'),
     ).not.toBeNull();

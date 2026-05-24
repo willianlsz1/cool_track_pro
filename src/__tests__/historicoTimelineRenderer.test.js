@@ -177,7 +177,7 @@ describe('historico timeline DOM renderer', () => {
     expect(root?.querySelector('.timeline__item')).toBeNull();
   });
 
-  it('preserves photo and signature DOM contracts only for safe media URLs', () => {
+  it('preserves photo DOM contracts and omits legacy signature actions', () => {
     const root = setRoot();
     mountHistoricoTimelineDom(root, {
       viewModel: createTimelineViewModel({
@@ -220,7 +220,7 @@ describe('historico timeline DOM renderer', () => {
     expect(root?.querySelector('[data-photo-url^="javascript:"]')).toBeNull();
     expect(
       root?.querySelector('[data-hist-action="hist-view-signature"][data-id="reg-safe"]'),
-    ).not.toBeNull();
+    ).toBeNull();
     expect(
       root?.querySelector('[data-hist-action="hist-view-signature"][data-id="reg-unsafe"]'),
     ).toBeNull();
@@ -247,14 +247,12 @@ describe('historico timeline DOM renderer', () => {
     root
       ?.querySelector('[data-hist-action="hist-open-photo"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    root
-      ?.querySelector('[data-hist-action="hist-view-signature"]')
-      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(delegatedHandler).toHaveBeenCalledWith('edit-reg');
     expect(delegatedHandler).toHaveBeenCalledWith('delete-reg');
     expect(delegatedHandler).toHaveBeenCalledWith('hist-open-photo');
-    expect(delegatedHandler).toHaveBeenCalledWith('hist-view-signature');
+    expect(root?.querySelector('[data-hist-action="hist-view-signature"]')).toBeNull();
+    expect(delegatedHandler).not.toHaveBeenCalledWith('hist-view-signature');
   });
 
   it('escapes dynamic text and avoids unsafe React HTML APIs', () => {

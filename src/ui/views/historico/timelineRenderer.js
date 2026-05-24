@@ -56,13 +56,6 @@ function boxIcon() {
   );
 }
 
-function signatureIcon() {
-  return svgIcon(
-    '<path d="m12 19 7-7 3 3-7 7-3-3Z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18Z"></path><path d="m2 2 7.5 7.5"></path><circle cx="11" cy="11" r="2"></circle>',
-    { width: 12, height: 12 },
-  );
-}
-
 function kebabIcon() {
   return svgIcon(
     '<circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle>',
@@ -243,25 +236,6 @@ function renderPhotoStrip(item) {
   </div>`;
 }
 
-function renderSignaturePreview(item) {
-  const url = safeMediaUrl(item.signature?.url);
-  if (!url) return '';
-  return `<button type="button" class="hist-signature-preview" data-hist-action="${
-    HISTORICO_ACTIONS.viewSignature
-  }" data-id="${escapeAttr(item.id)}" aria-label="${escapeAttr(
-    item.signature?.ariaLabel || 'Ver assinatura do cliente em tamanho grande',
-  )}">
-    <span class="hist-signature-preview__canvas"><img src="${escapeAttr(url)}" alt="${escapeAttr(
-      item.signature?.alt || 'Assinatura registrada pelo cliente',
-    )}"></span>
-    <span class="hist-signature-preview__label">
-      <span class="hist-signature-preview__label-ic" aria-hidden="true">${signatureIcon()}</span>
-      <span><b>Assinado pelo cliente</b></span>
-      <span class="hist-signature-preview__zoom" aria-hidden="true">toque pra ampliar</span>
-    </span>
-  </button>`;
-}
-
 function renderTimelineItem(item) {
   const status = text(item.status, 'ok');
   return `<article class="${classNames(
@@ -294,7 +268,6 @@ function renderTimelineItem(item) {
       ${item.obs ? `<p class="timeline__item__obs">${escapeHtml(item.obs)}</p>` : ''}
       ${renderMeta(item.meta)}
       ${renderPhotoStrip(item)}
-      ${renderSignaturePreview(item)}
       ${
         item.showFilterEquip
           ? `<button type="button" class="timeline__item__focus-equip" data-hist-action="${

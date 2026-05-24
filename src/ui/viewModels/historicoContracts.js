@@ -27,7 +27,6 @@ export const HISTORICO_ACTIONS = Object.freeze({
   clearAll: 'hist-clear-all',
   filterEquip: 'hist-filter-equip',
   openPhoto: 'hist-open-photo',
-  viewSignature: 'hist-view-signature',
   toggleCardMenu: 'toggle-card-menu',
   toggleSummary: 'toggle-summary',
   commercialRemovedLink: 'hist-commercial-removed-link',
@@ -77,7 +76,6 @@ export const HISTORICO_PUBLIC_CLASSES = Object.freeze([
   'timeline__item__service',
   'timeline__item__equipment',
   'timeline__item__photos',
-  'hist-signature-preview',
   'hist-item-actions',
   'empty-state',
 ]);
