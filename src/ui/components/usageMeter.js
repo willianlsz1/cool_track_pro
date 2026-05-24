@@ -73,7 +73,7 @@ function getUsageState(equipmentCount, reportsThisMonth) {
   };
 }
 
-// Paleta canônica por tier (alinhada com pricing + account modal + header):
+// Paleta canonica por tier (alinhada com conta + header):
 //   Pro  = dourado (#e8b94a)
 //   Plus = azul    (#3a8ee6)
 function getPaidMeterAccent(planCode) {

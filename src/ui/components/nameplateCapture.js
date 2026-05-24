@@ -21,8 +21,8 @@
  *          detectado — toque pra preencher" nos que a IA não devolveu.
  *        - Abre o step 2 e faz scroll suave até Detalhes técnicos.
  *
- *   3. Click no botão "Desbloquear com Plus" redireciona pra pricing com
- *      highlight no plano Plus e motivo "nameplate_upsell".
+ *   3. Click no botao legado de desbloqueio mostra aviso local de planos pagos
+ *      removidos desta versao.
  *
  * Design intencional: o componente é idempotente e defensivo. `bindOnce()`
  * só amarra listeners uma vez (via dataset flag), então pode ser chamado
@@ -282,7 +282,7 @@ function bindOnce() {
   // delegator global ficava warnando "Sem handler para action=nameplate-upsell-cta"
   // a cada click (o handler real vivia aqui, não no mapa do events.js). Agora
   // amarramos só por id — sem data-action, sem warning.
-  // Ordem importa: fecha o modal-add-eq ANTES do goTo pro pricing — senão
+  // Ordem importa: fecha o modal-add-eq antes do aviso local.
   // a rota muda mas o modal fica renderizado em cima, obrigando o user a
   // clicar em algo pra fechar o overlay.
   const lockedBtn = document.getElementById('nameplate-cta-btn-locked');
@@ -292,9 +292,9 @@ function bindOnce() {
       try {
         Modal.close('modal-add-eq');
       } catch (_) {
-        /* se o Modal não tá aberto por algum motivo, segue pro pricing mesmo */
+        /* se o Modal nao esta aberto por algum motivo, segue com o aviso local */
       }
-      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+      Toast.warning('Planos pagos foram removidos desta versao.');
     });
   }
 

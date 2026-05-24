@@ -161,7 +161,7 @@ function open({ clientes, isPro, onConfirm, preselectClienteId = null }) {
   } else {
     overlay.querySelector('#pmoc-upgrade')?.addEventListener('click', () => {
       hardClose();
-      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+      Toast.warning('Planos pagos foram removidos desta versao.');
     });
   }
 }

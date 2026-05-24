@@ -15,14 +15,14 @@ describe('clientesAccess', () => {
 
     expect(getClientesAccessSnapshot()).toMatchObject({
       resolved: true,
-      source: 'billing_disabled',
+      source: 'commercial_removed',
       errored: false,
       planCode: 'free',
       canAccess: true,
     });
     await expect(resolveClientesAccess()).resolves.toMatchObject({
       resolved: true,
-      source: 'billing_disabled',
+      source: 'commercial_removed',
       canAccess: true,
     });
   });

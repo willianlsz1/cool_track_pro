@@ -28,7 +28,7 @@ export function syncContextGroupVisibility() {
 /**
  * Wire do CTA do locked state. Idempotente — chamado toda vez que o modal
  * abre pra Free, mas o listener é bound uma única vez via dataset flag.
- * Click → telemetria + navega pra /pricing com highlight em Plus + reason
+ * Click -> telemetria + aviso local de planos pagos removidos.
  * para manter telemetria da tentativa enquanto a area comercial esta desligada.
  */
 function _bindPhotosUpsellCta() {
@@ -37,7 +37,7 @@ function _bindPhotosUpsellCta() {
   cta.dataset.upsellBound = '1';
   cta.addEventListener('click', () => {
     trackEvent('photo_upsell_clicked', { source: 'equip_modal' });
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
   });
 }
 
@@ -53,7 +53,7 @@ function _bindPhotosUpsellCta() {
  * Motivação da mudança (v3.5): antes escondiamos o bloco inteiro pra Free.
  * Isso tirava a feature do radar do usuário e reduzia conversão. Mostrar
  * um upsell contextual ("ah, fotos seriam úteis aqui") é mais efetivo que
- * só mencionar na pricing page.
+ * mencionar apenas no aviso local.
  */
 export function applyEquipPhotosGate(isPlusOrPro = false) {
   const wrapper = Utils.getEl('eq-fotos-wrapper');
@@ -109,9 +109,9 @@ function _bindEqPhotosUpsellCta() {
       const { Modal: M } = await import('../../../core/modal.js');
       M.close('modal-eq-photos');
     } catch (_err) {
-      /* segue pra pricing mesmo se Modal.close falhar */
+      /* segue com aviso local mesmo se Modal.close falhar */
     }
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
   });
 }
 
@@ -119,7 +119,7 @@ function _bindEqPhotosUpsellCta() {
  * Gate Plus+/Pro do editor de fotos (modal-eq-photos).
  * Plus+/Pro: dropzone + preview normais. Free: card de upsell.
  * Na prática esse modal nem é aberto pra Free (o CTA no detail view vai
- * direto pra pricing), mas deixamos o gate como defense-in-depth pra caso
+ * direto para area comercial removida), mas deixamos o gate como defense-in-depth pra caso
  * alguém force a abertura do modal via devtools.
  */
 export function applyEquipPhotosEditorGate(isPlusOrPro = false) {

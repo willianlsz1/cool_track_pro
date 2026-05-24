@@ -328,30 +328,12 @@ export function bindNavigationHandlers() {
     const highlightPlan = rawHighlight === 'plus' || rawHighlight === 'pro' ? rawHighlight : 'pro';
     trackEvent('upgrade_cta_clicked', { source, highlight_plan: highlightPlan });
 
-    // Fecha qualquer modal aberto antes de navegar — senão o overlay fica
-    // por cima da view de pricing e o usuário fica preso (ex.: CTA upsell
-    // dentro do modal-eq-det). Quando o clique vem de fora de um modal,
-    // o querySelectorAll retorna vazio e isto é no-op.
+    // Fecha qualquer modal aberto antes de avisar sobre a area comercial removida.
     document.querySelectorAll('.modal-overlay.is-open').forEach((overlay) => {
       if (overlay.id) Modal.close(overlay.id);
     });
 
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
-  });
-  on('start-checkout', async (el, event) => {
-    event?.preventDefault?.();
-    const ALLOWED_PLANS = ['plus', 'plus_annual', 'pro', 'pro_annual'];
-    const rawPlan = el?.dataset?.plan;
-    const plan = ALLOWED_PLANS.includes(rawPlan) ? rawPlan : 'pro';
-    const source = el?.dataset?.upgradeSource || 'pricing';
-    trackEvent('checkout_start_clicked', { source, plan });
-    Toast.warning('Checkout desativado. Billing sera refeito em uma etapa propria.');
-  });
-
-  on('manage-subscription', async (el, event) => {
-    event?.preventDefault?.();
-    trackEvent('manage_subscription_clicked', {});
-    Toast.warning('Portal de assinatura desativado. Billing sera refeito em uma etapa propria.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
   });
 
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"

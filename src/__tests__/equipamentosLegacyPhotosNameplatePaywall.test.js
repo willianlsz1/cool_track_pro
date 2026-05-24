@@ -248,9 +248,7 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
 
     await click(upgrade);
     await vi.waitFor(() => {
-      expect(mocks.toastWarning).toHaveBeenCalledWith(
-        'Billing e precificacao estao desativados nesta etapa.',
-      );
+      expect(mocks.toastWarning).toHaveBeenCalledWith('Planos pagos foram removidos desta versao.');
     });
     expect(mocks.trackEvent).toHaveBeenCalledWith('upgrade_cta_clicked', {
       source: 'equip_detail_photos',
@@ -286,9 +284,7 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
       source: 'equip_modal',
     });
     expect(mocks.modalClose).toHaveBeenCalledWith('modal-add-eq');
-    expect(mocks.toastWarning).toHaveBeenCalledWith(
-      'Billing e precificacao estao desativados nesta etapa.',
-    );
+    expect(mocks.toastWarning).toHaveBeenCalledWith('Planos pagos foram removidos desta versao.');
     expect(mocks.goTo).not.toHaveBeenCalled();
   });
 
@@ -315,9 +311,7 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
 
     await click(maliciousUpgrade);
     await vi.waitFor(() => {
-      expect(mocks.toastWarning).toHaveBeenCalledWith(
-        'Billing e precificacao estao desativados nesta etapa.',
-      );
+      expect(mocks.toastWarning).toHaveBeenCalledWith('Planos pagos foram removidos desta versao.');
     });
     expect(mocks.trackEvent).toHaveBeenCalledWith('upgrade_cta_clicked', {
       source: 'dashboard',

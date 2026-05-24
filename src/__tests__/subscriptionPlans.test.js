@@ -67,7 +67,7 @@ describe('subscriptionPlans', () => {
 
     expect(PLAN_CATALOG[PLAN_CODE_FREE].label).toBe('Operacional');
     expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain(
-      'Recursos pagos desativados ate nova etapa de billing',
+      'Planos pagos removidos ate etapa propria',
     );
     expect(PLAN_CATALOG[PLAN_CODE_PLUS].limits.equipamentos).toBe(Number.POSITIVE_INFINITY);
     expect(PLAN_CATALOG[PLAN_CODE_PRO].limits.clientes).toBe(Number.POSITIVE_INFINITY);

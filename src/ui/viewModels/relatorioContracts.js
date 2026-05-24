@@ -40,7 +40,7 @@ export const RELATORIO_NAV_TARGETS = Object.freeze({
   relatorio: 'relatorio',
   registro: 'registro',
   clientes: 'clientes',
-  pricing: 'pricing',
+  commercialRemoved: 'commercial-removed',
 });
 
 export const RELATORIO_DATA_ATTRIBUTES = Object.freeze([

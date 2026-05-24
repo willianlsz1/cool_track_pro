@@ -295,11 +295,11 @@ export function openAccountModal(user, { onEditProfile, onSignOut, billingProfil
   });
 
   overlay.querySelector('#btn-upgrade-plan')?.addEventListener('click', () => {
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
   });
 
   overlay.querySelector('#btn-manage-plan')?.addEventListener('click', () => {
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
   });
 
   overlay.querySelector('#btn-signout')?.addEventListener('click', () => {

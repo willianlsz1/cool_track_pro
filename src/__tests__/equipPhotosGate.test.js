@@ -177,9 +177,7 @@ describe('applyEquipPhotosGate — Free (upsell visível)', () => {
     cta.click();
 
     expect(trackEvent).toHaveBeenCalledWith('photo_upsell_clicked', { source: 'equip_modal' });
-    expect(toastWarning).toHaveBeenCalledWith(
-      'Billing e precificacao estao desativados nesta etapa.',
-    );
+    expect(toastWarning).toHaveBeenCalledWith('Planos pagos foram removidos desta versao.');
     expect(goTo).not.toHaveBeenCalled();
   });
 

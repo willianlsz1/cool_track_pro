@@ -116,9 +116,6 @@ describe('crud/validate', () => {
       1,
       'Voce atingiu o limite do plano Free. Faca upgrade para continuar.',
     );
-    expect(Toast.warning).toHaveBeenNthCalledWith(
-      2,
-      'Billing e precificacao estao desativados nesta etapa.',
-    );
+    expect(Toast.warning).toHaveBeenNthCalledWith(2, 'Planos pagos foram removidos desta versao.');
   });
 });

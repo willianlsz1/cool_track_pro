@@ -120,7 +120,7 @@ async function ensureReportBudget({ attemptedEvent, blockedEvent }) {
   ) {
     trackEvent(blockedEvent, { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildPdfLimitMessage(planCode, pdfLimit));
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
     return { ok: false };
   }
 
@@ -439,7 +439,7 @@ async function resolveWhatsAppShareBudget() {
   ) {
     trackEvent('whatsapp_share_blocked', { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildWhatsAppLimitMessage(planCode, whatsappLimit));
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+    Toast.warning('Planos pagos foram removidos desta versao.');
     return false;
   }
 

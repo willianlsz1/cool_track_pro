@@ -216,7 +216,7 @@ function PmocHero({ isPro }) {
           data-action="open-upgrade"
           data-highlight-plan="pro"
           type="button"
-          title="Billing e precificacao desativados nesta etapa."
+          title="Planos pagos removidos desta versao."
         >
           Area comercial indisponivel
         </button>

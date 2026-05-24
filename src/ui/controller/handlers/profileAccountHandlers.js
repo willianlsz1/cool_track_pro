@@ -47,9 +47,7 @@ export function bindProfileAccountHandlers() {
   // bindadas em lugar nenhum. Editar perfil abre o ProfileModal; gerenciar
   // plano exibe aviso local enquanto billing e precificacao estao fora do produto.
   on('conta-edit-profile', () => ProfileModal.open());
-  on('conta-manage-plan', () =>
-    Toast.warning('Billing e precificacao estao desativados nesta etapa.'),
-  );
+  on('conta-manage-plan', () => Toast.warning('Planos pagos foram removidos desta versao.'));
 
   // Bug fix #119: card "Sair da conta" da view /conta. Confirma antes de
   // deslogar (acao destrutiva — perde sessao + redireciona pra login).

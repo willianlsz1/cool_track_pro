@@ -1,5 +1,4 @@
 import { goTo } from '../../core/router.js';
-import { Toast } from '../../core/toast.js';
 
 const OVERLAY_ID = 'clientes-paywall-overlay';
 let _bound = false;
@@ -41,13 +40,6 @@ function bindOnce() {
     if (!btn) return;
     const action = btn.dataset.clientesLockAction;
 
-    if (action === 'pricing') {
-      event.preventDefault();
-      close();
-      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
-      return;
-    }
-
     if (action === 'continue') {
       event.preventDefault();
       close();
@@ -58,12 +50,12 @@ function bindOnce() {
 
 function buildMarkup({ reason = 'client_limit', limit = 1 } = {}) {
   const isClientLimit = reason === 'client_limit';
-  const title = isClientLimit ? `Free inclui ${limit} cliente` : 'Mais clientes no app';
+  const title = isClientLimit ? `Limite local de ${limit} cliente` : 'Clientes no app';
   const subtitle = isClientLimit
-    ? 'Voce ja cadastrou o cliente incluido no Free. Billing e precificacao serao refeitos em etapa propria.'
+    ? 'Voce ja cadastrou o cliente permitido pelo limite local desta versao.'
     : 'Clientes ficam disponiveis conforme o limite operacional atual.';
   const context = isClientLimit
-    ? 'Cliente cadastrado no Free. Mais capacidade comercial sera revista em etapa propria.'
+    ? 'Cliente cadastrado. Mais capacidade comercial sera revista em etapa propria.'
     : 'Continue organizando clientes conforme o limite do seu plano.';
 
   return `
@@ -132,12 +124,12 @@ function buildMarkup({ reason = 'client_limit', limit = 1 } = {}) {
         <button type="button" class="clientes-paywall__cancel" data-clientes-lock-action="continue">
           Agora nao
         </button>
-        <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="pricing">
-          Area comercial indisponivel
+        <button type="button" class="clientes-paywall__upgrade" data-clientes-lock-action="continue">
+          Voltar ao inicio
         </button>
       </footer>
 
-      <p class="clientes-paywall__trust">Billing e precificacao desativados nesta etapa.</p>
+      <p class="clientes-paywall__trust">Planos pagos removidos desta versao.</p>
     </div>`;
 }
 

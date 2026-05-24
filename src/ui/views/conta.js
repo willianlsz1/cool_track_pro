@@ -347,7 +347,7 @@ function _renderPlanCard({ planCode }) {
     <section class="conta-plan-card" aria-label="Plano atual">
       <div class="conta-section__kicker">PLANO ATUAL</div>
       <h2>Operacional</h2>
-      <p>Fluxo operacional sem checkout, planos pagos ou portal de assinatura.</p>
+      <p>Fluxo operacional sem planos pagos ou assinatura.</p>
       <ul>
         <li>equipamentos sem limite comercial</li><li>registros de serviço</li><li>relatórios operacionais</li>
         <li>funciona offline</li>

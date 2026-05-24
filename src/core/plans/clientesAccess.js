@@ -26,7 +26,7 @@ function buildDecision(planCode = PLAN_CODE_FREE) {
   const normalized = normalizePlanCode(planCode);
   return {
     resolved: true,
-    source: 'billing_disabled',
+    source: 'commercial_removed',
     errored: false,
     planCode: normalized,
     canAccess: true,

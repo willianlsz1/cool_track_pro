@@ -30,7 +30,7 @@ export const HISTORICO_ACTIONS = Object.freeze({
   viewSignature: 'hist-view-signature',
   toggleCardMenu: 'toggle-card-menu',
   toggleSummary: 'toggle-summary',
-  pricingLink: 'hist-pricing-link',
+  commercialRemovedLink: 'hist-commercial-removed-link',
   editReg: 'edit-reg',
   deleteReg: 'delete-reg',
 });

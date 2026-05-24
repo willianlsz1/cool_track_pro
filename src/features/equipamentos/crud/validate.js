@@ -20,7 +20,7 @@ export async function checkSaveEquipPlanLimit({
           ? 'Voce atingiu o limite de equipamentos do seu plano.'
           : 'Voce atingiu o limite do plano Free. Faca upgrade para continuar.';
       Toast.warning(msg);
-      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+      Toast.warning('Planos pagos foram removidos desta versao.');
       return false;
     }
   }

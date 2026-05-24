@@ -126,17 +126,11 @@ export async function fetchMyProfileBilling({ supabaseClient = supabase } = {}) 
 }
 
 export async function startCheckout() {
-  throw createMonetizationError(
-    'BILLING_DISABLED',
-    'Checkout desativado. Billing sera refeito em uma etapa propria.',
-  );
+  throw createMonetizationError('COMMERCIAL_REMOVED', 'Planos pagos foram removidos desta versao.');
 }
 
 export async function startBillingPortal() {
-  throw createMonetizationError(
-    'BILLING_DISABLED',
-    'Portal de assinatura desativado. Billing sera refeito em uma etapa propria.',
-  );
+  throw createMonetizationError('COMMERCIAL_REMOVED', 'Planos pagos foram removidos desta versao.');
 }
 
 export { getEffectivePlan, hasProAccess };

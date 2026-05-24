@@ -311,9 +311,7 @@ describe('registro legacy checklist render adapter', () => {
     expect(cta?.textContent).toContain('Area comercial indisponivel');
 
     registro.setChecklistItemStatus('filtros_limpeza', 'ok');
-    expect(mocks.toastWarning).toHaveBeenCalledWith(
-      'Billing e precificacao estao desativados nesta etapa.',
-    );
+    expect(mocks.toastWarning).toHaveBeenCalledWith('Planos pagos foram removidos desta versao.');
     expect(mocks.goTo).not.toHaveBeenCalled();
     expect(registro.getCurrentChecklist()).toBeNull();
   });

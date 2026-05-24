@@ -28,10 +28,10 @@ const OPERATIONAL_PLAN = Object.freeze({
     'Clientes sem limite comercial',
     'Registros de servico sem limite comercial',
     'Histórico completo do equipamento',
-    'Recursos pagos desativados ate nova etapa de billing',
+    'Planos pagos removidos ate etapa propria',
   ],
-  accountTagline: 'Billing e precificacao foram removidos desta versao.',
-  accountChips: ['Sem checkout', 'Sem assinatura', 'Sem pricing'],
+  accountTagline: 'Planos pagos foram removidos desta versao.',
+  accountChips: ['Operacional', 'Sem assinatura', 'Sem limite comercial'],
 });
 
 export const PLAN_CATALOG = Object.freeze({

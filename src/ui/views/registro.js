@@ -941,7 +941,7 @@ function buildRegistroSignatureReactProps() {
     signatureSrc: _registroSignatureDraftSrc,
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
-      Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+      Toast.warning('Planos pagos foram removidos desta versao.');
     },
   };
 }
@@ -1101,7 +1101,7 @@ function _applyPmocChecklistDiscoveryState() {
 
 function _redirectPmocChecklistUpsell() {
   trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
-  Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+  Toast.warning('Planos pagos foram removidos desta versao.');
 }
 
 function _ensurePmocChecklistAccess({ redirect = false } = {}) {
@@ -1513,7 +1513,7 @@ function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId 
 
   // Hint de assinatura: Plus/Pro veem "Incluso" confirmando que a captura
   // vai rolar no save. Free vê variante upsell clicável que leva pro
-  // /pricing?highlightPlan=plus. O elemento vem `hidden` do template pra
+  // slot hidden legado de planos pagos removidos. O elemento vem `hidden` do template pra
   // evitar flash de conteúdo indevido enquanto o plano ainda carrega.
   applyRegistroInitSignatureHint();
 }

@@ -26,7 +26,7 @@ function getLabel(plan) {
 }
 
 function getBadgeStyle(plan) {
-  // Paleta canônica (alinhada com pricing + account modal + header):
+  // Paleta canonica (alinhada com conta + header):
   //   pro  = dourado (#e8b94a)
   //   plus = azul    (#3a8ee6)
   //   free = neutro  (--secondary)
