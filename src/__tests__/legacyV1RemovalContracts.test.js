@@ -83,6 +83,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/equipamentos/utils')).toBe(false);
   });
 
+  it('does not keep equipamentos nameplate helpers under src/features after co-locating with the v1 view', () => {
+    expect(existsSync('src/features/equipamentos/nameplate')).toBe(false);
+  });
+
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
     const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');

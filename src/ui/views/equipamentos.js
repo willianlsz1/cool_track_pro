@@ -128,7 +128,7 @@ import {
   createSaveEquipInState,
   updateSaveEquipInState,
 } from '../../features/equipamentos/crud/persist.js';
-import { collectSaveEquipDadosPlaca } from '../../features/equipamentos/nameplate/dadosPlaca.js';
+import { collectSaveEquipDadosPlaca } from './equipamentos/nameplate/dadosPlaca.js';
 import { finishSaveEquipSuccess } from '../../features/equipamentos/crud/postSave.js';
 import { runSaveEquipPostActions } from '../../features/equipamentos/crud/postActions.js';
 import { configureSaveEquip, saveEquip } from '../../features/equipamentos/crud/saveEquip.js';

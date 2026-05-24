@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { collectSaveEquipDadosPlaca } from '../../nameplate/dadosPlaca.js';
+import { collectSaveEquipDadosPlaca } from '../../ui/views/equipamentos/nameplate/dadosPlaca.js';
 
 class DadosPlacaValidationError extends Error {
   constructor({ label, unit, value, inputId }) {
