@@ -1,10 +1,13 @@
 import { Utils } from '../../../core/utils.js';
-import { CLIENTES_ACTIONS } from '../../viewModels/clientesContracts.js';
+import {
+  CLIENTES_ACTIONS,
+  CLIENTES_PAGE_SIZE_OPTIONS,
+  CLIENTES_PUBLIC_IDS,
+} from '../../viewModels/clientesContracts.js';
 import { renderCard } from './cardRenderer.js';
-import { renderActiveContext, renderAlertStrip, renderSummary } from './summaryRenderer.js';
+import { ICON_CHEV_L, ICON_CHEV_R, ICON_PLUS, ICON_USERS } from './constants.js';
 import { renderFilters } from './filtersRenderer.js';
-import { renderPagination } from './paginationRenderer.js';
-import { ICON_PLUS, ICON_USERS } from './constants.js';
+import { renderActiveContext, renderAlertStrip, renderSummary } from './summaryRenderer.js';
 
 function renderHeader() {
   return `
@@ -58,6 +61,45 @@ function renderEmptyFilter(searchTerm) {
       <p class="cli-empty__sub">Nenhum cliente encontrado ${hint}.</p>
       <button type="button" class="cli-empty__cta cli-empty__cta--ghost"
         data-cli-action="${CLIENTES_ACTIONS.clearFilters}">Limpar filtros</button>
+    </div>`;
+}
+
+function renderPagination(filteredCount, { currentPage, pageSize }) {
+  const totalPages = Math.max(1, Math.ceil(filteredCount / pageSize));
+  if (filteredCount === 0) return '';
+  const from = (currentPage - 1) * pageSize + 1;
+  const to = Math.min(filteredCount, currentPage * pageSize);
+
+  const pageBtns = [];
+  for (let p = 1; p <= totalPages; p++) {
+    const active = p === currentPage ? ' is-active' : '';
+    pageBtns.push(
+      `<button type="button" class="cli-pag__page${active}" data-cli-action="${CLIENTES_ACTIONS.gotoPage}" data-page="${p}" aria-label="Página ${p}" aria-current="${p === currentPage ? 'page' : 'false'}">${p}</button>`,
+    );
+  }
+
+  const prevDisabled = currentPage <= 1 ? 'disabled' : '';
+  const nextDisabled = currentPage >= totalPages ? 'disabled' : '';
+
+  return `
+    <div class="cli-pag" role="navigation" aria-label="Paginação">
+      <div class="cli-pag__info">Mostrando ${from}-${to} de ${filteredCount}</div>
+      <div class="cli-pag__controls">
+        <button type="button" class="cli-pag__btn" data-cli-action="${CLIENTES_ACTIONS.prevPage}"
+          aria-label="Página anterior" ${prevDisabled}>${ICON_CHEV_L}</button>
+        <div class="cli-pag__pages">${pageBtns.join('')}</div>
+        <button type="button" class="cli-pag__btn" data-cli-action="${CLIENTES_ACTIONS.nextPage}"
+          aria-label="Próxima página" ${nextDisabled}>${ICON_CHEV_R}</button>
+      </div>
+      <label class="cli-select cli-pag__size">
+        <span class="cli-select__label">Por página</span>
+        <select id="${CLIENTES_PUBLIC_IDS.pageSize}" class="cli-select__input" aria-label="Itens por página">
+          ${CLIENTES_PAGE_SIZE_OPTIONS.map(
+            (option) =>
+              `<option value="${option}" ${pageSize === option ? 'selected' : ''}>${option}</option>`,
+          ).join('')}
+        </select>
+      </label>
     </div>`;
 }
 

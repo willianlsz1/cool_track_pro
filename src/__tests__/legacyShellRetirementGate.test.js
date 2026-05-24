@@ -50,6 +50,7 @@ const retiredLegacyBarrelFiles = ['src/ui/views/clientes/renderers.js'];
 const retiredLegacyHelperFiles = [
   'src/ui/helpers/registroPure.js',
   'src/ui/views/clientes/emptyStateRenderer.js',
+  'src/ui/views/clientes/paginationRenderer.js',
 ];
 
 const legacyRuntimeKeptForLaterCheckpoints = [
