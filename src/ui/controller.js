@@ -15,7 +15,6 @@ import { initControllerHelpers } from './controller/helpers/themeInitHelpers.js'
 import { registerBlockingLayer } from '../core/router.js';
 import { SignatureModal } from './components/signature/signature-modal.js';
 import { SignatureViewerModal } from './components/signature/signature-viewer-modal.js';
-import { updateShellSidebar } from './shell.js';
 
 /**
  * Registra modais "blocking layer" no router pra serem fechados pelo botao
@@ -57,12 +56,4 @@ export function initController() {
   registerSignatureBlockingLayers();
 
   initControllerHelpers();
-
-  // Popula footer da sidebar (user chip + plan card) com dados reais.
-  // Chamado em bootstrap apos profile carregar do localStorage.
-  updateShellSidebar();
-  // Re-popula quando profile e salvo (modal de perfil dispatch este evento).
-  if (typeof window !== 'undefined') {
-    window.addEventListener('cooltrack:profile-updated', () => updateShellSidebar());
-  }
 }

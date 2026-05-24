@@ -1,18 +1,25 @@
 import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const legacyShellRouterTests = [
+const retiredShellFiles = [
+  'src/ui/shell.js',
+  'src/ui/shell/headerContracts.js',
+  'src/ui/shell/templates/header.js',
+  'src/ui/shell/templates/nav.js',
+  'src/ui/shell/templates/sidebar.js',
+];
+
+const retiredShellTests = [
   'src/__tests__/shell.test.js',
-  'src/__tests__/navigationMode.test.js',
-  'src/__tests__/controller.init.test.js',
-  'src/__tests__/contracts/routes.test.js',
-  'src/__tests__/clientesRouteAccess.test.js',
-  'src/__tests__/equipamentosRouteLifecycle.test.js',
-  'src/__tests__/registroRouteLifecycle.test.js',
   'src/__tests__/globalHeaderContracts.test.js',
-  'src/__tests__/a11y/views.test.js',
-  'src/__tests__/equipmentDetailOverlayShell.test.js',
-  'src/__tests__/equipamentosCpIAssets.test.js',
+];
+
+const legacyRuntimeKeptForLaterCheckpoints = [
+  'src/ui/controller.js',
+  'src/ui/controller/routes.js',
+  'src/ui/shell/navigationMode.js',
+  'src/ui/shell/templates/modals.js',
+  'src/ui/shell/templates/views.js',
 ];
 
 const appV2ReplacementCoverage = [
@@ -23,13 +30,16 @@ const appV2ReplacementCoverage = [
 ];
 
 describe('legacy shell retirement gate', () => {
-  it('keeps shell/router-only legacy tests tracked until their runtime is retired deliberately', () => {
-    expect(existsSync('src/ui/shell.js')).toBe(true);
-    expect(existsSync('src/ui/controller.js')).toBe(true);
+  it('keeps the retired visual shell removed while preserving later legacy checkpoints', () => {
+    const stillPresentShellFiles = retiredShellFiles.filter((path) => existsSync(path));
+    const stillPresentShellTests = retiredShellTests.filter((path) => existsSync(path));
+    const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
+      (path) => !existsSync(path),
+    );
 
-    const missingLegacyTests = legacyShellRouterTests.filter((path) => !existsSync(path));
-
-    expect(missingLegacyTests).toEqual([]);
+    expect(stillPresentShellFiles).toEqual([]);
+    expect(stillPresentShellTests).toEqual([]);
+    expect(missingLaterCheckpointFiles).toEqual([]);
   });
 
   it('keeps app-v2 replacement coverage present before retiring shell/router legacy tests', () => {

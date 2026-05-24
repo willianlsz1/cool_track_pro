@@ -142,6 +142,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - CP-16A resolveu a divergencia entre remover testes antes do runtime e manter
   runtime legado coberto: o primeiro corte real deve remover shell visual v1,
   testes obsoletos correspondentes e atualizar o gate no mesmo checkpoint.
+- CP-16B removeu o shell visual v1 morto (`src/ui/shell.js`, header/nav/sidebar
+  e contratos de header), removeu os testes obsoletos correspondentes e
+  preservou `navigationMode.js`, `views.js`, `modals.js` e controller/router
+  para checkpoints futuros.
 
 ## 3. Superficies v1 mapeadas
 

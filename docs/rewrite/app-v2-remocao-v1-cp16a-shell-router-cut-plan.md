@@ -27,6 +27,10 @@ Verificacao read-only deste CP:
 - `src/core/router.js` ainda documenta a orquestracao pelo controller legado;
 - os testes rastreados no CP-15 incluem casos de shell puro, router, lifecycle
   de views e contratos de header.
+- verificacao posterior encontrou que `src/ui/shell/templates/views.js`,
+  `src/ui/shell/templates/modals.js` e `src/ui/shell/navigationMode.js` ainda
+  prendem muitos testes legados de Registro, Historico, Relatorio, Dashboard,
+  Equipamentos e Conta.
 
 ## 3. Decisao
 
@@ -44,14 +48,11 @@ O primeiro corte real deve remover, no mesmo checkpoint:
 Lote recomendado para CP-16B:
 
 - `src/ui/shell.js`
-- `src/ui/shell/navigationMode.js`
 - `src/ui/shell/headerContracts.js`
 - `src/ui/shell/templates/header.js`
 - `src/ui/shell/templates/nav.js`
 - `src/ui/shell/templates/sidebar.js`
-- `src/ui/shell/templates/views.js`
 - `src/__tests__/shell.test.js`
-- `src/__tests__/navigationMode.test.js`
 - `src/__tests__/globalHeaderContracts.test.js`
 
 Motivo:
@@ -70,6 +71,9 @@ Nao incluir no CP-16B:
 - `src/ui/controller.js`
 - `src/ui/controller/routes.js`
 - `src/ui/controller/handlers/**`
+- `src/ui/shell/navigationMode.js`
+- `src/ui/shell/templates/modals.js`
+- `src/ui/shell/templates/views.js`
 - `src/__tests__/controller.init.test.js`
 - `src/__tests__/contracts/routes.test.js`
 - `src/__tests__/clientesRouteAccess.test.js`
@@ -82,6 +86,9 @@ Motivo:
 
 - esses arquivos ainda misturam router, lifecycle de views e contratos
   operacionais do legado;
+- `navigationMode.js` ainda e importado por views legadas de Dashboard e Conta;
+- `views.js` e `modals.js` ainda fornecem markup base para testes legados de
+  Registro, Historico, Relatorio, Equipamentos e fluxos sensiveis;
 - alguns passam por Registro, Equipamentos, Clientes e detalhes visuais que
   devem ser tratados em lotes separados;
 - nao devem ser misturados com PDF/share, WhatsApp, assinatura, fotos, auth,
