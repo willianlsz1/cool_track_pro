@@ -225,10 +225,6 @@ vi.mock('../ui/views/relatorio.js', () => ({
   unmountRelatorioCards: vi.fn(),
 }));
 
-vi.mock('../ui/views/pricing.js', () => ({
-  renderPricing: vi.fn(),
-}));
-
 vi.mock('../ui/views/clientes.js', () => ({
   renderClientes: vi.fn(),
   unmountClientes: vi.fn(),
@@ -429,7 +425,8 @@ describe('Historico -> Registro edit/delete integration contract', () => {
       await import('../ui/controller/handlers/navigationHandlers.js');
     bindNavigationHandlers();
 
-    expect(() => mocks.handlers.get('edit-reg')?.(actionElement({}))).not.toThrow();
+    const editHandler = mocks.handlers.get('edit-reg');
+    expect(() => editHandler(actionElement({}))).not.toThrow();
     expect(mocks.goTo).toHaveBeenCalledWith('registro', { editRegistroId: undefined });
 
     const currentState = createState();
@@ -438,7 +435,8 @@ describe('Historico -> Registro edit/delete integration contract', () => {
     const { bindRegistroHandlers } = await import('../ui/controller/handlers/registroHandlers.js');
     bindRegistroHandlers();
 
-    await expect(mocks.handlers.get('delete-reg')?.(actionElement({}))).resolves.toBeUndefined();
+    const deleteHandler = mocks.handlers.get('delete-reg');
+    await expect(deleteHandler(actionElement({}))).resolves.toBeUndefined();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
   });
 });

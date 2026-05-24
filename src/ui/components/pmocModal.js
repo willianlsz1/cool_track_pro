@@ -101,7 +101,7 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
                   Gerar PMOC formal
                 </button>`
               : `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-upgrade"
-                  data-action="open-upgrade" data-upgrade-source="pmoc_modal" data-highlight-plan="pro">
+                  data-upgrade-source="pmoc_modal" data-highlight-plan="pro" disabled aria-disabled="true">
                   Area comercial indisponivel
                 </button>`
           }

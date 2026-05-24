@@ -1,8 +1,8 @@
-// Account Modal — implementação fiel ao V2Refined (Claude Design final).
+﻿// Account Modal â€” implementaÃ§Ã£o fiel ao V2Refined (Claude Design final).
 // Hero card do plano com badge + nome grande + tagline + chips + bar/CTA,
-// seguido de identity row e ações. Paleta e layout replicam o mockup
-// aprovado; valores dinâmicos (count equipamentos, renova, nome, email)
-// vêm do state + profile + user real.
+// seguido de identity row e aÃ§Ãµes. Paleta e layout replicam o mockup
+// aprovado; valores dinÃ¢micos (count equipamentos, renova, nome, email)
+// vÃªm do state + profile + user real.
 
 import { Profile } from '../../features/profile.js';
 import {
@@ -20,10 +20,6 @@ const ACCOUNT_MODAL_ID = 'account-modal-overlay';
 // Handle do cleanup do focus trap / Escape para o overlay atual.
 let _a11yCleanup = null;
 
-// Preço do Plus hardcoded aqui — a fonte da verdade é pricing.js.
-// Se mudar lá, lembrar de atualizar esta string. Copy vem do mockup.
-const PLUS_MONTHLY_PRICE_LABEL = 'R$ 29/mês';
-
 function getInitials(name) {
   return String(name || 'T')
     .split(' ')
@@ -33,7 +29,7 @@ function getInitials(name) {
     .toUpperCase();
 }
 
-// Ícones stroke consistentes com o design (Inter 1.6 / 1.8 weight).
+// Ãcones stroke consistentes com o design (Inter 1.6 / 1.8 weight).
 const ICON_SPARK = `
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M12 3v3M12 18v3M5 12H2M22 12h-3M5.6 5.6l2 2M16.4 16.4l2 2M5.6 18.4l2-2M16.4 7.6l2-2"/>
@@ -83,7 +79,7 @@ const ICON_TRASH = `
   </svg>`;
 const DELETE_CONFIRM_PHRASE = 'EXCLUIR MINHA CONTA';
 
-// Ícone do badge do plano no header do hero.
+// Ãcone do badge do plano no header do hero.
 function getPlanBadgeIconHtml(planCode) {
   if (planCode === PLAN_CODE_PRO) return ICON_CROWN;
   if (planCode === PLAN_CODE_FREE) return ICON_SPARK;
@@ -93,12 +89,12 @@ function getPlanBadgeIconHtml(planCode) {
 
 function getPlanBadgeLabel(planCode, planLabel) {
   if (planCode === PLAN_CODE_FREE) return 'PLANO ATUAL';
-  return `${planLabel.toUpperCase()} · ATIVO`;
+  return `${planLabel.toUpperCase()} Â· ATIVO`;
 }
 
 // Chips do plano. 'filled' = check preenchido no accent do plano (Plus/Pro).
-// 'stroke' = outline ciano, aspiracional — usado no Free pra mostrar o que
-// vem no upgrade sem dar a impressão de "já tenho isso".
+// 'stroke' = outline ciano, aspiracional â€” usado no Free pra mostrar o que
+// vem no upgrade sem dar a impressÃ£o de "jÃ¡ tenho isso".
 function renderChips(chips, variant) {
   if (!Array.isArray(chips) || chips.length === 0) return '';
   const modifier =
@@ -114,7 +110,7 @@ function renderChips(chips, variant) {
     .join('');
 }
 
-// "12/MAI" a partir de ISO date. Retorna '' se inválido.
+// "12/MAI" a partir de ISO date. Retorna '' se invÃ¡lido.
 function formatRenewalShort(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -145,22 +141,22 @@ function getEquipmentCount() {
   }
 }
 
-// Renderiza a seção inferior do hero: CTA primário no Free, bar de uso
-// no Plus/Pro. Plus mostra "count / 15", Pro mostra "count · ilimitado".
+// Renderiza a seÃ§Ã£o inferior do hero: CTA primÃ¡rio no Free, bar de uso
+// no Plus/Pro. Plus mostra "count / 15", Pro mostra "count Â· ilimitado".
 function renderHeroFooter(planCode, planData) {
   if (planCode === PLAN_CODE_FREE) {
     return `
       <button type="button" class="account-modal__hero-cta" id="btn-upgrade-plan">
         <span class="account-modal__hero-cta-icon">${ICON_BOLT}</span>
-        <span>Fazer upgrade para o Plus — ${PLUS_MONTHLY_PRICE_LABEL}</span>
+        <span>Area comercial indisponivel</span>
       </button>`;
   }
 
   const count = getEquipmentCount();
   const limit = planData.limits.equipamentos;
   const isUnlimited = !Number.isFinite(limit);
-  const valueLabel = isUnlimited ? `${count} · ilimitado` : `${count} / ${limit}`;
-  // No Pro o fill é decorativo (shimmer), então width 100%. No Plus é real.
+  const valueLabel = isUnlimited ? `${count} Â· ilimitado` : `${count} / ${limit}`;
+  // No Pro o fill Ã© decorativo (shimmer), entÃ£o width 100%. No Plus Ã© real.
   const percent = isUnlimited ? 100 : Math.min(100, Math.max(4, Math.round((count / limit) * 100)));
 
   return `
@@ -186,13 +182,13 @@ export function closeAccountModal() {
 export function openAccountModal(user, { onEditProfile, onSignOut, billingProfile = null } = {}) {
   closeAccountModal();
 
-  // Nome/email vêm do perfil local (controlado pelo ProfileModal);
-  // plano e renovação vêm do billingProfile (Supabase), que é a fonte da verdade
-  // para status da assinatura. Fallback para o perfil local mantém
+  // Nome/email vÃªm do perfil local (controlado pelo ProfileModal);
+  // plano e renovaÃ§Ã£o vÃªm do billingProfile (Supabase), que Ã© a fonte da verdade
+  // para status da assinatura. Fallback para o perfil local mantÃ©m
   // compatibilidade caso o fetch falhe (offline/erro de rede).
   const localProfile = Profile.get() || {};
   const planProfile = billingProfile || localProfile;
-  const name = localProfile.nome || 'Técnico';
+  const name = localProfile.nome || 'TÃ©cnico';
   const email = user?.email || '';
   const initials = getInitials(name);
 
@@ -280,7 +276,7 @@ export function openAccountModal(user, { onEditProfile, onSignOut, billingProfil
     </div>
   `;
 
-  // Preenche conteúdo dinâmico (textContent evita XSS em name/email vindos do user)
+  // Preenche conteÃºdo dinÃ¢mico (textContent evita XSS em name/email vindos do user)
   const avatarEl = overlay.querySelector('.account-modal__avatar');
   const nameEl = overlay.querySelector('.account-modal__name');
   const emailEl = overlay.querySelector('.account-modal__email');
@@ -316,13 +312,13 @@ export function openAccountModal(user, { onEditProfile, onSignOut, billingProfil
     const originalLabel = btn.querySelector('.account-modal__action-label')?.textContent;
     const labelEl = btn.querySelector('.account-modal__action-label');
     btn.disabled = true;
-    if (labelEl) labelEl.textContent = 'Exportando…';
+    if (labelEl) labelEl.textContent = 'Exportandoâ€¦';
     try {
       const result = await exportUserData();
       if (result.ok) {
         Toast.success('Download iniciado. Verifique sua pasta de downloads.');
       } else {
-        Toast.error(result.message || 'Não foi possível exportar os dados.');
+        Toast.error(result.message || 'NÃ£o foi possÃ­vel exportar os dados.');
       }
     } finally {
       btn.disabled = false;
@@ -337,16 +333,16 @@ export function openAccountModal(user, { onEditProfile, onSignOut, billingProfil
   document.body.appendChild(overlay);
 
   // A11y: focus trap + Escape + retorna foco ao fechar. Dispensa o listener
-  // manual de Escape acima porque `attachDialogA11y` já cobre.
+  // manual de Escape acima porque `attachDialogA11y` jÃ¡ cobre.
   _a11yCleanup = attachDialogA11y(overlay, {
     onDismiss: () => closeAccountModal(),
   });
 }
 
 /**
- * Dialog de confirmação dupla pra exclusão de conta. Padrão GitHub/Stripe:
- * usuário precisa digitar a frase exata (DELETE_CONFIRM_PHRASE) pra habilitar
- * o botão. Fica em overlay próprio por cima do accountModal.
+ * Dialog de confirmaÃ§Ã£o dupla pra exclusÃ£o de conta. PadrÃ£o GitHub/Stripe:
+ * usuÃ¡rio precisa digitar a frase exata (DELETE_CONFIRM_PHRASE) pra habilitar
+ * o botÃ£o. Fica em overlay prÃ³prio por cima do accountModal.
  */
 function openDeleteConfirmDialog(accountOverlay) {
   const DIALOG_ID = 'account-modal-delete-dialog';
@@ -367,11 +363,11 @@ function openDeleteConfirmDialog(accountOverlay) {
         Excluir conta permanentemente?
       </h2>
       <p class="account-delete-dialog__lead">
-        Esta ação <strong>não pode ser desfeita</strong>. Todos os seus equipamentos,
-        registros, fotos e assinaturas serão removidos imediatamente dos nossos servidores.
+        Esta aÃ§Ã£o <strong>nÃ£o pode ser desfeita</strong>. Todos os seus equipamentos,
+        registros, fotos e assinaturas serÃ£o removidos imediatamente dos nossos servidores.
       </p>
       <p class="account-delete-dialog__hint">
-        Se ainda não exportou seus dados, cancele e use <strong>"Exportar meus dados"</strong> antes.
+        Se ainda nÃ£o exportou seus dados, cancele e use <strong>"Exportar meus dados"</strong> antes.
       </p>
       <label class="account-delete-dialog__label" for="delete-confirm-input">
         Para confirmar, digite <code>${DELETE_CONFIRM_PHRASE}</code> abaixo:
@@ -413,7 +409,7 @@ function openDeleteConfirmDialog(accountOverlay) {
   dialog.addEventListener('click', (event) => {
     if (event.target.closest?.('[data-action="close-delete"]')) {
       event.preventDefault();
-      // O delegator global em src/core/events.js também escuta data-action.
+      // O delegator global em src/core/events.js tambÃ©m escuta data-action.
       // Sem stopPropagation ele dispara warn "Sem handler para action=close-delete".
       event.stopPropagation();
       closeDialog();
@@ -422,18 +418,18 @@ function openDeleteConfirmDialog(accountOverlay) {
 
   confirmBtn?.addEventListener('click', async () => {
     confirmBtn.disabled = true;
-    confirmBtn.textContent = 'Excluindo…';
+    confirmBtn.textContent = 'Excluindoâ€¦';
     const result = await deleteUserAccount();
     if (result.ok) {
-      // Dados removidos + signOut local já rodou. Força reload pra state limpo.
+      // Dados removidos + signOut local jÃ¡ rodou. ForÃ§a reload pra state limpo.
       closeDialog();
       accountOverlay?.remove();
-      Toast.success('Conta excluída com sucesso.');
+      Toast.success('Conta excluÃ­da com sucesso.');
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } else {
-      Toast.error(result.message || 'Não foi possível excluir a conta.');
+      Toast.error(result.message || 'NÃ£o foi possÃ­vel excluir a conta.');
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Excluir minha conta';
     }

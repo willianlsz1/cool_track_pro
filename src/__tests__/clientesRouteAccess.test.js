@@ -49,7 +49,6 @@ vi.mock('../ui/views/registro.js', () => ({
   unmountRegistroPhotos: vi.fn(),
   unmountRegistroSignature: vi.fn(),
 }));
-vi.mock('../ui/views/pricing.js', () => ({ renderPricing: vi.fn() }));
 vi.mock('../ui/views/clientes.js', () => ({
   renderClientes: mocks.renderClientes,
   setClientesSearch: vi.fn(),

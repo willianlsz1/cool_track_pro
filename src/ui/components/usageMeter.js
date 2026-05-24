@@ -1,4 +1,4 @@
-import {
+﻿import {
   PLAN_CATALOG,
   PLAN_CODE_FREE,
   PLAN_CODE_PLUS,
@@ -230,20 +230,13 @@ function renderPaidMeter(
 
 function renderFreeMeter(equipmentCount, reportsThisMonth) {
   const usageState = getUsageState(equipmentCount, reportsThisMonth);
-  const equipmentTone = usageState.equipmentOverLimit ? 'danger' : 'primary';
+  const equipmentTone = 'primary';
   const reportTone = usageState.hasOverLimit
     ? 'danger'
     : getReportBarTone(usageState.reportPercent);
-  // Plus já destrava registros ilimitados e até 15 equipamentos — CTA aponta
-  // pra Plus, não Pro. Pro só ganha sentido quando a frota passa de 15.
-  const upgradeText = usageState.hasOverLimit
-    ? 'Você precisa do plano Plus para continuar &rarr;'
-    : 'Desbloquear ilimitado &rarr;';
-  const badgeHtml = usageState.hasOverLimit
-    ? '<span class="usage-meter__badge usage-meter__badge--danger">LIMITE ULTRAPASSADO</span>'
-    : usageState.hasNearLimit
-      ? '<span class="usage-meter__badge usage-meter__badge--warn">QUASE NO LIMITE</span>'
-      : '';
+  const badgeHtml = usageState.hasNearLimit
+    ? '<span class="usage-meter__badge usage-meter__badge--warn">USO OPERACIONAL</span>'
+    : '';
 
   return `
     <section class="usage-meter" aria-label="Consumo do plano grátis">
@@ -350,7 +343,7 @@ function renderFreeMeter(equipmentCount, reportsThisMonth) {
       </style>
 
       <div class="usage-meter__row">
-        <div class="usage-meter__label">Equipamentos: <span class="usage-meter__value">${equipmentCount} / ${FREE_PLAN_EQUIP_LIMIT}</span> no plano grátis</div>
+        <div class="usage-meter__label">Equipamentos: <span class="usage-meter__value">${equipmentCount} / ilimitado</span> no modo operacional</div>
         <div class="usage-meter__track">
           <div class="usage-meter__fill usage-meter__fill--${equipmentTone}" style="width:${usageState.equipmentPercent}%"></div>
         </div>
@@ -365,12 +358,12 @@ function renderFreeMeter(equipmentCount, reportsThisMonth) {
         </div>
       </div>`
           : `<div class="usage-meter__row">
-        <div class="usage-meter__label">Relatórios este mês: <span class="usage-meter__value">${reportsThisMonth}</span> (com marca d'água no plano grátis)</div>
+        <div class="usage-meter__label">Relatorios este mes: <span class="usage-meter__value">${reportsThisMonth}</span> sem limite comercial ativo</div>
       </div>`
       }
 
       <div class="usage-meter__actions">
-        <a class="usage-meter__upgrade" href="#" data-action="open-upgrade" data-upgrade-source="usage_meter">${upgradeText}</a>
+        <span class="usage-meter__upgrade">Area comercial indisponivel</span>
         ${badgeHtml}
       </div>
     </section>

@@ -13,7 +13,6 @@
    @import do CSS ser válido conforme spec — @import tem que ser
    o primeiro conteúdo do arquivo além de @charset) ─── */
 @import './components/_setor-card.css';
-@import './components/_pricing.css';
 @import './components/_equip-hero.css';
 @import './components/_setor-modal.css';
 @import './components/_clientes.css';

@@ -258,22 +258,19 @@ describe('storage/cache/offline cross-area contract', () => {
     setCachedPlan('pro');
 
     expect(localStorage.getItem('cooltrack-cached-plan')).toBeNull();
-    expect(localStorage.getItem('ct:user-a:cooltrack-cached-plan')).toBe('pro');
-    expect(getCachedPlan()).toBe('pro');
+    expect(localStorage.getItem('ct:user-a:cooltrack-cached-plan')).toBeNull();
+    expect(getCachedPlan()).toBe('free');
     expect(hasHydratedPlanInSession()).toBe(true);
-    expect(trackEvent).toHaveBeenCalledWith('upgrade_completed', {
-      from: 'unknown',
-      to: 'pro',
-    });
+    expect(trackEvent).not.toHaveBeenCalled();
 
     setCurrentUser('user-b');
     expect(getCachedPlan()).toBe('free');
 
     setCachedPlan('plus');
-    expect(localStorage.getItem('ct:user-b:cooltrack-cached-plan')).toBe('plus');
-    expect(getCachedPlan()).toBe('plus');
+    expect(localStorage.getItem('ct:user-b:cooltrack-cached-plan')).toBeNull();
+    expect(getCachedPlan()).toBe('free');
 
     setCurrentUser('user-a');
-    expect(getCachedPlan()).toBe('pro');
+    expect(getCachedPlan()).toBe('free');
   });
 });

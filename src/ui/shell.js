@@ -4,7 +4,7 @@ import { renderShellSidebar } from './shell/templates/sidebar.js';
 import { renderShellViews } from './shell/templates/views.js';
 import { renderShellModals } from './shell/templates/modals.js';
 import { Profile } from '../features/profile.js';
-import { PLAN_CODE_PLUS, PLAN_CODE_PRO, PLAN_CODE_FREE } from '../core/plans/subscriptionPlans.js';
+import { PLAN_CODE_FREE } from '../core/plans/subscriptionPlans.js';
 import { getCachedPlan } from '../core/plans/planCache.js';
 import { getClientesAccessSnapshot } from '../core/plans/clientesAccess.js';
 import { ensureNavigationModePreference, getNavigationLayout } from './shell/navigationMode.js';
@@ -81,20 +81,8 @@ function _getInitials(name) {
 }
 
 const _PLAN_LABELS = {
-  [PLAN_CODE_FREE]: { label: 'Plano Free', sub: 'Recursos basicos' },
-  [PLAN_CODE_PLUS]: { label: 'Plano Plus', sub: 'Seu plano esta ativo' },
-  [PLAN_CODE_PRO]: { label: 'Plano Pro', sub: 'Seu plano esta ativo' },
+  [PLAN_CODE_FREE]: { label: 'Operacional', sub: 'Area comercial removida' },
 };
-
-function _formatRenewBR(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return '';
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
 
 function _setElementVisible(el, visible) {
   if (!el) return;
@@ -159,9 +147,7 @@ export function updateShellSidebar() {
   const roleEl = document.getElementById('sidenav-user-role');
   if (roleEl) roleEl.textContent = 'Administrador';
 
-  // Plan card V3 — nome + status sub + (data se Plus/Pro) + CTA contextual.
-  // Cache sync; data de renovacao vem do mesmo profile (subscription_current_period_end)
-  // e so aparece pra planos pagos que tem essa info.
+  // Area comercial removida: mantem o card como status operacional sem plano pago.
   const planCode = _getCurrentPlanCode();
   const planMeta = _PLAN_LABELS[planCode] || _PLAN_LABELS[PLAN_CODE_FREE];
   const helpMenuEl = document.getElementById('header-help-menu');
@@ -174,18 +160,8 @@ export function updateShellSidebar() {
   const planSubEl = document.getElementById('sidenav-plan-sub');
   if (planSubEl) planSubEl.textContent = planMeta.sub;
 
-  // Linha de "Ate dd/mm/yyyy" so aparece pra planos pagos com data valida.
   const metaEl = document.getElementById('sidenav-plan-meta');
-  const renewEl = document.getElementById('sidenav-plan-renew');
-  const renewStr = _formatRenewBR(profile.subscription_current_period_end);
-  if (metaEl && renewEl) {
-    if (planCode !== PLAN_CODE_FREE && renewStr) {
-      renewEl.textContent = `Ate ${renewStr}`;
-      metaEl.hidden = false;
-    } else {
-      metaEl.hidden = true;
-    }
-  }
+  if (metaEl) metaEl.hidden = true;
 
   const ctaLabelEl = document.getElementById('sidenav-plan-cta-label');
   if (ctaLabelEl) {

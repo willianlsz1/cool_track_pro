@@ -27,51 +27,28 @@ describe('usageLimits', () => {
     vi.restoreAllMocks();
   });
 
-  it('exposes plan limits and limit checks', async () => {
-    const { getMonthlyLimitForPlan, hasReachedMonthlyLimit, USAGE_RESOURCE_PDF_EXPORT } =
-      await loadUsageLimits();
+  it('keeps usage resources unlimited while billing is disabled', async () => {
+    const {
+      getMonthlyLimitForPlan,
+      hasReachedMonthlyLimit,
+      USAGE_RESOURCE_PDF_EXPORT,
+      USAGE_RESOURCE_WHATSAPP_SHARE,
+      USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
+    } = await loadUsageLimits();
 
-    expect(getMonthlyLimitForPlan('free', USAGE_RESOURCE_PDF_EXPORT)).toBe(1);
-    expect(getMonthlyLimitForPlan('plus', USAGE_RESOURCE_PDF_EXPORT)).toBe(50);
-    expect(getMonthlyLimitForPlan('pro', USAGE_RESOURCE_PDF_EXPORT)).toBe(Number.POSITIVE_INFINITY);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'free',
-        resource: 'pdf_export',
-        usedCount: 0,
-      }),
-    ).toBe(false);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'free',
-        resource: 'pdf_export',
-        usedCount: 1,
-      }),
-    ).toBe(true);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'plus',
-        resource: 'pdf_export',
-        usedCount: 49,
-      }),
-    ).toBe(false);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'plus',
-        resource: 'pdf_export',
-        usedCount: 50,
-      }),
-    ).toBe(true);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'free',
-        resource: 'whatsapp_share',
-        usedCount: 5,
-      }),
-    ).toBe(true);
+    for (const resource of [
+      USAGE_RESOURCE_PDF_EXPORT,
+      USAGE_RESOURCE_WHATSAPP_SHARE,
+      USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
+    ]) {
+      expect(getMonthlyLimitForPlan('free', resource)).toBe(Number.POSITIVE_INFINITY);
+      expect(getMonthlyLimitForPlan('plus', resource)).toBe(Number.POSITIVE_INFINITY);
+      expect(getMonthlyLimitForPlan('pro', resource)).toBe(Number.POSITIVE_INFINITY);
+      expect(hasReachedMonthlyLimit({ planCode: 'free', resource, usedCount: 10_000 })).toBe(false);
+    }
   });
 
-  it('uses the planned PDF quota contract for runtime monthly limits', async () => {
+  it('uses an unlimited PDF quota contract for all legacy plan codes', async () => {
     const {
       getMonthlyLimitForPlan,
       getPdfExportMonthlyQuotaForPlan,
@@ -80,71 +57,21 @@ describe('usageLimits', () => {
       USAGE_RESOURCE_PDF_EXPORT,
     } = await loadUsageLimits();
 
-    expect(getPdfExportMonthlyQuotaForPlan('free')).toBe(1);
-    expect(getPdfExportMonthlyQuotaForPlan('plus')).toBe(50);
+    expect(getPdfExportMonthlyQuotaForPlan('free')).toBe(Number.POSITIVE_INFINITY);
+    expect(getPdfExportMonthlyQuotaForPlan('plus')).toBe(Number.POSITIVE_INFINITY);
     expect(getPdfExportMonthlyQuotaForPlan('pro')).toBe(Number.POSITIVE_INFINITY);
 
-    expect(hasFinitePdfExportMonthlyQuota('free')).toBe(true);
-    expect(hasFinitePdfExportMonthlyQuota('plus')).toBe(true);
+    expect(hasFinitePdfExportMonthlyQuota('free')).toBe(false);
+    expect(hasFinitePdfExportMonthlyQuota('plus')).toBe(false);
     expect(hasFinitePdfExportMonthlyQuota('pro')).toBe(false);
 
-    expect(isPdfExportMonthlyQuotaUnlimited('free')).toBe(false);
-    expect(isPdfExportMonthlyQuotaUnlimited('plus')).toBe(false);
+    expect(isPdfExportMonthlyQuotaUnlimited('free')).toBe(true);
+    expect(isPdfExportMonthlyQuotaUnlimited('plus')).toBe(true);
     expect(isPdfExportMonthlyQuotaUnlimited('pro')).toBe(true);
 
     expect(getMonthlyLimitForPlan('free', USAGE_RESOURCE_PDF_EXPORT)).toBe(
       getPdfExportMonthlyQuotaForPlan('free'),
     );
-    expect(getMonthlyLimitForPlan('plus', USAGE_RESOURCE_PDF_EXPORT)).toBe(
-      getPdfExportMonthlyQuotaForPlan('plus'),
-    );
-    expect(getMonthlyLimitForPlan('pro', USAGE_RESOURCE_PDF_EXPORT)).toBe(
-      getPdfExportMonthlyQuotaForPlan('pro'),
-    );
-  });
-
-  it('aplica limites dimensionados por plano pra nameplate_analysis', async () => {
-    // Motivação: Plus e Pro não podem ser "ilimitado" porque o custo da
-    // análise é em USD (cauda longa vira sangria de margem). 30/mês no Plus
-    // cobre técnico autônomo; 200/mês no Pro cobre equipe pequena.
-    const { getMonthlyLimitForPlan, hasReachedMonthlyLimit, USAGE_RESOURCE_NAMEPLATE_ANALYSIS } =
-      await loadUsageLimits();
-
-    expect(getMonthlyLimitForPlan('free', USAGE_RESOURCE_NAMEPLATE_ANALYSIS)).toBe(1);
-    expect(getMonthlyLimitForPlan('plus', USAGE_RESOURCE_NAMEPLATE_ANALYSIS)).toBe(30);
-    expect(getMonthlyLimitForPlan('pro', USAGE_RESOURCE_NAMEPLATE_ANALYSIS)).toBe(200);
-
-    // Plus bate o teto em 30
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'plus',
-        resource: USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-        usedCount: 30,
-      }),
-    ).toBe(true);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'plus',
-        resource: USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-        usedCount: 29,
-      }),
-    ).toBe(false);
-
-    // Pro bate o teto em 200
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'pro',
-        resource: USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-        usedCount: 200,
-      }),
-    ).toBe(true);
-    expect(
-      hasReachedMonthlyLimit({
-        planCode: 'pro',
-        resource: USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-        usedCount: 199,
-      }),
-    ).toBe(false);
   });
 
   it('loads monthly usage snapshot from Supabase', async () => {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * /conta — Página completa "Minha conta" (substitui o popover accountModal).
  *
  * Layout do mockup aprovado pelo Willian:
@@ -11,7 +11,6 @@
  * Os dados vêm de:
  *   - Profile.get()       → nome, role
  *   - Auth.getUser()      → email
- *   - billingProfile      → plano efetivo + subscription_current_period_end
  *   - getState()          → contagem de equipamentos
  *
  * Ações destrutivas (Sair / Excluir) reusam Auth.signOut e deleteUserAccount.
@@ -26,7 +25,6 @@ import {
   PLAN_CODE_PLUS,
   PLAN_CODE_PRO,
 } from '../../core/plans/subscriptionPlans.js';
-import { fetchMyProfileBilling } from '../../core/plans/monetization.js';
 import { goTo } from '../../core/router.js';
 import { getState } from '../../core/state.js';
 import { Toast } from '../../core/toast.js';
@@ -58,16 +56,6 @@ function _escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-function _formatDateBR(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return '';
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
 }
 
 function _equipmentCount() {
@@ -107,7 +95,6 @@ const ICON_CROWN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" 
 const ICON_SPARK = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M5 12H2M22 12h-3M5.6 5.6l2 2M16.4 16.4l2 2M5.6 18.4l2-2M16.4 7.6l2-2"/></svg>`;
 const ICON_CHECK_CIRCLE = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>`;
 const ICON_INFO = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>`;
-const ICON_CALENDAR = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>`;
 const ICON_EXTERNAL = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M10 14L20 4"/><path d="M20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5"/></svg>`;
 const ICON_CHEV = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>`;
 const ICON_USER = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>`;
@@ -163,10 +150,9 @@ function _planFeatureChips(planCode) {
 
 /* ───────────────────────── render: hero plano ─────────────────────── */
 
-function _renderHeroPlan({ planCode, planData, billingProfile }) {
+function _renderHeroPlan({ planCode, planData }) {
   const badgeLabel = _planBadgeLabel(planCode, planData.label);
   const tagline = _planTagline(planCode, planData);
-  const isPaid = planCode !== PLAN_CODE_FREE;
   const chips = _planFeatureChips(planCode);
 
   // Equipment usage (Plus = barra real, Pro = ilimitado, Free = sobre limite)
@@ -181,11 +167,6 @@ function _renderHeroPlan({ planCode, planData, billingProfile }) {
     ? Math.min(100, Math.max(8, count * 4)) // visual só (4% por equip)
     : Math.min(100, Math.max(4, Math.round((count / limit) * 100)));
 
-  // Renewal date (só pra planos pagos com data válida)
-  const renewIso = isPaid ? billingProfile?.subscription_current_period_end : null;
-  const renewBR = _formatDateBR(renewIso);
-  const hasRenew = Boolean(renewBR);
-
   const chipsHtml = chips
     .map(
       (chip) => `
@@ -197,21 +178,8 @@ function _renderHeroPlan({ planCode, planData, billingProfile }) {
     .join('');
 
   // Bottom cards: usage + renewal (somente quando paid). No Free, nao ha CTA
-  // comercial enquanto billing e precificacao estao fora do produto.
-  const renewalCardHtml = hasRenew
-    ? `
-        <div class="conta-hero__stat conta-hero__stat--renew">
-          <div class="conta-hero__stat-icon" aria-hidden="true">${ICON_CALENDAR}</div>
-          <div class="conta-hero__stat-body">
-            <div class="conta-hero__stat-label">Renovação em</div>
-            <div class="conta-hero__stat-value conta-hero__stat-value--accent">${renewBR}</div>
-            <div class="conta-hero__stat-foot">
-              Cobrança automática ativada
-              <span class="conta-hero__stat-foot-ic" aria-hidden="true">${ICON_CHECK_CIRCLE}</span>
-            </div>
-          </div>
-        </div>`
-    : '';
+  // comercial enquanto area comercial estao fora do produto.
+  const renewalCardHtml = '';
 
   return `
     <section class="conta-hero conta-hero--${planCode}" aria-labelledby="conta-hero-title">
@@ -367,7 +335,7 @@ function _renderPlanCard({ planCode }) {
     return `
       <section class="conta-plan-card" aria-label="Plano atual">
         <div class="conta-section__kicker">PLANO ATUAL</div>
-        <h2>Plano Plus</h2>
+        <h2>Area comercial removida</h2>
         <p>Feito para técnico autônomo.</p>
         <ul>
           <li>até 15 equipamentos</li><li>relatórios profissionais</li><li>assinatura digital</li>
@@ -378,10 +346,10 @@ function _renderPlanCard({ planCode }) {
   return `
     <section class="conta-plan-card" aria-label="Plano atual">
       <div class="conta-section__kicker">PLANO ATUAL</div>
-      <h2>Plano Gratuito</h2>
-      <p>Você já consegue testar o fluxo básico.</p>
+      <h2>Operacional</h2>
+      <p>Fluxo operacional sem checkout, planos pagos ou portal de assinatura.</p>
       <ul>
-        <li>até 3 equipamentos</li><li>registros de serviço</li><li>relatório com marca d'água</li>
+        <li>equipamentos sem limite comercial</li><li>registros de serviço</li><li>relatórios operacionais</li>
         <li>funciona offline</li>
       </ul>
     </section>`;
@@ -450,7 +418,7 @@ function _renderSection({ label, rows }) {
 
 function _renderAllSections() {
   const commercialLabel = 'Area comercial indisponivel';
-  const commercialSub = 'Billing e precificacao serao refeitos em uma etapa propria.';
+  const commercialSub = 'Area comercial sera refeita em uma etapa propria.';
 
   const conta = _renderSection({
     label: 'CONTA',
@@ -599,7 +567,7 @@ function _bindOnce() {
       case 'manage-plan':
       case 'upgrade':
       case 'conta-manage-plan':
-        Toast.warning('Billing e precificacao estao desativados nesta etapa.');
+        Toast.warning('Area comercial desativada nesta etapa.');
         break;
       case 'go-registro':
         goTo('registro');
@@ -739,27 +707,17 @@ function _openDeleteDialog() {
 export async function renderConta() {
   _renderLoading();
 
-  // Resolve user + billing em paralelo. Se billing falhar (offline/erro),
-  // segue com fallback do localProfile.
   let user = null;
-  let billingProfile = null;
   try {
     user = await Auth.getUser();
   } catch (_e) {
-    /* sem user — segue com profile local */
-  }
-  try {
-    const result = await fetchMyProfileBilling();
-    billingProfile = result?.profile || null;
-  } catch (_e) {
-    /* offline ou erro de rede — billingProfile fica null e usamos localProfile */
+    /* sem user - segue com profile local */
   }
 
   const localProfile = Profile.get() || {};
   const navMode = getNavigationMode();
   const state = getState() || {};
-  const planSource = billingProfile || localProfile;
-  const planCode = getEffectivePlan(planSource);
+  const planCode = getEffectivePlan(localProfile);
   const planData = PLAN_CATALOG[planCode] || PLAN_CATALOG[PLAN_CODE_FREE];
   const name = localProfile.nome || localProfile.empresa || 'Usuário';
   const role = localProfile.cargo || 'Técnico em Refrigeração';

@@ -29,7 +29,7 @@ export function syncContextGroupVisibility() {
  * Wire do CTA do locked state. Idempotente — chamado toda vez que o modal
  * abre pra Free, mas o listener é bound uma única vez via dataset flag.
  * Click → telemetria + navega pra /pricing com highlight em Plus + reason
- * pra que o renderPricing possa mostrar copy contextual se quiser.
+ * para manter telemetria da tentativa enquanto a area comercial esta desligada.
  */
 function _bindPhotosUpsellCta() {
   const cta = document.querySelector('#equip-photo-locked [data-action="photos-upsell-cta"]');

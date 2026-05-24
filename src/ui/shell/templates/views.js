@@ -1,4 +1,4 @@
-export function renderShellViews() {
+﻿export function renderShellViews() {
   return String.raw`
 <!-- PAINEL (Execução rápida) -->
         <div class="view active" id="view-inicio">
@@ -675,7 +675,7 @@ export function renderShellViews() {
               <div class="registro-sig-hint__body">
                 <div class="registro-sig-hint__head">
                   <strong class="registro-sig-hint__title">Checklist PMOC preenchível (NBR 13971)</strong>
-                  <span class="registro-sig-hint__badge registro-sig-hint__badge--pro">PRO</span>
+                  <span class="registro-sig-hint__badge registro-sig-hint__badge--pro">Indisponivel</span>
                 </div>
                 <p class="registro-sig-hint__desc">
                   Checklist completo conforme NBR 13971. Recurso Pro para preventiva/PMOC.
@@ -685,9 +685,8 @@ export function renderShellViews() {
               <button
                 type="button"
                 class="registro-sig-hint__cta registro-sig-hint__cta--pro"
-                data-action="open-upgrade"
-                data-upgrade-source="registro_pmoc_checklist"
-                data-highlight-plan="pro">
+                disabled
+                aria-disabled="true">
                 Area comercial indisponivel
               </button>
             </div>
@@ -957,9 +956,6 @@ export function renderShellViews() {
 
         <!-- CONFIGURAÇÕES -->
         <div class="view" id="view-configuracoes"></div>
-
-        <!-- PLANOS -->
-        <div class="view" id="view-pricing"></div>
 
         <!-- CONTA (full-page Minha Conta) -->
         <div class="view" id="view-conta"></div>

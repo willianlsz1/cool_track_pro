@@ -1,4 +1,4 @@
-import { on } from '../../../core/events.js';
+﻿import { on } from '../../../core/events.js';
 import { Modal } from '../../../core/modal.js';
 import { goTo } from '../../../core/router.js';
 import { trackEvent } from '../../../core/telemetry.js';
@@ -20,7 +20,6 @@ import {
   applyNameplateCtaGate,
   resetNameplateCtaState,
 } from '../../components/nameplateCapture.js';
-import { isCachedPlanPlusOrHigher } from '../../../core/plans/planCache.js';
 import { PushOptInCard } from '../../components/pushOptInCard.js';
 import { InstallAppPrompt } from '../../components/installAppPrompt.js';
 import { startServiceRegistration } from '../serviceRegistrationEntry.js';
@@ -182,59 +181,8 @@ export function bindNavigationHandlers() {
         });
       // V4: o bloco de fotos saiu desse modal. O único gate síncrono que
       // resta aqui é o do hero CTA de análise de placa (Plus+).
-      const isPlusOrPro = isCachedPlanPlusOrHigher();
       resetNameplateCtaState();
-      // Estado inicial sincrono. Se Plus+, vai direto pra 'active'. Se Free,
-      // deixa null como trialRemaining — o re-check async descobre quota.
-      // Conservador: enquanto o fetch não volta, Free vê 'locked' (pior caso
-      // é 200ms de flash até vir o state real; melhor que o inverso, que era
-      // mostrar 'active' e falhar na hora do clique).
-      applyNameplateCtaGate({ isPlusOrPro, trialRemaining: null });
-
-      // Re-check async com o profile real do banco. Necessário porque o
-      // cache local pode estar stale (cold start, nova aba, login recente,
-      // TTL expirado) — nesses casos o cache volta como "free" e o user
-      // paga vê o botão "Desbloquear com Plus" indevidamente. O recheck
-      // corrige o gate assim que o profile chega.
-      // Quando o plano é Free, também busca a quota mensal pra decidir
-      // entre 'trial' (tem uso restante) e 'locked' (já usou). Silencia
-      // erros: se fetch falhar (offline), estado do cache prevalece.
-      (async () => {
-        try {
-          const { fetchMyProfileBilling } = await import('../../../core/plans/monetization.js');
-          const { hasPlusAccess } = await import('../../../core/plans/subscriptionPlans.js');
-          const { supabase } = await import('../../../core/supabase.js');
-          const { profile } = await fetchMyProfileBilling();
-          const realIsPlusOrPro = hasPlusAccess(profile);
-
-          if (realIsPlusOrPro) {
-            applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
-            return;
-          }
-
-          // Free: consulta quota do mês pro resource nameplate_analysis.
-          // Se quota restante > 0 → state='trial', senão 'locked'.
-          const [
-            { getMonthlyUsageSnapshot, USAGE_RESOURCE_NAMEPLATE_ANALYSIS, getMonthlyLimitForPlan },
-            userRes,
-          ] = await Promise.all([import('../../../core/usageLimits.js'), supabase.auth.getUser()]);
-          const userId = userRes?.data?.user?.id ?? null;
-          if (!userId) {
-            applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: null });
-            return;
-          }
-          const snap = await getMonthlyUsageSnapshot(userId);
-          const used = Number(snap?.[USAGE_RESOURCE_NAMEPLATE_ANALYSIS] ?? 0) || 0;
-          const limit = getMonthlyLimitForPlan(
-            profile?.plan_code ?? 'free',
-            USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-          );
-          const remaining = Number.isFinite(limit) ? Math.max(0, limit - used) : 0;
-          applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: remaining });
-        } catch (_) {
-          /* offline / sessão expirada — mantém o estado do cache */
-        }
-      })();
+      applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
     }
     if (id === 'modal-add-setor') clearSetorEditingState();
     Modal.open(id);

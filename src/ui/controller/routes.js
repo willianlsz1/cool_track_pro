@@ -23,7 +23,6 @@ import {
   unmountRegistroPhotos,
   unmountRegistroSignature,
 } from '../views/registro.js';
-import { renderPricing } from '../views/pricing.js';
 import { renderClientes, unmountClientes } from '../views/clientes.js';
 import {
   getClientesAccessSnapshot,
@@ -40,7 +39,7 @@ export function registerAppRoutes() {
     if (!container) return;
     container.innerHTML = `
       <div class="view-loading" role="status" aria-live="polite" style="padding:16px">
-        Validando plano...
+        Carregando clientes...
       </div>
     `;
   }
@@ -139,11 +138,6 @@ export function registerAppRoutes() {
       unmountRelatorioCards();
     },
   );
-
-  registerRoute('pricing', (params = {}) => {
-    renderPricing(params);
-    updateHeader();
-  });
 
   registerRoute(
     'clientes',

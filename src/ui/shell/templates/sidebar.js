@@ -1,4 +1,4 @@
-const ICON_HOME = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+﻿const ICON_HOME = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
   stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
   <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H15v-7h-6v7H4.5A1.5 1.5 0 0 1 3 20v-9.5Z"/>
 </svg>`;
@@ -159,10 +159,10 @@ export function renderShellSidebar() {
     <div class="app-sidebar__plan-card" id="sidenav-plan-card" data-plan="free">
       <div class="app-sidebar__plan-card-head">
         <span class="app-sidebar__plan-card-icon" aria-hidden="true">${ICON_CROWN}</span>
-        <span class="app-sidebar__plan-card-title" id="sidenav-plan-name">Plano Free</span>
+        <span class="app-sidebar__plan-card-title" id="sidenav-plan-name">Operacional</span>
       </div>
       <p class="app-sidebar__plan-card-sub" id="sidenav-plan-sub">
-        Recursos básicos
+        Area comercial removida
       </p>
       <div class="app-sidebar__plan-card-meta" id="sidenav-plan-meta" hidden>
         <span class="app-sidebar__plan-card-meta-icon" aria-hidden="true">${ICON_CALENDAR_SM}</span>

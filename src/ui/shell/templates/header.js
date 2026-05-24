@@ -1,4 +1,4 @@
-export function renderShellHeader() {
+﻿export function renderShellHeader() {
   return String.raw`
 <!-- HEADER -->
     <header class="app-header" id="app-header" data-tier="free">
@@ -92,7 +92,7 @@ export function renderShellHeader() {
                 <button type="button" class="header-help-menu__item" id="header-help-go-clientes" data-nav="clientes" hidden>
                   👥 Clientes
                 </button>
-                <button type="button" class="header-help-menu__item" id="header-help-clientes-upsell" data-action="open-upgrade">
+                <button type="button" class="header-help-menu__item" id="header-help-clientes-upsell" data-nav="clientes" hidden>
                   🚀 Organizar por cliente (Pro)
                 </button>
               </section>
@@ -118,16 +118,6 @@ export function renderShellHeader() {
                 <button type="button" class="header-help-menu__item" data-action="help-feedback">
                   ⭐ Enviar feedback
                 </button>
-              </section>
-
-              <section class="header-help-menu__section" aria-label="Upgrade">
-                <p class="header-help-menu__section-title">UPGRADE</p>
-                <button type="button" class="header-help-menu__status-card header-help-menu__status-card--upsell" data-action="open-upgrade">
-                  Desbloqueie o modo Empresa
-                </button>
-                <div class="header-help-menu__status-card header-help-menu__status-card--active" hidden>
-                  Plano PRO ativo
-                </div>
               </section>
             </div>
           </div>

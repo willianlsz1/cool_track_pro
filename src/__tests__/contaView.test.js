@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { __test__ } from '../ui/views/conta.js';
 
 describe('conta view helpers', () => {
-  it('Free renderiza Plano Gratuito sem CTA comercial', () => {
+  it('renderiza estado operacional sem CTA comercial', () => {
     const html = __test__._renderPlanCard({ planCode: __test__.PLAN_CODE_FREE });
-    expect(html).toContain('Plano Gratuito');
+    expect(html).toContain('Operacional');
     expect(html).not.toContain('Ver planos');
   });
 

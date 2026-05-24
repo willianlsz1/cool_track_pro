@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-async function loadSubscriptionPlans({ profile = { plan: 'free' }, error = null } = {}) {
+async function loadSubscriptionPlans({ profile = { plan: 'pro' }, error = null } = {}) {
   vi.resetModules();
 
   const maybeSingle = vi.fn().mockResolvedValue({ data: profile, error });
@@ -21,108 +21,66 @@ describe('subscriptionPlans', () => {
     vi.restoreAllMocks();
   });
 
-  it('normalizes invalid plan codes to free', async () => {
+  it('keeps legacy plan codes normalized for compatibility', async () => {
     const { normalizePlanCode, PLAN_CODE_FREE, PLAN_CODE_PRO } = await loadSubscriptionPlans();
 
     expect(normalizePlanCode('enterprise')).toBe(PLAN_CODE_FREE);
     expect(normalizePlanCode(PLAN_CODE_PRO)).toBe(PLAN_CODE_PRO);
   });
 
-  it('resolves effective plan using is_dev and active subscription status', async () => {
-    const { getEffectivePlan, PLAN_CODE_FREE, PLAN_CODE_PRO } = await loadSubscriptionPlans();
+  it('resolves every effective plan to the non-commercial operational plan', async () => {
+    const { getEffectivePlan, PLAN_CODE_FREE } = await loadSubscriptionPlans();
 
-    expect(getEffectivePlan({ is_dev: true })).toBe(PLAN_CODE_PRO);
-    expect(getEffectivePlan({ plan: 'pro', subscription_status: 'active' })).toBe(PLAN_CODE_PRO);
-    // trialing é tratado como paid ativo (trial de checkout Stripe)
+    expect(getEffectivePlan({ is_dev: true })).toBe(PLAN_CODE_FREE);
+    expect(getEffectivePlan({ plan: 'pro', subscription_status: 'active' })).toBe(PLAN_CODE_FREE);
     expect(getEffectivePlan({ plan_code: 'pro', subscription_status: 'trialing' })).toBe(
-      PLAN_CODE_PRO,
-    );
-    // past_due / canceled / incomplete fazem degradar pra Free
-    expect(getEffectivePlan({ plan_code: 'pro', subscription_status: 'past_due' })).toBe(
       PLAN_CODE_FREE,
     );
-    expect(getEffectivePlan({ plan: 'free', subscription_status: 'active' })).toBe(PLAN_CODE_FREE);
     expect(getEffectivePlan(null)).toBe(PLAN_CODE_FREE);
   });
 
-  it('exposes hasProAccess and assertProAccess consistently', async () => {
-    const { assertProAccess, hasProAccess } = await loadSubscriptionPlans();
+  it('keeps legacy access helpers open while billing is disabled', async () => {
+    const { assertProAccess, hasProAccess, hasPlusAccess, assertFeature, hasFeature } =
+      await loadSubscriptionPlans();
 
-    expect(hasProAccess({ plan: 'pro', subscription_status: 'active' })).toBe(true);
-    expect(() =>
-      assertProAccess({ plan: 'pro', subscription_status: 'active' }, 'premium_feature'),
-    ).not.toThrow();
-
-    expect(hasProAccess({ plan: 'pro', subscription_status: 'past_due' })).toBe(false);
-    // Feature não mapeada → cai no fallback que exige Pro
-    expect(() =>
-      assertProAccess({ plan: 'pro', subscription_status: 'past_due' }, 'premium_feature'),
-    ).toThrow(/exclusivo do plano Pro/i);
+    expect(hasProAccess({ plan: 'free' })).toBe(true);
+    expect(hasPlusAccess({ plan: 'free' })).toBe(true);
+    expect(hasFeature(null, 'setores')).toBe(true);
+    expect(() => assertProAccess(null, 'premium_feature')).not.toThrow();
+    expect(assertFeature(null, 'setores')).toMatchObject({ allowed: true, planCode: 'free' });
   });
 
-  it('enforces free equipment limit at 3 and keeps pro unlimited', async () => {
+  it('removes commercial equipment limits', async () => {
     const { canCreateEquipment } = await loadSubscriptionPlans();
 
-    expect(canCreateEquipment({ plan: 'free' }, 2)).toMatchObject({
-      allowed: true,
-      limit: 3,
-      current: 2,
-      planCode: 'free',
-    });
-
-    expect(canCreateEquipment({ plan: 'free' }, 3)).toMatchObject({
-      allowed: false,
-      limit: 3,
-      current: 3,
-      planCode: 'free',
-    });
-
-    expect(canCreateEquipment({ plan: 'pro', subscription_status: 'active' }, 20)).toMatchObject({
+    expect(canCreateEquipment({ plan: 'free' }, 10_000)).toMatchObject({
       allowed: true,
       limit: Number.POSITIVE_INFINITY,
-      current: 20,
-      planCode: 'pro',
-    });
-
-    // Pro é ilimitado — mesmo com 10k equipamentos ainda libera cadastro
-    expect(
-      canCreateEquipment({ plan: 'pro', subscription_status: 'active' }, 10_000),
-    ).toMatchObject({
-      allowed: true,
-      limit: Number.POSITIVE_INFINITY,
-      planCode: 'pro',
+      current: 10_000,
+      planCode: 'free',
     });
   });
 
-  it('keeps commercial plan catalog aligned with PDF monthly quotas', async () => {
+  it('keeps a non-commercial catalog for callers that still read plan metadata', async () => {
     const { PLAN_CATALOG, PLAN_CODE_FREE, PLAN_CODE_PLUS, PLAN_CODE_PRO } =
       await loadSubscriptionPlans();
 
-    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain('1 relatório em PDF/mês com marca d’água');
-    expect(PLAN_CATALOG[PLAN_CODE_PLUS].perks).toContain('50 relatórios PDF/mês sem marca d’água');
-    expect(PLAN_CATALOG[PLAN_CODE_PRO].perks).toContain(
-      'Relatórios PDF ilimitados e WhatsApp ilimitado',
+    expect(PLAN_CATALOG[PLAN_CODE_FREE].label).toBe('Operacional');
+    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain(
+      'Recursos pagos desativados ate nova etapa de billing',
     );
-    expect(PLAN_CATALOG[PLAN_CODE_PLUS].accountChips).toContain('50 PDFs/mês');
-    expect(PLAN_CATALOG[PLAN_CODE_PRO].accountChips).toContain('PDFs ilimitados');
+    expect(PLAN_CATALOG[PLAN_CODE_PLUS].limits.equipamentos).toBe(Number.POSITIVE_INFINITY);
+    expect(PLAN_CATALOG[PLAN_CODE_PRO].limits.clientes).toBe(Number.POSITIVE_INFINITY);
   });
 
-  it('reads user profile from Supabase and applies effective plan fallback', async () => {
-    const { getPlanCodeForUserId, PLAN_CODE_FREE, PLAN_CODE_PRO, mocks } =
+  it('can still read profile rows, but plan code stays operational', async () => {
+    const { getPlanProfileForUserId, getPlanCodeForUserId, PLAN_CODE_FREE, mocks } =
       await loadSubscriptionPlans({
         profile: { plan: 'pro', subscription_status: 'active', is_dev: false },
       });
 
-    await expect(getPlanCodeForUserId('user-1')).resolves.toBe(PLAN_CODE_PRO);
+    await expect(getPlanProfileForUserId('user-1')).resolves.toMatchObject({ plan: 'pro' });
+    await expect(getPlanCodeForUserId('user-1')).resolves.toBe(PLAN_CODE_FREE);
     expect(mocks.from).toHaveBeenCalledWith('profiles');
-
-    mocks.maybeSingle.mockResolvedValueOnce({
-      data: { plan: 'pro', subscription_status: 'incomplete', is_dev: false },
-      error: null,
-    });
-    await expect(getPlanCodeForUserId('user-1')).resolves.toBe(PLAN_CODE_FREE);
-
-    mocks.maybeSingle.mockResolvedValueOnce({ data: null, error: { message: 'boom' } });
-    await expect(getPlanCodeForUserId('user-1')).resolves.toBe(PLAN_CODE_FREE);
   });
 });

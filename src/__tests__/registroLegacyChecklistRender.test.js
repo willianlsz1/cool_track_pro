@@ -288,7 +288,7 @@ describe('registro legacy checklist render adapter', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('bloqueia checklist PMOC para plano nao-Pro com CTA de upgrade', async () => {
+  it('bloqueia checklist PMOC para plano nao-Pro com CTA comercial desativado', async () => {
     const { wrapper, body, upsell, registro } = await renderChecklistForState(
       baseState(),
       { equipId: 'eq-1' },
@@ -299,13 +299,15 @@ describe('registro legacy checklist render adapter', () => {
     expect(body?.children).toHaveLength(0);
     expect(upsell?.hidden).toBe(false);
     expect(upsell?.querySelector('.registro-sig-hint__ic--pro')).not.toBeNull();
-    expect(upsell?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe('PRO');
+    expect(upsell?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe(
+      'Indisponivel',
+    );
     expect(upsell?.textContent).toContain('Checklist PMOC preenchível (NBR 13971)');
     expect(upsell?.textContent).toContain(
       'Checklist completo conforme NBR 13971. Recurso Pro para preventiva/PMOC.',
     );
 
-    const cta = upsell?.querySelector('[data-action="open-upgrade"][data-highlight-plan="pro"]');
+    const cta = upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]');
     expect(cta?.textContent).toContain('Area comercial indisponivel');
 
     registro.setChecklistItemStatus('filtros_limpeza', 'ok');
@@ -415,7 +417,9 @@ describe('registro legacy checklist render adapter', () => {
     expect(upsell?.hidden).toBe(false);
     expect(upsell?.dataset.pmocRecommended).toBe('true');
     expect(upsell?.textContent).toContain('Recomendado para preventiva/PMOC');
-    expect(upsell?.querySelector('[data-highlight-plan="pro"]')).not.toBeNull();
+    expect(
+      upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]'),
+    ).not.toBeNull();
     expect(registro.getCurrentChecklist()).toBeNull();
   });
 

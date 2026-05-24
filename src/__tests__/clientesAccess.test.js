@@ -1,92 +1,52 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const fetchMyProfileBillingCached = vi.fn();
-const getCachedBillingProfileSnapshot = vi.fn();
-
-vi.mock('../core/plans/monetization.js', () => ({
-  fetchMyProfileBillingCached,
-  getCachedBillingProfileSnapshot,
-}));
+async function loadClientesAccess() {
+  vi.resetModules();
+  return import('../core/plans/clientesAccess.js');
+}
 
 describe('clientesAccess', () => {
   beforeEach(() => {
-    vi.resetModules();
-    localStorage.clear();
-    fetchMyProfileBillingCached.mockReset();
-    getCachedBillingProfileSnapshot.mockReset();
+    vi.restoreAllMocks();
   });
 
-  it('mantem hidratacao pendente quando cache e free sem bloquear acesso a rota', async () => {
-    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
-    getCachedBillingProfileSnapshot.mockReturnValue(null);
+  it('mantem acesso a Clientes resolvido sem depender de billing', async () => {
+    const { getClientesAccessSnapshot, resolveClientesAccess } = await loadClientesAccess();
 
-    const { getClientesAccessSnapshot } = await import('../core/plans/clientesAccess.js');
-    const decision = getClientesAccessSnapshot();
-
-    expect(decision.resolved).toBe(false);
-    expect(decision.planCode).toBe('free');
-    expect(decision.canAccess).toBe(true);
-  });
-
-  it('resolve acesso free via billing fetch e sincroniza cache', async () => {
-    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
-    getCachedBillingProfileSnapshot.mockReturnValue(null);
-    fetchMyProfileBillingCached.mockResolvedValue({
-      profile: { plan_code: 'free', subscription_status: null },
+    expect(getClientesAccessSnapshot()).toMatchObject({
+      resolved: true,
+      source: 'billing_disabled',
+      errored: false,
+      planCode: 'free',
+      canAccess: true,
     });
-
-    const { resolveClientesAccess } = await import('../core/plans/clientesAccess.js');
-    const decision = await resolveClientesAccess();
-
-    expect(decision.resolved).toBe(true);
-    expect(decision.planCode).toBe('free');
-    expect(decision.canAccess).toBe(true);
-    expect(localStorage.getItem('cooltrack-cached-plan')).toBeNull();
-    expect(localStorage.getItem('ct:anon:cooltrack-cached-plan')).toBe('free');
+    await expect(resolveClientesAccess()).resolves.toMatchObject({
+      resolved: true,
+      source: 'billing_disabled',
+      canAccess: true,
+    });
   });
 
-  it('nao impede a rota quando refresh falha com cache free nao hidratado', async () => {
-    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'free');
-    getCachedBillingProfileSnapshot.mockReturnValue(null);
-    fetchMyProfileBillingCached.mockRejectedValue(new Error('network'));
+  it('remove limite comercial de criacao de clientes', async () => {
+    const { canCreateCliente } = await loadClientesAccess();
 
-    const { resolveClientesAccess } = await import('../core/plans/clientesAccess.js');
-    const decision = await resolveClientesAccess();
-
-    expect(decision.resolved).toBe(false);
-    expect(decision.errored).toBe(true);
-    expect(decision.planCode).toBe('free');
-    expect(decision.canAccess).toBe(true);
-  });
-
-  it('limita criacao de clientes no Free e libera pagos', async () => {
-    const { canCreateCliente } = await import('../core/plans/clientesAccess.js');
-
-    expect(canCreateCliente({ planCode: 'free', currentClientesCount: 0 })).toMatchObject({
+    expect(canCreateCliente({ planCode: 'free', currentClientesCount: 10_000 })).toMatchObject({
       allowed: true,
-      limit: 1,
-      current: 0,
+      limit: Number.POSITIVE_INFINITY,
+      current: 10_000,
       planCode: 'free',
+      requiredPlan: null,
     });
-    expect(canCreateCliente({ planCode: 'free', currentClientesCount: 1 })).toMatchObject({
-      allowed: false,
-      limit: 1,
-      current: 1,
-      planCode: 'free',
-      requiredPlan: 'plus',
-    });
-    expect(canCreateCliente({ planCode: 'plus', currentClientesCount: 1 }).allowed).toBe(true);
-    expect(canCreateCliente({ planCode: 'pro', currentClientesCount: 100 }).allowed).toBe(true);
   });
 
-  it('permite editar cliente existente mesmo no Free acima do limite', async () => {
-    const { canCreateCliente } = await import('../core/plans/clientesAccess.js');
+  it('mantem edicao liberada', async () => {
+    const { canCreateCliente } = await loadClientesAccess();
 
     expect(
       canCreateCliente({ planCode: 'free', currentClientesCount: 1, isEditing: true }),
     ).toMatchObject({
       allowed: true,
-      limit: 1,
+      limit: Number.POSITIVE_INFINITY,
       current: 1,
       planCode: 'free',
     });

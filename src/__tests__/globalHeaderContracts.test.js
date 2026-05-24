@@ -225,7 +225,6 @@ describe('global header legacy contracts', () => {
       HEADER_ACTIONS.goOrcamentos,
       HEADER_ACTIONS.openPmocModal,
       HEADER_ACTIONS.openPmocInfo,
-      HEADER_ACTIONS.openUpgrade,
       HEADER_ACTIONS.openProfile,
       HEADER_ACTIONS.helpOpenTutorial,
       HEADER_ACTIONS.helpScoreInfo,

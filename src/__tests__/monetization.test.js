@@ -1,157 +1,80 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-function createSupabaseMock({
-  session = { access_token: 'token' },
-  sessionError = null,
-  functionResponse = { data: { url: 'https://checkout.stripe.com/test' }, error: null },
-  user = { id: 'user-1' },
-  userError = null,
-  profile = {
-    id: 'user-1',
-    plan_code: 'pro',
-    plan: 'pro',
-    subscription_status: 'active',
-    is_dev: false,
-  },
-  profileError = null,
-} = {}) {
-  const maybeSingle = vi.fn().mockResolvedValue({ data: profile, error: profileError });
-  const eq = vi.fn(() => ({ maybeSingle }));
-  const select = vi.fn(() => ({ eq }));
-  const from = vi.fn(() => ({ select }));
-
+function makeSupabaseMock() {
   return {
     auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session }, error: sessionError }),
-      getUser: vi.fn().mockResolvedValue({ data: { user }, error: userError }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
+      getSession: vi.fn(async () => ({ data: { session: null } })),
+      signOut: vi.fn(async () => ({})),
+      getUser: vi.fn(async () => ({
+        data: { user: { id: 'user-1', email: 'user@test.local' } },
+        error: null,
+      })),
     },
-    from,
-    functions: {
-      invoke: vi.fn().mockResolvedValue(functionResponse),
-    },
-    mocks: { maybeSingle, eq, select, from },
   };
 }
 
-async function loadMonetizationWithMock(mock) {
+async function loadMonetization({ supabaseMock = makeSupabaseMock() } = {}) {
   vi.resetModules();
-  vi.doMock('../core/supabase.js', () => ({ supabase: mock }));
-  return import('../core/plans/monetization.js');
+  vi.doMock('../core/supabase.js', () => ({ supabase: supabaseMock }));
+  const mod = await import('../core/plans/monetization.js');
+  return { mod, supabaseMock };
 }
 
-describe('monetization', () => {
+describe('monetization disabled compatibility layer', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    localStorage.clear();
   });
 
-  it('isProUser follows strict effective-plan rules and allows is_dev', async () => {
-    const mod = await loadMonetizationWithMock(createSupabaseMock());
+  it('keeps session project mismatch sanitizer available', async () => {
+    const { mod } = await loadMonetization();
 
-    expect(mod.isProUser({ plan_code: 'pro', subscription_status: 'active' })).toBe(true);
-    // trialing conta como status pago ativo (checkout Stripe com trial)
-    expect(mod.isProUser({ plan: 'pro', subscription_status: 'trialing' })).toBe(true);
-    expect(mod.isProUser({ plan_code: 'pro', subscription_status: 'past_due' })).toBe(false);
-    expect(mod.isProUser({ plan_code: 'free', subscription_status: 'active' })).toBe(false);
-    expect(mod.isProUser({ is_dev: true })).toBe(true);
+    await expect(mod.sanitizeSessionForCurrentProject()).resolves.toMatchObject({
+      sanitized: false,
+      session: null,
+    });
   });
 
-  it('canUsePremiumFeature: PDF liberado para todos (quota controla), equipamentos extra gated Plus+', async () => {
-    const mod = await loadMonetizationWithMock(createSupabaseMock());
-    const proProfile = { plan_code: 'pro', subscription_status: 'active' };
-    const plusProfile = { plan_code: 'plus', subscription_status: 'active' };
-    const freeProfile = { plan_code: 'free', subscription_status: 'active' };
+  it('keeps legacy premium helpers open while billing is disabled', async () => {
+    const { mod } = await loadMonetization();
 
-    // PDF export: Phase 1 libera pra Free também (com marca d'água + cota de 5/mês).
-    // A quota vive em usageLimits, não mais como feature binária.
-    expect(mod.canUsePremiumFeature(proProfile, mod.PREMIUM_FEATURE_PDF_EXPORT)).toBe(true);
-    expect(mod.canUsePremiumFeature(plusProfile, mod.PREMIUM_FEATURE_PDF_EXPORT)).toBe(true);
-    expect(mod.canUsePremiumFeature(freeProfile, mod.PREMIUM_FEATURE_PDF_EXPORT)).toBe(true);
-
-    // Equipamentos extras continuam gated Plus+
-    expect(mod.canUsePremiumFeature(proProfile, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(true);
-    expect(mod.canUsePremiumFeature(plusProfile, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(true);
-    expect(mod.canUsePremiumFeature(freeProfile, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(false);
+    expect(mod.isProUser({ plan_code: 'free' })).toBe(true);
+    expect(mod.canUsePremiumFeature(null, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(true);
+    expect(mod.canUsePremiumFeature(null, mod.PREMIUM_FEATURE_PDF_EXPORT)).toBe(true);
+    expect(mod.getPlanCodeFromProfile({ plan_code: 'pro' })).toBe('free');
   });
 
-  it('fetchMyProfileBilling selects billing profile with is_dev and falls back to free profile', async () => {
-    const supabaseMock = createSupabaseMock({ profile: null });
-    const mod = await loadMonetizationWithMock(supabaseMock);
+  it('fetchMyProfileBilling returns a disabled local profile without querying billing tables', async () => {
+    const { mod, supabaseMock } = await loadMonetization();
 
     const result = await mod.fetchMyProfileBilling();
 
+    expect(result.user.id).toBe('user-1');
     expect(result.profile).toMatchObject({
       id: 'user-1',
       plan: 'free',
       plan_code: 'free',
-      subscription_status: 'inactive',
+      subscription_status: 'disabled',
       is_dev: false,
     });
-
-    expect(supabaseMock.mocks.select).toHaveBeenCalledWith('*');
-  });
-
-  it('fetchMyProfileBillingCached deduplica chamadas concorrentes e reutiliza snapshot', async () => {
-    const supabaseMock = createSupabaseMock();
-    const mod = await loadMonetizationWithMock(supabaseMock);
-    mod.invalidateBillingProfileCache();
-
-    const [first, second] = await Promise.all([
-      mod.fetchMyProfileBillingCached(),
-      mod.fetchMyProfileBillingCached(),
-    ]);
-    const third = await mod.fetchMyProfileBillingCached();
-
-    expect(first.profile.id).toBe('user-1');
-    expect(second.profile.id).toBe('user-1');
-    expect(third.profile.id).toBe('user-1');
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(1);
   });
 
-  it('invalida cache de billing ao receber evento de auth/profile/plano', async () => {
-    const supabaseMock = createSupabaseMock();
-    const mod = await loadMonetizationWithMock(supabaseMock);
-    mod.invalidateBillingProfileCache();
+  it('caches the disabled profile snapshot until explicitly invalidated', async () => {
+    const { mod, supabaseMock } = await loadMonetization();
 
+    await mod.fetchMyProfileBillingCached();
     await mod.fetchMyProfileBillingCached();
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(1);
 
-    window.dispatchEvent(new CustomEvent('cooltrack:plan-changed'));
+    mod.invalidateBillingProfileCache();
     await mod.fetchMyProfileBillingCached();
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(2);
   });
 
-  it('startCheckout fails without session', async () => {
-    const mod = await loadMonetizationWithMock(
-      createSupabaseMock({ session: null, functionResponse: { data: null, error: null } }),
-    );
+  it('checkout and portal are hard-disabled', async () => {
+    const { mod } = await loadMonetization();
 
-    await expect(mod.startCheckout()).rejects.toMatchObject({ code: 'NO_SESSION' });
-  });
-
-  it('startCheckout maps 401 invalid jwt', async () => {
-    const mod = await loadMonetizationWithMock(
-      createSupabaseMock({
-        functionResponse: { data: null, error: { status: 401, message: 'Invalid JWT' } },
-      }),
-    );
-
-    await expect(mod.startCheckout()).rejects.toMatchObject({ code: 'INVALID_JWT' });
-  });
-
-  it('startCheckout returns checkout url on success and keeps checkout flow untouched', async () => {
-    const mock = createSupabaseMock({
-      functionResponse: { data: { url: 'https://checkout.stripe.com/pay/cs_test' }, error: null },
-    });
-
-    const mod = await loadMonetizationWithMock(mock);
-    const url = await mod.startCheckout({ plan: 'pro' });
-
-    expect(url).toBe('https://checkout.stripe.com/pay/cs_test');
-    expect(mock.functions.invoke).toHaveBeenCalledWith('create-checkout-session', {
-      body: { plan: 'pro' },
-      headers: { Authorization: 'Bearer token' },
-    });
+    await expect(mod.startCheckout()).rejects.toMatchObject({ code: 'BILLING_DISABLED' });
+    await expect(mod.startBillingPortal()).rejects.toMatchObject({ code: 'BILLING_DISABLED' });
   });
 });

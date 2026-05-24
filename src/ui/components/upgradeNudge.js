@@ -70,7 +70,7 @@ const PLAN_COLORS = {
     ctaText: '#ffffff',
   },
   pro: {
-    // Pro = dourado (#e8b94a) — paleta canônica alinhada com pricing, account modal,
+    // Pro = dourado (#e8b94a) — paleta canônica alinhada com account modal,
     // header, usageMeter. Antes era verde (#00a85c) — legado do "pro = success".
     border: 'color-mix(in srgb, #e8b94a 40%, var(--border))',
     bgFrom: 'color-mix(in srgb, #e8b94a 14%, var(--surface))',
@@ -207,9 +207,10 @@ export const UpgradeNudge = {
         <button
           class="upgrade-nudge-card__cta"
           type="button"
-          data-action="open-upgrade"
           data-upgrade-source="dashboard"
           data-highlight-plan="${cfg.highlightPlan}"
+          disabled
+          aria-disabled="true"
         >${Utils.escapeHtml(cfg.ctaLabel)} &rarr;</button>
       </article>
     `;
@@ -250,7 +251,7 @@ export const UpgradeNudge = {
         </style>
 
         <span>&#128274; ${safeFeature} fica disponível no plano ${requiredPlan}</span>
-        <a href="#" class="upgrade-inline-hint__link" data-action="open-upgrade" data-upgrade-source="upgrade_nudge">Area comercial indisponivel</a>
+        <span class="upgrade-inline-hint__link" data-upgrade-source="upgrade_nudge">Area comercial indisponivel</span>
       </div>
     `;
   },

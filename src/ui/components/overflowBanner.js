@@ -1,29 +1,28 @@
-/**
- * OverflowBanner — aviso fino de limite ultrapassado + modal one-shot.
+﻿/**
+ * OverflowBanner â€” aviso fino de limite ultrapassado + modal one-shot.
  *
- * Motivação: o dashboard antigo mostrava um usage-meter (com barras e badge
- * "LIMITE ULTRAPASSADO") e logo abaixo o card de upgrade ("Fazer upgrade para
- * o CoolTrack Plus"). Para o usuário Free, isso era 2 blocos grandes
- * competindo por atenção logo no topo, com a mesma mensagem dita duas vezes.
+ * MotivaÃ§Ã£o: o dashboard antigo mostrava um usage-meter (com barras e badge
+ * "LIMITE ULTRAPASSADO") e logo abaixo o card comercial desligado. Para o usuÃ¡rio Free, isso era 2 blocos grandes
+ * competindo por atenÃ§Ã£o logo no topo, com a mesma mensagem dita duas vezes.
  *
  * A troca: uma linha fina no topo indicando especificamente qual limite foi
- * ultrapassado + um modal one-shot que aparece UMA ÚNICA VEZ por flag no
- * localStorage quando o usuário cruza o limite pela primeira vez. Depois
- * disso, só o banner fino fica, e o usuário continua trabalhando.
+ * ultrapassado + um modal one-shot que aparece UMA ÃšNICA VEZ por flag no
+ * localStorage quando o usuÃ¡rio cruza o limite pela primeira vez. Depois
+ * disso, sÃ³ o banner fino fica, e o usuÃ¡rio continua trabalhando.
  *
  * UX:
- *   - Banner é permanente enquanto o usuário estiver acima do limite (não é
- *     dismissível — ao contrário de um popup diário, que o usuário aprende a
+ *   - Banner Ã© permanente enquanto o usuÃ¡rio estiver acima do limite (nÃ£o Ã©
+ *     dismissÃ­vel â€” ao contrÃ¡rio de um popup diÃ¡rio, que o usuÃ¡rio aprende a
  *     fechar no reflexo). Deixa de aparecer quando o uso volta ao limite ou o
- *     usuário faz upgrade.
- *   - Modal aparece só 1x por limite atingido (flag por tipo — equipamentos,
- *     registros ou ambos). Se o usuário volta ao Free após cancelamento ou
- *     reduz o uso, a flag é preservada — não queremos assediar.
+ *     uso volta ao limite.
+ *   - Modal aparece sÃ³ 1x por limite atingido (flag por tipo â€” equipamentos,
+ *     registros ou ambos). Se o usuÃ¡rio volta ao Free apÃ³s cancelamento ou
+ *     reduz o uso, a flag Ã© preservada â€” nÃ£o queremos assediar.
  *
  * API:
- *   OverflowBanner.computeState({ equipamentos, registros })  → { overLimit, ... }
- *   OverflowBanner.render({ state })                          → HTML string
- *   OverflowBanner.maybeShowFirstTimeModal({ state })         → mostra modal se 1ª vez
+ *   OverflowBanner.computeState({ equipamentos, registros })  â†’ { overLimit, ... }
+ *   OverflowBanner.render({ state })                          â†’ HTML string
+ *   OverflowBanner.maybeShowFirstTimeModal({ state })         â†’ mostra modal se 1Âª vez
  */
 
 import { Utils } from '../../core/utils.js';
@@ -35,9 +34,9 @@ const FREE_EQUIP_LIMIT = PLAN_CATALOG[PLAN_CODE_FREE].limits.equipamentos;
 const FREE_REPORT_LIMIT = PLAN_CATALOG[PLAN_CODE_FREE].limits.registros;
 const HAS_FREE_REPORT_LIMIT = Number.isFinite(FREE_REPORT_LIMIT) && FREE_REPORT_LIMIT > 0;
 
-// Chave do localStorage que marca que o modal one-shot já foi exibido.
-// Mantemos granularidade por tipo de limite para que o usuário que bate no
-// limite de equipamentos e depois no de registros veja o contexto específico
+// Chave do localStorage que marca que o modal one-shot jÃ¡ foi exibido.
+// Mantemos granularidade por tipo de limite para que o usuÃ¡rio que bate no
+// limite de equipamentos e depois no de registros veja o contexto especÃ­fico
 // da segunda vez. Depois disso, nunca mais.
 const STORAGE_KEY = 'cooltrack:overflow-onboarded';
 
@@ -71,8 +70,8 @@ function persistOnboardedSet(set) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
   } catch {
-    // localStorage pode estar cheio ou bloqueado — o pior cenário é o modal
-    // reaparecer numa próxima sessão, não vale quebrar o dashboard por isso.
+    // localStorage pode estar cheio ou bloqueado â€” o pior cenÃ¡rio Ã© o modal
+    // reaparecer numa prÃ³xima sessÃ£o, nÃ£o vale quebrar o dashboard por isso.
   }
 }
 
@@ -91,10 +90,10 @@ function closeModal({ action = 'dismiss' } = {}) {
 
 export const OverflowBanner = {
   /**
-   * Calcula o estado de overflow para o usuário Free atual.
-   * Tratar sempre como Free nesse componente — os chamadores garantem que o
-   * banner só é invocado quando planCode é Free (Plus já tem registros
-   * ilimitados e 15 equipamentos; Pro não tem limites relevantes aqui).
+   * Calcula o estado de overflow para o usuÃ¡rio Free atual.
+   * Tratar sempre como Free nesse componente â€” os chamadores garantem que o
+   * banner sÃ³ Ã© invocado quando planCode Ã© Free (Plus jÃ¡ tem registros
+   * ilimitados e 15 equipamentos; Pro nÃ£o tem limites relevantes aqui).
    */
   computeState({ equipamentos = [], registros = [] } = {}) {
     const equipCount = Array.isArray(equipamentos) ? equipamentos.length : 0;
@@ -104,8 +103,8 @@ export const OverflowBanner = {
     const reportOver = HAS_FREE_REPORT_LIMIT && reportCount > FREE_REPORT_LIMIT;
 
     // Tipo dominante pra copy do banner. Se os dois estiverem acima, damos
-    // preferência a equipamentos (limite estrutural, não mensal) porque
-    // bloqueia mais ações no produto.
+    // preferÃªncia a equipamentos (limite estrutural, nÃ£o mensal) porque
+    // bloqueia mais aÃ§Ãµes no produto.
     let limitType = null;
     if (equipOver && reportOver) limitType = 'both';
     else if (equipOver) limitType = 'equipamentos';
@@ -124,7 +123,7 @@ export const OverflowBanner = {
   },
 
   /**
-   * Gera o HTML do banner fino. Só chame se state.overLimit === true.
+   * Gera o HTML do banner fino. SÃ³ chame se state.overLimit === true.
    */
   render({ state } = {}) {
     if (!state?.overLimit) return '';
@@ -212,14 +211,14 @@ export const OverflowBanner = {
   },
 
   /**
-   * Exibe o modal one-shot se o usuário ainda não viu esse tipo de overflow.
+   * Exibe o modal one-shot se o usuÃ¡rio ainda nÃ£o viu esse tipo de overflow.
    * Marca a flag no localStorage imediatamente ao exibir (mesmo antes do
-   * usuário fechar) pra evitar que um reload rápido mostre de novo.
+   * usuÃ¡rio fechar) pra evitar que um reload rÃ¡pido mostre de novo.
    */
   maybeShowFirstTimeModal({ state } = {}) {
     if (!state?.overLimit) return;
     // Opt-out para E2E: Playwright pode abrir com VITE_DISABLE_OVERFLOW_MODAL=1
-    // pra não ter o modal interceptando cliques. Prod ignora esta flag.
+    // pra nÃ£o ter o modal interceptando cliques. Prod ignora esta flag.
     if (
       typeof import.meta !== 'undefined' &&
       import.meta.env?.VITE_DISABLE_OVERFLOW_MODAL === '1'
@@ -227,9 +226,9 @@ export const OverflowBanner = {
       return;
     }
     const seen = readOnboardedSet();
-    // Quando o limite é "both", consideramos satisfeito se o usuário já viu
-    // qualquer um dos dois tipos isolados — evita spam pro usuário que
-    // primeiro bate equipamentos e depois bate também registros.
+    // Quando o limite Ã© "both", consideramos satisfeito se o usuÃ¡rio jÃ¡ viu
+    // qualquer um dos dois tipos isolados â€” evita spam pro usuÃ¡rio que
+    // primeiro bate equipamentos e depois bate tambÃ©m registros.
     const alreadySeen =
       seen.has(state.limitType) ||
       (state.limitType === 'both' && (seen.has('equipamentos') || seen.has('registros')));
@@ -252,13 +251,13 @@ export const OverflowBanner = {
 
 function buildBannerCopy(state) {
   if (state.limitType === 'equipamentos') {
-    return `Você cadastrou ${state.equipCount} equipamentos — o plano grátis permite ${state.equipLimit}.`;
+    return `VocÃª cadastrou ${state.equipCount} equipamentos â€” o plano grÃ¡tis permite ${state.equipLimit}.`;
   }
   if (state.limitType === 'registros') {
-    return `Você registrou ${state.reportCount} serviços este mês — o plano grátis permite ${state.reportLimit}.`;
+    return `VocÃª registrou ${state.reportCount} serviÃ§os este mÃªs â€” o plano grÃ¡tis permite ${state.reportLimit}.`;
   }
   // both
-  return `Você ultrapassou os limites do plano grátis (equipamentos e registros).`;
+  return `VocÃª ultrapassou os limites do plano grÃ¡tis (equipamentos e registros).`;
 }
 
 function buildModalCopy(state) {
@@ -266,24 +265,24 @@ function buildModalCopy(state) {
     return {
       title: 'Seu parque passou dos 3 equipamentos',
       description:
-        'O plano grátis permite 3 equipamentos cadastrados. Você continua vendo os atuais, mas para cadastrar novos o Plus destrava até 15 equipamentos.',
-      ctaLabel: 'Ver o plano Plus',
+        'O plano grÃ¡tis permite 3 equipamentos cadastrados. VocÃª continua vendo os atuais, mas para cadastrar novos o Plus destrava atÃ© 15 equipamentos.',
+      ctaLabel: 'Area comercial indisponivel',
       highlightPlan: 'plus',
     };
   }
   if (state.limitType === 'registros') {
     return {
-      title: 'Você chegou ao limite de registros do plano grátis',
+      title: 'VocÃª chegou ao limite de registros do plano grÃ¡tis',
       description:
-        'Seu plano grátis atual já permite registros ilimitados. Se esta mensagem aparecer, atualize o app para sincronizar as novas regras de plano.',
-      ctaLabel: 'Ver o plano Plus',
+        'Seu plano grÃ¡tis atual jÃ¡ permite registros ilimitados. Se esta mensagem aparecer, atualize o app para sincronizar as novas regras de plano.',
+      ctaLabel: 'Area comercial indisponivel',
       highlightPlan: 'plus',
     };
   }
   return {
-    title: 'Você ultrapassou os limites do plano grátis',
+    title: 'VocÃª ultrapassou os limites do plano grÃ¡tis',
     description:
-      'Você ultrapassou os limites do plano grátis. O Plus cobre até 15 equipamentos e o Pro cobre frota grande com equipamentos ilimitados.',
+      'VocÃª ultrapassou os limites do plano grÃ¡tis. O Plus cobre atÃ© 15 equipamentos e o Pro cobre frota grande com equipamentos ilimitados.',
     ctaLabel: 'Area comercial indisponivel',
     highlightPlan: 'plus',
   };
@@ -449,9 +448,10 @@ function openModal(state) {
         <button
           type="button"
           class="overflow-modal__btn overflow-modal__btn--primary"
-          data-action="open-upgrade"
           data-upgrade-source="overflow_modal"
           data-highlight-plan="${copy.highlightPlan}"
+          disabled
+          aria-disabled="true"
         >${Utils.escapeHtml(copy.ctaLabel)} &rarr;</button>
       </div>
     </div>
@@ -465,14 +465,6 @@ function openModal(state) {
 
   overlay.querySelector('[data-action="dismiss"]')?.addEventListener('click', () => {
     closeModal({ action: 'dismiss' });
-  });
-
-  // O clique no botão primário é tratado pelo handler global 'open-upgrade'
-  // (via data-action). Aqui só garantimos que o modal fecha após o clique,
-  // para o usuário não voltar e ver o modal por cima da página de pricing.
-  overlay.querySelector('[data-action="open-upgrade"]')?.addEventListener('click', () => {
-    // Fechamos antes do router navegar — evita flicker do overlay.
-    closeModal({ action: 'upgrade_clicked' });
   });
 
   document.body.appendChild(overlay);

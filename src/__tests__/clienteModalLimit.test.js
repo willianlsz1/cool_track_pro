@@ -75,19 +75,14 @@ describe('ClienteModal limite por plano', () => {
     expect(paywallOpen).not.toHaveBeenCalled();
   });
 
-  it('bloqueia segundo cliente Free e abre upgrade com Plus como CTA principal', async () => {
+  it('permite criar outro cliente quando billing e limites comerciais estao desligados', async () => {
     stateRef.value = { clientes: [{ id: 'cli-1', nome: 'Cliente 1' }] };
     const { ClienteModal } = await import('../ui/components/clienteModal.js');
 
     await ClienteModal.openCreate();
 
-    expect(document.getElementById('cliente-modal-overlay')).toBeNull();
-    expect(paywallOpen).toHaveBeenCalledWith(
-      expect.objectContaining({
-        reason: 'client_limit',
-        highlightPlan: 'plus',
-      }),
-    );
+    expect(document.getElementById('cliente-modal-overlay')).toBeTruthy();
+    expect(paywallOpen).not.toHaveBeenCalled();
   });
 
   it('permite editar cliente existente no Free mesmo com limite atingido', async () => {

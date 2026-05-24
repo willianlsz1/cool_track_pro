@@ -8,7 +8,6 @@ const routeIds = [
   'historico',
   'alertas',
   'relatorio',
-  'pricing',
   'clientes',
   'conta',
   'privacidade',
@@ -61,7 +60,6 @@ vi.mock('../../ui/views/relatorio.js', () => ({
   unmountRelatorioControls: vi.fn(),
   unmountRelatorioCards: vi.fn(),
 }));
-vi.mock('../../ui/views/pricing.js', () => ({ renderPricing: makeRenderSpy('pricing') }));
 vi.mock('../../ui/views/clientes.js', () => ({
   renderClientes: makeRenderSpy('clientes'),
   unmountClientes: vi.fn(),
@@ -76,9 +74,6 @@ vi.mock('../../ui/views/configuracoes.js', () => ({
 vi.mock('../../ui/views/orcamentos.js', () => ({
   loadAndRenderOrcamentos: makeRenderSpy('orcamentos'),
   unmountOrcamentos: vi.fn(),
-}));
-vi.mock('../../ui/components/clientesPaywallModal.js', () => ({
-  ClientesPaywallModal: { open: vi.fn() },
 }));
 vi.mock('../../core/plans/clientesAccess.js', () => ({
   getClientesAccessSnapshot: () => ({ resolved: true, canAccess: true }),
@@ -106,26 +101,23 @@ describe('contracts/routes', () => {
     mountRouteShell();
   });
 
-  it('mantém lista pública de rotas registrada', async () => {
-    expect([...routeIds].sort()).toMatchInlineSnapshot(`
-      [
-        "alertas",
-        "clientes",
-        "configuracoes",
-        "conta",
-        "equipamentos",
-        "historico",
-        "inicio",
-        "orcamentos",
-        "pricing",
-        "privacidade",
-        "registro",
-        "relatorio",
-      ]
-    `);
+  it('keeps the public route list without pricing', () => {
+    expect([...routeIds].sort()).toEqual([
+      'alertas',
+      'clientes',
+      'configuracoes',
+      'conta',
+      'equipamentos',
+      'historico',
+      'inicio',
+      'orcamentos',
+      'privacidade',
+      'registro',
+      'relatorio',
+    ]);
   });
 
-  it('navega em todas as rotas sem throw e seta data-route', async () => {
+  it('navigates all registered routes without throwing', async () => {
     const { registerAppRoutes } = await import('../../ui/controller/routes.js');
     const { goTo } = await import('../../core/router.js');
     registerAppRoutes();
@@ -134,8 +126,7 @@ describe('contracts/routes', () => {
       goTo(routeId);
       vi.advanceTimersByTime(180);
       expect(document.body.getAttribute('data-route')).toBe(routeId);
-      const container = document.getElementById(`view-${routeId}`);
-      expect(container).toBeTruthy();
+      expect(document.getElementById(`view-${routeId}`)).toBeTruthy();
     }
   });
 });

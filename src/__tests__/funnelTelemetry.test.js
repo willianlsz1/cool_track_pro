@@ -1,16 +1,13 @@
 /**
- * Testes do funil completo de telemetria pós-click.
+ * Testes do funil de telemetria pos-click.
  *
  * Cobertura:
- *   - auth.signUp → signup_completed / signup_failed
- *   - auth.signIn → login_completed / login_failed
- *   - planCache.setCachedPlan → upgrade_completed (só em transição free → paid)
- *     e plan_changed (entre planos pagos)
+ * - auth.signUp -> signup_completed / signup_failed
+ * - auth.signIn -> login_completed / login_failed
+ * - planCache.setCachedPlan nao emite eventos comerciais com billing desligado
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-// Helpers compartilhados ------------------------------------------------
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 function createAuthSupabaseMock() {
   return {
@@ -47,11 +44,10 @@ async function loadPlanCacheModule() {
   const telemetryMock = { trackEvent: vi.fn(), TELEMETRY_EVENT: 'cooltrack:telemetry' };
   vi.doMock('../core/telemetry.js', () => telemetryMock);
 
-  const { setCachedPlan } = await import('../core/plans/planCache.js');
-  return { setCachedPlan, telemetryMock };
+  const { setCachedPlan, getCachedPlan, hasHydratedPlanInSession } =
+    await import('../core/plans/planCache.js');
+  return { setCachedPlan, getCachedPlan, hasHydratedPlanInSession, telemetryMock };
 }
-
-// Auth ------------------------------------------------------------------
 
 describe('auth telemetry (signup/login)', () => {
   beforeEach(() => {
@@ -105,7 +101,7 @@ describe('auth telemetry (signup/login)', () => {
     expect(telemetryMock.trackEvent).toHaveBeenCalledWith('login_completed', { method: 'email' });
   });
 
-  it('emite login_failed quando credenciais inválidas', async () => {
+  it('emite login_failed quando credenciais invalidas', async () => {
     const { Auth, supabaseMock, telemetryMock } = await loadAuthModule();
     supabaseMock.auth.signInWithPassword.mockResolvedValue({
       data: null,
@@ -122,88 +118,23 @@ describe('auth telemetry (signup/login)', () => {
   });
 });
 
-// planCache -------------------------------------------------------------
-
-describe('planCache telemetry (upgrade transitions)', () => {
+describe('planCache telemetry (billing disabled)', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  function seedCachedPlan(planCode) {
-    localStorage.setItem('ct:anon:cooltrack-cached-plan', planCode);
-  }
+  it('mantem cache operacional em free e nao emite eventos comerciais', async () => {
+    const { setCachedPlan, getCachedPlan, hasHydratedPlanInSession, telemetryMock } =
+      await loadPlanCacheModule();
 
-  it('emite upgrade_completed ao subir de free pra pro', async () => {
-    const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
+    localStorage.setItem('ct:anon:cooltrack-cached-plan', 'pro');
 
-    // Nenhum valor anterior em localStorage — simula primeiro upgrade.
     setCachedPlan('pro');
 
-    expect(telemetryMock.trackEvent).toHaveBeenCalledWith('upgrade_completed', {
-      from: 'unknown',
-      to: 'pro',
-    });
-  });
-
-  it('emite upgrade_completed ao subir de free pra plus', async () => {
-    const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
-
-    seedCachedPlan('free');
-    setCachedPlan('plus');
-
-    expect(telemetryMock.trackEvent).toHaveBeenCalledWith('upgrade_completed', {
-      from: 'free',
-      to: 'plus',
-    });
-  });
-
-  it('NÃO emite upgrade_completed quando plano já era pago', async () => {
-    const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
-
-    seedCachedPlan('pro');
-    setCachedPlan('pro');
-
-    expect(telemetryMock.trackEvent).not.toHaveBeenCalledWith(
-      'upgrade_completed',
-      expect.anything(),
-    );
-  });
-
-  it('NÃO emite nada quando plano continua free', async () => {
-    const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
-
-    seedCachedPlan('free');
-    setCachedPlan('free');
-
+    expect(getCachedPlan()).toBe('free');
+    expect(hasHydratedPlanInSession()).toBe(true);
+    expect(localStorage.getItem('cooltrack-cached-plan')).toBeNull();
     expect(telemetryMock.trackEvent).not.toHaveBeenCalled();
-  });
-
-  it('emite plan_changed ao trocar entre planos pagos (plus → pro)', async () => {
-    const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
-
-    seedCachedPlan('plus');
-    setCachedPlan('pro');
-
-    expect(telemetryMock.trackEvent).toHaveBeenCalledWith('plan_changed', {
-      from: 'plus',
-      to: 'pro',
-    });
-    expect(telemetryMock.trackEvent).not.toHaveBeenCalledWith(
-      'upgrade_completed',
-      expect.anything(),
-    );
-  });
-
-  it('emite plan_changed também em downgrade pago (pro → plus)', async () => {
-    const { setCachedPlan, telemetryMock } = await loadPlanCacheModule();
-
-    seedCachedPlan('pro');
-    setCachedPlan('plus');
-
-    expect(telemetryMock.trackEvent).toHaveBeenCalledWith('plan_changed', {
-      from: 'pro',
-      to: 'plus',
-    });
   });
 });

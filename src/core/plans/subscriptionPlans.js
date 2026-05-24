@@ -1,127 +1,45 @@
 import { supabase } from '../supabase.js';
-import { DevPlanOverride } from './devPlanOverride.js';
 
-// ── Planos canônicos ───────────────────────────────────────────────────────
 export const PLAN_CODE_FREE = 'free';
 export const PLAN_CODE_PLUS = 'plus';
 export const PLAN_CODE_PRO = 'pro';
 
-// Hierarquia: free < plus < pro. Usada por isAtLeastPlan / hasFeature.
-const PLAN_RANK = {
-  [PLAN_CODE_FREE]: 0,
-  [PLAN_CODE_PLUS]: 1,
-  [PLAN_CODE_PRO]: 2,
-};
-
-// ── Feature flags (gating binário) ─────────────────────────────────────────
-// Cada feature mapeia para o plano MÍNIMO que a libera. assertFeature usa
-// essa matriz em vez de if/else espalhado pelo código.
 export const FEATURE_PDF_EXPORT = 'pdf_export';
 export const FEATURE_EQUIPAMENTOS_EXTRA = 'equipamentos_extra';
 export const FEATURE_HISTORICO_COMPLETO = 'historico_completo';
 export const FEATURE_SETORES = 'setores';
 export const FEATURE_CLIENTES = 'clientes';
 export const FEATURE_SUPORTE_PRIORITARIO = 'suporte_prioritario';
-
-// PDF export agora é liberado para TODOS os planos (inclusive Free), mas com
-// cotas mensais diferenciadas e marca d'água no Free. O gating passou de
-// "feature binária" pra "quota mensal" — ver MONTHLY_LIMITS em usageLimits.js.
-// Assinatura digital do cliente no PDF é exclusiva de Plus+ (diferencial pago).
 export const FEATURE_DIGITAL_SIGNATURE = 'digital_signature';
-
-// Análise de placa por IA (Claude vision → campos auto-preenchidos). Feature
-// Plus+ por dois motivos: (1) custo variável real (~$0.015/análise), então
-// precisa paywall pra não virar prejuízo; (2) é o diferencial que o Job Ney
-// Palmeira sinalizou como "a coisa que destrava o hábito" — merece ficar no
-// lado pago da linha pra puxar upgrade.
 export const FEATURE_NAMEPLATE_ANALYSIS = 'nameplate_analysis';
 
-const FEATURE_MIN_PLAN = {
-  [FEATURE_PDF_EXPORT]: PLAN_CODE_FREE,
-  [FEATURE_EQUIPAMENTOS_EXTRA]: PLAN_CODE_PLUS,
-  [FEATURE_HISTORICO_COMPLETO]: PLAN_CODE_PLUS,
-  [FEATURE_DIGITAL_SIGNATURE]: PLAN_CODE_PLUS,
-  [FEATURE_NAMEPLATE_ANALYSIS]: PLAN_CODE_PLUS,
-  [FEATURE_SETORES]: PLAN_CODE_PRO,
-  [FEATURE_CLIENTES]: PLAN_CODE_FREE,
-  [FEATURE_SUPORTE_PRIORITARIO]: PLAN_CODE_PRO,
-};
+const OPERATIONAL_LIMITS = Object.freeze({
+  clientes: Number.POSITIVE_INFINITY,
+  equipamentos: Number.POSITIVE_INFINITY,
+  registros: Number.POSITIVE_INFINITY,
+});
 
-// ── Catálogo de planos ─────────────────────────────────────────────────────
-// Nota: `accountTagline` e `accountChips` alimentam o account modal — versão
-// enxuta dos perks pra caber no card sem redundância. Fonte da verdade alinhada
-// com a pricing page (não inventar features que não existem nos perks).
-export const PLAN_CATALOG = {
-  [PLAN_CODE_FREE]: {
-    key: PLAN_CODE_FREE,
-    label: 'Free',
-    limits: {
-      clientes: 1,
-      equipamentos: 3,
-      registros: Number.POSITIVE_INFINITY,
-      // Nota: `historicoDias` foi removido. Todos os planos têm histórico
-      // completo — a limitação temporal no Free foi derrubada porque
-      // histórico é parte essencial do valor pra técnico em campo.
-    },
-    perks: [
-      'Até 3 equipamentos cadastrados',
-      'Registros de serviço ilimitados',
-      'Histórico completo do equipamento',
-      '1 relatório em PDF/mês com marca d’água',
-      '5 envios de relatório via WhatsApp/mês',
-      'Cadastro por foto (IA) com teste mensal',
-    ],
-    accountTagline: 'Use o fluxo completo no gratuito. Faça upgrade quando precisar de escala.',
-    // Chips aspiracionais no Free: mostram o que vem ao fazer upgrade (estilo ghost/muted).
-    accountChips: ['Até 15 equipamentos', 'PDF profissional sem marca d’água', 'Mais automações'],
-  },
-  [PLAN_CODE_PLUS]: {
-    key: PLAN_CODE_PLUS,
-    label: 'Plus',
-    limits: {
-      clientes: 50,
-      equipamentos: 15,
-      registros: Number.POSITIVE_INFINITY,
-    },
-    perks: [
-      'Até 15 equipamentos cadastrados',
-      'Registros de serviço ilimitados',
-      'Todo o histórico de manutenções',
-      '50 relatórios PDF/mês sem marca d’água',
-      '60 envios via WhatsApp/mês',
-      'Assinatura digital do cliente no PDF',
-      'Fotos dos equipamentos (até 3 por equipamento)',
-      'Cadastro por foto da etiqueta (IA) — até 30 análises/mês',
-    ],
-    accountTagline: 'Plano profissional para técnico autônomo: mais capacidade no dia a dia.',
-    accountChips: ['Até 15 equipamentos', '50 PDFs/mês', 'PMOC formal (Pro)'],
-  },
-  [PLAN_CODE_PRO]: {
-    key: PLAN_CODE_PRO,
-    label: 'Pro',
-    limits: {
-      clientes: Number.POSITIVE_INFINITY,
-      equipamentos: Number.POSITIVE_INFINITY,
-      registros: Number.POSITIVE_INFINITY,
-    },
-    perks: [
-      'Equipamentos ilimitados',
-      'Registros de serviço ilimitados',
-      'Todo o histórico de manutenções',
-      'Relatórios PDF ilimitados e WhatsApp ilimitado',
-      'PMOC formal anual (NBR 13971) com termo de RT',
-      'Cadastro por foto da etiqueta (IA) — até 200 análises/mês',
-      'Agrupamento por setores',
-      'Assinatura digital do cliente no PDF',
-      'Fotos dos equipamentos (até 3 por equipamento)',
-      'Suporte prioritário',
-    ],
-    accountTagline: 'Equipamentos ilimitados, PMOC formal NBR 13971 e suporte prioritário.',
-    accountChips: ['PDFs ilimitados', 'PMOC formal NBR 13971', 'Suporte prioritário'],
-  },
-};
+const OPERATIONAL_PLAN = Object.freeze({
+  key: PLAN_CODE_FREE,
+  label: 'Operacional',
+  limits: OPERATIONAL_LIMITS,
+  perks: [
+    'Equipamentos sem limite comercial',
+    'Clientes sem limite comercial',
+    'Registros de servico sem limite comercial',
+    'Histórico completo do equipamento',
+    'Recursos pagos desativados ate nova etapa de billing',
+  ],
+  accountTagline: 'Billing e precificacao foram removidos desta versao.',
+  accountChips: ['Sem checkout', 'Sem assinatura', 'Sem pricing'],
+});
 
-// ── Normalizadores ─────────────────────────────────────────────────────────
+export const PLAN_CATALOG = Object.freeze({
+  [PLAN_CODE_FREE]: OPERATIONAL_PLAN,
+  [PLAN_CODE_PLUS]: { ...OPERATIONAL_PLAN, key: PLAN_CODE_PLUS },
+  [PLAN_CODE_PRO]: { ...OPERATIONAL_PLAN, key: PLAN_CODE_PRO },
+});
+
 export function normalizePlanCode(planCode) {
   const lower = String(planCode || '').toLowerCase();
   if (lower === PLAN_CODE_PRO) return PLAN_CODE_PRO;
@@ -129,144 +47,51 @@ export function normalizePlanCode(planCode) {
   return PLAN_CODE_FREE;
 }
 
-function isActivePaidStatus(status) {
-  const s = String(status || '').toLowerCase();
-  return s === 'active' || s === 'trialing';
+export function getEffectivePlan() {
+  return PLAN_CODE_FREE;
 }
 
-// ── Resolução do plano efetivo ─────────────────────────────────────────────
-export function getEffectivePlan(profile) {
-  // Dev mode: flag local OU is_dev=true no perfil liberam o override do toggle.
-  // Antes, is_dev=true forçava sempre Pro ignorando o override — o que fazia o
-  // devPlanToggle não ter efeito em usuários marcados como dev no Supabase.
-  //
-  // SEGURANÇA: `cooltrack-dev-mode` no localStorage só é aceito em build de
-  // desenvolvimento (import.meta.env.DEV). Em produção qualquer um poderia
-  // setar a flag no F12 e virar Pro sem pagar — o gate fecha esse bypass.
-  // `is_dev === true` no perfil continua valendo em prod, mas é bloqueado
-  // pelo trigger protect_profile_fields (usuário comum não consegue auto-setar).
-  const isLocalDev =
-    import.meta.env?.DEV === true &&
-    typeof localStorage !== 'undefined' &&
-    localStorage.getItem('cooltrack-dev-mode') === 'true';
-  const isDevMode = isLocalDev || profile?.is_dev === true;
-
-  if (isDevMode) {
-    const devOverride = DevPlanOverride.get();
-    if (devOverride === PLAN_CODE_PRO) return PLAN_CODE_PRO;
-    if (devOverride === PLAN_CODE_PLUS) return PLAN_CODE_PLUS;
-    if (devOverride === PLAN_CODE_FREE) return PLAN_CODE_FREE;
-    // Sem override definido em dev mode → Pro por padrão (compatibilidade legada).
-    return PLAN_CODE_PRO;
-  }
-
-  const planCode = normalizePlanCode(profile?.plan || profile?.plan_code || PLAN_CODE_FREE);
-  if (planCode === PLAN_CODE_FREE) return PLAN_CODE_FREE;
-
-  // Plus ou Pro: só vale se subscription tá active/trialing.
-  // Fora disso volta pra Free (proteção contra past_due, canceled, etc).
-  return isActivePaidStatus(profile?.subscription_status) ? planCode : PLAN_CODE_FREE;
+export function planRank() {
+  return 0;
 }
 
-// ── Helpers de hierarquia ──────────────────────────────────────────────────
-export function planRank(planCode) {
-  return PLAN_RANK[normalizePlanCode(planCode)] ?? 0;
+export function isAtLeastPlan() {
+  return true;
 }
 
-export function isAtLeastPlan(currentPlanCode, requiredPlanCode) {
-  return planRank(currentPlanCode) >= planRank(requiredPlanCode);
+export function hasProAccess() {
+  return true;
 }
 
-export function hasProAccess(profile) {
-  return getEffectivePlan(profile) === PLAN_CODE_PRO;
+export function hasPlusAccess() {
+  return true;
 }
 
-export function hasPlusAccess(profile) {
-  const plan = getEffectivePlan(profile);
-  return plan === PLAN_CODE_PLUS || plan === PLAN_CODE_PRO;
+export function hasFeature(_profile, feature) {
+  return Boolean(feature);
 }
 
-// ── Feature gating ─────────────────────────────────────────────────────────
-export function hasFeature(profile, feature) {
-  const required = FEATURE_MIN_PLAN[feature];
-  if (!required) return false;
-  return isAtLeastPlan(getEffectivePlan(profile), required);
+export function assertFeature(_profile, feature) {
+  return { allowed: true, planCode: PLAN_CODE_FREE, feature };
 }
 
-const FEATURE_MESSAGES = Object.freeze({
-  [FEATURE_PDF_EXPORT]:
-    'A exportação em PDF está disponível em todos os planos, com cota mensal por plano.',
-  [FEATURE_EQUIPAMENTOS_EXTRA]: 'Mais de 3 equipamentos está disponível a partir do plano Plus.',
-  [FEATURE_HISTORICO_COMPLETO]:
-    'Histórico completo de manutenções está disponível a partir do plano Plus.',
-  [FEATURE_DIGITAL_SIGNATURE]:
-    'Assinatura digital do cliente no PDF está disponível a partir do plano Plus.',
-  [FEATURE_SETORES]: 'Agrupamento por setores é exclusivo do plano Pro.',
-  [FEATURE_CLIENTES]: 'Carteira de clientes está disponível em todos os planos.',
-  [FEATURE_SUPORTE_PRIORITARIO]: 'Suporte prioritário é exclusivo do plano Pro.',
-});
-
-export function assertFeature(profile, feature) {
-  if (hasFeature(profile, feature)) {
-    return { allowed: true, planCode: getEffectivePlan(profile) };
-  }
-  const required = FEATURE_MIN_PLAN[feature] ?? PLAN_CODE_PRO;
-  const error = new Error(
-    FEATURE_MESSAGES[feature] || `Este recurso é exclusivo do plano ${required}.`,
-  );
-  error.code = 'FEATURE_NOT_AVAILABLE';
-  error.feature = feature;
-  error.requiredPlan = required;
-  error.planCode = getEffectivePlan(profile);
-  throw error;
-}
-
-// ── Limites por plano (equipamentos) ───────────────────────────────────────
-export function canCreateEquipment(profile, currentEquipmentCount = 0) {
-  const planCode = getEffectivePlan(profile);
-  const limit = PLAN_CATALOG[planCode].limits.equipamentos;
+export function canCreateEquipment(_profile, currentEquipmentCount = 0) {
   const parsedCurrent = Number.parseInt(String(currentEquipmentCount || '0'), 10);
   const current = Number.isFinite(parsedCurrent) && parsedCurrent > 0 ? parsedCurrent : 0;
-  const allowed = !Number.isFinite(limit) || current < limit;
-
-  return { allowed, limit, current, planCode };
+  return {
+    allowed: true,
+    limit: Number.POSITIVE_INFINITY,
+    current,
+    planCode: PLAN_CODE_FREE,
+  };
 }
 
-// ── Legacy: assertProAccess (mantido pra código que ainda não migrou) ──────
-const PREMIUM_FEATURE_MESSAGES = Object.freeze({
-  pdf_export: 'A exportação em PDF está disponível em todos os planos, com cota mensal.',
-  equipamentos: 'Mais de 3 equipamentos está disponível a partir do plano Plus.',
-});
-
-const LEGACY_FEATURE_MAP = {
-  pdf_export: FEATURE_PDF_EXPORT,
-  equipamentos: FEATURE_EQUIPAMENTOS_EXTRA,
-};
-
-export function assertProAccess(profile, featureName = 'premium_feature') {
-  const normalizedFeature = String(featureName || '').toLowerCase();
-
-  // Redireciona para assertFeature se houver mapping
-  const mapped = LEGACY_FEATURE_MAP[normalizedFeature];
-  if (mapped) {
-    return assertFeature(profile, mapped);
-  }
-
-  // Fallback: comportamento antigo (bloqueia não-Pro)
-  if (hasProAccess(profile)) return { allowed: true, planCode: PLAN_CODE_PRO };
-
-  const error = new Error(
-    PREMIUM_FEATURE_MESSAGES[normalizedFeature] || 'Este recurso é exclusivo do plano Pro.',
-  );
-  error.code = 'PRO_REQUIRED';
-  error.feature = normalizedFeature || featureName;
-  error.planCode = getEffectivePlan(profile);
-  throw error;
+export function assertProAccess(_profile, featureName = 'premium_feature') {
+  return { allowed: true, planCode: PLAN_CODE_FREE, feature: featureName };
 }
 
-// ── Fetchers de plano ──────────────────────────────────────────────────────
-export function getPlanForUser({ planCode = PLAN_CODE_FREE } = {}) {
-  return PLAN_CATALOG[normalizePlanCode(planCode)];
+export function getPlanForUser() {
+  return PLAN_CATALOG[PLAN_CODE_FREE];
 }
 
 export async function getPlanProfileForUserId(userId, { supabaseClient = supabase } = {}) {
@@ -282,14 +107,12 @@ export async function getPlanProfileForUserId(userId, { supabaseClient = supabas
   return data || null;
 }
 
-export async function getPlanCodeForUserId(userId, { supabaseClient = supabase } = {}) {
-  const profile = await getPlanProfileForUserId(userId, { supabaseClient });
-  return getEffectivePlan(profile);
+export async function getPlanCodeForUserId() {
+  return PLAN_CODE_FREE;
 }
 
-export async function getPlanForAuthenticatedUser(userId, options) {
-  const planCode = await getPlanCodeForUserId(userId, options);
-  return getPlanForUser({ planCode });
+export async function getPlanForAuthenticatedUser() {
+  return getPlanForUser();
 }
 
 export function getLimitLabel(resource) {

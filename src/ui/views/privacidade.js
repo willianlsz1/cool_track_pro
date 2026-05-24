@@ -1,4 +1,4 @@
-/**
+﻿/**
  * /privacidade — Página estática com a política de privacidade.
  *
  * Conteúdo placeholder: cobre os pontos essenciais (LGPD art. 6, 9 e 18) num
@@ -86,7 +86,6 @@ export function renderPrivacidade() {
           <li><strong>Equipamentos cadastrados:</strong> nome, modelo, número de série, local, fotos.</li>
           <li><strong>Registros de serviço:</strong> data, tipo de serviço, técnico responsável, observações, peças, custos, fotos e assinatura digital do cliente.</li>
           <li><strong>Clientes:</strong> nome, CNPJ/CPF, contato, endereço — somente o que você cadastra manualmente.</li>
-          <li><strong>Dados de pagamento:</strong> processados diretamente pelo Stripe — o CoolTrack não armazena número de cartão.</li>
           <li><strong>Telemetria mínima:</strong> versão do app, tipo de dispositivo, erros técnicos — sem rastreamento de comportamento.</li>
         </ul>
       </section>
@@ -99,7 +98,7 @@ export function renderPrivacidade() {
         <ul class="privacy-list">
           <li>Operar a funcionalidade que você contratou (registros, PDFs, PMOC, etc).</li>
           <li>Enviar relatórios via WhatsApp ou e-mail quando você solicita.</li>
-          <li>Cobrar pela assinatura via Stripe (apenas planos pagos).</li>
+          <li>Manter o app em funcionamento e comunicar mudancas relevantes do produto.</li>
           <li>Suporte técnico, quando você abre um chamado ou usa o canal de ajuda.</li>
           <li>Cumprimento de obrigações legais (notas fiscais, retenção mínima por legislação).</li>
         </ul>
