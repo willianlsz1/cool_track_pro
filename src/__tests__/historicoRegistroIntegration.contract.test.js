@@ -138,10 +138,6 @@ vi.mock('../ui/components/tour.js', () => ({
   Tour: { restart: vi.fn() },
 }));
 
-vi.mock('../ui/components/authscreen.js', () => ({
-  AuthScreen: { show: vi.fn() },
-}));
-
 vi.mock('../ui/components/nameplateCapture.js', () => ({
   applyNameplateCtaGate: vi.fn(),
   resetNameplateCtaState: vi.fn(),

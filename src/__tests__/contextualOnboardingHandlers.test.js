@@ -55,10 +55,6 @@ vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   OnboardingChecklist: { dismiss: vi.fn() },
 }));
 
-vi.mock('../ui/components/authscreen.js', () => ({
-  AuthScreen: { show: vi.fn() },
-}));
-
 vi.mock('../ui/views/equipamentos.js', () => ({
   clearEditingState: vi.fn(),
   clearForcedEquipContext: vi.fn(),

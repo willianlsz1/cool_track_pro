@@ -507,6 +507,10 @@ Progresso executado:
   storage e PMOC do v1. Essas areas deixam de ser destino de preservacao e
   passam a ser removidas como legado, com reconstrucao app-v2-native planejada
   em etapas proprias.
+- CP-52 removeu a UI legada de autenticacao `src/ui/components/authscreen.js`,
+  o modal auxiliar `passwordRecoveryModal.js` e o teste dedicado da tela v1.
+  O bootstrap autenticado do app-v2 permanece em `src/app-v2/main.tsx` e seus
+  adapters proprios.
 
 Controle:
 

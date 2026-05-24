@@ -124,12 +124,6 @@ vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   },
 }));
 
-vi.mock('../ui/components/authscreen.js', () => ({
-  AuthScreen: {
-    show: vi.fn(),
-  },
-}));
-
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: vi.fn(() => false),
 }));

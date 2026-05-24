@@ -157,12 +157,6 @@ vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   },
 }));
 
-vi.mock('../ui/components/authscreen.js', () => ({
-  AuthScreen: {
-    show: vi.fn(),
-  },
-}));
-
 vi.mock('../ui/components/nameplateCapture.js', () => ({
   applyNameplateCtaGate: mocks.applyNameplateCtaGate,
   resetNameplateCtaState: mocks.resetNameplateCtaState,
