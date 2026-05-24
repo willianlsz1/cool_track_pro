@@ -620,7 +620,7 @@ function bindPmocFormal() {
       ] = await Promise.all([
         import('../../components/pmocModal.js'),
         import('../../../domain/pdf/pmoc/pmocReport.js'),
-        import('../../../features/profile.js'),
+        import('../../../core/profile.js'),
         import('../../../core/state.js'),
         import('../../../core/auth.js'),
         import('../../../core/plans/planCache.js'),

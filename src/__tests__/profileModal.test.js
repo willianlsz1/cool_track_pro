@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: { get: mocks.profileGet, save: mocks.profileSave },
 }));
 

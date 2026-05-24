@@ -4,7 +4,7 @@
 
 import { on } from '../../../core/events.js';
 import { Toast } from '../../../core/toast.js';
-import { Profile } from '../../../features/profile.js';
+import { Profile } from '../../../core/profile.js';
 import { findOrcamento, generateShareToken } from '../../../core/orcamentos.js';
 import { ErrorCodes, handleError } from '../../../core/errors.js';
 import { goTo } from '../../../core/router.js';

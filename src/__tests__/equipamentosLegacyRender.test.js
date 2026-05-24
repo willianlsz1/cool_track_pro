@@ -65,7 +65,7 @@ vi.mock('../core/modal.js', () => ({
   Modal: { open: vi.fn(), close: vi.fn() },
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: { get: vi.fn(() => ({})) },
 }));
 

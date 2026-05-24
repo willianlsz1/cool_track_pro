@@ -69,7 +69,7 @@ vi.mock('../ui/components/registroClienteForkSheet.js', () => ({
 vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: vi.fn() },
 }));
-vi.mock('../features/profile.js', () => ({ Profile: mocks.profile }));
+vi.mock('../core/profile.js', () => ({ Profile: mocks.profile }));
 vi.mock('../core/errors.js', () => ({
   ErrorCodes: { NETWORK_ERROR: 'NETWORK_ERROR', SYNC_FAILED: 'SYNC_FAILED' },
   handleError: vi.fn(),

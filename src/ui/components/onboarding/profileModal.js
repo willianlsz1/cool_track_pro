@@ -1,6 +1,6 @@
 import { Utils } from '../../../core/utils.js';
 import { Toast } from '../../../core/toast.js';
-import { Profile } from '../../../features/profile.js';
+import { Profile } from '../../../core/profile.js';
 import { attachDialogA11y, CustomConfirm } from '../../../core/modal.js';
 import { bindPhoneMaskInput } from '../../../core/phoneMask.js';
 

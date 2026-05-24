@@ -16,7 +16,7 @@
  * Ações destrutivas (Sair / Excluir) reusam Auth.signOut e deleteUserAccount.
  */
 
-import { Profile } from '../../features/profile.js';
+import { Profile } from '../../core/profile.js';
 import { Auth } from '../../core/auth.js';
 import {
   getEffectivePlan,

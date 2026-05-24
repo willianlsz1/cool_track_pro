@@ -233,7 +233,7 @@ async function loadRelatorioWithExportHandlers({ state = buildState(), planCode 
   vi.doMock('../domain/pdf/pmoc/pmocReport.js', () => ({
     generatePmocPdf,
   }));
-  vi.doMock('../features/profile.js', () => ({
+  vi.doMock('../core/profile.js', () => ({
     Profile: { get: profileGet },
   }));
   vi.doMock('../core/clientes.js', () => ({

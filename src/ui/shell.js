@@ -3,7 +3,7 @@ import { renderShellNav, shouldShowClientesInMobileNav } from './shell/templates
 import { renderShellSidebar } from './shell/templates/sidebar.js';
 import { renderShellViews } from './shell/templates/views.js';
 import { renderShellModals } from './shell/templates/modals.js';
-import { Profile } from '../features/profile.js';
+import { Profile } from '../core/profile.js';
 import { PLAN_CODE_FREE } from '../core/plans/subscriptionPlans.js';
 import { getCachedPlan } from '../core/plans/planCache.js';
 import { getClientesAccessSnapshot } from '../core/plans/clientesAccess.js';

@@ -14,7 +14,7 @@
 import { Utils, TIPO_ICON } from '../../../../core/utils.js';
 import { setState } from '../../../../core/state.js';
 import { goTo } from '../../../../core/router.js';
-import { Profile } from '../../../../features/profile.js';
+import { Profile } from '../../../../core/profile.js';
 
 export function renderStep0(ctx) {
   const { overlay, contentEl, setDots, techName } = ctx;

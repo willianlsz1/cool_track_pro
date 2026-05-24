@@ -77,7 +77,7 @@ vi.mock('../core/toast.js', () => ({
   },
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: { get: vi.fn(() => ({})) },
 }));
 

@@ -61,7 +61,7 @@ vi.mock('../core/state.js', () => ({
   findEquip: (...args) => mocks.findEquip(...args),
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: { get: () => mocks.profileGet() },
 }));
 

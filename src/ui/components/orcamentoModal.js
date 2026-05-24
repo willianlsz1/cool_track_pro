@@ -16,7 +16,7 @@ import {
   findOrcamento,
   TEMPLATE_INSTALACAO_SPLIT,
 } from '../../core/orcamentos.js';
-import { Profile } from '../../features/profile.js';
+import { Profile } from '../../core/profile.js';
 import { bindPhoneMaskInput } from '../../core/phoneMask.js';
 
 async function renderOrcamentosView() {

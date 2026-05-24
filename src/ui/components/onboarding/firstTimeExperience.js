@@ -1,7 +1,7 @@
 import { Utils } from '../../../core/utils.js';
 import { setState } from '../../../core/state.js';
 import { goTo } from '../../../core/router.js';
-import { Profile } from '../../../features/profile.js';
+import { Profile } from '../../../core/profile.js';
 import { trackEvent } from '../../../core/telemetry.js';
 import { getOperationalStatus } from '../../../core/equipmentRules.js';
 import './firstTimeExperience.css';

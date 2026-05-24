@@ -229,7 +229,7 @@ async function setupDashboardModule({
     withSkeleton: (_el, _options, renderFn) => renderFn(),
   }));
 
-  vi.doMock('../features/profile.js', () => ({
+  vi.doMock('../core/profile.js', () => ({
     Profile: { get: vi.fn(() => ({ nome: 'Ana' })) },
   }));
 

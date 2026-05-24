@@ -56,6 +56,10 @@ describe('legacy v1 removal contracts', () => {
     expect(serviceWorkerRegisterSource).not.toContain('app.js');
   });
 
+  it('does not keep the legacy feature Profile shim after moving callers to core', () => {
+    expect(existsSync('src/features/profile.js')).toBe(false);
+  });
+
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
     const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');

@@ -9,7 +9,7 @@ import { Storage } from '../../core/storage.js';
 import { Toast } from '../../core/toast.js';
 import { OnboardingBanner } from '../components/onboarding.js';
 import { withSkeleton } from '../components/skeleton.js';
-import { Profile } from '../../features/profile.js';
+import { Profile } from '../../core/profile.js';
 import { updateGlobalHeader } from '../composables/header.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { checkPlanLimit } from '../../core/planLimits.js';

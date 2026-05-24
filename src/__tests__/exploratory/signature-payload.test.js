@@ -43,7 +43,7 @@ vi.mock('../../ui/components/photos.js', () => ({ Photos: { pending: [], clear: 
 vi.mock('../../core/photoStorage.js', () => ({
   uploadPendingPhotos: vi.fn(async (photos) => ({ photos, uploadedCount: 0, failedCount: 0 })),
 }));
-vi.mock('../../features/profile.js', () => ({
+vi.mock('../../core/profile.js', () => ({
   Profile: {
     getDefaultTecnico: vi.fn(() => ''),
     saveLastTecnico: vi.fn(),

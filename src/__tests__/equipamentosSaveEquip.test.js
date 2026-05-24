@@ -167,7 +167,7 @@ vi.mock('../core/plans/subscriptionPlans.js', () => ({
   hasProAccess: vi.fn(() => false),
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: { get: vi.fn(() => ({})) },
 }));
 

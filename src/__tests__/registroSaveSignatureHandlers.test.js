@@ -92,7 +92,7 @@ vi.mock('../ui/components/onboarding.js', () => ({
   SavedHighlight: { markForHighlight: mocks.markForHighlight },
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: {
     getDefaultTecnico: mocks.profileDefaultTecnico,
     saveLastTecnico: mocks.profileSaveLastTecnico,

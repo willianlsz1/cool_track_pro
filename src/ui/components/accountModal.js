@@ -4,7 +4,7 @@
 // aprovado; valores dinâmicos (count equipamentos, renova, nome, email)
 // vêm do state + profile + user real.
 
-import { Profile } from '../../features/profile.js';
+import { Profile } from '../../core/profile.js';
 import {
   getEffectivePlan,
   PLAN_CATALOG,

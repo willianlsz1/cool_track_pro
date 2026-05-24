@@ -12,7 +12,7 @@ import { CustomConfirm } from '../../core/modal.js';
 import { Photos } from '../components/photos.js';
 import { RegistroClienteForkSheet } from '../components/registroClienteForkSheet.js';
 import { SavedHighlight } from '../components/onboarding.js';
-import { Profile } from '../../features/profile.js';
+import { Profile } from '../../core/profile.js';
 import { ErrorCodes, handleError } from '../../core/errors.js';
 import { uploadPendingPhotos } from '../../core/photoStorage.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';

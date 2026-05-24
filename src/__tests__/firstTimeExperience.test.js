@@ -14,7 +14,7 @@ async function loadFtx() {
   vi.doMock('../core/telemetry.js', () => ({ trackEvent }));
   vi.doMock('../core/state.js', () => ({ setState: setStateMock, getState: getStateMock }));
   vi.doMock('../core/router.js', () => ({ goTo: goToMock }));
-  vi.doMock('../features/profile.js', () => ({ Profile }));
+  vi.doMock('../core/profile.js', () => ({ Profile }));
   vi.doMock('../core/equipmentRules.js', () => ({
     getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'Operação normal' })),
   }));
