@@ -131,10 +131,6 @@ async function setupDashboardHeaderModule({
     },
   }));
 
-  vi.doMock('../react/entrypoints/dashboardKpisIsland.jsx', () => ({
-    mountDashboardKpisReact: vi.fn(),
-    unmountDashboardKpisReact: vi.fn(),
-  }));
   vi.doMock('../react/entrypoints/dashboardNextActionIsland.jsx', () => ({
     mountDashboardNextActionReact: vi.fn(),
     unmountDashboardNextActionReact: vi.fn(),

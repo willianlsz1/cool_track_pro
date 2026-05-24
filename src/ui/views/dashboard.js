@@ -58,8 +58,6 @@ import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboard
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardKpisBridgePromise = null;
-let dashboardKpisBridge = null;
 let dashboardNextActionBridgePromise = null;
 let dashboardNextActionBridge = null;
 let dashboardMonthSummaryBridgePromise = null;
@@ -78,17 +76,7 @@ function getDashboardHeroRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.hero);
 }
 
-function loadDashboardKpisBridge() {
-  dashboardKpisBridgePromise ??= import('../../react/entrypoints/dashboardKpisIsland.jsx').then(
-    (bridge) => {
-      dashboardKpisBridge = bridge;
-      return bridge;
-    },
-  );
-  return dashboardKpisBridgePromise;
-}
-
-function getDashboardKpisRoot() {
+function getDashboardKpiGridRoot() {
   return (
     document.getElementById(DASHBOARD_PUBLIC_IDS.kpiRoot) ||
     document.querySelector('#dash .dash__kpi-grid[aria-label="Indicadores principais"]')
@@ -183,15 +171,10 @@ export function unmountDashboardHero(root = getDashboardHeroRoot()) {
   return undefined;
 }
 
-export function unmountDashboardKpis(root = getDashboardKpisRoot()) {
+export function unmountDashboardKpiGrid(root = getDashboardKpiGridRoot()) {
   if (!root) return undefined;
-  if (dashboardKpisBridge?.unmountDashboardKpisReact) {
-    dashboardKpisBridge.unmountDashboardKpisReact(root);
-    return undefined;
-  }
-  return loadDashboardKpisBridge().then(({ unmountDashboardKpisReact }) => {
-    unmountDashboardKpisReact(root);
-  });
+  root.replaceChildren();
+  return undefined;
 }
 
 export function unmountDashboardNextAction(root = getDashboardNextActionRoot()) {
@@ -728,25 +711,170 @@ function _renderHero({ viewModel }) {
 // ═══════════════════════════════════════════════════════
 // KPI Grid
 // ═══════════════════════════════════════════════════════
+const DASHBOARD_KPI_LABELS = Object.freeze({
+  ativos: 'Equipamentos ativos',
+  eficiencia: 'Eficiencia do parque',
+  anomalias: 'Alertas criticos',
+  mes: 'Servicos no mes',
+});
+
+const EMPTY_DASHBOARD_KPIS = Object.freeze({
+  ativos: {
+    valueLabel: '\u2014',
+    subLabel: 'sem cadastro',
+    tone: 'ok',
+  },
+  eficiencia: {
+    value: null,
+    valueLabel: '\u2014',
+    subLabel: 'sem dados',
+    tone: 'muted',
+    sparkData: [],
+  },
+  anomalias: {
+    valueLabel: '0',
+    subLabel: 'sem alerta',
+    tone: 'ok',
+  },
+  mes: {
+    valueLabel: '0',
+    subLabel: 'Sem dados anteriores',
+    tone: 'muted',
+    sparkData: [],
+  },
+});
+
+function kpiNumbers(value) {
+  return Array.isArray(value)
+    ? value.map((item) => Number(item)).filter((item) => Number.isFinite(item))
+    : [];
+}
+
+function buildDashboardSparkline(data) {
+  const values = kpiNumbers(data);
+  if (!values.length) return '';
+
+  const width = 100;
+  const height = 20;
+  const max = Math.max(...values, 1);
+  const points = values.map((value, index) => {
+    const x = (index / Math.max(values.length - 1, 1)) * width;
+    const y = height - 2 - (value / max) * (height - 4);
+    return [x, y];
+  });
+  const line = points.map(([x, y], index) => `${index === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
+  const area = `${line} L${width},${height} L0,${height} Z`;
+  const circles = points
+    .map(([x, y], index) => {
+      const last = index === points.length - 1;
+      const radius = last ? 2.2 : values[index] > 0 ? 1.8 : 1;
+      return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${radius}" fill="var(--dsh-accent,currentColor)" opacity="${last ? 1 : 0.6}" />`;
+    })
+    .join('');
+
+  return `
+    <svg width="100%" height="20" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="dsh-spark" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="var(--dsh-accent,currentColor)" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="var(--dsh-accent,currentColor)" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <path d="${area}" fill="url(#dsh-spark)" />
+      <path d="${line}" fill="none" stroke="var(--dsh-accent,currentColor)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+      ${circles}
+    </svg>
+  `;
+}
+
+function setKpiTone(element, tone) {
+  if (!element) return;
+  const normalized = heroText(tone);
+  if (normalized) {
+    element.dataset.tone = normalized;
+    return;
+  }
+  delete element.dataset.tone;
+}
+
+function renderDashboardKpiCard(root, config) {
+  const article = document.createElement('article');
+  article.className = 'dash__kpi';
+  article.innerHTML = `
+    <div class="dash__kpi-label"></div>
+    <div class="dash__kpi-value" id="${config.valueId}"></div>
+    ${
+      config.sparkId
+        ? `<div class="dash__kpi-spark" id="${config.sparkId}" aria-hidden="true"></div>`
+        : ''
+    }
+    <div class="dash__kpi-sub" id="${config.subId}"></div>
+  `;
+  article.querySelector('.dash__kpi-label').textContent = config.label;
+  const value = article.querySelector(`#${config.valueId}`);
+  const sub = article.querySelector(`#${config.subId}`);
+  value.textContent = heroText(config.valueLabel);
+  sub.textContent = heroText(config.subLabel);
+  setKpiTone(value, config.valueTone);
+  setKpiTone(sub, config.subTone);
+  const spark = config.sparkId ? article.querySelector(`#${config.sparkId}`) : null;
+  if (spark) spark.innerHTML = buildDashboardSparkline(config.sparkData);
+  root.appendChild(article);
+}
+
+function renderDashboardKpiGrid(root, kpis = EMPTY_DASHBOARD_KPIS) {
+  const ativos = kpis?.ativos || EMPTY_DASHBOARD_KPIS.ativos;
+  const eficiencia = kpis?.eficiencia || EMPTY_DASHBOARD_KPIS.eficiencia;
+  const anomalias = kpis?.anomalias || EMPTY_DASHBOARD_KPIS.anomalias;
+  const mes = kpis?.mes || EMPTY_DASHBOARD_KPIS.mes;
+
+  root.replaceChildren();
+  renderDashboardKpiCard(root, {
+    label: DASHBOARD_KPI_LABELS.ativos,
+    valueId: DASHBOARD_PUBLIC_IDS.kpiAtivos,
+    valueLabel: heroText(ativos.valueLabel, EMPTY_DASHBOARD_KPIS.ativos.valueLabel),
+    subId: DASHBOARD_PUBLIC_IDS.kpiAtivosSub,
+    subLabel: heroText(ativos.subLabel, EMPTY_DASHBOARD_KPIS.ativos.subLabel),
+    subTone: ativos.tone || 'ok',
+  });
+  renderDashboardKpiCard(root, {
+    label: DASHBOARD_KPI_LABELS.eficiencia,
+    valueId: DASHBOARD_PUBLIC_IDS.kpiEficiencia,
+    valueLabel: heroText(eficiencia.valueLabel, EMPTY_DASHBOARD_KPIS.eficiencia.valueLabel),
+    valueTone: eficiencia.tone || 'muted',
+    subId: DASHBOARD_PUBLIC_IDS.kpiEficienciaSub,
+    subLabel: heroText(eficiencia.subLabel, EMPTY_DASHBOARD_KPIS.eficiencia.subLabel),
+    subTone: eficiencia.tone || 'muted',
+    sparkId: DASHBOARD_PUBLIC_IDS.kpiEficienciaSpark,
+    sparkData: eficiencia.value === null ? [] : eficiencia.sparkData,
+  });
+  renderDashboardKpiCard(root, {
+    label: DASHBOARD_KPI_LABELS.anomalias,
+    valueId: DASHBOARD_PUBLIC_IDS.kpiAnomalias,
+    valueLabel: heroText(anomalias.valueLabel, EMPTY_DASHBOARD_KPIS.anomalias.valueLabel),
+    valueTone: anomalias.tone || 'ok',
+    subId: DASHBOARD_PUBLIC_IDS.kpiAnomaliasSub,
+    subLabel: heroText(anomalias.subLabel, EMPTY_DASHBOARD_KPIS.anomalias.subLabel),
+    subTone: anomalias.tone || 'ok',
+  });
+  renderDashboardKpiCard(root, {
+    label: DASHBOARD_KPI_LABELS.mes,
+    valueId: DASHBOARD_PUBLIC_IDS.kpiMes,
+    valueLabel: heroText(mes.valueLabel, EMPTY_DASHBOARD_KPIS.mes.valueLabel),
+    subId: DASHBOARD_PUBLIC_IDS.kpiMesSub,
+    subLabel: heroText(mes.subLabel, EMPTY_DASHBOARD_KPIS.mes.subLabel),
+    subTone: mes.tone || 'muted',
+    sparkId: DASHBOARD_PUBLIC_IDS.kpiMesSpark,
+    sparkData: mes.sparkData,
+  });
+}
+
 function _renderKPIs({ equipamentos, registros, alerts, viewModel }) {
   const kpis =
     viewModel?.kpis || _buildDashboardReadModel({ equipamentos, registros, alerts }).kpis;
-  const root = getDashboardKpisRoot();
+  const root = getDashboardKpiGridRoot();
 
-  if (root) {
-    if (dashboardKpisBridge?.mountDashboardKpisReact) {
-      dashboardKpisBridge.mountDashboardKpisReact(root, { kpis });
-    } else {
-      const mountPromise = loadDashboardKpisBridge().then(({ mountDashboardKpisReact }) => {
-        mountDashboardKpisReact(root, { kpis });
-      });
-      return {
-        efficiency: kpis.eficiencia.value,
-        mesCount: kpis.mes.count,
-        mountPromise,
-      };
-    }
-  }
+  if (root) renderDashboardKpiGrid(root, kpis);
 
   return {
     efficiency: kpis.eficiencia.value,
