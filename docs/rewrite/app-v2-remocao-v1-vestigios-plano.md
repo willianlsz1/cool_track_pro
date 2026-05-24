@@ -81,6 +81,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/features/equipamentos/ui/viewEquip.js` foram removidos no CP-9p; o
   detalhe de Equipamentos foi co-localizado em
   `src/ui/views/equipamentos/ui/**`.
+- `src/features/equipamentos/ui/openEditEquip.js` e
+  `src/features/equipamentos/ui/deleteEquip.js` foram removidos no CP-9q; os
+  helpers de edicao/delecao da UI legada de Equipamentos foram co-localizados em
+  `src/ui/views/equipamentos/ui/**`.
 
 ## 3. Superficies v1 mapeadas
 

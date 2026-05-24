@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureDeleteEquip, deleteEquip } from '../../ui/deleteEquip.js';
+import { configureDeleteEquip, deleteEquip } from '../ui/views/equipamentos/ui/deleteEquip.js';
 
 function configureDeleteEquipTestDeps(overrides = {}) {
   const calls = [];
@@ -105,10 +105,9 @@ describe('deleteEquip', () => {
     ]);
   });
 
-  it('nao importa o adapter legado no modulo feature', () => {
-    const source = readFileSync(resolve('src/features/equipamentos/ui/deleteEquip.js'), 'utf8');
+  it('nao importa o adapter legado', () => {
+    const source = readFileSync(resolve('src/ui/views/equipamentos/ui/deleteEquip.js'), 'utf8');
 
-    expect(source).not.toContain('ui/views/equipamentos');
     expect(source).not.toContain('views/equipamentos.js');
   });
 });

@@ -1589,7 +1589,7 @@ A etapa documental de delecao foi executada sem alterar runtime:
 - contrato documental criado em
   `docs/rewrite/equipamentos-avancados-fase-4-delecao-contrato-local.md`;
 - delecao de equipamento v1 foi mapeada em
-  `src/features/equipamentos/ui/deleteEquip.js`;
+  `src/ui/views/equipamentos/ui/deleteEquip.js`;
 - delecao de setor v1 foi mapeada em
   `src/features/equipamentos/setor/setorPersist.js`;
 - delecao de equipamento foi classificada como destrutiva porque remove

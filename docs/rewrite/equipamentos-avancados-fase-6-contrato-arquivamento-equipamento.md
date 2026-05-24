@@ -18,7 +18,7 @@ compromissos, filtros e historico.
 
 ### v1
 
-Fonte: `src/features/equipamentos/ui/deleteEquip.js`.
+Fonte: `src/ui/views/equipamentos/ui/deleteEquip.js`.
 
 O v1 remove o equipamento e tambem remove registros vinculados do estado. Antes
 disso, registra a exclusao via `markEquipDeleted(id, linkedRegistros)`. Esse

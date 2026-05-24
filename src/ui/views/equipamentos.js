@@ -136,11 +136,8 @@ import {
 } from './equipamentos/ui/detailController.js';
 import { renderViewEquipDetailHtml } from './equipamentos/ui/detail.js';
 import { buildViewEquipDetailModel } from './equipamentos/ui/detailModel.js';
-import { configureDeleteEquip, deleteEquip } from '../../features/equipamentos/ui/deleteEquip.js';
-import {
-  configureOpenEditEquip,
-  openEditEquip,
-} from '../../features/equipamentos/ui/openEditEquip.js';
+import { configureDeleteEquip, deleteEquip } from './equipamentos/ui/deleteEquip.js';
+import { configureOpenEditEquip, openEditEquip } from './equipamentos/ui/openEditEquip.js';
 import { startServiceRegistration } from '../controller/serviceRegistrationEntry.js';
 import { configureRenderFlatList, renderFlatList } from './equipamentos/ui/renderFlatList.js';
 import { configureRenderEquip, renderEquip } from './equipamentos/ui/renderEquip.js';

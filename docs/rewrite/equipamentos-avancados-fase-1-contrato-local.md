@@ -38,7 +38,7 @@ No v1, fotos de equipamento sao uma area sensivel:
 
 No v1, delecao de equipamento e destrutiva:
 
-- `src/features/equipamentos/ui/deleteEquip.js` coleta registros vinculados;
+- `src/ui/views/equipamentos/ui/deleteEquip.js` coleta registros vinculados;
 - `markEquipDeleted` enfileira remocao;
 - o estado remove o equipamento e tambem registros relacionados;
 - a UI fecha modal, atualiza lista/global header e mostra feedback.

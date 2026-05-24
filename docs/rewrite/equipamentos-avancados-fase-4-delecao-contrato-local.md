@@ -18,7 +18,7 @@ futura.
 
 ### Delecao de equipamento
 
-Fonte: `src/features/equipamentos/ui/deleteEquip.js`.
+Fonte: `src/ui/views/equipamentos/ui/deleteEquip.js`.
 
 Comportamento observado:
 

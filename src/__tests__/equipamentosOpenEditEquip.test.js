@@ -3,7 +3,10 @@ import { resolve } from 'node:path';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureOpenEditEquip, openEditEquip } from '../../ui/openEditEquip.js';
+import {
+  configureOpenEditEquip,
+  openEditEquip,
+} from '../ui/views/equipamentos/ui/openEditEquip.js';
 
 function configureOpenEditEquipTestDeps(overrides = {}) {
   const calls = [];
@@ -155,9 +158,8 @@ describe('openEditEquip orchestrator', () => {
   });
 
   it('nao importa o adapter legado', () => {
-    const source = readFileSync(resolve('src/features/equipamentos/ui/openEditEquip.js'), 'utf8');
+    const source = readFileSync(resolve('src/ui/views/equipamentos/ui/openEditEquip.js'), 'utf8');
 
-    expect(source).not.toContain('ui/views/equipamentos');
     expect(source).not.toContain('views/equipamentos.js');
   });
 });
