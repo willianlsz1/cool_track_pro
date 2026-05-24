@@ -32,4 +32,12 @@ describe('public pricing vestiges', () => {
       /foto|fotos|assinatura|assine digitalmente|PDF|WhatsApp|Supabase Storage|gera PDF|funciona sem internet/i,
     );
   });
+
+  it('does not advertise deferred sensitive features on public legal pages', () => {
+    const source = readPublicSurface();
+
+    expect(source).not.toMatch(
+      /fotos|assinatura digital|PDFs?|WhatsApp|Supabase Storage|funciona offline|funcionamento sem internet|funciona sem internet/i,
+    );
+  });
 });

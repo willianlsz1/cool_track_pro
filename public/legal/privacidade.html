@@ -77,8 +77,8 @@
         O CoolTrack Pro é um serviço de gestão de manutenção de climatização e refrigeração. Para os
         fins desta Política, atuamos como <strong>controlador</strong> dos dados de identificação da
         sua conta (cadastro e suporte) e como <strong>operador</strong> dos dados que você insere
-        para operar seu negócio (equipamentos, serviços, clientes, fotos, etc.), conforme o art. 5º
-        da LGPD.
+        para operar seu negócio (equipamentos, serviços, clientes e informações operacionais),
+        conforme o art. 5º da LGPD.
       </p>
 
       <h2 id="dados">2. Dados que coletamos</h2>
@@ -95,8 +95,7 @@
       <ul>
         <li>Equipamentos cadastrados (modelo, número de série, localização);</li>
         <li>Registros de serviço (tipo, descrição, data, técnico responsável);</li>
-        <li>Fotos e anexos adicionados pelo usuário;</li>
-        <li>Assinaturas digitais capturadas no fluxo de aprovação;</li>
+        <li>Observações e informações operacionais inseridas pelo usuário;</li>
         <li>Clientes/contratantes inseridos voluntariamente.</li>
       </ul>
 
@@ -145,10 +144,7 @@
         para operar o serviço, sempre sob contrato de tratamento de dados:
       </p>
       <ul>
-        <li>
-          <strong>Supabase</strong> — hospedagem do banco de dados, autenticação e armazenamento de
-          arquivos;
-        </li>
+        <li><strong>Supabase</strong> — hospedagem do banco de dados e autenticação;</li>
         <li>
           <strong>Cloudflare Pages</strong> (Cloudflare, Inc., sediada nos Estados Unidos) —
           hospedagem e distribuição do frontend. A transferência internacional de dados pessoais
@@ -251,8 +247,8 @@
           <code>localStorage</code>;
         </li>
         <li>
-          <strong>Cache offline</strong> (Service Worker) — essencial para funcionamento sem
-          internet.
+          <strong>Cache técnico</strong> (Service Worker) — usado para melhorar carregamento e
+          resiliência quando a conexão oscila.
         </li>
       </ul>
       <p>Não utilizamos cookies de publicidade nem rastreadores de terceiros.</p>

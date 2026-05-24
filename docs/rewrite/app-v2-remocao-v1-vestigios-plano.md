@@ -873,6 +873,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58O remove promessas publicas antigas no `index.html` sobre PDF,
   assinatura, fotos, WhatsApp, offline e Supabase Storage, mantendo essas areas
   como app-v2-native futuras.
+- CP-58P remove promessas sensiveis restantes nas paginas legais publicas sobre
+  PDF, assinatura digital, fotos e offline, mantendo Service Worker apenas como
+  cache tecnico descrito de forma neutra.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.
