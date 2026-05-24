@@ -94,13 +94,22 @@ decisao, do escopo e do risco remanescente.
 
 - O repositorio deve manter apenas Markdown operacional indispensavel:
   `AGENTS.md`, `docs/rewrite/checkpoints-recentes-resumo.md` e skills do Matt
-  Pocock vendorizadas em `.agents/skills/` e `matt-pocock-skills/skills/`.
+  Pocock vendorizadas em `matt-pocock-skills/skills/`.
 - Documentos de CP, inventarios, auditorias, planos antigos e READMEs foram
   removidos do controle de versao.
 - Novos CPs devem ser resumidos aqui, de forma curta e objetiva, sem recriar
   arquivos `.md` separados.
 - Esta politica nao remove favicon, assets publicos nao Markdown, codigo,
   testes, configuracoes ou migrations.
+
+## AGENTS.md
+
+- Atualizado para refletir a direcao atual: app-v2 como experiencia principal,
+  v1 apenas como referencia historica e remocao de vestigios por CPs pequenos.
+- Removidas referencias obrigatorias a documentos `.md` que foram consolidados
+  neste resumo.
+- Mantidos guardrails de 99% de certeza, validacao, areas sensiveis e
+  preservacao do favicon.
 
 ## Validacao padrao
 
