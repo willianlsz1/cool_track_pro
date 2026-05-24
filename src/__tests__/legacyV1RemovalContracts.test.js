@@ -486,6 +486,16 @@ describe('legacy v1 removal contracts', () => {
     expect(photoStorageSource).not.toContain('blobToDataUrl');
   });
 
+  it('does not keep the duplicate legacy photo migration bridge in storage normalizers', () => {
+    const storageNormalizersSource = readSource('src/core/storage/normalizers.js');
+
+    expect(storageNormalizersSource).not.toContain('migrateLegacyPhotosInState');
+    expect(storageNormalizersSource).not.toContain('migrateLegacyPhotosForRegistros');
+    expect(readSource('src/core/storage/storageMigrations.js')).toContain(
+      'migrateLegacyPhotosInState',
+    );
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

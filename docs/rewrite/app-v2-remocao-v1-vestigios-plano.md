@@ -674,6 +674,10 @@ Progresso executado:
   devem ser cortados em CPs separados. A delecao direta de `photoStorage.js`,
   `Photos` ou `EquipmentPhotos` continua insegura porque ainda misturaria UI,
   sync offline, storage real e policies.
+- CP-57C remove de `src/core/storage/normalizers.js` o bridge duplicado
+  `migrateLegacyPhotosInState`, sem consumidor runtime. A migracao ativa de
+  fotos legadas permanece em `src/core/storage/storageMigrations.js`, que e o
+  caminho importado por `src/core/storage.js`.
 
 Controle:
 

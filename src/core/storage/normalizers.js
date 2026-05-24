@@ -1,17 +1,14 @@
 /**
  * CoolTrack Pro - Storage / normalizers
- * Funções puras de normalização e mapeamento entre o shape interno
+ * Funcoes puras de normalizacao e mapeamento entre o shape interno
  * (equipamentos/registros) e o shape persistido (localStorage / Supabase).
- *
- * Também contém a migração de fotos legadas em base64 para Storage.
  */
 
-import { STORAGE_KEY } from '../utils.js';
-import { migrateLegacyPhotosForRegistros, normalizePhotoList } from '../photoStorage.js';
+import { normalizePhotoList } from '../photoStorage.js';
 import {
   normalizeCriticidade,
-  normalizePrioridadeOperacional,
   normalizePeriodicidadePreventivaDias,
+  normalizePrioridadeOperacional,
 } from '../maintenanceNormalization.js';
 import { sanitizePersistedEquipamento, sanitizePersistedRegistro } from '../inputValidation.js';
 
@@ -44,8 +41,6 @@ export function normalizeEquip(e) {
       e.tipo,
       e.criticidade,
     ),
-    // JSONB remoto pode chegar como string se a column vier de snake_case.
-    // sanitizeDadosPlaca tolera object/null/undefined e já filtra valores vazios.
     dadosPlaca: sanitizeDadosPlaca(e.dadosPlaca ?? e.dados_placa),
   };
 }
@@ -61,15 +56,6 @@ export function isLegacyEquipmentSchemaError(error) {
   );
 }
 
-/**
- * Saneia o blob `dados_placa` antes de persistir no Supabase.
- *   - Aceita apenas object (não array/scalar) — idem à constraint da migration.
- *   - Remove chaves com valor null/undefined/'' pra manter o JSON compacto.
- *   - Se o input for null/undefined → retorna `{}` (default da coluna).
- *
- * Não valida schema (capacidade_btu é int?) — isso cabe ao client-side form.
- * O objetivo aqui é só garantir que o INSERT não quebre a constraint do DB.
- */
 function sanitizeDadosPlaca(input) {
   if (input == null) return {};
   if (typeof input !== 'object' || Array.isArray(input)) return {};
@@ -104,8 +90,6 @@ export function mapEquipamentoRow(equipamento, userId, { legacy = false } = {}) 
       equipamento.tipo,
       equipamento.criticidade,
     ),
-    // dados_placa é JSONB com DEFAULT '{}'::jsonb + CHECK (jsonb_typeof = 'object').
-    // sanitizeDadosPlaca garante object válido mesmo se vier null/array/scalar.
     dados_placa: sanitizeDadosPlaca(equipamento.dadosPlaca),
   };
 }
@@ -147,29 +131,5 @@ export function normalizeRegistro(r, equipamentoIds) {
     tecnico: sanitized.tecnico,
     custoPecas: sanitized.custoPecas,
     custoMaoObra: sanitized.custoMaoObra,
-  };
-}
-
-export async function migrateLegacyPhotosInState(state, userId) {
-  if (!state?.registros?.length) {
-    return { state, migratedCount: 0, failedCount: 0 };
-  }
-
-  const migration = await migrateLegacyPhotosForRegistros(state.registros, { userId });
-  if (!migration.migratedCount && !migration.failedCount) {
-    return { state, migratedCount: 0, failedCount: 0 };
-  }
-
-  const migratedState = { ...state, registros: migration.registros };
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedState));
-  } catch (_err) {
-    // cache local é opcional nessa etapa
-  }
-
-  return {
-    state: migratedState,
-    migratedCount: migration.migratedCount,
-    failedCount: migration.failedCount,
   };
 }
