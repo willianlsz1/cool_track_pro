@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <!-- Content Security Policy: defesa em profundidade contra XSS/injection.
          Permite somente origens conhecidas necessarias pro app:
-           - script-src: self + Stripe Checkout (carrega via SDK)
+           - script-src: self
            - style-src: self + Google Fonts + 'unsafe-inline' (componentes usam style="...")
            - font-src: Google Fonts CDN
            - img-src: self + data: (icons inline) + blob: (canvas exports) + https: (Supabase Storage URLs)
-           - connect-src: Supabase REST/Realtime + Stripe API + telemetry self
-           - frame-src: Stripe Checkout iframe
+           - connect-src: Supabase REST/Realtime + telemetry self
+           - frame-src: self
            - object-src 'none' impede plugins legacy
            - base-uri 'self' impede injection de tag <base> -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.emailjs.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io; frame-src 'self' https://js.stripe.com https://hooks.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.emailjs.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"
     />
     <title>
       CoolTrack Pro - Gest&atilde;o de Climatiza&ccedil;&atilde;o e Refrigera&ccedil;&atilde;o
@@ -104,30 +104,7 @@
         "applicationCategory": "BusinessApplication",
         "applicationSubCategory": "MaintenanceManagement",
         "operatingSystem": "Web, iOS, Android",
-        "featureList": "Registro de serviços offline, PDF com assinatura digital do cliente, fotos por equipamento, histórico completo de manutenções, alertas de preventiva, compartilhamento via WhatsApp",
-        "offers": [
-          {
-            "@type": "Offer",
-            "name": "Free",
-            "price": "0",
-            "priceCurrency": "BRL",
-            "description": "Até 3 equipamentos, 10 registros por mês, 5 PDFs por mês com marca d'água"
-          },
-          {
-            "@type": "Offer",
-            "name": "Plus",
-            "price": "29",
-            "priceCurrency": "BRL",
-            "description": "Equipamentos ilimitados, 120 registros por mês, PDFs ilimitados sem marca d'água, fotos do equipamento"
-          },
-          {
-            "@type": "Offer",
-            "name": "Pro",
-            "price": "59",
-            "priceCurrency": "BRL",
-            "description": "Tudo do Plus + setores ilimitados, clientes multi-empresa, PMOC formal NBR 13971, prioridade no suporte"
-          }
-        ]
+        "featureList": "Registro de serviços offline, PDF com assinatura digital do cliente, fotos por equipamento, histórico completo de manutenções, alertas de preventiva, compartilhamento via WhatsApp"
       }
     </script>
 

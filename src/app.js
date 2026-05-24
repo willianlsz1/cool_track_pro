@@ -19,15 +19,7 @@ import { PasswordRecoveryModal } from './ui/components/passwordRecoveryModal.js'
 import { Storage } from './core/storage.js';
 import { ErrorCodes, handleError } from './core/errors.js';
 import { Toast } from './core/toast.js';
-import {
-  sanitizeSessionForCurrentProject,
-  fetchMyProfileBilling,
-} from './core/plans/monetization.js';
-// DevPlanToggle: dynamic-imported abaixo apenas em ambiente de dev.
-// Em produção, Vite faz tree-shake do módulo inteiro (≈9 KB + 492 LoC).
-import { DevPlanOverride } from './core/plans/devPlanOverride.js';
-import { setCachedPlan } from './core/plans/planCache.js';
-import { getEffectivePlan } from './core/plans/subscriptionPlans.js';
+import { sanitizeSessionForCurrentProject } from './core/plans/monetization.js';
 import { supabase } from './core/supabase.js';
 import { initTelemetrySink } from './core/telemetrySink.js';
 import { initObservability, setUser as setObservabilityUser } from './core/observability.js';
@@ -97,39 +89,8 @@ async function _enterAuthenticatedApp(user) {
     });
   }
 
-  // Monta o painel dev: ativa se is_dev === true no Supabase OU se a flag
-  // local 'cooltrack-dev-mode' estiver definida (ativada via console do browser).
-  // Em produção (import.meta.env.DEV === false), Vite faz tree-shake do bloco
-  // inteiro — o chunk de devPlanToggle nem é emitido no bundle.
-  if (import.meta.env.DEV) {
-    const localDevMode = localStorage.getItem('cooltrack-dev-mode') === 'true';
-    const mountDevToggle = async () => {
-      const { DevPlanToggle } = await import('./ui/components/devPlanToggle.js');
-      DevPlanToggle.mount();
-    };
-    if (localDevMode) {
-      await mountDevToggle();
-      setCachedPlan(DevPlanOverride.get() || 'pro');
-    } else {
-      try {
-        const { profile } = await fetchMyProfileBilling();
-        setCachedPlan(getEffectivePlan(profile));
-        if (profile?.is_dev === true) {
-          await mountDevToggle();
-        }
-      } catch {
-        // ignora — não bloqueia o boot se o perfil falhar
-      }
-    }
-  } else {
-    // Prod: só consulta o plano real (sem nenhum caminho pra dev override).
-    try {
-      const { profile } = await fetchMyProfileBilling();
-      setCachedPlan(getEffectivePlan(profile));
-    } catch {
-      // ignora — não bloqueia o boot se o perfil falhar
-    }
-  }
+  // Monetizacao fica fora do app enquanto a etapa propria nao for refeita.
+  // O bootstrap nao consulta plano, portal ou status de assinatura.
 
   Modal.init();
   bindEvents();
