@@ -7,15 +7,7 @@ const VALID_MODES = new Set([NAV_MODE_RAPIDO, NAV_MODE_EMPRESA]);
 const PRIMARY_NAV_LAYOUT = {
   mobilePrimary: ['inicio', 'clientes', 'registro', 'equipamentos', 'historico'],
   mobileSecondary: [],
-  sidebarPrimary: [
-    'inicio',
-    'registro',
-    'clientes',
-    'equipamentos',
-    'historico',
-    'relatorio',
-    'orcamentos',
-  ],
+  sidebarPrimary: ['inicio', 'registro', 'clientes', 'equipamentos', 'historico', 'relatorio'],
   sidebarSecondary: [],
 };
 

@@ -25,6 +25,7 @@ const retiredControllerRouteFiles = ['src/ui/controller/routes.js'];
 
 const retiredOrphanControllerHandlerFiles = [
   'src/ui/controller/handlers/clienteHandlers.js',
+  'src/ui/controller/handlers/orcamentoHandlers.js',
   'src/ui/controller/handlers/profileAccountHandlers.js',
 ];
 
@@ -32,6 +33,7 @@ const retiredOrphanLegacyComponentFiles = [
   'src/ui/components/accountModal.js',
   'src/ui/components/authscreen.js',
   'src/ui/components/offlineBanner.js',
+  'src/ui/components/orcamentoModal.js',
   'src/ui/components/orcamentoSignaturePage.js',
   'src/ui/components/passwordRecoveryModal.js',
   'src/ui/components/postSaveRegistroCompletion.js',
@@ -42,6 +44,8 @@ const retiredOrphanLegacyComponentFiles = [
 const retiredOrphanLegacyComponentTests = [
   'src/__tests__/authscreen.redesign.test.js',
   'src/__tests__/contaView.test.js',
+  'src/__tests__/orcamentosView.security.test.js',
+  'src/__tests__/orcamentosViewModel.test.js',
   'src/__tests__/postSaveRegistroCompletion.test.js',
   'src/__tests__/registroEquipPicker.test.js',
   'src/__tests__/usageMeter.test.js',
@@ -67,9 +71,13 @@ const retiredLegacyHelperFiles = [
   'src/ui/views/clientes/paginationRenderer.js',
   'src/ui/views/clientes/summaryRenderer.js',
   'src/ui/views/conta.js',
+  'src/ui/views/orcamentos.js',
 ];
 
-const retiredLegacyViewModelFiles = ['src/ui/viewModels/relatorioCompanyPmocModel.js'];
+const retiredLegacyViewModelFiles = [
+  'src/ui/viewModels/orcamentosViewModel.js',
+  'src/ui/viewModels/relatorioCompanyPmocModel.js',
+];
 
 const legacyRuntimeKeptForLaterCheckpoints = [
   'src/ui/shell/navigationMode.js',

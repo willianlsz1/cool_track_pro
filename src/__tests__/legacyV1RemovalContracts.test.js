@@ -54,6 +54,24 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('e2e/specs/orcamentos-visual-smoke.spec.js')).toBe(false);
   });
 
+  it('does not keep the legacy orcamentos v1 view, modal or handler', () => {
+    const shellViewsSource = readSource('src/ui/shell/templates/views.js');
+    const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
+    const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
+    const clientesContractsSource = readSource('src/ui/viewModels/clientesContracts.js');
+    const clientesPageSource = readSource('src/ui/views/clientes/pageRenderer.js');
+
+    expect(existsSync('src/ui/views/orcamentos.js')).toBe(false);
+    expect(existsSync('src/ui/components/orcamentoModal.js')).toBe(false);
+    expect(existsSync('src/ui/controller/handlers/orcamentoHandlers.js')).toBe(false);
+    expect(existsSync('src/ui/viewModels/orcamentosViewModel.js')).toBe(false);
+    expect(shellViewsSource).not.toContain('view-orcamentos');
+    expect(navigationModeSource).not.toContain("'orcamentos'");
+    expect(navigationHandlersSource).not.toContain('go-orcamentos');
+    expect(clientesContractsSource).not.toContain('novo-orcamento');
+    expect(clientesPageSource).not.toContain('Novo orçamento');
+  });
+
   it('does not keep the legacy historico functional e2e after v2 promotion', () => {
     expect(existsSync('e2e/specs/historico-functional-smoke.spec.js')).toBe(false);
   });

@@ -944,7 +944,5 @@
 
           <div id="relatorio-corpo" class="rel-records"></div>
         </div>
-        <!-- V3: ORÇAMENTOS DE INSTALAÇÃO -->
-        <div class="view" id="view-orcamentos"></div>
 `;
 }

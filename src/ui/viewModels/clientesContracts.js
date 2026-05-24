@@ -25,7 +25,6 @@ export const CLIENTES_ACTIONS = Object.freeze({
   cardMenu: 'card-menu',
   verEquipamentos: 'ver-equipamentos',
   verServicos: 'ver-serviços',
-  novoOrcamento: 'novo-orcamento',
   novoServico: 'novo-servico',
   pmocFocus: 'pmoc-focus',
   openPmocPanel: 'open-pmoc-panel',

@@ -175,10 +175,6 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
           ${ICON_FILE}<span>PMOC</span>
         </button>
         <button type="button" class="cli-card__action cli-card__action--secondary"
-          data-cli-action="${CLIENTES_ACTIONS.novoOrcamento}" data-id="${safeId}">
-          ${ICON_FILE}<span>Novo orçamento</span>
-        </button>
-        <button type="button" class="cli-card__action cli-card__action--secondary"
           data-cli-action="${CLIENTES_ACTIONS.novoServico}" data-id="${safeId}">
           ${ICON_CLOCK_SM}<span>Novo serviço</span>
         </button>

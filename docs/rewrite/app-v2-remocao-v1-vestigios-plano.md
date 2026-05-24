@@ -517,6 +517,12 @@ Progresso executado:
 - CP-54 mapeou a ordem de corte das areas sensiveis restantes do runtime v1,
   priorizando Orcamentos v1 visual/modal/handler antes de Relatorio,
   PDF/share, assinatura, fotos e PMOC. O CP e documental e nao remove runtime.
+- CP-54A removeu a cadeia visual/modal/handler de Orcamentos v1
+  (`src/ui/views/orcamentos.js`, `src/ui/components/orcamentoModal.js`,
+  `src/ui/controller/handlers/orcamentoHandlers.js` e
+  `src/ui/viewModels/orcamentosViewModel.js`). O fluxo app-v2 permanece em
+  `Servicos > Orcamentos`; `src/core/orcamentos.js` e contratos reais ficam
+  fora deste corte.
 
 Controle:
 
