@@ -129,7 +129,6 @@
                   <button class="btn btn--ghost btn--sm" type="button" data-action="go-alertas">Ver todos</button>
                 </header>
                 <div id="dash-alertas-mini"></div>
-                <div id="dash-upgrade-inline-hint"></div>
               </section>
 
               <section class="dash__section" id="dash-criticos-section" hidden>

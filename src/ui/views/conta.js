@@ -505,11 +505,6 @@ function _bindOnce() {
       case 'conta-edit-profile':
         ProfileModal.open();
         break;
-      case 'manage-plan':
-      case 'upgrade':
-      case 'conta-manage-plan':
-        Toast.warning('Recurso indisponivel nesta etapa.');
-        break;
       case 'go-registro':
         goTo('registro');
         break;

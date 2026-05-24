@@ -52,7 +52,6 @@ export const DASHBOARD_PUBLIC_IDS = Object.freeze({
   criticalNowCount: 'dash-critical-now-count',
   alertsSection: 'dash-alerts-section',
   alertsMini: 'dash-alertas-mini',
-  upgradeInlineHint: 'dash-upgrade-inline-hint',
   criticosSection: 'dash-criticos-section',
   criticos: 'dash-criticos',
   recentesSection: 'dash-recentes-section',

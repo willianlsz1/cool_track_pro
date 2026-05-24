@@ -173,10 +173,6 @@ function renderAlertsMiniSection(root, block = EMPTY_DASHBOARD_READ_ONLY_BLOCKS.
     });
     listRoot.appendChild(list);
   }
-
-  const hint = document.createElement('div');
-  hint.id = DASHBOARD_PUBLIC_IDS.upgradeInlineHint;
-  section.appendChild(hint);
 }
 
 function appendEquipmentIcon(parent, visual = {}) {

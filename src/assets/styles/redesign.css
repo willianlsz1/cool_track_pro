@@ -3918,9 +3918,7 @@ body:not(.landing-active) .pmoc-info-modal__compare-col {
   box-shadow: none !important;
 }
 
-body:not(.landing-active) .pmoc-modal__lock,
-body:not(.landing-active) .upgrade-inline-hint,
-body:not(.landing-active) .upgrade-nudge-card {
+body:not(.landing-active) .pmoc-modal__lock {
   background: linear-gradient(180deg, rgba(255, 182, 13, 0.11), rgba(17, 24, 39, 0.72)) !important;
   border: 1px solid rgba(255, 182, 13, 0.28) !important;
   box-shadow: none !important;

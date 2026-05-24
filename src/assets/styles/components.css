@@ -9708,65 +9708,6 @@ mark,
   }
 }
 
-/* UPGRADE NUDGE */
-
-.upgrade-nudge-card {
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--primary) 10%, var(--surface)),
-    color-mix(in srgb, var(--primary) 3%, var(--surface))
-  );
-  border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
-  border-radius: 14px;
-  padding: 24px;
-  display: grid;
-  gap: 14px;
-}
-
-/* Badge "PRO ATIVO" - dourado #e8b94a alinhado a paleta canonica. */
-.upgrade-nudge-card__badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 10px;
-  color: #e8b94a;
-  background: rgba(232, 185, 74, 0.15);
-  border: 1px solid rgba(232, 185, 74, 0.28);
-  border-radius: 999px;
-  padding: 4px 8px;
-  letter-spacing: 0.06em;
-  font-weight: 700;
-}
-
-.upgrade-nudge-card__icon {
-  font-size: 24px;
-}
-
-.upgrade-nudge-card--pro-active {
-  border-color: rgba(232, 185, 74, 0.3);
-  background: linear-gradient(
-    135deg,
-    rgba(232, 185, 74, 0.12),
-    color-mix(in srgb, var(--primary) 8%, var(--surface))
-  );
-}
-
-.upgrade-nudge-card__pro-title {
-  margin: 0;
-  color: var(--text);
-  font-size: 18px;
-  line-height: 1.35;
-  font-weight: 700;
-}
-
-.upgrade-nudge-card__pro-copy {
-  margin: 0;
-  color: var(--text-2);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
 /* ══════════════════════════════════════════════════════════
    Support + Feedback Modal (sfm)
    ══════════════════════════════════════════════════════════ */

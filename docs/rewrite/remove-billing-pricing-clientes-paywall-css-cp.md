@@ -19,6 +19,12 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 - Neutralizadas mensagens comerciais do fluxo de leitura de placa por foto,
   tanto no cliente quanto na Edge Function `analyze-nameplate`, sem alterar
   limites operacionais ou reserva de quota.
+- Removido o slot vazio `dash-upgrade-inline-hint` do Dashboard legado,
+  incluindo contrato publico, template e limpeza runtime.
+- Removidos estilos mortos `.upgrade-nudge-card*` e override
+  `.upgrade-inline-hint` dos CSS legados.
+- Removidos aliases comerciais antigos `manage-plan`, `upgrade` e
+  `conta-manage-plan` da delegacao local de Conta.
 - Adicionado contrato automatizado para impedir retorno desse CSS orfao e do
   stub/CTA de upgrade.
 
@@ -26,8 +32,6 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
 
 - Nenhum renderer, rota, storage, PDF/share, WhatsApp, Supabase/RLS ou billing
   novo foi alterado.
-- O slot publico `dash-upgrade-inline-hint` foi preservado e segue limpo no
-  runtime.
 - Os cards operacionais do Dashboard continuam renderizando alertas, clientes
   em risco e rascunho em andamento sem CTA comercial escondido.
 - A camada tecnica de planos/limites permanece como compatibilidade operacional
@@ -53,8 +57,12 @@ superficies comerciais de billing, pricing, checkout e planos pagos.
   o id comercial `pmoc-upgrade`.
 - RED adicional: o teste falhou enquanto nameplate ainda orientava upgrade ou
   assinatura de plano pago.
+- RED adicional: o teste falhou enquanto `dash-upgrade-inline-hint`,
+  `.upgrade-nudge-card*` e aliases comerciais de Conta ainda existiam.
 - GREEN adicional: `billingPricingCleanupContracts` e
   `dashboardLegacyProDraftContracts` passaram apos remover o contrato morto.
+- GREEN adicional: `billingPricingCleanupContracts` passou apos remover o slot,
+  estilos e aliases comerciais restantes deste checkpoint.
 
 ## Riscos remanescentes
 

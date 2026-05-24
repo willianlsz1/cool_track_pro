@@ -25,10 +25,35 @@ describe('billing/pricing cleanup contracts', () => {
   it('does not keep hidden dashboard upgrade CTA contracts after commercial removal', () => {
     const dashboardSource = readSource('src/ui/views/dashboard.js');
     const proDraftSource = readSource('src/ui/views/dashboard/proDraft.js');
+    const dashboardContractsSource = readSource('src/ui/viewModels/dashboardContracts.js');
+    const dashboardReadOnlyBlocksSource = readSource('src/ui/views/dashboard/readOnlyBlocks.js');
+    const shellViewsSource = readSource('src/ui/shell/templates/views.js');
 
     expect(dashboardSource).not.toContain('upgradeCta');
+    expect(dashboardSource).not.toContain('_renderReadOnlyBlocksUpgradeHint');
     expect(proDraftSource).not.toContain('upgradeCta');
     expect(proDraftSource).not.toContain('appendUpgradeContract');
+    expect(dashboardContractsSource).not.toContain('upgradeInlineHint');
+    expect(dashboardReadOnlyBlocksSource).not.toContain('dash-upgrade-inline-hint');
+    expect(shellViewsSource).not.toContain('dash-upgrade-inline-hint');
+  });
+
+  it('does not keep commercial upgrade style hooks after billing removal', () => {
+    const componentsCss = readSource('src/assets/styles/components.css');
+    const redesignCss = readSource('src/assets/styles/redesign.css');
+
+    for (const source of [componentsCss, redesignCss]) {
+      expect(source).not.toContain('upgrade-inline-hint');
+      expect(source).not.toContain('upgrade-nudge-card');
+    }
+  });
+
+  it('does not keep account actions named as billing or upgrade flows', () => {
+    const contaSource = readSource('src/ui/views/conta.js');
+
+    expect(contaSource).not.toContain("case 'manage-plan'");
+    expect(contaSource).not.toContain("case 'upgrade'");
+    expect(contaSource).not.toContain("case 'conta-manage-plan'");
   });
 
   it('does not keep PMOC blocked-state controls named as commercial upgrade actions', () => {

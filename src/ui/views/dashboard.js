@@ -1315,22 +1315,7 @@ function _buildReadOnlyBlocksModel({ equipamentos, registros, alerts, isEmpresaP
   };
 }
 
-function _renderReadOnlyBlocksUpgradeHint({ alerts, planContext }) {
-  const hint = document.getElementById(DASHBOARD_PUBLIC_IDS.upgradeInlineHint);
-  if (!hint) return;
-  void alerts;
-  void planContext;
-  hint.innerHTML = '';
-}
-
-function _renderReadOnlyBlocks({
-  equipamentos,
-  registros,
-  alerts,
-  planContext,
-  isEmpresaPro,
-  clientes,
-}) {
+function _renderReadOnlyBlocks({ equipamentos, registros, alerts, isEmpresaPro, clientes }) {
   const model = _buildReadOnlyBlocksModel({
     equipamentos,
     registros,
@@ -1342,7 +1327,6 @@ function _renderReadOnlyBlocks({
 
   if (root) {
     renderReadOnlyBlocksDom(root, model);
-    _renderReadOnlyBlocksUpgradeHint({ alerts, planContext });
   }
 
   return Promise.resolve();
@@ -1481,7 +1465,6 @@ export async function renderDashboard() {
       equipamentos,
       registros,
       alerts,
-      planContext,
       isEmpresaPro,
       clientes,
     });
