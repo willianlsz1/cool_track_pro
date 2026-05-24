@@ -107,8 +107,6 @@ function passwordInputHTML(id, placeholder, autocomplete) {
 // cabeças de seta apontando pra fora + ponto central) que vive em:
 //  - `public/favicon.svg` (favicon do browser)
 //  - `public/brand/favicon.svg` (asset path referenciado pelo briefing)
-//  - `src/react/pages/landing/components/BrandMark.jsx` (versao React,
-//    usada pela landing oficial)
 //  - `public/legal/{privacidade,termos,lgpd}.html` (paginas legais)
 //
 // Tile externo gradient cyan→blue (mesma combinacao do header da landing

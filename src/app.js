@@ -30,7 +30,6 @@ import { setCachedPlan } from './core/plans/planCache.js';
 import { getEffectivePlan } from './core/plans/subscriptionPlans.js';
 import { supabase } from './core/supabase.js';
 import { initTelemetrySink } from './core/telemetrySink.js';
-import { trackEvent } from './core/telemetry.js';
 import { initObservability, setUser as setObservabilityUser } from './core/observability.js';
 import { initSwUpdate } from './core/swUpdate.js';
 import { initStaleBundleRecovery } from './core/recoverFromStaleBundle.js';
@@ -281,21 +280,7 @@ async function bootstrap() {
       }
       // Escopo anônimo só quando realmente não há sessão autenticada ativa.
       setCurrentUser('anon');
-      // Sem usuário autenticado → landing pública.
-      //
-      // Landing oficial em React+Tailwind. Code-split via dynamic import
-      // mantém o chunk fora do bundle inicial pra quem já está logado.
-      const { mountLandingPageReact } = await import('./react/entrypoints/landingIsland.jsx');
-      const appEl = document.getElementById('app');
-      if (appEl) {
-        mountLandingPageReact(appEl, { onLogin: () => AuthScreen.show() });
-        // Telemetria — `lp_view` é o evento canônico do funil
-        // (visualizações → CTA → trial started → conversão).
-        // Sem `variant`: agora há uma única landing, então o payload
-        // continua simples e a query SQL do dashboard segue inalterada
-        // (ela só conta `name = 'lp_view'`).
-        trackEvent('lp_view', {});
-      }
+      AuthScreen.show();
       _setAuthLoading(false);
       return;
     }
