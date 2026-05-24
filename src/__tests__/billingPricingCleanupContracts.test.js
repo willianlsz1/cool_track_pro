@@ -6,6 +6,12 @@ function readSource(path) {
 }
 
 describe('billing/pricing cleanup contracts', () => {
+  it('does not keep skipped e2e paywall specs after commercial cleanup', () => {
+    expect(existsSync('e2e/specs/equipamentos-legacy-photos-nameplate-paywall.spec.js')).toBe(
+      false,
+    );
+  });
+
   it('does not keep orphan clientes paywall styles after removing commercial surfaces', () => {
     const componentsCss = readSource('src/assets/styles/components.css');
     const redesignCss = readSource('src/assets/styles/redesign.css');
