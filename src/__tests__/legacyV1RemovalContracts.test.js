@@ -18,6 +18,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('e2e/specs/equipamentos-visual-smoke.spec.js')).toBe(false);
   });
 
+  it('does not keep the skipped legacy unicode escapes e2e after v2 promotion', () => {
+    expect(existsSync('e2e/specs/unicode-escapes.spec.js')).toBe(false);
+  });
+
   it('does not keep the unused legacy app bootstrap entrypoint', () => {
     const primaryHtml = readSource('index.html');
     const serviceWorkerRegisterSource = readSource('public/sw-register.js');
