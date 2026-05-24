@@ -1,8 +1,32 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 function readSource(path) {
   return readFileSync(path, 'utf8');
+}
+
+function listSourceFiles(dir) {
+  return readdirSync(dir).flatMap((entry) => {
+    const path = `${dir}/${entry}`;
+    const stats = statSync(path);
+
+    if (stats.isDirectory()) {
+      return listSourceFiles(path);
+    }
+
+    if (/\.(?:ts|tsx|js|jsx|html)$/.test(entry)) {
+      return [path];
+    }
+
+    return [];
+  });
+}
+
+function findMatches(files, pattern) {
+  return files.flatMap((file) => {
+    const source = readSource(file);
+    return pattern.test(source) ? [file] : [];
+  });
 }
 
 describe('legacy v1 removal contracts', () => {
@@ -54,6 +78,19 @@ describe('legacy v1 removal contracts', () => {
     expect(primaryHtml).toContain('src="/src/app-v2/main.tsx"');
     expect(primaryHtml).not.toContain('/src/app.js');
     expect(serviceWorkerRegisterSource).not.toContain('app.js');
+  });
+
+  it('keeps the primary app-v2 entrypoint independent from the legacy v1 shell runtime', () => {
+    const primaryHtml = readSource('index.html');
+    const appV2Sources = listSourceFiles('src/app-v2');
+    const primaryRuntimeSources = ['index.html', 'vite.config.js', ...appV2Sources];
+    const forbiddenLegacyShellPattern =
+      /src\/ui\/(?:controller|shell)|\.\.\/ui\/(?:controller|shell)|\.\.\/\.\.\/ui\/(?:controller|shell)/;
+
+    expect(primaryHtml).toContain('src="/src/app-v2/main.tsx"');
+    expect(primaryHtml).not.toContain('/src/ui/');
+    expect(primaryHtml).not.toContain('/src/app.js');
+    expect(findMatches(primaryRuntimeSources, forbiddenLegacyShellPattern)).toEqual([]);
   });
 
   it('does not keep the legacy feature Profile shim after moving callers to core', () => {

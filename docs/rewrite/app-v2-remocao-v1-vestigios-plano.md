@@ -129,6 +129,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   v1, extrair apenas regras puras quando necessario e isolar PDF/share,
   WhatsApp, assinatura, fotos, autenticacao, storage, PMOC e router em etapas
   dedicadas.
+- CP-13 adicionou contrato executavel garantindo que `index.html`, `vite.config.js`
+  e `src/app-v2/**` nao referenciam `src/ui/shell` ou `src/ui/controller`,
+  preparando a remocao futura do shell v1 sem apagar runtime ainda.
 
 ## 3. Superficies v1 mapeadas
 
