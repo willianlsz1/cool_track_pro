@@ -867,6 +867,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58M remove `twa-build/`, artefato Android/TWA legado gerado por Bubblewrap
   que apontava para dominio antigo e continha keystore/dependencias Android fora
   do app-v2 web principal.
+- CP-58N remove a copia visivel PMOC restante no checklist do Registro legado,
+  tratando a superficie como checklist preventivo/NBR enquanto a remocao
+  estrutural de templates e caminhos `pmoc` fica para CP dedicado.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

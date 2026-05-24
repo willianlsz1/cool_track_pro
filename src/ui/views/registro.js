@@ -208,7 +208,7 @@ function _updateImpactCopy(context) {
   if (!subtitle || !hint) return;
 
   if (context?.hasCompanyContext) {
-    subtitle.textContent = 'opcional â€” status final e prioridade para PMOC';
+    subtitle.textContent = 'opcional - status final e prioridade do atendimento';
     hint.textContent =
       'Se houve falha, risco ou pendÃªncia, ajuste o impacto para o acompanhamento do cliente.';
     return;
@@ -854,7 +854,7 @@ function _applyPmocChecklistDiscoveryState() {
 }
 
 function _redirectPmocChecklistUpsell() {
-  trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
+  trackEvent('preventive_checklist_upsell_clicked', { source: 'registro_form' });
   Toast.warning('Recurso indisponivel nesta etapa.');
 }
 

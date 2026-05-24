@@ -154,7 +154,7 @@ const persistedPayload = {
   data: '2026-05-01T09:30',
   tipo: 'Preventiva',
   tecnico: 'Tecnico Padrao',
-  descricaoFinal: 'Preventiva realizada com checklist PMOC em andamento.',
+  descricaoFinal: 'Preventiva realizada com checklist preventivo em andamento.',
   prioridade: 'media',
   status: 'ok',
   pecas: '',
@@ -276,7 +276,7 @@ async function preparePreventivaForm(registro) {
     document.getElementById('r-data').value = '2026-05-01T09:30';
     document.getElementById('r-tipo').value = findOptionValue('r-tipo', 'Preventiva');
     document.getElementById('r-obs').value =
-      'Preventiva realizada com checklist PMOC em andamento.';
+      'Preventiva realizada com checklist preventivo em andamento.';
     document.getElementById('r-tecnico').value = 'Tecnico Padrao';
     document.getElementById('r-prioridade').value = 'media';
     document.getElementById('r-status').value = 'ok';
@@ -297,7 +297,7 @@ async function triggerSaveRegistro() {
   });
 }
 
-describe('registro Checklist/PMOC contract', () => {
+describe('registro checklist preventivo contract', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -318,7 +318,7 @@ describe('registro Checklist/PMOC contract', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('trava selectors, actions, atributos e classes publicas do Checklist/PMOC', () => {
+  it('trava selectors, actions, atributos e classes publicas do checklist preventivo', () => {
     expect(REGISTRO_PUBLIC_IDS.checklistBody).toBe('r-checklist-body');
     expect(REGISTRO_REACT_ROOTS.checklist).toBe('r-checklist-body');
     expect(REGISTRO_ACTIONS.checklistSet).toBe('r-checklist-set');

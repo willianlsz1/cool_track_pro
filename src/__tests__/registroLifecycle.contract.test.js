@@ -229,7 +229,7 @@ describe('registro lifecycle contract', () => {
     expect(mocks.photosRender).not.toHaveBeenCalled();
   });
 
-  it('clearRegistro preserva equipamento opcionalmente, limpa modo edicao e reseta Checklist PMOC', async () => {
+  it('clearRegistro preserva equipamento opcionalmente, limpa modo edicao e reseta checklist preventivo', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state);
@@ -258,7 +258,7 @@ describe('registro lifecycle contract', () => {
     expect(registro.getCurrentChecklist()).toBeNull();
   });
 
-  it('loadRegistroForEdit preenche campos principais, ativa modo edicao e restaura Checklist PMOC', async () => {
+  it('loadRegistroForEdit preenche campos principais, ativa modo edicao e restaura checklist preventivo', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state);

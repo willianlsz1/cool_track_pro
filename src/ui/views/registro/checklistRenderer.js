@@ -99,7 +99,7 @@ function renderChecklistRow(item, actions) {
       ${escapeHtml(item?.label)}
       ${
         item?.mandatory
-          ? '<span class="r-checklist__req" title="Obrigatório p/ PMOC formal">*</span>'
+          ? '<span class="r-checklist__req" title="Obrigatorio no checklist preventivo">*</span>'
           : ''
       }
     </div>

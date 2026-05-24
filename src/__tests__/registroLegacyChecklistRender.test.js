@@ -283,9 +283,9 @@ describe('registro legacy checklist render adapter', () => {
     expect(upsell?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe(
       'Indisponivel',
     );
-    expect(upsell?.textContent).toContain('Checklist PMOC preenchível (NBR 13971)');
+    expect(upsell?.textContent).toContain('Checklist preventivo preenchivel (NBR 13971)');
     expect(upsell?.textContent).toContain(
-      'Checklist completo conforme NBR 13971. Recurso indisponivel nesta etapa.',
+      'Checklist preventivo conforme NBR 13971. Recurso indisponivel nesta etapa.',
     );
 
     const cta = upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]');

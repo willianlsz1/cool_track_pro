@@ -608,7 +608,7 @@
                 </span>
                 <div class="registro-details__titles">
                   <div class="registro-details__title">
-                    Checklist PMOC preenchível (NBR 13971)
+                    Checklist preventivo preenchivel (NBR 13971)
                     <span class="registro-details__pri" id="r-checklist-pri" hidden>Recomendado</span>
                   </div>
                   <div class="registro-details__subtitle" id="r-checklist-summary">selecione o equipamento primeiro</div>
@@ -636,11 +636,11 @@
               </span>
               <div class="registro-sig-hint__body">
                 <div class="registro-sig-hint__head">
-                  <strong class="registro-sig-hint__title">Checklist PMOC preenchível (NBR 13971)</strong>
+                  <strong class="registro-sig-hint__title">Checklist preventivo preenchivel (NBR 13971)</strong>
                   <span class="registro-sig-hint__badge registro-sig-hint__badge--pro">Indisponivel</span>
                 </div>
                 <p class="registro-sig-hint__desc">
-                  Checklist completo conforme NBR 13971. Recurso indisponivel nesta etapa.
+                  Checklist preventivo conforme NBR 13971. Recurso indisponivel nesta etapa.
                   <span id="r-checklist-upsell-context"></span>
                 </p>
               </div>

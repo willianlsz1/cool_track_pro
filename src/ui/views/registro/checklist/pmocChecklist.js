@@ -71,7 +71,7 @@ export function buildRegistroChecklistSoftRequiredWarning(
   if (!isPreventivaTipo(tipo)) return null;
 
   if (!checklist) {
-    return 'Sem checklist NBR. Recomendado para PMOC formal — você pode preencher antes de salvar.';
+    return 'Sem checklist NBR. Recomendado para preventiva; voce pode preencher antes de salvar.';
   }
 
   const validationCl = validateChecklist(checklist);

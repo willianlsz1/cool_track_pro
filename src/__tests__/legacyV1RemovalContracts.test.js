@@ -620,6 +620,21 @@ describe('legacy v1 removal contracts', () => {
     );
   });
 
+  it('does not expose legacy PMOC wording in Registro checklist user-facing copy', () => {
+    const checkedSources = [
+      readSource('src/ui/views/registro.js'),
+      readSource('src/ui/views/registro/checklist/pmocChecklist.js'),
+      readSource('src/ui/views/registro/checklistRenderer.js'),
+      readSource('src/ui/shell/templates/views.js'),
+    ];
+
+    for (const source of checkedSources) {
+      expect(source).not.toMatch(
+        /Checklist PMOC|PMOC formal|para PMOC|p\/ PMOC|pmoc_checklist_upsell_clicked/,
+      );
+    }
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');
