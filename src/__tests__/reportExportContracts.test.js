@@ -349,6 +349,9 @@ describe('report export public contracts', () => {
 
     expect(shareReportSource).toContain('uploadReportPdf');
     expect(shareReportSource).toContain('downloadPdfLocally');
+    expect(shareReportSource).not.toContain(
+      '../../ui/components/onboarding/onboardingChecklist.js',
+    );
     expect(shareReportTestSource).toContain('fallback final');
     expect(shareReportTestSource).toContain("channel).toBe('download')");
 
