@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const getState = vi.fn();
 const loadClientes = vi.fn().mockResolvedValue([]);
 const goTo = vi.fn();
-const openPmocPanel = vi.fn();
 
 vi.mock('../core/state.js', () => ({ getState }));
 vi.mock('../core/router.js', () => ({ goTo }));
@@ -23,9 +22,6 @@ vi.mock('../core/clienteAlerts.js', () => ({
   daysUntilAlert: vi.fn().mockReturnValue(null),
 }));
 vi.mock('../ui/components/clienteAlertModal.js', () => ({ ClienteAlertModal: { open: vi.fn() } }));
-vi.mock('../ui/components/clientePmocPanel.js', () => ({
-  ClientePmocPanel: { open: openPmocPanel },
-}));
 vi.mock('../domain/maintenance.js', () => ({
   getEquipmentMaintenanceContext: vi.fn(() => ({ daysToNext: 3 })),
 }));
@@ -72,9 +68,6 @@ describe('clientes view adapter', () => {
     ).toBeTruthy();
     expect(
       document.querySelector('[data-cli-action="ver-servi\u00e7os"][data-id="c1"]'),
-    ).toBeTruthy();
-    expect(
-      document.querySelector('[data-cli-action="open-pmoc-panel"][data-id="c1"]'),
     ).toBeTruthy();
     expect(document.querySelector('[data-cli-action="card-menu"][data-id="c1"]')).toBeTruthy();
   });

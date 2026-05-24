@@ -31,8 +31,6 @@ function createViewModel(overrides = {}) {
           servicesCount: 1,
           lastServiceTs: new Date('2026-04-10T12:00:00.000Z').getTime(),
           sinceLast: 3 * 24 * 60 * 60 * 1000,
-          pmocSummary: null,
-          pmocOverdueCount: 0,
         },
       ],
     ]),

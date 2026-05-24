@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  extractCity,
-  formatRelativeDate,
-  lastServiceClass,
-  pmocStatusClass,
-} from '../ui/views/clientes/helpers.js';
+import { extractCity, formatRelativeDate, lastServiceClass } from '../ui/views/clientes/helpers.js';
 
 describe('clientes/helpers', () => {
   it('extractCity suporta formatos com UF e fallback por vírgula', () => {
@@ -27,12 +22,5 @@ describe('clientes/helpers', () => {
     expect(lastServiceClass(61 * 24 * 60 * 60 * 1000)).toBe('cli-stat__value--danger');
     expect(lastServiceClass(31 * 24 * 60 * 60 * 1000)).toBe('cli-stat__value--warn');
     expect(lastServiceClass(10 * 24 * 60 * 60 * 1000)).toBe('cli-stat__value--ok');
-  });
-
-  it('pmocStatusClass mapeia status para classe de chip', () => {
-    expect(pmocStatusClass('em_dia')).toBe('cli-pmoc__chip--ok');
-    expect(pmocStatusClass('atencao')).toBe('cli-pmoc__chip--warn');
-    expect(pmocStatusClass('atrasado')).toBe('cli-pmoc__chip--danger');
-    expect(pmocStatusClass('qualquer')).toBe('cli-pmoc__chip--muted');
   });
 });

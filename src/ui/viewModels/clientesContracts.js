@@ -26,8 +26,6 @@ export const CLIENTES_ACTIONS = Object.freeze({
   verEquipamentos: 'ver-equipamentos',
   verServicos: 'ver-serviços',
   novoServico: 'novo-servico',
-  pmocFocus: 'pmoc-focus',
-  openPmocPanel: 'open-pmoc-panel',
 });
 
 export const CLIENTES_DEFAULT_FILTERS = Object.freeze({

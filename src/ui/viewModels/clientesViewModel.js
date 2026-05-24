@@ -1,4 +1,3 @@
-import { getPmocSummaryForCliente as defaultGetPmocSummaryForCliente } from '../../core/pmocProgress.js';
 import { buildClienteIndex, filterAndSortClientes } from '../views/clientes/dataModel.js';
 import {
   CLIENTES_DEFAULT_FILTERS,
@@ -54,39 +53,6 @@ export function normalizeClientesFilters(filters = {}) {
   };
 }
 
-function buildIndexedWithPmoc({
-  clientes,
-  equipamentos,
-  registros,
-  nowMs,
-  year,
-  getMaintenanceContext,
-  getPmocSummary,
-}) {
-  const indexed = buildClienteIndex({
-    clientes,
-    equipamentos,
-    registros,
-    nowMs,
-    getMaintenanceContext,
-  });
-
-  clientes.forEach((cliente) => {
-    const current = indexed.get(cliente.id) || {};
-    indexed.set(cliente.id, {
-      ...current,
-      pmocSummary: getPmocSummary({
-        clienteId: cliente.id,
-        year,
-        equipamentos,
-        registros,
-      }),
-    });
-  });
-
-  return indexed;
-}
-
 function buildCities(clientes, indexed) {
   return Array.from(
     new Set(
@@ -126,9 +92,6 @@ export function buildClientesViewModel({
   pageSize,
   summaryCollapsed = true,
   nowMs = Date.now(),
-  year = new Date(nowMs).getFullYear(),
-  getMaintenanceContext,
-  getPmocSummary = defaultGetPmocSummaryForCliente,
 } = {}) {
   const safeClientes = asArray(clientes);
   const safeEquipamentos = asArray(equipamentos);
@@ -141,14 +104,11 @@ export function buildClientesViewModel({
     currentPage,
     pageSize,
   });
-  const indexed = buildIndexedWithPmoc({
+  const indexed = buildClienteIndex({
     clientes: safeClientes,
     equipamentos: safeEquipamentos,
     registros: safeRegistros,
     nowMs,
-    year,
-    getMaintenanceContext,
-    getPmocSummary,
   });
   const filtered = filterAndSortClientes(safeClientes, indexed, filters);
   const pagination = buildPagination(filtered.length, filters);

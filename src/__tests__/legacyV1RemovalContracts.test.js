@@ -482,6 +482,14 @@ describe('legacy v1 removal contracts', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('does not keep the legacy Clientes PMOC panel surface', () => {
+    const uiSources = listSourceFiles('src/ui');
+    const offenders = findMatches(uiSources, /open-pmoc-panel|pmoc-focus|ClientePmocPanel/);
+
+    expect(existsSync('src/ui/components/clientePmocPanel.js')).toBe(false);
+    expect(offenders).toEqual([]);
+  });
+
   it('does not keep legacy assinatura field in Registro create payload', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const persistenceSource = readSource('src/ui/views/registro/save/persistence.js');

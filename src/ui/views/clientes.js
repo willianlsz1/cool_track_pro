@@ -31,7 +31,6 @@ import { handleError, ErrorCodes } from '../../core/errors.js';
 import { goTo } from '../../core/router.js';
 import { getClienteAlert, daysUntilAlert } from '../../core/clienteAlerts.js';
 import { ClienteAlertModal } from '../components/clienteAlertModal.js';
-import { ClientePmocPanel } from '../components/clientePmocPanel.js';
 import { buildClientesViewModel } from '../viewModels/clientesViewModel.js';
 import { CLIENTES_ACTIONS, CLIENTES_PUBLIC_IDS } from '../viewModels/clientesContracts.js';
 import { mountClientesDom, unmountClientesDom } from './clientes/pageRenderer.js';
@@ -242,23 +241,9 @@ function _bindOnce() {
       case CLIENTES_ACTIONS.novoServico:
         _navigateNovoServico(id);
         break;
-      case CLIENTES_ACTIONS.pmocFocus:
-      case CLIENTES_ACTIONS.openPmocPanel:
-        _openPmocPanel(id);
-        break;
       default:
         break;
     }
-  });
-
-  view.addEventListener('keydown', (event) => {
-    const target = event.target.closest?.(
-      `[data-cli-action="${CLIENTES_ACTIONS.pmocFocus}"], [data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}"]`,
-    );
-    if (!target || !view.contains(target)) return;
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    event.preventDefault();
-    _openPmocPanel(target.getAttribute('data-id'));
   });
 }
 
@@ -327,13 +312,6 @@ function _navigateNovoServico(id) {
     clienteId: id,
     clienteNome: cliente.nome || '',
   });
-}
-
-function _openPmocPanel(id) {
-  const { clientes = [], equipamentos = [], registros = [], setores = [] } = getState();
-  const cliente = clientes.find((c) => c.id === id);
-  if (!cliente) return;
-  ClientePmocPanel.open({ cliente, equipamentos, registros, setores });
 }
 
 /* ─────────────────────── search public api ─────────────────────────── */

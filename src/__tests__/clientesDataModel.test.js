@@ -6,7 +6,7 @@ function makeNow() {
 }
 
 describe('clientes dataModel', () => {
-  it('buildClienteIndex mantém cliente sem serviços como ativo', () => {
+  it('buildClienteIndex mantem cliente sem servicos como ativo', () => {
     const nowMs = makeNow();
     const clientes = [{ id: 'c1', nome: 'Alpha', endereco: 'Rua 1 - Campinas - SP' }];
     const equipamentos = [{ id: 'e1', clienteId: 'c1' }];
@@ -17,37 +17,15 @@ describe('clientes dataModel', () => {
       equipamentos,
       registros,
       nowMs,
-      getMaintenanceContext: () => ({ daysToNext: 5 }),
     });
 
     const c1 = indexed.get('c1');
     expect(c1.status).toBe('ativo');
     expect(c1.servicesCount).toBe(0);
-    expect(c1.pmocOverdueCount).toBe(0);
     expect(c1.displayCity).toBe('Campinas');
   });
 
-  it('buildClienteIndex marca atraso de PMOC quando daysToNext < 0', () => {
-    const nowMs = makeNow();
-    const clientes = [{ id: 'c1', nome: 'Alpha' }];
-    const equipamentos = [
-      { id: 'e1', clienteId: 'c1' },
-      { id: 'e2', clienteId: 'c1' },
-    ];
-    const registros = [];
-
-    const indexed = buildClienteIndex({
-      clientes,
-      equipamentos,
-      registros,
-      nowMs,
-      getMaintenanceContext: (equip) => ({ daysToNext: equip.id === 'e2' ? -1 : 1 }),
-    });
-
-    expect(indexed.get('c1').pmocOverdueCount).toBe(1);
-  });
-
-  it('filterAndSortClientes aplica busca, filtros e ordenação por nome', () => {
+  it('filterAndSortClientes aplica busca, filtros e ordenacao por nome', () => {
     const clientes = [
       { id: '1', nome: 'Beta Frio', endereco: 'A' },
       { id: '2', nome: 'Alpha Clima', endereco: 'B' },

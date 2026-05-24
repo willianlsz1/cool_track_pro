@@ -11,17 +11,6 @@ import {
 
 const NOW_MS = new Date('2026-04-28T12:00:00.000Z').getTime();
 
-const PMOC_SUMMARY = {
-  activeLabel: 'PMOC 2026 ativo',
-  status: 'em_dia',
-  statusLabel: 'Cronograma em dia',
-  lastUpdateLabel: '10/04/2026',
-  nextMaintenanceLabel: '10/05/2026',
-  doneCount: 1,
-  plannedCount: 4,
-  statusHelp: 'Em dia.',
-};
-
 function buildBaseState() {
   return {
     clientes: [
@@ -72,8 +61,6 @@ describe('clientes view model', () => {
       equipamentos: [],
       registros: [],
       nowMs: NOW_MS,
-      getPmocSummary: () => PMOC_SUMMARY,
-      getMaintenanceContext: () => ({ daysToNext: 1 }),
     });
 
     expect(vm.isEmpty).toBe(true);
@@ -91,7 +78,7 @@ describe('clientes view model', () => {
     });
   });
 
-  it('monta lista paginada com status, cidades e resumo PMOC', () => {
+  it('monta lista paginada com status e cidades', () => {
     const state = buildBaseState();
 
     const vm = buildClientesViewModel({
@@ -99,8 +86,6 @@ describe('clientes view model', () => {
       nowMs: NOW_MS,
       currentPage: 1,
       pageSize: 6,
-      getPmocSummary: ({ clienteId }) => ({ ...PMOC_SUMMARY, activeLabel: `PMOC ${clienteId}` }),
-      getMaintenanceContext: () => ({ daysToNext: 2 }),
     });
 
     expect(vm.isEmpty).toBe(false);
@@ -120,7 +105,6 @@ describe('clientes view model', () => {
       equipsCount: 1,
       servicesCount: 1,
       displayCity: 'Campinas',
-      pmocSummary: expect.objectContaining({ activeLabel: 'PMOC c1' }),
     });
     expect(vm.indexed.get('c2')?.status).toBe('precisa_atencao');
   });
@@ -137,8 +121,6 @@ describe('clientes view model', () => {
       currentPage: 5,
       pageSize: 6,
       nowMs: NOW_MS,
-      getPmocSummary: () => PMOC_SUMMARY,
-      getMaintenanceContext: () => ({ daysToNext: 2 }),
     });
 
     expect(vm.filtered.map((cliente) => cliente.id)).toEqual(['c2']);
@@ -180,7 +162,6 @@ describe('clientes view model', () => {
       registros: 'invalid',
       currentPage: -10,
       pageSize: 999,
-      getPmocSummary: () => PMOC_SUMMARY,
     });
 
     expect(vm.isEmpty).toBe(true);
@@ -209,8 +190,6 @@ describe('clientes view model', () => {
       cardMenu: 'card-menu',
       verEquipamentos: 'ver-equipamentos',
       verServicos: 'ver-servi\u00e7os',
-      pmocFocus: 'pmoc-focus',
-      openPmocPanel: 'open-pmoc-panel',
     });
 
     expect(CLIENTES_STATUS_OPTIONS.map((option) => option.id)).toEqual([

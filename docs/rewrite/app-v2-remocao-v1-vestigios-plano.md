@@ -836,6 +836,9 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 
 - CP-58C remove a superficie formal PMOC v1 (`pmocModal`, `pmocInfoModal`,
   `open-pmoc-modal` e post-action `openPmoc`).
+- CP-58D remove a superficie PMOC da tela legada de Clientes
+  (`clientePmocPanel`, `open-pmoc-panel`, `pmoc-focus`, `pmocSummary` e
+  `pmocOverdueCount`).
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

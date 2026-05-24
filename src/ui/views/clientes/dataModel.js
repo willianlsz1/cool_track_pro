@@ -1,18 +1,10 @@
-import { getEquipmentMaintenanceContext } from '../../../domain/maintenance.js';
 import { DAYS_60_MS, DAYS_90_MS } from './constants.js';
 import { extractCity } from './helpers.js';
 
-export function buildClienteIndex({
-  clientes,
-  equipamentos,
-  registros,
-  nowMs = Date.now(),
-  getMaintenanceContext = getEquipmentMaintenanceContext,
-}) {
+export function buildClienteIndex({ clientes, equipamentos, registros, nowMs = Date.now() }) {
   const idx = new Map();
   const equipsByCliente = new Map();
   const equipsById = new Map();
-  const regsByEquip = new Map();
 
   equipamentos.forEach((eq) => {
     equipsById.set(eq.id, eq);
@@ -28,11 +20,6 @@ export function buildClienteIndex({
   const startMonthMs = startOfMonth.getTime();
 
   registros.forEach((registro) => {
-    if (registro.equipId) {
-      if (!regsByEquip.has(registro.equipId)) regsByEquip.set(registro.equipId, []);
-      regsByEquip.get(registro.equipId).push(registro);
-    }
-
     if (!registro.equipId) return;
     const equip = equipsById.get(registro.equipId);
     if (!equip?.clienteId) return;
@@ -59,11 +46,6 @@ export function buildClienteIndex({
       else if (sinceLast > DAYS_60_MS) status = 'sem_manutencao';
     }
 
-    const pmocOverdueCount = equips.reduce((total, equip) => {
-      const context = getMaintenanceContext(equip, regsByEquip.get(equip.id) || []);
-      return context?.daysToNext != null && context.daysToNext < 0 ? total + 1 : total;
-    }, 0);
-
     idx.set(cliente.id, {
       equipsCount: equips.length,
       servicesCount: regs.length,
@@ -72,7 +54,6 @@ export function buildClienteIndex({
       sinceLast,
       status,
       displayCity: extractCity(cliente.endereco),
-      pmocOverdueCount,
     });
   });
 

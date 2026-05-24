@@ -34,10 +34,3 @@ export function lastServiceClass(sinceLast) {
   if (sinceLast > DAYS_30_MS) return 'cli-stat__value--warn';
   return 'cli-stat__value--ok';
 }
-
-export function pmocStatusClass(status) {
-  if (status === 'em_dia') return 'cli-pmoc__chip--ok';
-  if (status === 'atencao') return 'cli-pmoc__chip--warn';
-  if (status === 'atrasado') return 'cli-pmoc__chip--danger';
-  return 'cli-pmoc__chip--muted';
-}

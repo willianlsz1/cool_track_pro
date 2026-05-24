@@ -4,17 +4,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mountClientesDom, unmountClientesDom } from '../ui/views/clientes/pageRenderer.js';
 import { CLIENTES_ACTIONS, CLIENTES_PUBLIC_IDS } from '../ui/viewModels/clientesContracts.js';
 
-const PMOC_SUMMARY = {
-  activeLabel: 'PMOC 2026 ativo',
-  status: 'em_dia',
-  statusLabel: 'Cronograma em dia',
-  lastUpdateLabel: '10/04/2026',
-  nextMaintenanceLabel: '10/05/2026',
-  doneCount: 2,
-  plannedCount: 4,
-  statusHelp: 'Em dia.',
-};
-
 function createCliente(overrides = {}) {
   return {
     id: 'c1',
@@ -39,8 +28,6 @@ function createViewModel(overrides = {}) {
         servicesCount: 3,
         lastServiceTs: new Date('2026-04-10T12:00:00.000Z').getTime(),
         sinceLast: 3 * 24 * 60 * 60 * 1000,
-        pmocSummary: PMOC_SUMMARY,
-        pmocOverdueCount: 0,
       },
     ],
   ]);
@@ -117,9 +104,6 @@ describe('clientes DOM renderer', () => {
         ?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.verServicos}"][data-id="c1"]`)
         ?.classList.contains('cli-card__action--secondary'),
     ).toBe(true);
-    expect(
-      root?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}"][data-id="c1"]`),
-    ).not.toBeNull();
     expect(
       root?.querySelector(`[data-cli-action="${CLIENTES_ACTIONS.cardMenu}"][data-id="c1"]`),
     ).not.toBeNull();
@@ -203,8 +187,6 @@ describe('clientes DOM renderer', () => {
               servicesCount: 0,
               lastServiceTs: 0,
               sinceLast: Infinity,
-              pmocSummary: null,
-              pmocOverdueCount: 0,
             },
           ],
         ]),

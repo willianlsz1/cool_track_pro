@@ -15,7 +15,6 @@ import {
   ICON_CHEV_L,
   ICON_CHEV_R,
   ICON_CLOCK_SM,
-  ICON_FILE,
   ICON_KEBAB,
   ICON_MONITOR,
   ICON_MONITOR_SM,
@@ -28,7 +27,7 @@ import {
   INDUSTRY_SVG,
   resolveIndustry,
 } from './constants.js';
-import { formatRelativeDate, lastServiceClass, pmocStatusClass } from './helpers.js';
+import { formatRelativeDate, lastServiceClass } from './helpers.js';
 
 function statusPill(status) {
   if (status === 'ativo') return `<span class="cli-card__pill cli-card__pill--ok">Ativo</span>`;
@@ -56,18 +55,6 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
   const servicesLabel = Number(safeData.servicesCount || 0);
   const lastLabel = formatRelativeDate(safeData.lastServiceTs);
   const lastClass = lastServiceClass(safeData.sinceLast);
-  const pmoc = safeData.pmocSummary || {};
-  const pmocBlock =
-    safeData.pmocOverdueCount > 0
-      ? (() => {
-          const label = `${safeData.pmocOverdueCount} manutenção${safeData.pmocOverdueCount !== 1 ? 'es' : ''} atrasada${safeData.pmocOverdueCount !== 1 ? 's' : ''}`;
-          return `<div class="cli-pmoc" data-cli-action="${CLIENTES_ACTIONS.pmocFocus}" data-id="${safeId}"
-           role="button" tabindex="0" aria-label="Abrir equipamentos com filtro PMOC do cliente ${nome}">
-           <span class="cli-pmoc__label">PMOC</span>
-           <span class="cli-pmoc__status">⚠️ ${label}</span>
-         </div>`;
-        })()
-      : '';
 
   const alert = getClienteAlert(cliente.id);
   const alertDays = alert ? daysUntilAlert(cliente.id) : null;
@@ -144,22 +131,7 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
           <div class="cli-stat__label">Última manutenção</div>
         </div>
       </div>
-      ${pmocBlock}
 
-      <section class="cli-pmoc" aria-label="Resumo PMOC" role="button" tabindex="0" data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}" data-id="${safeId}">
-        <div class="cli-pmoc__head">
-          <strong>${Utils.escapeHtml(pmoc.activeLabel || 'PMOC inativo')}</strong>
-          <span class="cli-pmoc__chip ${pmocStatusClass(pmoc.status)}">
-            ${Utils.escapeHtml(pmoc.statusLabel || 'Sem cronograma')}
-          </span>
-        </div>
-        <div class="cli-pmoc__meta">
-          <span>Última atualização: ${Utils.escapeHtml(pmoc.lastUpdateLabel || 'Sem atualização')}</span>
-          <span>${Number(pmoc.doneCount || 0)} de ${Number(pmoc.plannedCount || 0)} manutenções realizadas</span>
-          <span>Próxima manutenção: ${Utils.escapeHtml(pmoc.nextMaintenanceLabel || 'Sem manutenção prevista')}</span>
-          <span>${Utils.escapeHtml(pmoc.statusHelp || 'Sem cronograma ativo para este cliente.')}</span>
-        </div>
-      </section>
 
       <footer class="cli-card__actions">
         <button type="button" class="cli-card__action cli-card__action--primary"
@@ -169,10 +141,6 @@ export function renderCard(cliente, data, { getClienteAlert, daysUntilAlert }) {
         <button type="button" class="cli-card__action cli-card__action--secondary"
           data-cli-action="${CLIENTES_ACTIONS.verServicos}" data-id="${safeId}">
           ${ICON_CLOCK_SM}<span>Ver serviços</span>
-        </button>
-        <button type="button" class="cli-card__action cli-card__action--secondary"
-          data-cli-action="${CLIENTES_ACTIONS.openPmocPanel}" data-id="${safeId}">
-          ${ICON_FILE}<span>PMOC</span>
         </button>
         <button type="button" class="cli-card__action cli-card__action--secondary"
           data-cli-action="${CLIENTES_ACTIONS.novoServico}" data-id="${safeId}">
