@@ -7,7 +7,7 @@ module.exports = {
   },
   theme: {
     extend: {
-      // Paleta da nova landing page React (PR 1 do landing-page-plan.md).
+      // Paleta da landing page React antiga preservada no runtime.
       // Aditivo: namespace `landing.*` evita conflito com cores existentes.
       // Valores extraidos do mockup aprovado em cooltrackpro.html.
       colors: {

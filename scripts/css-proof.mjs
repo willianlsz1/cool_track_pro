@@ -177,7 +177,7 @@ if (!slug) {
 }
 
 const outputDir = path.join('docs', 'migration');
-const outputPath = path.join(outputDir, `css-${slug}-proof.md`);
+const outputPath = path.join(outputDir, `css-${slug}-proof.txt`);
 
 if (existsSync(outputPath) && !FORCE) {
   console.error(`Erro: ${outputPath} ja existe. Use --force para sobrescrever.`);

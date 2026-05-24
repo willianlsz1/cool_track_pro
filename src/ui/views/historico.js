@@ -1,6 +1,6 @@
 /**
  * CoolTrack Pro - Histórico View v5.2
- * Port do mockup do Claude Design (docs/design/prompts/04-histórico-redesign.md).
+ * Port do mockup aprovado para a tela de historico.
  *
  * Estrutura de render:
  *   - #hist-quickfilters-slot  → pílulas de período + tipo (row scrollable)

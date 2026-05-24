@@ -78,6 +78,30 @@ decisao, do escopo e do risco remanescente.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
   assinatura, PMOC e orcamento real seguem como etapas proprias futuras.
 
+## App-v2 porta de dados
+
+- Consolidado e removido o historico detalhado dos CPs de porta de dados,
+  clientes, equipamentos, setores, arquivamento, agenda, anexos, orcamentos e
+  conclusao de servico.
+- Estado preservado: app-v2 usa fronteira propria de dados, adapters mock/local
+  e adapters Supabase planejados/testados por fatias pequenas.
+- Supabase/RLS/migrations reais ainda devem ser refeitos depois das migrations
+  v1, em etapa propria, sem assumir paridade automatica com os contratos antigos.
+- PDF/share, WhatsApp, storage de arquivos, PMOC e orcamento real continuam fora
+  dessa consolidacao.
+
+## Politica de Markdown
+
+- O repositorio deve manter apenas Markdown operacional indispensavel:
+  `AGENTS.md`, `docs/rewrite/checkpoints-recentes-resumo.md` e skills do Matt
+  Pocock vendorizadas em `.agents/skills/` e `matt-pocock-skills/skills/`.
+- Documentos de CP, inventarios, auditorias, planos antigos e READMEs foram
+  removidos do controle de versao.
+- Novos CPs devem ser resumidos aqui, de forma curta e objetiva, sem recriar
+  arquivos `.md` separados.
+- Esta politica nao remove favicon, assets publicos nao Markdown, codigo,
+  testes, configuracoes ou migrations.
+
 ## Validacao padrao
 
 - Para CPs com codigo: testes focados, `npm run format`, `npm run build`,

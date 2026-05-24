@@ -110,7 +110,7 @@ export default [
             {
               group: ['**/ui/**', '../ui/**', '../../ui/**', '../../../ui/**', 'src/ui/**'],
               message:
-                'core/ e domain/ nao podem importar de ui/. Mover logica compartilhada para domain/ ou core/, ou inverter dependencia via callback/registry. Ver docs/audits/product-review.md.',
+                'core/ e domain/ nao podem importar de ui/. Mover logica compartilhada para domain/ ou core/, ou inverter dependencia via callback/registry.',
             },
           ],
         },
@@ -164,7 +164,7 @@ export default [
             {
               group: ['./*.js'],
               message:
-                'Views top-level nao podem importar de outras views top-level. Promover logica compartilhada (ex: updateHeader, getHealthClass) para ui/composables/ ou ui/shell/. Ver docs/audits/product-review.md.',
+                'Views top-level nao podem importar de outras views top-level. Promover logica compartilhada (ex: updateHeader, getHealthClass) para ui/composables/ ou ui/shell/.',
             },
           ],
         },
@@ -183,7 +183,7 @@ export default [
             {
               group: ['**/views/**', '../views/**', '../../views/**', 'src/ui/views/**'],
               message:
-                'Components nao podem importar de views (camada reversa quebra ao reorganizar views). Mover dependencia compartilhada para core/, domain/ ou ui/composables/. Ver docs/audits/product-review.md.',
+                'Components nao podem importar de views (camada reversa quebra ao reorganizar views). Mover dependencia compartilhada para core/, domain/ ou ui/composables/.',
             },
           ],
         },

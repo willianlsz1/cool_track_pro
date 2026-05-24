@@ -714,9 +714,8 @@ describe('legacy v1 removal contracts', () => {
     const storageDependencyMigration = readSource(
       'supabase/migrations/20260524194500_remove_registro_signature_storage_dependency.sql',
     );
-    const supabaseTestsReadme = readSource('supabase/tests/README.md');
-
     expect(existsSync('supabase/tests/10_signature_plan_gate.test.sql')).toBe(false);
+    expect(existsSync('supabase/tests/README.md')).toBe(false);
     expect(retirementMigration).toContain('drop column if exists assinatura');
     expect(retirementMigration).toContain(
       'drop trigger if exists enforce_registro_signature_plan_gate_trigger',
@@ -727,7 +726,6 @@ describe('legacy v1 removal contracts', () => {
     expect(storageDependencyMigration).not.toContain(
       'can_write_registro_signature_storage_object(',
     );
-    expect(supabaseTestsReadme).not.toContain('10_signature_plan_gate.test.sql');
   });
 
   it('does not keep legacy orcamento digital signature runtime or database surface', () => {
