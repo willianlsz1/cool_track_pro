@@ -203,6 +203,8 @@ describe('AppV2Shell navigation and alerts', () => {
     expect(host.textContent).toContain('Pendentes');
     expect(host.textContent).toContain('Este mês');
     expect(host.textContent).toContain('REL-REGISTRO-1');
+    expect(host.textContent).not.toContain('Baixar PDF futuro');
+    expect(host.textContent).not.toContain('Exportar PDF');
     expect(host.textContent).toContain('Câmara fria');
 
     const search = host.querySelector('input[aria-label="Buscar relatórios"]');

@@ -879,6 +879,8 @@ WhatsApp, assinatura, fotos, storage e PMOC app-v2-native para etapas proprias.
 - CP-58Q remove imagens publicas antigas da landing v1 em `public/brand/`,
   incluindo `passo-3-pdf.png`, apos confirmar que o app-v2 principal nao
   referencia essas imagens. Favicons foram preservados.
+- CP-58R neutraliza a copia visivel `Baixar PDF futuro` em
+  `Servicos > Relatorios` no app-v2, mantendo PDF/share para etapa propria.
 - V1 deve permanecer apenas como referencia funcional. O app-v2 nao deve
   reaproveitar runtime sensivel de PDF/share, assinatura, fotos, storage, PMOC
   ou Supabase.

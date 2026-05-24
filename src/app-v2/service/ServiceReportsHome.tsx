@@ -7,7 +7,6 @@ import {
   faChartLine,
   faChartSimple,
   faChevronDown,
-  faDownload,
   faEye,
   faFileAlt,
   faMicrochip,
@@ -414,8 +413,8 @@ function ReportPreviewAside({
             disabled
             className="tw-inline-flex tw-min-h-10 tw-cursor-not-allowed tw-items-center tw-justify-center tw-gap-2 tw-rounded-xl tw-border tw-border-[#CBD5E1] tw-bg-[#F8FAFD] tw-px-4 tw-text-sm tw-font-bold tw-text-[#8BA0BC]"
           >
-            <FontAwesomeIcon icon={faDownload} aria-hidden="true" />
-            Baixar PDF futuro
+            <FontAwesomeIcon icon={faFileAlt} aria-hidden="true" />
+            Exportação em etapa própria
           </button>
         </div>
       </SectionCard>
