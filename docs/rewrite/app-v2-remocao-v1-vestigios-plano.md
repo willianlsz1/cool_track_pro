@@ -63,6 +63,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/features/equipamentos/ui/toolbar.js` foi removido no CP-9l; helper DOM da
   toolbar de Equipamentos foi co-localizado em
   `src/ui/views/equipamentos/ui/toolbar.js`.
+- `src/features/equipamentos/ui/renderFlatList.js` foi removido no CP-9m;
+  orquestrador da lista flat de Equipamentos foi co-localizado em
+  `src/ui/views/equipamentos/ui/renderFlatList.js`.
 
 ## 3. Superficies v1 mapeadas
 

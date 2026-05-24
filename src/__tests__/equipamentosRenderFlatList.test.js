@@ -3,7 +3,10 @@ import { resolve } from 'node:path';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureRenderFlatList, renderFlatList } from '../../ui/renderFlatList.js';
+import {
+  configureRenderFlatList,
+  renderFlatList,
+} from '../ui/views/equipamentos/ui/renderFlatList.js';
 
 const emptyDeps = {
   getState: null,
@@ -200,7 +203,7 @@ describe('renderFlatList', () => {
   });
 
   it('nao importa o adapter legado', () => {
-    const source = readFileSync(resolve('src/features/equipamentos/ui/renderFlatList.js'), 'utf8');
+    const source = readFileSync(resolve('src/ui/views/equipamentos/ui/renderFlatList.js'), 'utf8');
 
     expect(source).not.toContain('ui/views/equipamentos');
     expect(source).not.toContain('views/equipamentos.js');
