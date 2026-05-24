@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { configureToolbar, setToolbar } from '../../ui/toolbar.js';
+import { configureToolbar, setToolbar } from '../ui/views/equipamentos/ui/toolbar.js';
 
 function setupToolbarDom() {
   document.body.innerHTML = `
@@ -101,7 +101,7 @@ describe('toolbar', () => {
   });
 
   it('nao importa o adapter legado', () => {
-    const source = readFileSync(resolve('src/features/equipamentos/ui/toolbar.js'), 'utf8');
+    const source = readFileSync(resolve('src/ui/views/equipamentos/ui/toolbar.js'), 'utf8');
 
     expect(source).not.toContain('ui/views/equipamentos');
     expect(source).not.toContain('views/equipamentos.js');

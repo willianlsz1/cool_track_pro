@@ -151,10 +151,7 @@ import {
 } from '../../features/equipamentos/ui/renderFlatList.js';
 import { configureRenderEquip, renderEquip } from '../../features/equipamentos/ui/renderEquip.js';
 import { configureHeaderMount, mountEquipamentosHeader } from './equipamentos/ui/headerMount.js';
-import {
-  configureToolbar,
-  setToolbar as _setToolbar,
-} from '../../features/equipamentos/ui/toolbar.js';
+import { configureToolbar, setToolbar as _setToolbar } from './equipamentos/ui/toolbar.js';
 import { configureViewEquip, viewEquip } from '../../features/equipamentos/ui/viewEquip.js';
 
 configureEquipContextState({ renderEquip });
