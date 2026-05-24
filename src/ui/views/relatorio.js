@@ -18,6 +18,7 @@ import {
   renderRelatorioControls,
   unmountRelatorioControlsDom,
 } from './relatorio/controlsRenderer.js';
+import { renderRelatorioCards, unmountRelatorioCardsDom } from './relatorio/cardsRenderer.js';
 
 export {
   buildPeriodNarrative,
@@ -39,8 +40,6 @@ const VIEW_MODE_DETAILED = RELATORIO_VIEW_MODES.detailed;
 const PLAN_CODE_PRO = RELATORIO_PLAN_CODES.pro;
 let relatorioHeroRenderGeneration = 0;
 let relatorioControlsRenderGeneration = 0;
-let relatorioCardsBridgePromise = null;
-let relatorioCardsBridge = null;
 let relatorioCardsRenderGeneration = 0;
 let lastRelatorioFilters = {
   equipId: '',
@@ -72,22 +71,6 @@ function rememberRelatorioFiltersFromDom() {
   };
 }
 
-function loadRelatorioCardsBridge() {
-  if (relatorioCardsBridge) return Promise.resolve(relatorioCardsBridge);
-  if (!relatorioCardsBridgePromise) {
-    relatorioCardsBridgePromise = import('../../react/entrypoints/relatorioCardsIsland.jsx')
-      .then((bridge) => {
-        relatorioCardsBridge = bridge;
-        return bridge;
-      })
-      .catch((error) => {
-        relatorioCardsBridgePromise = null;
-        throw error;
-      });
-  }
-  return relatorioCardsBridgePromise;
-}
-
 export function unmountRelatorioHero() {
   relatorioHeroRenderGeneration += 1;
   if (typeof document === 'undefined') return null;
@@ -114,16 +97,7 @@ export function unmountRelatorioCards() {
   if (typeof document === 'undefined') return null;
 
   const root = document.getElementById('relatorio-corpo');
-  if (!root?.dataset.reactRelatorioCardsMounted) return null;
-
-  if (relatorioCardsBridge?.unmountRelatorioCardsReact) {
-    relatorioCardsBridge.unmountRelatorioCardsReact(root);
-    return null;
-  }
-
-  return loadRelatorioCardsBridge().then((bridge) => {
-    bridge.unmountRelatorioCardsReact?.(root);
-  });
+  return unmountRelatorioCardsDom(root);
 }
 
 // tone = classe CSS .rel-tipo--<tone> (cores no components.css)
@@ -531,7 +505,7 @@ function buildRelatorioControlsViewModel({
   };
 }
 
-function buildRelatorioCardsReactViewModel({
+function buildRelatorioCardsViewModel({
   list,
   viewMode,
   hoje,
@@ -560,7 +534,7 @@ function buildRelatorioCardsReactViewModel({
       label: item.label,
     })),
     records: list.map((r) =>
-      buildRelatorioRecordReactViewModel({
+      buildRelatorioRecordViewModel({
         r,
         eq: findEquip(r.equipId),
         expanded: expandedIds.has(r.id),
@@ -570,7 +544,7 @@ function buildRelatorioCardsReactViewModel({
   };
 }
 
-function buildRelatorioRecordReactViewModel({ r, eq, expanded, singleEquipFilter }) {
+function buildRelatorioRecordViewModel({ r, eq, expanded, singleEquipFilter }) {
   const tipoMeta = TIPO_META[r.tipo] || DEFAULT_TIPO_META;
   const safeStatus = Utils.safeStatus(r.status);
   const statusTone = STATUS_TONE[safeStatus] || 'ok';
@@ -630,7 +604,7 @@ function buildRelatorioRecordReactViewModel({ r, eq, expanded, singleEquipFilter
           partsText: Utils.fmtBRL(custoPecas),
           laborText: Utils.fmtBRL(custoMao),
         },
-    signature: buildRelatorioSignatureReactViewModel(r),
+    signature: buildRelatorioSignatureViewModel(r),
     equipmentSpecs,
     pecas: r.pecas || '',
     proxima: r.proxima
@@ -651,7 +625,7 @@ function buildRelatorioRecordReactViewModel({ r, eq, expanded, singleEquipFilter
   };
 }
 
-function buildRelatorioSignatureReactViewModel(registro) {
+function buildRelatorioSignatureViewModel(registro) {
   if (!registro?.assinatura) {
     return { state: 'none' };
   }
@@ -688,16 +662,8 @@ function mountRelatorioCards({ root, cards }) {
   if (!root) return null;
   const renderGeneration = (relatorioCardsRenderGeneration += 1);
 
-  const mountWithBridge = (bridge) => {
-    if (renderGeneration !== relatorioCardsRenderGeneration) return null;
-    return bridge.mountRelatorioCardsReact(root, { cards });
-  };
-
-  if (relatorioCardsBridge?.mountRelatorioCardsReact) {
-    return mountWithBridge(relatorioCardsBridge);
-  }
-
-  return loadRelatorioCardsBridge().then(mountWithBridge);
+  if (renderGeneration !== relatorioCardsRenderGeneration) return null;
+  return renderRelatorioCards(root, { cards });
 }
 
 function getSafeSignatureUrl(value) {
@@ -898,7 +864,7 @@ export function renderRelatorio(options = {}) {
       controls: controlsViewModel,
     });
 
-    const cardsViewModel = buildRelatorioCardsReactViewModel({
+    const cardsViewModel = buildRelatorioCardsViewModel({
       list,
       viewMode,
       hoje,

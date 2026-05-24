@@ -175,7 +175,7 @@ function expectNoExecutableHtml(root) {
   expect(root?.querySelector('[data-nav^="javascript:"]')).toBeNull();
 }
 
-describe('relatorio React islands with legacy data-nav navigation', () => {
+describe('relatorio DOM renderers with legacy data-nav navigation', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -195,7 +195,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
     const controlsRoot = document.getElementById(RELATORIO_PUBLIC_IDS.controlsRoot);
     const cardsRoot = document.getElementById(RELATORIO_PUBLIC_IDS.body);
     expect(controlsRoot?.dataset.relatorioControlsMounted).toBe('true');
-    expect(cardsRoot?.dataset.reactRelatorioCardsMounted).toBe('true');
+    expect(cardsRoot?.dataset.relatorioCardsMounted).toBe('true');
 
     await clickNavAndExpect(
       ctx,
@@ -232,7 +232,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
     expect(ctx.mocks.signatureOpen).not.toHaveBeenCalled();
   });
 
-  it('preserva data-id, data-action e data-rel-action dos cards React para handlers legados', async () => {
+  it('preserva data-id, data-action e data-rel-action dos cards DOM para handlers legados', async () => {
     const ctx = await loadRelatorioNavigation({ initialPlanCode: 'pro' });
 
     await renderRelatorio(ctx);
@@ -242,7 +242,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
     const toggle = card?.querySelector('.rel-record__toggle');
     const signature = card?.querySelector('.rel-sigthumb');
 
-    expect(body?.dataset.reactRelatorioCardsMounted).toBe('true');
+    expect(body?.dataset.relatorioCardsMounted).toBe('true');
     expect(card).not.toBeNull();
     expect(toggle?.getAttribute('data-rel-action')).toBe(RELATORIO_ACTIONS.toggleCard);
     expect(toggle?.getAttribute('data-id')).toBe('reg-1');
@@ -303,7 +303,7 @@ describe('relatorio React islands with legacy data-nav navigation', () => {
     expect(eventsSource).toContain("closest('[data-nav]')");
     expect(eventsSource).toContain('goTo(navBtn.dataset.nav)');
     expect(adapterSource).toContain('./relatorio/controlsRenderer.js');
-    expect(adapterSource).toContain('../../react/entrypoints/relatorioCardsIsland.jsx');
+    expect(adapterSource).toContain('./relatorio/cardsRenderer.js');
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
     expect(adapterSource).not.toMatch(/dangerouslySetInnerHTML/);

@@ -137,14 +137,14 @@ function expectNoExecutableHtml(root) {
   expect(root?.querySelector('[href^="javascript:"], [src^="javascript:"]')).toBeNull();
 }
 
-describe('relatorio cards React island with legacy handlers', () => {
+describe('relatorio cards DOM renderer with legacy handlers', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
     setupDom();
   });
 
-  it('mantem o handler legado de rel-toggle-card lendo data-id dos cards React', async () => {
+  it('mantem o handler legado de rel-toggle-card lendo data-id dos cards DOM', async () => {
     const module = await loadRelatorioView();
 
     await renderWithRelatorio(module);
@@ -154,7 +154,7 @@ describe('relatorio cards React island with legacy handlers', () => {
     const toggle = card?.querySelector('.rel-record__toggle');
     const details = card?.querySelector('.rel-record__details');
 
-    expect(body?.dataset.reactRelatorioCardsMounted).toBe('true');
+    expect(body?.dataset.relatorioCardsMounted).toBe('true');
     expect(body?.dataset.viewMode).toBe('compact');
     expect(toggle?.getAttribute('data-rel-action')).toBe('rel-toggle-card');
     expect(toggle?.getAttribute('data-id')).toBe('reg-1');

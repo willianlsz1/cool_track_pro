@@ -309,16 +309,18 @@ describe('relatorio legacy cards render adapter', () => {
     expect(module.mocks.signatureOpen).not.toHaveBeenCalled();
   });
 
-  it('mantem adapter sem createRoot e cards isolados da exportacao', () => {
+  it('mantem adapter sem createRoot e sem depender da ilha React de cards', () => {
     const adapterSource = readFileSync('src/ui/views/relatorio.js', 'utf8');
-    const componentSource = readFileSync('src/react/pages/RelatorioCards.jsx', 'utf8');
+    const rendererSource = readFileSync('src/ui/views/relatorio/cardsRenderer.js', 'utf8');
+    const removedIslandPath =
+      '../../react/entrypoints/' + ['relatorio', 'Cards', 'Island.jsx'].join('');
 
-    expect(adapterSource).toContain('../../react/entrypoints/relatorioCardsIsland.jsx');
+    expect(adapterSource).not.toContain(removedIslandPath);
+    expect(adapterSource).toContain('./relatorio/cardsRenderer.js');
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
     expect(adapterSource).not.toMatch(/dangerouslySetInnerHTML/);
-    expect(componentSource).toContain('data-rel-action={RELATORIO_ACTIONS.toggleCard}');
-    expect(componentSource).toContain('data-action={RELATORIO_ACTIONS.viewSignature}');
-    expect(componentSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML|document\.|window\./);
+    expect(rendererSource).toContain('data-rel-action="${RELATORIO_ACTIONS.toggleCard}"');
+    expect(rendererSource).toContain('data-action="${RELATORIO_ACTIONS.viewSignature}"');
   });
 });

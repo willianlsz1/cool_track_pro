@@ -1,6 +1,6 @@
 // Linha de ações inline para cards de registro de serviço.
-// Usado nos cards do Histórico (HistoricoTimeline) e do Relatório (RelatorioCards),
-// dando 1-toque para "Baixar PDF" e "Enviar pro cliente" (WhatsApp).
+// Usado nos cards React do Histórico. O Relatório usa renderer DOM equivalente
+// em src/ui/views/relatorio/cardsRenderer.js.
 //
 // Os botões disparam os data-actions globais 'export-pdf' / 'whatsapp-export'
 // (definidos em reportExportHandlers.js). O handler agora lê data-registro-id

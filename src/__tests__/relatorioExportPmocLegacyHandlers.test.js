@@ -504,7 +504,7 @@ describe('relatorio React controls with legacy export PMOC quota handlers', () =
 
     const adapterSource = readFileSync('src/ui/views/relatorio.js', 'utf8');
     expect(adapterSource).toContain('./relatorio/controlsRenderer.js');
-    expect(adapterSource).toContain('../../react/entrypoints/relatorioCardsIsland.jsx');
+    expect(adapterSource).toContain('./relatorio/cardsRenderer.js');
     expect(adapterSource).not.toMatch(/from ['"]react['"]|from ['"]react-dom\/client['"]/);
     expect(adapterSource).not.toMatch(/\bcreateRoot\b/);
     expect(adapterSource).not.toMatch(/dangerouslySetInnerHTML/);
