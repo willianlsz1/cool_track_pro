@@ -34,6 +34,11 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/app-v2/ui/*`, nao para o runtime legado.
 - `src/domain` e `src/core` nao importam `src/ui`, `src/features` ou
   `src/react` por caminho estatico direto no estado atual verificado.
+- `src/features/profile.js` foi removido no CP-9c; consumidores agora importam
+  `Profile` diretamente de `src/core/profile.js`.
+- `src/features/relatorio/**` foi removido no CP-9d; o helper puro
+  `buildWhatsAppSuccessCopy` foi reclassificado em
+  `src/domain/reportExportHelpers.js`.
 
 ## 3. Superficies v1 mapeadas
 
@@ -41,7 +46,8 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 
 - `src/ui/`: 135 arquivos restantes.
 - `src/react/`: removido.
-- `src/features/`: 87 arquivos restantes, incluindo testes co-localizados.
+- `src/features/`: ainda existe, concentrado em `equipamentos`, `historico`,
+  `registro` e `userData.js`.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
 - `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
@@ -49,8 +55,6 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 
 ### 3.2 Acoplamentos que impedem delecao em massa
 
-- `src/domain/pdf.js` importa `Profile` de `src/features/profile.js`.
-- `src/domain/whatsapp.js` importa `Profile` de `src/features/profile.js`.
 - `src/domain/pdf/shareReport.js` importa componente de onboarding legado.
 - `src/features/equipamentos/**` ainda importa helpers e componentes de
   `src/ui/**`.
@@ -226,8 +230,6 @@ Escopo provavel:
 - `src/features/equipamentos/**`
 - `src/features/historico/**`
 - `src/features/registro/**`
-- `src/features/relatorio/**`
-- `src/features/profile.js`
 - `src/features/userData.js`
 
 Controle:

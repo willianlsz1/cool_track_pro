@@ -68,20 +68,20 @@ regressoes historicas.
 
 ### Relatorio
 
-`src/features/relatorio/export/reportExportHelpers.js` e usado por
-`src/ui/controller/handlers/reportExportHandlers.js`.
+Resolvido no CP-9d. O helper puro `buildWhatsAppSuccessCopy` foi movido para
+`src/domain/reportExportHelpers.js` e `src/features/relatorio/**` foi removido.
 
-Classificacao: adiar. Apesar de pequeno, o consumidor e sensivel por PDF,
-WhatsApp, PMOC e cotas.
+Classificacao atual: concluido para este modulo. O fluxo PDF/WhatsApp/PMOC em
+si permanece fora de escopo.
 
 ### Profile e UserData
 
-`src/features/profile.js` ja foi reduzido a compatibilidade, mas ainda aparece
-em muitos mocks/testes v1. `src/features/userData.js` participa de export/delete
-de conta.
+`src/features/profile.js` foi removido no CP-9c. Os consumidores agora apontam
+para `src/core/profile.js`. `src/features/userData.js` participa de
+export/delete de conta.
 
-Classificacao: adiar ate a remocao dos consumidores v1 correspondentes ou ate
-uma etapa dedicada de conta/dados do usuario.
+Classificacao atual: Profile concluido; UserData adiado por envolver conta,
+autenticacao, Edge Functions e LGPD.
 
 ## Primeiro lote recomendado
 
