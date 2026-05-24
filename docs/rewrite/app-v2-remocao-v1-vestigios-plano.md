@@ -125,6 +125,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   direta da pasta ainda e insegura: restam 178 arquivos e a cobertura de testes
   ainda referencia fortemente `ui/views`, `ui/components`, `ui/controller`,
   `ui/shell` e `ui/viewModels`.
+- CP-12 classificou `src/ui` por destino de desmontagem: aposentar shell/runtime
+  v1, extrair apenas regras puras quando necessario e isolar PDF/share,
+  WhatsApp, assinatura, fotos, autenticacao, storage, PMOC e router em etapas
+  dedicadas.
 
 ## 3. Superficies v1 mapeadas
 
