@@ -233,6 +233,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   pagina standalone para `?orc-sign=TOKEN`, mas nao havia import nem bootstrap
   runtime que chamasse `OrcamentoSignaturePage.mount(token)`. Helpers reais de
   token/assinatura em `src/core/orcamentos.js` ficaram fora do escopo.
+- CP-40 removeu a folha legada `src/assets/styles/theme-premium.css`. O
+  entrypoint app-v2 nao carregava esse arquivo, `src/app-v2/**` nao o importava
+  e as ocorrencias restantes eram apenas documentais ou no proprio CSS.
 
 ## 3. Superficies v1 mapeadas
 
@@ -242,7 +245,7 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
-  `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
+  `components.css`, `layout.css` e estilos derivados do v1.
 - `src/__tests__/`: 235 arquivos de teste, muitos cobrindo contratos legados.
 - `e2e/specs/`: 3 specs restantes, todas app-v2.
 
@@ -455,7 +458,6 @@ Escopo provavel:
 - `src/assets/styles/redesign.css`
 - `src/assets/styles/layout.css`
 - `src/assets/styles/components.css`
-- `src/assets/styles/theme-premium.css`
 - Estilos de pricing/paywall remanescentes.
 
 Controle:

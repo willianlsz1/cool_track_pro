@@ -235,6 +235,13 @@ describe('legacy v1 removal contracts', () => {
     expect(componentsCss).not.toContain('_configuracoes.css');
   });
 
+  it('does not keep the orphan legacy premium theme stylesheet after v2 promotion', () => {
+    const primaryHtml = readSource('index.html');
+
+    expect(existsSync('src/assets/styles/theme-premium.css')).toBe(false);
+    expect(primaryHtml).not.toContain('theme-premium.css');
+  });
+
   it('does not keep the legacy privacidade route or internal static view', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const contaSource = readSource('src/ui/views/conta.js');
