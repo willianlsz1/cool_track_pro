@@ -39,35 +39,12 @@ function getSetorPersistValue(name, fallback) {
 // Setores são feature exclusiva do plano Pro. Todas as mutações devem
 // passar por ensureProForSetores() — defesa em profundidade contra gates
 // de UI que podem ficar stale se o usuário abrir a modal e depois rebaixar
-// o plano em outra aba.
+// Setores ficam liberados no modo operacional. O guard permanece como contrato
+// para chamadas antigas, mas nao aplica gate comercial.
 /** @sliceTarget setor/guard */
 export async function ensureProForSetores({ action = 'manage' } = {}) {
-  try {
-    let fetchOperationalProfile = setorPersistDeps.fetchOperationalProfile;
-    let hasProAccess = setorPersistDeps.hasProAccess;
-    if (!fetchOperationalProfile || !hasProAccess) {
-      const { fetchOperationalProfile: fetchProfile } =
-        await import('../../../core/plans/operationalPlan.js');
-      const { hasProAccess: hasAccess } = await import('../../../core/plans/subscriptionPlans.js');
-      fetchOperationalProfile = fetchProfile;
-      hasProAccess = hasAccess;
-    }
-    const { profile } = await fetchOperationalProfile();
-    if (hasProAccess(profile)) return true;
-  } catch {
-    // Em modo guest ou sem conexão, bloqueia por padrão
-  }
-  const message =
-    action === 'delete'
-      ? 'Exclusão de setor é um recurso Pro. Faça upgrade para continuar.'
-      : action === 'update'
-        ? 'Edição de setor é um recurso Pro. Faça upgrade para continuar.'
-        : action === 'assign'
-          ? 'Atribuir setores é um recurso Pro. Faça upgrade para continuar.'
-          : 'Criar setores é um recurso Pro. Faça upgrade para continuar.';
-  const Toast = requireSetorPersistDep('Toast');
-  Toast.warning(message);
-  return false;
+  void action;
+  return true;
 }
 
 /**

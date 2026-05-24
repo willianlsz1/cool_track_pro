@@ -70,10 +70,10 @@ async function resolvePlanAndUsage(userId) {
 
 function buildPdfLimitMessage(planCode, pdfLimit) {
   if (planCode === PLAN_CODE_FREE) {
-    return `Você atingiu o limite Free de ${pdfLimit} PDF/mês. Faça upgrade para Plus para mais PDFs e relatórios sem marca d'água. O WhatsApp usa uma cota separada.`;
+    return `Voce atingiu o limite operacional de ${pdfLimit} PDF/mes. O WhatsApp usa uma cota separada.`;
   }
   if (planCode === PLAN_CODE_PLUS) {
-    return `Você atingiu o limite Plus de ${pdfLimit} PDFs/mês. O plano Pro libera PDFs sem limitação relevante.`;
+    return `Voce atingiu o limite operacional de ${pdfLimit} PDFs/mes.`;
   }
   return `Você atingiu o limite mensal de ${pdfLimit} PDFs.`;
 }
@@ -120,7 +120,7 @@ async function ensureReportBudget({ attemptedEvent, blockedEvent }) {
   ) {
     trackEvent(blockedEvent, { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildPdfLimitMessage(planCode, pdfLimit));
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.warning('Area comercial fora do app nesta etapa.');
     return { ok: false };
   }
 
@@ -412,7 +412,7 @@ function bindWhatsAppExport() {
 function buildWhatsAppLimitMessage(planCode, whatsappLimit) {
   return planCode === 'plus'
     ? `Você atingiu ${whatsappLimit} compartilhamentos este mês no Plus. O Pro tem envios ilimitados.`
-    : `Você atingiu ${whatsappLimit} compartilhamentos este mês. Faça upgrade para Plus ou Pro.`;
+    : `Voce atingiu ${whatsappLimit} compartilhamentos este mes.`;
 }
 
 async function resolveWhatsAppShareBudget() {
@@ -439,7 +439,7 @@ async function resolveWhatsAppShareBudget() {
   ) {
     trackEvent('whatsapp_share_blocked', { reason: 'limit_reached', plan: planCode });
     Toast.warning(buildWhatsAppLimitMessage(planCode, whatsappLimit));
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.warning('Area comercial fora do app nesta etapa.');
     return false;
   }
 

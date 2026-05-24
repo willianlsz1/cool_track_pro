@@ -298,11 +298,11 @@ export function openAccountModal(
   });
 
   overlay.querySelector('#btn-upgrade-plan')?.addEventListener('click', () => {
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.info('Area comercial fora do app nesta etapa.');
   });
 
   overlay.querySelector('#btn-manage-plan')?.addEventListener('click', () => {
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.info('Area comercial fora do app nesta etapa.');
   });
 
   overlay.querySelector('#btn-signout')?.addEventListener('click', () => {

@@ -57,26 +57,22 @@ export function renderViewEquipServiceTimeline(regs, deps) {
 }
 
 export function renderViewEquipCoverBlock(model, deps) {
-  const { Utils, getEquipmentVisualMeta, isCachedPlanPlusOrHigher } = resolveDetailDeps(deps);
+  const { Utils, getEquipmentVisualMeta } = resolveDetailDeps(deps);
   const { eq, safeId } = model;
   const visual = getEquipmentVisualMeta(eq);
   const firstPhotoUrl = visual.photoUrl;
   const photosCount = Array.isArray(eq.fotos)
     ? eq.fotos.filter((p) => p && (typeof p === 'string' ? p : p.url || p.path)).length
     : 0;
-  const canEditPhotos = isCachedPlanPlusOrHigher();
+  const canEditPhotos = true;
   const photoCtaLabel = canEditPhotos
     ? photosCount === 0
       ? 'Adicionar foto'
       : 'Gerenciar fotos'
-    : 'Desbloquear com Plus';
-  const photoCtaAction = canEditPhotos ? 'open-eq-photos-editor' : 'open-upgrade';
-  const photoCtaExtra = canEditPhotos
-    ? ''
-    : ' data-upgrade-source="equip_detail_photos" data-highlight-plan="plus"';
-  const photoCtaBadge = canEditPhotos
-    ? ''
-    : '<span class="plus-badge plus-badge--inline" aria-hidden="true">PLUS</span>';
+    : 'Adicionar foto';
+  const photoCtaAction = 'open-eq-photos-editor';
+  const photoCtaExtra = '';
+  const photoCtaBadge = '';
   const photoCtaVariantCls = canEditPhotos ? '' : ' eq-detail-cover__cta--locked';
   const photoCameraIcon = `
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -107,7 +103,7 @@ export function renderViewEquipCoverBlock(model, deps) {
     : `${coverFallback}
        <button type="button" class="eq-detail-cover__cta eq-detail-cover__cta--center${photoCtaVariantCls}"
          data-action="${photoCtaAction}" data-id="${safeId}"${photoCtaExtra}
-         aria-label="${canEditPhotos ? 'Adicionar foto' : 'Fotos bloqueadas - desbloqueie com o plano Plus'}">
+         aria-label="Adicionar foto">
          ${photoCtaIcon}
          <span>${photoCtaLabel}</span>
          ${photoCtaBadge}
@@ -120,7 +116,7 @@ export function renderViewEquipCoverBlock(model, deps) {
     ? `<div class="eq-detail-cover-actions">
         <button type="button" class="eq-detail-cover-action${photoCtaVariantCls}"
           data-action="${photoCtaAction}" data-id="${safeId}"${photoCtaExtra}
-          aria-label="${canEditPhotos ? 'Gerenciar fotos' : 'Fotos bloqueadas - desbloqueie com o plano Plus'}">
+          aria-label="Gerenciar fotos">
           ${photoCtaIcon}
           <span>${photoCtaLabel}</span>
           ${photoCtaBadge}

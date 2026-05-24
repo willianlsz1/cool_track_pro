@@ -44,7 +44,7 @@ describe('PdfSuccessToast', () => {
     PdfSuccessToast.show({ used: 5, limit: 5 });
 
     const toast = document.querySelector('.share-success-toast');
-    expect(toast.textContent).toContain('Você usou todos os 5 PDFs do mês');
+    expect(toast.textContent).toContain('Voce usou todos os 5 PDFs do mes');
   });
 
   it('keeps default subtitle for Pro (infinite limit)', () => {

@@ -27,7 +27,6 @@ import {
   getClientesAccessSnapshot,
   resolveClientesAccess,
 } from '../../core/plans/clientesAccess.js';
-import { ClientesPaywallModal } from './clientesPaywallModal.js';
 
 const OVERLAY_ID = 'cliente-modal-overlay';
 let _a11yCleanup = null;
@@ -71,15 +70,6 @@ async function getClienteCreateDecision(cliente) {
     planCode: access.planCode,
     currentClientesCount,
     isEditing,
-  });
-}
-
-function openClienteLimitPaywall(decision) {
-  ClientesPaywallModal.open({
-    reason: 'client_limit',
-    highlightPlan: decision.requiredPlan || 'plus',
-    current: decision.current,
-    limit: decision.limit,
   });
 }
 
@@ -293,7 +283,7 @@ async function handleSave(overlay, cliente, onSaved, hardClose) {
 
   const limitDecision = await getClienteCreateDecision(cliente);
   if (!limitDecision.allowed) {
-    openClienteLimitPaywall(limitDecision);
+    Toast.warning('Cadastro de cliente indisponivel no momento.');
     return;
   }
 
@@ -324,7 +314,7 @@ async function open(cliente, opts = {}) {
 
   const limitDecision = await getClienteCreateDecision(cliente);
   if (!limitDecision.allowed) {
-    openClienteLimitPaywall(limitDecision);
+    Toast.warning('Cadastro de cliente indisponivel no momento.');
     return;
   }
 

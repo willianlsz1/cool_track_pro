@@ -26,7 +26,7 @@ function createToast() {
 
   const icon = document.createElement('span');
   icon.className = 'share-success-toast__icon';
-  icon.textContent = '📱';
+  icon.textContent = 'OK';
   icon.setAttribute('aria-hidden', 'true');
 
   const content = document.createElement('div');
@@ -34,11 +34,11 @@ function createToast() {
 
   const title = document.createElement('p');
   title.className = 'share-success-toast__title';
-  title.textContent = 'Relatório enviado! Seu cliente vai adorar.';
+  title.textContent = 'Relatorio enviado.';
 
   const subtitle = document.createElement('p');
   subtitle.className = 'share-success-toast__subtitle';
-  subtitle.textContent = 'Dica: compartilhe com 3 clientes esta semana e veja o impacto';
+  subtitle.textContent = 'Compartilhamento registrado no fluxo operacional.';
 
   content.append(title, subtitle);
   toast.append(icon, content);
@@ -52,15 +52,14 @@ export const ShareSuccessToast = {
 
     const toast = createToast();
 
-    // Se o plano tem limite finito, atualiza o subtítulo com o uso atual
     if (Number.isFinite(limit) && used !== null) {
       const remaining = Math.max(0, limit - used);
       const subtitle = toast.querySelector('.share-success-toast__subtitle');
       if (subtitle) {
         subtitle.textContent =
           remaining > 0
-            ? `Você usou ${used} de ${limit} compartilhamentos este mês. Restam ${remaining}.`
-            : `Você usou todos os ${limit} compartilhamentos do mês. Faça upgrade para o Pro para envios ilimitados.`;
+            ? `Voce usou ${used} de ${limit} compartilhamentos este mes. Restam ${remaining}.`
+            : `Voce usou todos os ${limit} compartilhamentos deste mes.`;
       }
     }
 

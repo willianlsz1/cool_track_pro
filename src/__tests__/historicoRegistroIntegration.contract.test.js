@@ -235,10 +235,6 @@ vi.mock('../core/plans/clientesAccess.js', () => ({
   resolveClientesAccess: vi.fn(() => Promise.resolve({ resolved: true, canAccess: true })),
 }));
 
-vi.mock('../ui/components/clientesPaywallModal.js', () => ({
-  ClientesPaywallModal: { open: vi.fn() },
-}));
-
 vi.mock('../ui/views/conta.js', () => ({
   renderConta: vi.fn(),
 }));

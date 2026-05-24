@@ -246,8 +246,8 @@ describe('reportExportHandlers', () => {
     // Sem GuestConversionModal — agora mostra Toast com nudge pra Plus/Pro
     expect(warning).toHaveBeenCalled();
     const toastMsg = warning.mock.calls.map(([message]) => message).join('\n');
-    expect(toastMsg).toMatch(/Plus/);
-    expect(toastMsg).toMatch(/1 PDF\/mês/);
+    expect(toastMsg).toMatch(/limite operacional/i);
+    expect(toastMsg).toMatch(/1 PDF\/mes/);
     expect(toastMsg).toMatch(/WhatsApp/i);
     expect(goTo).not.toHaveBeenCalled();
   });
@@ -299,8 +299,8 @@ describe('reportExportHandlers', () => {
     expect(incrementMonthlyUsage).not.toHaveBeenCalledWith('u1', 'pdf_export');
     expect(warning).toHaveBeenCalled();
     const toastMsg = warning.mock.calls.map(([message]) => message).join('\n');
-    expect(toastMsg).toMatch(/50 PDFs\/mês/);
-    expect(toastMsg).toMatch(/Pro/);
+    expect(toastMsg).toMatch(/50 PDFs\/mes/);
+    expect(toastMsg).toMatch(/Area comercial fora do app/i);
     expect(goTo).not.toHaveBeenCalled();
   });
 

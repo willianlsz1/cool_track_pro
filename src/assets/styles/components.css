@@ -19027,7 +19027,7 @@ select option {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   ClientesPaywallModal — modal exibido pra Free/Plus que tenta abrir Clientes
+   Modal legado de clientes removido do runtime
    ═══════════════════════════════════════════════════════════════════════ */
 
 .clientes-paywall-overlay {

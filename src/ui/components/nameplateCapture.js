@@ -294,7 +294,7 @@ function bindOnce() {
       } catch (_) {
         /* se o Modal nao esta aberto por algum motivo, segue com o aviso local */
       }
-      Toast.warning('Planos pagos foram removidos desta versao.');
+      Toast.warning('Area comercial fora do app nesta etapa.');
     });
   }
 
@@ -449,7 +449,7 @@ async function handleFile(file) {
       } else if (currentPlan === 'plus' && quotaExhausted) {
         stageMsg = 'Cota mensal do Plus atingida';
         setSubtitle(
-          'Você atingiu 30 análises/mês no Plus. Faça upgrade pra Pro ou aguarde o próximo ciclo.',
+          'Voce atingiu o limite operacional de analises neste mes. Aguarde o proximo ciclo.',
         );
         cta.dataset.state = prevState === 'locked' ? 'locked' : 'active';
         trackEvent('nameplate_quota_hit', { source: 'equip_modal', plan: 'plus' });
@@ -461,7 +461,7 @@ async function handleFile(file) {
       } else {
         cta.dataset.state = 'locked';
         stageMsg = 'Feature exclusiva Plus+';
-        setSubtitle('Feature exclusiva Plus+. Faça upgrade pra destravar.');
+        setSubtitle('Recurso indisponivel nesta etapa.');
       }
     } else if (code === ERR_NO_SESSION) {
       stageMsg = 'Sessão expirada';

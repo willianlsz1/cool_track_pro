@@ -37,7 +37,7 @@ function _bindPhotosUpsellCta() {
   cta.dataset.upsellBound = '1';
   cta.addEventListener('click', () => {
     trackEvent('photo_upsell_clicked', { source: 'equip_modal' });
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.warning('Area comercial fora do app nesta etapa.');
   });
 }
 
@@ -111,7 +111,7 @@ function _bindEqPhotosUpsellCta() {
     } catch (_err) {
       /* segue com aviso local mesmo se Modal.close falhar */
     }
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.warning('Area comercial fora do app nesta etapa.');
   });
 }
 
@@ -236,7 +236,9 @@ export async function saveEquipPhotos() {
         pendingCount,
         source: 'equip_detail',
       });
-      Toast.warning('Fotos no equipamento são um recurso do plano Plus. Upgrade pra liberar.');
+      Toast.warning(
+        'Fotos no equipamento são um recurso do plano Plus. Recurso indisponivel nesta etapa.',
+      );
     }
     fotosPayload = normalizePhotoList(EquipmentPhotos.existing);
   } else {

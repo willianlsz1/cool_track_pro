@@ -216,7 +216,7 @@ function PmocHero({ isPro }) {
           data-action="open-upgrade"
           data-highlight-plan="pro"
           type="button"
-          title="Planos pagos removidos desta versao."
+          title="Area comercial fora do app nesta etapa."
         >
           Area comercial indisponivel
         </button>

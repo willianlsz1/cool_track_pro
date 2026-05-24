@@ -941,7 +941,7 @@ function buildRegistroSignatureReactProps() {
     signatureSrc: _registroSignatureDraftSrc,
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
-      Toast.warning('Planos pagos foram removidos desta versao.');
+      Toast.warning('Area comercial fora do app nesta etapa.');
     },
   };
 }
@@ -1101,7 +1101,7 @@ function _applyPmocChecklistDiscoveryState() {
 
 function _redirectPmocChecklistUpsell() {
   trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
-  Toast.warning('Planos pagos foram removidos desta versao.');
+  Toast.warning('Area comercial fora do app nesta etapa.');
 }
 
 function _ensurePmocChecklistAccess({ redirect = false } = {}) {

@@ -90,19 +90,17 @@ describe('setorPersist', () => {
     it('retorna true quando plano permite Pro', async () => {
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
 
-      expect(deps.fetchOperationalProfile).toHaveBeenCalledTimes(1);
-      expect(deps.hasProAccess).toHaveBeenCalledWith({ plan_code: 'pro' });
+      expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
+      expect(deps.hasProAccess).not.toHaveBeenCalled();
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
     it('retorna false e chama Toast.warning quando plano bloqueia', async () => {
       deps.hasProAccess.mockReturnValueOnce(false);
 
-      await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(false);
+      await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
 
-      expect(deps.Toast.warning).toHaveBeenCalledWith(
-        'Criar setores é um recurso Pro. Faça upgrade para continuar.',
-      );
+      expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
     it('preserva mensagens por action', async () => {
@@ -113,32 +111,15 @@ describe('setorPersist', () => {
       await ensureProForSetores({ action: 'assign' });
       await ensureProForSetores({ action: 'manage' });
 
-      expect(deps.Toast.warning).toHaveBeenNthCalledWith(
-        1,
-        'Edição de setor é um recurso Pro. Faça upgrade para continuar.',
-      );
-      expect(deps.Toast.warning).toHaveBeenNthCalledWith(
-        2,
-        'Exclusão de setor é um recurso Pro. Faça upgrade para continuar.',
-      );
-      expect(deps.Toast.warning).toHaveBeenNthCalledWith(
-        3,
-        'Atribuir setores é um recurso Pro. Faça upgrade para continuar.',
-      );
-      expect(deps.Toast.warning).toHaveBeenNthCalledWith(
-        4,
-        'Criar setores é um recurso Pro. Faça upgrade para continuar.',
-      );
+      expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
     it('falha de perfil operacional preserva fail-closed com warning', async () => {
       deps.fetchOperationalProfile.mockRejectedValueOnce(new Error('network'));
 
-      await expect(ensureProForSetores({ action: 'delete' })).resolves.toBe(false);
+      await expect(ensureProForSetores({ action: 'delete' })).resolves.toBe(true);
 
-      expect(deps.Toast.warning).toHaveBeenCalledWith(
-        'Exclusão de setor é um recurso Pro. Faça upgrade para continuar.',
-      );
+      expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
   });
 
@@ -191,7 +172,7 @@ describe('setorPersist', () => {
       await assignEquipToSetor('eq-1', 'setor-1');
 
       expect(callOrder[0]).toBe('setState');
-      expect(deps.fetchOperationalProfile).toHaveBeenCalledTimes(1);
+      expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
       expect(state.equipamentos.find((e) => e.id === 'eq-1')).toMatchObject({
         setorId: 'setor-1',
       });
@@ -202,9 +183,9 @@ describe('setorPersist', () => {
 
       await assignEquipToSetor('eq-1', 'setor-1');
 
-      expect(deps.setState).not.toHaveBeenCalled();
-      expect(deps.Toast.success).not.toHaveBeenCalled();
-      expect(deps.renderEquip).not.toHaveBeenCalled();
+      expect(deps.setState).toHaveBeenCalledTimes(1);
+      expect(deps.Toast.success).toHaveBeenCalledTimes(1);
+      expect(deps.renderEquip).toHaveBeenCalledTimes(1);
     });
 
     it('não chama guard nem muta quando equipamento não existe', async () => {
@@ -238,12 +219,12 @@ describe('setorPersist', () => {
     it('guard Pro bloqueado impede mutação, modal close, toast success e render', async () => {
       deps.hasProAccess.mockReturnValueOnce(false);
 
-      await expect(saveSetor()).resolves.toBe(false);
+      await expect(saveSetor()).resolves.toBe(true);
 
-      expect(deps.setState).not.toHaveBeenCalled();
-      expect(deps.closeSetorModal).not.toHaveBeenCalled();
-      expect(deps.Toast.success).not.toHaveBeenCalled();
-      expect(deps.renderEquip).not.toHaveBeenCalled();
+      expect(deps.setState).toHaveBeenCalledTimes(1);
+      expect(deps.closeSetorModal).toHaveBeenCalledTimes(1);
+      expect(deps.Toast.success).toHaveBeenCalledTimes(1);
+      expect(deps.renderEquip).toHaveBeenCalledTimes(1);
     });
 
     it('criação de setor válido adiciona setor no state com clienteId/contexto vinculado', async () => {
@@ -327,10 +308,10 @@ describe('setorPersist', () => {
 
       await deleteSetor('setor-2');
 
-      expect(deps.setState).not.toHaveBeenCalled();
-      expect(deps.Storage.markSetorDeleted).not.toHaveBeenCalled();
-      expect(deps.Toast.info).not.toHaveBeenCalled();
-      expect(deps.renderEquip).not.toHaveBeenCalled();
+      expect(deps.setState).toHaveBeenCalledTimes(1);
+      expect(deps.Storage.markSetorDeleted).toHaveBeenCalledWith('setor-2');
+      expect(deps.Toast.info).toHaveBeenCalledTimes(1);
+      expect(deps.renderEquip).toHaveBeenCalledTimes(1);
       expect(deps.navigateEquipCtx).not.toHaveBeenCalled();
     });
 

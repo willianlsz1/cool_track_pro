@@ -158,16 +158,16 @@ describe('detail HTML render helpers', () => {
     expect(result.html).toContain('Gerenciar fotos');
   });
 
-  it('preserva CTA Free para fotos sem alterar data-action do gate', () => {
+  it('mantem CTA de fotos liberado sem gate comercial', () => {
     const deps = makeDeps({ isCachedPlanPlusOrHigher: vi.fn(() => false) });
 
     const result = renderViewEquipCoverBlock(makeModel(), deps);
 
-    expect(result.html).toContain('eq-detail-cover--locked');
-    expect(result.html).toContain('data-action="open-upgrade"');
-    expect(result.html).toContain('data-upgrade-source="equip_detail_photos"');
-    expect(result.html).toContain('data-highlight-plan="plus"');
-    expect(result.html).toContain('Desbloquear com Plus');
+    expect(result.html).not.toContain('eq-detail-cover--locked');
+    expect(result.html).toContain('data-action="open-eq-photos-editor"');
+    expect(result.html).not.toContain('data-upgrade-source="equip_detail_photos"');
+    expect(result.html).not.toContain('data-highlight-plan="plus"');
+    expect(result.html).toContain('Adicionar foto');
   });
 
   it('renderiza dados de placa fixos e extras escapados', () => {

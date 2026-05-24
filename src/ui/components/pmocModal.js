@@ -161,7 +161,7 @@ function open({ clientes, isPro, onConfirm, preselectClienteId = null }) {
   } else {
     overlay.querySelector('#pmoc-upgrade')?.addEventListener('click', () => {
       hardClose();
-      Toast.warning('Planos pagos foram removidos desta versao.');
+      Toast.warning('Area comercial fora do app nesta etapa.');
     });
   }
 }

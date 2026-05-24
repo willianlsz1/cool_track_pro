@@ -24,9 +24,9 @@ export function isCachedPlanPro() {
 }
 
 export function isCachedPlanPlus() {
-  return false;
+  return true;
 }
 
 export function isCachedPlanPlusOrHigher() {
-  return false;
+  return true;
 }

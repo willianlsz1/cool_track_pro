@@ -15,12 +15,7 @@ export async function checkSaveEquipPlanLimit({
         limit: planLimit.limit,
         planCode: planLimit.planCode,
       });
-      const msg =
-        planLimit.planCode === 'pro'
-          ? 'Voce atingiu o limite de equipamentos do seu plano.'
-          : 'Voce atingiu o limite do plano Free. Faca upgrade para continuar.';
-      Toast.warning(msg);
-      Toast.warning('Planos pagos foram removidos desta versao.');
+      Toast.warning('Nao foi possivel cadastrar outro equipamento agora.');
       return false;
     }
   }

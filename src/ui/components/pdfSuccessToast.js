@@ -78,7 +78,7 @@ export const PdfSuccessToast = {
         subtitle.textContent =
           remaining > 0
             ? `Você usou ${used} de ${limit} PDFs este mês. Restam ${remaining}.`
-            : `Você usou todos os ${limit} PDFs do mês. Faça upgrade para PDFs ilimitados.`;
+            : `Voce usou todos os ${limit} PDFs do mes.`;
       }
     }
 

@@ -28,10 +28,10 @@ const OPERATIONAL_PLAN = Object.freeze({
     'Clientes sem limite comercial',
     'Registros de servico sem limite comercial',
     'Histórico completo do equipamento',
-    'Planos pagos removidos ate etapa propria',
+    'Area comercial fora do app nesta etapa',
   ],
-  accountTagline: 'Planos pagos foram removidos desta versao.',
-  accountChips: ['Operacional', 'Sem assinatura', 'Sem limite comercial'],
+  accountTagline: 'Fluxo operacional liberado nesta versao.',
+  accountChips: ['Operacional', 'Sem modulo comercial', 'Sem limite comercial'],
 });
 
 export const PLAN_CATALOG = Object.freeze({
@@ -41,9 +41,7 @@ export const PLAN_CATALOG = Object.freeze({
 });
 
 export function normalizePlanCode(planCode) {
-  const lower = String(planCode || '').toLowerCase();
-  if (lower === PLAN_CODE_PRO) return PLAN_CODE_PRO;
-  if (lower === PLAN_CODE_PLUS) return PLAN_CODE_PLUS;
+  void planCode;
   return PLAN_CODE_FREE;
 }
 

@@ -25,7 +25,7 @@ describe('subscriptionPlans', () => {
     const { normalizePlanCode, PLAN_CODE_FREE, PLAN_CODE_PRO } = await loadSubscriptionPlans();
 
     expect(normalizePlanCode('enterprise')).toBe(PLAN_CODE_FREE);
-    expect(normalizePlanCode(PLAN_CODE_PRO)).toBe(PLAN_CODE_PRO);
+    expect(normalizePlanCode(PLAN_CODE_PRO)).toBe(PLAN_CODE_FREE);
   });
 
   it('resolves every effective plan to the non-commercial operational plan', async () => {
@@ -66,9 +66,7 @@ describe('subscriptionPlans', () => {
       await loadSubscriptionPlans();
 
     expect(PLAN_CATALOG[PLAN_CODE_FREE].label).toBe('Operacional');
-    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain(
-      'Planos pagos removidos ate etapa propria',
-    );
+    expect(PLAN_CATALOG[PLAN_CODE_FREE].perks).toContain('Area comercial fora do app nesta etapa');
     expect(PLAN_CATALOG[PLAN_CODE_PLUS].limits.equipamentos).toBe(Number.POSITIVE_INFINITY);
     expect(PLAN_CATALOG[PLAN_CODE_PRO].limits.clientes).toBe(Number.POSITIVE_INFINITY);
   });

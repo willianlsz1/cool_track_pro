@@ -112,10 +112,9 @@ describe('crud/validate', () => {
       limit: 3,
       planCode: 'free',
     });
-    expect(Toast.warning).toHaveBeenNthCalledWith(
-      1,
-      'Voce atingiu o limite do plano Free. Faca upgrade para continuar.',
+    expect(Toast.warning).toHaveBeenCalledTimes(1);
+    expect(Toast.warning).toHaveBeenCalledWith(
+      'Nao foi possivel cadastrar outro equipamento agora.',
     );
-    expect(Toast.warning).toHaveBeenNthCalledWith(2, 'Planos pagos foram removidos desta versao.');
   });
 });

@@ -333,7 +333,7 @@ export function bindNavigationHandlers() {
       if (overlay.id) Modal.close(overlay.id);
     });
 
-    Toast.warning('Planos pagos foram removidos desta versao.');
+    Toast.info('Area comercial fora do app nesta etapa.');
   });
 
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"

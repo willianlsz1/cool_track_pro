@@ -6,7 +6,6 @@ const mocks = vi.hoisted(() => ({
   renderClientes: vi.fn(),
   unmountClientes: vi.fn(),
   updateHeader: vi.fn(),
-  openPaywall: vi.fn(),
   getClientesAccessSnapshot: vi.fn(),
   resolveClientesAccess: vi.fn(),
 }));
@@ -57,9 +56,6 @@ vi.mock('../ui/views/clientes.js', () => ({
 vi.mock('../ui/views/conta.js', () => ({ renderConta: vi.fn() }));
 vi.mock('../ui/views/privacidade.js', () => ({ renderPrivacidade: vi.fn() }));
 vi.mock('../ui/views/configuracoes.js', () => ({ renderConfiguracoes: vi.fn() }));
-vi.mock('../ui/components/clientesPaywallModal.js', () => ({
-  ClientesPaywallModal: { open: mocks.openPaywall },
-}));
 vi.mock('../core/plans/clientesAccess.js', () => ({
   getClientesAccessSnapshot: mocks.getClientesAccessSnapshot,
   resolveClientesAccess: mocks.resolveClientesAccess,
@@ -93,7 +89,6 @@ describe('clientes route access contract', () => {
     registerAppRoutes();
     await getClientesRoute().onEnter();
 
-    expect(mocks.openPaywall).not.toHaveBeenCalled();
     expect(mocks.renderClientes).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(1);
   });
@@ -116,7 +111,6 @@ describe('clientes route access contract', () => {
     await getClientesRoute().onEnter();
 
     expect(mocks.resolveClientesAccess).toHaveBeenCalledTimes(1);
-    expect(mocks.openPaywall).not.toHaveBeenCalled();
     expect(mocks.renderClientes).toHaveBeenCalledTimes(1);
     expect(mocks.updateHeader).toHaveBeenCalledTimes(1);
   });

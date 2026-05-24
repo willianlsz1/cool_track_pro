@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const stateRef = { value: { clientes: [] } };
-const paywallOpen = vi.fn();
 const getClientesAccessSnapshot = vi.fn();
 const resolveClientesAccess = vi.fn();
 
@@ -49,16 +48,11 @@ vi.mock('../core/plans/clientesAccess.js', async () => {
   };
 });
 
-vi.mock('../ui/components/clientesPaywallModal.js', () => ({
-  ClientesPaywallModal: { open: paywallOpen },
-}));
-
-describe('ClienteModal limite por plano', () => {
+describe('ClienteModal acesso operacional', () => {
   beforeEach(() => {
     vi.resetModules();
     document.body.innerHTML = '';
     stateRef.value = { clientes: [] };
-    paywallOpen.mockReset();
     getClientesAccessSnapshot.mockReset();
     resolveClientesAccess.mockReset();
     getClientesAccessSnapshot.mockReturnValue({ resolved: true, planCode: 'free' });
@@ -72,7 +66,6 @@ describe('ClienteModal limite por plano', () => {
     const overlay = document.getElementById('cliente-modal-overlay');
     expect(overlay).toBeTruthy();
     expect(overlay?.dataset.surface).toBe('modal');
-    expect(paywallOpen).not.toHaveBeenCalled();
   });
 
   it('permite criar outro cliente quando recursos comerciais e limites operacionais estao desligados', async () => {
@@ -82,7 +75,6 @@ describe('ClienteModal limite por plano', () => {
     await ClienteModal.openCreate();
 
     expect(document.getElementById('cliente-modal-overlay')).toBeTruthy();
-    expect(paywallOpen).not.toHaveBeenCalled();
   });
 
   it('permite editar cliente existente no Free mesmo com limite atingido', async () => {
@@ -92,6 +84,5 @@ describe('ClienteModal limite por plano', () => {
     await ClienteModal.openEdit({ id: 'cli-1', nome: 'Cliente 1' });
 
     expect(document.getElementById('cliente-modal-overlay')).toBeTruthy();
-    expect(paywallOpen).not.toHaveBeenCalled();
   });
 });
