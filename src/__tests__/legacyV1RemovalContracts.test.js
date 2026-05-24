@@ -426,6 +426,23 @@ describe('legacy v1 removal contracts', () => {
     }
   });
 
+  it('does not keep Supabase Registro signature gate as an active test target', () => {
+    const retirementMigration = readSource(
+      'supabase/migrations/20260524193000_retire_registro_signature_gate.sql',
+    );
+    const supabaseTestsReadme = readSource('supabase/tests/README.md');
+
+    expect(existsSync('supabase/tests/10_signature_plan_gate.test.sql')).toBe(false);
+    expect(retirementMigration).toContain('drop column if exists assinatura');
+    expect(retirementMigration).toContain(
+      'drop trigger if exists enforce_registro_signature_plan_gate_trigger',
+    );
+    expect(retirementMigration).toContain(
+      'drop function if exists public.enforce_registro_signature_plan_gate()',
+    );
+    expect(supabaseTestsReadme).not.toContain('10_signature_plan_gate.test.sql');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

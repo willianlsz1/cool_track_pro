@@ -97,8 +97,6 @@ rollback;
   `public.profiles`.
 - `09_profile_usage_hardening.test.sql` - hardening de `profiles` e escrita
   direta em `usage_monthly`.
-- `10_signature_plan_gate.test.sql` - gate server-side de
-  `registros.assinatura` e policies restritivas para assinatura digital.
 - `11_public_abuse_surfaces.test.sql` - hardening de `analytics_events`,
   `feedback` e policies canonicas do bucket `registro-fotos`.
 

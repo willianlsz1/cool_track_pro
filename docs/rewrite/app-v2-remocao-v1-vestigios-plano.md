@@ -643,6 +643,11 @@ Progresso executado:
 - CP-56B remove `assinatura` dos normalizers e mapeadores de storage/sync de
   Registro. O CP nao altera migrations, Supabase/RLS, orcamentos, billing ou
   qualquer contrato de assinatura fora de Registro.
+- CP-56C adiciona migration para aposentar o gate server-side de assinatura de
+  Registro: remove policies restritivas de assinatura em `storage.objects`,
+  trigger/funcoes `registro_signature_*` e a coluna `public.registros.assinatura`.
+  O CP remove o teste SQL especifico desse gate e nao altera assinatura de
+  orcamento, billing, PDF/share, WhatsApp, fotos ou PMOC.
 
 Controle:
 
