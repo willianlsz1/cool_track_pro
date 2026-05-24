@@ -177,7 +177,7 @@ describe('applyEquipPhotosGate — Free (upsell visível)', () => {
     cta.click();
 
     expect(trackEvent).toHaveBeenCalledWith('photo_upsell_clicked', { source: 'equip_modal' });
-    expect(toastWarning).toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
+    expect(toastWarning).toHaveBeenCalledWith('Recurso indisponivel nesta etapa.');
     expect(goTo).not.toHaveBeenCalled();
   });
 

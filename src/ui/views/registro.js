@@ -927,7 +927,7 @@ function buildRegistroSignatureProps() {
     signatureSrc: _registroSignatureDraftSrc,
     onUpsellClick: () => {
       trackEvent('signature_upsell_clicked', { source: 'registro_form' });
-      Toast.warning('Area comercial fora do app nesta etapa.');
+      Toast.warning('Recurso indisponivel nesta etapa.');
     },
   };
 }
@@ -1072,7 +1072,7 @@ function _applyPmocChecklistDiscoveryState() {
 
 function _redirectPmocChecklistUpsell() {
   trackEvent('pmoc_checklist_upsell_clicked', { source: 'registro_form' });
-  Toast.warning('Area comercial fora do app nesta etapa.');
+  Toast.warning('Recurso indisponivel nesta etapa.');
 }
 
 function _ensurePmocChecklistAccess({ redirect = false } = {}) {

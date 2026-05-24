@@ -65,15 +65,17 @@ describe('registro signature DOM hint', () => {
     expect(root?.querySelector('.registro-sig-hint__title')?.textContent).toContain(
       'Assinatura do cliente',
     );
-    expect(root?.querySelector('.registro-sig-hint__badge--plus')?.textContent).toBe('Plus');
+    expect(root?.querySelector('.registro-sig-hint__badge--plus')?.textContent).toBe(
+      'Indisponivel',
+    );
 
     const cta = root?.querySelector('[data-action="signature-upsell-cta"]');
     expect(cta?.tagName).toBe('BUTTON');
     expect(cta?.getAttribute('type')).toBe('button');
 
-    cta?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-
-    expect(onUpsellClick).toHaveBeenCalledTimes(1);
+    expect(cta?.disabled).toBe(true);
+    expect(cta?.getAttribute('aria-disabled')).toBe('true');
+    expect(onUpsellClick).not.toHaveBeenCalled();
     expect(document.querySelector('[data-action="save-registro"]')).not.toBeNull();
     expectNoInjectedMarkup(root);
   });

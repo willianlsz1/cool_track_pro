@@ -170,7 +170,7 @@ export function renderShellSidebar() {
       </div>
       <button type="button" class="app-sidebar__plan-card-cta"
         id="sidenav-plan-cta" disabled aria-disabled="true">
-        <span id="sidenav-plan-cta-label">Area comercial indisponivel</span>
+        <span id="sidenav-plan-cta-label">Recurso indisponivel</span>
         <span aria-hidden="true">${ICON_CHEV_R}</span>
       </button>
     </div>

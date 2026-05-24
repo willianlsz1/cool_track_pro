@@ -37,9 +37,9 @@ describe('conta view helpers', () => {
     expect(html).not.toContain('<svg onload=');
   });
 
-  it('Pro renderiza proposta empresa sem CTA comercial', () => {
+  it('Pro renderiza status operacional sem CTA comercial', () => {
     const html = __test__._renderPlanCard({ planCode: __test__.PLAN_CODE_PRO });
-    expect(html).toContain('CoolTrack Pro');
+    expect(html).toContain('Operacional');
     expect(html).not.toContain('Gerenciar assinatura');
     expect(html).not.toContain('Ver Pro');
   });

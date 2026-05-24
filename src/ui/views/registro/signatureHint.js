@@ -165,10 +165,12 @@ export function renderRegistroSignatureHint(
   if (isUpsell) {
     const upsell = createElement('button', {
       className: 'registro-sig-hint__cta',
-      text: 'Conhecer Plus ->',
+      text: 'Indisponivel nesta versao',
       attrs: {
         type: 'button',
         'data-action': REGISTRO_SIGNATURE_ACTIONS.upsell,
+        disabled: true,
+        'aria-disabled': 'true',
       },
     });
     upsell.addEventListener('click', () => props.onUpsellClick?.());

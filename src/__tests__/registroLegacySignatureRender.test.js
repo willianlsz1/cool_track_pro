@@ -250,11 +250,12 @@ describe('registro legacy signature render adapter', () => {
     expect(hint.querySelector('.registro-sig-hint__title')?.textContent).toContain(
       'Assinatura do cliente',
     );
-    expect(hint.querySelector('.registro-sig-hint__badge--plus')?.textContent).toBe('Plus');
+    expect(hint.querySelector('.registro-sig-hint__badge--plus')?.textContent).toBe('Indisponivel');
 
     const cta = hint.querySelector('[data-action="signature-upsell-cta"]');
     expect(cta?.tagName).toBe('BUTTON');
     expect(cta?.getAttribute('type')).toBe('button');
+    expect(cta?.disabled).toBe(true);
     expect(document.querySelector('#tour-signature-anchor')).not.toBeNull();
     expect(document.querySelector('[data-action="save-registro"]')).not.toBeNull();
     expect(document.querySelector('[data-action="save-and-share-registro"]')).not.toBeNull();

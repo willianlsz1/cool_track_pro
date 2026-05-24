@@ -308,10 +308,10 @@ describe('registro legacy checklist render adapter', () => {
     );
 
     const cta = upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]');
-    expect(cta?.textContent).toContain('Area comercial indisponivel');
+    expect(cta?.textContent).toContain('Recurso indisponivel');
 
     registro.setChecklistItemStatus('filtros_limpeza', 'ok');
-    expect(mocks.toastWarning).toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
+    expect(mocks.toastWarning).toHaveBeenCalledWith('Recurso indisponivel nesta etapa.');
     expect(mocks.goTo).not.toHaveBeenCalled();
     expect(registro.getCurrentChecklist()).toBeNull();
   });

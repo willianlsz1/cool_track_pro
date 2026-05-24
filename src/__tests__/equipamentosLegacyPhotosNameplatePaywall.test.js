@@ -220,7 +220,7 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
     expect(lockedNameplate?.classList.contains('nameplate-cta__btn--locked')).toBe(true);
   });
 
-  it('mantem handlers legados acionaveis para abrir/salvar fotos e aviso comercial desativado', async () => {
+  it('mantem handlers legados acionaveis para abrir/salvar fotos sem superficie comercial', async () => {
     const openPhotos = document.createElement('button');
     openPhotos.type = 'button';
     openPhotos.dataset.action = 'open-eq-photos-editor';
@@ -229,16 +229,8 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
     openPhotos.textContent = 'Gerenciar fotos';
 
     const savePhotos = document.querySelector('[data-action="save-eq-photos"]');
-    const upgrade = document.createElement('button');
-    upgrade.type = 'button';
-    upgrade.dataset.action = 'open-upgrade';
-    upgrade.dataset.upgradeSource = 'equip_detail_photos';
-    upgrade.dataset.highlightPlan = 'plus';
-    upgrade.dataset.tier = 'free';
-    upgrade.textContent = 'Desbloquear com Plus';
-
     document.getElementById('modal-eq-det')?.classList.add('is-open');
-    document.body.append(openPhotos, upgrade);
+    document.body.append(openPhotos);
 
     await click(openPhotos);
     expect(openPhotos.dataset).toMatchObject({ id: 'eq-1', mode: 'gallery' });
@@ -247,15 +239,8 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
     await click(savePhotos);
     expect(mocks.saveEquipPhotos).toHaveBeenCalledTimes(1);
 
-    await click(upgrade);
-    await vi.waitFor(() => {
-      expect(mocks.toastInfo).toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
-    });
-    expect(mocks.trackEvent).toHaveBeenCalledWith('upgrade_cta_clicked', {
-      source: 'equip_detail_photos',
-      highlight_plan: 'plus',
-    });
-    expect(mocks.modalClose).toHaveBeenCalledWith('modal-eq-det');
+    expect(mocks.toastInfo).not.toHaveBeenCalled();
+    expect(mocks.trackEvent).not.toHaveBeenCalledWith('upgrade_cta_clicked', expect.anything());
   });
 
   it('preserva estados do nameplate gate e aciona upsell legado sem analise real', async () => {
@@ -285,7 +270,7 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
       source: 'equip_modal',
     });
     expect(mocks.modalClose).toHaveBeenCalledWith('modal-add-eq');
-    expect(mocks.toastWarning).toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
+    expect(mocks.toastWarning).toHaveBeenCalledWith('Recurso indisponivel nesta etapa.');
     expect(mocks.goTo).not.toHaveBeenCalled();
   });
 
@@ -301,23 +286,16 @@ describe('equipamentos legacy photos/nameplate/paywall contracts', () => {
 
     expect(getEquipmentPhotoUrl(unsafeEq)).toBe('data:image/png;base64,AAAA');
 
-    const maliciousUpgrade = document.createElement('button');
-    maliciousUpgrade.type = 'button';
-    maliciousUpgrade.dataset.action = 'open-upgrade';
-    maliciousUpgrade.dataset.upgradeSource = 'javascript:alert(1)';
-    maliciousUpgrade.dataset.highlightPlan = 'javascript:alert(2)';
-    maliciousUpgrade.dataset.tier = 'free<script>';
-    maliciousUpgrade.textContent = '<img src=x onerror=alert(1)>';
-    document.body.appendChild(maliciousUpgrade);
+    const inertButton = document.createElement('button');
+    inertButton.type = 'button';
+    inertButton.dataset.action = 'disabled-resource';
+    inertButton.dataset.tier = 'free<script>';
+    inertButton.textContent = '<img src=x onerror=alert(1)>';
+    document.body.appendChild(inertButton);
 
-    await click(maliciousUpgrade);
-    await vi.waitFor(() => {
-      expect(mocks.toastInfo).toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
-    });
-    expect(mocks.trackEvent).toHaveBeenCalledWith('upgrade_cta_clicked', {
-      source: 'dashboard',
-      highlight_plan: 'pro',
-    });
+    await click(inertButton);
+    expect(mocks.toastInfo).not.toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
+    expect(mocks.trackEvent).not.toHaveBeenCalledWith('upgrade_cta_clicked', expect.anything());
     expect(document.querySelector('script')).toBeNull();
     expect(document.querySelector('[onerror]')).toBeNull();
     expect(document.querySelector('[onclick]')).toBeNull();

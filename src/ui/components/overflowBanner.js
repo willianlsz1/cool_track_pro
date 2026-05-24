@@ -251,39 +251,39 @@ export const OverflowBanner = {
 
 function buildBannerCopy(state) {
   if (state.limitType === 'equipamentos') {
-    return `VocÃª cadastrou ${state.equipCount} equipamentos â€” o plano grÃ¡tis permite ${state.equipLimit}.`;
+    return `Voce cadastrou ${state.equipCount} equipamentos; revise a organizacao antes de adicionar novos itens.`;
   }
   if (state.limitType === 'registros') {
-    return `VocÃª registrou ${state.reportCount} serviÃ§os este mÃªs â€” o plano grÃ¡tis permite ${state.reportLimit}.`;
+    return `Voce registrou ${state.reportCount} servicos este mes; revise a fila antes de continuar.`;
   }
   // both
-  return `VocÃª ultrapassou os limites do plano grÃ¡tis (equipamentos e registros).`;
+  return 'Revise os limites operacionais de equipamentos e registros antes de continuar.';
 }
 
 function buildModalCopy(state) {
   if (state.limitType === 'equipamentos') {
     return {
-      title: 'Seu parque passou dos 3 equipamentos',
+      title: 'Revise o parque de equipamentos',
       description:
-        'O plano grÃ¡tis permite 3 equipamentos cadastrados. VocÃª continua vendo os atuais, mas para cadastrar novos o Plus destrava atÃ© 15 equipamentos.',
-      ctaLabel: 'Area comercial indisponivel',
+        'A area comercial foi removida desta versao. Continue usando os equipamentos atuais e revise a organizacao antes de cadastrar novos itens.',
+      ctaLabel: '',
       highlightPlan: 'plus',
     };
   }
   if (state.limitType === 'registros') {
     return {
-      title: 'VocÃª chegou ao limite de registros do plano grÃ¡tis',
+      title: 'Revise os registros deste mes',
       description:
-        'Seu plano grÃ¡tis atual jÃ¡ permite registros ilimitados. Se esta mensagem aparecer, atualize o app para sincronizar as novas regras de plano.',
-      ctaLabel: 'Area comercial indisponivel',
+        'A area comercial foi removida desta versao. Continue usando os registros operacionais e atualize o app se esta mensagem persistir.',
+      ctaLabel: '',
       highlightPlan: 'plus',
     };
   }
   return {
-    title: 'VocÃª ultrapassou os limites do plano grÃ¡tis',
+    title: 'Revise os limites operacionais',
     description:
-      'VocÃª ultrapassou os limites do plano grÃ¡tis. O Plus cobre atÃ© 15 equipamentos e o Pro cobre frota grande com equipamentos ilimitados.',
-    ctaLabel: 'Area comercial indisponivel',
+      'A area comercial foi removida desta versao. Revise equipamentos e registros antes de continuar.',
+    ctaLabel: '',
     highlightPlan: 'plus',
   };
 }
@@ -445,14 +445,6 @@ function openModal(state) {
         <button type="button" class="overflow-modal__btn overflow-modal__btn--ghost" data-action="dismiss">
           Continuar assim
         </button>
-        <button
-          type="button"
-          class="overflow-modal__btn overflow-modal__btn--primary"
-          data-upgrade-source="overflow_modal"
-          data-highlight-plan="${copy.highlightPlan}"
-          disabled
-          aria-disabled="true"
-        >${Utils.escapeHtml(copy.ctaLabel)} &rarr;</button>
       </div>
     </div>
   `;

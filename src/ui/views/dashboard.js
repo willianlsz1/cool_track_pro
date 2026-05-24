@@ -387,14 +387,7 @@ async function resolveDashboardPlanContext() {
 // Pro status card (preservado — aparece só quando tier=pro)
 // ═══════════════════════════════════════════════════════
 function _renderProStatusCard() {
-  return `
-    <article class="upgrade-nudge-card upgrade-nudge-card--pro-active" aria-label="Plano Pro ativo">
-      <span class="upgrade-nudge-card__badge">PRO ATIVO</span>
-      <div class="upgrade-nudge-card__icon" aria-hidden="true">&#10003;</div>
-      <h3 class="upgrade-nudge-card__pro-title">Plano Pro ativo</h3>
-      <p class="upgrade-nudge-card__pro-copy">Todos os recursos premium estão liberados para sua conta.</p>
-    </article>
-  `;
+  return '';
 }
 
 // ═══════════════════════════════════════════════════════

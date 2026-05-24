@@ -184,7 +184,7 @@ describe('global header legacy contracts', () => {
       ]),
     );
     expect(HEADER_DATA_ATTRIBUTES).toEqual(
-      expect.arrayContaining(['data-action', 'data-nav', 'data-tier', 'data-plan']),
+      expect.arrayContaining(['data-action', 'data-nav', 'data-tier']),
     );
 
     [

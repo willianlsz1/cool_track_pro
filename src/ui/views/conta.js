@@ -98,7 +98,6 @@ const ICON_INFO = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" s
 const ICON_EXTERNAL = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M10 14L20 4"/><path d="M20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5"/></svg>`;
 const ICON_CHEV = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>`;
 const ICON_USER = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>`;
-const ICON_CARD = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/></svg>`;
 const ICON_DOWNLOAD = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 const ICON_LOGOUT = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>`;
 const ICON_TRASH = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="m6 6 1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>`;
@@ -118,34 +117,18 @@ function _planBadgeIcon(planCode) {
   return ICON_SPARK;
 }
 
-function _planBadgeLabel(planCode, planLabel) {
-  if (planCode === PLAN_CODE_FREE) return 'PLANO ATUAL';
-  return `${planLabel.toUpperCase()} · ATIVO`;
+function _planBadgeLabel(_planCode, _planLabel) {
+  return 'STATUS OPERACIONAL';
 }
 
-function _planTagline(planCode, planData) {
-  if (planCode === PLAN_CODE_FREE) {
-    return 'Use o fluxo operacional sem fluxo comercial nesta etapa.';
-  }
-  if (planCode === PLAN_CODE_PLUS) {
-    return 'Seu plano está ativo e os recursos profissionais liberados.';
-  }
-  if (planCode === PLAN_CODE_PRO) {
-    return 'Seu plano está ativo e com todos os recursos liberados.';
-  }
-  return planData?.accountTagline || '';
+function _planTagline(_planCode, _planData) {
+  return 'Use o fluxo operacional sem area comercial nesta versao.';
 }
 
 // 3 chips de destaque por plano. Reuso o accountChips do catálogo, mas
 // adapto pra ficarem curtos e legíveis no card hero (max ~22 chars cada).
-function _planFeatureChips(planCode) {
-  if (planCode === PLAN_CODE_FREE) {
-    return ['Até 3 equipamentos', 'PDF com marca d’água', 'Relatórios + WhatsApp'];
-  }
-  if (planCode === PLAN_CODE_PLUS) {
-    return ['Até 15 equipamentos', 'PDF profissional', '60 envios WhatsApp/mês'];
-  }
-  return ['Equipamentos ilimitados', 'PMOC formal NBR 13971', 'Suporte prioritário'];
+function _planFeatureChips(_planCode) {
+  return ['Equipamentos', 'Registros de serviço', 'Relatórios operacionais'];
 }
 
 /* ───────────────────────── render: hero plano ─────────────────────── */
@@ -207,7 +190,7 @@ function _renderHeroPlan({ planCode, planData }) {
 
       <h1 class="conta-hero__title" id="conta-hero-title">
         <span class="conta-hero__title-brand">CoolTrack</span>
-        <span class="conta-hero__title-tier">${planData.label}</span>
+        <span class="conta-hero__title-tier">Operacional</span>
       </h1>
 
       <p class="conta-hero__tagline">${tagline}</p>
@@ -219,7 +202,7 @@ function _renderHeroPlan({ planCode, planData }) {
           <div class="conta-hero__stat-head">
             <span class="conta-hero__stat-label">
               Equipamentos cadastrados
-              <span class="conta-hero__stat-info" aria-hidden="true" title="Quantos equipamentos você já cadastrou no app, dentro do limite do plano.">${ICON_INFO}</span>
+              <span class="conta-hero__stat-info" aria-hidden="true" title="Quantos equipamentos você já cadastrou no app.">${ICON_INFO}</span>
             </span>
           </div>
           <div class="conta-hero__usage-value-line">
@@ -250,7 +233,7 @@ function _renderIdentity({ name, email, role, planCode, mode }) {
   const safeName = _escapeHtml(name || 'Usuário');
   const safeRole = _escapeHtml(role || 'Técnico em Refrigeração');
   const safeEmail = _escapeHtml(email || '');
-  const safePlanCode = _escapeHtml(String(planCode || '').toUpperCase());
+  const safePlanCode = 'OPERACIONAL';
   const subtitle =
     mode === NAV_MODE_EMPRESA || planCode === PLAN_CODE_PRO
       ? 'Operando com clientes'
@@ -299,7 +282,7 @@ function _renderUsageCard({
     : '';
   const limitLine =
     Number.isFinite(equipmentLimit) && !isPro
-      ? `<p class="conta-usage__hint">Limite do plano: ${equipmentLimit} equipamentos.</p>`
+      ? `<p class="conta-usage__hint">Limite operacional: ${equipmentLimit} equipamentos.</p>`
       : '';
   const pmocLine = isPro
     ? `<p class="conta-usage__hint">${pmocStatus || 'PMOC sem dados ainda'}</p>`
@@ -318,36 +301,12 @@ function _renderUsageCard({
     </section>`;
 }
 
-function _renderPlanCard({ planCode }) {
-  if (planCode === PLAN_CODE_PRO) {
-    return `
-      <section class="conta-plan-card" aria-label="Plano atual">
-        <div class="conta-section__kicker">PLANO ATUAL</div>
-        <h2>CoolTrack Pro</h2>
-        <p>Clientes, setores, PMOC e operação completa liberados.</p>
-        <ul>
-          <li>clientes organizados</li><li>setores por local</li><li>equipamentos ilimitados</li>
-          <li>PMOC formal</li><li>suporte prioritário</li>
-        </ul>
-      </section>`;
-  }
-  if (planCode === PLAN_CODE_PLUS) {
-    return `
-      <section class="conta-plan-card" aria-label="Plano atual">
-        <div class="conta-section__kicker">PLANO ATUAL</div>
-        <h2>Area comercial removida</h2>
-        <p>Feito para técnico autônomo.</p>
-        <ul>
-          <li>até 15 equipamentos</li><li>relatórios profissionais</li><li>assinatura digital</li>
-          <li>IA para cadastro por foto</li><li>envio via WhatsApp</li>
-        </ul>
-      </section>`;
-  }
+function _renderPlanCard({ planCode: _planCode }) {
   return `
-    <section class="conta-plan-card" aria-label="Plano atual">
-      <div class="conta-section__kicker">PLANO ATUAL</div>
+    <section class="conta-plan-card" aria-label="Status operacional">
+      <div class="conta-section__kicker">STATUS OPERACIONAL</div>
       <h2>Operacional</h2>
-      <p>Fluxo operacional sem planos pagos ou assinatura.</p>
+      <p>Fluxo operacional sem area comercial nesta versao.</p>
       <ul>
         <li>equipamentos sem limite comercial</li><li>registros de serviço</li><li>relatórios operacionais</li>
         <li>funciona offline</li>
@@ -417,9 +376,6 @@ function _renderSection({ label, rows }) {
 }
 
 function _renderAllSections() {
-  const commercialLabel = 'Area comercial indisponivel';
-  const commercialSub = 'Area comercial sera refeita em uma etapa propria.';
-
   const conta = _renderSection({
     label: 'CONTA',
     rows: [
@@ -430,21 +386,6 @@ function _renderAllSections() {
         title: 'Editar perfil',
         sub: 'Atualize suas informações pessoais e de contato.',
         action: 'conta-edit-profile',
-        tone: 'neutral',
-      },
-    ],
-  });
-
-  const assinatura = _renderSection({
-    label: 'AREA COMERCIAL',
-    rows: [
-      {
-        id: 'conta-row-manage',
-        icon: ICON_CARD,
-        iconTint: 'violet',
-        title: commercialLabel,
-        sub: commercialSub,
-        action: 'none',
         tone: 'neutral',
       },
     ],
@@ -498,7 +439,7 @@ function _renderAllSections() {
     ],
   });
 
-  return `${conta}${assinatura}${dados}${risco}`;
+  return `${conta}${dados}${risco}`;
 }
 
 /* ───────────────────────── footer LGPD ────────────────────────────── */
@@ -567,7 +508,7 @@ function _bindOnce() {
       case 'manage-plan':
       case 'upgrade':
       case 'conta-manage-plan':
-        Toast.warning('Area comercial desativada nesta etapa.');
+        Toast.warning('Recurso indisponivel nesta etapa.');
         break;
       case 'go-registro':
         goTo('registro');

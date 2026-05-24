@@ -687,7 +687,7 @@
                 class="registro-sig-hint__cta registro-sig-hint__cta--pro"
                 disabled
                 aria-disabled="true">
-                Area comercial indisponivel
+                Recurso indisponivel
               </button>
             </div>
 

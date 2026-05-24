@@ -42,19 +42,10 @@ const ICON_CHECK = `
   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M4 12l5 5L20 6"/>
   </svg>`;
-const ICON_BOLT = `
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>
-  </svg>`;
 const ICON_USER = `
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <circle cx="12" cy="8" r="4"/>
     <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
-  </svg>`;
-const ICON_CARD = `
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <rect x="3" y="6" width="18" height="13" rx="2"/>
-    <path d="M3 10h18M7 15h3"/>
   </svg>`;
 const ICON_LOGOUT = `
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -87,7 +78,7 @@ function getPlanBadgeIconHtml(planCode) {
   return '<span class="account-modal__plan-pulse"></span>';
 }
 
-function getPlanBadgeLabel(planCode, planLabel) {
+function _getPlanBadgeLabel(planCode, planLabel) {
   if (planCode === PLAN_CODE_FREE) return 'PLANO ATUAL';
   return `${planLabel.toUpperCase()} · ATIVO`;
 }
@@ -111,7 +102,7 @@ function renderChips(chips, variant) {
 }
 
 // "12/MAI" a partir de ISO date. Retorna '' se inválido.
-function formatRenewalShort(dateStr) {
+function _formatRenewalShort(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return '';
@@ -143,15 +134,7 @@ function getEquipmentCount() {
 
 // Renderiza a seção inferior do hero: CTA primário no Free, bar de uso
 // no Plus/Pro. Plus mostra "count / 15", Pro mostra "count · ilimitado".
-function renderHeroFooter(planCode, planData) {
-  if (planCode === PLAN_CODE_FREE) {
-    return `
-      <button type="button" class="account-modal__hero-cta" id="btn-upgrade-plan">
-        <span class="account-modal__hero-cta-icon">${ICON_BOLT}</span>
-        <span>Area comercial indisponivel</span>
-      </button>`;
-  }
-
+function renderHeroFooter(_planCode, planData) {
   const count = getEquipmentCount();
   const limit = planData.limits.equipamentos;
   const isUnlimited = !Number.isFinite(limit);
@@ -195,14 +178,18 @@ export function openAccountModal(
   const email = user?.email || '';
   const initials = getInitials(name);
 
-  const planCode = getEffectivePlan(planProfile);
-  const planData = PLAN_CATALOG[planCode] || PLAN_CATALOG[PLAN_CODE_FREE];
-  const isFree = planCode === PLAN_CODE_FREE;
-  const chipsVariant = isFree ? 'stroke' : 'filled';
+  getEffectivePlan(planProfile);
+  const planCode = PLAN_CODE_FREE;
+  const planData = {
+    ...PLAN_CATALOG[PLAN_CODE_FREE],
+    label: 'Operacional',
+    accountTagline: 'Fluxo operacional sem area comercial nesta versao.',
+    accountChips: ['Perfil local', 'Dados operacionais', 'Exportacao de dados'],
+  };
+  const chipsVariant = 'filled';
 
   const tierModifier = `account-modal--${planCode}`;
-  const renewDate = !isFree ? formatRenewalShort(planProfile.subscription_current_period_end) : '';
-  const manageLabel = 'Area comercial indisponivel';
+  const renewDate = '';
 
   const overlay = document.createElement('div');
   overlay.id = ACCOUNT_MODAL_ID;
@@ -217,19 +204,17 @@ export function openAccountModal(
 
       <section class="account-modal__hero">
         <span class="account-modal__hero-orb account-modal__hero-orb--a" aria-hidden="true"></span>
-        ${planCode === PLAN_CODE_PRO ? '<span class="account-modal__hero-orb account-modal__hero-orb--b" aria-hidden="true"></span>' : ''}
-
         <div class="account-modal__hero-top">
           <span class="account-modal__plan-badge">
             <span class="account-modal__plan-badge-icon">${getPlanBadgeIconHtml(planCode)}</span>
-            ${getPlanBadgeLabel(planCode, planData.label)}
+            STATUS OPERACIONAL
           </span>
           ${renewDate ? `<span class="account-modal__renew">Renova ${renewDate}</span>` : ''}
         </div>
 
         <div class="account-modal__plan-name">
           <span class="account-modal__plan-brand">CoolTrack</span>
-          <span class="account-modal__plan-tier">${planData.label}</span>
+          <span class="account-modal__plan-tier">Operacional</span>
         </div>
 
         <p class="account-modal__plan-tagline">${planData.accountTagline || ''}</p>
@@ -255,12 +240,6 @@ export function openAccountModal(
           <span class="account-modal__action-label">Editar perfil</span>
           <span class="account-modal__action-chev">${ICON_ARROW}</span>
         </button>
-        <button type="button" class="account-modal__action account-modal__action--neutral" id="btn-manage-plan">
-          <span class="account-modal__action-icon">${ICON_CARD}</span>
-          <span class="account-modal__action-label">${manageLabel}</span>
-          <span class="account-modal__action-chev">${ICON_ARROW}</span>
-        </button>
-        <div class="account-modal__action-separator" aria-hidden="true"></div>
         <button type="button" class="account-modal__action account-modal__action--neutral" id="btn-export-data">
           <span class="account-modal__action-icon">${ICON_DOWNLOAD}</span>
           <span class="account-modal__action-label">Exportar meus dados</span>
@@ -295,14 +274,6 @@ export function openAccountModal(
   overlay.querySelector('#btn-edit-profile')?.addEventListener('click', () => {
     closeAccountModal();
     onEditProfile?.();
-  });
-
-  overlay.querySelector('#btn-upgrade-plan')?.addEventListener('click', () => {
-    Toast.info('Area comercial fora do app nesta etapa.');
-  });
-
-  overlay.querySelector('#btn-manage-plan')?.addEventListener('click', () => {
-    Toast.info('Area comercial fora do app nesta etapa.');
   });
 
   overlay.querySelector('#btn-signout')?.addEventListener('click', () => {

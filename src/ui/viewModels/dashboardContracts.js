@@ -70,7 +70,6 @@ export const DASHBOARD_ACTIONS = Object.freeze({
   contextualOnboardingRegister: 'contextual-onboarding-register',
   contextualOnboardingClientes: 'contextual-onboarding-clientes',
   contextualOnboardingSkip: 'contextual-onboarding-skip',
-  openUpgrade: 'open-upgrade',
   viewEquip: 'view-equip',
   continueDraft: 'continue-draft',
   discardDraft: 'discard-draft',
@@ -158,7 +157,5 @@ export const DASHBOARD_DATA_ATTRIBUTES = Object.freeze([
   'data-action',
   'data-id',
   'data-nav',
-  'data-upgrade-source',
-  'data-highlight-plan',
   'data-limit-type',
 ]);

@@ -294,7 +294,7 @@ function bindOnce() {
       } catch (_) {
         /* se o Modal nao esta aberto por algum motivo, segue com o aviso local */
       }
-      Toast.warning('Area comercial fora do app nesta etapa.');
+      Toast.warning('Recurso indisponivel nesta etapa.');
     });
   }
 

@@ -27,7 +27,7 @@ describe('PMOC overlay surfaces', () => {
     document.body.innerHTML = '';
   });
 
-  it('marca PMOC formal Pro como modal real', async () => {
+  it('marca PMOC formal com acesso operacional como modal real', async () => {
     const { PmocModal } = await import('../ui/components/pmocModal.js');
 
     PmocModal.open({
@@ -41,10 +41,10 @@ describe('PMOC overlay surfaces', () => {
     expect(overlay?.dataset.surface).toBe('modal');
     expect(overlay?.getAttribute('aria-modal')).toBe('true');
     expect(overlay?.querySelector('#pmoc-generate')).toBeTruthy();
-    expect(overlay?.textContent).toContain('Não substitui o relatório técnico de cada visita');
+    expect(overlay?.textContent).toContain('Nao substitui o relatorio tecnico de cada visita');
   });
 
-  it('marca bloqueio PMOC nao-Pro como paywall', async () => {
+  it('marca bloqueio PMOC sem acesso operacional como recurso indisponivel', async () => {
     const { PmocModal } = await import('../ui/components/pmocModal.js');
 
     PmocModal.open({
@@ -55,9 +55,9 @@ describe('PMOC overlay surfaces', () => {
 
     const overlay = document.getElementById('pmoc-modal-overlay');
     expect(overlay).toBeTruthy();
-    expect(overlay?.dataset.surface).toBe('paywall');
-    expect(overlay?.querySelector('#pmoc-upgrade')?.dataset.highlightPlan).toBe('pro');
-    expect(overlay?.textContent).toContain('PMOC formal anual é recurso Pro');
+    expect(overlay?.dataset.surface).toBe('blocked');
+    expect(overlay?.querySelector('#pmoc-upgrade')?.dataset.highlightPlan).toBeUndefined();
+    expect(overlay?.textContent).toContain('PMOC formal anual indisponivel nesta versao');
   });
 
   it('marca modal informativo PMOC como modal real', async () => {
@@ -69,6 +69,6 @@ describe('PMOC overlay surfaces', () => {
     expect(overlay).toBeTruthy();
     expect(overlay?.dataset.surface).toBe('modal');
     expect(overlay?.getAttribute('aria-labelledby')).toBe('pmoc-info-modal-title');
-    expect(overlay?.textContent).toContain('Relatório técnico x PMOC formal');
+    expect(overlay?.textContent).toContain('Relat');
   });
 });

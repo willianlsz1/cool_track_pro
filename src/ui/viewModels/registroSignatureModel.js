@@ -24,23 +24,23 @@ export function buildRegistroSignatureModel({
     ? String(signatureSrc).trim()
     : '';
   const signed = Boolean(safeSignatureSrc);
-  const plus = Boolean(isPlusOrHigher);
+  const hasSignatureAccess = Boolean(isPlusOrHigher);
 
   return {
-    isPlusOrHigher: plus,
+    isPlusOrHigher: hasSignatureAccess,
     signed,
     safeSignatureSrc,
     showCaptureAction: Boolean(showCaptureAction),
     title:
       String(label || '').trim() ||
-      (!plus ? 'Assinatura do cliente no PDF' : 'Assinatura do cliente'),
-    badge: !plus ? 'Plus' : signed ? 'Assinado' : 'Incluso',
+      (!hasSignatureAccess ? 'Assinatura do cliente indisponivel' : 'Assinatura do cliente'),
+    badge: !hasSignatureAccess ? 'Indisponivel' : signed ? 'Assinado' : 'Incluso',
     description:
       String(description || '').trim() ||
-      (!plus
-        ? 'Feche o serviço com a rubrica do cliente diretamente no app — recurso do plano Plus.'
-        : signed
-          ? 'Assinatura anexada ao registro e pronta para aparecer no PDF oficial do serviço.'
-          : 'Ao salvar, solicitamos a rubrica do cliente — fica anexada ao registro e aparece no PDF oficial do serviço.'),
+      (hasSignatureAccess
+        ? signed
+          ? 'Assinatura anexada ao registro e pronta para aparecer no PDF oficial do servico.'
+          : 'Ao salvar, solicitamos a rubrica do cliente; ela fica anexada ao registro e aparece no PDF oficial do servico.'
+        : 'A assinatura digital sera refeita em uma etapa propria e nao esta disponivel nesta versao.'),
   };
 }

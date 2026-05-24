@@ -217,7 +217,7 @@ describe('applyEquipPhotosEditorGate — Free (bloqueado / defense-in-depth)', (
 
     expect(trackEvent).toHaveBeenCalledWith('photo_upsell_clicked', { source: 'equip_detail' });
     expect(modalClose).toHaveBeenCalledWith('modal-eq-photos');
-    expect(toastWarning).toHaveBeenCalledWith('Area comercial fora do app nesta etapa.');
+    expect(toastWarning).toHaveBeenCalledWith('Recurso indisponivel nesta etapa.');
     expect(goTo).not.toHaveBeenCalled();
   });
 

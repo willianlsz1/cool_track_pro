@@ -1,14 +1,8 @@
 /**
- * CoolTrack Pro - PMOC Modal (Fase 5 PMOC, abr/2026)
+ * CoolTrack Pro - PMOC Modal.
  *
- * Modal de configuração antes de gerar o PDF PMOC formal:
- *   - Seletor de ano-base (default = ano corrente)
- *   - Seletor de cliente (opcional — null = PMOC sem vínculo formal)
- *   - Botão Gerar
- *
- * Pro-gated: Free/Plus veem variante "lock" com CTA upsell. A decisão
- * de qual variante mostrar é responsabilidade do chamador (passa
- * `isPro` no opts).
+ * Modal de configuracao antes de gerar o PDF PMOC formal.
+ * Perfis sem acesso operacional veem estado bloqueado sem CTA comercial.
  */
 
 import { Utils } from '../../core/utils.js';
@@ -38,15 +32,14 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
     <div class="modal pmoc-modal">
       <header class="pmoc-modal__head">
         <div class="pmoc-modal__head-text">
-          <h2 class="pmoc-modal__title" id="pmoc-modal-title">
-            Gerar PMOC formal
-            ${isPro ? '' : '<span class="pro-badge pro-badge--inline">PRO</span>'}
-          </h2>
+          <h2 class="pmoc-modal__title" id="pmoc-modal-title">Gerar PMOC formal</h2>
           <p class="pmoc-modal__sub">
-            Documento anual conforme NBR 13971, com capa institucional, cadastro técnico,
+            Documento anual conforme NBR 13971, com capa institucional, cadastro tecnico,
             cronograma e termo de responsabilidade.
           </p>
-          <p class="pmoc-modal__sub">Usa clientes, equipamentos e serviços registrados. Não substitui o relatório técnico de cada visita.</p>
+          <p class="pmoc-modal__sub">
+            Usa clientes, equipamentos e servicos registrados. Nao substitui o relatorio tecnico de cada visita.
+          </p>
         </div>
         <button type="button" class="pmoc-modal__close" id="pmoc-close" aria-label="Fechar">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -61,11 +54,10 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
           isPro
             ? ''
             : `<div class="pmoc-modal__lock">
-                <div class="pmoc-modal__lock-icon" aria-hidden="true">🔒</div>
+                <div class="pmoc-modal__lock-icon" aria-hidden="true">!</div>
                 <div>
-                  <strong>PMOC formal anual é recurso Pro.</strong>
-                  <p>Use quando precisar entregar o documento oficial com numeração,
-                     termo de RT e cronograma anual.</p>
+                  <strong>PMOC formal anual indisponivel nesta versao.</strong>
+                  <p>Este documento sera tratado em uma etapa propria antes de voltar para o fluxo principal.</p>
                 </div>
               </div>`
         }
@@ -75,7 +67,7 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
           <select id="pmoc-ano" class="form-control pmoc-modal__input" ${isPro ? '' : 'disabled'}>
             ${anoOptions}
           </select>
-          <div class="pmoc-modal__hint">Cobertura jan–dez do ano selecionado.</div>
+          <div class="pmoc-modal__hint">Cobertura janeiro a dezembro do ano selecionado.</div>
         </div>
 
         <div class="pmoc-modal__field">
@@ -87,7 +79,7 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
             ${optionsClientes}
           </select>
           <div class="pmoc-modal__hint">
-            Filtra os equipamentos do cliente. Sem vínculo, gera um PMOC geral com todos os equipamentos cadastrados.
+            Filtra os equipamentos do cliente. Sem vinculo, gera um PMOC geral com todos os equipamentos cadastrados.
           </div>
         </div>
 
@@ -101,8 +93,8 @@ function buildOverlayHtml({ ano, clientes, isPro, preselectClienteId }) {
                   Gerar PMOC formal
                 </button>`
               : `<button type="button" class="btn btn--primary pmoc-modal__btn" id="pmoc-upgrade"
-                  data-upgrade-source="pmoc_modal" data-highlight-plan="pro" disabled aria-disabled="true">
-                  Area comercial indisponivel
+                  disabled aria-disabled="true">
+                  Indisponivel nesta versao
                 </button>`
           }
         </div>
@@ -120,7 +112,7 @@ function open({ clientes, isPro, onConfirm, preselectClienteId = null }) {
   overlay.className = 'modal-overlay is-open pmoc-modal-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
-  overlay.dataset.surface = isPro ? 'modal' : 'paywall';
+  overlay.dataset.surface = isPro ? 'modal' : 'blocked';
   overlay.setAttribute('aria-labelledby', 'pmoc-modal-title');
   overlay.innerHTML = buildOverlayHtml({ ano: anoDefault, clientes, isPro, preselectClienteId });
   document.body.appendChild(overlay);
@@ -157,11 +149,6 @@ function open({ clientes, isPro, onConfirm, preselectClienteId = null }) {
         generateBtn.disabled = false;
         generateBtn.textContent = original;
       }
-    });
-  } else {
-    overlay.querySelector('#pmoc-upgrade')?.addEventListener('click', () => {
-      hardClose();
-      Toast.warning('Area comercial fora do app nesta etapa.');
     });
   }
 }

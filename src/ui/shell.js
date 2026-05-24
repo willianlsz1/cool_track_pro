@@ -165,7 +165,7 @@ export function updateShellSidebar() {
 
   const ctaLabelEl = document.getElementById('sidenav-plan-cta-label');
   if (ctaLabelEl) {
-    ctaLabelEl.textContent = 'Area comercial indisponivel';
+    ctaLabelEl.textContent = 'Recurso indisponivel';
   }
 
   // Clientes e acessivel em todos os planos; o limite Free fica na criacao.

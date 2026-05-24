@@ -347,7 +347,6 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
     expect(DASHBOARD_ACTIONS).toMatchObject({
       openModal: 'open-modal',
       onboardingDismiss: 'onboarding-dismiss',
-      openUpgrade: 'open-upgrade',
     });
     expect(DASHBOARD_PUBLIC_CLASSES).toEqual(
       expect.arrayContaining([
@@ -359,18 +358,10 @@ describe('dashboard legacy onboarding, empty state and overflow contracts', () =
         'onb-step',
         'onboarding-banner',
         'dash-overflow-banner',
-        'dash-overflow-banner__cta',
       ]),
     );
     expect(DASHBOARD_DATA_ATTRIBUTES).toEqual(
-      expect.arrayContaining([
-        'data-action',
-        'data-id',
-        'data-nav',
-        'data-tier',
-        'data-upgrade-source',
-        'data-highlight-plan',
-      ]),
+      expect.arrayContaining(['data-action', 'data-id', 'data-nav', 'data-tier']),
     );
     expect(dashboardSource).toContain('./dashboard/onboarding.js');
     expect(dashboardSource).toContain('renderOnboardingBlocksDom');

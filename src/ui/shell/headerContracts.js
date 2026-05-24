@@ -75,7 +75,6 @@ export const HEADER_ACTIONS = Object.freeze({
   goOrcamentos: 'go-orcamentos',
   openPmocModal: 'open-pmoc-modal',
   openPmocInfo: 'open-pmoc-info',
-  openUpgrade: 'open-upgrade',
   openProfile: 'open-profile',
   helpOpenTutorial: 'help-open-tutorial',
   helpScoreInfo: 'help-score-info',
@@ -92,6 +91,5 @@ export const HEADER_DATA_ATTRIBUTES = Object.freeze([
   'data-action',
   'data-nav',
   'data-tier',
-  'data-plan',
   'data-has-alerts',
 ]);

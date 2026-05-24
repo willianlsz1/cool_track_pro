@@ -1,7 +1,6 @@
 ﻿import { on } from '../../../core/events.js';
 import { Modal } from '../../../core/modal.js';
 import { goTo } from '../../../core/router.js';
-import { trackEvent } from '../../../core/telemetry.js';
 import { Photos } from '../../components/photos.js';
 import { SupportFeedbackModal } from '../../components/supportFeedbackModal.js';
 import { Toast } from '../../../core/toast.js';
@@ -311,31 +310,6 @@ export function bindNavigationHandlers() {
   // de delegar ao botão "Exportar PDF" (que baixava jsPDF e gerava um arquivo
   // em vez de abrir o diálogo nativo de impressão).
   on('close-lightbox', () => Photos.closeLightbox());
-  on('open-upgrade', async (el, event) => {
-    event?.preventDefault?.();
-    const source = [
-      'usage_meter',
-      'upgrade_nudge',
-      'dashboard',
-      'overflow_banner',
-      'overflow_modal',
-      'equip_detail_photos',
-      'registro_pmoc_checklist',
-    ].includes(el?.dataset?.upgradeSource)
-      ? el.dataset.upgradeSource
-      : 'dashboard';
-    const rawHighlight = el?.dataset?.highlightPlan;
-    const highlightPlan = rawHighlight === 'plus' || rawHighlight === 'pro' ? rawHighlight : 'pro';
-    trackEvent('upgrade_cta_clicked', { source, highlight_plan: highlightPlan });
-
-    // Fecha qualquer modal aberto antes de avisar sobre a area comercial removida.
-    document.querySelectorAll('.modal-overlay.is-open').forEach((overlay) => {
-      if (overlay.id) Modal.close(overlay.id);
-    });
-
-    Toast.info('Area comercial fora do app nesta etapa.');
-  });
-
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"
   on('onboarding-dismiss', () => {
     OnboardingChecklist.dismiss();

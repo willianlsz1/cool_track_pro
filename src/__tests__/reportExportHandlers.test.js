@@ -300,7 +300,7 @@ describe('reportExportHandlers', () => {
     expect(warning).toHaveBeenCalled();
     const toastMsg = warning.mock.calls.map(([message]) => message).join('\n');
     expect(toastMsg).toMatch(/50 PDFs\/mes/);
-    expect(toastMsg).toMatch(/Area comercial fora do app/i);
+    expect(toastMsg).toMatch(/Recurso indisponivel/i);
     expect(goTo).not.toHaveBeenCalled();
   });
 
