@@ -1,10 +1,9 @@
 -- ============================================================
--- Test: billing profile + usage_monthly hardening
+-- Test: profile + usage_monthly hardening
 --
--- Valida lacunas do CP-B:
---   - INSERT autenticado em profiles nao pode semear stripe_*.
+-- Valida:
 --   - UPDATE comum em nome continua permitido.
---   - service_role continua podendo atualizar billing no profile.
+--   - service_role continua podendo atualizar campos operacionais sensiveis.
 --   - Usuario autenticado nao pode inserir/alterar usage_monthly direto.
 --   - RPC increment_monthly_usage continua sendo o caminho permitido.
 -- ============================================================
@@ -21,69 +20,18 @@ declare
   v_rpc_count integer;
 begin
   insert into auth.users (id, email, encrypted_password, created_at, updated_at)
-  values (v_user_id, 'billing-cp-b@test.local', '', now(), now());
+  values (v_user_id, 'profile-usage@test.local', '', now(), now());
 
-  -- Remove profile auto-criado para testar INSERT manual via role autenticada.
   delete from public.profiles where id = v_user_id;
 
   perform set_config('request.jwt.claims', json_build_object('sub', v_user_id)::text, true);
   set local role authenticated;
 
-  begin
-    insert into public.profiles (
-      id,
-      nome,
-      plan,
-      plan_code,
-      subscription_status,
-      is_dev,
-      stripe_customer_id
-    )
-    values (
-      v_user_id,
-      'Billing User',
-      'free',
-      'free',
-      'inactive',
-      false,
-      'cus_seeded_by_client'
-    );
-    raise exception 'FAIL: INSERT profile com stripe_customer_id deveria bloquear';
-  exception
-    when insufficient_privilege then raise notice 'OK: INSERT stripe_customer_id bloqueado';
-    when others then raise exception 'FAIL INSERT stripe_customer_id (errcode %): %', sqlstate, sqlerrm;
-  end;
-
-  begin
-    insert into public.profiles (
-      id,
-      nome,
-      plan,
-      plan_code,
-      subscription_status,
-      is_dev,
-      stripe_subscription_id
-    )
-    values (
-      v_user_id,
-      'Billing User',
-      'free',
-      'free',
-      'inactive',
-      false,
-      'sub_seeded_by_client'
-    );
-    raise exception 'FAIL: INSERT profile com stripe_subscription_id deveria bloquear';
-  exception
-    when insufficient_privilege then raise notice 'OK: INSERT stripe_subscription_id bloqueado';
-    when others then raise exception 'FAIL INSERT stripe_subscription_id (errcode %): %', sqlstate, sqlerrm;
-  end;
-
   insert into public.profiles (id, nome, plan, plan_code, subscription_status, is_dev)
-  values (v_user_id, 'Billing User', 'free', 'free', 'inactive', false);
+  values (v_user_id, 'Profile Usage User', 'free', 'free', 'inactive', false);
 
   update public.profiles
-    set nome = 'Billing User Edited'
+    set nome = 'Profile Usage User Edited'
     where id = v_user_id
     returning 1 into v_profile_count;
 
@@ -102,9 +50,7 @@ begin
   update public.profiles
     set plan = 'pro',
         plan_code = 'pro',
-        subscription_status = 'active',
-        stripe_customer_id = 'cus_service_role',
-        stripe_subscription_id = 'sub_service_role'
+        subscription_status = 'active'
     where id = v_user_id;
 
   if not exists (
@@ -113,10 +59,8 @@ begin
     where id = v_user_id
       and plan_code = 'pro'
       and subscription_status = 'active'
-      and stripe_customer_id = 'cus_service_role'
-      and stripe_subscription_id = 'sub_service_role'
   ) then
-    raise exception 'FAIL: service_role deveria atualizar billing profile';
+    raise exception 'FAIL: service_role deveria atualizar campos operacionais sensiveis';
   end if;
 
   reset role;
@@ -180,9 +124,9 @@ begin
     raise exception 'FAIL: usage_monthly deveria permanecer 1 apos UPDATE bloqueado, ficou %', v_usage_count;
   end if;
 
-  raise notice 'OK: billing profile + usage_monthly hardening validado';
+  raise notice 'OK: profile + usage_monthly hardening validado';
 end $$;
 
 rollback;
 
-\echo 'ok 1 - billing profile + usage_monthly hardening'
+\echo 'ok 1 - profile + usage_monthly hardening'
