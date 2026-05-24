@@ -487,6 +487,11 @@ Progresso executado:
   `src/assets/styles/components/`, que nao eram carregados pelo entrypoint
   principal app-v2.
 - Contratos de remocao ampliados em `legacyV1RemovalContracts`.
+- CP-49 reabriu o inventario apos a limpeza de CSS e confirmou que `src/ui`
+  ainda contem 148 arquivos rastreados, com 163 testes ainda mencionando a UI
+  legada. `src/features`, `src/react` e `src/assets/styles` nao possuem arquivos
+  rastreados restantes, mas a remocao em massa de `src/ui` segue bloqueada por
+  PDF/share, assinatura, fotos, auth, storage, PMOC, router e contratos DOM.
 
 Controle:
 
@@ -586,6 +591,7 @@ A remocao do v1 so deve ser considerada concluida quando:
 
 ## 9. Proximo passo recomendado
 
-Executar CP-1 em uma branch propria com inventario de imports e classificacao
-arquivo a arquivo. Somente depois disso iniciar CP-2, porque os acoplamentos em
-`domain` e `features` ainda tornam a remocao direta insegura.
+Executar o proximo corte em um lote pequeno de `src/ui/components` sem
+PDF/share, assinatura, fotos, storage, auth, PMOC ou router. Antes de apagar
+cada candidato, confirmar ausencia de consumidor runtime ativo com `rg`,
+aposentar ou migrar o teste correspondente e atualizar os gates de remocao.
