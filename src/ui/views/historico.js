@@ -50,6 +50,10 @@ import {
   HISTORICO_TIPO_OPTIONS,
 } from '../viewModels/historicoContracts.js';
 import { buildHistoricoViewModel } from '../viewModels/historicoViewModel.js';
+import {
+  mountHistoricoFiltersDom,
+  unmountHistoricoFiltersDom,
+} from './historico/filtersRenderer.js';
 
 // Histórico é parte do core do produto e não tem corte por data em nenhum
 // plano — Free, Plus e Pro veem todos os registros salvos. Outros limites
@@ -123,8 +127,6 @@ let _clienteFilter = { id: null, nome: null };
 let _historicoTimelineBridgePromise = null;
 let _historicoTimelineBridge = null;
 let _historicoTimelineRenderGeneration = 0;
-let _historicoFiltersBridgePromise = null;
-let _historicoFiltersBridge = null;
 let _historicoFiltersRenderGeneration = 0;
 let _histSearchRenderTimer = null;
 let _histFilterValues = { busca: '', setor: '', equip: '' };
@@ -143,22 +145,6 @@ function loadHistoricoTimelineBridge() {
       });
   }
   return _historicoTimelineBridgePromise;
-}
-
-function loadHistoricoFiltersBridge() {
-  if (_historicoFiltersBridge) return Promise.resolve(_historicoFiltersBridge);
-  if (!_historicoFiltersBridgePromise) {
-    _historicoFiltersBridgePromise = import('../../react/entrypoints/historicoFiltersIsland.jsx')
-      .then((mod) => {
-        _historicoFiltersBridge = mod;
-        return mod;
-      })
-      .catch((error) => {
-        _historicoFiltersBridgePromise = null;
-        throw error;
-      });
-  }
-  return _historicoFiltersBridgePromise;
 }
 
 function readHistoricoFilterDomValue(id) {
@@ -236,16 +222,9 @@ export function unmountHistoricoFilters() {
   captureHistoricoFilterValues();
 
   const root = document.getElementById('hist-filters-root');
-  if (!root?.dataset.reactHistoricoFiltersMounted) return null;
-
-  if (_historicoFiltersBridge?.unmountHistoricoFiltersReact) {
-    _historicoFiltersBridge.unmountHistoricoFiltersReact(root);
-    return null;
-  }
-
-  return loadHistoricoFiltersBridge().then((mod) => {
-    mod.unmountHistoricoFiltersReact?.(root);
-  });
+  if (!root?.dataset.historicoFiltersMounted) return null;
+  unmountHistoricoFiltersDom(root);
+  return null;
 }
 
 function readUrlFilters() {
@@ -1118,7 +1097,7 @@ function ensureHistoricoFiltersRoot() {
   return root;
 }
 
-function buildHistoricoFiltersReactViewModel({
+function buildHistoricoFiltersDomViewModel({
   historicoVm,
   equipamentos,
   setores,
@@ -1228,28 +1207,20 @@ function buildHistoricoCurrentFilters() {
 function buildHistoricoRenderFilters() {
   return buildHistoricoCurrentFilters();
 }
-function mountHistoricoFiltersIsland({ filtersRoot, filtersViewModel, filtersGeneration }) {
+function mountHistoricoFiltersRenderer({ filtersRoot, filtersViewModel, filtersGeneration }) {
   if (!filtersRoot) return null;
+  if (filtersGeneration !== _historicoFiltersRenderGeneration) return null;
 
-  const mountWithBridge = (bridge) => {
-    if (filtersGeneration !== _historicoFiltersRenderGeneration) return null;
-    return bridge.mountHistoricoFiltersReact(filtersRoot, { viewModel: filtersViewModel });
-  };
-
-  if (_historicoFiltersBridge?.mountHistoricoFiltersReact) {
-    return mountWithBridge(_historicoFiltersBridge);
-  }
-
-  return loadHistoricoFiltersBridge().then(mountWithBridge);
+  return mountHistoricoFiltersDom(filtersRoot, { viewModel: filtersViewModel });
 }
 
 function normalizeHistoricoMountResult(result) {
   return result && typeof result.then === 'function' ? result : Promise.resolve(result);
 }
 
-function renderHistoricoFiltersIsland({ historicoVm, equipamentos, setores, filters }) {
+function renderHistoricoFiltersRenderer({ historicoVm, equipamentos, setores, filters }) {
   const filtersRoot = ensureHistoricoFiltersRoot();
-  const filtersViewModel = buildHistoricoFiltersReactViewModel({
+  const filtersViewModel = buildHistoricoFiltersDomViewModel({
     historicoVm,
     equipamentos,
     setores,
@@ -1260,7 +1231,7 @@ function renderHistoricoFiltersIsland({ historicoVm, equipamentos, setores, filt
     tipo: filters.tipo,
   });
   const filtersGeneration = (_historicoFiltersRenderGeneration += 1);
-  const filtersMountResult = mountHistoricoFiltersIsland({
+  const filtersMountResult = mountHistoricoFiltersRenderer({
     filtersRoot,
     filtersViewModel,
     filtersGeneration,
@@ -1440,7 +1411,7 @@ export function renderHist() {
     tipo: filters.tipo,
   });
 
-  const filtersReady = renderHistoricoFiltersIsland({
+  const filtersReady = renderHistoricoFiltersRenderer({
     historicoVm,
     equipamentos,
     setores,

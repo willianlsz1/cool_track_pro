@@ -1,13 +1,10 @@
-import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  mountHistoricoFiltersReact,
-  unmountHistoricoFiltersReact,
-} from '../react/entrypoints/historicoFiltersIsland.jsx';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  mountHistoricoFiltersDom,
+  unmountHistoricoFiltersDom,
+} from '../ui/views/historico/filtersRenderer.js';
 
 function setRoot() {
   document.body.innerHTML = `
@@ -63,7 +60,7 @@ function expectNoInjectedMarkup(root) {
   expect([...root.querySelectorAll('img')].some((img) => img.hasAttribute('onerror'))).toBe(false);
 }
 
-describe('historico filters React island', () => {
+describe('historico filters DOM renderer', () => {
   afterEach(() => {
     document.body.innerHTML = '';
     vi.restoreAllMocks();
@@ -72,12 +69,10 @@ describe('historico filters React island', () => {
   it('mounts only in the filters root preserving public ids, classes and data attributes', async () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountHistoricoFiltersReact(root, { viewModel: createFiltersViewModel() });
-    });
+    mountHistoricoFiltersDom(root, { viewModel: createFiltersViewModel() });
 
-    expect(root?.dataset.reactHistoricoFiltersMounted).toBe('true');
-    expect(document.getElementById('view-historico')?.dataset.reactHistoricoFiltersMounted).toBe(
+    expect(root?.dataset.historicoFiltersMounted).toBe('true');
+    expect(document.getElementById('view-historico')?.dataset.historicoFiltersMounted).toBe(
       undefined,
     );
     expect(document.querySelector('#hist-sticky-header.hist-sticky-header')).not.toBeNull();
@@ -110,21 +105,19 @@ describe('historico filters React island', () => {
     const root = setRoot();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      mountHistoricoFiltersReact(root, { viewModel: createFiltersViewModel() });
-      mountHistoricoFiltersReact(root, {
-        viewModel: createFiltersViewModel({
-          countLabel: '1 registro',
-          filters: {
-            busca: 'troca',
-            setorId: '',
-            equipId: '',
-            period: 'tudo',
-            tipo: '',
-          },
-          activeChips: [{ key: 'Busca', value: '"troca"', clearAction: 'hist-clear-busca' }],
-        }),
-      });
+    mountHistoricoFiltersDom(root, { viewModel: createFiltersViewModel() });
+    mountHistoricoFiltersDom(root, {
+      viewModel: createFiltersViewModel({
+        countLabel: '1 registro',
+        filters: {
+          busca: 'troca',
+          setorId: '',
+          equipId: '',
+          period: 'tudo',
+          tipo: '',
+        },
+        activeChips: [{ key: 'Busca', value: '"troca"', clearAction: 'hist-clear-busca' }],
+      }),
     });
 
     expect(root?.querySelectorAll('#hist-sticky-header')).toHaveLength(1);
@@ -141,41 +134,37 @@ describe('historico filters React island', () => {
   it('unmounts safely and tolerates repeated calls', async () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountHistoricoFiltersReact(root, { viewModel: createFiltersViewModel() });
-      unmountHistoricoFiltersReact(root);
-      unmountHistoricoFiltersReact(root);
-    });
+    mountHistoricoFiltersDom(root, { viewModel: createFiltersViewModel() });
+    unmountHistoricoFiltersDom(root);
+    unmountHistoricoFiltersDom(root);
 
-    expect(root?.dataset.reactHistoricoFiltersMounted).toBeUndefined();
+    expect(root?.dataset.historicoFiltersMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
   });
 
   it('renders search, selected filters, active chips, badge and clear actions', async () => {
     const root = setRoot();
 
-    await act(async () => {
-      mountHistoricoFiltersReact(root, {
-        viewModel: createFiltersViewModel({
-          countLabel: '1 registro',
-          filters: {
-            busca: 'troca',
-            setorId: 'setor-1',
-            equipId: 'eq-1',
-            period: '7d',
-            tipo: 'preventiva',
-          },
-          filtersCount: 3,
-          activeChips: [
-            { key: 'Cliente', value: 'Alpha Mercado', clearAction: 'clear-cliente-filter' },
-            { key: 'Setor', value: 'Loja', clearAction: 'hist-clear-setor' },
-            { key: 'Equipamento', value: 'Split Recepcao', clearAction: 'hist-clear-equip' },
-            { key: 'Tipo', value: 'Preventiva', clearAction: 'hist-clear-tipo' },
-            { key: 'Periodo', value: 'Ultimos 7 dias', clearAction: 'hist-clear-period' },
-            { key: 'Busca', value: '"troca"', clearAction: 'hist-clear-busca' },
-          ],
-        }),
-      });
+    mountHistoricoFiltersDom(root, {
+      viewModel: createFiltersViewModel({
+        countLabel: '1 registro',
+        filters: {
+          busca: 'troca',
+          setorId: 'setor-1',
+          equipId: 'eq-1',
+          period: '7d',
+          tipo: 'preventiva',
+        },
+        filtersCount: 3,
+        activeChips: [
+          { key: 'Cliente', value: 'Alpha Mercado', clearAction: 'clear-cliente-filter' },
+          { key: 'Setor', value: 'Loja', clearAction: 'hist-clear-setor' },
+          { key: 'Equipamento', value: 'Split Recepcao', clearAction: 'hist-clear-equip' },
+          { key: 'Tipo', value: 'Preventiva', clearAction: 'hist-clear-tipo' },
+          { key: 'Periodo', value: 'Ultimos 7 dias', clearAction: 'hist-clear-period' },
+          { key: 'Busca', value: '"troca"', clearAction: 'hist-clear-busca' },
+        ],
+      }),
     });
 
     expect(document.querySelector('#hist-count')?.textContent).toBe('1 registro');
@@ -211,26 +200,24 @@ describe('historico filters React island', () => {
     const root = setRoot();
     const malicious = '<img src=x onerror=alert(1)><script>alert(1)</script>';
 
-    await act(async () => {
-      mountHistoricoFiltersReact(root, {
-        viewModel: createFiltersViewModel({
-          filters: {
-            busca: malicious,
-            setorId: 'setor-xss',
-            equipId: 'eq-xss',
-            period: '7d',
-            tipo: 'preventiva',
-          },
-          filtersCount: 3,
-          setorOptions: [{ id: 'setor-xss', label: malicious }],
-          equipamentoOptions: [{ id: 'eq-xss', label: malicious }],
-          activeChips: [
-            { key: 'Setor', value: malicious, clearAction: 'hist-clear-setor' },
-            { key: 'Equipamento', value: malicious, clearAction: 'hist-clear-equip' },
-            { key: 'Busca', value: `"${malicious}"`, clearAction: 'hist-clear-busca' },
-          ],
-        }),
-      });
+    mountHistoricoFiltersDom(root, {
+      viewModel: createFiltersViewModel({
+        filters: {
+          busca: malicious,
+          setorId: 'setor-xss',
+          equipId: 'eq-xss',
+          period: '7d',
+          tipo: 'preventiva',
+        },
+        filtersCount: 3,
+        setorOptions: [{ id: 'setor-xss', label: malicious }],
+        equipamentoOptions: [{ id: 'eq-xss', label: malicious }],
+        activeChips: [
+          { key: 'Setor', value: malicious, clearAction: 'hist-clear-setor' },
+          { key: 'Equipamento', value: malicious, clearAction: 'hist-clear-equip' },
+          { key: 'Busca', value: `"${malicious}"`, clearAction: 'hist-clear-busca' },
+        ],
+      }),
     });
 
     expectNoInjectedMarkup(root);
@@ -241,9 +228,7 @@ describe('historico filters React island', () => {
     const root = setRoot();
     document.getElementById('timeline')?.remove();
 
-    await act(async () => {
-      mountHistoricoFiltersReact(root, { viewModel: createFiltersViewModel() });
-    });
+    mountHistoricoFiltersDom(root, { viewModel: createFiltersViewModel() });
 
     expect(root?.querySelector('#hist-sticky-header')).not.toBeNull();
     expect(root?.querySelector('[data-action="delete-reg"]')).toBeNull();
@@ -256,5 +241,7 @@ describe('historico filters React island', () => {
     const source = readFileSync('./src/ui/views/historico.js', 'utf-8');
 
     expect(source).not.toMatch(/createRoot|from ['"]react|from ['"]react-dom/i);
+    expect(source).toContain('./historico/filtersRenderer.js');
+    expect(source).not.toContain(['historicoFilters', 'Island.jsx'].join(''));
   });
 });

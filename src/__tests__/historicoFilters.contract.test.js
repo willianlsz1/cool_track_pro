@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   isCachedPlanPro: vi.fn(),
   buildClientePmocDetails: vi.fn(),
   openFiltersSheet: vi.fn(),
-  mountHistoricoFiltersReact: vi.fn((root, { viewModel } = {}) => {
+  mountHistoricoFiltersDom: vi.fn((root, { viewModel } = {}) => {
     const filters = viewModel?.filters || {};
     const filtersCount = Number(viewModel?.filtersCount) || 0;
     const selected = (current, id) =>
@@ -56,7 +56,7 @@ const mocks = vi.hoisted(() => ({
       )
       .join('');
 
-    root.dataset.reactHistoricoFiltersMounted = 'true';
+    root.dataset.historicoFiltersMounted = 'true';
     root.innerHTML = `
       <div class="hist-sticky-header" id="hist-sticky-header">
         <span class="hist-count" id="hist-count">${viewModel?.countLabel || ''}</span>
@@ -75,8 +75,8 @@ const mocks = vi.hoisted(() => ({
     `;
     return root;
   }),
-  unmountHistoricoFiltersReact: vi.fn((root) => {
-    delete root.dataset.reactHistoricoFiltersMounted;
+  unmountHistoricoFiltersDom: vi.fn((root) => {
+    delete root.dataset.historicoFiltersMounted;
     root.innerHTML = '';
   }),
   mountHistoricoTimelineReact: vi.fn((root, { viewModel } = {}) => {
@@ -164,9 +164,9 @@ vi.mock('../core/clientePmoc.js', () => ({
   buildClientePmocDetails: mocks.buildClientePmocDetails,
 }));
 
-vi.mock('../react/entrypoints/historicoFiltersIsland.jsx', () => ({
-  mountHistoricoFiltersReact: mocks.mountHistoricoFiltersReact,
-  unmountHistoricoFiltersReact: mocks.unmountHistoricoFiltersReact,
+vi.mock('../ui/views/historico/filtersRenderer.js', () => ({
+  mountHistoricoFiltersDom: mocks.mountHistoricoFiltersDom,
+  unmountHistoricoFiltersDom: mocks.unmountHistoricoFiltersDom,
 }));
 
 vi.mock('../react/entrypoints/historicoTimelineIsland.jsx', () => ({
@@ -265,7 +265,7 @@ async function renderHistorico(state = baseState()) {
 }
 
 function latestFiltersViewModel() {
-  return mocks.mountHistoricoFiltersReact.mock.calls.at(-1)?.[1]?.viewModel;
+  return mocks.mountHistoricoFiltersDom.mock.calls.at(-1)?.[1]?.viewModel;
 }
 
 function latestTimelineViewModel() {

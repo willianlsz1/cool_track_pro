@@ -27,14 +27,14 @@ const mocks = vi.hoisted(() => ({
   updateGlobalHeader: vi.fn(),
   getOperationalStatus: vi.fn(),
   buildClientePmocDetails: vi.fn(),
-  mountHistoricoFiltersReact: vi.fn((root) => {
+  mountHistoricoFiltersDom: vi.fn((root) => {
     root.dataset.mounted = 'filters';
   }),
   mountHistoricoTimelineReact: vi.fn((root, props = {}) => {
     root.dataset.mounted = 'timeline';
     root.dataset.groupCount = String(props.viewModel?.groups?.length ?? 0);
   }),
-  unmountHistoricoFiltersReact: vi.fn(),
+  unmountHistoricoFiltersDom: vi.fn(),
   unmountHistoricoTimelineReact: vi.fn(),
   initRegistro: vi.fn(),
   loadRegistroForEdit: vi.fn(),
@@ -202,9 +202,9 @@ vi.mock('../ui/viewModels/registroSignatureModel.js', () => ({
   },
 }));
 
-vi.mock('../react/entrypoints/historicoFiltersIsland.jsx', () => ({
-  mountHistoricoFiltersReact: mocks.mountHistoricoFiltersReact,
-  unmountHistoricoFiltersReact: mocks.unmountHistoricoFiltersReact,
+vi.mock('../ui/views/historico/filtersRenderer.js', () => ({
+  mountHistoricoFiltersDom: mocks.mountHistoricoFiltersDom,
+  unmountHistoricoFiltersDom: mocks.unmountHistoricoFiltersDom,
 }));
 
 vi.mock('../react/entrypoints/historicoTimelineIsland.jsx', () => ({
