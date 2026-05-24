@@ -30,7 +30,7 @@ Fora do escopo:
 - `src/ui/views/equipamentos/crud/persist.js`
 - `src/ui/views/equipamentos/crud/postActions.js`
 - `src/features/registro/save/payload.js`
-- `src/features/registro/save/persistence.js`
+- `src/ui/views/registro/save/persistence.js`
 - `src/features/registro/save/postSave.js`
 - `src/features/registro/save/reportShare.js`
 - `src/ui/controller/serviceRegistrationEntry.js`

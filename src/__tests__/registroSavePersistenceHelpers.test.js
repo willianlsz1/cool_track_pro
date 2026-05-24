@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -9,9 +8,7 @@ import {
   buildRegistroCreateStateMutation,
   buildRegistroEditStateMutation,
   resolveRegistroCreateId,
-} from '../../save/persistence.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+} from '../ui/views/registro/save/persistence.js';
 
 const persistedPayload = {
   equipId: 'eq-1',
@@ -197,7 +194,7 @@ describe('registro save persistence helpers', () => {
   });
 
   it('nao importa o adapter legado de registro', () => {
-    const modulePath = path.resolve(__dirname, '../../save/persistence.js');
+    const modulePath = path.resolve(process.cwd(), 'src/ui/views/registro/save/persistence.js');
     const source = fs.readFileSync(modulePath, 'utf8');
 
     expect(source).not.toContain('ui/views/registro');

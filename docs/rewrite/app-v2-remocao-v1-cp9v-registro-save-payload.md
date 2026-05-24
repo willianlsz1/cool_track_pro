@@ -38,6 +38,7 @@ git diff --cached --check
 
 Restam em `src/features/registro/save/**`: `persistence.js`, `photos.js`,
 `signature.js`, `postSave.js` e `reportShare.js`, alem dos testes
-correspondentes. Esses arquivos devem continuar em subcheckpoints dedicados
-porque tocam persistencia, upload/fallback de fotos, assinatura e saidas
-PDF/WhatsApp.
+correspondentes. `persistence.js` e o proximo recorte mais seguro porque monta
+records/mutacoes puras e recebe efeitos por DI; os demais arquivos devem
+continuar em subcheckpoints dedicados porque tocam upload/fallback de fotos,
+assinatura e saidas PDF/WhatsApp.

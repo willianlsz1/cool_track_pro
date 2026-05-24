@@ -17,7 +17,7 @@ de tecnico.
 
 Arquivos de referencia:
 
-- `src/features/registro/save/persistence.js`;
+- `src/ui/views/registro/save/persistence.js`;
 - `src/ui/views/registro.js`;
 - `docs/rewrite/etapa-0-inventario-fluxo-tecnico.md`.
 

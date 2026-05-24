@@ -13,7 +13,7 @@ import { buildEmptyChecklist, validateChecklist } from '../domain/pmoc/checklist
 import {
   buildEditedRegistro,
   buildRegistroCreateRecord,
-} from '../features/registro/save/persistence.js';
+} from '../ui/views/registro/save/persistence.js';
 import { renderShellViews } from '../ui/shell/templates/views.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;

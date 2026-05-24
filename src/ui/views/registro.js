@@ -66,7 +66,7 @@ import {
   buildRegistroCreateStateMutation,
   buildRegistroEditStateMutation,
   resolveRegistroCreateId,
-} from '../../features/registro/save/persistence.js';
+} from './registro/save/persistence.js';
 import {
   buildRegistroChecklistSoftRequiredWarning,
   buildRegistroChecklistViewModel,

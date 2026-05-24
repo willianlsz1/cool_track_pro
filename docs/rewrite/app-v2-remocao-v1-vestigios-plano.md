@@ -102,6 +102,10 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   de payload/validacao do save de Registro foram co-localizados em
   `src/ui/views/registro/save/payload.js`, com teste movido para
   `src/__tests__/registroSavePayloadHelpers.test.js`.
+- `src/features/registro/save/persistence.js` foi removido no CP-9w; helpers
+  puros de montagem de registro e mutacao de estado foram co-localizados em
+  `src/ui/views/registro/save/persistence.js`, mantendo a aplicacao de
+  `setState` no adapter legado.
 
 ## 3. Superficies v1 mapeadas
 

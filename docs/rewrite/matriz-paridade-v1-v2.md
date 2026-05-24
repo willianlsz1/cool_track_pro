@@ -20,7 +20,7 @@ de codigo em `src/app-v2/`.
 ### Fontes v1 analisadas
 
 - `src/features/registro/save/payload.js`
-- `src/features/registro/save/persistence.js`
+- `src/ui/views/registro/save/persistence.js`
 - `src/features/registro/save/postSave.js`
 - `src/ui/controller/serviceRegistrationEntry.js`
 - `docs/rewrite/etapa-0-inventario-fluxo-tecnico.md`
