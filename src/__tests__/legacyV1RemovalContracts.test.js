@@ -136,6 +136,29 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/domain/pdf/orcamentoPdf.js')).toBe(false);
   });
 
+  it('does not keep legacy PMOC/checklist PDF generators or PDF primitives', () => {
+    expect(existsSync('src/domain/pdf/constants.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/primitives.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/safeLinks.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sanitizers.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/checklist.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/checklistHelpers.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/sections/upsell.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/constants.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/pmocReport.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/primitives.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/sections/anexos.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/sections/cover.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/sections/plano.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/sections/registry.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/sections/schedule.js')).toBe(false);
+    expect(existsSync('src/domain/pdf/pmoc/sections/termo.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfChecklist.helpers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pdfSanitizers.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pmocPdfLinks.security.test.js')).toBe(false);
+    expect(existsSync('src/__tests__/pmocReport.test.js')).toBe(false);
+  });
+
   it('does not keep the legacy relatorio v1 DOM view or renderers', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');

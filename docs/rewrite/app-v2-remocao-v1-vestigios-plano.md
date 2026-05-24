@@ -574,6 +574,10 @@ Progresso executado:
   (`src/domain/pdf/orcamentoPdf.js`) sem consumidor runtime. PDF/share de
   orcamento deve ser reconstruido no app-v2 em etapa propria; PMOC/checklist PDF
   restante permanece para CP sensivel separado.
+- CP-54F remove o PDF PMOC/checklist restante (`src/domain/pdf/pmoc/**`,
+  `src/domain/pdf/sections/checklist*.js`, `upsell`, `safeLinks`, `sanitizers`,
+  `constants` e `primitives`) preservando o checklist operacional de Registro e
+  os resumos PMOC de cliente/equipamento para CPs proprios.
 
 Controle:
 

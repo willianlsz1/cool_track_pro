@@ -18,13 +18,6 @@ import { renderShellViews } from '../ui/shell/templates/views.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-const autoTableMock = vi.hoisted(() =>
-  vi.fn((doc, options) => {
-    doc.__autoTableCalls.push(options);
-    doc.lastAutoTable = { finalY: (options.startY || 0) + 10 };
-  }),
-);
-
 const mocks = vi.hoisted(() => {
   const handlers = new Map();
   const photos = { pending: [], clear: vi.fn(() => (photos.pending = [])) };
@@ -66,10 +59,6 @@ const mocks = vi.hoisted(() => {
     toastInfo: vi.fn(),
   };
 });
-
-vi.mock('jspdf-autotable', () => ({
-  default: autoTableMock,
-}));
 
 vi.mock('../core/events.js', () => ({
   on: mocks.on,
@@ -318,21 +307,6 @@ async function triggerSaveRegistro() {
   });
 }
 
-function createDocMock() {
-  return {
-    __autoTableCalls: [],
-    setFont: vi.fn(),
-    setFontSize: vi.fn(),
-    setTextColor: vi.fn(),
-    text: vi.fn(),
-    setDrawColor: vi.fn(),
-    setLineWidth: vi.fn(),
-    line: vi.fn(),
-    addPage: vi.fn(),
-    lastAutoTable: null,
-  };
-}
-
 describe('registro Checklist/PMOC contract', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -340,7 +314,6 @@ describe('registro Checklist/PMOC contract', () => {
     mocks.handlers.clear();
     mocks.stateRef.current = null;
     mocks.photos.pending = [];
-    autoTableMock.mockClear();
     Element.prototype.scrollIntoView = vi.fn();
     HTMLElement.prototype.focus = vi.fn();
     globalThis.CSS = {
@@ -507,47 +480,5 @@ describe('registro Checklist/PMOC contract', () => {
     expect(mocks.postSaveToastShow).toHaveBeenCalledWith(
       expect.objectContaining({ equipId: 'eq-1', registroId: saved.id }),
     );
-  });
-
-  it('trava consumo PDF/relatorio de registro.checklist usando tipo_template e items marcados', async () => {
-    const { drawChecklist } = await import('../domain/pdf/sections/checklist.js');
-    const checklist = createMarkedChecklist();
-    const doc = createDocMock();
-
-    const nextY = drawChecklist(
-      doc,
-      210,
-      297,
-      12,
-      40,
-      [
-        {
-          id: 'reg-1',
-          equipId: 'eq-1',
-          data: '2026-05-01T09:30:00.000Z',
-          checklist,
-        },
-      ],
-      [{ id: 'eq-1', nome: 'Split Recepcao' }],
-    );
-
-    expect(nextY).toBeGreaterThan(40);
-    expect(doc.text).toHaveBeenCalledWith(
-      'CHECKLIST NBR 13971',
-      expect.any(Number),
-      expect.any(Number),
-      expect.any(Object),
-    );
-    expect(doc.text).toHaveBeenCalledWith(
-      expect.stringContaining('Split Recepcao'),
-      expect.any(Number),
-      expect.any(Number),
-      expect.any(Object),
-    );
-    expect(autoTableMock).toHaveBeenCalled();
-    expect(doc.__autoTableCalls[0].body).toEqual([
-      ['Limpeza dos filtros de ar', 'Conforme', '', 'Filtro limpo.'],
-    ]);
-    expect(JSON.stringify(doc.__autoTableCalls)).not.toContain('Tensao de alimentacao');
   });
 });
