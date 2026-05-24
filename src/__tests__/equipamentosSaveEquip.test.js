@@ -279,7 +279,7 @@ vi.mock('../ui/views/equipamentos/setor/setorNavigation.js', () => ({
   setActiveSector: vi.fn(),
 }));
 
-vi.mock('../features/equipamentos/setor/setorPersist.js', () => ({
+vi.mock('../ui/views/equipamentos/setor/setorPersist.js', () => ({
   configureSetorPersist: vi.fn(),
   assignEquipToSetor: vi.fn(),
   deleteSetor: vi.fn(),

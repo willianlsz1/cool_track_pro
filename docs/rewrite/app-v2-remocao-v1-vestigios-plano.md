@@ -85,6 +85,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   `src/features/equipamentos/ui/deleteEquip.js` foram removidos no CP-9q; os
   helpers de edicao/delecao da UI legada de Equipamentos foram co-localizados em
   `src/ui/views/equipamentos/ui/**`.
+- `src/features/equipamentos/setor/setorPersist.js` foi removido no CP-9r; a
+  persistencia local de Setores da UI legada de Equipamentos foi co-localizada
+  em `src/ui/views/equipamentos/setor/setorPersist.js`.
 
 ## 3. Superficies v1 mapeadas
 

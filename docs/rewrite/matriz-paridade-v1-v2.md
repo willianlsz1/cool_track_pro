@@ -1591,7 +1591,7 @@ A etapa documental de delecao foi executada sem alterar runtime:
 - delecao de equipamento v1 foi mapeada em
   `src/ui/views/equipamentos/ui/deleteEquip.js`;
 - delecao de setor v1 foi mapeada em
-  `src/features/equipamentos/setor/setorPersist.js`;
+  `src/ui/views/equipamentos/setor/setorPersist.js`;
 - delecao de equipamento foi classificada como destrutiva porque remove
   equipamento e registros vinculados;
 - delecao de setor foi classificada como remocao de agrupamento porque remove o

@@ -109,7 +109,7 @@ import {
   ensureProForSetores,
   moveEquipsToSetor,
   saveSetor,
-} from '../../features/equipamentos/setor/setorPersist.js';
+} from './equipamentos/setor/setorPersist.js';
 import {
   checkSaveEquipPlanLimit,
   validateSaveEquipPayload,
@@ -704,7 +704,7 @@ export function populateSetorSelect(isPro = false) {
   syncContextGroupVisibility();
 }
 
-// Setor UI/state leve extraído para ../../features/equipamentos/setor/ (Mudança 11 / CP-E).
+// Setor UI/state leve co-localizado em ./equipamentos/setor.
 
 // ── Setor modal: paleta curada, live preview, validation ─────────────────
 //

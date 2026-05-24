@@ -36,7 +36,7 @@ view que referencie registros por equipamento.
 
 ### Delecao de setor
 
-Fonte: `src/features/equipamentos/setor/setorPersist.js`.
+Fonte: `src/ui/views/equipamentos/setor/setorPersist.js`.
 
 Comportamento observado:
 

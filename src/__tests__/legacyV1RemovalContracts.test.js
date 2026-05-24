@@ -116,6 +116,10 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/equipamentos/setor/setorNavigation.js')).toBe(false);
   });
 
+  it('does not keep equipamentos setor persistence under src/features after co-locating with the v1 view', () => {
+    expect(existsSync('src/features/equipamentos/setor/setorPersist.js')).toBe(false);
+  });
+
   it('does not keep equipamentos detail/view helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/equipamentos/ui/detail.js')).toBe(false);
     expect(existsSync('src/features/equipamentos/ui/detailController.js')).toBe(false);

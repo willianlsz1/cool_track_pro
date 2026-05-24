@@ -12,7 +12,7 @@ app-v2 e o que deve permanecer em etapa propria por risco tecnico.
 
 No v1, setores ficam acoplados a Equipamentos e Clientes:
 
-- `src/features/equipamentos/setor/setorPersist.js` cria, edita, remove,
+- `src/ui/views/equipamentos/setor/setorPersist.js` cria, edita, remove,
   atribui e move equipamentos entre setores;
 - `src/ui/views/equipamentos.js` orquestra contexto de cliente/setor,
   navegacao de drill-down, modal e renderizacao;

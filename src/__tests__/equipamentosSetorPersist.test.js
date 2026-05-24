@@ -7,7 +7,7 @@ import {
   ensureProForSetores,
   moveEquipsToSetor,
   saveSetor,
-} from '../../setor/setorPersist.js';
+} from '../ui/views/equipamentos/setor/setorPersist.js';
 
 describe('setorPersist', () => {
   let state;

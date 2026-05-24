@@ -194,7 +194,7 @@ export async function saveSetor() {
 
   try {
     const closeSetorModal = getSetorPersistValue('closeSetorModal', async () => {
-      const { Modal: M } = await import('../../../core/modal.js');
+      const { Modal: M } = await import('../../../../core/modal.js');
       M.close('modal-add-setor');
     });
     await closeSetorModal('modal-add-setor');

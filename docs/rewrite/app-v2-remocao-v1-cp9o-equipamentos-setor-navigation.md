@@ -33,6 +33,5 @@ git diff --cached --check
 
 ## Risco remanescente
 
-`src/features/equipamentos/setor/setorPersist.js` ainda permanece em features
-porque toca persistencia/Storage/toast/render e deve ser tratado em checkpoint
-proprio.
+`setorPersist.js` ainda permanecia em features neste checkpoint porque tocava
+persistencia/Storage/toast/render. Ele foi tratado depois no CP-9r.
