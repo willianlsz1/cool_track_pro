@@ -56,11 +56,10 @@ import {
 } from '../viewModels/dashboardViewModel.js';
 import { DASHBOARD_ACTIONS, DASHBOARD_PUBLIC_IDS } from '../viewModels/dashboardContracts.js';
 import { createDashboardChartsRefresher } from './dashboard/chartsRefresh.js';
+import { renderProDraftBlocksDom, unmountProDraftBlocksDom } from './dashboard/proDraft.js';
 import { renderReadOnlyBlocksDom } from './dashboard/readOnlyBlocks.js';
 import { updateGlobalHeader } from '../composables/header.js';
 
-let dashboardProDraftBridgePromise = null;
-let dashboardProDraftBridge = null;
 let dashboardOnboardingBridgePromise = null;
 let dashboardOnboardingBridge = null;
 const refreshDashboardCharts = createDashboardChartsRefresher({
@@ -94,20 +93,11 @@ function getReadOnlyBlocksRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.readOnlyBlocksRoot);
 }
 
-function loadDashboardProDraftBridge() {
-  dashboardProDraftBridgePromise ??=
-    import('../../react/entrypoints/dashboardProDraftIsland.jsx').then((bridge) => {
-      dashboardProDraftBridge = bridge;
-      return bridge;
-    });
-  return dashboardProDraftBridgePromise;
-}
-
-function getDashboardProDraftRoot() {
+function getProDraftRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.proOpsRow);
 }
 
-function getDashboardProDraftPortalRoot() {
+function getProDraftPortalRoot() {
   return document.getElementById(DASHBOARD_PUBLIC_IDS.proDraftRoot);
 }
 
@@ -170,15 +160,9 @@ export function unmountDashboardReadOnlyBlocks(root = getReadOnlyBlocksRoot()) {
   return undefined;
 }
 
-export function unmountDashboardProDraft(root = getDashboardProDraftRoot()) {
-  if (!root) return undefined;
-  if (dashboardProDraftBridge?.unmountDashboardProDraftReact) {
-    dashboardProDraftBridge.unmountDashboardProDraftReact(root);
-    return undefined;
-  }
-  return loadDashboardProDraftBridge().then(({ unmountDashboardProDraftReact }) => {
-    unmountDashboardProDraftReact(root);
-  });
+export function unmountProDraftBlocks(root = getProDraftRoot()) {
+  unmountProDraftBlocksDom(root, getProDraftPortalRoot());
+  return undefined;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1201,18 +1185,12 @@ function _renderOnboardingBlocks({ onboarding }) {
 }
 
 function _renderProDraftBlocks({ proDraft }) {
-  const root = getDashboardProDraftRoot();
-  const draftRoot = getDashboardProDraftPortalRoot();
+  const root = getProDraftRoot();
+  const draftRoot = getProDraftPortalRoot();
   if (!root || !proDraft) return Promise.resolve();
 
-  if (dashboardProDraftBridge?.mountDashboardProDraftReact) {
-    dashboardProDraftBridge.mountDashboardProDraftReact(root, { proDraft, draftRoot });
-    return Promise.resolve();
-  }
-
-  return loadDashboardProDraftBridge().then(({ mountDashboardProDraftReact }) => {
-    mountDashboardProDraftReact(root, { proDraft, draftRoot });
-  });
+  renderProDraftBlocksDom(root, { proDraft, draftRoot });
+  return Promise.resolve();
 }
 
 function _buildCriticalNowBlock(equipamentos) {

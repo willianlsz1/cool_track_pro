@@ -259,11 +259,6 @@ async function setupDashboardModule({
     };
   });
 
-  vi.doMock('../react/entrypoints/dashboardProDraftIsland.jsx', () => ({
-    mountDashboardProDraftReact: vi.fn(),
-    unmountDashboardProDraftReact: vi.fn(),
-  }));
-
   const dashboardModule = await import('../ui/views/dashboard.js');
   return {
     ...dashboardModule,

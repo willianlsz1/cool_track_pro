@@ -373,7 +373,7 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     assertNoUnsafeHtml(card);
   });
 
-  it('documents current adapter contracts with Pro/draft React island mounted outside dashboard.js', () => {
+  it('documents current adapter contracts with Pro/draft DOM renderer mounted outside dashboard.js', () => {
     const dashboardSource = readFileSync('src/ui/views/dashboard.js', 'utf8');
 
     expect(DASHBOARD_PUBLIC_IDS).toMatchObject({
@@ -409,8 +409,10 @@ describe('dashboard legacy Pro cards and draft contracts', () => {
     expect(DASHBOARD_DATA_ATTRIBUTES).toEqual(
       expect.arrayContaining(['data-action', 'data-id', 'data-nav', 'data-tier']),
     );
-    expect(dashboardSource).toContain('../../react/entrypoints/dashboardProDraftIsland.jsx');
-    expect(dashboardSource).toContain('mountDashboardProDraftReact');
+    expect(dashboardSource).toContain('./dashboard/proDraft.js');
+    expect(dashboardSource).toContain('renderProDraftBlocksDom');
+    expect(dashboardSource).not.toContain('../../react/entrypoints/dashboardProDraftIsland.jsx');
+    expect(dashboardSource).not.toContain('mountDashboardProDraftReact');
     expect(dashboardSource).not.toContain('function _renderProCards');
     expect(dashboardSource).not.toContain('function _renderContinueDraftCard');
     expect(dashboardSource).not.toContain('criticalList.innerHTML');
