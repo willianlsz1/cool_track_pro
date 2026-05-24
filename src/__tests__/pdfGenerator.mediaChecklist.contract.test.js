@@ -31,7 +31,7 @@ vi.mock('../core/state.js', () => ({
   getState: () => mocks.state,
 }));
 
-vi.mock('../features/profile.js', () => ({
+vi.mock('../core/profile.js', () => ({
   Profile: { get: () => ({ empresa: 'Acme HVAC', nome: 'Tecnica Ana' }) },
 }));
 

@@ -5,7 +5,7 @@
 
 import { getState, findEquip } from '../core/state.js';
 import { Utils } from '../core/utils.js';
-import { Profile } from '../features/profile.js';
+import { Profile } from '../core/profile.js';
 
 const SERVICE_LABELS = {
   limpeza_filtros: 'Limpeza de filtros',

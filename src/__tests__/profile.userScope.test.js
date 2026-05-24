@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { Profile } from '../features/profile.js';
+import { Profile } from '../core/profile.js';
 import { setCurrentUser, userStorage } from '../core/userStorage.js';
 
 describe('Profile — user-scoped storage (audit §1.2)', () => {
