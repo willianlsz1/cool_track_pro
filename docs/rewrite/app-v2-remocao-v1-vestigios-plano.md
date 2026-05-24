@@ -659,6 +659,11 @@ Progresso executado:
   colunas `share_token`/`assinatura_cliente_dataurl` e reverter orcamentos
   pendentes para `enviado`. Billing/features, PDF/share, WhatsApp e orcamento
   app-v2-native permanecem fora deste corte.
+- CP-56E remove o vestigio comercial `FEATURE_DIGITAL_SIGNATURE` /
+  `digital_signature` de `src/core/plans/subscriptionPlans.js`. Como billing e
+  pricing ja foram retirados do runtime principal, este corte apenas impede que
+  a assinatura digital v1 volte como feature flag acidental; a recriacao de
+  assinatura real fica para etapa app-v2-native propria.
 
 Controle:
 

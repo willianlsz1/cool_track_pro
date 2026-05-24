@@ -10,7 +10,6 @@ export const FEATURE_HISTORICO_COMPLETO = 'historico_completo';
 export const FEATURE_SETORES = 'setores';
 export const FEATURE_CLIENTES = 'clientes';
 export const FEATURE_SUPORTE_PRIORITARIO = 'suporte_prioritario';
-export const FEATURE_DIGITAL_SIGNATURE = 'digital_signature';
 export const FEATURE_NAMEPLATE_ANALYSIS = 'nameplate_analysis';
 
 const OPERATIONAL_LIMITS = Object.freeze({

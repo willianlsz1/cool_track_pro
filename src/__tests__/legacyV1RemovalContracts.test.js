@@ -472,6 +472,13 @@ describe('legacy v1 removal contracts', () => {
     expect(retirementMigration).toContain("where status = 'aguardando_assinatura'");
   });
 
+  it('does not keep legacy digital signature as a commercial feature flag', () => {
+    const subscriptionPlansSource = readSource('src/core/plans/subscriptionPlans.js');
+
+    expect(subscriptionPlansSource).not.toContain('FEATURE_DIGITAL_SIGNATURE');
+    expect(subscriptionPlansSource).not.toContain('digital_signature');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);
