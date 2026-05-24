@@ -14,9 +14,9 @@
       .register('/sw.js', { scope: '/' })
       .then(function (reg) {
         console.log('[SW] Registrado:', reg.scope);
-        // Expõe a registration pro app.js wirar o fluxo de update
-        // ("Nova versão disponível. Recarregar?"). Usamos globalThis
-        // por simplicidade — o app lê esta referência uma vez no boot.
+        // Expoe a registration para o bootstrap atual coordenar updates.
+        // ("Nova versao disponivel. Recarregar?"). Usamos globalThis
+        // por simplicidade; o app le esta referencia uma vez no boot.
         window.__cooltrackSwRegistration = reg;
       })
       .catch(function (err) {

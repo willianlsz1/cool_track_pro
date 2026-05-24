@@ -6,6 +6,16 @@ function readSource(path) {
 }
 
 describe('legacy v1 removal contracts', () => {
+  it('does not keep the unused legacy app bootstrap entrypoint', () => {
+    const primaryHtml = readSource('index.html');
+    const serviceWorkerRegisterSource = readSource('public/sw-register.js');
+
+    expect(existsSync('src/app.js')).toBe(false);
+    expect(primaryHtml).toContain('src="/src/app-v2/main.tsx"');
+    expect(primaryHtml).not.toContain('/src/app.js');
+    expect(serviceWorkerRegisterSource).not.toContain('app.js');
+  });
+
   it('does not keep the legacy configuracoes route, view or dedicated styles', () => {
     const routesSource = readSource('src/ui/controller/routes.js');
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
