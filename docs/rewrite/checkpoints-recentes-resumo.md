@@ -33,6 +33,8 @@ decisao, do escopo e do risco remanescente.
 - Ja foram tratados: shell/rotas legadas, telas DOM v1, ilhas React antigas,
   CSS legado, billing/pricing, PDF/share v1, assinatura digital, fotos/storage,
   PMOC visual/copy e `twa-build`.
+- `.env.example` foi limpo para Cloudflare Pages e nao lista mais variaveis de
+  bucket/storage/PDF legadas.
 - Mantidos como etapa propria futura: Supabase/RLS/migrations reais, storage
   novo, PDF/share novo, WhatsApp novo, assinatura nova, PMOC novo e orcamento
   real app-v2-native.
