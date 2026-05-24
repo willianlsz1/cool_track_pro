@@ -17,6 +17,12 @@ describe('React cleanup contracts', () => {
     expect(existsSync('src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx')).toBe(false);
   });
 
+  it('does not keep stale React naming in legacy relatorio runtime helpers', () => {
+    const relatorioSource = readSource('src/ui/views/relatorio.js');
+
+    expect(relatorioSource).not.toContain('buildRelatorioHeroReactViewModel');
+  });
+
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {
     const appEntry = readSource('src/app.js');
     const routesEntry = readSource('src/ui/controller/routes.js');

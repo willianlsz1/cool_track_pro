@@ -30,6 +30,10 @@ preservando os contratos publicos:
 - `.rel-segmented`
 - `data-view-mode`
 
+Checkpoint posterior removeu tambem o sufixo historico `React` do helper
+interno, renomeando `buildRelatorioHeroReactViewModel` para
+`buildRelatorioHeroViewModel`.
+
 As demais ilhas de relatorio permanecem fora deste checkpoint:
 
 - `relatorioControlsIsland`

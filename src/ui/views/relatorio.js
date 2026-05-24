@@ -361,7 +361,7 @@ function renderRelatorioHeroDom(root, hero = {}) {
   return root;
 }
 
-function buildRelatorioHeroReactViewModel({
+function buildRelatorioHeroViewModel({
   kpis,
   periodoTxt,
   equipTxt,
@@ -893,7 +893,7 @@ export function renderRelatorio(options = {}) {
         return null;
       }
 
-      const heroViewModel = buildRelatorioHeroReactViewModel({
+      const heroViewModel = buildRelatorioHeroViewModel({
         kpis,
         periodoTxt,
         equipTxt,
