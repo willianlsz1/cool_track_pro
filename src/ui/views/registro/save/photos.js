@@ -24,14 +24,14 @@ export async function persistRegistroPhotosForSave(
         .map((entry) => entry.queueKey);
       if (uploadResult.failedCount > 0) {
         Toast.warning(
-          'Algumas fotos nÃ£o puderam ser enviadas para a nuvem e ficaram salvas localmente.',
+          'Algumas fotos não puderam ser enviadas para a nuvem e ficaram salvas localmente.',
         );
       }
     } catch (error) {
       handleError(error, {
         code: ErrorCodes.SYNC_FAILED,
         severity: 'warning',
-        message: 'Falha no upload das fotos. O registro serÃ¡ salvo com fallback local.',
+        message: 'Falha no upload das fotos. O registro será salvo com fallback local.',
         context: { action: 'registro.saveRegistro.photoUpload', registroId },
       });
     }

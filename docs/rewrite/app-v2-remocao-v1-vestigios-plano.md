@@ -106,6 +106,9 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   puros de montagem de registro e mutacao de estado foram co-localizados em
   `src/ui/views/registro/save/persistence.js`, mantendo a aplicacao de
   `setState` no adapter legado.
+- `src/features/registro/save/photos.js` foi removido no CP-9x; helpers de
+  fotos de Registro foram co-localizados em
+  `src/ui/views/registro/save/photos.js`, preservando upload/fallback por DI.
 
 ## 3. Superficies v1 mapeadas
 

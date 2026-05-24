@@ -7,7 +7,7 @@ import {
   getRegistroPhotoState,
   normalizeRegistroPhotoItems,
   persistRegistroPhotosForSave,
-} from '../../save/photos.js';
+} from '../ui/views/registro/save/photos.js';
 
 describe('registro save photo helpers', () => {
   it('normaliza fotos usando o predicado de sanitizacao injetado', () => {
@@ -76,7 +76,7 @@ describe('registro save photo helpers', () => {
     expect(uploadPendingPhotos).toHaveBeenCalledWith([{ id: 'raw-1' }], { recordId: 'reg-1' });
     expect(result).toEqual({ fotosRegistro: uploadedPhotos, fotosPendentes: ['queue-1'] });
     expect(Toast.warning).toHaveBeenCalledWith(
-      'Algumas fotos nÃ£o puderam ser enviadas para a nuvem e ficaram salvas localmente.',
+      'Algumas fotos não puderam ser enviadas para a nuvem e ficaram salvas localmente.',
     );
     expect(handleError).not.toHaveBeenCalled();
   });
@@ -104,7 +104,7 @@ describe('registro save photo helpers', () => {
     expect(handleError).toHaveBeenCalledWith(error, {
       code: 'SYNC_FAILED',
       severity: 'warning',
-      message: 'Falha no upload das fotos. O registro serÃ¡ salvo com fallback local.',
+      message: 'Falha no upload das fotos. O registro será salvo com fallback local.',
       context: { action: 'registro.saveRegistro.photoUpload', registroId: 'reg-1' },
     });
     expect(Toast.warning).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe('registro save photo helpers', () => {
 
   it('nao importa o adapter legado nem storage/UI diretamente', () => {
     const source = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/features/registro/save/photos.js'),
+      path.resolve(process.cwd(), 'src/ui/views/registro/save/photos.js'),
       'utf8',
     );
 

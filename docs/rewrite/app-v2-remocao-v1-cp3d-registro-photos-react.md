@@ -50,7 +50,7 @@ preview.
 ## Validacao esperada
 
 ```bash
-npm test -- src/__tests__/registroLegacyPhotosRender.test.js src/__tests__/contracts/registroSelectors.test.js src/features/registro/__tests__/save/photos.test.js --run
+npm test -- src/__tests__/registroLegacyPhotosRender.test.js src/__tests__/contracts/registroSelectors.test.js src/__tests__/registroSavePhotosHelpers.test.js --run
 rg -n "registroPhotosIsland|mountRegistroPhotosReact|unmountRegistroPhotosReact|RegistroPhotos.jsx|data-react-registro-photos-mounted" src index.html public -S
 npm run format
 npm run build

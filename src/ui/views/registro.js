@@ -52,7 +52,7 @@ import {
   buildRegistroPhotoPayload,
   getRegistroPhotoState,
   persistRegistroPhotosForSave,
-} from '../../features/registro/save/photos.js';
+} from './registro/save/photos.js';
 import {
   buildRegistroSignaturePayload,
   captureRegistroSignatureIfNeeded,

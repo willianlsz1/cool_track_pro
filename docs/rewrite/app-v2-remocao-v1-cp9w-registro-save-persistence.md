@@ -36,6 +36,6 @@ git diff --cached --check
 ## Proximo risco
 
 Restam `photos.js`, `signature.js`, `postSave.js` e `reportShare.js` em
-`src/features/registro/save/**`. A partir daqui os checkpoints ficam mais
-sensiveis: fotos/assinatura encostam em upload/fallback e `postSave`/`reportShare`
-encostam em PDF/WhatsApp.
+`src/features/registro/save/**`. `photos.js` ainda e movivel em checkpoint
+pequeno porque recebe upload/fallback por DI e nao importa storage/UI
+diretamente; assinatura e saidas PDF/WhatsApp continuam mais sensiveis.
