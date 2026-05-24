@@ -319,7 +319,6 @@ describe('Historico -> Registro edit/delete integration contract', () => {
       currentState = updater(currentState);
     });
     mocks.customConfirmShow.mockResolvedValue(true);
-    localStorage.setItem('cooltrack-sig-reg-delete-target', 'assinatura');
     mountHistoricoDom();
 
     const { bindRegistroHandlers } = await import('../ui/controller/handlers/registroHandlers.js');
@@ -337,7 +336,6 @@ describe('Historico -> Registro edit/delete integration contract', () => {
     expect(currentState.equipamentos[0]).toEqual(
       expect.objectContaining({ id: 'eq-1', status: 'ok', statusDescricao: 'Em dia' }),
     );
-    expect(localStorage.getItem('cooltrack-sig-reg-delete-target')).toBeNull();
     expect(mocks.mountHistoricoTimelineDom).toHaveBeenCalled();
     expect(document.getElementById('timeline')?.dataset.mounted).toBe('timeline');
     expect(mocks.updateGlobalHeader).toHaveBeenCalledTimes(1);

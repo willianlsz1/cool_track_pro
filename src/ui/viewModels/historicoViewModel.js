@@ -424,7 +424,6 @@ function buildCardItem(registro, { equipamentosById, setoresById, clientesById, 
     proximaStatus: getProximaStatus(registro?.proxima, now),
     costTotal: custoPecas + custoMaoObra,
     hasPhotos: asArray(registro?.fotos).length > 0,
-    hasSignature: Boolean(registro?.assinatura),
     isToday: safeString(registro?.data).slice(0, 10) === localDateString(now),
     actions: {
       edit: { action: HISTORICO_ACTIONS.editReg, id },

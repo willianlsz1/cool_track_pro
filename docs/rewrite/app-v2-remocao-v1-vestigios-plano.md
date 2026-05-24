@@ -625,6 +625,11 @@ Progresso executado:
   `registro-action-anchor` em vez de `tour-signature-anchor` e os testes de
   remocao travam essa ausencia. Storage, sync, schema, historico e orcamentos
   permanecem fora do escopo.
+- CP-55H remove os vestigios runtime de assinatura no Historico: o view model
+  nao calcula mais `hasSignature`, o modelo legado da timeline nao expoe
+  `signature: null` e a exclusao de registro nao limpa mais a chave obsoleta
+  `cooltrack-sig-*`. O campo persistido `registros.assinatura` e sync/schema
+  permanecem para CP dedicado.
 
 Controle:
 

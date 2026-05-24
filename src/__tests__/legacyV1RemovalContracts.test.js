@@ -374,6 +374,15 @@ describe('legacy v1 removal contracts', () => {
     expect(registroViewModelSource).not.toContain('isPlusOrHigher');
   });
 
+  it('does not keep legacy historico signature runtime after retiring signature flows', () => {
+    const historicoSource = readSource('src/ui/views/historico.js');
+    const historicoViewModelSource = readSource('src/ui/viewModels/historicoViewModel.js');
+
+    expect(historicoSource).not.toContain('cooltrack-sig-');
+    expect(historicoSource).not.toContain('signature:');
+    expect(historicoViewModelSource).not.toContain('hasSignature');
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

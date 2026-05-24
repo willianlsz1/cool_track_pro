@@ -951,7 +951,6 @@ function buildTimelineItemModel(
     meta: buildTimelineMeta(registro),
     photoUrls: photoUrls.slice(0, 3),
     extraPhotoCount: Math.max(0, photoUrls.length - 3),
-    signature: null,
     showFilterEquip: Boolean(registro?.equipId && currentFilterEquipId !== registro.equipId),
   };
 }
@@ -1668,10 +1667,6 @@ function applyHistoricoDeleteStateMutation(id) {
   );
 }
 
-function cleanupHistoricoDeleteArtifacts(id) {
-  localStorage.removeItem(`cooltrack-sig-${id}`);
-}
-
 function refreshHistoricoAfterDelete() {
   renderHist();
   updateGlobalHeader();
@@ -1684,7 +1679,6 @@ function notifyHistoricoDeleteSuccess() {
 export function deleteReg(id) {
   persistHistoricoRegistroDeletion(id);
   applyHistoricoDeleteStateMutation(id);
-  cleanupHistoricoDeleteArtifacts(id);
   refreshHistoricoAfterDelete();
   notifyHistoricoDeleteSuccess();
 }
