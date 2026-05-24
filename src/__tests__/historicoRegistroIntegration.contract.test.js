@@ -30,12 +30,12 @@ const mocks = vi.hoisted(() => ({
   mountHistoricoFiltersDom: vi.fn((root) => {
     root.dataset.mounted = 'filters';
   }),
-  mountHistoricoTimelineReact: vi.fn((root, props = {}) => {
+  mountHistoricoTimelineDom: vi.fn((root, props = {}) => {
     root.dataset.mounted = 'timeline';
     root.dataset.groupCount = String(props.viewModel?.groups?.length ?? 0);
   }),
   unmountHistoricoFiltersDom: vi.fn(),
-  unmountHistoricoTimelineReact: vi.fn(),
+  unmountHistoricoTimelineDom: vi.fn(),
   initRegistro: vi.fn(),
   loadRegistroForEdit: vi.fn(),
   clearRegistro: vi.fn(),
@@ -207,9 +207,9 @@ vi.mock('../ui/views/historico/filtersRenderer.js', () => ({
   unmountHistoricoFiltersDom: mocks.unmountHistoricoFiltersDom,
 }));
 
-vi.mock('../react/entrypoints/historicoTimelineIsland.jsx', () => ({
-  mountHistoricoTimelineReact: mocks.mountHistoricoTimelineReact,
-  unmountHistoricoTimelineReact: mocks.unmountHistoricoTimelineReact,
+vi.mock('../ui/views/historico/timelineRenderer.js', () => ({
+  mountHistoricoTimelineDom: mocks.mountHistoricoTimelineDom,
+  unmountHistoricoTimelineDom: mocks.unmountHistoricoTimelineDom,
 }));
 
 vi.mock('../ui/views/alertas.js', () => ({
@@ -410,7 +410,7 @@ describe('Historico -> Registro edit/delete integration contract', () => {
       expect.objectContaining({ id: 'eq-1', status: 'ok', statusDescricao: 'Em dia' }),
     );
     expect(localStorage.getItem('cooltrack-sig-reg-delete-target')).toBeNull();
-    expect(mocks.mountHistoricoTimelineReact).toHaveBeenCalled();
+    expect(mocks.mountHistoricoTimelineDom).toHaveBeenCalled();
     expect(document.getElementById('timeline')?.dataset.mounted).toBe('timeline');
     expect(mocks.updateGlobalHeader).toHaveBeenCalledTimes(1);
     expect(mocks.toastWarning).toHaveBeenCalledWith('Registro removido do histórico.');

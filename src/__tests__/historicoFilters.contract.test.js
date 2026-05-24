@@ -79,7 +79,7 @@ const mocks = vi.hoisted(() => ({
     delete root.dataset.historicoFiltersMounted;
     root.innerHTML = '';
   }),
-  mountHistoricoTimelineReact: vi.fn((root, { viewModel } = {}) => {
+  mountHistoricoTimelineDom: vi.fn((root, { viewModel } = {}) => {
     const items = (viewModel?.groups || [])
       .flatMap((group) => group.items || [])
       .map(
@@ -92,14 +92,14 @@ const mocks = vi.hoisted(() => ({
           </article>`,
       )
       .join('');
-    root.dataset.reactHistoricoTimelineMounted = 'true';
+    root.dataset.historicoTimelineMounted = 'true';
     root.innerHTML =
       items ||
       `<div class="empty-state" data-empty-kind="${viewModel?.emptyState?.kind || 'empty'}">${viewModel?.emptyState?.title || 'Sem registros'}</div>`;
     return root;
   }),
-  unmountHistoricoTimelineReact: vi.fn((root) => {
-    delete root.dataset.reactHistoricoTimelineMounted;
+  unmountHistoricoTimelineDom: vi.fn((root) => {
+    delete root.dataset.historicoTimelineMounted;
     root.innerHTML = '';
   }),
 }));
@@ -169,9 +169,9 @@ vi.mock('../ui/views/historico/filtersRenderer.js', () => ({
   unmountHistoricoFiltersDom: mocks.unmountHistoricoFiltersDom,
 }));
 
-vi.mock('../react/entrypoints/historicoTimelineIsland.jsx', () => ({
-  mountHistoricoTimelineReact: mocks.mountHistoricoTimelineReact,
-  unmountHistoricoTimelineReact: mocks.unmountHistoricoTimelineReact,
+vi.mock('../ui/views/historico/timelineRenderer.js', () => ({
+  mountHistoricoTimelineDom: mocks.mountHistoricoTimelineDom,
+  unmountHistoricoTimelineDom: mocks.unmountHistoricoTimelineDom,
 }));
 
 function baseState(overrides = {}) {
@@ -269,7 +269,7 @@ function latestFiltersViewModel() {
 }
 
 function latestTimelineViewModel() {
-  return mocks.mountHistoricoTimelineReact.mock.calls.at(-1)?.[1]?.viewModel;
+  return mocks.mountHistoricoTimelineDom.mock.calls.at(-1)?.[1]?.viewModel;
 }
 
 function latestSheetOptions() {

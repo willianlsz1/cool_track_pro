@@ -2,7 +2,7 @@ import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { mountHistoricoTimelineReact } from '../react/entrypoints/historicoTimelineIsland.jsx';
+import { mountHistoricoTimelineDom } from '../ui/views/historico/timelineRenderer.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -64,7 +64,7 @@ function createTimelineViewModel(item = createTimelineItem()) {
 async function renderTimeline(item) {
   const root = setRoot();
   await act(async () => {
-    mountHistoricoTimelineReact(root, { viewModel: createTimelineViewModel(item) });
+    mountHistoricoTimelineDom(root, { viewModel: createTimelineViewModel(item) });
   });
   return root;
 }
@@ -116,8 +116,7 @@ describe('Historico card actions contract', () => {
   });
 
   it('keeps source-level consumers aligned with public action attributes', () => {
-    const timelineSource = readFileSync('src/react/pages/HistoricoTimeline.jsx', 'utf8');
-    const cardActionsSource = readFileSync('src/react/components/CardActions.jsx', 'utf8');
+    const timelineSource = readFileSync('src/ui/views/historico/timelineRenderer.js', 'utf8');
     const navigationHandlersSource = readFileSync(
       'src/ui/controller/handlers/navigationHandlers.js',
       'utf8',
@@ -131,14 +130,13 @@ describe('Historico card actions contract', () => {
       'utf8',
     );
 
-    expect(timelineSource).toContain('data-action={HISTORICO_ACTIONS.editReg}');
-    expect(timelineSource).toContain('data-action={HISTORICO_ACTIONS.deleteReg}');
-    expect(timelineSource).toContain('data-id={item.id}');
-    expect(timelineSource).toContain('<CardActions registroId={item.id} />');
-
-    expect(cardActionsSource).toContain('data-action="export-pdf"');
-    expect(cardActionsSource).toContain('data-action="whatsapp-export"');
-    expect(cardActionsSource).toContain('data-registro-id={registroId}');
+    expect(timelineSource).toContain('HISTORICO_ACTIONS.editReg');
+    expect(timelineSource).toContain('HISTORICO_ACTIONS.deleteReg');
+    expect(timelineSource).toContain('data-id="${escapeAttr(item.id)}"');
+    expect(timelineSource).toContain('renderCardActions(item.id)');
+    expect(timelineSource).toContain('data-action="export-pdf"');
+    expect(timelineSource).toContain('data-action="whatsapp-export"');
+    expect(timelineSource).toContain('data-registro-id="${escapeAttr(');
 
     expect(navigationHandlersSource).toContain("on('edit-reg'");
     expect(navigationHandlersSource).toMatch(/editRegistroId:\s*el\.dataset\.id/);

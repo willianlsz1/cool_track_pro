@@ -118,14 +118,14 @@ describe('registroId contract for Registro PDF/WhatsApp flows', () => {
   });
 
   it('mantem actions publicas e data-registro-id nos pontos DOM do fluxo', () => {
-    const cardActionsSource = readFileSync('src/react/components/CardActions.jsx', 'utf8');
+    const timelineSource = readFileSync('src/ui/views/historico/timelineRenderer.js', 'utf8');
     const registroContracts = Object.values(REGISTRO_ACTIONS);
 
     expect(registroContracts).toEqual(
       expect.arrayContaining(['save-and-share-registro', 'save-and-share-other-registro']),
     );
-    expect(cardActionsSource).toContain('data-action="export-pdf"');
-    expect(cardActionsSource).toContain('data-action="whatsapp-export"');
-    expect(cardActionsSource).toContain('data-registro-id={registroId}');
+    expect(timelineSource).toContain('data-action="export-pdf"');
+    expect(timelineSource).toContain('data-action="whatsapp-export"');
+    expect(timelineSource).toContain('data-registro-id="${escapeAttr(');
   });
 });

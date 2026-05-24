@@ -18,13 +18,13 @@ const mocks = vi.hoisted(() => ({
   isCachedPlanPro: vi.fn(),
   buildClientePmocDetails: vi.fn(),
   openFiltersSheet: vi.fn(),
-  mountHistoricoTimelineReact: vi.fn((root) => {
-    root.dataset.reactHistoricoTimelineMounted = 'true';
+  mountHistoricoTimelineDom: vi.fn((root) => {
+    root.dataset.historicoTimelineMounted = 'true';
     root.innerHTML = '<div class="timeline" role="list"></div>';
     return root;
   }),
-  unmountHistoricoTimelineReact: vi.fn((root) => {
-    delete root.dataset.reactHistoricoTimelineMounted;
+  unmountHistoricoTimelineDom: vi.fn((root) => {
+    delete root.dataset.historicoTimelineMounted;
     root.innerHTML = '';
   }),
 }));
@@ -88,9 +88,9 @@ vi.mock('../core/clientePmoc.js', () => ({
   buildClientePmocDetails: mocks.buildClientePmocDetails,
 }));
 
-vi.mock('../react/entrypoints/historicoTimelineIsland.jsx', () => ({
-  mountHistoricoTimelineReact: mocks.mountHistoricoTimelineReact,
-  unmountHistoricoTimelineReact: mocks.unmountHistoricoTimelineReact,
+vi.mock('../ui/views/historico/timelineRenderer.js', () => ({
+  mountHistoricoTimelineDom: mocks.mountHistoricoTimelineDom,
+  unmountHistoricoTimelineDom: mocks.unmountHistoricoTimelineDom,
 }));
 
 function baseState(overrides = {}) {

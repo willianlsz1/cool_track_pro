@@ -1,13 +1,10 @@
-import { act } from 'react';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  mountHistoricoTimelineReact,
-  unmountHistoricoTimelineReact,
-} from '../react/entrypoints/historicoTimelineIsland.jsx';
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  mountHistoricoTimelineDom,
+  unmountHistoricoTimelineDom,
+} from '../ui/views/historico/timelineRenderer.js';
 
 function setRoot() {
   document.body.innerHTML = `
@@ -33,7 +30,7 @@ function createTimelineItem(overrides = {}) {
     equipmentName: 'Split Recepcao',
     setorName: 'Loja',
     setorTag: 'LOJA',
-    context: 'Alpha Mercado · Loja · Split Recepcao',
+    context: 'Alpha Mercado - Loja - Split Recepcao',
     obs: 'Troca de filtros',
     meta: [
       { id: 'tecnico', icon: 'user', text: 'Ana' },
@@ -44,7 +41,7 @@ function createTimelineItem(overrides = {}) {
         prefix: 'Total: ',
         highlight: 'R$ 120',
         highlightClassName: 'meta-cyan',
-        details: '(pecas R$ 80,00 · mao R$ 40,00)',
+        details: '(pecas R$ 80,00 - mao R$ 40,00)',
       },
     ],
     photoUrls: ['https://cdn.example/foto-1.jpg'],
@@ -76,21 +73,18 @@ function createTimelineViewModel(overrides = {}) {
   };
 }
 
-describe('historico timeline React island', () => {
+describe('historico timeline DOM renderer', () => {
   afterEach(() => {
     document.body.innerHTML = '';
     vi.restoreAllMocks();
   });
 
-  it('mounts only in #timeline preserving groups, item classes and public attributes', async () => {
+  it('mounts only in #timeline preserving groups, item classes and public attributes', () => {
     const root = setRoot();
+    mountHistoricoTimelineDom(root, { viewModel: createTimelineViewModel() });
 
-    await act(async () => {
-      mountHistoricoTimelineReact(root, { viewModel: createTimelineViewModel() });
-    });
-
-    expect(root?.dataset.reactHistoricoTimelineMounted).toBe('true');
-    expect(document.getElementById('view-historico')?.dataset.reactHistoricoTimelineMounted).toBe(
+    expect(root?.dataset.historicoTimelineMounted).toBe('true');
+    expect(document.getElementById('view-historico')?.dataset.historicoTimelineMounted).toBe(
       undefined,
     );
     expect(root?.querySelector('.hist-op-summary')).not.toBeNull();
@@ -116,31 +110,28 @@ describe('historico timeline React island', () => {
     ).not.toBeNull();
   });
 
-  it('updates an existing root without duplicate React roots or duplicate renders', async () => {
+  it('updates an existing root without duplicate React roots or duplicate renders', () => {
     const root = setRoot();
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    await act(async () => {
-      mountHistoricoTimelineReact(root, { viewModel: createTimelineViewModel() });
-      mountHistoricoTimelineReact(root, {
-        viewModel: createTimelineViewModel({
-          groups: [
-            {
-              id: 'ontem',
-              label: 'Ontem',
-              countLabel: '1 servico',
-              items: [
-                createTimelineItem({
-                  id: 'reg-2',
-                  equipId: 'eq-2',
-                  serviceTitle: 'Corretiva',
-                  equipmentName: 'Chiller Central',
-                }),
-              ],
-            },
-          ],
-        }),
-      });
+    mountHistoricoTimelineDom(root, { viewModel: createTimelineViewModel() });
+    mountHistoricoTimelineDom(root, {
+      viewModel: createTimelineViewModel({
+        groups: [
+          {
+            id: 'ontem',
+            label: 'Ontem',
+            countLabel: '1 servico',
+            items: [
+              createTimelineItem({
+                id: 'reg-2',
+                equipId: 'eq-2',
+                serviceTitle: 'Corretiva',
+                equipmentName: 'Chiller Central',
+              }),
+            ],
+          },
+        ],
+      }),
     });
 
     expect(root?.querySelectorAll('.timeline')).toHaveLength(1);
@@ -154,35 +145,29 @@ describe('historico timeline React island', () => {
     );
   });
 
-  it('unmounts safely and tolerates repeated calls', async () => {
+  it('unmounts safely and tolerates repeated calls', () => {
     const root = setRoot();
+    mountHistoricoTimelineDom(root, { viewModel: createTimelineViewModel() });
+    unmountHistoricoTimelineDom(root);
+    unmountHistoricoTimelineDom(root);
 
-    await act(async () => {
-      mountHistoricoTimelineReact(root, { viewModel: createTimelineViewModel() });
-      unmountHistoricoTimelineReact(root);
-      unmountHistoricoTimelineReact(root);
-    });
-
-    expect(root?.dataset.reactHistoricoTimelineMounted).toBeUndefined();
+    expect(root?.dataset.historicoTimelineMounted).toBeUndefined();
     expect(root?.innerHTML).toBe('');
   });
 
-  it('renders filtered empty state without depending on filters, modals, PDF or delete flows', async () => {
+  it('renders filtered empty state without depending on filters, modals, PDF or delete flows', () => {
     const root = setRoot();
-
-    await act(async () => {
-      mountHistoricoTimelineReact(root, {
-        viewModel: createTimelineViewModel({
-          operationSummary: { totalServicosHoje: 0, totalEquipHoje: 0 },
-          groups: [],
-          emptyState: {
-            variant: 'default',
-            icon: '🔍',
-            title: 'Nenhum resultado para esse filtro',
-            description: 'Tente outro termo ou remova um filtro acima.',
-          },
-        }),
-      });
+    mountHistoricoTimelineDom(root, {
+      viewModel: createTimelineViewModel({
+        operationSummary: { totalServicosHoje: 0, totalEquipHoje: 0 },
+        groups: [],
+        emptyState: {
+          variant: 'default',
+          icon: 'search',
+          title: 'Nenhum resultado para esse filtro',
+          description: 'Tente outro termo ou remova um filtro acima.',
+        },
+      }),
     });
 
     expect(root?.querySelector('.empty-state')).not.toBeNull();
@@ -192,42 +177,39 @@ describe('historico timeline React island', () => {
     expect(root?.querySelector('.timeline__item')).toBeNull();
   });
 
-  it('preserves photo and signature DOM contracts only for safe media URLs', async () => {
+  it('preserves photo and signature DOM contracts only for safe media URLs', () => {
     const root = setRoot();
-
-    await act(async () => {
-      mountHistoricoTimelineReact(root, {
-        viewModel: createTimelineViewModel({
-          groups: [
-            {
-              id: 'hoje',
-              label: 'Hoje',
-              countLabel: '2 servicos',
-              items: [
-                createTimelineItem({
-                  id: 'reg-safe',
-                  photoUrls: ['https://cdn.example/foto-safe.jpg', 'javascript:alert(1)'],
-                  signature: {
-                    url: 'data:image/png;base64,assinatura',
-                    ariaLabel: 'Ver assinatura segura',
-                    alt: 'Assinatura registrada pelo cliente',
-                  },
-                }),
-                createTimelineItem({
-                  id: 'reg-unsafe',
-                  photoUrls: ['JaVaScRiPt:alert(2)'],
-                  signature: {
-                    url: 'javascript:alert(3)',
-                    ariaLabel: 'Assinatura insegura',
-                    alt: 'Assinatura insegura',
-                  },
-                  isLatest: false,
-                }),
-              ],
-            },
-          ],
-        }),
-      });
+    mountHistoricoTimelineDom(root, {
+      viewModel: createTimelineViewModel({
+        groups: [
+          {
+            id: 'hoje',
+            label: 'Hoje',
+            countLabel: '2 servicos',
+            items: [
+              createTimelineItem({
+                id: 'reg-safe',
+                photoUrls: ['https://cdn.example/foto-safe.jpg', 'javascript:alert(1)'],
+                signature: {
+                  url: 'data:image/png;base64,assinatura',
+                  ariaLabel: 'Ver assinatura segura',
+                  alt: 'Assinatura registrada pelo cliente',
+                },
+              }),
+              createTimelineItem({
+                id: 'reg-unsafe',
+                photoUrls: ['JaVaScRiPt:alert(2)'],
+                signature: {
+                  url: 'javascript:alert(3)',
+                  ariaLabel: 'Assinatura insegura',
+                  alt: 'Assinatura insegura',
+                },
+                isLatest: false,
+              }),
+            ],
+          },
+        ],
+      }),
     });
 
     expect(
@@ -244,7 +226,7 @@ describe('historico timeline React island', () => {
     ).toBeNull();
   });
 
-  it('keeps legacy handlers actionable through data-action and data-hist-action attributes', async () => {
+  it('keeps legacy handlers actionable through data-action and data-hist-action attributes', () => {
     const root = setRoot();
     const view = document.getElementById('view-historico');
     const delegatedHandler = vi.fn();
@@ -254,10 +236,7 @@ describe('historico timeline React island', () => {
         target?.getAttribute('data-action') || target?.getAttribute('data-hist-action'),
       );
     });
-
-    await act(async () => {
-      mountHistoricoTimelineReact(root, { viewModel: createTimelineViewModel() });
-    });
+    mountHistoricoTimelineDom(root, { viewModel: createTimelineViewModel() });
 
     root
       ?.querySelector('[data-action="edit-reg"][data-id="reg-1"]')
@@ -278,35 +257,32 @@ describe('historico timeline React island', () => {
     expect(delegatedHandler).toHaveBeenCalledWith('hist-view-signature');
   });
 
-  it('escapes dynamic text and avoids unsafe React HTML APIs', async () => {
+  it('escapes dynamic text and avoids unsafe React HTML APIs', () => {
     const root = setRoot();
     const malicious = '"><img src=x onerror=alert(1)><script>alert(2)</script>';
-
-    await act(async () => {
-      mountHistoricoTimelineReact(root, {
-        viewModel: createTimelineViewModel({
-          groups: [
-            {
-              id: 'hoje',
-              label: malicious,
-              countLabel: '1 servico',
-              items: [
-                createTimelineItem({
-                  serviceTitle: malicious,
-                  equipmentName: malicious,
-                  setorName: malicious,
-                  obs: malicious,
-                  context: malicious,
-                  headPills: [{ id: 'type', label: malicious, color: 'cyan' }],
-                  meta: [{ id: 'tecnico', icon: 'user', text: malicious }],
-                  signature: null,
-                  photoUrls: [],
-                }),
-              ],
-            },
-          ],
-        }),
-      });
+    mountHistoricoTimelineDom(root, {
+      viewModel: createTimelineViewModel({
+        groups: [
+          {
+            id: 'hoje',
+            label: malicious,
+            countLabel: '1 servico',
+            items: [
+              createTimelineItem({
+                serviceTitle: malicious,
+                equipmentName: malicious,
+                setorName: malicious,
+                obs: malicious,
+                context: malicious,
+                headPills: [{ id: 'type', label: malicious, color: 'cyan' }],
+                meta: [{ id: 'tecnico', icon: 'user', text: malicious }],
+                signature: null,
+                photoUrls: [],
+              }),
+            ],
+          },
+        ],
+      }),
     });
 
     const html = root?.innerHTML || '';
@@ -317,13 +293,15 @@ describe('historico timeline React island', () => {
     expect(root?.querySelector('img[src="x"]')).toBeNull();
     expect(root?.querySelector('[onerror]')).toBeNull();
 
-    const pageSource = readFileSync('src/react/pages/HistoricoTimeline.jsx', 'utf8');
-    expect(pageSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML|document\.|window\./);
+    const pageSource = readFileSync('src/ui/views/historico/timelineRenderer.js', 'utf8');
+    expect(pageSource).not.toMatch(/dangerouslySetInnerHTML/);
   });
 
   it('keeps React root creation out of the legacy Historico adapter source', () => {
     const adapterSource = readFileSync('src/ui/views/historico.js', 'utf8');
 
     expect(adapterSource).not.toMatch(/react-dom\/client|createRoot/);
+    expect(adapterSource).toContain('./historico/timelineRenderer.js');
+    expect(adapterSource).not.toContain(['historicoTimeline', 'Island.jsx'].join(''));
   });
 });

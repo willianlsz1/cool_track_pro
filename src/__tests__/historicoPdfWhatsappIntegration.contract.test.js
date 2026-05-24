@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mountHistoricoTimelineReact } from '../react/entrypoints/historicoTimelineIsland.jsx';
+import { mountHistoricoTimelineDom } from '../ui/views/historico/timelineRenderer.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -177,7 +177,7 @@ async function renderHistoricoCard(item = createTimelineItem()) {
   `;
   const root = document.getElementById('timeline');
   await act(async () => {
-    mountHistoricoTimelineReact(root, { viewModel: createTimelineViewModel(item) });
+    mountHistoricoTimelineDom(root, { viewModel: createTimelineViewModel(item) });
   });
   return root;
 }

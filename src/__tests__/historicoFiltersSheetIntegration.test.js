@@ -77,13 +77,13 @@ const mocks = vi.hoisted(() => ({
     delete root.dataset.historicoFiltersMounted;
     root.innerHTML = '';
   }),
-  mountHistoricoTimelineReact: vi.fn((root) => {
-    root.dataset.reactHistoricoTimelineMounted = 'true';
+  mountHistoricoTimelineDom: vi.fn((root) => {
+    root.dataset.historicoTimelineMounted = 'true';
     root.innerHTML = '<div class="timeline" role="list"></div>';
     return root;
   }),
-  unmountHistoricoTimelineReact: vi.fn((root) => {
-    delete root.dataset.reactHistoricoTimelineMounted;
+  unmountHistoricoTimelineDom: vi.fn((root) => {
+    delete root.dataset.historicoTimelineMounted;
     root.innerHTML = '';
   }),
 }));
@@ -152,9 +152,9 @@ vi.mock('../ui/views/historico/filtersRenderer.js', () => ({
   unmountHistoricoFiltersDom: mocks.unmountHistoricoFiltersDom,
 }));
 
-vi.mock('../react/entrypoints/historicoTimelineIsland.jsx', () => ({
-  mountHistoricoTimelineReact: mocks.mountHistoricoTimelineReact,
-  unmountHistoricoTimelineReact: mocks.unmountHistoricoTimelineReact,
+vi.mock('../ui/views/historico/timelineRenderer.js', () => ({
+  mountHistoricoTimelineDom: mocks.mountHistoricoTimelineDom,
+  unmountHistoricoTimelineDom: mocks.unmountHistoricoTimelineDom,
 }));
 
 function baseState(overrides = {}) {
@@ -313,7 +313,7 @@ describe('historico mobile filters sheet integration handlers', () => {
       'recarga',
       'inspecao',
     ]);
-    expect(document.getElementById('timeline')?.dataset.reactHistoricoTimelineMounted).toBe('true');
+    expect(document.getElementById('timeline')?.dataset.historicoTimelineMounted).toBe('true');
     expect(document.getElementById('hist-filters-root')?.dataset.historicoFiltersMounted).toBe(
       'true',
     );
@@ -351,7 +351,7 @@ describe('historico mobile filters sheet integration handlers', () => {
     );
     expect(document.getElementById('hist-active-chips-slot')?.textContent).toContain('Tipo');
     expect(document.getElementById('hist-active-chips-slot')?.textContent).toContain('Corretiva');
-    expect(mocks.mountHistoricoTimelineReact).toHaveBeenCalledTimes(2);
+    expect(mocks.mountHistoricoTimelineDom).toHaveBeenCalledTimes(2);
     expect(mocks.openLightbox).not.toHaveBeenCalled();
     expect(mocks.openSignatureViewer).not.toHaveBeenCalled();
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
@@ -380,7 +380,7 @@ describe('historico mobile filters sheet integration handlers', () => {
     );
     expect(document.getElementById('hist-filters-count')?.hidden).toBe(true);
     expect(document.querySelector('#hist-active-chips-slot .hist-active-chip')).toBeNull();
-    expect(document.getElementById('timeline')?.dataset.reactHistoricoTimelineMounted).toBe('true');
+    expect(document.getElementById('timeline')?.dataset.historicoTimelineMounted).toBe('true');
     expect(document.getElementById('hist-filters-root')?.dataset.historicoFiltersMounted).toBe(
       'true',
     );

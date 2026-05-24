@@ -54,6 +54,10 @@ import {
   mountHistoricoFiltersDom,
   unmountHistoricoFiltersDom,
 } from './historico/filtersRenderer.js';
+import {
+  mountHistoricoTimelineDom,
+  unmountHistoricoTimelineDom,
+} from './historico/timelineRenderer.js';
 
 // Histórico é parte do core do produto e não tem corte por data em nenhum
 // plano — Free, Plus e Pro veem todos os registros salvos. Outros limites
@@ -124,28 +128,10 @@ let _urlFiltersHydrated = false;
 // vez que o user limpa via chip, ou navega pra histórico sem clienteId nos
 // query params. Persistente apenas dentro da sessão (não na URL).
 let _clienteFilter = { id: null, nome: null };
-let _historicoTimelineBridgePromise = null;
-let _historicoTimelineBridge = null;
 let _historicoTimelineRenderGeneration = 0;
 let _historicoFiltersRenderGeneration = 0;
 let _histSearchRenderTimer = null;
 let _histFilterValues = { busca: '', setor: '', equip: '' };
-
-function loadHistoricoTimelineBridge() {
-  if (_historicoTimelineBridge) return Promise.resolve(_historicoTimelineBridge);
-  if (!_historicoTimelineBridgePromise) {
-    _historicoTimelineBridgePromise = import('../../react/entrypoints/historicoTimelineIsland.jsx')
-      .then((mod) => {
-        _historicoTimelineBridge = mod;
-        return mod;
-      })
-      .catch((error) => {
-        _historicoTimelineBridgePromise = null;
-        throw error;
-      });
-  }
-  return _historicoTimelineBridgePromise;
-}
 
 function readHistoricoFilterDomValue(id) {
   const el = typeof document !== 'undefined' ? document.getElementById(id) : null;
@@ -199,16 +185,9 @@ export function unmountHistoricoTimeline() {
   if (typeof document === 'undefined') return null;
 
   const root = document.getElementById('timeline');
-  if (!root?.dataset.reactHistoricoTimelineMounted) return null;
-
-  if (_historicoTimelineBridge?.unmountHistoricoTimelineReact) {
-    _historicoTimelineBridge.unmountHistoricoTimelineReact(root);
-    return null;
-  }
-
-  return loadHistoricoTimelineBridge().then((mod) => {
-    mod.unmountHistoricoTimelineReact?.(root);
-  });
+  if (!root?.dataset.historicoTimelineMounted) return null;
+  unmountHistoricoTimelineDom(root);
+  return null;
 }
 
 export function unmountHistoricoFilters() {
@@ -1032,7 +1011,7 @@ function buildTimelineEmptyState(hasFilters) {
   };
 }
 
-function buildHistoricoTimelineReactViewModel({
+function buildHistoricoTimelineDomViewModel({
   list,
   todaySummary,
   attentionItems,
@@ -1262,21 +1241,20 @@ function syncHistoricoAfterTimelineMount({
   });
 }
 
-function mountHistoricoTimelineIsland({
-  bridge,
+function mountHistoricoTimelineRenderer({
   timelineRoot,
   timelineViewModel,
   renderGeneration,
   afterMount,
 }) {
   if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
-  const mounted = bridge.mountHistoricoTimelineReact(timelineRoot, {
+  const mounted = mountHistoricoTimelineDom(timelineRoot, {
     viewModel: timelineViewModel,
   });
   return afterMount().then(() => mounted);
 }
 
-function renderHistoricoTimelineIsland({
+function renderHistoricoTimelineRenderer({
   timelineRoot,
   list,
   timelineContext,
@@ -1289,7 +1267,7 @@ function renderHistoricoTimelineIsland({
 }) {
   if (renderGeneration !== _historicoTimelineRenderGeneration) return null;
 
-  const timelineViewModel = buildHistoricoTimelineReactViewModel({
+  const timelineViewModel = buildHistoricoTimelineDomViewModel({
     list,
     todaySummary: timelineContext.todaySummary,
     attentionItems: timelineContext.attentionItems,
@@ -1309,25 +1287,12 @@ function renderHistoricoTimelineIsland({
       prevScrollTop,
     });
 
-  if (_historicoTimelineBridge?.mountHistoricoTimelineReact) {
-    return mountHistoricoTimelineIsland({
-      bridge: _historicoTimelineBridge,
-      timelineRoot,
-      timelineViewModel,
-      renderGeneration,
-      afterMount,
-    });
-  }
-
-  return loadHistoricoTimelineBridge().then((bridge) =>
-    mountHistoricoTimelineIsland({
-      bridge,
-      timelineRoot,
-      timelineViewModel,
-      renderGeneration,
-      afterMount,
-    }),
-  );
+  return mountHistoricoTimelineRenderer({
+    timelineRoot,
+    timelineViewModel,
+    renderGeneration,
+    afterMount,
+  });
 }
 
 function renderHistoricoTimelineWithSkeleton({
@@ -1346,7 +1311,7 @@ function renderHistoricoTimelineWithSkeleton({
     timelineRoot,
     { enabled: true, variant: 'timeline', count: Math.min(Math.max(list.length, 3), 5) },
     () =>
-      renderHistoricoTimelineIsland({
+      renderHistoricoTimelineRenderer({
         timelineRoot,
         list,
         timelineContext,

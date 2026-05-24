@@ -230,13 +230,13 @@ describe('report export public contracts', () => {
     expect(RELATORIO_ACTIONS.whatsappExport).toBe('whatsapp-export');
 
     const controlsSource = source('src/ui/views/relatorio/controlsRenderer.js');
-    const cardsSource = source('src/react/components/CardActions.jsx');
+    const timelineSource = source('src/ui/views/historico/timelineRenderer.js');
 
     expect(controlsSource).toContain('data-action="${RELATORIO_ACTIONS.exportPdf}"');
     expect(controlsSource).toContain('data-action="${RELATORIO_ACTIONS.whatsappExport}"');
-    expect(cardsSource).toContain('data-action="export-pdf"');
-    expect(cardsSource).toContain('data-action="whatsapp-export"');
-    expect(cardsSource).toContain('data-registro-id={registroId}');
+    expect(timelineSource).toContain('data-action="export-pdf"');
+    expect(timelineSource).toContain('data-action="whatsapp-export"');
+    expect(timelineSource).toContain('data-registro-id="${escapeAttr(');
   });
 
   it('mantem paridade de filtros e prioridade de filters.registroId para PDF e WhatsApp', async () => {
