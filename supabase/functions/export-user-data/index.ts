@@ -118,13 +118,13 @@ Deno.serve(async (req) => {
           'usuário. Conteúdos anonimizados (feedback/analytics com user_id removido) ' +
           'não são incluídos por não serem mais dados pessoais identificáveis.',
         schema: {
-          profiles: 'dados de cadastro e assinatura',
+          profiles: 'dados de cadastro',
           equipamentos: 'equipamentos cadastrados pelo usuário',
           registros: 'registros de serviço (manutenções)',
           tecnicos: 'técnicos cadastrados no contexto do usuário',
           setores: 'agrupamentos de equipamentos (feature Pro)',
           feedback: 'feedback enviado pelo usuário',
-          usage_monthly: 'contadores de uso mensal (PDF, WhatsApp)',
+          usage_monthly: 'contadores operacionais de uso mensal',
           ai_usage_cost: 'contadores de uso de IA (análise de placa)',
         },
       },

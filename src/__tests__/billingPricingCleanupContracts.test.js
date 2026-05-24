@@ -150,4 +150,13 @@ describe('billing/pricing cleanup contracts', () => {
     expect(sources).not.toContain('pdf_export');
     expect(sources).not.toContain('whatsapp_share');
   });
+
+  it('does not describe exported account data with removed billing or PDF/share labels', () => {
+    const exportUserDataSource = readSource('supabase/functions/export-user-data/index.ts');
+
+    expect(exportUserDataSource).not.toContain('dados de cadastro e assinatura');
+    expect(exportUserDataSource).not.toContain('contadores de uso mensal (PDF, WhatsApp)');
+    expect(exportUserDataSource).not.toContain('pdf_export');
+    expect(exportUserDataSource).not.toContain('whatsapp_share');
+  });
 });
