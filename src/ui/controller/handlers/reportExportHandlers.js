@@ -18,7 +18,7 @@ import {
   PLAN_CODE_FREE,
   PLAN_CODE_PLUS,
 } from '../../../core/plans/subscriptionPlans.js';
-import { fetchOperationalProfile } from '../../../core/plans/monetization.js';
+import { fetchOperationalProfile } from '../../../core/plans/operationalPlan.js';
 import { OnboardingChecklist } from '../../components/onboarding/onboardingChecklist.js';
 import {
   getMonthlyLimitForPlan,
@@ -633,7 +633,7 @@ function bindPmocFormal() {
       // Refinar: cache Plus+ é mais permissivo do que Pro estrito.
       // Faz fetch defensivo do profile real.
       try {
-        const { fetchOperationalProfile } = await import('../../../core/plans/monetization.js');
+        const { fetchOperationalProfile } = await import('../../../core/plans/operationalPlan.js');
         const { profile } = await fetchOperationalProfile();
         isPro = hasProAccess(profile);
       } catch (_) {

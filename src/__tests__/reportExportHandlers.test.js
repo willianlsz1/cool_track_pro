@@ -35,7 +35,7 @@ vi.mock('../domain/pdf/shareReport.js', () => ({
 }));
 
 // Guest conversion modal foi removido quando o modo demo/guest saiu.
-// Os fluxos de limite agora usam Toast.warning + aviso local de billing desativado.
+// Os fluxos de limite agora usam Toast.warning + aviso local de recurso comercial desativado.
 
 const trackEvent = vi.fn();
 vi.mock('../core/telemetry.js', () => ({
@@ -65,7 +65,7 @@ vi.mock('../ui/components/pdfQuotaBadge.js', () => ({
 }));
 
 const fetchOperationalProfile = vi.fn();
-vi.mock('../core/plans/monetization.js', () => ({
+vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile,
 }));
 
@@ -409,7 +409,7 @@ describe('reportExportHandlers', () => {
     await handlers.get('whatsapp-export')({});
 
     expect(send).not.toHaveBeenCalled();
-    // Sem GuestConversionModal: Toast.warning + aviso local de billing desativado.
+    // Sem GuestConversionModal: Toast.warning + aviso local de recurso comercial desativado.
     expect(warning).toHaveBeenCalled();
     expect(trackEvent).toHaveBeenCalledWith(
       'whatsapp_share_blocked',

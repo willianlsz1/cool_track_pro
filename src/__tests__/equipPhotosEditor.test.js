@@ -95,8 +95,8 @@ vi.mock('../core/modal.js', () => ({
   CustomConfirm: { show: vi.fn(async () => true) },
 }));
 
-// monetization + subscriptionPlans (import dinâmico no recheck async).
-vi.mock('../core/plans/monetization.js', () => ({
+// operationalPlan + subscriptionPlans (import dinâmico no recheck async).
+vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: vi.fn(async () => ({ profile: null })),
 }));
 // subscriptionPlans é importado transitivamente por upgradeNudge/dashboard,
@@ -202,7 +202,7 @@ describe('applyEquipPhotosEditorGate — Free (bloqueado / defense-in-depth)', (
     expect(photosClear).toHaveBeenCalledTimes(1);
   });
 
-  it('clique no CTA dispara telemetria, fecha modal e avisa billing desativado', async () => {
+  it('clique no CTA dispara telemetria, fecha modal e avisa recurso comercial desativado', async () => {
     const { applyEquipPhotosEditorGate } = await import('../ui/views/equipamentos.js');
     applyEquipPhotosEditorGate(false);
 

@@ -152,7 +152,7 @@ async function setupDashboardModule({ state = emptyState(), alerts = [] } = {}) 
     },
   }));
 
-  vi.doMock('../core/plans/monetization.js', () => ({
+  vi.doMock('../core/plans/operationalPlan.js', () => ({
     fetchOperationalProfile: vi.fn(async () => ({ profile: { plan: 'free' } })),
   }));
 

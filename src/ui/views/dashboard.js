@@ -22,7 +22,7 @@ import { InstallAppPrompt } from '../components/installAppPrompt.js';
 import { UpgradeNudge } from '../components/upgradeNudge.js';
 import { OverflowBanner } from '../components/overflowBanner.js';
 import { withSkeleton } from '../components/skeleton.js';
-import { fetchOperationalProfile } from '../../core/plans/monetization.js';
+import { fetchOperationalProfile } from '../../core/plans/operationalPlan.js';
 import {
   PLAN_CODE_FREE,
   PLAN_CODE_PLUS,

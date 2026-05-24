@@ -31,7 +31,7 @@ export {
   PLAN_CODE_PLUS,
 };
 
-function createMonetizationError(code, message, cause = null) {
+function createOperationalPlanError(code, message, cause = null) {
   const error = new Error(message);
   error.code = code;
   if (cause) error.cause = cause;
@@ -72,7 +72,7 @@ export async function sanitizeSessionForCurrentProject({ supabaseClient = supaba
 
   await supabaseClient.auth.signOut();
 
-  throw createMonetizationError(
+  throw createOperationalPlanError(
     'SESSION_PROJECT_MISMATCH',
     'Sua sessao e de outro ambiente. Faca login novamente para continuar.',
   );
@@ -111,7 +111,7 @@ export async function fetchOperationalProfile({ supabaseClient = supabase } = {}
   } = await supabaseClient.auth.getUser();
 
   if (userError || !user?.id) {
-    throw createMonetizationError('NO_SESSION', 'Usuario sem sessao ativa.', userError);
+    throw createOperationalPlanError('NO_SESSION', 'Usuario sem sessao ativa.', userError);
   }
 
   const profile = {

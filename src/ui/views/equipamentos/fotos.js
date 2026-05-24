@@ -192,7 +192,7 @@ export async function openEquipPhotosEditor(equipId) {
   // correto. Silencioso em caso de falha (mantém estado do cache).
   (async () => {
     try {
-      const { fetchOperationalProfile } = await import('../../../core/plans/monetization.js');
+      const { fetchOperationalProfile } = await import('../../../core/plans/operationalPlan.js');
       const { hasPlusAccess } = await import('../../../core/plans/subscriptionPlans.js');
       const { profile } = await fetchOperationalProfile();
       const realIsPlusOrPro = hasPlusAccess(profile);

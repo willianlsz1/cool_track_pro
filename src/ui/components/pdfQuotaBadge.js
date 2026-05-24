@@ -20,7 +20,7 @@
  */
 
 import { Auth } from '../../core/auth.js';
-import { fetchOperationalProfile } from '../../core/plans/monetization.js';
+import { fetchOperationalProfile } from '../../core/plans/operationalPlan.js';
 import {
   getEffectivePlan,
   PLAN_CODE_FREE,

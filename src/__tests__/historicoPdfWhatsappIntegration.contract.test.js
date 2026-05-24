@@ -80,7 +80,7 @@ vi.mock('../ui/components/pdfQuotaBadge.js', () => ({
   PdfQuotaBadge: { refresh: mocks.pdfBadgeRefresh, remove: vi.fn() },
 }));
 
-vi.mock('../core/plans/monetization.js', () => ({
+vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: mocks.fetchOperationalProfile,
 }));
 

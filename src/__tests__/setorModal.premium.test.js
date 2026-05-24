@@ -54,8 +54,8 @@ vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: (_el, _opts, renderFn) => renderFn(),
 }));
 
-// monetization + subscriptionPlans — ensureProForSetores precisa passar.
-vi.mock('../core/plans/monetization.js', () => ({
+// operationalPlan + subscriptionPlans — ensureProForSetores precisa passar.
+vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
 }));
 vi.mock('../core/plans/subscriptionPlans.js', async (importOriginal) => {

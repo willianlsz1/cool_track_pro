@@ -285,14 +285,14 @@ configureOpenEditEquip({
   handleError,
   ErrorCodes,
   loadOperationalGateDeps: async () => {
-    const [monetization, plans, capture, usageLimits] = await Promise.all([
-      import('../../core/plans/monetization.js'),
+    const [operationalPlan, plans, capture, usageLimits] = await Promise.all([
+      import('../../core/plans/operationalPlan.js'),
       import('../../core/plans/subscriptionPlans.js'),
       import('../components/nameplateCapture.js'),
       import('../../core/usageLimits.js'),
     ]);
     return {
-      ...monetization,
+      ...operationalPlan,
       ...plans,
       ...capture,
       ...usageLimits,

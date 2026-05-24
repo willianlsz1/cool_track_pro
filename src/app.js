@@ -19,7 +19,7 @@ import { PasswordRecoveryModal } from './ui/components/passwordRecoveryModal.js'
 import { Storage } from './core/storage.js';
 import { ErrorCodes, handleError } from './core/errors.js';
 import { Toast } from './core/toast.js';
-import { sanitizeSessionForCurrentProject } from './core/plans/monetization.js';
+import { sanitizeSessionForCurrentProject } from './core/plans/operationalPlan.js';
 import { supabase } from './core/supabase.js';
 import { initTelemetrySink } from './core/telemetrySink.js';
 import { initObservability, setUser as setObservabilityUser } from './core/observability.js';

@@ -6,7 +6,7 @@ vi.mock('../core/auth.js', () => ({
 }));
 
 const fetchOperationalProfile = vi.fn();
-vi.mock('../core/plans/monetization.js', () => ({
+vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile,
 }));
 

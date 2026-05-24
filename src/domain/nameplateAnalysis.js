@@ -308,7 +308,7 @@ function normalizeMediaType(type) {
 }
 
 /**
- * Obtém token Supabase fresco. Mesma estratégia da monetization.js:
+ * Obtém token Supabase fresco. Mesma estratégia da operationalPlan.js:
  * tenta refresh via rede, cai pra storage se o refresh falhar mas o token
  * no storage ainda não expirou.
  */

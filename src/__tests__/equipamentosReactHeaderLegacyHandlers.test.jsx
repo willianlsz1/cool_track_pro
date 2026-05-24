@@ -174,7 +174,7 @@ vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
-vi.mock('../core/plans/monetization.js', () => ({
+vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: mocks.fetchOperationalProfile,
 }));
 

@@ -127,7 +127,7 @@ async function setupDashboardModule({
     },
   }));
 
-  vi.doMock('../core/plans/monetization.js', () => ({
+  vi.doMock('../core/plans/operationalPlan.js', () => ({
     fetchOperationalProfile: vi.fn(async () => ({ profile: { plan: planCode } })),
   }));
 

@@ -13,10 +13,10 @@ import {
   setRenderEquipPlanNeedsRefresh,
   setRenderEquipPlanRefreshPromise,
 } from '../../state/renderPlanState.js';
-import { fetchOperationalProfileCached } from '../../../../core/plans/monetization.js';
+import { fetchOperationalProfileCached } from '../../../../core/plans/operationalPlan.js';
 import { hasProAccess } from '../../../../core/plans/subscriptionPlans.js';
 
-vi.mock('../../../../core/plans/monetization.js', () => ({
+vi.mock('../../../../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfileCached: vi.fn(),
 }));
 
@@ -85,7 +85,7 @@ describe('bridges/renderPlan', () => {
   });
 
   it('preserva fallback silencioso em erro', async () => {
-    fetchOperationalProfileCached.mockRejectedValue(new Error('billing unavailable'));
+    fetchOperationalProfileCached.mockRejectedValue(new Error('profile unavailable'));
 
     refreshRenderEquipPlan({ renderToken: incrementRenderEquipPlanToken() });
     await expect(getRenderEquipPlanRefreshPromise()).resolves.toBeUndefined();

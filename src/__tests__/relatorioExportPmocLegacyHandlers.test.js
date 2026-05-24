@@ -195,7 +195,7 @@ async function loadRelatorioWithExportHandlers({ state = buildState(), planCode 
   vi.doMock('../ui/components/pdfSuccessToast.js', () => ({
     PdfSuccessToast: { show: pdfSuccessShow },
   }));
-  vi.doMock('../core/plans/monetization.js', () => ({
+  vi.doMock('../core/plans/operationalPlan.js', () => ({
     fetchOperationalProfile,
   }));
   vi.doMock('../core/plans/subscriptionPlans.js', () => ({

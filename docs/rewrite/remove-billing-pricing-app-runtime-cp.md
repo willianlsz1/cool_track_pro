@@ -27,7 +27,7 @@ remocao dos vestigios do v1.
 - O backend ainda contem artefatos historicos de schema/RLS de billing/Stripe e
   deve ser tratado em etapa propria, porque envolve banco e contratos
   sensiveis.
-- Alguns nomes legados (`PLAN_CODE_*`, `monetization.js`) permanecem como
+- Alguns nomes legados (`PLAN_CODE_*`, `operationalPlan.js`) permanecem como
   compatibilidade para evitar quebra ampla neste checkpoint.
 
 ## Validacao esperada

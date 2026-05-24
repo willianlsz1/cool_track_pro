@@ -47,7 +47,7 @@ export async function ensureProForSetores({ action = 'manage' } = {}) {
     let hasProAccess = setorPersistDeps.hasProAccess;
     if (!fetchOperationalProfile || !hasProAccess) {
       const { fetchOperationalProfile: fetchProfile } =
-        await import('../../../core/plans/monetization.js');
+        await import('../../../core/plans/operationalPlan.js');
       const { hasProAccess: hasAccess } = await import('../../../core/plans/subscriptionPlans.js');
       fetchOperationalProfile = fetchProfile;
       hasProAccess = hasAccess;

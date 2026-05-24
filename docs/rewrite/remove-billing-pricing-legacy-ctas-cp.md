@@ -28,13 +28,13 @@ schema.
 
 - Quotas tecnicas de IA/PDF/WhatsApp.
 - Storage real, Supabase/RLS, PDF/share e WhatsApp.
-- Refatoracao ampla dos helpers legados `monetization`/`subscriptionPlans`.
+- Refatoracao ampla dos helpers legados de plano operacional/`subscriptionPlans`.
 - Remocao de documentos historicos em `docs/monetization` ou migrations
   antigas que registram o historico do produto.
 
 ## Validacao
 
-- `npm test -- src/__tests__/subscriptionPlans.test.js src/__tests__/monetization.test.js src/__tests__/clientesAccess.test.js src/__tests__/clientesPaywallModal.test.js src/features/equipamentos/__tests__/crud/validate.test.js src/__tests__/equipamentosLegacyPhotosNameplatePaywall.test.js src/__tests__/equipPhotosGate.test.js src/__tests__/equipPhotosEditor.test.js src/__tests__/registroLegacyChecklistRender.test.js --run`
+- `npm test -- src/__tests__/subscriptionPlans.test.js src/__tests__/operationalPlan.test.js src/__tests__/clientesAccess.test.js src/__tests__/clientesPaywallModal.test.js src/features/equipamentos/__tests__/crud/validate.test.js src/__tests__/equipamentosLegacyPhotosNameplatePaywall.test.js src/__tests__/equipPhotosGate.test.js src/__tests__/equipPhotosEditor.test.js src/__tests__/registroLegacyChecklistRender.test.js --run`
 - `npm run format`
 - `npm run build`
 - `npm run check`

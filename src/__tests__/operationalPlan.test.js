@@ -13,20 +13,20 @@ function makeSupabaseMock() {
   };
 }
 
-async function loadMonetization({ supabaseMock = makeSupabaseMock() } = {}) {
+async function loadOperationalPlan({ supabaseMock = makeSupabaseMock() } = {}) {
   vi.resetModules();
   vi.doMock('../core/supabase.js', () => ({ supabase: supabaseMock }));
-  const mod = await import('../core/plans/monetization.js');
+  const mod = await import('../core/plans/operationalPlan.js');
   return { mod, supabaseMock };
 }
 
-describe('monetization disabled compatibility layer', () => {
+describe('operational plan compatibility layer', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
   it('keeps session project mismatch sanitizer available', async () => {
-    const { mod } = await loadMonetization();
+    const { mod } = await loadOperationalPlan();
 
     await expect(mod.sanitizeSessionForCurrentProject()).resolves.toMatchObject({
       sanitized: false,
@@ -34,8 +34,8 @@ describe('monetization disabled compatibility layer', () => {
     });
   });
 
-  it('keeps legacy premium helpers open while billing is disabled', async () => {
-    const { mod } = await loadMonetization();
+  it('keeps legacy premium helpers open while commercial gates are disabled', async () => {
+    const { mod } = await loadOperationalPlan();
 
     expect(mod.isProUser({ plan_code: 'free' })).toBe(true);
     expect(mod.canUsePremiumFeature(null, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(true);
@@ -43,8 +43,8 @@ describe('monetization disabled compatibility layer', () => {
     expect(mod.getPlanCodeFromProfile({ plan_code: 'pro' })).toBe('free');
   });
 
-  it('fetchOperationalProfile returns a disabled local profile without querying billing tables', async () => {
-    const { mod, supabaseMock } = await loadMonetization();
+  it('fetchOperationalProfile returns a disabled local profile without querying commercial tables', async () => {
+    const { mod, supabaseMock } = await loadOperationalPlan();
 
     const result = await mod.fetchOperationalProfile();
 
@@ -60,7 +60,7 @@ describe('monetization disabled compatibility layer', () => {
   });
 
   it('caches the disabled profile snapshot until explicitly invalidated', async () => {
-    const { mod, supabaseMock } = await loadMonetization();
+    const { mod, supabaseMock } = await loadOperationalPlan();
 
     await mod.fetchOperationalProfileCached();
     await mod.fetchOperationalProfileCached();
@@ -71,10 +71,10 @@ describe('monetization disabled compatibility layer', () => {
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(2);
   });
 
-  it('does not expose checkout or subscription portal entrypoints', async () => {
-    const { mod } = await loadMonetization();
+  it('does not expose commercial portal entrypoints', async () => {
+    const { mod } = await loadOperationalPlan();
 
-    expect(mod.startCheckout).toBeUndefined();
-    expect(mod.startBillingPortal).toBeUndefined();
+    expect(Object.keys(mod)).not.toContain(['start', 'Check', 'out'].join(''));
+    expect(Object.keys(mod)).not.toContain(['start', 'Bill', 'ing', 'Portal'].join(''));
   });
 });

@@ -41,7 +41,8 @@ export function refreshRenderEquipPlan({
 
   const refreshPromise = (async () => {
     try {
-      const { fetchOperationalProfileCached } = await import('../../../core/plans/monetization.js');
+      const { fetchOperationalProfileCached } =
+        await import('../../../core/plans/operationalPlan.js');
       const { profile } = await fetchOperationalProfileCached();
       setCachedPlan(getEffectivePlan(profile));
       setRenderEquipPlanNeedsRefresh(false);

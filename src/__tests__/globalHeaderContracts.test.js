@@ -79,7 +79,7 @@ async function setupDashboardHeaderModule({
     },
   }));
 
-  vi.doMock('../core/plans/monetization.js', () => ({
+  vi.doMock('../core/plans/operationalPlan.js', () => ({
     fetchOperationalProfile: vi.fn(async () => ({ profile: { plan: 'pro' } })),
     fetchOperationalProfileCached: vi.fn(async () => ({ profile: { plan: 'pro' } })),
     getCachedOperationalProfileSnapshot: vi.fn(() => ({ profile: { plan: 'pro' } })),
@@ -176,7 +176,7 @@ describe('global header legacy contracts', () => {
       '../core/storage.js',
       '../core/auth.js',
       '../domain/alerts.js',
-      '../core/plans/monetization.js',
+      '../core/plans/operationalPlan.js',
       '../core/plans/subscriptionPlans.js',
       '../ui/shell/navigationMode.js',
       '../ui/components/onboarding.js',
