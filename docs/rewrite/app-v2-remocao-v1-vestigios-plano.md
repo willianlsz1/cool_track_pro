@@ -198,17 +198,22 @@ apos os checkpoints CP-3x, CP-3y, CP-4a..CP-4d, CP-7b..CP-7c e CP-8a..CP-8j:
   co-localizando `SavedHighlight` no barrel publico
   `src/ui/components/onboarding.js` e preservando a API importada por Registro e
   Historico.
+- CP-32 removeu o componente orfao `src/ui/components/registroEquipPicker.js`
+  e seu teste dedicado. A busca confirmou que `initRegistroEquipPicker`,
+  `openRegistroEquipPicker` e `syncRegistroEquipLabel` nao tinham import ativo
+  fora da propria cobertura legada; os seletores CSS/markup remanescentes ficam
+  para CP de CSS/runtime v1.
 
 ## 3. Superficies v1 mapeadas
 
 ### 3.1 Runtime legado direto
 
-- `src/ui/`: 156 arquivos restantes na contagem atual de arquivos.
+- `src/ui/`: 155 arquivos restantes na contagem atual de arquivos.
 - `src/react/`: removido.
 - `src/features/`: sem arquivos restantes apos CP-10.
 - `src/assets/styles/`: folhas legadas, incluindo `redesign.css`,
   `components.css`, `layout.css`, `theme-premium.css` e estilos derivados do v1.
-- `src/__tests__/`: 202 arquivos de teste, muitos cobrindo contratos legados.
+- `src/__tests__/`: 235 arquivos de teste, muitos cobrindo contratos legados.
 - `e2e/specs/`: 3 specs restantes, todas app-v2.
 
 ### 3.2 Acoplamentos que impedem delecao em massa
