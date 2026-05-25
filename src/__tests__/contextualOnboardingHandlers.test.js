@@ -68,10 +68,6 @@ vi.mock('../ui/components/nameplateCapture.js', () => ({
   resetNameplateCtaState: vi.fn(),
 }));
 
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => false),
-}));
-
 vi.mock('../ui/components/pushOptInCard.js', () => ({
   PushOptInCard: { enable: vi.fn(), disable: vi.fn(), render: vi.fn() },
 }));

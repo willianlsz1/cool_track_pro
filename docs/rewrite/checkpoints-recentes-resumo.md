@@ -390,6 +390,8 @@ decisao, do escopo e do risco remanescente.
   cenarios operacionais de setores e renderizacao.
 - Removidos mocks comerciais obsoletos em testes de handlers de Equipamentos,
   sem alterar runtime, contratos `data-action` ou areas sensiveis.
+- Removido mock morto de plano no teste de onboarding contextual, mantendo o
+  escopo restrito a navegacao local sem billing/pricing.
 
 ## Validacao padrao
 
