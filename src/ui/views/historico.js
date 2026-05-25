@@ -20,7 +20,7 @@ import { withSkeleton } from '../components/skeleton.js';
 import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
 import { updateGlobalHeader } from '../composables/header.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
-import { isCachedPlanPro } from '../../core/plans/planCache.js';
+import { hasProAccess } from '../../core/plans/operationalAccessPolicy.js';
 import {
   buildHistoricoRenderState,
   buildHistoricoRenderViewModel,
@@ -52,9 +52,7 @@ import {
   unmountHistoricoTimelineDom,
 } from './historico/timelineRenderer.js';
 
-// Histórico é parte do core do produto e não tem corte por data em nenhum
-// plano — Free, Plus e Pro veem todos os registros salvos. Outros limites
-// do Free permanecem via plan cache ate a etapa dedicada de planos.
+// Historico e parte do core operacional e nao tem corte comercial por data.
 
 // Filtros auxiliares persistem na sessão — desaparecem ao fechar o app (intencional).
 const HIST_PERIOD_KEY = 'cooltrack-hist-period';
@@ -74,6 +72,10 @@ function isMobileViewport() {
 
 function getSummaryCollapsedDefault() {
   return isMobileViewport();
+}
+
+function hasOperationalHistoricoAccess() {
+  return hasProAccess(null);
 }
 
 function isSummaryCollapsed() {
@@ -1273,7 +1275,7 @@ export function renderHist() {
   syncSetorSelect();
 
   const filters = buildHistoricoRenderFilters();
-  const isProMode = isCachedPlanPro();
+  const isProMode = hasOperationalHistoricoAccess();
   const { historicoVm, list } = buildHistoricoRenderViewModel({
     registros,
     equipamentos,
