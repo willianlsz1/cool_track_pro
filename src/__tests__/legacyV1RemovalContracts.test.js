@@ -601,8 +601,14 @@ describe('legacy v1 removal contracts', () => {
 
     expect(existsSync('twa-build')).toBe(false);
     expect(existsSync('public/.well-known/assetlinks.json')).toBe(false);
+    expect(existsSync('public/icons-backup-pre-redesign')).toBe(false);
     expect(existsSync('netlify.toml')).toBe(false);
-    expect(findMatches(checkedSources, /twa-build|bubblewrap-cli|assetlinks|netlify/i)).toEqual([]);
+    expect(
+      findMatches(
+        checkedSources,
+        /twa-build|bubblewrap-cli|assetlinks|icons-backup-pre-redesign|netlify/i,
+      ),
+    ).toEqual([]);
   });
 
   it('does not keep legacy public landing images after app-v2 promotion', () => {

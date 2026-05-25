@@ -43,6 +43,8 @@ decisao, do escopo e do risco remanescente.
   legado nao faz parte do app-v2.
 - Removido `assetlinks.json` Android legado; app-v2 permanece como web/PWA em
   Cloudflare Pages.
+- Removido backup versionado de icones pre-redesign; favicons e icones publicos
+  ativos foram preservados.
 
 ## PMOC legado
 
