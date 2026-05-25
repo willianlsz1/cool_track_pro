@@ -283,6 +283,8 @@ decisao, do escopo e do risco remanescente.
   aposentadas de assinatura/PDF/WhatsApp, sem alterar asserts ou runtime.
 - Neutralizada linguagem residual no teste e2e do entrypoint principal app-v2,
   sem alterar asserts, preview, rotas ou runtime.
+- Neutralizado fixture nominal residual em teste de persistencia de
+  Equipamentos, sem alterar helper runtime ou contratos publicos.
 
 ## Validacao padrao
 
