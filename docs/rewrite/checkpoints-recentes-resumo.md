@@ -273,6 +273,8 @@ decisao, do escopo e do risco remanescente.
   antiga de migracao e escopo por usuario.
 - Neutralizada linguagem residual em testes ativos de persistencia e lifecycle
   de Registro, sem alterar payload, storage, assinatura ou runtime.
+- Neutralizada linguagem residual e mojibake em teste de fallback de schema de
+  Setores, sem alterar mocks, selects, asserts ou runtime Supabase.
 
 ## Validacao padrao
 
