@@ -33,7 +33,7 @@ function resolveSourceImport(sourcePath: string, importPath: string): string {
 }
 
 describe('app-v2 boundary contracts', () => {
-  it('keeps app-v2 runtime out of legacy auth and storage modules', () => {
+  it('keeps app-v2 runtime out of retired auth and storage modules', () => {
     const sources = listRuntimeSources();
     const forbiddenPattern =
       /(?:core\/auth|core\\auth|core\/storage|core\\storage|localStorage|sessionStorage)/;
@@ -60,7 +60,7 @@ describe('app-v2 boundary contracts', () => {
     expect(matches).toEqual([]);
   });
 
-  it('keeps app-v2 runtime independent from legacy UI trees and retired sensitive domains', () => {
+  it('keeps app-v2 runtime independent from retired UI trees and sensitive domains', () => {
     const root = normalize(resolve('.')).replace(/\\/g, '/');
     const forbiddenPrefixes = [
       ['src', 'ui'],

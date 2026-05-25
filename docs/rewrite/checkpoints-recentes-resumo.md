@@ -204,6 +204,8 @@ decisao, do escopo e do risco remanescente.
   alterar valores publicos de acao.
 - Neutralizada mencao residual em comentario de persistencia local de setores
   sem alterar regra de `clienteId`.
+- Neutralizada nomenclatura residual em testes app-v2 de fronteira, cutover,
+  shell e reidratacao de registro sem alterar runtime.
 
 ## Nomenclatura React legada
 

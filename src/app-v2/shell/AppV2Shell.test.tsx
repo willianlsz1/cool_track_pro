@@ -471,7 +471,7 @@ describe('AppV2Shell', () => {
     expect(host.textContent).toContain('Cliente vinculado');
   });
 
-  it('mostra servicos relacionados no detalhe de cliente sem abrir PMOC ou historico legado', async () => {
+  it('mostra servicos relacionados no detalhe de cliente sem abrir PMOC ou historico anterior', async () => {
     const host = await renderShell();
 
     await clickButton(host, /^Equipamentos$/i);

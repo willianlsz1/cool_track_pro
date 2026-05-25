@@ -296,9 +296,9 @@ it('reidrata draft de edicao a partir de registro existente com campos migrados'
   });
 });
 
-it('reidrata draft de registro antigo usando observacoes como fallback', () => {
+it('reidrata draft de registro anterior usando observacoes como fallback', () => {
   const registro: RegistroServico = {
-    id: 'registro-legado',
+    id: 'registro-anterior',
     equipamentoId: 'eq-1',
     data: '2026-05-11',
     tipo: 'preventiva',
