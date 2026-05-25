@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('App-v2 primary entrypoint', () => {
-  test('renderiza a raiz principal sem voltar para o shell legado', async ({ page }) => {
+  test('renderiza a raiz principal sem voltar para o shell antigo', async ({ page }) => {
     const errors = collectBlockingErrors(page);
 
     await page.goto('/');

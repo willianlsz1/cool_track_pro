@@ -281,6 +281,8 @@ decisao, do escopo e do risco remanescente.
   sem alterar handlers, payload, PDF/share, WhatsApp, storage ou runtime.
 - Neutralizada linguagem residual em testes de payload, Historico e acoes
   aposentadas de assinatura/PDF/WhatsApp, sem alterar asserts ou runtime.
+- Neutralizada linguagem residual no teste e2e do entrypoint principal app-v2,
+  sem alterar asserts, preview, rotas ou runtime.
 
 ## Validacao padrao
 
