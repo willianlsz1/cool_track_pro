@@ -177,7 +177,7 @@ describe('historico timeline DOM renderer', () => {
     expect(root?.querySelector('.timeline__item')).toBeNull();
   });
 
-  it('preserves photo DOM contracts and omits legacy signature actions', () => {
+  it('preserves photo DOM contracts and omits retired signature actions', () => {
     const root = setRoot();
     mountHistoricoTimelineDom(root, {
       viewModel: createTimelineViewModel({

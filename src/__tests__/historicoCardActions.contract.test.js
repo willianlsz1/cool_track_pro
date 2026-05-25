@@ -86,7 +86,7 @@ describe('Historico card actions contract', () => {
     document.body.innerHTML = '';
   });
 
-  it('renders edit/delete actions and omits legacy PDF/WhatsApp actions', async () => {
+  it('renders edit/delete actions and omits retired PDF/WhatsApp actions', async () => {
     const root = await renderTimeline(createTimelineItem());
     const registroId = 'reg-card-1';
 

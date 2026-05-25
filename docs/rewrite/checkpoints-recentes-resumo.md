@@ -279,6 +279,8 @@ decisao, do escopo e do risco remanescente.
   alterar nomes de env vars, rejeicao de fallback ou validacao de service_role.
 - Neutralizada linguagem residual em testes de assinatura aposentada de Registro,
   sem alterar handlers, payload, PDF/share, WhatsApp, storage ou runtime.
+- Neutralizada linguagem residual em testes de payload, Historico e acoes
+  aposentadas de assinatura/PDF/WhatsApp, sem alterar asserts ou runtime.
 
 ## Validacao padrao
 

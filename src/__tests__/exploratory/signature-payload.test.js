@@ -105,7 +105,7 @@ beforeEach(() => {
 });
 
 describe('exploratory: signature payload contract', () => {
-  it('mantem payload sem assinatura apos aposentadoria do fluxo legado', async () => {
+  it('mantem payload sem assinatura apos aposentadoria do fluxo antigo', async () => {
     let finalState;
     mocks.setState.mockImplementation((updater) => {
       finalState = updater({
