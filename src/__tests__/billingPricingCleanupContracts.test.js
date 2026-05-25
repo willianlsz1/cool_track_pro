@@ -217,7 +217,6 @@ describe('billing/pricing cleanup contracts', () => {
 
     expect(commercialMigrationFiles).toEqual([
       'supabase/migrations/20260411000001_security_subscription_usage.sql',
-      'supabase/migrations/20260418130000_add_plus_to_plan_checks.sql',
       'supabase/migrations/20260419130000_protect_profile_fields.sql',
       'supabase/migrations/20260509190000_harden_profile_usage.sql',
       'supabase/migrations/20260524010000_remove_commercial_schema.sql',

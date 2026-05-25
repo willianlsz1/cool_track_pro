@@ -352,6 +352,8 @@ decisao, do escopo e do risco remanescente.
   RLS de `usage_monthly` e checks de metadados historicos ate a retirada.
 - Renomeada e neutralizada migration de retirada de schema comercial,
   preservando drops de metadados do provedor anterior e ledger aposentado.
+- Neutralizados comentarios em migrations historicas de profiles/uso/IA,
+  corrigindo mojibake sem alterar SQL executavel.
 
 ## Validacao padrao
 

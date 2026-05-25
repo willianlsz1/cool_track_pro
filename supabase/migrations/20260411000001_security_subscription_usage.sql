@@ -1,7 +1,7 @@
--- Security hardening for subscription plan and monthly usage limits.
+-- Security hardening for operational profile fields and monthly usage limits.
 -- Date: 2026-04-11
 
--- Cria a tabela profiles caso ainda não exista (criada pelo trigger de auth ou manualmente)
+-- Cria a tabela profiles caso ainda nao exista (criada pelo trigger de auth ou manualmente)
 create table if not exists public.profiles (
   id uuid not null references auth.users (id) on delete cascade,
   nome text,
@@ -56,7 +56,7 @@ begin
   end if;
 end $$;
 
--- Adiciona colunas caso a tabela já existisse sem elas
+-- Adiciona colunas caso a tabela ja existisse sem elas
 alter table public.profiles
   add column if not exists plan_code text not null default 'free';
 
