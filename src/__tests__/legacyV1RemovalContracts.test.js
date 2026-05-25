@@ -697,9 +697,13 @@ describe('legacy v1 removal contracts', () => {
   });
 
   it('does not keep v1-era wording in public legal styles or active config comments', () => {
-    const joined = [readSource('public/legal/_style.css'), readSource('eslint.config.js')].join(
-      '\n',
-    );
+    const joined = [
+      readSource('public/legal/_style.css'),
+      readSource('eslint.config.js'),
+      readSource('src/core/onlineStatus.js'),
+      readSource('src/core/swUpdate.js'),
+      readSource('src/core/toast.js'),
+    ].join('\n');
 
     expect(joined).not.toMatch(/legacy e nova|v1\.0\.0/);
     expect(joined).not.toMatch(MOJIBAKE_PATTERN);

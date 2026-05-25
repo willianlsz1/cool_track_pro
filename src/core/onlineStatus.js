@@ -1,5 +1,5 @@
 /**
- * CoolTrack Pro - Online Status v1.0
+ * CoolTrack Pro - Online Status
  * Monitora conexão via navigator.onLine + eventos online/offline.
  * Mostra toasts ao perder e restaurar conexão para dar feedback claro
  * ao usuário. Idempotente: pode ser chamado várias vezes sem duplicar

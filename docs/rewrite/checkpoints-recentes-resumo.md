@@ -55,6 +55,8 @@ decisao, do escopo e do risco remanescente.
   UTF-8, independente da exibicao do terminal local.
 - Comentarios de estilos legais e configuracao ativa neutralizados para nao
   manter linguagem v1/legacy fora dos contratos historicos.
+- Comentarios de utilitarios core ativos neutralizados para nao manter versao
+  textual v1.0 fora de contexto historico.
 
 ## PMOC legado
 
