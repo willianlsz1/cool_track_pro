@@ -232,6 +232,20 @@ describe('billing/pricing cleanup contracts', () => {
     expect(retirementMigration).toContain('drop table if exists public.stripe_webhook_events');
   });
 
+  it('does not keep removed commercial wording in historical Supabase comments', () => {
+    const sources = [
+      readSource('supabase/functions/analyze-nameplate/index.ts'),
+      readSource('supabase/migrations/20260420130000_enforce_photo_plan_gate.sql'),
+      readSource('supabase/migrations/20260420140000_enforce_setores_pro_gate.sql'),
+      readSource('supabase/migrations/20260420150000_enforce_plan_quotas.sql'),
+    ].join('\n');
+
+    expect(sources).not.toMatch(
+      /Kiwify|webhook do Stripe|pricing table|margem real|teste grátis|workflow real|feature premium|sem pagar|upsell/i,
+    );
+    expect(sources).not.toMatch(/\u00c3[\u0080-\u00bf]|\u00e2[\u0080-\u00ff\u20ac\u201d]/);
+  });
+
   it('does not keep PDF or WhatsApp usage quota resources in runtime modules', () => {
     const sources = [
       readSource('src/core/usageLimits.js'),

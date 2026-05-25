@@ -4,38 +4,37 @@
 --
 -- Contexto:
 --   Depois de fechar o gate de fotos (migration 20260420130000) e setores
---   (20260420140000), os últimos buracos de bypass via SDK direto são:
---     1. Criação de equipamentos acima do limite do plano (Free=3, Plus=15).
---     2. Criação de registros acima do limite mensal do Free (5/mês).
+--   (20260420140000), os ultimos buracos de bypass via SDK direto eram:
+--     1. Criacao de equipamentos acima do limite operacional.
+--     2. Criacao de registros acima do limite mensal operacional.
 --
---   Ambos hoje são bloqueados só client-side (canCreateEquipment no
---   equipamentos.js, checkLimits no registro.js). Usuário com dev tools
+--   Ambos eram bloqueados so client-side (canCreateEquipment no
+--   equipamentos.js, checkLimits no registro.js). Usuario com dev tools
 --   consegue:
 --     supabase.from('equipamentos').insert({ ...payload })  -- N vezes
 --     supabase.from('registros').insert({ ...payload })     -- N vezes
 --
 --   Esta migration fecha os dois buracos com triggers BEFORE INSERT.
 --
--- Manutenção:
---   Os limites estão hardcoded em SQL (get_plan_equipamentos_limit + 5 no
---   trigger de registros). IMPORTANTE: se mudar PLAN_CATALOG em
---   src/core/subscriptionPlans.js, atualizar também essa função. Grep por
+-- Manutencao:
+--   Os limites estao hardcoded em SQL (get_plan_equipamentos_limit + 5 no
+--   trigger de registros). IMPORTANTE: se mudar o catalogo operacional,
+--   atualizar tambem essa funcao. Grep por
 --   "PLAN_CATALOG LIMITS MIRROR" pra achar os dois pontos.
 --
 -- Escopo:
---   - INSERT equipamentos → conta rows do user, compara com limite do plano
---   - INSERT registros → se Free, conta rows criados no mês, compara com 5
---   - service_role → bypassa
---   - is_dev=true → bypassa (coerente com getEffectivePlan client-side)
+--   - INSERT equipamentos: conta rows do user e compara com limite operacional.
+--   - INSERT registros: conta rows criados no mes e compara com limite.
+--   - service_role: bypassa.
+--   - is_dev=true: bypassa, coerente com getEffectivePlan client-side.
 --
 -- Idempotente: CREATE OR REPLACE + DROP trigger antes de CREATE.
 -- Defensive: migration adiciona coluna created_at em registros se não
--- existir (necessária pro filtro mensal).
+-- existir (necessaria pro filtro mensal).
 -- ============================================================
 
--- ── Helper: limite de equipamentos pro usuário ──────────────────────────
--- PLAN_CATALOG LIMITS MIRROR — fonte: src/core/subscriptionPlans.js
---   Free = 3, Plus = 15, Pro = unlimited (2^31-1 aqui por praticidade).
+-- Helper: limite de equipamentos pro usuario.
+-- PLAN_CATALOG LIMITS MIRROR - contrato operacional historico.
 create or replace function public.get_plan_equipamentos_limit(p_user_id uuid)
 returns integer
 language plpgsql
@@ -62,10 +61,10 @@ begin
     return 2147483647;
   end if;
 
-  -- Subscription precisa estar ativa pra valer Plus/Pro. Caso contrário
-  -- trata como Free (consistente com getEffectivePlan client-side).
+  -- Status precisa estar ativo para valer codigo elevado. Caso contrario
+  -- trata como codigo base, consistente com getEffectivePlan client-side.
   if v_status is null or v_status not in ('active', 'trialing') then
-    return 3; -- Free
+    return 3; -- Codigo base
   end if;
 
   if v_plan_code = 'pro' then
@@ -76,14 +75,14 @@ begin
     return 15;
   end if;
 
-  return 3; -- Free fallback
+  return 3; -- Fallback base
 end;
 $$;
 
 comment on function public.get_plan_equipamentos_limit(uuid) is
-  'Retorna o limite de equipamentos do usuário (Free=3, Plus=15, Pro/dev=unlimited). Espelha PLAN_CATALOG em subscriptionPlans.js.';
+  'Retorna o limite operacional de equipamentos do usuario. Espelha o catalogo operacional historico.';
 
--- ── Trigger: equipamentos INSERT count ──────────────────────────────────
+-- Trigger: equipamentos INSERT count.
 create or replace function public.enforce_equipamentos_limit()
 returns trigger
 language plpgsql
@@ -95,7 +94,7 @@ declare
   v_count integer;
   v_limit integer;
 begin
-  -- service_role (webhooks, admin) bypassa.
+  -- service_role/admin bypassa.
   begin
     v_role := coalesce(auth.role(), '');
   exception when others then
@@ -108,7 +107,7 @@ begin
 
   v_limit := public.get_plan_equipamentos_limit(new.user_id);
 
-  -- Count rows atuais do usuário (excluindo o que está sendo inserido).
+  -- Count rows atuais do usuario (excluindo o que esta sendo inserido).
   select count(*) into v_count
   from public.equipamentos
   where user_id = new.user_id;
@@ -124,11 +123,11 @@ end;
 $$;
 
 comment on function public.enforce_equipamentos_limit() is
-  'Bloqueia INSERT em equipamentos quando o user já atingiu o limite do plano.';
+  'Bloqueia INSERT em equipamentos quando o user ja atingiu o limite operacional.';
 
--- ── Trigger: registros monthly limit (só Free) ──────────────────────────
--- Conta registros criados no mês corrente (timezone UTC) e bloqueia se
--- Free atingiu 5. Plus/Pro/dev passam direto.
+-- Trigger: registros monthly limit.
+-- Conta registros criados no mes corrente (timezone UTC) e bloqueia se
+-- atingiu o limite operacional. Codigos elevados/dev passam direto.
 create or replace function public.enforce_registros_monthly_limit()
 returns trigger
 language plpgsql
@@ -141,7 +140,7 @@ declare
   v_status text;
   v_is_dev boolean;
   v_count integer;
-  v_limit constant integer := 5; -- Free limit (PLAN_CATALOG LIMITS MIRROR)
+  v_limit constant integer := 5; -- Limite base (PLAN_CATALOG LIMITS MIRROR)
 begin
   -- service_role bypassa.
   begin
@@ -154,13 +153,13 @@ begin
     return new;
   end if;
 
-  -- Lê plano do user.
+  -- Le codigo operacional do user.
   select plan_code, subscription_status, coalesce(is_dev, false)
     into v_plan_code, v_status, v_is_dev
   from public.profiles
   where id = new.user_id;
 
-  -- Dev / Plus / Pro → unlimited.
+  -- Dev / codigos elevados: unlimited.
   if v_is_dev then
     return new;
   end if;
@@ -170,7 +169,7 @@ begin
     return new;
   end if;
 
-  -- Free: count rows criados nesse mês (UTC).
+  -- Codigo base: count rows criados nesse mes (UTC).
   select count(*) into v_count
   from public.registros
   where user_id = new.user_id
@@ -187,9 +186,9 @@ end;
 $$;
 
 comment on function public.enforce_registros_monthly_limit() is
-  'Bloqueia INSERT em registros quando Free atingiu 5/mês. Plus/Pro/dev passam.';
+  'Bloqueia INSERT em registros quando o codigo base atingiu o limite mensal. Codigos elevados/dev passam.';
 
--- ── Attach triggers (se tabelas existem) ────────────────────────────────
+-- Attach triggers (se tabelas existem).
 do $$
 begin
   if exists (
@@ -210,7 +209,7 @@ begin
   ) then
     -- Defensivo: garante que a coluna created_at existe no registros.
     -- Se a tabela foi criada out-of-band sem created_at, o filtro do trigger
-    -- quebraria. ALTER ... ADD COLUMN IF NOT EXISTS é idempotente.
+    -- quebraria. ALTER ... ADD COLUMN IF NOT EXISTS e idempotente.
     alter table public.registros
       add column if not exists created_at timestamptz not null default timezone('utc', now());
 

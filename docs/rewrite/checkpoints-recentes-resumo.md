@@ -354,6 +354,8 @@ decisao, do escopo e do risco remanescente.
   preservando drops de metadados do provedor anterior e ledger aposentado.
 - Neutralizados comentarios em migrations historicas de profiles/uso/IA,
   corrigindo mojibake sem alterar SQL executavel.
+- Neutralizada linguagem comercial residual em comentarios de gates historicos
+  de Supabase/IA, preservando contratos e regras executaveis.
 
 ## Validacao padrao
 

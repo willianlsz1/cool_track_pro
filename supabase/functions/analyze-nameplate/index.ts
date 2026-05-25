@@ -22,12 +22,9 @@
  * com ES256 e o gateway do Supabase só valida HS256. A validação é feita
  * internamente via admin API com service role.
  *
- * Gate de plano: cada tier tem cota mensal própria pra conter custo variável
- * em USD (~$0.015/análise). Free ganha 1 uso/mês como teste grátis recorrente
- * (demonstra valor sem liberar workflow real). Plus: 30/mês — cobre técnico
- * autônomo com folga. Pro: 200/mês — cobre equipe pequena. Acima da cota o
- * client recebe PLAN_GATE_<TIER> com quota_exhausted=true, usado_/limite_
- * e current_plan pra renderizar o upsell certo.
+ * Gate operacional: a funcao usa o perfil historico para aplicar cotas mensais
+ * e conter custo variavel de IA. Essa regra sera redesenhada junto da etapa
+ * propria de Supabase/quotas; por enquanto o contrato de resposta e preservado.
  */
 
 import { getCorsHeaders } from '../_shared/cors.ts';
@@ -198,12 +195,9 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 const USAGE_RESOURCE = 'nameplate_analysis';
 
 /**
- * Cotas mensais por plano — alinhadas com src/core/usageLimits.js.
- * Free: 1/mês (teste grátis recorrente, não ferramenta).
- * Plus: 30/mês (técnico autônomo — ~1 cadastro por dia útil com folga).
- * Pro:  200/mês (equipe pequena em rollout).
- * Existem pra proteger margem — o custo por análise é em USD via API da
- * Anthropic. "Ilimitado" nesse recurso vira risco de cauda longa/abuso.
+ * Cotas mensais operacionais alinhadas com src/core/usageLimits.js.
+ * Existem para conter custo variavel de IA enquanto a etapa nova de
+ * Supabase/quotas nao substitui este contrato historico.
  */
 const NAMEPLATE_FREE_MONTHLY_LIMIT = 1;
 const NAMEPLATE_PLUS_MONTHLY_LIMIT = 30;
@@ -528,12 +522,12 @@ Deno.serve(async (req: Request) => {
   // estar declarado — `// @ts-nocheck` mascarava o erro até runtime, onde
   // viraria ReferenceError no momento crítico (após chamar Anthropic, ANTES
   // de subir o quota counter — ou seja, custo gasto + quota não incrementada
-  // = bypass de plano em loop). Crítico.
+  // = bypass do contador operacional em loop). Critico.
   const token = auth.accessToken;
 
-  // ── Plan gate: Plus+ obrigatório ───────────────────────────────────────
-  // Carrega plan_code do profile. Fallback pra 'free' se não achar (ou se a
-  // coluna vier null) — mais conservador: user não pagante não destrava.
+  // Gate operacional baseado no profile historico.
+  // Fallback pra 'free' se nao achar (ou se a coluna vier null) preserva o
+  // comportamento conservador ate a etapa nova de Supabase/quotas.
   let planCode = 'free';
   try {
     const profileRes = await fetch(
@@ -558,8 +552,8 @@ Deno.serve(async (req: Request) => {
         return errorResponse(req, 'PROFILE_NOT_READY', 'Perfil ainda nao esta pronto', 409);
       }
       const raw = String(profile.plan_code || profile.plan || 'free').toLowerCase();
-      // Só respeita plano pago se status for active/trialing. Canceled/past_due
-      // volta pra free — alinha com getEffectivePlan() do cliente.
+      // So respeita codigo elevado se status for active/trialing. Canceled/past_due
+      // volta pra free; alinha com getEffectivePlan() do cliente.
       const status = String(profile.subscription_status || '').toLowerCase();
       const paidActive = status === 'active' || status === 'trialing' || raw === 'free';
       planCode = paidActive ? raw : 'free';
@@ -578,10 +572,9 @@ Deno.serve(async (req: Request) => {
     return errorResponse(req, 'PROFILE_UNAVAILABLE', 'Nao foi possivel validar sua conta', 503);
   }
 
-  // ── Quota mensal por plano ─────────────────────────────────────────────
-  // Cada tier tem seu proprio limite (Free=1, Plus=30, Pro=200). O gate le
-  // o contador antes e reserva quota atomicamente depois que o payload foi
-  // validado, mas antes de chamar a IA.
+  // Quota mensal operacional.
+  // O gate le o contador antes e reserva quota atomicamente depois que o payload
+  // foi validado, mas antes de chamar a IA.
   const monthStart = firstDayOfMonthUtc();
   const monthlyLimit = monthlyLimitForPlan(planCode);
   const quotaLookup = await loadMonthlyUsed(
