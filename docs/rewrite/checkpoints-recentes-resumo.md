@@ -49,6 +49,8 @@ decisao, do escopo e do risco remanescente.
   logos, wordmarks e favicons foram preservados.
 - Manifesto publico alinhado ao app-v2: rotulo legado `Dashboard` trocado por
   `Hoje`, sem alterar favicons ou icones publicos ativos.
+- Comentarios publicos do `robots.txt` neutralizados para app-v2/Cloudflare, sem
+  alterar regras de indexacao.
 
 ## PMOC legado
 

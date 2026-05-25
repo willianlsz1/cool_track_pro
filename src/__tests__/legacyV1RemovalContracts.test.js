@@ -669,6 +669,14 @@ describe('legacy v1 removal contracts', () => {
     expect(manifest.shortcuts.map((item) => item.name)).toContain('Hoje');
   });
 
+  it('does not keep legacy internal route wording in public robots comments', () => {
+    const robotsSource = readSource('public/robots.txt');
+
+    expect(robotsSource).not.toMatch(/dashboard|\/registro|\/equipamentos/i);
+    expect(robotsSource).not.toMatch(/Ã|Â|�/);
+    expect(robotsSource).toContain('Cloudflare Pages');
+  });
+
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
       readSource('src/ui/components/clienteModal.js'),
