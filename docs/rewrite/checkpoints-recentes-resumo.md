@@ -83,6 +83,8 @@ decisao, do escopo e do risco remanescente.
 - Nao comprar dominio para o app; a URL correta continua sendo a Pages.
 - Removida configuracao Netlify; deploy principal passa a referenciar apenas
   Cloudflare Pages.
+- Removido checklist HTML local antigo de deploy; fluxo de publicacao atual deve
+  ficar em Cloudflare Pages e validacoes automatizadas.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
   assinatura, PMOC e orcamento real seguem como etapas proprias futuras.
 
