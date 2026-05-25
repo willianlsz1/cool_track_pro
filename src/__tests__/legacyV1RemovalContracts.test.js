@@ -1035,6 +1035,13 @@ describe('legacy v1 removal contracts', () => {
     expect(registroSource).not.toMatch(MOJIBAKE_PATTERN);
   });
 
+  it('does not keep neutralized v1 wording in equipment card comments', () => {
+    const equipmentCardsSource = readSource('src/ui/views/equipamentos/equipmentCards.js');
+
+    expect(equipmentCardsSource).not.toContain('wall of text" da V1');
+    expect(equipmentCardsSource).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 

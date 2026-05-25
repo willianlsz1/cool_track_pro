@@ -310,7 +310,7 @@ export function equipCardHtml(eq, { showLocal: _showLocal = true, evalCtx = null
 
   // ─── Estados do card (redesign V2 — port Claude Design) ───────────────────
   //
-  // Três densidades pra evitar o "wall of text" da V1:
+  // Três densidades pra evitar cards excessivamente densos:
   //
   //  · isFullyIdle  → equip em rotina sem registros/agenda/alerta. Renderiza
   //                   só header + bloco de onboarding dashed cyan.
