@@ -350,6 +350,8 @@ decisao, do escopo e do risco remanescente.
   app-v2, reduzindo ruido com gates de limpeza comercial.
 - Renomeada e neutralizada migration de hardening de profile/usage, preservando
   RLS de `usage_monthly` e checks de metadados historicos ate a retirada.
+- Renomeada e neutralizada migration de retirada de schema comercial,
+  preservando drops de metadados do provedor anterior e ledger aposentado.
 
 ## Validacao padrao
 

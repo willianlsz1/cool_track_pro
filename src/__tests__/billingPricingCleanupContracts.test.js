@@ -212,7 +212,7 @@ describe('billing/pricing cleanup contracts', () => {
       /billing|stripe|checkout/i.test(readSource(path)),
     );
     const retirementMigration = readSource(
-      'supabase/migrations/20260524010000_remove_stripe_billing_schema.sql',
+      'supabase/migrations/20260524010000_remove_commercial_schema.sql',
     );
 
     expect(commercialMigrationFiles).toEqual([
@@ -220,7 +220,7 @@ describe('billing/pricing cleanup contracts', () => {
       'supabase/migrations/20260418130000_add_plus_to_plan_checks.sql',
       'supabase/migrations/20260419130000_protect_profile_fields.sql',
       'supabase/migrations/20260509190000_harden_profile_usage.sql',
-      'supabase/migrations/20260524010000_remove_stripe_billing_schema.sql',
+      'supabase/migrations/20260524010000_remove_commercial_schema.sql',
     ]);
     expect(existsSync('supabase/migrations/20260420160000_stripe_webhook_idempotency.sql')).toBe(
       false,

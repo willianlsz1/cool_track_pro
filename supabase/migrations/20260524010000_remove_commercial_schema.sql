@@ -1,9 +1,9 @@
--- Remove Stripe billing schema artifacts.
+-- Remove commercial provider schema artifacts.
 --
--- Billing/pricing saiu do produto e sera refeito em etapa propria. Mantemos
--- plan/plan_code/subscription_status por compatibilidade operacional, mas
--- removemos os metadados Stripe e o ledger do webhook que nao tem mais Edge
--- Function correspondente.
+-- Features pagas sairam do produto e serao refeitas em etapa propria.
+-- Mantemos plan/plan_code/subscription_status por compatibilidade operacional,
+-- mas removemos metadados do provedor anterior e o ledger sem Edge Function
+-- correspondente.
 
 create or replace function public.protect_profile_fields()
 returns trigger
@@ -74,7 +74,7 @@ alter table if exists public.profiles
 drop table if exists public.stripe_webhook_events;
 
 comment on function public.protect_profile_fields() is
-  'Bloqueia alteracao client-side de campos operacionais sensiveis de profile enquanto billing esta removido.';
+  'Bloqueia alteracao client-side de campos operacionais sensiveis de profile enquanto features pagas estao removidas.';
 
 comment on function public.protect_profile_insert() is
-  'Bloqueia INSERT client-side de profile com plano nao operacional enquanto billing esta removido.';
+  'Bloqueia INSERT client-side de profile com plano nao operacional enquanto features pagas estao removidas.';
