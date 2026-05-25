@@ -84,7 +84,7 @@ describe('ProfileModal', () => {
     expect(overlay.querySelector('#prof-telefone').value).toBe('(31) 99999-0000');
   });
 
-  it('usa .profile-modal__* BEM (sem .pm-* legado)', () => {
+  it('usa .profile-modal__* BEM (sem .pm-* obsoleto)', () => {
     ProfileModal.open();
     const overlay = getOverlay();
     expect(overlay.querySelector('.profile-modal')).toBeTruthy();

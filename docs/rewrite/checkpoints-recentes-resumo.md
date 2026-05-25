@@ -255,6 +255,8 @@ decisao, do escopo e do risco remanescente.
 - Neutralizada linguagem `legado` em descricoes de testes ativos de Registro
   ligadas a payload, lifecycle helper e checklist renderer, sem alterar
   assinatura, persistencia, post-save ou runtime.
+- Neutralizada linguagem `legado` em descricao nominal do teste de
+  `profileModal`, preservando contrato CSS BEM e asserts.
 
 ## Validacao padrao
 
