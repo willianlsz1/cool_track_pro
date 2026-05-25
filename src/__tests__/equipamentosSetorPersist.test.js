@@ -80,8 +80,6 @@ describe('setorPersist', () => {
       setorNomeMax: 80,
       setorDescLimit: 240,
       defaultSetorColor: '#00c8e8',
-      fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
-      hasProAccess: vi.fn(() => true),
     };
     configureSetorPersist(deps);
   });
@@ -89,23 +87,16 @@ describe('setorPersist', () => {
   describe('ensureProForSetores', () => {
     it('retorna true quando o acesso operacional permite setores', async () => {
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
-
-      expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
-      expect(deps.hasProAccess).not.toHaveBeenCalled();
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
-    it('mantem fluxo liberado quando o acesso operacional restringiria setores', async () => {
-      deps.hasProAccess.mockReturnValueOnce(false);
-
+    it('mantem fluxo liberado sem consultar regra comercial antiga', async () => {
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
 
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
     it('preserva mensagens por action', async () => {
-      deps.hasProAccess.mockReturnValue(false);
-
       await ensureProForSetores({ action: 'update' });
       await ensureProForSetores({ action: 'delete' });
       await ensureProForSetores({ action: 'assign' });
@@ -114,9 +105,7 @@ describe('setorPersist', () => {
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
-    it('falha de perfil operacional preserva fail-closed com warning', async () => {
-      deps.fetchOperationalProfile.mockRejectedValueOnce(new Error('network'));
-
+    it('fluxo liberado independe de perfil operacional remoto', async () => {
       await expect(ensureProForSetores({ action: 'delete' })).resolves.toBe(true);
 
       expect(deps.Toast.warning).not.toHaveBeenCalled();
@@ -172,15 +161,12 @@ describe('setorPersist', () => {
       await assignEquipToSetor('eq-1', 'setor-1');
 
       expect(callOrder[0]).toBe('setState');
-      expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
       expect(state.equipamentos.find((e) => e.id === 'eq-1')).toMatchObject({
         setorId: 'setor-1',
       });
     });
 
-    it('quando guard falha, não chama setState, Toast.success nem renderEquip', async () => {
-      deps.hasProAccess.mockReturnValueOnce(false);
-
+    it('fluxo operacional liberado mantem assign ativo', async () => {
       await assignEquipToSetor('eq-1', 'setor-1');
 
       expect(deps.setState).toHaveBeenCalledTimes(1);
@@ -190,8 +176,6 @@ describe('setorPersist', () => {
 
     it('não chama guard nem muta quando equipamento não existe', async () => {
       await assignEquipToSetor('eq-missing', 'setor-1');
-
-      expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
       expect(deps.setState).not.toHaveBeenCalled();
     });
 
@@ -216,9 +200,7 @@ describe('setorPersist', () => {
   });
 
   describe('saveSetor', () => {
-    it('guard operacional restritivo preserva fluxo liberado de setor', async () => {
-      deps.hasProAccess.mockReturnValueOnce(false);
-
+    it('mantem saveSetor liberado sem regra comercial antiga', async () => {
       await expect(saveSetor()).resolves.toBe(true);
 
       expect(deps.setState).toHaveBeenCalledTimes(1);
@@ -303,9 +285,7 @@ describe('setorPersist', () => {
   });
 
   describe('deleteSetor', () => {
-    it('guard operacional restritivo preserva fluxo liberado de remocao', async () => {
-      deps.hasProAccess.mockReturnValueOnce(false);
-
+    it('mantem deleteSetor liberado sem regra comercial antiga', async () => {
       await deleteSetor('setor-2');
 
       expect(deps.setState).toHaveBeenCalledTimes(1);

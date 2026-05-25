@@ -268,6 +268,7 @@ describe('billing/pricing cleanup contracts', () => {
     const sources = [
       readSource('src/ui/views/equipamentos.js'),
       readSource('src/ui/views/equipamentos/bridges/renderPlan.js'),
+      readSource('src/ui/views/equipamentos/setor/setorPersist.js'),
       readSource('src/ui/views/equipamentos/ui/openEditEquip.js'),
       readSource('src/ui/views/historico.js'),
     ].join('\n');

@@ -17,8 +17,6 @@ const setorPersistDeps = {
   setorNomeMax: null,
   setorDescLimit: null,
   defaultSetorColor: null,
-  fetchOperationalProfile: null,
-  hasProAccess: null,
 };
 
 export function configureSetorPersist(deps = {}) {
@@ -36,8 +34,6 @@ function getSetorPersistValue(name, fallback) {
   return value == null ? fallback : value;
 }
 
-// Setores ficam liberados no modo operacional. O guard permanece como contrato
-// para chamadas antigas, mas nao aplica gate de cobranca.
 // Setores ficam liberados no modo operacional. O guard permanece como contrato
 // para chamadas antigas, mas nao aplica gate de cobranca.
 /** @sliceTarget setor/guard */

@@ -382,6 +382,8 @@ decisao, do escopo e do risco remanescente.
 - Removida dependencia runtime de callers ativos em helpers pagos de plano
   (`hasProAccess`/`hasPlusAccess`) em Equipamentos e Historico, mantendo exports
   de compatibilidade para etapa posterior.
+- Removidas dependencias mortas de plano pago no guard de persistencia de
+  Setores, preservando o contrato publico de compatibilidade.
 
 ## Validacao padrao
 
