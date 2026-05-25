@@ -30,7 +30,7 @@ function configureRenderEquipTestDeps(overrides = {}) {
       calls.push('stripOptions');
       return { ...options, __skipPlanRefresh: undefined };
     }),
-    isCachedPlanPro: vi.fn(() => {
+    hasOperationalSetorAccess: vi.fn(() => {
       calls.push('isPro');
       return false;
     }),
@@ -153,7 +153,7 @@ describe('renderEquip orchestrator', () => {
 
   it('mantem branch de setores antes da lista final', async () => {
     const { deps } = configureRenderEquipTestDeps({
-      isCachedPlanPro: vi.fn(() => true),
+      hasOperationalSetorAccess: vi.fn(() => true),
       getState: vi.fn(() => ({
         equipamentos: [],
         registros: [],
@@ -169,7 +169,7 @@ describe('renderEquip orchestrator', () => {
 
   it('mantem branch de setores filtrada por cliente', async () => {
     const { deps } = configureRenderEquipTestDeps({
-      isCachedPlanPro: vi.fn(() => true),
+      hasOperationalSetorAccess: vi.fn(() => true),
       getState: vi.fn(() => ({
         equipamentos: [{ id: 'eq-1', clienteId: 'cli-1', setorId: 'setor-1' }],
         registros: [],
@@ -191,7 +191,7 @@ describe('renderEquip orchestrator', () => {
 
   it('renderiza lista direta para cliente sem setores', async () => {
     const { deps } = configureRenderEquipTestDeps({
-      isCachedPlanPro: vi.fn(() => true),
+      hasOperationalSetorAccess: vi.fn(() => true),
       getState: vi.fn(() => ({
         equipamentos: [{ id: 'eq-1', clienteId: 'cli-1', setorId: null }],
         registros: [],

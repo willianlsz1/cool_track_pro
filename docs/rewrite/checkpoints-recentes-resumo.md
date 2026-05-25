@@ -384,6 +384,8 @@ decisao, do escopo e do risco remanescente.
   de compatibilidade para etapa posterior.
 - Removidas dependencias mortas de plano pago no guard de persistencia de
   Setores, preservando o contrato publico de compatibilidade.
+- Renomeada dependencia interna de renderizacao de Equipamentos de plano Pro
+  para acesso operacional de Setores, sem mudar comportamento.
 
 ## Validacao padrao
 

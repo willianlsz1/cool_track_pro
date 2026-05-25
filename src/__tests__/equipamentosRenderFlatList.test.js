@@ -16,7 +16,7 @@ const emptyDeps = {
   buildEquipamentosViewModel: null,
   buildDomListViewModel: null,
   resolveIdleClusterCollapsed: null,
-  isCachedPlanPro: null,
+  hasOperationalSetorAccess: null,
   withSkeleton: null,
   mountEquipamentosList: null,
   bindEquipCardImageFallbacks: null,
@@ -74,7 +74,7 @@ function configureRenderFlatListTestDeps(overrides = {}) {
       calls.push('resolveCluster');
       return true;
     }),
-    isCachedPlanPro: vi.fn(() => {
+    hasOperationalSetorAccess: vi.fn(() => {
       calls.push('isPro');
       return true;
     }),

@@ -4,7 +4,7 @@ const renderEquipDeps = {
   Utils: null,
   resolveEquipCtx: null,
   stripRenderInternalOptions: null,
-  isCachedPlanPro: null,
+  hasOperationalSetorAccess: null,
   bindRenderEquipPlanInvalidationEvents: null,
   incrementRenderEquipPlanToken: null,
   getRenderEquipPlanNeedsRefresh: null,
@@ -47,7 +47,7 @@ function buildRenderEquipContext(filtro = '', options = {}) {
   const renderOptionsWithClient = activeClienteId
     ? { ...renderOptions, clienteId: activeClienteId, clienteNome: activeClienteNome }
     : renderOptions;
-  const isPro = getRequiredRenderEquipDep('isCachedPlanPro')();
+  const isPro = getRequiredRenderEquipDep('hasOperationalSetorAccess')();
 
   return {
     filtro,

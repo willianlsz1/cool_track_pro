@@ -6,7 +6,7 @@ const renderFlatListDeps = {
   buildEquipamentosViewModel: null,
   buildDomListViewModel: null,
   resolveIdleClusterCollapsed: null,
-  isCachedPlanPro: null,
+  hasOperationalSetorAccess: null,
   withSkeleton: null,
   mountEquipamentosList: null,
   bindEquipCardImageFallbacks: null,
@@ -94,7 +94,7 @@ function buildRenderFlatListListViewModel(context, viewModel) {
     evalCtx: context.evalCtx,
     clusterActive,
     filterClienteId: context.filterClienteId,
-    isPro: getRenderFlatListDep('isCachedPlanPro')(),
+    isPro: getRenderFlatListDep('hasOperationalSetorAccess')(),
   });
 }
 

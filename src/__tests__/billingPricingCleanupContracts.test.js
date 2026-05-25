@@ -270,11 +270,14 @@ describe('billing/pricing cleanup contracts', () => {
       readSource('src/ui/views/equipamentos/bridges/renderPlan.js'),
       readSource('src/ui/views/equipamentos/setor/setorPersist.js'),
       readSource('src/ui/views/equipamentos/ui/openEditEquip.js'),
+      readSource('src/ui/views/equipamentos/ui/renderEquip.js'),
+      readSource('src/ui/views/equipamentos/ui/renderFlatList.js'),
       readSource('src/ui/views/historico.js'),
     ].join('\n');
 
     expect(sources).not.toContain('hasProAccess');
     expect(sources).not.toContain('hasPlusAccess');
+    expect(sources).not.toContain('isCachedPlanPro');
   });
 
   it('does not describe exported account data with removed billing or PDF/share labels', () => {
