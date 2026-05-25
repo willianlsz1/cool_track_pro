@@ -191,6 +191,8 @@ decisao, do escopo e do risco remanescente.
   de constantes puras de dominio.
 - Neutralizados comentarios runtime restantes que citavam dashboard em tour,
   onboarding checklist e prefill de registro; contrato focado adicionado.
+- Neutralizada mencao a Dashboard do Supabase em comentario de suporte para
+  evitar confusao com o dashboard legado removido.
 
 ## Nomenclatura React legada
 

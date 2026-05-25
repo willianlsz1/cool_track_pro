@@ -9,7 +9,7 @@
  *
  * Aba Feedback — fluxo de envio:
  *  1. Salva no localStorage (histórico local, fallback offline)
- *  2. Insere na tabela `feedback` do Supabase (owner lê no Dashboard)
+ *  2. Insere na tabela `feedback` do Supabase (leitura pelo painel administrativo)
  *  3. Envia via EmailJS para o e-mail do CoolTrack (automático, silencioso)
  *  4. Se EmailJS não estiver configurado ou falhar, abre `mailto:` com a
  *     mensagem pré-preenchida — garante que o feedback chegue ao time.
@@ -310,8 +310,8 @@ export const SupportFeedbackModal = {
       // 1. Salva localmente (síncrono, nunca falha)
       saveToLocalStorage(selectedRating, message);
 
-      // 2. Persiste em Supabase — principal canal de entrega pro time. O owner
-      //    lê os feedbacks no Dashboard do Supabase, então basta o insert
+      // 2. Persiste em Supabase — principal canal de entrega pro time. A leitura
+      //    acontece pelo painel administrativo, então basta o insert
       //    ter sucesso pra considerar entregue.
       let userEmail = 'anônimo';
       let savedToSupabase = false;

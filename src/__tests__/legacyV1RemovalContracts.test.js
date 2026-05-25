@@ -992,6 +992,7 @@ describe('legacy v1 removal contracts', () => {
     const joined = [
       readSource('src/ui/components/tour.js'),
       readSource('src/ui/components/onboarding/onboardingChecklist.js'),
+      readSource('src/ui/components/supportFeedbackModal.js'),
       readSource('src/ui/views/registro.js'),
     ].join('\n');
 
