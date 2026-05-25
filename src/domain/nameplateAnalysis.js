@@ -16,9 +16,9 @@ import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
 // ── Erros canônicos ────────────────────────────────────────────────────────
 // Os mesmos codes vêm da função (PLAN_GATE_FREE/PLUS/PRO, AUTH_REQUIRED, etc),
 // mais alguns client-only pra estados que só existem no browser (NO_SESSION,
-// NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE é o "umbrella" para bloqueios de
-// acesso/limite herdados da função. O detalhamento fica em `details.currentPlan`
-// para o UI escolher a mensagem sem expor plano comercial.
+// NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE e o "umbrella" para bloqueios de
+// acesso/limite herdados da funcao. O detalhamento fica em `details.currentPlan`
+// para o UI escolher a mensagem sem expor contexto comercial.
 export const ERR_NO_SESSION = 'NO_SESSION';
 export const ERR_PLAN_GATE = 'PLAN_GATE';
 export const ERR_NETWORK = 'NETWORK';
@@ -437,7 +437,7 @@ export async function analyzeNameplate(file, { supabaseClient = supabase } = {})
         monthlyLimit,
         used,
         quotaExhausted: Boolean(payload?.quota_exhausted ?? payload?.trial_exhausted),
-        // Aliases Free-only mantidos pra UI existente (nameplateCapture.js)
+        // Aliases de compatibilidade mantidos para a UI existente.
         trialExhausted: Boolean(payload?.trial_exhausted),
         trialLimit: Number.isFinite(Number(payload?.trial_limit))
           ? Number(payload.trial_limit)

@@ -184,8 +184,8 @@ export function applyNameplateCtaGate(config = false) {
 
   bindOnce();
 
-  // Telemetria: primeira exibição por abertura do modal. O flag é limpo
-  // no open-modal do navigationHandlers, idem ao padrão de photo_upsell.
+  // Telemetria: primeira exibicao por abertura do modal. O flag e limpo
+  // no open-modal do navigationHandlers, idem ao padrao de CTA local.
   if (!cta.dataset.ctaShown) {
     cta.dataset.ctaShown = '1';
     trackEvent('nameplate_cta_shown', {
