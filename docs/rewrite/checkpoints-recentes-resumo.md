@@ -17,6 +17,8 @@ decisao, do escopo e do risco remanescente.
   billing, assinatura e storage legados.
 - Removido gate comercial remanescente do checklist de onboarding; o passo de
   cliente fica visivel no fluxo operacional.
+- Equipamentos passou a usar a politica operacional de acesso para setores em
+  vez do cache antigo de plano comercial.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.

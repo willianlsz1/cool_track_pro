@@ -30,7 +30,7 @@ import { buildEquipamentosHeaderViewModel } from '../viewModels/equipamentosHead
 import { validateEquipamentoPayload } from '../../core/inputValidation.js';
 import { resetCamposExtrasState, setCamposExtrasState } from '../components/nameplateCapture.js';
 import { normalizePhotoList } from '../../core/storage/photoRefs.js';
-import { isCachedPlanPro } from '../../core/plans/planCache.js';
+import { hasProAccess } from '../../core/plans/operationalAccessPolicy.js';
 import { SETOR_NOME_MAX } from '../../core/setorRules.js';
 import {
   configureEquipContextState,
@@ -146,6 +146,11 @@ configureHeaderMount({
   Utils,
   mountHeaderBridge: mountEquipamentosHeaderBridge,
 });
+
+function hasOperationalSetorAccess() {
+  return hasProAccess(Profile.get());
+}
+
 configureRenderFlatList({
   getState,
   Utils,
@@ -154,7 +159,7 @@ configureRenderFlatList({
   buildEquipamentosViewModel,
   buildDomListViewModel,
   resolveIdleClusterCollapsed: _resolveIdleClusterCollapsed,
-  isCachedPlanPro,
+  isCachedPlanPro: hasOperationalSetorAccess,
   withSkeleton,
   mountEquipamentosList,
   bindEquipCardImageFallbacks: _bindEquipCardImageFallbacks,
@@ -163,7 +168,7 @@ configureRenderEquip({
   Utils,
   resolveEquipCtx: _resolveEquipCtx,
   stripRenderInternalOptions: _stripRenderInternalOptions,
-  isCachedPlanPro,
+  isCachedPlanPro: hasOperationalSetorAccess,
   bindRenderEquipPlanInvalidationEvents,
   incrementRenderEquipPlanToken,
   getRenderEquipPlanNeedsRefresh,
@@ -432,11 +437,6 @@ export function clearEditingState() {
   clearForcedEquipContext();
 }
 
-/**
- * @sliceSplit
- *   ui/modal: render plan-aware (Free/Plus/Pro) com labels, subheads e CTAs
- *   setor/context: leitura de forced context + lock UI dos triggers
- */
 export function applyEquipModalExperience({ triggerEl = null } = {}) {
   const titleEl = Utils.getEl('modal-add-eq-title');
   const subtitleEl = Utils.getEl('modal-add-eq-subtitle');
@@ -447,7 +447,7 @@ export function applyEquipModalExperience({ triggerEl = null } = {}) {
   const tertiaryBtn = Utils.getEl('eq-save-tertiary');
   const contextGroup = Utils.getEl('eq-context-group');
   const operationSubhead = document.querySelector('.eq-details-subhead__label');
-  const isPro = isCachedPlanPro();
+  const isPro = hasOperationalSetorAccess();
   const triggerSetorId = triggerEl?.dataset?.setorId || '';
   const triggerClienteId = triggerEl?.dataset?.clienteId || '';
   const routeCtx = _getRouteEquipCtx();
