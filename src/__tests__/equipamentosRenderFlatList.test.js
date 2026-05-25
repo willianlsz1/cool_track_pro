@@ -14,7 +14,7 @@ const emptyDeps = {
   createEquipRenderEvalContext: null,
   getPreventivaDueEquipmentIds: null,
   buildEquipamentosViewModel: null,
-  buildReactListViewModel: null,
+  buildDomListViewModel: null,
   resolveIdleClusterCollapsed: null,
   isCachedPlanPro: null,
   withSkeleton: null,
@@ -42,7 +42,7 @@ function configureRenderFlatListTestDeps(overrides = {}) {
     activeItems: [{ id: 'active-1' }],
     skeletonCount: 4,
   };
-  const reactViewModel = { cards: [{ id: 'eq-1' }] };
+  const domListViewModel = { cards: [{ id: 'eq-1' }] };
   const deps = {
     getState: vi.fn(() => {
       calls.push('getState');
@@ -66,9 +66,9 @@ function configureRenderFlatListTestDeps(overrides = {}) {
       calls.push('buildViewModel');
       return viewModel;
     }),
-    buildReactListViewModel: vi.fn(() => {
-      calls.push('buildReactViewModel');
-      return reactViewModel;
+    buildDomListViewModel: vi.fn(() => {
+      calls.push('buildDomListViewModel');
+      return domListViewModel;
     }),
     resolveIdleClusterCollapsed: vi.fn(() => {
       calls.push('resolveCluster');
@@ -92,7 +92,7 @@ function configureRenderFlatListTestDeps(overrides = {}) {
   };
 
   configureRenderFlatList({ ...emptyDeps, ...deps });
-  return { calls, deps, evalCtx, reactViewModel, root, state, viewModel };
+  return { calls, deps, domListViewModel, evalCtx, root, state, viewModel };
 }
 
 describe('renderFlatList', () => {
@@ -104,8 +104,8 @@ describe('renderFlatList', () => {
     expect(() => renderFlatList()).toThrow('renderFlatList dependency not configured: getState');
   });
 
-  it('preserva state snapshot, view model, React bridge, skeleton e fallback na ordem', () => {
-    const { calls, deps, evalCtx, reactViewModel, root, state, viewModel } =
+  it('preserva state snapshot, view model DOM, skeleton e fallback na ordem', () => {
+    const { calls, deps, domListViewModel, evalCtx, root, state, viewModel } =
       configureRenderFlatListTestDeps();
 
     expect(
@@ -133,7 +133,7 @@ describe('renderFlatList', () => {
       getRisk: evalCtx.getRisk,
       isFullyIdle: evalCtx.isFullyIdle,
     });
-    expect(deps.buildReactListViewModel).toHaveBeenCalledWith(viewModel, {
+    expect(deps.buildDomListViewModel).toHaveBeenCalledWith(viewModel, {
       evalCtx,
       clusterActive: true,
       filterClienteId: 'cli-1',
@@ -146,7 +146,7 @@ describe('renderFlatList', () => {
     );
     expect(deps.mountEquipamentosList).toHaveBeenCalledWith({
       root,
-      viewModel: reactViewModel,
+      viewModel: domListViewModel,
       onMounted: expect.any(Function),
     });
     expect(deps.bindEquipCardImageFallbacks).toHaveBeenCalledWith(root);
@@ -158,7 +158,7 @@ describe('renderFlatList', () => {
       'getRoot',
       'resolveCluster',
       'isPro',
-      'buildReactViewModel',
+      'buildDomListViewModel',
       'withSkeleton',
       'mountList',
       'fallbacks',
@@ -178,7 +178,7 @@ describe('renderFlatList', () => {
     expect(renderFlatList()).toBeUndefined();
 
     expect(deps.buildEquipamentosViewModel).toHaveBeenCalledTimes(1);
-    expect(deps.buildReactListViewModel).not.toHaveBeenCalled();
+    expect(deps.buildDomListViewModel).not.toHaveBeenCalled();
     expect(deps.mountEquipamentosList).not.toHaveBeenCalled();
     expect(deps.bindEquipCardImageFallbacks).not.toHaveBeenCalled();
     expect(calls).toEqual(['getState', 'evalCtx', 'buildViewModel', 'getRoot']);

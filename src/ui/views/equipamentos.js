@@ -67,7 +67,7 @@ import {
 } from './equipamentos/setorHelpers.js';
 import {
   _stripRenderInternalOptions,
-  buildReactListViewModel,
+  buildDomListViewModel,
 } from './equipamentos/utils/viewModels.js';
 import {
   getEditingEquipId,
@@ -152,7 +152,7 @@ configureRenderFlatList({
   createEquipRenderEvalContext: _createEquipRenderEvalContext,
   getPreventivaDueEquipmentIds,
   buildEquipamentosViewModel,
-  buildReactListViewModel,
+  buildDomListViewModel,
   resolveIdleClusterCollapsed: _resolveIdleClusterCollapsed,
   isCachedPlanPro,
   withSkeleton,

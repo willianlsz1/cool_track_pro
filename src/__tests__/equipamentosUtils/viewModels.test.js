@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   _stripRenderInternalOptions,
-  buildReactListEmptyState,
+  buildDomListEmptyState,
 } from '../../ui/views/equipamentos/utils/viewModels.js';
 
 describe('utils/viewModels', () => {
@@ -43,9 +43,9 @@ describe('utils/viewModels', () => {
     });
   });
 
-  describe('buildReactListEmptyState', () => {
+  describe('buildDomListEmptyState', () => {
     it('caminho feliz com emptyCopy custom + isPro', () => {
-      const result = buildReactListEmptyState(
+      const result = buildDomListEmptyState(
         {
           title: 'Sem equipamentos',
           description: 'Crie um pra começar',
@@ -61,14 +61,14 @@ describe('utils/viewModels', () => {
     });
 
     it('usa fallback quando emptyCopy é null', () => {
-      const result = buildReactListEmptyState(null, {});
+      const result = buildDomListEmptyState(null, {});
       expect(result.title).toBe('Nenhum equipamento encontrado');
       expect(result.cta.action).toBe('open-modal');
       expect(result.cta.id).toBe('modal-add-eq');
     });
 
     it('detecta CTA "eq-add-for-cliente" e troca o icon', () => {
-      const result = buildReactListEmptyState(
+      const result = buildDomListEmptyState(
         {
           title: 'Crie pra cliente',
           description: 'd',
@@ -80,17 +80,17 @@ describe('utils/viewModels', () => {
     });
 
     it('proHint=false quando filterClienteId está setado (mesmo com isPro)', () => {
-      const result = buildReactListEmptyState(null, { isPro: true, filterClienteId: 'c-1' });
+      const result = buildDomListEmptyState(null, { isPro: true, filterClienteId: 'c-1' });
       expect(result.proHint).toBe(false);
     });
 
     it('proHint=false quando isPro é false', () => {
-      const result = buildReactListEmptyState(null, { isPro: false, filterClienteId: null });
+      const result = buildDomListEmptyState(null, { isPro: false, filterClienteId: null });
       expect(result.proHint).toBe(false);
     });
   });
 
-  describe('buildEquipamentoListCardModel + buildReactListViewModel (smoke)', () => {
+  describe('buildEquipamentoListCardModel + buildDomListViewModel (smoke)', () => {
     // Essas funções chamam `regsForEquip`, `calculateHealthScore`,
     // `getEquipmentVisualMeta`, etc. Em vez de mockar 10+ módulos,
     // fazemos um teste smoke garantindo que o módulo é carregável e
@@ -164,7 +164,7 @@ describe('utils/viewModels', () => {
       expect(card.eqRegsCount).toBe(0);
     });
 
-    it('buildReactListViewModel agrega cards + emptyState corretamente', () => {
+    it('buildDomListViewModel agrega cards + emptyState corretamente', () => {
       const evalCtx = {
         getRegs: () => [],
         getMaintenanceContext: () => ({ ultimoRegistro: null }),
@@ -179,7 +179,7 @@ describe('utils/viewModels', () => {
         quickMove: null,
         emptyState: null,
       };
-      const result = viewModels.buildReactListViewModel(viewModel, {
+      const result = viewModels.buildDomListViewModel(viewModel, {
         evalCtx,
         clusterActive: false,
         filterClienteId: null,
@@ -191,7 +191,7 @@ describe('utils/viewModels', () => {
       expect(result.emptyState).toBeNull();
     });
 
-    it('buildReactListViewModel emite emptyState quando não há cards', () => {
+    it('buildDomListViewModel emite emptyState quando não há cards', () => {
       const evalCtx = {
         getRegs: () => [],
         getMaintenanceContext: () => ({ ultimoRegistro: null }),
@@ -206,7 +206,7 @@ describe('utils/viewModels', () => {
         quickMove: null,
         emptyState: null,
       };
-      const result = viewModels.buildReactListViewModel(viewModel, {
+      const result = viewModels.buildDomListViewModel(viewModel, {
         evalCtx,
         clusterActive: false,
         filterClienteId: null,

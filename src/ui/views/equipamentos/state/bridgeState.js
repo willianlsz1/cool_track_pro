@@ -1,5 +1,5 @@
 /**
- * Module-level React bridge cache/generation state for equipamentos.
+ * Module-level DOM bridge cache/generation state for equipamentos.
  *
  * Extraído de src/ui/views/equipamentos.js no Mudança 11 / CP-B.5.
  * Preserva promises memoizadas, referências carregadas e generation counters.

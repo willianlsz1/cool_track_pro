@@ -27,8 +27,8 @@ const listRendererMocks = vi.hoisted(() => ({
   mountEquipamentosListDom: vi.fn((root, { viewModel } = {}) => {
     root.dataset.equipamentosListMounted = 'true';
     root.innerHTML = viewModel?.emptyState
-      ? '<div class="empty-state" data-testid="equip-list-react-empty"></div>'
-      : '<div data-testid="equip-list-react-mounted"></div>';
+      ? '<div class="empty-state" data-testid="equip-list-dom-empty"></div>'
+      : '<div data-testid="equip-list-dom-mounted"></div>';
     return root;
   }),
   unmountEquipamentosListDom: vi.fn((root) => {
@@ -320,7 +320,7 @@ describe('equipamentos legacy hero, filters and context contracts', () => {
     );
   });
 
-  it('preserva estado vazio sem recriar a lista React nem acionar fluxos criticos', async () => {
+  it('preserva estado vazio sem recriar a lista DOM nem acionar fluxos criticos', async () => {
     setState({ equipamentos: [], registros: [], clientes: [], setores: [] });
 
     await renderEquip();

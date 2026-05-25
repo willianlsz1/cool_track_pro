@@ -4,7 +4,7 @@ const renderFlatListDeps = {
   createEquipRenderEvalContext: null,
   getPreventivaDueEquipmentIds: null,
   buildEquipamentosViewModel: null,
-  buildReactListViewModel: null,
+  buildDomListViewModel: null,
   resolveIdleClusterCollapsed: null,
   isCachedPlanPro: null,
   withSkeleton: null,
@@ -90,7 +90,7 @@ function resolveRenderFlatListIdleCluster(viewModel) {
 function buildRenderFlatListListViewModel(context, viewModel) {
   const clusterActive = resolveRenderFlatListIdleCluster(viewModel);
 
-  return getRenderFlatListDep('buildReactListViewModel')(viewModel, {
+  return getRenderFlatListDep('buildDomListViewModel')(viewModel, {
     evalCtx: context.evalCtx,
     clusterActive,
     filterClienteId: context.filterClienteId,

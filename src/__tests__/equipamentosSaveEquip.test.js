@@ -174,7 +174,7 @@ vi.mock('../ui/viewModels/equipamentosHeaderModel.js', () => ({
 
 vi.mock('../ui/views/equipamentos/utils/viewModels.js', () => ({
   _stripRenderInternalOptions: vi.fn((options) => options || {}),
-  buildReactListViewModel: vi.fn((viewModel) => viewModel),
+  buildDomListViewModel: vi.fn((viewModel) => viewModel),
 }));
 
 vi.mock('../ui/views/equipamentos/utils/detail.js', () => ({

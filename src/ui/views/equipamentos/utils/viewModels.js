@@ -36,7 +36,7 @@ export function _stripRenderInternalOptions(options = {}) {
 }
 
 /**
- * Constrói view-model de um equip card pra a lista React.
+ * Constroi view-model de um equip card para a lista DOM.
  * Recebe `evalCtx` (criado por _createEquipRenderEvalContext) com getters
  * de regs, risco, contexto de manutenção e suggested action.
  */
@@ -118,10 +118,10 @@ export function buildEquipamentoListCardModel(eq, evalCtx) {
 }
 
 /**
- * Constrói view-model do empty state da lista React. Detecta o tipo de CTA
- * pelo `cta.action` (eq-add-for-cliente vira ícone 👥, resto fica 🔧).
+ * Constroi view-model do empty state da lista DOM. Detecta o tipo de CTA
+ * pelo `cta.action`.
  */
-export function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
+export function buildDomListEmptyState(emptyCopy, { filterClienteId, isPro } = {}) {
   const fallback = {
     title: 'Nenhum equipamento encontrado',
     description: 'Tente outro termo ou cadastre um novo.',
@@ -160,10 +160,10 @@ export function buildReactListEmptyState(emptyCopy, { filterClienteId, isPro } =
 }
 
 /**
- * Constrói view-model agregado da lista React (cards + idle/active split +
+ * Constroi view-model agregado da lista DOM (cards + idle/active split +
  * cluster + emptyState). Usa buildEquipamentoListCardModel pra cada card.
  */
-export function buildReactListViewModel(
+export function buildDomListViewModel(
   viewModel,
   { evalCtx, clusterActive, filterClienteId, isPro },
 ) {
@@ -181,6 +181,6 @@ export function buildReactListViewModel(
     quickMove: viewModel.quickMove,
     emptyState: cards.length
       ? null
-      : buildReactListEmptyState(viewModel.emptyState, { filterClienteId, isPro }),
+      : buildDomListEmptyState(viewModel.emptyState, { filterClienteId, isPro }),
   };
 }

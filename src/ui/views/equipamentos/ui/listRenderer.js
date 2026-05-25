@@ -304,10 +304,10 @@ function renderListHtml(viewModel = {}) {
   const renderedCards = viewModel.clusterActive ? activeCards : cards;
 
   if (!cards.length) {
-    return `<div class="equip-list-react" data-testid="equipamentos-list">${renderEmptyState(viewModel.emptyState)}</div>`;
+    return `<div class="equip-list-dom" data-testid="equipamentos-list">${renderEmptyState(viewModel.emptyState)}</div>`;
   }
 
-  return `<div class="equip-list-react" data-testid="equipamentos-list">
+  return `<div class="equip-list-dom" data-testid="equipamentos-list">
     <h2 class="section-title" style="margin:8px 0 10px">${escapeHtml(viewModel.listTitle || 'Todos os equipamentos')}</h2>
     ${renderQuickMoveBanner(viewModel.quickMove, cards.length)}
     ${viewModel.clusterActive ? renderIdleCluster(idleCards) : ''}

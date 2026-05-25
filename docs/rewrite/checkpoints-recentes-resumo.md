@@ -188,6 +188,13 @@ decisao, do escopo e do risco remanescente.
 - Removido em CP proprio o tratamento de router para `dash-overflow-modal`,
   apos retirada do componente que criava esse modal.
 
+## Nomenclatura React legada
+
+- Neutralizados nomes internos restantes de lista React em Equipamentos:
+  `buildReactList*` virou `buildDomList*` e a classe local passou para
+  `equip-list-dom`.
+- A arvore `src/react` segue removida; o renderer atual de Equipamentos usa DOM.
+
 ## Validacao padrao
 
 - Para CPs com codigo: testes focados, `npm run format`, `npm run build`,
