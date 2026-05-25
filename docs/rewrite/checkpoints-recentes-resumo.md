@@ -408,6 +408,9 @@ decisao, do escopo e do risco remanescente.
   os helpers ainda usados por Registro/PMOC para CP dedicado posterior.
 - Removido export morto `isCachedPlanPlusOrHigher` e mocks sem caller runtime,
   preservando o gate de Registro/PMOC ainda existente para etapa propria.
+- Extraidos testes de fechamento de servico do `AppV2Shell.test.tsx` para arquivo
+  dedicado, mantendo runtime intacto e reduzindo o teste principal abaixo de
+  1000 linhas.
 
 ## Validacao padrao
 
