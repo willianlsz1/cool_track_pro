@@ -275,6 +275,8 @@ decisao, do escopo e do risco remanescente.
   de Registro, sem alterar payload, storage, assinatura ou runtime.
 - Neutralizada linguagem residual e mojibake em teste de fallback de schema de
   Setores, sem alterar mocks, selects, asserts ou runtime Supabase.
+- Neutralizado fixture nominal em teste de configuracao Supabase frontend, sem
+  alterar nomes de env vars, rejeicao de fallback ou validacao de service_role.
 
 ## Validacao padrao
 

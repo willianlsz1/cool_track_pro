@@ -21,7 +21,7 @@ describe('supabase frontend env config', () => {
   it('uses VITE_SUPABASE_ANON_KEY as the explicit frontend key contract', async () => {
     vi.stubEnv('VITE_SUPABASE_URL', 'https://project.supabase.co');
     vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'anon-public-key');
-    vi.stubEnv('VITE_SUPABASE_KEY', 'legacy-ambiguous-key');
+    vi.stubEnv('VITE_SUPABASE_KEY', 'ambiguous-frontend-key');
 
     const { getSupabaseBrowserConfig } = await loadConfig();
 
@@ -34,7 +34,7 @@ describe('supabase frontend env config', () => {
   it('does not accept VITE_SUPABASE_KEY as a fallback', async () => {
     vi.stubEnv('VITE_SUPABASE_URL', 'https://project.supabase.co');
     vi.stubEnv('VITE_SUPABASE_ANON_KEY', '');
-    vi.stubEnv('VITE_SUPABASE_KEY', 'legacy-ambiguous-key');
+    vi.stubEnv('VITE_SUPABASE_KEY', 'ambiguous-frontend-key');
 
     const { getSupabaseBrowserConfig } = await loadConfig();
 
