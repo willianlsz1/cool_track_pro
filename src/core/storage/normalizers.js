@@ -45,7 +45,7 @@ export function normalizeEquip(e) {
   };
 }
 
-export function isLegacyEquipmentSchemaError(error) {
+export function isMissingEquipmentExtensionSchemaError(error) {
   const message = String(error?.message || '').toLowerCase();
   return (
     message.includes('column') &&
@@ -67,7 +67,7 @@ function sanitizeDadosPlaca(input) {
   return out;
 }
 
-export function mapEquipamentoRow(equipamento, userId, { legacy = false } = {}) {
+export function mapEquipamentoRow(equipamento, userId, { baseSchema = false } = {}) {
   const row = {
     id: equipamento.id,
     user_id: userId,
@@ -80,7 +80,7 @@ export function mapEquipamentoRow(equipamento, userId, { legacy = false } = {}) 
     modelo: equipamento.modelo,
     fluido: equipamento.fluido,
   };
-  if (legacy) return row;
+  if (baseSchema) return row;
   return {
     ...row,
     criticidade: normalizeCriticidade(equipamento.criticidade),

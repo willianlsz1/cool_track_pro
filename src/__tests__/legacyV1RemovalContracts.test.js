@@ -923,6 +923,18 @@ describe('legacy v1 removal contracts', () => {
     expect(storageNormalizersSource).not.toContain('migrateLegacyPhotosForRegistros');
   });
 
+  it('uses neutral names for equipment schema compatibility fallbacks', () => {
+    const joined = [
+      readSource('src/core/storage/storageNormalizers.js'),
+      readSource('src/core/storage/normalizers.js'),
+      readSource('src/core/storage/remote.js'),
+    ].join('\n');
+
+    expect(joined).not.toMatch(
+      /\bisLegacyEquipmentSchemaError\b|\blegacyRows\b|\blegacy:\s*true\b|\blegacy\s*=\s*false\b/,
+    );
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

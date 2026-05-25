@@ -46,7 +46,7 @@ export function normalizeEquip(e) {
   };
 }
 
-export function mapEquipamentoRow(equipamento, userId, { legacy = false } = {}) {
+export function mapEquipamentoRow(equipamento, userId, { baseSchema = false } = {}) {
   const row = {
     id: equipamento.id,
     user_id: userId,
@@ -60,7 +60,7 @@ export function mapEquipamentoRow(equipamento, userId, { legacy = false } = {}) 
     fluido: equipamento.fluido,
     setor_id: equipamento.setorId ?? null,
   };
-  if (legacy) return row;
+  if (baseSchema) return row;
   return {
     ...row,
     criticidade: normalizeCriticidade(equipamento.criticidade),

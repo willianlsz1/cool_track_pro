@@ -13,7 +13,7 @@ import {
   normalizePrioridadeOperacional,
   normalizePeriodicidadePreventivaDias,
 } from '../maintenanceNormalization.js';
-import { isLegacyEquipmentSchemaError, mapEquipamentoRow } from './normalizers.js';
+import { isMissingEquipmentExtensionSchemaError, mapEquipamentoRow } from './normalizers.js';
 import { parseDeletionQueue, saveDeletionQueue } from './syncState.js';
 
 function splitIntoChunks(values, chunkSize = 100) {
@@ -47,11 +47,13 @@ export async function pushEquipamentos(equipamentos, userId) {
   try {
     const rows = equipamentos.map((equipamento) => mapEquipamentoRow(equipamento, userId));
     let { error } = await supabase.from('equipamentos').upsert(rows, { onConflict: 'id' });
-    if (error && isLegacyEquipmentSchemaError(error)) {
-      const legacyRows = equipamentos.map((equipamento) =>
-        mapEquipamentoRow(equipamento, userId, { legacy: true }),
+    if (error && isMissingEquipmentExtensionSchemaError(error)) {
+      const baseSchemaRows = equipamentos.map((equipamento) =>
+        mapEquipamentoRow(equipamento, userId, { baseSchema: true }),
       );
-      ({ error } = await supabase.from('equipamentos').upsert(legacyRows, { onConflict: 'id' }));
+      ({ error } = await supabase
+        .from('equipamentos')
+        .upsert(baseSchemaRows, { onConflict: 'id' }));
     }
     if (error) throw error;
   } catch (error) {

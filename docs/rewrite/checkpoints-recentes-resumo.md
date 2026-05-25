@@ -214,6 +214,8 @@ decisao, do escopo e do risco remanescente.
   storage keys, render, eventos ou escopo por usuario.
 - Neutralizados nomes locais residuais em `Profile.get()` sem alterar chaves de
   perfil, fallback localStorage ou escopo por usuario.
+- Neutralizados nomes internos do fallback de compatibilidade de schema de
+  equipamentos sem alterar payload, chaves persistidas ou ordem de sincronizacao.
 
 ## Nomenclatura React legada
 
