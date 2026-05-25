@@ -58,7 +58,7 @@ describe('ClienteModal acesso operacional', () => {
     getClientesAccessSnapshot.mockReturnValue({ resolved: true, planCode: 'free' });
   });
 
-  it('abre criacao no Free quando ainda nao ha cliente', async () => {
+  it('abre criacao quando ainda nao ha cliente cadastrado', async () => {
     const { ClienteModal } = await import('../ui/components/clienteModal.js');
 
     await ClienteModal.openCreate();
@@ -77,7 +77,7 @@ describe('ClienteModal acesso operacional', () => {
     expect(document.getElementById('cliente-modal-overlay')).toBeTruthy();
   });
 
-  it('permite editar cliente existente no Free mesmo com limite atingido', async () => {
+  it('permite editar cliente existente mesmo com limite operacional atingido', async () => {
     stateRef.value = { clientes: [{ id: 'cli-1', nome: 'Cliente 1' }] };
     const { ClienteModal } = await import('../ui/components/clienteModal.js');
 

@@ -321,6 +321,8 @@ decisao, do escopo e do risco remanescente.
   pago, preservando contratos publicos e funcao Supabase.
 - Neutralizados nomes internos seguros e descricoes de teste do aviso de
   checklist preventivo indisponivel, preservando ids/classes/eventos publicos.
+- Neutralizadas descricoes de testes que ainda apresentavam clientes e setores
+  como superficies comerciais Free/Plus/Pro.
 
 ## Validacao padrao
 

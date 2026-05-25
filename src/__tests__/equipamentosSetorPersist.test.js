@@ -87,7 +87,7 @@ describe('setorPersist', () => {
   });
 
   describe('ensureProForSetores', () => {
-    it('retorna true quando plano permite Pro', async () => {
+    it('retorna true quando o acesso operacional permite setores', async () => {
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
 
       expect(deps.fetchOperationalProfile).not.toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe('setorPersist', () => {
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
-    it('retorna false e chama Toast.warning quando plano bloqueia', async () => {
+    it('mantem fluxo liberado quando o acesso operacional legado bloquearia', async () => {
       deps.hasProAccess.mockReturnValueOnce(false);
 
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
@@ -168,7 +168,7 @@ describe('setorPersist', () => {
   });
 
   describe('assignEquipToSetor', () => {
-    it('chama guard Pro antes de mutar equipamento', async () => {
+    it('chama guard operacional antes de mutar equipamento', async () => {
       await assignEquipToSetor('eq-1', 'setor-1');
 
       expect(callOrder[0]).toBe('setState');
@@ -216,7 +216,7 @@ describe('setorPersist', () => {
   });
 
   describe('saveSetor', () => {
-    it('guard Pro bloqueado impede mutação, modal close, toast success e render', async () => {
+    it('guard operacional legado bloqueado preserva fluxo liberado de setor', async () => {
       deps.hasProAccess.mockReturnValueOnce(false);
 
       await expect(saveSetor()).resolves.toBe(true);
@@ -303,7 +303,7 @@ describe('setorPersist', () => {
   });
 
   describe('deleteSetor', () => {
-    it('guard Pro bloqueado impede mutação, Storage.markSetorDeleted, toast e render/navegação', async () => {
+    it('guard operacional legado bloqueado preserva fluxo liberado de remocao', async () => {
       deps.hasProAccess.mockReturnValueOnce(false);
 
       await deleteSetor('setor-2');
