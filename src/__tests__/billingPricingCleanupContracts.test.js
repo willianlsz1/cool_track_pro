@@ -127,6 +127,21 @@ describe('billing/pricing cleanup contracts', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('does not keep removed commercial terms in active Supabase Edge Functions', () => {
+    const functionSources = collectRuntimeSources('supabase/functions');
+    const forbidden = ['billing', 'pricing', 'checkout', 'stripe', 'Stripe', 'portal'];
+
+    const offenders = [];
+    for (const path of functionSources) {
+      const source = readSource(path);
+      for (const term of forbidden) {
+        if (source.includes(term)) offenders.push(`${path}: ${term}`);
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
   it('does not keep PDF or WhatsApp usage quota resources in runtime modules', () => {
     const sources = [
       readSource('src/core/usageLimits.js'),

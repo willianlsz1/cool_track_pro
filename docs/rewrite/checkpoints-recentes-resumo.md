@@ -295,6 +295,8 @@ decisao, do escopo e do risco remanescente.
   alterar helpers comerciais, asserts, billing, pricing ou runtime.
 - Neutralizada linguagem residual em comentarios/mensagens internas de
   Supabase, sem alterar SQL executavel, endpoints, schemas, RLS ou runtime.
+- Adicionado gate para impedir termos comerciais removidos em Edge Functions
+  ativas, sem alterar runtime Supabase, migrations, schema ou RLS.
 
 ## Validacao padrao
 
