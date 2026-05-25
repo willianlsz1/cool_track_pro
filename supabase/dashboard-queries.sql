@@ -2,8 +2,8 @@
 -- DASHBOARD SAVED QUERIES - fonte unica de verdade
 -- ============================================================
 -- Queries master para colar no SQL Editor do Supabase Dashboard.
--- Billing/Stripe foi removido do produto; este arquivo nao deve conter
--- consultas de assinatura, checkout, portal ou metadados Stripe.
+-- A camada comercial foi removida do produto; este arquivo nao deve conter
+-- consultas de provedores de pagamento, entrada comercial ou metadados externos.
 --
 -- Sugestao de queries salvas:
 --   [Users] Ver perfil operacional

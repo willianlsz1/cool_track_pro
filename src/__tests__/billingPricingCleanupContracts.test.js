@@ -142,6 +142,12 @@ describe('billing/pricing cleanup contracts', () => {
     expect(offenders).toEqual([]);
   });
 
+  it('does not keep removed commercial provider terms in Supabase dashboard queries', () => {
+    const dashboardQueriesSource = readSource('supabase/dashboard-queries.sql');
+
+    expect(dashboardQueriesSource).not.toMatch(/billing|stripe|checkout|portal|stripe_/i);
+  });
+
   it('does not keep PDF or WhatsApp usage quota resources in runtime modules', () => {
     const sources = [
       readSource('src/core/usageLimits.js'),

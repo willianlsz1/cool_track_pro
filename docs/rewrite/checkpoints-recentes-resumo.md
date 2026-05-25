@@ -297,6 +297,9 @@ decisao, do escopo e do risco remanescente.
   Supabase, sem alterar SQL executavel, endpoints, schemas, RLS ou runtime.
 - Adicionado gate para impedir termos comerciais removidos em Edge Functions
   ativas, sem alterar runtime Supabase, migrations, schema ou RLS.
+- Neutralizados comentarios comerciais residuais em queries de Dashboard
+  Supabase, com gate focado sem alterar SQL executavel, migrations, schema ou
+  RLS.
 
 ## Validacao padrao
 
