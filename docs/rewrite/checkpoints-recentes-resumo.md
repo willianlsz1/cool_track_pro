@@ -225,6 +225,8 @@ decisao, do escopo e do risco remanescente.
   contextual em `storage/constants.js`, preservando valores e escopo por usuario.
 - Renomeado modulo interno de politica de acesso operacional, mantendo
   compatibilidade de helpers enquanto billing/pricing seguem removidos.
+- Adicionado contrato para limitar tokens runtime `v1` a endpoints versionados e
+  chaves persistidas centralizadas.
 
 ## Nomenclatura React legada
 

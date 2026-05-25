@@ -38,6 +38,19 @@ function findMatches(files, pattern) {
   });
 }
 
+function findUnexpectedLineMatches(files, matchPattern, allowedPatternsByFile) {
+  return files.flatMap((file) => {
+    const allowedPatterns = allowedPatternsByFile.get(file) || [];
+    return readSource(file)
+      .split(/\r?\n/)
+      .flatMap((line, index) => {
+        if (!matchPattern.test(line)) return [];
+        if (allowedPatterns.some((pattern) => pattern.test(line))) return [];
+        return [`${file}:${index + 1}: ${line.trim()}`];
+      });
+  });
+}
+
 const MOJIBAKE_PATTERN = /(?:\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]|\ufffd)/;
 
 describe('legacy v1 removal contracts', () => {
@@ -977,6 +990,39 @@ describe('legacy v1 removal contracts', () => {
     for (const source of consumers) {
       expect(source).not.toMatch(centralizedKeyPattern);
     }
+  });
+
+  it('limits remaining runtime v1 tokens to endpoint versions and persisted storage keys', () => {
+    const runtimeFiles = [
+      ...listSourceFiles('src/app-v2'),
+      ...listSourceFiles('src/ui'),
+      ...listSourceFiles('src/core'),
+      ...listSourceFiles('src/domain'),
+      ...listSourceFiles('scripts'),
+      ...listSourceFiles('public'),
+      'index.html',
+      'preview.html',
+    ];
+    const allowedPatternsByFile = new Map([
+      ['src/core/emailNotification.js', [/api\/v1\.0\/email\/send/]],
+      [
+        'src/core/storage/constants.js',
+        [
+          /cooltrack-oauth-pending-v1/,
+          /contextual-onboarding-v1/,
+          /cooltrack-sync-dirty-v1/,
+          /cooltrack-sync-deletions-v1/,
+          /cooltrack-cache-owner-v1/,
+        ],
+      ],
+      ['src/domain/nameplateAnalysis.js', [/functions\/v1\/analyze-nameplate/]],
+      [
+        'src/ui/account/userData.js',
+        [/functions\/v1\/export-user-data/, /functions\/v1\/delete-user-account/],
+      ],
+    ]);
+
+    expect(findUnexpectedLineMatches(runtimeFiles, /\bv1\b/i, allowedPatternsByFile)).toEqual([]);
   });
 
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
