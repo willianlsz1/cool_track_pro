@@ -179,7 +179,7 @@ function expectExternalFlowsNotExecuted() {
   expect(mocks.customConfirmShow).not.toHaveBeenCalled();
 }
 
-describe('registro legacy header/hero/main fields render adapter', () => {
+describe('registro DOM header/hero/main fields render adapter', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -350,7 +350,7 @@ describe('registro legacy header/hero/main fields render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('mantem render legado sem dependencia de React/createRoot', () => {
+  it('mantem render DOM sem dependencia de React/createRoot', () => {
     const source = readFileSync('src/ui/views/registro.js', 'utf8');
 
     expect(source).not.toMatch(/from ['"]react['"]|react-dom|createRoot/);

@@ -56,6 +56,24 @@ describe('React cleanup contracts', () => {
     });
   });
 
+  it('keeps active Registro DOM tests out of legacy file names', () => {
+    [
+      'src/__tests__/registroLegacyChecklistRender.test.js',
+      'src/__tests__/registroLegacyFieldHandlers.test.js',
+      'src/__tests__/registroLegacyHeaderRender.test.js',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(false);
+    });
+
+    [
+      'src/__tests__/registroDomChecklistRender.test.js',
+      'src/__tests__/registroDomFieldHandlers.test.js',
+      'src/__tests__/registroDomHeaderRender.test.js',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(true);
+    });
+  });
+
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/app.js')).toBe(false);

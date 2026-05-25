@@ -241,6 +241,8 @@ decisao, do escopo e do risco remanescente.
   legado.
 - Renomeados testes ativos de Historico de `historico*LegacyRender` para
   `historico*DomRender`, preservando a cobertura de render DOM atual.
+- Renomeados testes ativos de Registro de `registroLegacy*` para `registroDom*`
+  sem alterar fluxos, checklist, assinatura, storage ou PMOC runtime.
 
 ## Validacao padrao
 

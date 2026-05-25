@@ -249,7 +249,7 @@ async function bindRegistroHandlers() {
   return handlers;
 }
 
-describe('registro legacy checklist render adapter', () => {
+describe('registro DOM checklist render adapter', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.doUnmock('../domain/pmoc/checklistTemplates.js');
@@ -401,7 +401,7 @@ describe('registro legacy checklist render adapter', () => {
     expect(registro.getCurrentChecklist()).toBeNull();
   });
 
-  it('mantem estado ausente ou invalido sem quebrar o checklist legado', async () => {
+  it('mantem estado ausente ou invalido sem quebrar o checklist DOM', async () => {
     setupDom(baseState());
     const registro = await loadRegistroView(baseState());
     await mountRegistroHeader(registro, {});
@@ -418,7 +418,7 @@ describe('registro legacy checklist render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('alterna status legado e atualiza resumo sem executar fluxos criticos', async () => {
+  it('alterna status atual e atualiza resumo sem executar fluxos criticos', async () => {
     const { registro, body, summary } = await renderChecklistForState();
     await bindRegistroHandlers();
 
@@ -463,7 +463,7 @@ describe('registro legacy checklist render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('preserva observacao e medicao legadas por data-action sem salvar registro', async () => {
+  it('preserva observacao e medicao atuais por data-action sem salvar registro', async () => {
     const { registro, body } = await renderChecklistForState();
     await bindRegistroHandlers();
 
@@ -571,7 +571,7 @@ describe('registro legacy checklist render adapter', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('escapa labels e observacoes maliciosas no HTML legado do checklist', async () => {
+  it('escapa labels e observacoes maliciosas no HTML DOM do checklist', async () => {
     const maliciousTemplate = {
       tipo_template: 'xss_template',
       version: 1,

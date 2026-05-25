@@ -249,7 +249,7 @@ function expectExternalFlowsNotExecuted() {
   expect(mocks.deleteReg).not.toHaveBeenCalled();
 }
 
-describe('registro DOM header fields legacy handlers contract', () => {
+describe('registro DOM header fields current handlers contract', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -262,7 +262,7 @@ describe('registro DOM header fields legacy handlers contract', () => {
     document.body.innerHTML = '';
   });
 
-  it('mantem handlers legados de equipamento, contexto e progresso nos campos DOM', async () => {
+  it('mantem handlers atuais de equipamento, contexto e progresso nos campos DOM', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistroView(state);
@@ -305,7 +305,7 @@ describe('registro DOM header fields legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('aciona quick-service-template legado a partir do data-action emitido pelo header DOM', async () => {
+  it('aciona quick-service-template atual a partir do data-action emitido pelo header DOM', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistroView(state);
