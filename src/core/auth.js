@@ -57,7 +57,7 @@ function clearUserScopedSessionStorage() {
 }
 
 function getPasswordResetRedirectUrl() {
-  // Prefer explicit environment redirect for production domains (ex.: Netlify custom domain).
+  // Prefer explicit environment redirect for production URLs (ex.: Cloudflare Pages).
   const envRedirect = import.meta.env?.VITE_AUTH_REDIRECT_URL;
   if (typeof envRedirect === 'string' && envRedirect.trim()) return envRedirect.trim();
 

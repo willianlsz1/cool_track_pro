@@ -582,11 +582,17 @@ describe('legacy v1 removal contracts', () => {
     );
   });
 
-  it('does not keep legacy Android TWA build artifacts in the web app repository', () => {
+  it('does not keep legacy Android TWA or Netlify deploy artifacts in the web app repository', () => {
     const checkedSources = [
+      '.env.example',
       'package.json',
       'vite.config.js',
       'index.html',
+      'public/_headers',
+      'public/sw.js',
+      'src/core/auth.js',
+      'src/core/emailNotification.js',
+      'e2e/specs/app-v2-primary-entrypoint.spec.js',
       ...listSourceFiles('src').filter(
         (file) => file !== 'src/__tests__/legacyV1RemovalContracts.test.js',
       ),
@@ -594,9 +600,8 @@ describe('legacy v1 removal contracts', () => {
     ];
 
     expect(existsSync('twa-build')).toBe(false);
-    expect(
-      findMatches(checkedSources, /twa-build|bubblewrap-cli|cooltrackpro\.netlify\.app/),
-    ).toEqual([]);
+    expect(existsSync('netlify.toml')).toBe(false);
+    expect(findMatches(checkedSources, /twa-build|bubblewrap-cli|netlify/i)).toEqual([]);
   });
 
   it('does not keep legacy public landing images after app-v2 promotion', () => {

@@ -7,20 +7,53 @@ vestigios do v1 quando houver evidencia suficiente e recriar areas sensiveis em
 etapas proprias. O v1 pode ser lido apenas como referencia historica do fluxo do
 tecnico; nao deve ser evoluido nem usado como arquitetura nova.
 
+## 0. Prioridade das instrucoes
+
+Em caso de conflito, siga esta ordem:
+
+1. Instrucao explicita do usuario na tarefa atual.
+2. Este `AGENTS.md`.
+3. Documentos versionados permitidos, especialmente
+   `docs/rewrite/checkpoints-recentes-resumo.md`.
+4. Padroes existentes no codigo.
+5. Preferencias gerais do agente/modelo.
+
+Se ainda houver conflito, pare e reporte a ambiguidade antes de editar.
+
 ## 1. Fluxo padrao
 
 Antes de editar qualquer arquivo:
 
 1. Revise o escopo.
-2. Mapeie os arquivos afetados.
-3. Identifique contratos publicos envolvidos.
-4. Avalie risco de ciclo, mudanca funcional, regressao visual, quebra de teste
+2. Rode `git status --short --branch`.
+3. Mapeie os arquivos afetados.
+4. Identifique contratos publicos envolvidos.
+5. Avalie risco de ciclo, mudanca funcional, regressao visual, quebra de teste
    ou quebra de seguranca.
-5. So altere codigo quando houver pelo menos 99% de certeza.
+6. Identifique validacoes necessarias.
+7. So altere codigo quando houver evidencia suficiente e o impacto estiver claro.
 
-Para tarefas grandes, comece com diagnostico, plano em etapas, riscos, arquivos
-afetados e validacoes esperadas. Depois execute em mudancas pequenas, seguras e
-revisaveis.
+Para tarefas grandes, comece com:
+
+- diagnostico;
+- plano em etapas;
+- riscos;
+- arquivos afetados;
+- contratos publicos envolvidos;
+- validacoes esperadas.
+
+Depois execute em mudancas pequenas, seguras e revisaveis.
+
+Antes de editar, o agente deve conseguir responder objetivamente:
+
+- qual arquivo sera alterado;
+- por que esse arquivo precisa ser alterado;
+- qual contrato publico pode ser afetado;
+- qual comportamento deve permanecer igual;
+- qual teste ou validacao confirma a mudanca;
+- qual risco permanece.
+
+Se algum item estiver incerto, nao implemente ainda; registre a duvida.
 
 ## 2. Markdown e documentacao
 
@@ -30,9 +63,31 @@ Markdown versionado permitido:
 - `docs/rewrite/checkpoints-recentes-resumo.md`;
 - skills do Matt Pocock em `matt-pocock-skills/skills/`.
 
-Nao recrie documentos `.md` separados para CPs, planos, auditorias, inventarios,
-READMEs ou relatorios longos. Resuma novos checkpoints somente em
-`docs/rewrite/checkpoints-recentes-resumo.md`, de forma curta e objetiva.
+Nao crie novos arquivos `.md` para CPs, planos, auditorias, inventarios,
+READMEs, relatorios longos ou resumos de execucao.
+
+Relatorios finais devem ser enviados no chat, nao salvos como arquivo.
+
+Quando for necessario registrar um checkpoint no repositorio, adicione apenas um
+resumo curto e objetivo em:
+
+- `docs/rewrite/checkpoints-recentes-resumo.md`
+
+Esse resumo deve conter no maximo:
+
+- identificador do checkpoint;
+- data;
+- escopo;
+- arquivos principais;
+- validacoes executadas;
+- riscos remanescentes.
+
+Nao duplique no markdown informacoes que ja estao no Git, em commits, diffs ou
+logs de validacao.
+
+Se a tarefa pedir "crie um plano", "registre auditoria" ou "documente o CP",
+primeiro confirme se o destino e `docs/rewrite/checkpoints-recentes-resumo.md`
+ou resposta no chat. Nao crie arquivo novo por iniciativa propria.
 
 ## 3. Arquitetura e fronteiras
 
@@ -55,6 +110,7 @@ Regras:
 - Nao mover arquivos apenas por estetica.
 - Nao misturar redesign, seguranca, storage, Supabase, PDF/share, billing e
   limpeza de imports no mesmo checkpoint.
+- Nao remover codigo supostamente morto sem confirmar usos diretos e indiretos.
 
 ## 4. App-v2
 
@@ -89,6 +145,9 @@ As areas abaixo exigem etapa propria:
 Nao misture essas areas com refatoracao visual, limpeza de imports ou
 reorganizacao ampla.
 
+Se uma tarefa tocar acidentalmente uma area sensivel, pare, registre o risco e
+peca confirmacao antes de continuar.
+
 ## 6. UI/UX do app-v2
 
 - Nao criar CSS global solto.
@@ -98,6 +157,8 @@ reorganizacao ampla.
 - Validar mobile, desktop, rolagem, texto longo e estado vazio quando houver
   mudanca visual.
 - Nao sacrificar legibilidade por densidade visual.
+- Nao alterar comportamento funcional junto com ajuste visual, salvo quando for
+  inevitavel e explicitamente documentado.
 
 ## 7. Contratos publicos
 
@@ -114,7 +175,30 @@ Nao altere sem etapa dedicada e testes:
 - contratos de relatorio/exportacao;
 - permissoes e regras de acesso.
 
-## 8. Validacao
+Ao remover legado, confirme usos com busca textual e entendimento do fluxo. Nao
+confie apenas em ausencia de import direto.
+
+## 8. Git e working tree
+
+Antes de editar:
+
+- rode `git status --short --branch`;
+- identifique mudancas preexistentes;
+- nao reverta mudancas que nao foram feitas pelo agente;
+- nao use `git reset --hard`;
+- nao use force push;
+- nao faca commit/push sem pedido explicito.
+
+Se houver mudancas preexistentes no mesmo arquivo, trabalhe com elas sem
+reverter. Se elas impedirem a tarefa, reporte o bloqueio.
+
+Se `git add`, commit ou push falhar:
+
+- diagnostique permissao, lock, credencial e rede separadamente;
+- nao misture correcao de Git com mudanca de codigo;
+- registre o erro exato e o estado final.
+
+## 9. Validacao
 
 Para mudancas de codigo, rode:
 
@@ -134,10 +218,33 @@ git diff --check
 git diff --cached --check
 ```
 
-Se algum comando falhar, registre o comando, o erro e o estado final. Nao afirme
-que validou algo que nao foi executado.
+Para mudancas visuais, valide tambem:
 
-## 9. Restricoes
+- desktop;
+- mobile;
+- rolagem;
+- texto longo;
+- estado vazio;
+- ausencia de overflow horizontal.
+
+Para remocao de codigo legado, valide tambem:
+
+- `rg` para usos diretos;
+- `rg` para referencias indiretas relevantes;
+- testes focados;
+- build/check completos.
+
+Se algum comando falhar, registre:
+
+- comando executado;
+- erro relevante;
+- causa provavel, se conhecida;
+- estado final;
+- risco remanescente.
+
+Nao afirme que validou algo que nao foi executado.
+
+## 10. Restricoes
 
 Nao faca:
 
@@ -150,22 +257,52 @@ Nao faca:
 - alteracao visual junto com alteracao arquitetural;
 - alteracao de schema junto com refatoracao;
 - remocao de codigo supostamente morto sem confirmar uso indireto;
-- mudancas em seguranca junto com mudancas cosmeticas.
+- mudancas em seguranca junto com mudancas cosmeticas;
+- criacao de arquivos markdown novos para planos/checkpoints/relatorios.
 
 Preservar o favicon.
 
-## 10. Relatorio final
+## 11. Modo de trabalho esperado
 
-Toda mudanca deve terminar com relatorio contendo:
+O agente deve trabalhar em ciclos pequenos:
 
-1. Branch.
-2. HEAD inicial.
-3. HEAD final/commit.
-4. Working tree antes/depois.
-5. Arquivos alterados.
-6. O que foi alterado.
-7. O que nao foi alterado.
-8. Validacao executada.
-9. Testes executados.
-10. Riscos remanescentes.
-11. Proximo passo recomendado.
+1. diagnosticar;
+2. declarar plano curto;
+3. editar o menor conjunto de arquivos;
+4. validar;
+5. reportar resultado e risco.
+
+Prefira remover ambiguidade antes de aumentar escopo.
+
+Nao transforme checkpoints pequenos em refatoracoes amplas.
+
+Nao avance para area sensivel apenas porque encontrou codigo relacionado.
+
+## 12. Estados finais permitidos
+
+Ao final, classifique o trabalho como:
+
+- `concluido`: escopo implementado e validado;
+- `parcial`: parte concluida, com pendencias explicitas;
+- `bloqueado`: falta permissao, contexto, credencial, ambiente ou decisao;
+- `somente diagnostico`: nenhuma edicao feita.
+
+Nunca use `concluido` se validacoes obrigatorias nao foram executadas.
+
+## 13. Relatorio final
+
+Toda mudanca deve terminar com relatorio no chat contendo:
+
+1. Estado final: `concluido`, `parcial`, `bloqueado` ou `somente diagnostico`.
+2. Branch.
+3. HEAD inicial.
+4. HEAD final/commit.
+5. Working tree antes/depois.
+6. Arquivos alterados.
+7. O que foi alterado.
+8. O que nao foi alterado.
+9. Validacao executada.
+10. Testes executados.
+11. Warnings conhecidos.
+12. Riscos remanescentes.
+13. Proximo passo recomendado.

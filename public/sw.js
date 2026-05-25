@@ -19,7 +19,7 @@ const PRECACHE_ASSETS = [OFFLINE_PAGE];
 const NETWORK_ONLY_ORIGINS = ['supabase.co', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 // Detecta respostas de SPA fallback servindo HTML para URLs de asset/script —
-// sintoma típico de hash inválido + rewrite catch-all do Cloudflare/Netlify.
+// sintoma típico de hash inválido + rewrite catch-all do Cloudflare Pages.
 // Cachear isso seria envenenar permanentemente o cache (até bumpar CACHE_NAME).
 function isHtmlMasqueradingAsAsset(response, request) {
   if (!response) return false;
