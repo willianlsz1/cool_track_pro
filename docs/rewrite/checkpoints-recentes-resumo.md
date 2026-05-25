@@ -368,6 +368,8 @@ decisao, do escopo e do risco remanescente.
   progresso, tipo custom, avisos e toggles sem alterar save/storage/checklist.
 - Extraidos controllers de contexto, inicializacao, clear/edit e UI de save do
   registro, reduzindo `registro.js` abaixo de 1000 linhas sem alterar storage.
+- Neutralizada linguagem residual de legado em descricoes de testes ativos de
+  persistencia de Setores, sem alterar asserts, storage ou runtime.
 
 ## Validacao padrao
 
