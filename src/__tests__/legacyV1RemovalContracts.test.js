@@ -935,6 +935,15 @@ describe('legacy v1 removal contracts', () => {
     );
   });
 
+  it('uses neutral names for previous local storage compatibility helpers', () => {
+    const joined = [
+      readSource('src/core/userStorage.js'),
+      readSource('src/ui/views/registro.js'),
+    ].join('\n');
+
+    expect(joined).not.toMatch(/\bmigrateLegacyKey\b|\blegacyKey\b|\bLEGACY_TIPO_OUTRO_PREFIX\b/);
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

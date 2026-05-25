@@ -5,7 +5,7 @@
 
 import { Utils } from '../../core/utils.js';
 import { getState, findEquip, setState, lastRegForEquip } from '../../core/state.js';
-import { migrateLegacyKey, userStorage } from '../../core/userStorage.js';
+import { migratePreviousGlobalKey, userStorage } from '../../core/userStorage.js';
 import { Toast } from '../../core/toast.js';
 import { goTo, setRouteGuard, clearRouteGuard } from '../../core/router.js';
 import { CustomConfirm } from '../../core/modal.js';
@@ -184,7 +184,7 @@ let _resolvedRegistroContext = null;
 
 function _loadLastClient() {
   try {
-    migrateLegacyKey(LAST_CLIENT_KEY);
+    migratePreviousGlobalKey(LAST_CLIENT_KEY);
     return JSON.parse(userStorage.get(LAST_CLIENT_KEY) || 'null');
   } catch (_err) {
     return null;
@@ -585,7 +585,7 @@ async function _confirmLeaveEditingGuard(_nextRoute, _nextParams) {
 // edição, o loadRegistroForEdit detecta o prefixo e repopula o select + o input
 // custom automaticamente.
 const TIPO_OUTRO_PREFIX = 'Outro · ';
-const LEGACY_TIPO_OUTRO_PREFIX = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
+const PREVIOUS_TIPO_OUTRO_PREFIX = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
 const TIPO_CUSTOM_MAX = 40;
 
 // -- Barra de progresso do formulário ------------------
@@ -1710,8 +1710,8 @@ function fillRegistroEditTypeFields(r) {
   // + input custom. Caso contrário, repopulamos normalmente e deixamos o wrap
   // escondido. O _syncTipoCustomVisibility no initRegistro finaliza o estado.
   const outroPrefix =
-    typeof r.tipo === 'string' && r.tipo.startsWith(LEGACY_TIPO_OUTRO_PREFIX)
-      ? LEGACY_TIPO_OUTRO_PREFIX
+    typeof r.tipo === 'string' && r.tipo.startsWith(PREVIOUS_TIPO_OUTRO_PREFIX)
+      ? PREVIOUS_TIPO_OUTRO_PREFIX
       : TIPO_OUTRO_PREFIX;
   if (typeof r.tipo === 'string' && r.tipo.startsWith(outroPrefix)) {
     Utils.setVal('r-tipo', 'Outro');

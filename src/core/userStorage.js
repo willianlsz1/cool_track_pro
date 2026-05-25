@@ -84,20 +84,20 @@ export const userStorage = {
 };
 
 /**
- * Helper de migração one-shot: se existir uma chave legada global em
+ * Helper de migração one-shot: se existir uma chave global anterior em
  * `localStorage`, copia pra userStorage escopada e remove a original.
  * Seguro de chamar várias vezes (idempotente).
  */
-export function migrateLegacyKey(legacyKey, newKey = legacyKey) {
+export function migratePreviousGlobalKey(previousKey, scopedKeyName = previousKey) {
   try {
-    const existing = localStorage.getItem(legacyKey);
+    const existing = localStorage.getItem(previousKey);
     if (existing === null) return;
     // Só migra se ainda não foi migrada — evita sobrescrever um valor
     // novo que o usuário já setou escopado.
-    if (userStorage.get(newKey) === null) {
-      userStorage.set(newKey, existing);
+    if (userStorage.get(scopedKeyName) === null) {
+      userStorage.set(scopedKeyName, existing);
     }
-    localStorage.removeItem(legacyKey);
+    localStorage.removeItem(previousKey);
   } catch {
     /* no-op */
   }

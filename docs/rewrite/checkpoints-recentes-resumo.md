@@ -216,6 +216,9 @@ decisao, do escopo e do risco remanescente.
   perfil, fallback localStorage ou escopo por usuario.
 - Neutralizados nomes internos do fallback de compatibilidade de schema de
   equipamentos sem alterar payload, chaves persistidas ou ordem de sincronizacao.
+- Neutralizados nomes internos de migracao local e compatibilidade do tipo
+  `Outro` em registros sem alterar valores persistidos ou leitura de dados
+  anteriores.
 
 ## Nomenclatura React legada
 
