@@ -107,6 +107,8 @@ decisao, do escopo e do risco remanescente.
   externa e sem safelist antiga de pricing/assinatura/quota.
 - Reforcado contrato agregado para manter runtime app-v2 fora de auth/storage
   legados, permitindo Supabase direto somente nos entrypoints opt-in.
+- Ampliado contrato agregado para impedir imports do runtime app-v2 para
+  `src/ui`, `src/features`, `src/react`, PDF/PMOC legados e orcamentos v1.
 - Removidos artefatos JSON antigos de metricas QA dos CPs visuais ja
   consolidados; o historico operacional fica neste resumo.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
