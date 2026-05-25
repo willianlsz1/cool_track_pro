@@ -356,6 +356,8 @@ decisao, do escopo e do risco remanescente.
   corrigindo mojibake sem alterar SQL executavel.
 - Neutralizada linguagem comercial residual em comentarios de gates historicos
   de Supabase/IA, preservando contratos e regras executaveis.
+- Dividido teste de contratos de remocao v1 acima de 1000 linhas, sem alterar
+  runtime, asserts ou escopo dos gates.
 
 ## Validacao padrao
 
