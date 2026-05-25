@@ -1,0 +1,24 @@
+import { execFileSync } from 'node:child_process';
+import { describe, expect, it } from 'vitest';
+
+function listMarkdownFiles(dir = '.') {
+  const output = execFileSync('git', ['ls-files', '-z', '--', `${dir}/**/*.md`, '*.md'], {
+    encoding: 'utf8',
+  });
+
+  return output.split('\0').filter(Boolean);
+}
+
+function isAllowedMarkdown(path) {
+  return (
+    path === 'AGENTS.md' ||
+    path === 'docs/rewrite/checkpoints-recentes-resumo.md' ||
+    path.startsWith('matt-pocock-skills/skills/')
+  );
+}
+
+describe('versioned markdown policy', () => {
+  it('keeps checkpoint markdown consolidated and only preserves Matt Pocock skills', () => {
+    expect(listMarkdownFiles().filter((path) => !isAllowedMarkdown(path))).toEqual([]);
+  });
+});

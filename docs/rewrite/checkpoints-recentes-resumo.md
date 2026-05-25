@@ -142,6 +142,8 @@ decisao, do escopo e do risco remanescente.
   salvo usando separador corrompido.
 - Validacoes focadas devem cobrir lifecycle de Registro e o scan de vestigios
   legado.
+- Adicionada guarda de teste para manter Markdown versionado restrito a
+  `AGENTS.md`, este resumo e skills do Matt Pocock.
 
 ## PDF/share legado
 
