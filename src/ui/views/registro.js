@@ -20,12 +20,10 @@ import { PostSaveRegistroToast } from '../components/postSaveRegistroToast.js';
 import { RegistroProximaPreventivaPrompt } from '../components/registroProximaPreventivaPrompt.js';
 import { bindSmartContactMaskInput } from '../../core/phoneMask.js';
 import { resolveRegistroContext } from '../composables/registroContext.js';
-import { buildRegistroViewModel } from '../viewModels/registroViewModel.js';
 import {
   mountRegistroChecklistDom,
   unmountRegistroChecklistDom,
 } from './registro/checklistRenderer.js';
-import { renderRegistroHeader, unmountRegistroHeaderDom } from './registro/headerRenderer.js';
 import {
   buildRegistroPayloadDraft,
   buildRegistroPersistPayload,
@@ -69,30 +67,30 @@ import {
   summarizeChecklist,
 } from '../../domain/pmoc/checklistTemplates.js';
 import {
-  PREVIOUS_TIPO_OUTRO_PREFIX,
+  configureRegistroFormUiController,
   TIPO_CUSTOM_MAX,
   TIPO_OUTRO_PREFIX,
-  bindEquipChangeWarning,
-  bindImpactDetailsToggle,
-  bindMateriaisDetailsToggle,
-  bindProgressFieldHandlers,
-  configureRegistroFormUiController,
-  ensureProgressBar,
-  hasImpactValues,
-  hasMateriaisValues,
-  renderHeroSub,
-  syncImpactDetailsState,
-  syncMateriaisDetailsState,
   syncTipoCustomVisibility,
   updateImpactCopy,
   updateProgressBar,
 } from './registro/formUiController.js';
-
-// O meter de progresso vive estático dentro do hero do template.
-// Apontamos pro hero + o contador numérico ao invés de injetar markup na hora.
-function asArray(value) {
-  return Array.isArray(value) ? value : [];
-}
+import {
+  buildRegistroReadOnlyViewModel,
+  configureRegistroContextHeaderController,
+  mountRegistroHeader,
+  refreshRegistroContext,
+} from './registro/contextHeaderController.js';
+import { configureRegistroInitController, initRegistroFlow } from './registro/initController.js';
+import {
+  clearRegistroFlow,
+  configureRegistroEditClearController,
+  loadRegistroForEditFlow,
+} from './registro/editClearController.js';
+import {
+  configureRegistroSaveUiController,
+  setRegistroSaveButtonsLoading,
+  showProximaPreventivaPrompt,
+} from './registro/saveUiController.js';
 
 const HERO_ID = 'registro-hero';
 const HERO_SUB_ID = 'registro-hero-sub';
@@ -217,6 +215,65 @@ configureRegistroFormUiController({
   defaultRegistroPrioridade: DEFAULT_REGISTRO_PRIORIDADE,
 });
 
+configureRegistroContextHeaderController({
+  Utils,
+  getState,
+  resolveRegistroContext,
+  updateImpactCopy,
+  getCurrentChecklist,
+  editingKey: EDITING_KEY,
+  heroId: HERO_ID,
+  registroHeaderRootId: REGISTRO_HEADER_ROOT_ID,
+  getCurrentRouteParams: () => _currentRouteParams,
+  setResolvedRegistroContext: (context) => {
+    _resolvedRegistroContext = context;
+  },
+});
+
+configureRegistroInitController({
+  Utils,
+  Profile,
+  withSkeleton,
+  bindSmartContactMaskInput,
+  resolveRegistroInitEquipId,
+  refreshRegistroContext,
+  mountRegistroHeader,
+  buildRegistroReadOnlyViewModel,
+  renderChecklist,
+  prefillObsFromTipo: _prefillObsFromTipo,
+  refreshChecklistPriBadge: _refreshChecklistPriBadge,
+  updateChecklistSummary: _updateChecklistSummary,
+  resetEditingState,
+  setCurrentRouteParams: (params) => {
+    _currentRouteParams = params;
+  },
+});
+
+configureRegistroEditClearController({
+  Utils,
+  Profile,
+  getState,
+  getClearRegistroFieldIds,
+  resetEditingState,
+  resetChecklist,
+  loadChecklistForEdit,
+  renderChecklist,
+  refreshRegistroContext,
+  resolveRegistroEditTarget,
+  setRouteGuard,
+  confirmLeaveEditingGuard: _confirmLeaveEditingGuard,
+  loadLastClient: _loadLastClient,
+  editingKey: EDITING_KEY,
+  heroPillTextId: HERO_PILL_TEXT_ID,
+  defaultRegistroStatus: DEFAULT_REGISTRO_STATUS,
+  defaultRegistroPrioridade: DEFAULT_REGISTRO_PRIORIDADE,
+});
+
+configureRegistroSaveUiController({
+  setState,
+  RegistroProximaPreventivaPrompt,
+});
+
 function _loadLastClient() {
   try {
     migratePreviousGlobalKey(LAST_CLIENT_KEY);
@@ -235,254 +292,6 @@ function _saveLastClient(cliente) {
   } catch (_err) {
     // localStorage indisponível - ignora
   }
-}
-
-function _setRegistroProximaPreventiva(registroId, proxima) {
-  if (!registroId) return;
-  // setState salva localmente imediatamente e agenda sync Supabase via Storage.
-  setState((prev) => ({
-    ...prev,
-    registros: prev.registros.map((registro) =>
-      registro.id === registroId ? { ...registro, proxima } : registro,
-    ),
-  }));
-}
-
-async function _showProximaPreventivaPrompt(registroId) {
-  const result = await RegistroProximaPreventivaPrompt.open();
-  if (!result || result.canceled === true) {
-    // Dismiss (X/backdrop/Escape) é indecisão: preserva a data `proxima`
-    // existente em vez de gravar uma escolha implícita.
-    return result;
-  }
-
-  if (result.semRetorno === true) {
-    // "Sem retorno" é uma decisão explícita do técnico: limpamos `proxima`
-    // conscientemente para diferenciar de apenas fechar/ignorar o prompt.
-    _setRegistroProximaPreventiva(registroId, null);
-    return result;
-  }
-
-  if (result.proxima) {
-    _setRegistroProximaPreventiva(registroId, result.proxima);
-  }
-  return result;
-}
-
-function _setRegistroSaveButtonsLoading(isLoading) {
-  const actionAttr = 'data-action';
-  const buttons = document.querySelectorAll(`[${actionAttr}="save-registro"]`);
-  buttons.forEach((button) => {
-    if (!(button instanceof HTMLButtonElement)) return;
-    button.disabled = isLoading;
-    button.classList.toggle('is-loading', isLoading);
-    if (isLoading) {
-      button.setAttribute('aria-busy', 'true');
-    } else {
-      button.removeAttribute('aria-busy');
-    }
-  });
-}
-
-function _applyClienteDetailsContext(context) {
-  const details = document.getElementById('registro-cliente-details');
-  if (!details) return;
-  const subtitle = details.querySelector('.registro-details__subtitle');
-  const body = details.querySelector('.registro-details__body');
-  const add = details.querySelector('.registro-details__add');
-  const summary = document.getElementById('registro-cliente-context-summary');
-
-  if (!subtitle || !body || !summary) return;
-
-  if (context?.cliente) {
-    details.hidden = false;
-    subtitle.textContent = 'vinculado automaticamente ao contexto';
-    body.hidden = true;
-    add?.setAttribute('hidden', 'hidden');
-    details.removeAttribute('open');
-    summary.hidden = false;
-    summary.innerHTML = `<strong>${Utils.escapeHtml(context.cliente.nome || 'Cliente vinculado')}</strong>${
-      context.cliente.documento ? ` · ${Utils.escapeHtml(context.cliente.documento)}` : ''
-    }`;
-    return;
-  }
-
-  details.hidden = true;
-  subtitle.textContent = 'definido no momento do envio';
-  body.hidden = true;
-  add?.setAttribute('hidden', 'hidden');
-  details.removeAttribute('open');
-  summary.hidden = true;
-  summary.textContent = '';
-}
-
-function _updateRegistroShareActions(context) {
-  const otherButton = null;
-  // Layout V3: o botão "Enviar pra outro destinatário" agora vive dentro de
-  // uma row no .action-tray. Ocultar o botão sozinho deixaria a row vazia
-  // (afetando a borda do divisor), por isso togglamos o hidden no row pai.
-  const otherRow = document.getElementById('r-action-other-row');
-  const clienteNome = context?.cliente?.nome?.trim();
-  if (otherRow) {
-    otherRow.hidden = !clienteNome;
-  }
-  if (otherButton) {
-    otherButton.setAttribute('aria-hidden', clienteNome ? 'false' : 'true');
-  }
-}
-
-function _applyResolvedContext(context) {
-  const contextCard = document.getElementById('registro-context-card');
-  const contextHint = document.getElementById('registro-context-hint');
-  const clienteText = document.getElementById('registro-context-cliente');
-  const setorText = document.getElementById('registro-context-setor');
-  const equipText = document.getElementById('registro-context-equip');
-
-  if (context?.cliente) {
-    Utils.setVal('r-cliente-nome', context.cliente.nome || '');
-    Utils.setVal('r-cliente-documento', context.cliente.documento || '');
-    Utils.setVal('r-local-atendimento', context.cliente.localAtendimento || '');
-    Utils.setVal('r-cliente-contato', context.cliente.contato || '');
-  }
-
-  const hasContextCard = Boolean(context?.hasCompanyContext && contextCard);
-  if (hasContextCard) {
-    contextCard.hidden = false;
-    if (clienteText) clienteText.textContent = context.cliente?.nome || 'Não informado';
-    if (setorText) setorText.textContent = context.setor?.nome || 'Não informado';
-    if (equipText) {
-      const eq = context.equipamento;
-      const suffix = eq?.tag ? ` · TAG ${eq.tag}` : '';
-      equipText.textContent = eq?.nome ? `${eq.nome}${suffix}` : 'Não informado';
-    }
-  } else if (contextCard) {
-    contextCard.hidden = true;
-  }
-
-  if (contextHint) {
-    if (context?.missingEquipFromParams) {
-      contextHint.hidden = false;
-      contextHint.textContent =
-        'Equipamento não encontrado. Confira o cadastro ou escolha outro equipamento.';
-    } else if (context?.shouldWarnEquipmentOnly) {
-      contextHint.hidden = false;
-      contextHint.textContent = 'Este serviço ficará apenas no histórico do equipamento.';
-    } else {
-      contextHint.hidden = true;
-      contextHint.textContent = '';
-    }
-  }
-
-  _applyClienteDetailsContext(context);
-  _updateRegistroShareActions(context);
-  updateImpactCopy(context);
-}
-
-function _refreshRegistroContext() {
-  const stateNow = getState();
-  const equipId = Utils.getVal('r-equip') || _currentRouteParams?.equipId;
-  const context = resolveRegistroContext(
-    {
-      ..._currentRouteParams,
-      equipId: equipId || null,
-    },
-    stateNow,
-  );
-  _resolvedRegistroContext = context;
-  _applyResolvedContext(context);
-}
-
-function _readRegistroFormModelSnapshot() {
-  return {
-    equipId: Utils.getVal('r-equip'),
-    data: Utils.getVal('r-data'),
-    tipo: Utils.getVal('r-tipo'),
-    tipoCustom: Utils.getVal('r-tipo-custom'),
-    obs: Utils.getVal('r-obs'),
-    tecnico: Utils.getVal('r-tecnico'),
-    status: Utils.getVal('r-status'),
-    prioridade: Utils.getVal('r-prioridade'),
-    pecas: Utils.getVal('r-pecas'),
-    proxima: Utils.getVal('r-proxima'),
-    custoPecas: Utils.getVal('r-custo-pecas'),
-    custoMaoObra: Utils.getVal('r-custo-mao-obra'),
-    clienteNome: Utils.getVal('r-cliente-nome'),
-    clienteDocumento: Utils.getVal('r-cliente-documento'),
-    localAtendimento: Utils.getVal('r-local-atendimento'),
-    clienteContato: Utils.getVal('r-cliente-contato'),
-  };
-}
-
-function _buildRegistroReadOnlyViewModel(params = {}) {
-  return buildRegistroViewModel({
-    state: getState(),
-    params,
-    form: _readRegistroFormModelSnapshot(),
-    editingId: sessionStorage.getItem(EDITING_KEY),
-    checklist: getCurrentChecklist(),
-  });
-}
-
-function ensureRegistroHeaderRoot() {
-  let root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
-  if (root) {
-    root.classList.add('registro-main-column', 'registro-main-column--header');
-    root.style.display = '';
-    return root;
-  }
-
-  const hero = document.getElementById(HERO_ID);
-  if (!hero?.parentNode) return null;
-
-  root = document.createElement('div');
-  root.id = REGISTRO_HEADER_ROOT_ID;
-  root.className = 'registro-main-column registro-main-column--header';
-  hero.parentNode.insertBefore(root, hero);
-
-  const lastNode = document.getElementById('registro-context-hint') || hero;
-  let node = hero;
-  while (node) {
-    const next = node.nextSibling;
-    root.appendChild(node);
-    if (node === lastNode) break;
-    node = next;
-  }
-
-  return root;
-}
-
-function buildRegistroHeaderProps(params = {}) {
-  const state = getState() || {};
-  const viewModel = _buildRegistroReadOnlyViewModel(params);
-  const equipmentOptions = asArray(state.equipamentos).map((equipamento) => ({
-    id: String(equipamento?.id || ''),
-    label: `${equipamento?.nome || '-'} - ${equipamento?.local || '-'}`,
-  }));
-  const technicianOptions = asArray(state.tecnicos);
-
-  return {
-    viewModel,
-    equipmentOptions,
-    technicianOptions,
-  };
-}
-
-function mountRegistroHeader(params = {}) {
-  if (typeof document === 'undefined') return null;
-
-  const root = ensureRegistroHeaderRoot();
-  if (!root) return null;
-
-  const props = buildRegistroHeaderProps(params);
-
-  return renderRegistroHeader(root, props);
-}
-
-export function unmountRegistroHeader() {
-  if (typeof document === 'undefined') return null;
-
-  const root = document.getElementById(REGISTRO_HEADER_ROOT_ID);
-  return unmountRegistroHeaderDom(root);
 }
 
 function resetEditingState() {
@@ -535,7 +344,7 @@ function clearRegistroChecklistState() {
 }
 
 function buildRegistroChecklistDomProps(template) {
-  const viewModel = _buildRegistroReadOnlyViewModel(_currentRouteParams);
+  const viewModel = buildRegistroReadOnlyViewModel(_currentRouteParams);
 
   return {
     checklist: buildRegistroChecklistViewModel(template, getRegistroChecklistState()),
@@ -845,202 +654,12 @@ export function loadChecklistForEdit(checklist) {
   restoreRegistroChecklistForEdit(checklist);
 }
 
-function _bindRegistroHeaderFieldHandlers() {
-  bindProgressFieldHandlers();
-
-  bindEquipChangeWarning();
-
-  const equipSelForChecklist = Utils.getEl('r-equip');
-  if (equipSelForChecklist && equipSelForChecklist.dataset.registroChecklistBound !== '1') {
-    equipSelForChecklist.dataset.registroChecklistBound = '1';
-    equipSelForChecklist.addEventListener('change', () => {
-      renderChecklist();
-      _refreshRegistroContext();
-    });
-  }
-
-  const tipoSel = Utils.getEl('r-tipo');
-  if (tipoSel && tipoSel.dataset.registroTipoBound !== '1') {
-    tipoSel.dataset.registroTipoBound = '1';
-    tipoSel.addEventListener('change', () => {
-      syncTipoCustomVisibility({ focusOnShow: true });
-      _prefillObsFromTipo(tipoSel.value);
-      updateProgressBar();
-      _refreshChecklistPriBadge();
-    });
-  }
-
-  const tipoCustomInput = Utils.getEl('r-tipo-custom');
-  if (tipoCustomInput && tipoCustomInput.dataset.registroTipoCustomBound !== '1') {
-    tipoCustomInput.dataset.registroTipoCustomBound = '1';
-    tipoCustomInput.addEventListener('input', () => {
-      updateProgressBar();
-      _refreshChecklistPriBadge();
-      _updateChecklistSummary();
-    });
-  }
-}
-
 // =======================================================
 // API PÚBLICA
 // =======================================================
 
-function resolveRegistroInitRoot() {
-  return Utils.getEl('view-registro');
-}
-
-function syncRegistroInitRouteContext(params, effectiveEquipId) {
-  if (effectiveEquipId) Utils.setVal('r-equip', effectiveEquipId);
-  _currentRouteParams = { ...params };
-  _refreshRegistroContext();
-}
-
-function mountRegistroInitHeader(params) {
-  return Promise.resolve(mountRegistroHeader(params));
-}
-
-function bindRegistroInitFormOnce(formView) {
-  if (formView.dataset.bound) return;
-
-  // Smart mask no campo Telefone/contato do cliente - formata (XX) XXXXX-XXXX
-  // se o usuário digitar dígitos. Se digitar email/texto livre, deixa em paz.
-  bindSmartContactMaskInput(Utils.getEl('r-cliente-contato'));
-
-  formView.dataset.bound = '1';
-}
-
-function syncRegistroInitDetailsState(formView) {
-  ensureProgressBar(formView);
-  _bindRegistroHeaderFieldHandlers();
-  bindRegistroInitFormOnce(formView);
-
-  // Garante o estado correto na entrada da view (inclusive vindo de edit).
-  syncTipoCustomVisibility();
-  bindMateriaisDetailsToggle();
-  syncMateriaisDetailsState(hasMateriaisValues());
-  bindImpactDetailsToggle();
-  syncImpactDetailsState(hasImpactValues());
-  updateProgressBar();
-}
-
-function renderRegistroInitHero() {
-  renderHeroSub();
-}
-
-function applyRegistroInitDateDefault() {
-  // Data padrão "Hoje agora" - UX V2 audit fix
-  if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());
-}
-
-function bindRegistroInitDatetimeUX() {
-  const wrap = document.getElementById('registro-datetime-wrap');
-  if (!wrap || wrap.dataset.bound === '1') return;
-  wrap.dataset.bound = '1';
-
-  const input = document.getElementById('r-data');
-  const nowBtn = document.getElementById('r-data-now-btn');
-  const editBtn = document.getElementById('r-data-edit-btn');
-  const nowLabel = document.getElementById('r-data-now-label');
-
-  function refreshLabel() {
-    if (!input || !nowLabel) return;
-    const val = input.value;
-    if (!val) {
-      nowLabel.textContent = 'Hoje agora';
-      nowBtn?.setAttribute('aria-pressed', 'true');
-      return;
-    }
-    // Se a data é dentro de 1min do agora, é "Hoje agora"
-    const ts = new Date(val).getTime();
-    if (Math.abs(Date.now() - ts) < 60_000) {
-      nowLabel.textContent = 'Hoje agora';
-      nowBtn?.setAttribute('aria-pressed', 'true');
-    } else {
-      // Mostra "DD/MM HH:MM"
-      const d = new Date(val);
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const hh = String(d.getHours()).padStart(2, '0');
-      const min = String(d.getMinutes()).padStart(2, '0');
-      nowLabel.textContent = `${dd}/${mm} ${hh}:${min}`;
-      nowBtn?.setAttribute('aria-pressed', 'false');
-    }
-  }
-
-  nowBtn?.addEventListener('click', () => {
-    // Reseta pra agora
-    Utils.setVal('r-data', Utils.nowDatetime());
-    refreshLabel();
-    updateProgressBar();
-  });
-
-  editBtn?.addEventListener('click', () => {
-    // Abre o picker nativo. Browsers modernos suportam showPicker(); fallback
-    // pra focus que muitos browsers tambem abrem.
-    try {
-      if (typeof input.showPicker === 'function') {
-        input.showPicker();
-      } else {
-        input.focus();
-      }
-    } catch (_e) {
-      input.focus();
-    }
-  });
-
-  input?.addEventListener('change', () => {
-    refreshLabel();
-    updateProgressBar();
-  });
-
-  refreshLabel();
-}
-
-function applyRegistroInitTechnicianDefault() {
-  // H1: técnico padrão
-  const rTecnico = Utils.getEl('r-tecnico');
-  if (rTecnico && !rTecnico.value) {
-    const def = Profile.getDefaultTecnico();
-    if (def) rTecnico.value = def;
-  }
-}
-
-function resetRegistroInitEditingIfCreate(params) {
-  if (!params.editRegistroId) resetEditingState();
-}
-
-function applyRegistroInitPriorityDefault() {
-  const rPrioridade = Utils.getEl('r-prioridade');
-  if (rPrioridade && !rPrioridade.value) rPrioridade.value = 'media';
-}
-
-function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }) {
-  syncRegistroInitDetailsState(formView);
-  renderRegistroInitHero();
-  applyRegistroInitDateDefault();
-  bindRegistroInitDatetimeUX();
-  applyRegistroInitTechnicianDefault();
-
-  // Pré-preenchimento vindo de fluxo contextual (equipamento/alerta).
-  resetRegistroInitEditingIfCreate(params);
-  syncRegistroInitRouteContext(params, effectiveEquipId);
-  _buildRegistroReadOnlyViewModel(params);
-
-  applyRegistroInitPriorityDefault();
-}
-
 export function initRegistro(params = {}) {
-  const formView = resolveRegistroInitRoot();
-  if (!formView) return;
-  const effectiveEquipId = resolveRegistroInitEquipId(params);
-
-  syncRegistroInitRouteContext(params, effectiveEquipId);
-
-  withSkeleton(formView, { enabled: true, variant: 'generic', count: 3 }, () =>
-    mountRegistroInitHeader(params).then(() =>
-      runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId }),
-    ),
-  );
+  return initRegistroFlow(params);
 }
 
 function getRegistroFormElements() {
@@ -1213,7 +832,7 @@ async function runRegistroCreatePostSaveEffects({ registroId, persistedPayload, 
 
   // Feedback pos-save simples; saidas externas serao reconstruidas em etapa propria.
   runRegistroPreventivaPromptAfterSave(registroId, {
-    showProximaPreventivaPrompt: _showProximaPreventivaPrompt,
+    showProximaPreventivaPrompt,
   });
   notifyRegistroCreateSaved({ equipId, registroId, saveContext }, { PostSaveRegistroToast, Toast });
 
@@ -1283,7 +902,7 @@ export async function saveRegistro() {
   if (_isSavingRegistro) return false;
 
   _isSavingRegistro = true;
-  _setRegistroSaveButtonsLoading(true);
+  setRegistroSaveButtonsLoading(true);
 
   try {
     const formElements = getRegistroFormElements();
@@ -1343,216 +962,16 @@ export async function saveRegistro() {
     });
   } finally {
     _isSavingRegistro = false;
-    _setRegistroSaveButtonsLoading(false);
+    setRegistroSaveButtonsLoading(false);
   }
-}
-
-function resetRegistroBaseFieldsAfterClear(preserveEquip = false) {
-  Utils.clearVals(...getClearRegistroFieldIds(preserveEquip));
-}
-
-function resetRegistroDefaultFieldsAfterClear() {
-  Utils.setVal('r-status', DEFAULT_REGISTRO_STATUS);
-  Utils.setVal('r-prioridade', DEFAULT_REGISTRO_PRIORIDADE);
-  Utils.setVal('r-data', Utils.nowDatetime());
-}
-
-function resetRegistroMediaAfterClear() {
-  return null;
-}
-
-function resetRegistroDetailsAfterClear() {
-  syncTipoCustomVisibility();
-  syncMateriaisDetailsState(false);
-  syncImpactDetailsState(false);
-}
-
-function resetRegistroProgressAfterClear() {
-  updateProgressBar();
-}
-
-function resetRegistroQuickTemplateChipsAfterClear() {
-  document
-    .querySelectorAll('.registro-quick [data-action="quick-service-template"]')
-    .forEach((chip) => {
-      chip.classList.remove('is-active');
-      chip.setAttribute('aria-pressed', 'false');
-    });
-}
-
-function resetRegistroChecklistAfterClearClick() {
-  resetChecklist();
-}
-
-function resetRegistroTechnicianDefaultAfterClear() {
-  const rTecnico = Utils.getEl('r-tecnico');
-  if (rTecnico) rTecnico.value = Profile.getDefaultTecnico();
-}
-
-function restoreRegistroLastClientAfterClear() {
-  const lastClient = _loadLastClient();
-  if (lastClient) {
-    if (lastClient.clienteNome) Utils.setVal('r-cliente-nome', lastClient.clienteNome);
-    if (lastClient.clienteDocumento)
-      Utils.setVal('r-cliente-documento', lastClient.clienteDocumento);
-    if (lastClient.localAtendimento)
-      Utils.setVal('r-local-atendimento', lastClient.localAtendimento);
-    if (lastClient.clienteContato) Utils.setVal('r-cliente-contato', lastClient.clienteContato);
-  }
-}
-
-function resetRegistroSaveButtonAfterClear() {
-  const saveBtn = document.querySelector('[data-action="save-registro"]');
-  if (saveBtn) {
-    const saveLabel = saveBtn.querySelector('span');
-    if (saveLabel) saveLabel.textContent = 'Salvar serviço';
-    else saveBtn.textContent = 'Salvar serviço';
-    saveBtn.classList.remove('btn--editing');
-  }
-}
-
-function resetRegistroHeroAfterClear() {
-  const heroPill = document.getElementById(HERO_PILL_TEXT_ID);
-  if (heroPill) heroPill.textContent = 'Novo registro';
-  const title = document.querySelector('#view-registro .section-title');
-  if (title) title.textContent = 'O que foi feito hoje?';
-}
-
-function finalizeClearRegistroAfterReset() {
-  _refreshRegistroContext();
 }
 
 export function clearRegistro(preserveEquip = false) {
-  resetRegistroBaseFieldsAfterClear(preserveEquip);
-  resetEditingState();
-  resetRegistroDefaultFieldsAfterClear();
-  resetRegistroMediaAfterClear();
-
-  // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
-  resetRegistroDetailsAfterClear();
-
-  // Reseta o meter do hero pra empty sem remover o markup (ele é estático no
-  // template agora, diferente da v5 que injetava dinamicamente).
-  resetRegistroProgressAfterClear();
-
-  // Reset do estado ativo dos chips de ação rápida - "Recomeçar" deve zerar
-  // a seleção visual pra não sugerir um template que já não se aplica ao
-  // novo registro em branco.
-  resetRegistroQuickTemplateChipsAfterClear();
-
-  // PMOC Fase 3: reset do state do checklist (impede vazar marcações
-  // de um registro pra outro quando o user clica "Recomeçar").
-  resetRegistroChecklistAfterClearClick();
-  resetRegistroTechnicianDefaultAfterClear();
-
-  // Auto-prefill do último cliente - técnico que atende o mesmo cliente em
-  // sequência (ex.: manutenção de várias unidades no mesmo prédio) não precisa
-  // redigitar. O usuário pode apagar os campos se for para outro cliente.
-  restoreRegistroLastClientAfterClear();
-  resetRegistroSaveButtonAfterClear();
-
-  // Hero do redesign v6: pill texto volta pra "Novo registro" quando saímos
-  // do modo edição. Mantém também o fallback para .section-title.
-  resetRegistroHeroAfterClear();
-  finalizeClearRegistroAfterReset();
-}
-
-function enterRegistroEditMode(id) {
-  sessionStorage.setItem(EDITING_KEY, id);
-  const formViewEdit = Utils.getEl('view-registro');
-  if (formViewEdit) formViewEdit.dataset.editMode = '1';
-
-  // Instala guard que bloqueia navegacao pra outra aba sem confirmar
-  // descarte. Limpado em resetEditingState (save / clear / descarte aprovado).
-  setRouteGuard(_confirmLeaveEditingGuard);
-}
-
-function fillRegistroEditBaseFields(r) {
-  Utils.setVal('r-equip', r.equipId);
-  Utils.setVal('r-data', r.data);
-}
-
-function fillRegistroEditTypeFields(r) {
-  // Se o tipo foi salvo com prefixo "Outro · ", separamos de volta em select=Outro
-  // + input custom. Caso contrário, repopulamos normalmente e deixamos o wrap
-  // escondido. O syncTipoCustomVisibility no initRegistro finaliza o estado.
-  const outroPrefix =
-    typeof r.tipo === 'string' && r.tipo.startsWith(PREVIOUS_TIPO_OUTRO_PREFIX)
-      ? PREVIOUS_TIPO_OUTRO_PREFIX
-      : TIPO_OUTRO_PREFIX;
-  if (typeof r.tipo === 'string' && r.tipo.startsWith(outroPrefix)) {
-    Utils.setVal('r-tipo', 'Outro');
-    Utils.setVal('r-tipo-custom', r.tipo.slice(outroPrefix.length));
-  } else {
-    Utils.setVal('r-tipo', r.tipo);
-    Utils.setVal('r-tipo-custom', '');
-  }
-  syncTipoCustomVisibility();
-}
-
-function fillRegistroEditOperationalFields(r) {
-  Utils.setVal('r-obs', r.obs);
-  Utils.setVal('r-tecnico', r.tecnico || '');
-  Utils.setVal('r-status', r.status || DEFAULT_REGISTRO_STATUS);
-  Utils.setVal('r-prioridade', r.prioridade || DEFAULT_REGISTRO_PRIORIDADE);
-  syncImpactDetailsState(hasImpactValues(r));
-  Utils.setVal('r-pecas', r.pecas || '');
-  Utils.setVal('r-custo-pecas', r.custoPecas ?? '');
-  Utils.setVal('r-custo-mao-obra', r.custoMaoObra ?? '');
-  syncMateriaisDetailsState(hasMateriaisValues(r));
-}
-
-function fillRegistroEditClientFields(r) {
-  Utils.setVal('r-cliente-nome', r.clienteNome || '');
-  Utils.setVal('r-cliente-documento', r.clienteDocumento || '');
-  Utils.setVal('r-local-atendimento', r.localAtendimento || '');
-  Utils.setVal('r-cliente-contato', r.clienteContato || '');
-}
-
-function restoreRegistroEditChecklist(r) {
-  // PMOC Fase 3: carrega checklist se existe; senão renderiza vazio
-  // baseado no tipo do equip.
-  if (r.checklist && typeof r.checklist === 'object') {
-    loadChecklistForEdit(r.checklist);
-  } else {
-    renderChecklist();
-  }
-}
-
-function syncRegistroEditActionState() {
-  const btn = document.querySelector('[data-action="save-registro"]');
-  if (btn) {
-    // Mantém o SVG do ícone intocado - só troca o rótulo interno.
-    const label = btn.querySelector('span');
-    if (label) label.textContent = 'Salvar alterações';
-    else btn.textContent = 'Salvar alterações';
-    btn.classList.add('btn--editing');
-  }
-}
-
-function syncRegistroEditHeroContext() {
-  // No redesign v6 o hero tem a pill "Novo registro"; no modo edição trocamos
-  // pra "Editando serviço". O .section-title é mantido como fallback.
-  const heroPill = document.getElementById(HERO_PILL_TEXT_ID);
-  if (heroPill) heroPill.textContent = 'Editando serviço';
-  const title = document.querySelector('#view-registro .section-title');
-  if (title) title.textContent = 'Editar serviço';
-  _refreshRegistroContext();
+  return clearRegistroFlow(preserveEquip);
 }
 
 export function loadRegistroForEdit(id) {
-  const { registros } = getState();
-  const r = resolveRegistroEditTarget(registros, id);
-  if (!r) return;
-
-  enterRegistroEditMode(id);
-  fillRegistroEditBaseFields(r);
-  fillRegistroEditTypeFields(r);
-  fillRegistroEditOperationalFields(r);
-  fillRegistroEditClientFields(r);
-  restoreRegistroEditChecklist(r);
-  syncRegistroEditActionState();
-  syncRegistroEditHeroContext();
+  return loadRegistroForEditFlow(id);
 }
 
 // Garante que estado de edição não persista entre sessoes do app.

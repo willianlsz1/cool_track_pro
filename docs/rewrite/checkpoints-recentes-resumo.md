@@ -366,6 +366,8 @@ decisao, do escopo e do risco remanescente.
   arquivo abaixo de 1000 linhas sem alterar contratos publicos ou persistencia.
 - Extraido controller de UI local do formulario de registro, preservando
   progresso, tipo custom, avisos e toggles sem alterar save/storage/checklist.
+- Extraidos controllers de contexto, inicializacao, clear/edit e UI de save do
+  registro, reduzindo `registro.js` abaixo de 1000 linhas sem alterar storage.
 
 ## Validacao padrao
 
