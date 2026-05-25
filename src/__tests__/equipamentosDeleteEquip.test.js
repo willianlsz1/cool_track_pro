@@ -105,7 +105,7 @@ describe('deleteEquip', () => {
     ]);
   });
 
-  it('nao importa o adapter legado', () => {
+  it('nao importa adapter obsoleto', () => {
     const source = readFileSync(resolve('src/ui/views/equipamentos/ui/deleteEquip.js'), 'utf8');
 
     expect(source).not.toContain('views/equipamentos.js');

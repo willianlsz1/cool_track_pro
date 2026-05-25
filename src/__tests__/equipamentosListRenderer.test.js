@@ -128,7 +128,7 @@ describe('equipamentos DOM flat list renderer', () => {
     expect(root?.innerHTML).toBe('');
   });
 
-  it('renders empty state with legacy action contracts', async () => {
+  it('renders empty state with current action contracts', async () => {
     document.body.innerHTML = '<div id="lista-equip"></div>';
     const root = document.getElementById('lista-equip');
 
@@ -239,7 +239,7 @@ describe('equipamentos DOM flat list renderer', () => {
     expect(pageSource).not.toMatch(/dangerouslySetInnerHTML/);
   });
 
-  it('keeps DOM renderer in the list bridge, not the legacy adapter or React island', () => {
+  it('keeps DOM renderer in the list bridge, not obsolete adapters or React islands', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
     const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/listBridge.js', 'utf8');
 

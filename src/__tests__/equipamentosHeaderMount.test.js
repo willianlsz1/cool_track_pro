@@ -41,7 +41,7 @@ describe('headerMount', () => {
     );
   });
 
-  it('resolve os roots legados via Utils.getEl e chama a bridge com o viewModel', () => {
+  it('resolve os roots atuais via Utils.getEl e chama a bridge com o viewModel', () => {
     document.body.innerHTML = `
       <section id="equip-hero"></section>
       <nav id="equip-filters"></nav>
@@ -80,7 +80,7 @@ describe('headerMount', () => {
     });
   });
 
-  it('nao importa o adapter legado', () => {
+  it('nao importa adapter obsoleto', () => {
     const source = readFileSync(resolve('src/ui/views/equipamentos/ui/headerMount.js'), 'utf8');
 
     expect(source).not.toContain('ui/views/equipamentos');

@@ -247,6 +247,8 @@ decisao, do escopo e do risco remanescente.
   DOM de checklist de Registro, sem alterar asserts ou runtime.
 - Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
   Clientes, preservando seletores, data attributes e asserts.
+- Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
+  Equipamentos ligados a adapters/bridges DOM, sem alterar fixtures ou runtime.
 
 ## Validacao padrao
 

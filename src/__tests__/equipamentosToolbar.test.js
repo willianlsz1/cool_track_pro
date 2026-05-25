@@ -100,7 +100,7 @@ describe('toolbar', () => {
     expect(Utils.getEl).toHaveBeenCalledTimes(3);
   });
 
-  it('nao importa o adapter legado', () => {
+  it('nao importa adapter obsoleto', () => {
     const source = readFileSync(resolve('src/ui/views/equipamentos/ui/toolbar.js'), 'utf8');
 
     expect(source).not.toContain('ui/views/equipamentos');

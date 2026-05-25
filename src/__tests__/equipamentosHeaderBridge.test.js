@@ -295,7 +295,7 @@ describe('equipamentos header DOM bridge', () => {
     expect(bridgeSource).not.toMatch(/dangerouslySetInnerHTML|innerHTML\s*=/);
   });
 
-  it('keeps the legacy adapter free from React imports', () => {
+  it('keeps the current adapter free from React imports', () => {
     const adapterSource = readFileSync('src/ui/views/equipamentos.js', 'utf8');
     const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/headerBridge.js', 'utf8');
 
