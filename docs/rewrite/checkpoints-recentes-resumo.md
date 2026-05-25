@@ -212,6 +212,8 @@ decisao, do escopo e do risco remanescente.
   upload, analise IA, quota ou payloads retornados pela API.
 - Neutralizados nomes internos de helpers de migracao do onboarding sem alterar
   storage keys, render, eventos ou escopo por usuario.
+- Neutralizados nomes locais residuais em `Profile.get()` sem alterar chaves de
+  perfil, fallback localStorage ou escopo por usuario.
 
 ## Nomenclatura React legada
 

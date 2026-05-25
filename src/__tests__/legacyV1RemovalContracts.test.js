@@ -729,6 +729,12 @@ describe('legacy v1 removal contracts', () => {
     expect(onboardingBannerSource).not.toContain('migrateLegacySkipKeyIfNeeded');
   });
 
+  it('does not keep retired-app wording in neutralized profile local names', () => {
+    const profileSource = readSource('src/core/profile.js');
+
+    expect(profileSource).not.toMatch(/\blegacyRaw\b|\blegacy\b/);
+  });
+
   it('does not keep v1-era wording in public legal styles or active config comments', () => {
     const joined = [
       readSource('public/legal/_style.css'),
