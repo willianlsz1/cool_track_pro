@@ -1,5 +1,5 @@
 /**
- * Testes do modal premium de Criar/Editar Setor (P1).
+ * Testes do modal de Criar/Editar Setor (P1).
  *
  * Cobre:
  * - setorContrastWithWhite (helper WCAG exportado)

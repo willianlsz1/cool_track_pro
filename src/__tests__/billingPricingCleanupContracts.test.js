@@ -35,6 +35,7 @@ describe('billing/pricing cleanup contracts', () => {
     expect(existsSync('e2e/specs/equipamentos-legacy-photos-nameplate-paywall.spec.js')).toBe(
       false,
     );
+    expect(existsSync('src/__tests__/setorModal.premium.test.js')).toBe(false);
   });
 
   it('does not keep legacy e2e assertions that navigate to pricing', () => {

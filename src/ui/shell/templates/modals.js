@@ -647,7 +647,7 @@ export function renderShellModals() {
     </div>
   </div>
 
-  <!-- MODAL: Criar / Editar Setor (PRO) — premium redesign -->
+  <!-- MODAL: Criar / Editar Setor -->
   <div class="modal-overlay" id="modal-add-setor" role="dialog" aria-modal="true" aria-labelledby="modal-add-setor-title">
     <div class="modal setor-modal">
       <div class="modal__handle"></div>

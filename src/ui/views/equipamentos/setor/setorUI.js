@@ -14,9 +14,9 @@ export function configureSetorUI(nextDeps = {}) {
 }
 
 /**
- * Markup do "+ Novo setor" em modo locked (plano Free/Plus).
+ * Markup do "+ Novo setor" em modo locked.
  * Visual cinza, disabled de verdade (não dispara o handler open-setor-modal)
- * e com um cadeado + pill PRO pra deixar explícito que é feature paga.
+ * e com um cadeado para deixar explicito que o recurso esta indisponivel.
  */
 export function _lockedSetorBtnHtml() {
   return `
@@ -34,7 +34,7 @@ export function _lockedSetorBtnHtml() {
   `;
 }
 
-/** Renderiza a grade de setores (vista PRO). */
+/** Renderiza a grade de setores. */
 export function renderSetorGrid() {
   const el = deps.Utils.getEl('lista-equip');
   if (!el) return;

@@ -311,6 +311,8 @@ decisao, do escopo e do risco remanescente.
   reforcando o gate de termos comerciais sem alterar handlers ou dados.
 - Removida superficie obsoleta `PREMIUM_FEATURE_EQUIPAMENTOS`/premium helpers do
   plano operacional, preservando perfil operacional e sem tocar gates ativos.
+- Neutralizada nomenclatura residual `premium/PRO` em comentarios de Setores e
+  renomeado teste do modal, sem alterar gate funcional ou runtime.
 
 ## Validacao padrao
 
