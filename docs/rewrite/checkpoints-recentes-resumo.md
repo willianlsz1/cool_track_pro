@@ -105,6 +105,8 @@ decisao, do escopo e do risco remanescente.
   app-v2/Cloudflare.
 - Atualizado script de dead CSS para os arquivos CSS atuais, sem dependencia
   externa e sem safelist antiga de pricing/assinatura/quota.
+- Reforcado contrato agregado para manter runtime app-v2 fora de auth/storage
+  legados, permitindo Supabase direto somente nos entrypoints opt-in.
 - Removidos artefatos JSON antigos de metricas QA dos CPs visuais ja
   consolidados; o historico operacional fica neste resumo.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
