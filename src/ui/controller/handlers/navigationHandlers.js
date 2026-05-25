@@ -176,8 +176,8 @@ export function bindNavigationHandlers() {
         .catch(() => {
           /* no-op: campo cliente é opcional */
         });
-      // V4: o bloco de fotos saiu desse modal. O único gate síncrono que
-      // resta aqui é o do hero CTA de análise de placa (Plus+).
+      // V4: o bloco de fotos saiu desse modal. O unico gate sincrono que
+      // resta aqui e o do hero CTA de analise de placa.
       resetNameplateCtaState();
       applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
     }

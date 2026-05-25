@@ -8,7 +8,7 @@
  * Fonte de verdade do schema de resposta: supabase/functions/analyze-nameplate
  *
  * Padrão de erro: lança NameplateAnalysisError com `.code` canônico — o
- * handler do UI decide o que mostrar (toast, upsell, retry) baseado no code.
+ * handler do UI decide o que mostrar (toast, bloqueio local, retry) baseado no code.
  */
 import { supabase } from '../core/supabase.js';
 import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
@@ -16,9 +16,9 @@ import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
 // ── Erros canônicos ────────────────────────────────────────────────────────
 // Os mesmos codes vêm da função (PLAN_GATE_FREE/PLUS/PRO, AUTH_REQUIRED, etc),
 // mais alguns client-only pra estados que só existem no browser (NO_SESSION,
-// NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE é o "umbrella" pra qualquer gate de
-// plano (Free trial esgotado, Plus atingiu 30/mês, Pro atingiu 200/mês). O
-// detalhamento fica em `details.currentPlan` pra o UI escolher a mensagem.
+// NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE é o "umbrella" para bloqueios de
+// acesso/limite herdados da função. O detalhamento fica em `details.currentPlan`
+// para o UI escolher a mensagem sem expor plano comercial.
 export const ERR_NO_SESSION = 'NO_SESSION';
 export const ERR_PLAN_GATE = 'PLAN_GATE';
 export const ERR_NETWORK = 'NETWORK';
@@ -466,9 +466,8 @@ export async function analyzeNameplate(file, { supabaseClient = supabase } = {})
         'Não deu pra ler a etiqueta. Tenta uma foto mais nítida, com a etiqueta preenchendo o quadro.',
     );
   }
-  // Propaga metadata do teste grátis vindo da edge function — quando o user é
-  // Free e acabou de gastar um uso do mês, o client usa pra atualizar o CTA
-  // (ex: mudar pra estado 'locked' porque a próxima tentativa vai falhar).
+  // Propaga metadata de consumo vindo da edge function. Quando um uso mensal é
+  // consumido, o client atualiza o CTA local para refletir o limite restante.
   if (payload && payload.trial && typeof payload.trial === 'object') {
     mapped._trial = {
       consumed: Boolean(payload.trial.consumed),

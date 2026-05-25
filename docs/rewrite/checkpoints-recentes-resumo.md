@@ -317,6 +317,8 @@ decisao, do escopo e do risco remanescente.
   e contratos de permissao sem alterar a logica de gate.
 - Neutralizados comentarios runtime de Setores ligados a linguagem comercial,
   mantendo nomes publicos e guards de compatibilidade.
+- Neutralizada copy/comentarios runtime de analise de placa ligados a plano
+  pago, preservando contratos publicos e funcao Supabase.
 
 ## Validacao padrao
 

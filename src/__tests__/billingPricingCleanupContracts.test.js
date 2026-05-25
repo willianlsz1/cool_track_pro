@@ -116,6 +116,24 @@ describe('billing/pricing cleanup contracts', () => {
     }
   });
 
+  it('does not keep nameplate runtime copy tied to paid-plan labels', () => {
+    const sources = [
+      readSource('src/ui/components/nameplateCapture.js'),
+      readSource('src/domain/nameplateAnalysis.js'),
+      readSource('src/ui/shell/templates/modals.js'),
+      readSource('src/ui/controller/handlers/navigationHandlers.js'),
+    ].join('\n');
+
+    expect(sources).not.toContain('Teste grátis');
+    expect(sources).not.toContain('Free com quota');
+    expect(sources).not.toContain('Free e acabou');
+    expect(sources).not.toContain('Plus+');
+    expect(sources).not.toContain('plano efetivo');
+    expect(sources).not.toContain('vira o Plus');
+    expect(sources).not.toContain('Upsell CTA');
+    expect(sources).not.toContain('>PLUS<');
+  });
+
   it('does not keep paid-plan copy in legacy runtime gates', () => {
     const sources = [
       readSource('src/ui/views/registro.js'),

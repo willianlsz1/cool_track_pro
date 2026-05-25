@@ -7,8 +7,8 @@
  *   1. `applyNameplateCtaGate({isPlusOrPro, trialRemaining})` — toggle entre
  *      três estados:
  *        - "active" (acesso operacional): botão direto
- *        - "trial"  (Free com quota): botão direto + badge "teste grátis"
- *        - "locked" (quota esgotada OU plano desconhecido): botão bloqueado
+ *        - "trial"  (uso operacional disponivel): botao direto com contador
+ *        - "locked" (limite esgotado OU acesso desconhecido): botao bloqueado
  *      Chamado no open-modal + quando o estado operacional/quota muda.
  *
  *   2. Listener `change` no input file escondido. Quando o user seleciona
@@ -148,12 +148,11 @@ const REVIEW_FIELDS = [
  * Aplica o gate operacional no CTA. Três estados possíveis:
  *
  *  - `active`: botão primário que abre o file picker.
- *  - `trial` (Free com quota restante): mesmo botão, mas com badge "teste
- *    grátis" e subtitle contando uso do mês.
- *  - `locked` (quota esgotada OU plano desconhecido): botão bloqueado.
+ *  - `trial`: mesmo botao, mas com subtitle contando usos disponiveis no mes.
+ *  - `locked` (limite esgotado OU acesso desconhecido): botao bloqueado.
  *
  * Aceita tanto boolean (compatibilidade com chamada anterior) quanto objeto
- * `{ isPlusOrPro, trialRemaining }` pra o novo fluxo de teste grátis.
+ * `{ isPlusOrPro, trialRemaining }` para o fluxo operacional atual.
  *
  * @param {boolean | {isPlusOrPro?: boolean, trialRemaining?: number | null}} [config]
  */
@@ -198,7 +197,7 @@ export function applyNameplateCtaGate(config = false) {
 }
 
 /**
- * Decide estado + microcopy do CTA a partir do acesso e quota mensal.
+ * Decide estado + microcopy do CTA a partir do acesso e limite mensal.
  * Isolado pra facilitar testes e pra deixar a lógica de "qual mensagem em
  * qual estado" numa única função auditável.
  */
@@ -208,7 +207,7 @@ function resolveCtaPresentation({ isPlusOrPro, trialRemaining }) {
   }
   if (trialRemaining === null) {
     // Estado desconhecido (cache stale, fetch falhou). Default conservador:
-    // trata como locked. Se o re-check async confirmar acesso ou quota,
+    // trata como locked. Se o re-check async confirmar acesso ou limite,
     // reaplica o gate.
     return { state: 'locked', subtitle: DEFAULT_SUB, trialRemaining: null };
   }
@@ -216,7 +215,7 @@ function resolveCtaPresentation({ isPlusOrPro, trialRemaining }) {
   if (remaining > 0) {
     return {
       state: 'trial',
-      subtitle: `🎁 Teste grátis — ${remaining === 1 ? '1 análise este mês' : `${remaining} análises este mês`}. A IA tenta identificar os principais dados da etiqueta.`,
+      subtitle: `${remaining === 1 ? '1 analise disponivel este mes' : `${remaining} analises disponiveis este mes`}. A IA tenta identificar os principais dados da etiqueta.`,
       trialRemaining: remaining,
     };
   }
@@ -275,7 +274,7 @@ function bindOnce() {
     await handleFile(file);
   });
 
-  // Upsell CTA: listener direto no botão. Pareava com data-action antes, mas o
+  // CTA bloqueado: listener direto no botao. Pareava com data-action antes, mas o
   // delegator global ficava warnando "Sem handler para action=nameplate-upsell-cta"
   // a cada click (o handler real vivia aqui, não no mapa do events.js). Agora
   // amarramos só por id — sem data-action, sem warning.
@@ -369,9 +368,8 @@ async function handleFile(file) {
     pendingAnalysisFields = fields;
     showScanResult(fields, filledCount, detectedPercent);
 
-    // Trial consumption telemetry: se a resposta traz `_trial`, o user era
-    // Free e acabou de gastar 1 uso. Emite evento dedicado pra separar o
-    // funil "usou o teste grátis" do fluxo operacional normal.
+    // Telemetria de consumo: se a resposta traz `_trial`, um uso operacional
+    // acabou de ser consumido. Emite evento dedicado separado do fluxo normal.
     const trialMeta = fields?._trial ?? null;
     if (trialMeta?.consumed) {
       trackEvent('nameplate_free_trial_used', {
@@ -397,9 +395,9 @@ async function handleFile(file) {
         ? `Encontramos ${filledCount}/${AI_FIELD_TOTAL} campos. Revise e aplique o que fizer sentido.`
         : 'Encontramos poucos dados. Tente outra foto ou continue manualmente.',
     );
-    // Reconcilia estado do CTA pós-análise. Se o user era Free e acabou de
-    // gastar o último uso, vira 'locked' — pra próxima tentativa não passar.
-    // Se era trial com quota remanescente, fica 'trial'. Acesso liberado fica 'active'.
+    // Reconcilia estado do CTA pos-analise. Se acabou de gastar o ultimo uso,
+    // vira 'locked' para a proxima tentativa nao passar. Se ainda ha limite,
+    // fica 'trial'. Acesso liberado fica 'active'.
     if (trialMeta?.consumed) {
       applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: trialMeta.remaining ?? 0 });
     } else {
@@ -429,7 +427,7 @@ async function handleFile(file) {
     let stageMsg = message;
     let fallbackMsg = 'Você pode tentar outra foto ou continuar sem foto.';
     if (code === ERR_PLAN_GATE) {
-      // 3 caminhos possíveis para quota mensal, todos sem CTA comercial:
+      // 3 caminhos possiveis para limite mensal, todos sem CTA comercial:
       //   - teste operacional esgotado;
       //   - acesso ainda não liberado;
       //   - limite mensal esgotado.
@@ -450,9 +448,9 @@ async function handleFile(file) {
         cta.dataset.state = prevState === 'locked' ? 'locked' : 'active';
         trackEvent('nameplate_quota_hit', { source: 'equip_modal', plan: 'plus' });
       } else if (quotaExhausted) {
-        // Free esgotado; preserva alias trialExhausted retornado pela API.
+        // Limite esgotado; preserva alias trialExhausted retornado pela API.
         applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: 0 });
-        stageMsg = 'Teste grátis do mês esgotado';
+        stageMsg = 'Analise disponivel do mes esgotada';
         trackEvent('nameplate_trial_exhausted_hit', { source: 'equip_modal' });
       } else {
         cta.dataset.state = 'locked';

@@ -52,7 +52,7 @@ export function renderShellModals() {
             Mantemos o layout identico entre os dois estados para evitar
             deslocamento visual quando o estado muda.
           O toggle é feito por applyNameplateCtaGate() no controller, baseado
-          no plano efetivo. Input file fica fora do bloco locked (dentro do
+          no acesso operacional efetivo. Input file fica fora do bloco locked (dentro do
           active) pra não ativar listeners quando estiver bloqueado.
         -->
         <div class="nameplate-cta" id="nameplate-cta" data-state="hidden" hidden>
@@ -68,7 +68,7 @@ export function renderShellModals() {
           <div class="nameplate-cta__text">
             <div class="nameplate-cta__title">
               Aponta a câmera pra etiqueta
-              <span class="plus-badge plus-badge--inline" aria-hidden="true">PLUS</span>
+              <span class="plus-badge plus-badge--inline" aria-hidden="true">IA</span>
             </div>
             <p class="nameplate-cta__sub" id="nameplate-cta-sub">
               A IA tenta preencher os principais dados da etiqueta. Você revisa antes de aplicar.
@@ -78,12 +78,12 @@ export function renderShellModals() {
             </p>
           </div>
           <div class="nameplate-cta__action">
-            <!-- Estado active (Plus+): label abre o file picker escondido. -->
+            <!-- Estado active: label abre o file picker escondido. -->
             <label class="btn btn--primary btn--sm nameplate-cta__btn nameplate-cta__btn--active"
               for="nameplate-file-input" id="nameplate-cta-btn-active">
               Usar foto da etiqueta
             </label>
-            <!-- Estado locked (Free): botão puxa pro upsell. Sem data-action
+            <!-- Estado locked: botao mostra aviso local. Sem data-action
                  aqui (mesma razão do botão-active logo abaixo): o click é
                  amarrado direto em nameplateCapture.bindOnce() via
                  addEventListener, então passar pelo delegator global só
@@ -176,7 +176,7 @@ export function renderShellModals() {
         <!--
           Banner de "conquista" mostrado só após a IA preencher o form com
           sucesso. Dois propósitos:
-            1. Dar ao user o "ahá, funcionou" (vira o Plus em valor percebido)
+            1. Dar ao user o "ahá, funcionou" como feedback operacional
             2. Direcionar o olho pros campos que ainda precisam de revisão
           Controlado por showAiBanner() em nameplateCapture.js. Fica escondido
           no render inicial e entre aberturas do modal.
