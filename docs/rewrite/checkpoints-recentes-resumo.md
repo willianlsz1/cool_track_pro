@@ -261,6 +261,8 @@ decisao, do escopo e do risco remanescente.
   preservando o gate contra modulos paralelos obsoletos.
 - Representados snippets proibidos de mojibake por escapes no contrato de
   remocao v1, mantendo o mesmo gate sem texto corrompido visivel.
+- Representados padroes de normalizacao de mojibake do relatorio app-v2 por
+  escapes Unicode, preservando a correcao de textos exibidos.
 
 ## Validacao padrao
 
