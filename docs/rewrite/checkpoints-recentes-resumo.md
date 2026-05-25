@@ -223,6 +223,8 @@ decisao, do escopo e do risco remanescente.
   duplicacao em consumidores sem alterar valores de localStorage.
 - Centralizadas chaves persistidas restantes de OAuth pendente e onboarding
   contextual em `storage/constants.js`, preservando valores e escopo por usuario.
+- Renomeado modulo interno de politica de acesso operacional, mantendo
+  compatibilidade de helpers enquanto billing/pricing seguem removidos.
 
 ## Nomenclatura React legada
 

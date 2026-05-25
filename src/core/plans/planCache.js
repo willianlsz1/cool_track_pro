@@ -1,4 +1,4 @@
-import { PLAN_CODE_FREE } from './subscriptionPlans.js';
+import { PLAN_CODE_FREE } from './operationalAccessPolicy.js';
 
 let _hydratedInSession = false;
 

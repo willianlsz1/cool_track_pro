@@ -161,7 +161,7 @@ vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: mocks.fetchOperationalProfile,
 }));
 
-vi.mock('../core/plans/subscriptionPlans.js', () => ({
+vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
   hasPlusAccess: mocks.hasPlusAccess,
 }));
 

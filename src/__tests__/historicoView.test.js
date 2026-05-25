@@ -316,13 +316,13 @@ describe('getEquipStatusPill', () => {
 
 describe('histórico — acesso completo para todos os planos (sem corte por data)', () => {
   it('o plano Free não define `historicoDias` — histórico é ilimitado no tempo', async () => {
-    const plans = await import('../core/plans/subscriptionPlans.js');
+    const plans = await import('../core/plans/operationalAccessPolicy.js');
     const freeLimits = plans.PLAN_CATALOG[plans.PLAN_CODE_FREE].limits;
     expect(freeLimits.historicoDias).toBeUndefined();
   });
 
   it('a perk do Free menciona "histórico completo", não mais 15 dias', async () => {
-    const plans = await import('../core/plans/subscriptionPlans.js');
+    const plans = await import('../core/plans/operationalAccessPolicy.js');
     const freePerks = plans.PLAN_CATALOG[plans.PLAN_CODE_FREE].perks;
     const joined = freePerks.join(' ').toLowerCase();
     expect(joined).toContain('histórico completo');

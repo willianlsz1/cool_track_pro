@@ -264,7 +264,7 @@ configureOpenEditEquip({
   loadOperationalGateDeps: async () => {
     const [operationalPlan, plans, capture, usageLimits] = await Promise.all([
       import('../../core/plans/operationalPlan.js'),
-      import('../../core/plans/subscriptionPlans.js'),
+      import('../../core/plans/operationalAccessPolicy.js'),
       import('../components/nameplateCapture.js'),
       import('../../core/usageLimits.js'),
     ]);

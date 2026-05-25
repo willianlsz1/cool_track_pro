@@ -130,7 +130,7 @@ describe('billing/pricing cleanup contracts', () => {
   it('does not keep PDF or WhatsApp usage quota resources in runtime modules', () => {
     const sources = [
       readSource('src/core/usageLimits.js'),
-      readSource('src/core/plans/subscriptionPlans.js'),
+      readSource('src/core/plans/operationalAccessPolicy.js'),
       readSource('src/core/plans/operationalPlan.js'),
     ].join('\n');
 

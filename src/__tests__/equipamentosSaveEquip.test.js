@@ -147,7 +147,7 @@ vi.mock('../core/plans/planCache.js', () => ({
   setCachedPlan: vi.fn(),
 }));
 
-vi.mock('../core/plans/subscriptionPlans.js', () => ({
+vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
   getEffectivePlan: vi.fn(() => 'free'),
   hasProAccess: vi.fn(() => false),
 }));

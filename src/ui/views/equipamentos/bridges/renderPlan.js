@@ -1,5 +1,5 @@
 import { setCachedPlan } from '../../../../core/plans/planCache.js';
-import { getEffectivePlan, hasProAccess } from '../../../../core/plans/subscriptionPlans.js';
+import { getEffectivePlan, hasProAccess } from '../../../../core/plans/operationalAccessPolicy.js';
 import {
   clearRenderEquipPlanRefreshPromise,
   getRenderEquipPlanEventsBound,

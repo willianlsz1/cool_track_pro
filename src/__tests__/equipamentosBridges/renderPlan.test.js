@@ -14,7 +14,7 @@ import {
   setRenderEquipPlanRefreshPromise,
 } from '../../ui/views/equipamentos/state/renderPlanState.js';
 import { fetchOperationalProfileCached } from '../../core/plans/operationalPlan.js';
-import { hasProAccess } from '../../core/plans/subscriptionPlans.js';
+import { hasProAccess } from '../../core/plans/operationalAccessPolicy.js';
 
 vi.mock('../../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfileCached: vi.fn(),
@@ -24,7 +24,7 @@ vi.mock('../../core/plans/planCache.js', () => ({
   setCachedPlan: vi.fn(),
 }));
 
-vi.mock('../../core/plans/subscriptionPlans.js', () => ({
+vi.mock('../../core/plans/operationalAccessPolicy.js', () => ({
   getEffectivePlan: vi.fn((profile) => profile?.plan ?? 'free'),
   hasProAccess: vi.fn((profile) => profile?.plan === 'pro'),
 }));

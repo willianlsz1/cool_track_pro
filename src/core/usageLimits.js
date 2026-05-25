@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js';
-import { normalizePlanCode, PLAN_CODE_FREE } from './plans/subscriptionPlans.js';
+import { normalizePlanCode, PLAN_CODE_FREE } from './plans/operationalAccessPolicy.js';
 
 export const USAGE_RESOURCE_NAMEPLATE_ANALYSIS = 'nameplate_analysis';
 

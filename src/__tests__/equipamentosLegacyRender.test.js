@@ -170,7 +170,7 @@ vi.mock('../core/plans/planCache.js', () => ({
   setCachedPlan: vi.fn(),
 }));
 
-vi.mock('../core/plans/subscriptionPlans.js', () => ({
+vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
   getEffectivePlan: vi.fn(() => (stateMocks.isPro ? 'pro' : 'free')),
   hasProAccess: vi.fn(() => stateMocks.isPro),
 }));

@@ -878,10 +878,10 @@ describe('legacy v1 removal contracts', () => {
   });
 
   it('does not keep legacy digital signature as a commercial feature flag', () => {
-    const subscriptionPlansSource = readSource('src/core/plans/subscriptionPlans.js');
+    const operationalAccessPolicySource = readSource('src/core/plans/operationalAccessPolicy.js');
 
-    expect(subscriptionPlansSource).not.toContain('FEATURE_DIGITAL_SIGNATURE');
-    expect(subscriptionPlansSource).not.toContain('digital_signature');
+    expect(operationalAccessPolicySource).not.toContain('FEATURE_DIGITAL_SIGNATURE');
+    expect(operationalAccessPolicySource).not.toContain('digital_signature');
   });
 
   it('does not keep the legacy photo storage/upload runtime', () => {

@@ -11,7 +11,7 @@ import {
   hasFeature,
   hasPlusAccess,
   hasProAccess,
-} from './subscriptionPlans.js';
+} from './operationalAccessPolicy.js';
 
 export const PREMIUM_FEATURE_EQUIPAMENTOS = 'equipamentos';
 

@@ -1,4 +1,4 @@
-import { PLAN_CODE_FREE, getPlanForUser, normalizePlanCode } from './subscriptionPlans.js';
+import { PLAN_CODE_FREE, getPlanForUser, normalizePlanCode } from './operationalAccessPolicy.js';
 
 export function canAccessClientes() {
   return true;

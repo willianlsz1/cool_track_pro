@@ -11,7 +11,7 @@ import {
   getEffectivePlan,
   getPlanForUser,
   getPlanProfileForUserId,
-} from './plans/subscriptionPlans.js';
+} from './plans/operationalAccessPolicy.js';
 import { supabase } from './supabase.js';
 
 /**
