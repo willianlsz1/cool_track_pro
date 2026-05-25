@@ -10,7 +10,7 @@ const baseGlobals = {
   ...globals.browser,
   ...globals.node,
   // Constantes injetadas em build-time pelo Vite (define em vite.config.js).
-  // Exibidas no footer da landing (v1.0.0 - abc123).
+  // Exibidas no footer da experiencia principal (versao e hash do build).
   __APP_VERSION__: 'readonly',
   __APP_COMMIT__: 'readonly',
 };

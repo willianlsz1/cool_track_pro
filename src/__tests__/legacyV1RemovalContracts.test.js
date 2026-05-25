@@ -690,6 +690,15 @@ describe('legacy v1 removal contracts', () => {
     );
   });
 
+  it('does not keep v1-era wording in public legal styles or active config comments', () => {
+    const joined = [readSource('public/legal/_style.css'), readSource('eslint.config.js')].join(
+      '\n',
+    );
+
+    expect(joined).not.toMatch(/legacy e nova|v1\.0\.0/);
+    expect(joined).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
       readSource('src/ui/components/clienteModal.js'),

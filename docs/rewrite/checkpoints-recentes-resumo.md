@@ -53,6 +53,8 @@ decisao, do escopo e do risco remanescente.
   alterar regras de indexacao.
 - Contrato de metadados publicos reforcado para detectar mojibake real em
   UTF-8, independente da exibicao do terminal local.
+- Comentarios de estilos legais e configuracao ativa neutralizados para nao
+  manter linguagem v1/legacy fora dos contratos historicos.
 
 ## PMOC legado
 
