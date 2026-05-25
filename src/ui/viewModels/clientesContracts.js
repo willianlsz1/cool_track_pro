@@ -10,9 +10,9 @@ export const CLIENTES_PUBLIC_IDS = Object.freeze({
 
 export const CLIENTES_ACTIONS = Object.freeze({
   openModal: 'open-cliente-modal',
-  editLegacy: 'edit-cliente',
-  deleteLegacy: 'delete-cliente',
-  cardMenuLegacy: 'cliente-card-menu',
+  editModal: 'edit-cliente',
+  deleteModal: 'delete-cliente',
+  cardMenuModal: 'cliente-card-menu',
   gotoPage: 'goto-page',
   prevPage: 'prev-page',
   nextPage: 'next-page',

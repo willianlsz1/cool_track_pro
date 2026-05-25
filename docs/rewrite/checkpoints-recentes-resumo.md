@@ -200,6 +200,8 @@ decisao, do escopo e do risco remanescente.
 - Neutralizada referencia visual residual a V1 em cards de equipamento.
 - Neutralizados comentarios residuais de legado em historico e templates de
   modais sem alterar ids, data-actions ou contratos publicos.
+- Neutralizados nomes internos `Legacy` em aliases de contrato de Clientes sem
+  alterar valores publicos de acao.
 
 ## Nomenclatura React legada
 

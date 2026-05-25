@@ -182,6 +182,9 @@ describe('clientes view model', () => {
 
     expect(CLIENTES_ACTIONS).toMatchObject({
       openModal: 'open-cliente-modal',
+      editModal: 'edit-cliente',
+      deleteModal: 'delete-cliente',
+      cardMenuModal: 'cliente-card-menu',
       gotoPage: 'goto-page',
       clearFilters: 'clear-filters',
       edit: 'edit',
@@ -191,6 +194,7 @@ describe('clientes view model', () => {
       verEquipamentos: 'ver-equipamentos',
       verServicos: 'ver-servi\u00e7os',
     });
+    expect(Object.keys(CLIENTES_ACTIONS).some((action) => /legacy/i.test(action))).toBe(false);
 
     expect(CLIENTES_STATUS_OPTIONS.map((option) => option.id)).toEqual([
       'todos',
