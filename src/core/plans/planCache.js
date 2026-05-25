@@ -22,7 +22,3 @@ export function hasHydratedPlanInSession() {
 export function isCachedPlanPro() {
   return false;
 }
-
-export function isCachedPlanPlusOrHigher() {
-  return true;
-}

@@ -406,6 +406,8 @@ decisao, do escopo e do risco remanescente.
   que ainda citavam regra comercial antiga, sem alterar fluxos sensiveis.
 - Removido export morto `isCachedPlanPlus` do cache legado de plano, preservando
   os helpers ainda usados por Registro/PMOC para CP dedicado posterior.
+- Removido export morto `isCachedPlanPlusOrHigher` e mocks sem caller runtime,
+  preservando o gate de Registro/PMOC ainda existente para etapa propria.
 
 ## Validacao padrao
 

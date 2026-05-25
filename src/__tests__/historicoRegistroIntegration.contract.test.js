@@ -89,7 +89,6 @@ vi.mock('../core/equipmentRules.js', () => ({
 }));
 
 vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => true),
   isCachedPlanPro: vi.fn(() => false),
 }));
 

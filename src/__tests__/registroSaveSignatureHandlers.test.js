@@ -29,7 +29,6 @@ const mocks = vi.hoisted(() => {
     reconcileEquipmentStatusesAfterRegistroEdit: vi.fn(),
     trackEvent: vi.fn(),
     withSkeleton: vi.fn((_el, _opts, renderFn) => renderFn()),
-    isCachedPlanPlusOrHigher: vi.fn(),
     isCachedPlanPro: vi.fn(),
     postSaveToastShow: vi.fn(),
     bindSmartContactMaskInput: vi.fn(),
@@ -117,7 +116,6 @@ vi.mock('../ui/components/skeleton.js', () => ({
 }));
 
 vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
   isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
@@ -189,7 +187,7 @@ async function flushAsyncWork() {
   }
 }
 
-async function loadRegistro(state = baseState(), { plus = true } = {}) {
+async function loadRegistro(state = baseState()) {
   mocks.stateRef.current = state;
   mocks.getState.mockImplementation(() => mocks.stateRef.current);
   mocks.setState.mockImplementation((updater) => {
@@ -202,7 +200,6 @@ async function loadRegistro(state = baseState(), { plus = true } = {}) {
       mocks.stateRef.current?.equipamentos?.find((equipamento) => equipamento.id === id) || null,
   );
   mocks.lastRegForEquip.mockReturnValue(null);
-  mocks.isCachedPlanPlusOrHigher.mockReturnValue(plus);
   mocks.isCachedPlanPro.mockReturnValue(true);
   mocks.profileDefaultTecnico.mockReturnValue('Tecnico Padrao');
   mocks.getOperationalStatus.mockReturnValue({
@@ -324,7 +321,7 @@ describe('registro save handlers with retired signature contracts', () => {
   it('salva via save-registro lendo campos DOM e checklist sem captura aposentada de fotos', async () => {
     const state = baseState();
     setupDom(state);
-    const registro = await loadRegistro(state, { plus: false });
+    const registro = await loadRegistro(state);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
@@ -347,7 +344,7 @@ describe('registro save handlers with retired signature contracts', () => {
   it('aposenta assinatura no salvamento mesmo com acesso operacional habilitado', async () => {
     const state = baseState();
     setupDom(state);
-    const registro = await loadRegistro(state, { plus: true });
+    const registro = await loadRegistro(state);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
@@ -364,7 +361,7 @@ describe('registro save handlers with retired signature contracts', () => {
   it('nao registra handler aposentado de salvar e compartilhar', async () => {
     const state = baseState();
     setupDom(state);
-    await loadRegistro(state, { plus: true });
+    await loadRegistro(state);
 
     expect(mocks.handlers.get('save-and-share-registro')).toBeUndefined();
     expect(mocks.handlers.get('save-and-share-other-registro')).toBeUndefined();
@@ -374,7 +371,7 @@ describe('registro save handlers with retired signature contracts', () => {
   it('mantem salvamento quando assinatura e cancelada pelo modal aposentado', async () => {
     const state = baseState();
     setupDom(state);
-    const registro = await loadRegistro(state, { plus: true });
+    const registro = await loadRegistro(state);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');
@@ -402,7 +399,7 @@ describe('registro save handlers with retired signature contracts', () => {
       ],
     });
     setupDom(state);
-    const registro = await loadRegistro(state, { plus: true });
+    const registro = await loadRegistro(state);
 
     await prepareRegistroForm(registro);
     await triggerSave('save-registro');

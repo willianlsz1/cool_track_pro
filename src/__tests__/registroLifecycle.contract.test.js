@@ -22,7 +22,6 @@ const mocks = vi.hoisted(() => ({
   reconcileEquipmentStatusesAfterRegistroEdit: vi.fn(),
   trackEvent: vi.fn(),
   withSkeleton: vi.fn((_el, _opts, renderFn) => renderFn()),
-  isCachedPlanPlusOrHigher: vi.fn(),
   isCachedPlanPro: vi.fn(),
   postSaveToastShow: vi.fn(),
   bindSmartContactMaskInput: vi.fn(),
@@ -86,7 +85,6 @@ vi.mock('../ui/components/skeleton.js', () => ({
 }));
 
 vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
   isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
@@ -182,7 +180,6 @@ async function loadRegistro(state = baseState()) {
     (id) => state.equipamentos?.find((equipamento) => equipamento.id === id) || null,
   );
   mocks.lastRegForEquip.mockReturnValue(null);
-  mocks.isCachedPlanPlusOrHigher.mockReturnValue(true);
   mocks.isCachedPlanPro.mockReturnValue(true);
   mocks.profileDefaultTecnico.mockReturnValue('Tecnico Padrao');
   mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });

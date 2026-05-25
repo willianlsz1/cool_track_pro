@@ -80,7 +80,6 @@ vi.mock('../../core/inputValidation.js', () => ({
   })),
 }));
 vi.mock('../../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => true),
   isCachedPlanPro: vi.fn(() => true),
 }));
 vi.mock('../../ui/components/postSaveRegistroToast.js', () => ({

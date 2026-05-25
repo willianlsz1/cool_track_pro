@@ -154,6 +154,7 @@ describe('billing/pricing cleanup contracts', () => {
       expect(source).not.toContain('_showPmocChecklistUpsell');
       expect(source).not.toContain('_redirectPmocChecklistUpsell');
       expect(source).not.toContain('isCachedPlanPlus()');
+      expect(source).not.toContain('isCachedPlanPlusOrHigher()');
     }
   });
 

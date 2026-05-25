@@ -112,10 +112,6 @@ vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
   },
 }));
 
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => false),
-}));
-
 vi.mock('../ui/components/pushOptInCard.js', () => ({
   PushOptInCard: {
     enable: vi.fn(),

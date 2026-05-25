@@ -79,7 +79,6 @@ vi.mock('../../core/inputValidation.js', () => ({
   })),
 }));
 vi.mock('../../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => false),
   isCachedPlanPro: vi.fn(() => false),
 }));
 vi.mock('../../ui/components/postSaveRegistroToast.js', () => ({
