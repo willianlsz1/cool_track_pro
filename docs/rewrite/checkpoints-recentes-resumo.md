@@ -344,6 +344,8 @@ decisao, do escopo e do risco remanescente.
   ainda tratavam limites operacionais como superficies comerciais.
 - Neutralizado lote adicional de descricoes/comentarios de testes ligados a
   historico, assinatura aposentada, cache e limites operacionais.
+- Removidas migrations historicas do ledger `stripe_webhook_events`, mantendo a
+  migration de retirada como cobertura do schema comercial aposentado.
 
 ## Validacao padrao
 

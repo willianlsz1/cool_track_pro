@@ -219,11 +219,15 @@ describe('billing/pricing cleanup contracts', () => {
       'supabase/migrations/20260411000001_security_subscription_usage.sql',
       'supabase/migrations/20260418130000_add_plus_to_plan_checks.sql',
       'supabase/migrations/20260419130000_protect_profile_fields.sql',
-      'supabase/migrations/20260420160000_stripe_webhook_idempotency.sql',
-      'supabase/migrations/20260425150000_stripe_webhook_claimed_at.sql',
       'supabase/migrations/20260509190000_harden_billing_profile_usage.sql',
       'supabase/migrations/20260524010000_remove_stripe_billing_schema.sql',
     ]);
+    expect(existsSync('supabase/migrations/20260420160000_stripe_webhook_idempotency.sql')).toBe(
+      false,
+    );
+    expect(existsSync('supabase/migrations/20260425150000_stripe_webhook_claimed_at.sql')).toBe(
+      false,
+    );
     expect(retirementMigration).toContain('drop column if exists stripe_customer_id');
     expect(retirementMigration).toContain('drop column if exists stripe_subscription_id');
     expect(retirementMigration).toContain('drop table if exists public.stripe_webhook_events');
