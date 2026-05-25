@@ -68,6 +68,25 @@ import {
   validateChecklist,
   summarizeChecklist,
 } from '../../domain/pmoc/checklistTemplates.js';
+import {
+  PREVIOUS_TIPO_OUTRO_PREFIX,
+  TIPO_CUSTOM_MAX,
+  TIPO_OUTRO_PREFIX,
+  bindEquipChangeWarning,
+  bindImpactDetailsToggle,
+  bindMateriaisDetailsToggle,
+  bindProgressFieldHandlers,
+  configureRegistroFormUiController,
+  ensureProgressBar,
+  hasImpactValues,
+  hasMateriaisValues,
+  renderHeroSub,
+  syncImpactDetailsState,
+  syncMateriaisDetailsState,
+  syncTipoCustomVisibility,
+  updateImpactCopy,
+  updateProgressBar,
+} from './registro/formUiController.js';
 
 // O meter de progresso vive estático dentro do hero do template.
 // Apontamos pro hero + o contador numérico ao invés de injetar markup na hora.
@@ -182,6 +201,22 @@ const LAST_CLIENT_KEY = 'cooltrack-last-client';
 let _currentRouteParams = {};
 let _resolvedRegistroContext = null;
 
+configureRegistroFormUiController({
+  Utils,
+  lastRegForEquip,
+  resetEditingState,
+  clearRegistro,
+  editingKey: EDITING_KEY,
+  heroId: HERO_ID,
+  heroSubId: HERO_SUB_ID,
+  progressCountId: PROGRESS_COUNT_ID,
+  meterId: METER_ID,
+  registroMateriaisDetailsId: REGISTRO_MATERIAIS_DETAILS_ID,
+  registroImpactDetailsId: REGISTRO_IMPACT_DETAILS_ID,
+  defaultRegistroStatus: DEFAULT_REGISTRO_STATUS,
+  defaultRegistroPrioridade: DEFAULT_REGISTRO_PRIORIDADE,
+});
+
 function _loadLastClient() {
   try {
     migratePreviousGlobalKey(LAST_CLIENT_KEY);
@@ -200,104 +235,6 @@ function _saveLastClient(cliente) {
   } catch (_err) {
     // localStorage indisponível - ignora
   }
-}
-
-function _updateImpactCopy(context) {
-  const subtitle = document.getElementById('registro-impact-subtitle');
-  const hint = document.getElementById('registro-impact-hint');
-  if (!subtitle || !hint) return;
-
-  if (context?.hasCompanyContext) {
-    subtitle.textContent = 'opcional - status final e prioridade do atendimento';
-    hint.textContent =
-      'Se houve falha, risco ou pendência, ajuste o impacto para o acompanhamento do cliente.';
-    return;
-  }
-
-  subtitle.textContent = 'opcional - status final e prioridade';
-  hint.textContent = 'Se algo saiu do normal, ajuste o status e a prioridade.';
-}
-
-function _isFilledMaterialValue(value) {
-  const normalized = String(value ?? '').trim();
-  return normalized !== '' && normalized !== '0' && normalized !== '0.00' && normalized !== '0,00';
-}
-
-function _hasMateriaisValues(source = null) {
-  if (source) {
-    return (
-      _isFilledMaterialValue(source.pecas) ||
-      _isFilledMaterialValue(source.custoPecas) ||
-      _isFilledMaterialValue(source.custoMaoObra)
-    );
-  }
-
-  return (
-    _isFilledMaterialValue(Utils.getVal('r-pecas')) ||
-    _isFilledMaterialValue(Utils.getVal('r-custo-pecas')) ||
-    _isFilledMaterialValue(Utils.getVal('r-custo-mao-obra'))
-  );
-}
-
-function _syncMateriaisDetailsState(expanded = null) {
-  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
-  if (!details) return;
-
-  if (typeof expanded === 'boolean') {
-    if (expanded) details.setAttribute('open', '');
-    else details.removeAttribute('open');
-  }
-
-  const isExpanded = details.hasAttribute('open');
-  details.querySelector('summary')?.setAttribute('aria-expanded', String(isExpanded));
-}
-
-function _bindMateriaisDetailsToggle() {
-  const details = document.getElementById(REGISTRO_MATERIAIS_DETAILS_ID);
-  if (!details || details.dataset.bound === '1') return;
-
-  details.dataset.bound = '1';
-  const summary = details.querySelector('summary');
-  summary?.addEventListener('click', () => {
-    queueMicrotask(() => _syncMateriaisDetailsState());
-  });
-  details.addEventListener('toggle', () => _syncMateriaisDetailsState());
-  _syncMateriaisDetailsState(details.hasAttribute('open'));
-}
-
-function _hasImpactValues(source = null) {
-  const status = String(source?.status ?? Utils.getVal('r-status') ?? '').trim();
-  const prioridade = String(source?.prioridade ?? Utils.getVal('r-prioridade') ?? '').trim();
-  return (
-    (status && status !== DEFAULT_REGISTRO_STATUS) ||
-    (prioridade && prioridade !== DEFAULT_REGISTRO_PRIORIDADE)
-  );
-}
-
-function _syncImpactDetailsState(expanded = null) {
-  const details = document.getElementById(REGISTRO_IMPACT_DETAILS_ID);
-  if (!details) return;
-
-  if (typeof expanded === 'boolean') {
-    if (expanded) details.setAttribute('open', '');
-    else details.removeAttribute('open');
-  }
-
-  const isExpanded = details.hasAttribute('open');
-  details.querySelector('summary')?.setAttribute('aria-expanded', String(isExpanded));
-}
-
-function _bindImpactDetailsToggle() {
-  const details = document.getElementById(REGISTRO_IMPACT_DETAILS_ID);
-  if (!details || details.dataset.bound === '1') return;
-
-  details.dataset.bound = '1';
-  const summary = details.querySelector('summary');
-  summary?.addEventListener('click', () => {
-    queueMicrotask(() => _syncImpactDetailsState());
-  });
-  details.addEventListener('toggle', () => _syncImpactDetailsState());
-  _syncImpactDetailsState(details.hasAttribute('open'));
 }
 
 function _setRegistroProximaPreventiva(registroId, proxima) {
@@ -438,7 +375,7 @@ function _applyResolvedContext(context) {
 
   _applyClienteDetailsContext(context);
   _updateRegistroShareActions(context);
-  _updateImpactCopy(context);
+  updateImpactCopy(context);
 }
 
 function _refreshRegistroContext() {
@@ -577,170 +514,6 @@ async function _confirmLeaveEditingGuard(_nextRoute, _nextParams) {
     clearRegistro();
   }
   return ok;
-}
-
-// Prefixo usado quando o usuário escolhe "Outro" e descreve o serviço num campo
-// livre. O valor final persistido em `registro.tipo` fica tipo "Outro · Teste
-// de estanqueidade" - é só uma string única, sem coluna extra no Supabase. Para
-// edição, o loadRegistroForEdit detecta o prefixo e repopula o select + o input
-// custom automaticamente.
-const TIPO_OUTRO_PREFIX = 'Outro · ';
-const PREVIOUS_TIPO_OUTRO_PREFIX = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
-const TIPO_CUSTOM_MAX = 40;
-
-// -- Barra de progresso do formulário ------------------
-// O campo r-tipo-custom é condicional: só conta como "preenchido" quando o tipo
-// = "Outro". Nos outros tipos ele fica oculto e nem é considerado na barra.
-const _fields = [
-  { id: 'r-equip', validate: (v) => v !== '' },
-  { id: 'r-data', validate: (v) => v !== '' },
-  {
-    id: 'r-tipo',
-    validate: (v) => {
-      if (v === '') return false;
-      if (v === 'Outro') {
-        // Quando "Outro", só consideramos o tipo "preenchido" se o custom label
-        // também estiver válido (>=1 char, sem exceder o limite). Sem isso, a
-        // barra de progresso marcaria Outro como ok mesmo com o label em branco.
-        const custom = (Utils.getEl('r-tipo-custom')?.value || '').trim();
-        return custom.length >= 1 && custom.length <= TIPO_CUSTOM_MAX;
-      }
-      return true;
-    },
-  },
-  { id: 'r-tecnico', validate: (v) => v.trim() !== '' },
-  { id: 'r-obs', validate: (v) => v.trim().length >= 10 },
-];
-
-// Mostra/esconde o input custom conforme a seleção do tipo. Também gerencia o
-// atributo `required` e o foco automático quando o usuário escolhe "Outro" -
-// assim a UX flui: escolheu Outro -> cursor já no campo pra descrever.
-function _syncTipoCustomVisibility({ focusOnShow = false } = {}) {
-  const sel = Utils.getEl('r-tipo');
-  const wrap = document.getElementById('r-tipo-custom-wrap');
-  const input = Utils.getEl('r-tipo-custom');
-  if (!sel || !wrap || !input) return;
-
-  const isOutro = sel.value === 'Outro';
-  wrap.hidden = !isOutro;
-  if (isOutro) {
-    input.setAttribute('required', '');
-    input.setAttribute('aria-required', 'true');
-    if (focusOnShow) {
-      // pequeno delay pra evitar quebra de foco quando o change vem de click
-      // no select nativo em alguns browsers mobile (iOS Safari especialmente)
-      setTimeout(() => input.focus(), 30);
-    }
-  } else {
-    input.removeAttribute('required');
-    input.removeAttribute('aria-required');
-    input.value = '';
-  }
-}
-
-// -- Meter de progresso no hero ------------------------
-//
-// Desde o redesign (v6), o meter está inline no template (.registro-hero__meter
-// com 5 .registro-hero__seg). A função "ensure" virou só uma garantia de que o
-// hero existe e tá sincronizado; a "update" pinta cada segmento conforme os
-// campos vão sendo preenchidos e troca o data-state do hero pra empty/partial/
-// complete - CSS muda a cor do meter e dos indicadores a partir disso.
-function _ensureProgressBar(_formView) {
-  // No-op mantido pra compatibilidade com o contrato anterior. O markup já vem
-  // do template; se alguma view anterior perder o hero, o _updateProgressBar
-  // simplesmente não faz nada (guard clauses abaixo).
-}
-
-function _updateProgressBar() {
-  const total = _fields.length;
-  const filled = _fields.filter((f) => {
-    const i = Utils.getEl(f.id);
-    return i && f.validate(i.value);
-  }).length;
-
-  const hero = document.getElementById(HERO_ID);
-  const meter = document.getElementById(METER_ID);
-  const cnt = document.getElementById(PROGRESS_COUNT_ID);
-
-  if (cnt) cnt.textContent = String(filled);
-
-  if (meter) {
-    const segs = meter.querySelectorAll('.registro-hero__seg');
-    segs.forEach((seg, idx) => {
-      seg.classList.toggle('is-filled', idx < filled);
-    });
-    meter.setAttribute('aria-valuenow', String(filled));
-    meter.setAttribute('aria-valuemax', String(total));
-  }
-
-  if (hero) {
-    hero.dataset.state = filled === 0 ? 'empty' : filled === total ? 'complete' : 'partial';
-  }
-}
-
-// -- Sub do hero (meta "Domingo · 19 abr · 20:55") ------
-// Renderiza o sub do hero em português com 3 dots separadores. Se no futuro
-// quisermos atualizar "ao vivo" (ex.: relógio), basta chamar de novo. Hoje só
-// roda no initRegistro - data é a da abertura do formulário.
-function _renderHeroSub() {
-  const sub = document.getElementById(HERO_SUB_ID);
-  if (!sub) return;
-  const now = new Date();
-  const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-  const meses = [
-    'jan',
-    'fev',
-    'mar',
-    'abr',
-    'mai',
-    'jun',
-    'jul',
-    'ago',
-    'set',
-    'out',
-    'nov',
-    'dez',
-  ];
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const parts = [
-    dias[now.getDay()],
-    `${now.getDate()} ${meses[now.getMonth()]} ${now.getFullYear()}`,
-    `${hh}:${mm}`,
-  ];
-  sub.innerHTML = parts
-    .map(
-      (p, i) =>
-        `<span>${p}</span>${i < parts.length - 1 ? '<span class="registro-hero__sub-dot" aria-hidden="true"></span>' : ''}`,
-    )
-    .join('');
-}
-
-// -- Aviso de manutenção agendada -----------------------
-function _bindEquipChangeWarning() {
-  const sel = Utils.getEl('r-equip');
-  if (!sel) return;
-  if (sel.dataset.registroEquipWarningBound === '1') return;
-  sel.dataset.registroEquipWarningBound = '1';
-  sel.addEventListener('change', () => {
-    const id = sel.value;
-    const currentEditingId = sessionStorage.getItem(EDITING_KEY);
-    if (currentEditingId) {
-      resetEditingState();
-      clearRegistro();
-      if (id) Utils.setVal('r-equip', id);
-    }
-    document.getElementById('reg-pending-warning')?.remove();
-    if (!id) return;
-    const lastReg = lastRegForEquip(id);
-    if (lastReg && Utils.daysDiff(lastReg.proxima) >= 0) {
-      const w = document.createElement('div');
-      w.id = 'reg-pending-warning';
-      w.className = 'reg-pending-warning';
-      w.textContent = 'Manutenção preventiva agendada. Registre apenas em emergência.';
-      sel.parentNode.parentNode.insertBefore(w, sel.parentNode.nextSibling);
-    }
-  });
 }
 
 // -- Checklist NBR 13971 (Fase 3 PMOC) -------------------------
@@ -1073,15 +846,9 @@ export function loadChecklistForEdit(checklist) {
 }
 
 function _bindRegistroHeaderFieldHandlers() {
-  _fields.forEach((f) => {
-    const i = Utils.getEl(f.id);
-    if (!i || i.dataset.registroProgressBound === '1') return;
-    i.dataset.registroProgressBound = '1';
-    i.addEventListener('input', _updateProgressBar);
-    i.addEventListener('change', _updateProgressBar);
-  });
+  bindProgressFieldHandlers();
 
-  _bindEquipChangeWarning();
+  bindEquipChangeWarning();
 
   const equipSelForChecklist = Utils.getEl('r-equip');
   if (equipSelForChecklist && equipSelForChecklist.dataset.registroChecklistBound !== '1') {
@@ -1096,9 +863,9 @@ function _bindRegistroHeaderFieldHandlers() {
   if (tipoSel && tipoSel.dataset.registroTipoBound !== '1') {
     tipoSel.dataset.registroTipoBound = '1';
     tipoSel.addEventListener('change', () => {
-      _syncTipoCustomVisibility({ focusOnShow: true });
+      syncTipoCustomVisibility({ focusOnShow: true });
       _prefillObsFromTipo(tipoSel.value);
-      _updateProgressBar();
+      updateProgressBar();
       _refreshChecklistPriBadge();
     });
   }
@@ -1107,7 +874,7 @@ function _bindRegistroHeaderFieldHandlers() {
   if (tipoCustomInput && tipoCustomInput.dataset.registroTipoCustomBound !== '1') {
     tipoCustomInput.dataset.registroTipoCustomBound = '1';
     tipoCustomInput.addEventListener('input', () => {
-      _updateProgressBar();
+      updateProgressBar();
       _refreshChecklistPriBadge();
       _updateChecklistSummary();
     });
@@ -1143,21 +910,21 @@ function bindRegistroInitFormOnce(formView) {
 }
 
 function syncRegistroInitDetailsState(formView) {
-  _ensureProgressBar(formView);
+  ensureProgressBar(formView);
   _bindRegistroHeaderFieldHandlers();
   bindRegistroInitFormOnce(formView);
 
   // Garante o estado correto na entrada da view (inclusive vindo de edit).
-  _syncTipoCustomVisibility();
-  _bindMateriaisDetailsToggle();
-  _syncMateriaisDetailsState(_hasMateriaisValues());
-  _bindImpactDetailsToggle();
-  _syncImpactDetailsState(_hasImpactValues());
-  _updateProgressBar();
+  syncTipoCustomVisibility();
+  bindMateriaisDetailsToggle();
+  syncMateriaisDetailsState(hasMateriaisValues());
+  bindImpactDetailsToggle();
+  syncImpactDetailsState(hasImpactValues());
+  updateProgressBar();
 }
 
 function renderRegistroInitHero() {
-  _renderHeroSub();
+  renderHeroSub();
 }
 
 function applyRegistroInitDateDefault() {
@@ -1204,7 +971,7 @@ function bindRegistroInitDatetimeUX() {
     // Reseta pra agora
     Utils.setVal('r-data', Utils.nowDatetime());
     refreshLabel();
-    _updateProgressBar();
+    updateProgressBar();
   });
 
   editBtn?.addEventListener('click', () => {
@@ -1223,7 +990,7 @@ function bindRegistroInitDatetimeUX() {
 
   input?.addEventListener('change', () => {
     refreshLabel();
-    _updateProgressBar();
+    updateProgressBar();
   });
 
   refreshLabel();
@@ -1461,7 +1228,7 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
   // Antes preenchia tipo, obs, prioridade, data. Agora tambem preenche
   // status=ok (assume que ficou operando), e foca o proximo campo vazio.
   Utils.setVal('r-tipo', template.tipo);
-  _syncTipoCustomVisibility();
+  syncTipoCustomVisibility();
   if (!Utils.getVal('r-obs').trim()) Utils.setVal('r-obs', template.descricao);
   Utils.setVal('r-prioridade', template.prioridade);
   Utils.setVal('r-data', Utils.nowDatetime());
@@ -1487,7 +1254,7 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
     });
   }
 
-  _updateProgressBar();
+  updateProgressBar();
 
   // --- Smart focus + feedback contextual --------------------------------
   // Identifica o proximo required vazio e foca nele. Toast diz exatamente
@@ -1595,13 +1362,13 @@ function resetRegistroMediaAfterClear() {
 }
 
 function resetRegistroDetailsAfterClear() {
-  _syncTipoCustomVisibility();
-  _syncMateriaisDetailsState(false);
-  _syncImpactDetailsState(false);
+  syncTipoCustomVisibility();
+  syncMateriaisDetailsState(false);
+  syncImpactDetailsState(false);
 }
 
 function resetRegistroProgressAfterClear() {
-  _updateProgressBar();
+  updateProgressBar();
 }
 
 function resetRegistroQuickTemplateChipsAfterClear() {
@@ -1708,7 +1475,7 @@ function fillRegistroEditBaseFields(r) {
 function fillRegistroEditTypeFields(r) {
   // Se o tipo foi salvo com prefixo "Outro · ", separamos de volta em select=Outro
   // + input custom. Caso contrário, repopulamos normalmente e deixamos o wrap
-  // escondido. O _syncTipoCustomVisibility no initRegistro finaliza o estado.
+  // escondido. O syncTipoCustomVisibility no initRegistro finaliza o estado.
   const outroPrefix =
     typeof r.tipo === 'string' && r.tipo.startsWith(PREVIOUS_TIPO_OUTRO_PREFIX)
       ? PREVIOUS_TIPO_OUTRO_PREFIX
@@ -1720,7 +1487,7 @@ function fillRegistroEditTypeFields(r) {
     Utils.setVal('r-tipo', r.tipo);
     Utils.setVal('r-tipo-custom', '');
   }
-  _syncTipoCustomVisibility();
+  syncTipoCustomVisibility();
 }
 
 function fillRegistroEditOperationalFields(r) {
@@ -1728,11 +1495,11 @@ function fillRegistroEditOperationalFields(r) {
   Utils.setVal('r-tecnico', r.tecnico || '');
   Utils.setVal('r-status', r.status || DEFAULT_REGISTRO_STATUS);
   Utils.setVal('r-prioridade', r.prioridade || DEFAULT_REGISTRO_PRIORIDADE);
-  _syncImpactDetailsState(_hasImpactValues(r));
+  syncImpactDetailsState(hasImpactValues(r));
   Utils.setVal('r-pecas', r.pecas || '');
   Utils.setVal('r-custo-pecas', r.custoPecas ?? '');
   Utils.setVal('r-custo-mao-obra', r.custoMaoObra ?? '');
-  _syncMateriaisDetailsState(_hasMateriaisValues(r));
+  syncMateriaisDetailsState(hasMateriaisValues(r));
 }
 
 function fillRegistroEditClientFields(r) {

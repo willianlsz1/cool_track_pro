@@ -364,6 +364,8 @@ decisao, do escopo e do risco remanescente.
   `historico.js` abaixo de 1000 linhas sem alterar renderers, filtros ou storage.
 - Extraido controller do modal de setores de `equipamentos.js`, reduzindo o
   arquivo abaixo de 1000 linhas sem alterar contratos publicos ou persistencia.
+- Extraido controller de UI local do formulario de registro, preservando
+  progresso, tipo custom, avisos e toggles sem alterar save/storage/checklist.
 
 ## Validacao padrao
 
