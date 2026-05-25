@@ -1041,6 +1041,17 @@ describe('legacy v1 removal contracts', () => {
     expect(legacyComponentStyles.filter((path) => existsSync(path))).toEqual([]);
   });
 
+  it('does not keep CSS proof helper scoped to retired React or legacy CSS trees', () => {
+    const cssProofSource = readSource('scripts/css-proof.mjs');
+
+    expect(cssProofSource).not.toContain('src/react');
+    expect(cssProofSource).not.toContain('src/tests');
+    expect(cssProofSource).not.toContain('src/assets/styles');
+    expect(cssProofSource).toContain('src/app-v2/styles');
+    expect(cssProofSource).toContain('src/ui/components/onboarding');
+    expect(cssProofSource).toContain('public/legal');
+  });
+
   it('does not keep the legacy privacidade route or internal static view', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
 

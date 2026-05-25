@@ -196,6 +196,8 @@ decisao, do escopo e do risco remanescente.
   `buildReactList*` virou `buildDomList*` e a classe local passou para
   `equip-list-dom`.
 - A arvore `src/react` segue removida; o renderer atual de Equipamentos usa DOM.
+- `scripts/css-proof.mjs` deixou de escanear `src/react`, `src/tests` e
+  `src/assets/styles`; o helper agora aponta para estilos versionados atuais.
 
 ## Validacao padrao
 
