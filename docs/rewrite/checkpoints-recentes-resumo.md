@@ -96,6 +96,8 @@ decisao, do escopo e do risco remanescente.
   app-v2/Cloudflare.
 - Atualizado script de dead CSS para os arquivos CSS atuais, sem dependencia
   externa e sem safelist antiga de pricing/assinatura/quota.
+- Removidos artefatos JSON antigos de metricas QA dos CPs visuais ja
+  consolidados; o historico operacional fica neste resumo.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
   assinatura, PMOC e orcamento real seguem como etapas proprias futuras.
 
