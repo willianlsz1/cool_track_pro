@@ -172,11 +172,11 @@ function buildOverlayHtml(cliente) {
             <label class="cliente-modal__label" for="cli-url-chamados">Canal de chamados do cliente</label>
             <input id="cli-url-chamados" class="form-control cliente-modal__input" type="url"
               value="${Utils.escapeAttr(c.urlChamados || '')}"
-              placeholder="https://wa.me/5511999999999 ou portal do cliente"
+              placeholder="https://wa.me/5511999999999 ou sistema do cliente"
               maxlength="240" autocomplete="off" />
             <div class="cliente-modal__hint">
               Canal usado pelo cliente para solicitar atendimento: WhatsApp,
-              portal, formulario ou e-mail.
+              sistema externo, formulario ou e-mail.
             </div>
           </div>
 

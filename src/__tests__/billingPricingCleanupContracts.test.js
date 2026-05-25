@@ -118,6 +118,7 @@ describe('billing/pricing cleanup contracts', () => {
       'checkout',
       'stripe',
       'Stripe',
+      'portal',
       'start-checkout',
       'manage-subscription',
       'open-upgrade',

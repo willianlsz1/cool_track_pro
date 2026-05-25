@@ -307,6 +307,8 @@ decisao, do escopo e do risco remanescente.
   Supabase, sem alterar SQL executavel, constraints, funcoes, schema ou RLS.
 - Neutralizada linguagem residual em comentario do core de Clientes, com gate
   focado sem alterar persistencia, Supabase, RLS ou runtime.
+- Neutralizada ambiguidade de `portal` em copy de canal de chamados do cliente,
+  reforcando o gate de termos comerciais sem alterar handlers ou dados.
 
 ## Validacao padrao
 
