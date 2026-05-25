@@ -404,6 +404,8 @@ decisao, do escopo e do risco remanescente.
   `assertProAccess`, preservando export e comportamento liberado.
 - Neutralizado `source` operacional de Clientes e descricoes residuais de testes
   que ainda citavam regra comercial antiga, sem alterar fluxos sensiveis.
+- Removido export morto `isCachedPlanPlus` do cache legado de plano, preservando
+  os helpers ainda usados por Registro/PMOC para CP dedicado posterior.
 
 ## Validacao padrao
 

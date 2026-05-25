@@ -23,10 +23,6 @@ export function isCachedPlanPro() {
   return false;
 }
 
-export function isCachedPlanPlus() {
-  return true;
-}
-
 export function isCachedPlanPlusOrHigher() {
   return true;
 }

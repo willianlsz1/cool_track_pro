@@ -138,6 +138,7 @@ describe('billing/pricing cleanup contracts', () => {
 
   it('does not keep paid-plan copy in legacy runtime gates', () => {
     const sources = [
+      readSource('src/core/plans/planCache.js'),
       readSource('src/ui/views/registro.js'),
       readSource('src/ui/shell/templates/modals.js'),
     ];
@@ -152,6 +153,7 @@ describe('billing/pricing cleanup contracts', () => {
       expect(source).not.toContain('area comercial removida');
       expect(source).not.toContain('_showPmocChecklistUpsell');
       expect(source).not.toContain('_redirectPmocChecklistUpsell');
+      expect(source).not.toContain('isCachedPlanPlus()');
     }
   });
 
