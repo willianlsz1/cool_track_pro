@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { OAUTH_PENDING_STORAGE_KEY } from '../core/storage/constants.js';
+
 function createAuthSupabaseMock() {
   const onAuthStateChange = vi.fn();
   const profilesInsert = vi.fn().mockResolvedValue({ data: {}, error: null });
@@ -125,13 +127,13 @@ describe('Auth integration wrapper', () => {
         redirectTo: expect.stringMatching(/^https?:\/\/localhost:\d+\/?/),
       }),
     });
-    expect(localStorage.getItem('cooltrack-oauth-pending-v1')).toContain('auth-screen');
+    expect(localStorage.getItem(OAUTH_PENDING_STORAGE_KEY)).toContain('auth-screen');
   });
 
   it('finalizes oauth success and conversion telemetry', async () => {
     const { Auth, telemetryMock, toastMock } = await loadAuthModule();
     localStorage.setItem(
-      'cooltrack-oauth-pending-v1',
+      OAUTH_PENDING_STORAGE_KEY,
       JSON.stringify({ provider: 'google', source: 'guest-save', wasGuest: true }),
     );
     history.replaceState(null, '', '/?code=abc&state=def');

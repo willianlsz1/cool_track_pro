@@ -221,6 +221,8 @@ decisao, do escopo e do risco remanescente.
   anteriores.
 - Centralizadas chaves persistidas de sync em `storage/constants.js`, removendo
   duplicacao em consumidores sem alterar valores de localStorage.
+- Centralizadas chaves persistidas restantes de OAuth pendente e onboarding
+  contextual em `storage/constants.js`, preservando valores e escopo por usuario.
 
 ## Nomenclatura React legada
 

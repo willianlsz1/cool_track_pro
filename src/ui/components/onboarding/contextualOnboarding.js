@@ -1,7 +1,8 @@
 import { trackEvent } from '../../../core/telemetry.js';
+import { CONTEXTUAL_ONBOARDING_STORAGE_KEY } from '../../../core/storage/constants.js';
 import { userStorage } from '../../../core/userStorage.js';
 
-export const CONTEXTUAL_ONBOARDING_KEY = 'contextual-onboarding-v1';
+export const CONTEXTUAL_ONBOARDING_KEY = CONTEXTUAL_ONBOARDING_STORAGE_KEY;
 
 const STATUS_SEEN = 'seen';
 const STATUS_SKIPPED = 'skipped';

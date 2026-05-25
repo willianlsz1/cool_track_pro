@@ -3,9 +3,8 @@ import { Toast } from './toast.js';
 import { userStorage } from './userStorage.js';
 import { clearBlobQueue } from './blobQueue.js';
 import { AppError, ErrorCodes, handleError } from './errors.js';
+import { OAUTH_PENDING_STORAGE_KEY } from './storage/constants.js';
 import { trackEvent } from './telemetry.js';
-
-const OAUTH_PENDING_KEY = 'cooltrack-oauth-pending-v1';
 
 // Chaves do localStorage que são preferências DO DISPOSITIVO, não da conta.
 // Devem sobreviver ao logout (o usuário que fica depois provavelmente quer
@@ -112,13 +111,13 @@ function persistOAuthPending(payload = {}) {
     wasGuest: payload.wasGuest === true,
     startedAt: new Date().toISOString(),
   };
-  localStorage.setItem(OAUTH_PENDING_KEY, JSON.stringify(safePayload));
+  localStorage.setItem(OAUTH_PENDING_STORAGE_KEY, JSON.stringify(safePayload));
 }
 
 function consumeOAuthPending() {
-  const raw = localStorage.getItem(OAUTH_PENDING_KEY);
+  const raw = localStorage.getItem(OAUTH_PENDING_STORAGE_KEY);
   if (!raw) return null;
-  localStorage.removeItem(OAUTH_PENDING_KEY);
+  localStorage.removeItem(OAUTH_PENDING_STORAGE_KEY);
   try {
     return JSON.parse(raw);
   } catch (_error) {
@@ -232,7 +231,7 @@ export const Auth = {
       });
 
       if (error) {
-        localStorage.removeItem(OAUTH_PENDING_KEY);
+        localStorage.removeItem(OAUTH_PENDING_STORAGE_KEY);
         handleError(
           new AppError(
             'Não foi possível iniciar o login com Google.',
@@ -249,7 +248,7 @@ export const Auth = {
 
       return { ok: true };
     } catch (error) {
-      localStorage.removeItem(OAUTH_PENDING_KEY);
+      localStorage.removeItem(OAUTH_PENDING_STORAGE_KEY);
       handleError(error, {
         code: ErrorCodes.AUTH_FAILED,
         message: 'Falha ao abrir login com Google. Tente novamente.',

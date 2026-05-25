@@ -1,8 +1,17 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
+import {
+  CONTEXTUAL_ONBOARDING_STORAGE_KEY,
+  OAUTH_PENDING_STORAGE_KEY,
+} from '../core/storage/constants.js';
+
 function readSource(path) {
   return readFileSync(path, 'utf8');
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function listSourceFiles(dir) {
@@ -951,6 +960,22 @@ describe('legacy v1 removal contracts', () => {
       expect(source).not.toMatch(
         /['"]cooltrack-sync-dirty-v1['"]|['"]cooltrack-sync-deletions-v1['"]|['"]cooltrack-cache-owner-v1['"]/,
       );
+    }
+  });
+
+  it('keeps app-owned persisted storage keys centralized', () => {
+    const consumers = [
+      readSource('src/core/auth.js'),
+      readSource('src/ui/components/onboarding/contextualOnboarding.js'),
+      readSource('src/__tests__/auth.integration.test.js'),
+      readSource('src/__tests__/contextualOnboarding.test.js'),
+    ];
+    const centralizedKeyPattern = new RegExp(
+      [OAUTH_PENDING_STORAGE_KEY, CONTEXTUAL_ONBOARDING_STORAGE_KEY].map(escapeRegExp).join('|'),
+    );
+
+    for (const source of consumers) {
+      expect(source).not.toMatch(centralizedKeyPattern);
     }
   });
 

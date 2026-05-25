@@ -6,6 +6,8 @@
 
 export const STORAGE_WARN_BYTES = 4 * 1024 * 1024;
 export const STORAGE_LIMIT_BYTES = 5 * 1024 * 1024;
+export const OAUTH_PENDING_STORAGE_KEY = 'cooltrack-oauth-pending-v1';
+export const CONTEXTUAL_ONBOARDING_STORAGE_KEY = 'contextual-onboarding-v1';
 export const STORAGE_SYNC_DIRTY_KEY = 'cooltrack-sync-dirty-v1';
 export const STORAGE_SYNC_DELETIONS_KEY = 'cooltrack-sync-deletions-v1';
 export const STORAGE_CACHE_OWNER_KEY = 'cooltrack-cache-owner-v1';

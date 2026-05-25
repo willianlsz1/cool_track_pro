@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { CONTEXTUAL_ONBOARDING_STORAGE_KEY } from '../core/storage/constants.js';
 import { setCurrentUser } from '../core/userStorage.js';
 
-const STORAGE_KEY = 'ct:user-1:contextual-onboarding-v1';
+const userScopedStorageKey = (userId) => `ct:${userId}:${CONTEXTUAL_ONBOARDING_STORAGE_KEY}`;
+const STORAGE_KEY = userScopedStorageKey('user-1');
 
 describe('ContextualOnboarding', () => {
   beforeEach(() => {
@@ -33,7 +35,7 @@ describe('ContextualOnboarding', () => {
     setCurrentUser('user-2');
 
     expect(ContextualOnboarding.getRenderModel().visible).toBe(true);
-    expect(localStorage.getItem('ct:user-2:contextual-onboarding-v1')).toContain('"seen"');
+    expect(localStorage.getItem(userScopedStorageKey('user-2'))).toContain('"seen"');
   });
 
   it('persists skipped and completed states without changing navigation mode or plan data', async () => {
