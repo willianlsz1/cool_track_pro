@@ -23,6 +23,13 @@ function collectRuntimeSources(dir) {
   return out;
 }
 
+function collectFiles(dir, pattern) {
+  return readdirSync(dir)
+    .filter((entry) => pattern.test(entry))
+    .map((entry) => `${dir}/${entry}`)
+    .sort();
+}
+
 describe('billing/pricing cleanup contracts', () => {
   it('does not keep skipped e2e paywall specs after commercial cleanup', () => {
     expect(existsSync('e2e/specs/equipamentos-legacy-photos-nameplate-paywall.spec.js')).toBe(
@@ -146,6 +153,30 @@ describe('billing/pricing cleanup contracts', () => {
     const dashboardQueriesSource = readSource('supabase/dashboard-queries.sql');
 
     expect(dashboardQueriesSource).not.toMatch(/billing|stripe|checkout|portal|stripe_/i);
+  });
+
+  it('keeps removed commercial schema terms limited to known historical migrations covered by retirement', () => {
+    const migrationFiles = collectFiles('supabase/migrations', /\.sql$/);
+    const commercialMigrationFiles = migrationFiles.filter((path) =>
+      /billing|stripe|checkout/i.test(readSource(path)),
+    );
+    const retirementMigration = readSource(
+      'supabase/migrations/20260524010000_remove_stripe_billing_schema.sql',
+    );
+
+    expect(commercialMigrationFiles).toEqual([
+      'supabase/migrations/20260411000001_security_subscription_usage.sql',
+      'supabase/migrations/20260418130000_add_plus_to_plan_checks.sql',
+      'supabase/migrations/20260419130000_protect_profile_fields.sql',
+      'supabase/migrations/20260420160000_stripe_webhook_idempotency.sql',
+      'supabase/migrations/20260425150000_stripe_webhook_claimed_at.sql',
+      'supabase/migrations/20260509190000_harden_billing_profile_usage.sql',
+      'supabase/migrations/20260524010000_remove_stripe_billing_schema.sql',
+      'supabase/migrations/20260524193000_retire_registro_signature_gate.sql',
+    ]);
+    expect(retirementMigration).toContain('drop column if exists stripe_customer_id');
+    expect(retirementMigration).toContain('drop column if exists stripe_subscription_id');
+    expect(retirementMigration).toContain('drop table if exists public.stripe_webhook_events');
   });
 
   it('does not keep PDF or WhatsApp usage quota resources in runtime modules', () => {

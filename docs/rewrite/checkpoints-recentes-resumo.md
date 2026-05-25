@@ -300,6 +300,9 @@ decisao, do escopo e do risco remanescente.
 - Neutralizados comentarios comerciais residuais em queries de Dashboard
   Supabase, com gate focado sem alterar SQL executavel, migrations, schema ou
   RLS.
+- Adicionado gate para limitar termos comerciais removidos em migrations ao
+  historico conhecido coberto pela migration de retirada, sem reescrever schema
+  historico.
 
 ## Validacao padrao
 
