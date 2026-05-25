@@ -286,6 +286,27 @@ describe('registro lifecycle contract', () => {
     ).toBe(true);
   });
 
+  it('loadRegistroForEdit restaura tipo Outro salvo com separador legado', async () => {
+    const legacyOutroPrefix = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
+    const state = baseState({
+      registros: [
+        {
+          ...baseState().registros[0],
+          id: 'reg-outro-legado',
+          tipo: `${legacyOutroPrefix}Teste de estanqueidade`,
+        },
+      ],
+    });
+    setupDom(state);
+    const registro = await loadRegistro(state);
+
+    await init(registro);
+    registro.loadRegistroForEdit('reg-outro-legado');
+
+    expect(document.getElementById('r-tipo')?.value).toBe('Outro');
+    expect(document.getElementById('r-tipo-custom')?.value).toBe('Teste de estanqueidade');
+  });
+
   it('loadRegistroForEdit falha silenciosamente para id ausente sem corromper sequencia init -> clear -> load', async () => {
     const state = baseState();
     setupDom(state);

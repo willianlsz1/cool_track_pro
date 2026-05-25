@@ -1,6 +1,6 @@
 ﻿/**
  * CoolTrack Pro - Registro View v5.0
- * FunÃ§Ãµes: initRegistro, saveRegistro, clearRegistro
+ * Funções: initRegistro, saveRegistro, clearRegistro
  */
 
 import { Utils } from '../../core/utils.js';
@@ -69,8 +69,8 @@ import {
   summarizeChecklist,
 } from '../../domain/pmoc/checklistTemplates.js';
 
-// O meter de progresso vive estÃ¡tico dentro do hero do template.
-// Apontamos pro hero + o contador numÃ©rico ao invÃ©s de injetar markup na hora.
+// O meter de progresso vive estático dentro do hero do template.
+// Apontamos pro hero + o contador numérico ao invés de injetar markup na hora.
 function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -93,69 +93,69 @@ const QUICK_TEMPLATE_MAP = {
     tipo: 'Limpeza de Filtros',
     prioridade: 'media',
     descricao:
-      'Limpeza preventiva realizada no equipamento. Filtros higienizados e operaÃ§Ã£o validada em funcionamento normal.',
+      'Limpeza preventiva realizada no equipamento. Filtros higienizados e operação validada em funcionamento normal.',
   },
   recarga_gas: {
-    tipo: 'Carga de GÃ¡s Refrigerante',
+    tipo: 'Carga de Gás Refrigerante',
     prioridade: 'alta',
     descricao:
-      'Recarga de gÃ¡s refrigerante aplicada apÃ³s verificaÃ§Ã£o de pressÃ£o e vedaÃ§Ã£o. Sistema estabilizado para operaÃ§Ã£o.',
+      'Recarga de gás refrigerante aplicada após verificação de pressão e vedação. Sistema estabilizado para operação.',
   },
   troca_filtro: {
     tipo: 'Limpeza de Filtros',
     prioridade: 'media',
     descricao:
-      'Troca de filtro executada para restabelecer vazÃ£o de ar e qualidade da operaÃ§Ã£o. Equipamento testado apÃ³s a substituiÃ§Ã£o.',
+      'Troca de filtro executada para restabelecer vazão de ar e qualidade da operação. Equipamento testado após a substituição.',
   },
   inspecao: {
-    tipo: 'InspeÃ§Ã£o Geral',
+    tipo: 'Inspeção Geral',
     prioridade: 'baixa',
     descricao:
-      'InspeÃ§Ã£o tÃ©cnica geral concluÃ­da com checklist visual e funcional. Sem anomalias crÃ­ticas no momento.',
+      'Inspeção técnica geral concluída com checklist visual e funcional. Sem anomalias críticas no momento.',
   },
   manutencao_corretiva: {
-    tipo: 'ManutenÃ§Ã£o Corretiva',
+    tipo: 'Manutenção Corretiva',
     prioridade: 'alta',
     descricao:
-      'Atendimento corretivo realizado para falha reportada em campo. CorreÃ§Ã£o aplicada e equipamento reavaliado em funcionamento.',
+      'Atendimento corretivo realizado para falha reportada em campo. Correção aplicada e equipamento reavaliado em funcionamento.',
   },
 };
 
-// DescriÃ§Ãµes padrÃ£o por tipo do dropdown r-tipo. Quando o usuÃ¡rio seleciona uma
-// opÃ§Ã£o (via select nativo, nÃ£o via chip de aÃ§Ã£o rÃ¡pida), o textarea
-// "Detalhes pro cliente" Ã© preenchido com a frase abaixo â€” mesma lÃ³gica dos
+// Descrições padrão por tipo do dropdown r-tipo. Quando o usuário seleciona uma
+// opção (via select nativo, não via chip de ação rápida), o textarea
+// "Detalhes pro cliente" é preenchido com a frase abaixo - mesma lógica dos
 // chips, pra evitar dois caminhos com comportamento diferente.
-// Reusa as descriÃ§Ãµes do QUICK_TEMPLATE_MAP onde hÃ¡ correspondÃªncia, e
-// adiciona frases novas pros tipos que nÃ£o tÃªm aÃ§Ã£o rÃ¡pida equivalente.
-// "Outro" fica fora â€” nesse caso o user digita um rÃ³tulo prÃ³prio no campo
-// "Qual serviÃ§o?" e escreve os detalhes manualmente.
+// Reusa as descrições do QUICK_TEMPLATE_MAP onde há correspondência, e
+// adiciona frases novas pros tipos que não têm ação rápida equivalente.
+// "Outro" fica fora - nesse caso o user digita um rótulo próprio no campo
+// "Qual serviço?" e escreve os detalhes manualmente.
 const DESCRIPTION_BY_TIPO = {
-  'ManutenÃ§Ã£o Preventiva':
-    'ManutenÃ§Ã£o preventiva realizada conforme plano do equipamento. Componentes verificados, limpeza geral executada e operaÃ§Ã£o validada em funcionamento normal.',
-  'ManutenÃ§Ã£o Corretiva': QUICK_TEMPLATE_MAP.manutencao_corretiva.descricao,
+  'Manutenção Preventiva':
+    'Manutenção preventiva realizada conforme plano do equipamento. Componentes verificados, limpeza geral executada e operação validada em funcionamento normal.',
+  'Manutenção Corretiva': QUICK_TEMPLATE_MAP.manutencao_corretiva.descricao,
   'Limpeza de Filtros': QUICK_TEMPLATE_MAP.limpeza.descricao,
-  'Carga de GÃ¡s Refrigerante': QUICK_TEMPLATE_MAP.recarga_gas.descricao,
+  'Carga de Gás Refrigerante': QUICK_TEMPLATE_MAP.recarga_gas.descricao,
   'Troca de Compressor':
-    'Compressor substituÃ­do por unidade compatÃ­vel. Sistema recarregado, isolamento tÃ©rmico reconstituÃ­do e funcionamento validado apÃ³s o procedimento.',
+    'Compressor substituído por unidade compatível. Sistema recarregado, isolamento térmico reconstituído e funcionamento validado após o procedimento.',
   'Troca de Capacitor':
-    'Capacitor substituÃ­do por componente equivalente. Partida do motor testada e parÃ¢metros elÃ©tricos dentro do esperado.',
+    'Capacitor substituído por componente equivalente. Partida do motor testada e parâmetros elétricos dentro do esperado.',
   'Limpeza de Condensador':
-    'Limpeza do condensador executada com desobstruÃ§Ã£o das aletas. Troca tÃ©rmica restabelecida e operaÃ§Ã£o validada.',
+    'Limpeza do condensador executada com desobstrução das aletas. Troca térmica restabelecida e operação validada.',
   'Limpeza de Evaporador':
-    'Limpeza do evaporador realizada com higienizaÃ§Ã£o das aletas. Temperatura de operaÃ§Ã£o verificada apÃ³s o procedimento.',
-  'VerificaÃ§Ã£o ElÃ©trica':
-    'VerificaÃ§Ã£o elÃ©trica realizada: mediÃ§Ãµes de corrente, tensÃ£o e isolamento dentro dos parÃ¢metros normais. Sem anomalias registradas.',
+    'Limpeza do evaporador realizada com higienização das aletas. Temperatura de operação verificada após o procedimento.',
+  'Verificação Elétrica':
+    'Verificação elétrica realizada: medições de corrente, tensão e isolamento dentro dos parâmetros normais. Sem anomalias registradas.',
   'Ajuste de Dreno':
-    'Dreno desobstruÃ­do e testado. Escoamento do condensado normalizado, sem retorno de Ã¡gua no equipamento.',
-  'InspeÃ§Ã£o Geral': QUICK_TEMPLATE_MAP.inspecao.descricao,
+    'Dreno desobstruído e testado. Escoamento do condensado normalizado, sem retorno de água no equipamento.',
+  'Inspeção Geral': QUICK_TEMPLATE_MAP.inspecao.descricao,
 };
 
-// Set com todas as descriÃ§Ãµes conhecidas (quick templates + por-tipo). Serve
-// pro prefill do dropdown saber se pode sobrescrever o textarea â€” se o texto
-// atual for uma frase auto-preenchida, Ã© seguro trocar; se o user editou, a
-// gente respeita o que ele escreveu. Inclui as duas descriÃ§Ãµes de tipo
+// Set com todas as descrições conhecidas (quick templates + por-tipo). Serve
+// pro prefill do dropdown saber se pode sobrescrever o textarea - se o texto
+// atual for uma frase auto-preenchida, é seguro trocar; se o user editou, a
+// gente respeita o que ele escreveu. Inclui as duas descrições de tipo
 // 'Limpeza de Filtros' (limpeza preventiva vs troca de filtro) porque ambas
-// vÃªm dos chips de aÃ§Ã£o rÃ¡pida e ainda representam texto auto-gerado.
+// vêm dos chips de ação rápida e ainda representam texto auto-gerado.
 const KNOWN_AUTO_DESCRIPTIONS = new Set([
   ...Object.values(QUICK_TEMPLATE_MAP).map((t) => t.descricao),
   ...Object.values(DESCRIPTION_BY_TIPO),
@@ -163,11 +163,11 @@ const KNOWN_AUTO_DESCRIPTIONS = new Set([
 
 function _prefillObsFromTipo(tipo) {
   const desc = DESCRIPTION_BY_TIPO[tipo];
-  if (!desc) return; // tipo sem template (ex.: "Outro") â€” nada a fazer
+  if (!desc) return; // tipo sem template (ex.: "Outro") - nada a fazer
   const currentObs = Utils.getVal('r-obs').trim();
-  // Sobrescreve sÃ³ quando o textarea estÃ¡ vazio OU quando o conteÃºdo atual Ã©
-  // uma frase auto-gerada (aÃ§Ã£o rÃ¡pida anterior ou outro tipo do dropdown).
-  // Assim, trocar de tipo atualiza os detalhes, mas texto digitado Ã  mÃ£o
+  // Sobrescreve só quando o textarea está vazio OU quando o conteúdo atual é
+  // uma frase auto-gerada (ação rápida anterior ou outro tipo do dropdown).
+  // Assim, trocar de tipo atualiza os detalhes, mas texto digitado à mão
   // continua intocado.
   if (currentObs && !KNOWN_AUTO_DESCRIPTIONS.has(currentObs)) return;
   Utils.setVal('r-obs', desc);
@@ -176,8 +176,8 @@ function _prefillObsFromTipo(tipo) {
 const EDITING_KEY = 'cooltrack-editing-id';
 let _registroChecklistRenderGeneration = 0;
 let _isSavingRegistro = false;
-// Persiste o Ãºltimo cliente preenchido para auto-prefill no prÃ³ximo registro â€”
-// tÃ©cnico que atende o mesmo cliente em sequÃªncia nÃ£o precisa digitar de novo.
+// Persiste o último cliente preenchido para auto-prefill no próximo registro -
+// técnico que atende o mesmo cliente em sequência não precisa digitar de novo.
 const LAST_CLIENT_KEY = 'cooltrack-last-client';
 let _currentRouteParams = {};
 let _resolvedRegistroContext = null;
@@ -193,12 +193,12 @@ function _loadLastClient() {
 
 function _saveLastClient(cliente) {
   try {
-    // SÃ³ persiste se algum campo estiver preenchido â€” evita sobrescrever com
-    // registros salvos "no modo rÃ¡pido" que nÃ£o tocam os campos do cliente.
+    // Só persiste se algum campo estiver preenchido - evita sobrescrever com
+    // registros salvos "no modo rápido" que não tocam os campos do cliente.
     if (!cliente || (!cliente.clienteNome && !cliente.localAtendimento)) return;
     userStorage.set(LAST_CLIENT_KEY, JSON.stringify(cliente));
   } catch (_err) {
-    // localStorage indisponÃ­vel â€” ignora
+    // localStorage indisponível - ignora
   }
 }
 
@@ -210,11 +210,11 @@ function _updateImpactCopy(context) {
   if (context?.hasCompanyContext) {
     subtitle.textContent = 'opcional - status final e prioridade do atendimento';
     hint.textContent =
-      'Se houve falha, risco ou pendÃªncia, ajuste o impacto para o acompanhamento do cliente.';
+      'Se houve falha, risco ou pendência, ajuste o impacto para o acompanhamento do cliente.';
     return;
   }
 
-  subtitle.textContent = 'opcional â€” status final e prioridade';
+  subtitle.textContent = 'opcional - status final e prioridade';
   hint.textContent = 'Se algo saiu do normal, ajuste o status e a prioridade.';
 }
 
@@ -314,13 +314,13 @@ function _setRegistroProximaPreventiva(registroId, proxima) {
 async function _showProximaPreventivaPrompt(registroId) {
   const result = await RegistroProximaPreventivaPrompt.open();
   if (!result || result.canceled === true) {
-    // Dismiss (X/backdrop/Escape) Ã© indecisÃ£o: preserva a data `proxima`
-    // existente em vez de gravar uma escolha implÃ­cita.
+    // Dismiss (X/backdrop/Escape) é indecisão: preserva a data `proxima`
+    // existente em vez de gravar uma escolha implícita.
     return result;
   }
 
   if (result.semRetorno === true) {
-    // "Sem retorno" Ã© uma decisÃ£o explÃ­cita do tÃ©cnico: limpamos `proxima`
+    // "Sem retorno" é uma decisão explícita do técnico: limpamos `proxima`
     // conscientemente para diferenciar de apenas fechar/ignorar o prompt.
     _setRegistroProximaPreventiva(registroId, null);
     return result;
@@ -365,7 +365,7 @@ function _applyClienteDetailsContext(context) {
     details.removeAttribute('open');
     summary.hidden = false;
     summary.innerHTML = `<strong>${Utils.escapeHtml(context.cliente.nome || 'Cliente vinculado')}</strong>${
-      context.cliente.documento ? ` Â· ${Utils.escapeHtml(context.cliente.documento)}` : ''
+      context.cliente.documento ? ` · ${Utils.escapeHtml(context.cliente.documento)}` : ''
     }`;
     return;
   }
@@ -381,8 +381,8 @@ function _applyClienteDetailsContext(context) {
 
 function _updateRegistroShareActions(context) {
   const otherButton = null;
-  // Layout V3: o botÃ£o "Enviar pra outro destinatÃ¡rio" agora vive dentro de
-  // uma row no .action-tray. Ocultar o botÃ£o sozinho deixaria a row vazia
+  // Layout V3: o botão "Enviar pra outro destinatário" agora vive dentro de
+  // uma row no .action-tray. Ocultar o botão sozinho deixaria a row vazia
   // (afetando a borda do divisor), por isso togglamos o hidden no row pai.
   const otherRow = document.getElementById('r-action-other-row');
   const clienteNome = context?.cliente?.nome?.trim();
@@ -411,12 +411,12 @@ function _applyResolvedContext(context) {
   const hasContextCard = Boolean(context?.hasCompanyContext && contextCard);
   if (hasContextCard) {
     contextCard.hidden = false;
-    if (clienteText) clienteText.textContent = context.cliente?.nome || 'NÃ£o informado';
-    if (setorText) setorText.textContent = context.setor?.nome || 'NÃ£o informado';
+    if (clienteText) clienteText.textContent = context.cliente?.nome || 'Não informado';
+    if (setorText) setorText.textContent = context.setor?.nome || 'Não informado';
     if (equipText) {
       const eq = context.equipamento;
-      const suffix = eq?.tag ? ` Â· TAG ${eq.tag}` : '';
-      equipText.textContent = eq?.nome ? `${eq.nome}${suffix}` : 'NÃ£o informado';
+      const suffix = eq?.tag ? ` · TAG ${eq.tag}` : '';
+      equipText.textContent = eq?.nome ? `${eq.nome}${suffix}` : 'Não informado';
     }
   } else if (contextCard) {
     contextCard.hidden = true;
@@ -426,10 +426,10 @@ function _applyResolvedContext(context) {
     if (context?.missingEquipFromParams) {
       contextHint.hidden = false;
       contextHint.textContent =
-        'Equipamento nÃ£o encontrado. Confira o cadastro ou escolha outro equipamento.';
+        'Equipamento não encontrado. Confira o cadastro ou escolha outro equipamento.';
     } else if (context?.shouldWarnEquipmentOnly) {
       contextHint.hidden = false;
-      contextHint.textContent = 'Este serviÃ§o ficarÃ¡ apenas no histÃ³rico do equipamento.';
+      contextHint.textContent = 'Este serviço ficará apenas no histórico do equipamento.';
     } else {
       contextHint.hidden = true;
       contextHint.textContent = '';
@@ -519,7 +519,7 @@ function buildRegistroHeaderProps(params = {}) {
   const viewModel = _buildRegistroReadOnlyViewModel(params);
   const equipmentOptions = asArray(state.equipamentos).map((equipamento) => ({
     id: String(equipamento?.id || ''),
-    label: `${equipamento?.nome || 'â€”'} â€” ${equipamento?.local || 'â€”'}`,
+    label: `${equipamento?.nome || '-'} - ${equipamento?.local || '-'}`,
   }));
   const technicianOptions = asArray(state.tecnicos);
 
@@ -552,18 +552,18 @@ function resetEditingState() {
   sessionStorage.removeItem(EDITING_KEY);
   const formView = Utils.getEl('view-registro');
   if (formView) formView.dataset.editMode = '0';
-  // Edicao terminou (save / clear / discard) â€” libera o guard de navegacao.
+  // Edicao terminou (save / clear / discard) - libera o guard de navegacao.
   clearRouteGuard();
 }
 
-// Guard de saida em modo ediÃ§Ã£o. Bloqueia navegacao pra outra rota e mostra
-// modal pedindo confirmaÃ§Ã£o. Se usuÃ¡rio "Descartar", faz reset COMPLETO do
-// form (clearRegistro) â€” incluindo label do botao "Finalizar serviÃ§o" â€” e
+// Guard de saida em modo edição. Bloqueia navegacao pra outra rota e mostra
+// modal pedindo confirmação. Se usuário "Descartar", faz reset COMPLETO do
+// form (clearRegistro) - incluindo label do botao "Finalizar serviço" - e
 // libera a navegacao. Se "Continuar editando", cancela.
 async function _confirmLeaveEditingGuard(_nextRoute, _nextParams) {
   const ok = await CustomConfirm.show(
-    'Sair sem salvar as alteraÃ§Ãµes?',
-    'VocÃª estÃ¡ editando um registro. Se sair agora, as alteraÃ§Ãµes serÃ£o descartadas.',
+    'Sair sem salvar as alterações?',
+    'Você está editando um registro. Se sair agora, as alterações serão descartadas.',
     {
       confirmLabel: 'Descartar e sair',
       cancelLabel: 'Continuar editando',
@@ -572,24 +572,25 @@ async function _confirmLeaveEditingGuard(_nextRoute, _nextParams) {
   );
   if (ok) {
     // Reset completo: limpa campos do form, foto, checklist, label do botao
-    // ("Salvar alteracoes" -> "Finalizar serviÃ§o"), classes, EDITING_KEY,
+    // ("Salvar alteracoes" -> "Finalizar serviço"), classes, EDITING_KEY,
     // dataset e o proprio guard (resetEditingState e chamado dentro).
     clearRegistro();
   }
   return ok;
 }
 
-// Prefixo usado quando o usuÃ¡rio escolhe "Outro" e descreve o serviÃ§o num campo
-// livre. O valor final persistido em `registro.tipo` fica tipo "Outro Â· Teste
-// de estanqueidade" â€” Ã© sÃ³ uma string Ãºnica, sem coluna extra no Supabase. Para
-// ediÃ§Ã£o, o loadRegistroForEdit detecta o prefixo e repopula o select + o input
+// Prefixo usado quando o usuário escolhe "Outro" e descreve o serviço num campo
+// livre. O valor final persistido em `registro.tipo` fica tipo "Outro · Teste
+// de estanqueidade" - é só uma string única, sem coluna extra no Supabase. Para
+// edição, o loadRegistroForEdit detecta o prefixo e repopula o select + o input
 // custom automaticamente.
-const TIPO_OUTRO_PREFIX = 'Outro Â· ';
+const TIPO_OUTRO_PREFIX = 'Outro · ';
+const LEGACY_TIPO_OUTRO_PREFIX = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
 const TIPO_CUSTOM_MAX = 40;
 
-// â”€â”€ Barra de progresso do formulÃ¡rio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// O campo r-tipo-custom Ã© condicional: sÃ³ conta como "preenchido" quando o tipo
-// = "Outro". Nos outros tipos ele fica oculto e nem Ã© considerado na barra.
+// -- Barra de progresso do formulário ------------------
+// O campo r-tipo-custom é condicional: só conta como "preenchido" quando o tipo
+// = "Outro". Nos outros tipos ele fica oculto e nem é considerado na barra.
 const _fields = [
   { id: 'r-equip', validate: (v) => v !== '' },
   { id: 'r-data', validate: (v) => v !== '' },
@@ -598,8 +599,8 @@ const _fields = [
     validate: (v) => {
       if (v === '') return false;
       if (v === 'Outro') {
-        // Quando "Outro", sÃ³ consideramos o tipo "preenchido" se o custom label
-        // tambÃ©m estiver vÃ¡lido (>=1 char, sem exceder o limite). Sem isso, a
+        // Quando "Outro", só consideramos o tipo "preenchido" se o custom label
+        // também estiver válido (>=1 char, sem exceder o limite). Sem isso, a
         // barra de progresso marcaria Outro como ok mesmo com o label em branco.
         const custom = (Utils.getEl('r-tipo-custom')?.value || '').trim();
         return custom.length >= 1 && custom.length <= TIPO_CUSTOM_MAX;
@@ -611,9 +612,9 @@ const _fields = [
   { id: 'r-obs', validate: (v) => v.trim().length >= 10 },
 ];
 
-// Mostra/esconde o input custom conforme a seleÃ§Ã£o do tipo. TambÃ©m gerencia o
-// atributo `required` e o foco automÃ¡tico quando o usuÃ¡rio escolhe "Outro" â€”
-// assim a UX flui: escolheu Outro â†’ cursor jÃ¡ no campo pra descrever.
+// Mostra/esconde o input custom conforme a seleção do tipo. Também gerencia o
+// atributo `required` e o foco automático quando o usuário escolhe "Outro" -
+// assim a UX flui: escolheu Outro -> cursor já no campo pra descrever.
 function _syncTipoCustomVisibility({ focusOnShow = false } = {}) {
   const sel = Utils.getEl('r-tipo');
   const wrap = document.getElementById('r-tipo-custom-wrap');
@@ -637,17 +638,17 @@ function _syncTipoCustomVisibility({ focusOnShow = false } = {}) {
   }
 }
 
-// â”€â”€ Meter de progresso no hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Meter de progresso no hero ------------------------
 //
-// Desde o redesign (v6), o meter estÃ¡ inline no template (.registro-hero__meter
-// com 5 .registro-hero__seg). A funÃ§Ã£o "ensure" virou sÃ³ uma garantia de que o
-// hero existe e tÃ¡ sincronizado; a "update" pinta cada segmento conforme os
-// campos vÃ£o sendo preenchidos e troca o data-state do hero pra empty/partial/
-// complete â€” CSS muda a cor do meter e dos indicadores a partir disso.
+// Desde o redesign (v6), o meter está inline no template (.registro-hero__meter
+// com 5 .registro-hero__seg). A função "ensure" virou só uma garantia de que o
+// hero existe e tá sincronizado; a "update" pinta cada segmento conforme os
+// campos vão sendo preenchidos e troca o data-state do hero pra empty/partial/
+// complete - CSS muda a cor do meter e dos indicadores a partir disso.
 function _ensureProgressBar(_formView) {
-  // No-op mantido pra compatibilidade com o contrato anterior. O markup jÃ¡ vem
+  // No-op mantido pra compatibilidade com o contrato anterior. O markup já vem
   // do template; se alguma view legado perder o hero, o _updateProgressBar
-  // simplesmente nÃ£o faz nada (guard clauses abaixo).
+  // simplesmente não faz nada (guard clauses abaixo).
 }
 
 function _updateProgressBar() {
@@ -677,15 +678,15 @@ function _updateProgressBar() {
   }
 }
 
-// â”€â”€ Sub do hero (meta "Domingo Â· 19 abr Â· 20:55") â”€â”€â”€â”€â”€â”€
-// Renderiza o sub do hero em portuguÃªs com 3 dots separadores. Se no futuro
-// quisermos atualizar "ao vivo" (ex.: relÃ³gio), basta chamar de novo. Hoje sÃ³
-// roda no initRegistro â€” data Ã© a da abertura do formulÃ¡rio.
+// -- Sub do hero (meta "Domingo · 19 abr · 20:55") ------
+// Renderiza o sub do hero em português com 3 dots separadores. Se no futuro
+// quisermos atualizar "ao vivo" (ex.: relógio), basta chamar de novo. Hoje só
+// roda no initRegistro - data é a da abertura do formulário.
 function _renderHeroSub() {
   const sub = document.getElementById(HERO_SUB_ID);
   if (!sub) return;
   const now = new Date();
-  const dias = ['Domingo', 'Segunda', 'TerÃ§a', 'Quarta', 'Quinta', 'Sexta', 'SÃ¡bado'];
+  const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
   const meses = [
     'jan',
     'fev',
@@ -715,7 +716,7 @@ function _renderHeroSub() {
     .join('');
 }
 
-// â”€â”€ Aviso de manutenÃ§Ã£o agendada â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Aviso de manutenção agendada -----------------------
 function _bindEquipChangeWarning() {
   const sel = Utils.getEl('r-equip');
   if (!sel) return;
@@ -742,9 +743,9 @@ function _bindEquipChangeWarning() {
   });
 }
 
-// â”€â”€ Checklist NBR 13971 (Fase 3 PMOC) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// State local: snapshot do checklist em ediÃ§Ã£o. Reset quando equip muda
-// (template Ã© por tipo) ou quando o registro Ã© salvo/limpo.
+// -- Checklist NBR 13971 (Fase 3 PMOC) -------------------------
+// State local: snapshot do checklist em edição. Reset quando equip muda
+// (template é por tipo) ou quando o registro é salvo/limpo.
 let _currentChecklist = null;
 
 function getRegistroChecklistState() {
@@ -921,11 +922,11 @@ function ensureRegistroChecklistStateForTemplate(equip, template) {
 
 /**
  * Renderiza o checklist baseado no equip selecionado. Chamado quando
- * r-equip muda OU quando o accordion Ã© aberto pela primeira vez.
+ * r-equip muda OU quando o accordion é aberto pela primeira vez.
  *
- * EstratÃ©gia: usa o snapshot existente em _currentChecklist se o
- * tipo_template corresponde â€” preserva marcaÃ§Ãµes do user mesmo se
- * ele trocar de equip e voltar. SenÃ£o, reseta para checklist vazio.
+ * Estratégia: usa o snapshot existente em _currentChecklist se o
+ * tipo_template corresponde - preserva marcações do user mesmo se
+ * ele trocar de equip e voltar. Senão, reseta para checklist vazio.
  */
 export function renderChecklist() {
   const { wrapper, body } = getRegistroChecklistElements();
@@ -958,7 +959,7 @@ export function renderChecklist() {
   }
 
   const tpl = resolveRegistroChecklistTemplate(equip, { getChecklistTemplate });
-  // Preserva marcaÃ§Ãµes se template Ã© o mesmo (user trocou de equip do mesmo tipo)
+  // Preserva marcações se template é o mesmo (user trocou de equip do mesmo tipo)
   ensureRegistroChecklistStateForTemplate(equip, tpl);
 
   _showPmocChecklistUpsell(false);
@@ -970,7 +971,7 @@ export function renderChecklist() {
   _updateChecklistSummary();
 }
 
-/** Atualiza status de um item â€” chamado pelo handler de click. */
+/** Atualiza status de um item - chamado pelo handler de click. */
 function getRegistroChecklistItem(itemId) {
   return getRegistroChecklistState()?.items?.find((item) => item.id === itemId) || null;
 }
@@ -1000,12 +1001,12 @@ export function setChecklistItemStatus(itemId, status) {
   if (!getRegistroChecklistState()) return;
   const item = applyRegistroChecklistItemStatus(itemId, status);
   if (!item) return;
-  // Update DOM in place â€” nÃ£o re-renderiza pra preservar foco em textarea
+  // Update DOM in place - não re-renderiza pra preservar foco em textarea
   updateRegistroChecklistStatusDom(itemId, item.status);
   _updateChecklistSummary();
 }
 
-/** Atualiza obs de um item â€” chamado pelo handler de input do textarea. */
+/** Atualiza obs de um item - chamado pelo handler de input do textarea. */
 function applyRegistroChecklistItemObs(itemId, obs) {
   const item = getRegistroChecklistItem(itemId);
   if (item) item.obs = String(obs || '');
@@ -1018,10 +1019,10 @@ export function setChecklistItemObs(itemId, obs) {
 }
 
 /**
- * PMOC Fase 4: atualiza mediÃ§Ã£o numÃ©rica de um item measurable.
- * Vazio limpa o measure (vira null); valor numÃ©rico salva como
- * { value, unit }. NÃ£o-numÃ©ricos sÃ£o ignorados (input number jÃ¡
- * filtra mas defensivo aqui tambÃ©m).
+ * PMOC Fase 4: atualiza medição numérica de um item measurable.
+ * Vazio limpa o measure (vira null); valor numérico salva como
+ * { value, unit }. Não-numéricos são ignorados (input number já
+ * filtra mas defensivo aqui também).
  */
 function applyRegistroChecklistItemMeasure(itemId, rawValue, unit) {
   const item = getRegistroChecklistItem(itemId);
@@ -1036,12 +1037,12 @@ export function setChecklistItemMeasure(itemId, rawValue, unit) {
   applyRegistroChecklistItemMeasure(itemId, rawValue, unit);
 }
 
-/** Snapshot atual do checklist â€” chamado por saveRegistro. */
+/** Snapshot atual do checklist - chamado por saveRegistro. */
 export function getCurrentChecklist() {
   return collectRegistroChecklistForSave(getRegistroChecklistState());
 }
 
-/** Reset â€” chamado por clearRegistro. */
+/** Reset - chamado por clearRegistro. */
 function resetRegistroChecklistAfterClear() {
   clearRegistroChecklistState();
   const body = document.getElementById(REGISTRO_CHECKLIST_ROOT_ID);
@@ -1066,7 +1067,7 @@ function restoreRegistroChecklistForEdit(checklist) {
   renderChecklist();
 }
 
-/** Carrega checklist do registro existente em modo ediÃ§Ã£o. */
+/** Carrega checklist do registro existente em modo edição. */
 export function loadChecklistForEdit(checklist) {
   restoreRegistroChecklistForEdit(checklist);
 }
@@ -1113,9 +1114,9 @@ function _bindRegistroHeaderFieldHandlers() {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// API PÃšBLICA
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// =======================================================
+// API PÚBLICA
+// =======================================================
 
 function resolveRegistroInitRoot() {
   return Utils.getEl('view-registro');
@@ -1134,8 +1135,8 @@ function mountRegistroInitHeader(params) {
 function bindRegistroInitFormOnce(formView) {
   if (formView.dataset.bound) return;
 
-  // Smart mask no campo Telefone/contato do cliente â€” formata (XX) XXXXX-XXXX
-  // se o usuÃ¡rio digitar dÃ­gitos. Se digitar email/texto livre, deixa em paz.
+  // Smart mask no campo Telefone/contato do cliente - formata (XX) XXXXX-XXXX
+  // se o usuário digitar dígitos. Se digitar email/texto livre, deixa em paz.
   bindSmartContactMaskInput(Utils.getEl('r-cliente-contato'));
 
   formView.dataset.bound = '1';
@@ -1160,7 +1161,7 @@ function renderRegistroInitHero() {
 }
 
 function applyRegistroInitDateDefault() {
-  // Data padrÃ£o "Hoje agora" â€” UX V2 audit fix
+  // Data padrão "Hoje agora" - UX V2 audit fix
   if (!Utils.getVal('r-data')) Utils.setVal('r-data', Utils.nowDatetime());
 }
 
@@ -1182,7 +1183,7 @@ function bindRegistroInitDatetimeUX() {
       nowBtn?.setAttribute('aria-pressed', 'true');
       return;
     }
-    // Se a data Ã© dentro de 1min do agora, Ã© "Hoje agora"
+    // Se a data é dentro de 1min do agora, é "Hoje agora"
     const ts = new Date(val).getTime();
     if (Math.abs(Date.now() - ts) < 60_000) {
       nowLabel.textContent = 'Hoje agora';
@@ -1229,7 +1230,7 @@ function bindRegistroInitDatetimeUX() {
 }
 
 function applyRegistroInitTechnicianDefault() {
-  // H1: tÃ©cnico padrÃ£o
+  // H1: técnico padrão
   const rTecnico = Utils.getEl('r-tecnico');
   if (rTecnico && !rTecnico.value) {
     const def = Profile.getDefaultTecnico();
@@ -1253,7 +1254,7 @@ function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId 
   bindRegistroInitDatetimeUX();
   applyRegistroInitTechnicianDefault();
 
-  // PrÃ©-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
+  // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
   resetRegistroInitEditingIfCreate(params);
   syncRegistroInitRouteContext(params, effectiveEquipId);
   _buildRegistroReadOnlyViewModel(params);
@@ -1326,13 +1327,13 @@ function normalizeRegistroServiceType(values, elements = getRegistroFormElements
   if (result.valid) return result;
 
   if (result.reason === 'missing-custom') {
-    Toast.warning('Descreva o serviÃ§o no campo "Qual serviÃ§o?" pra continuar.');
+    Toast.warning('Descreva o serviço no campo "Qual serviço?" pra continuar.');
     elements.tipoCustom?.focus();
     return { valid: false };
   }
 
   if (result.reason === 'custom-too-long') {
-    Toast.warning(`A descricao do serviÃ§o passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
+    Toast.warning(`A descricao do serviço passa do limite de ${TIPO_CUSTOM_MAX} caracteres.`);
     elements.tipoCustom?.focus();
     return { valid: false };
   }
@@ -1388,7 +1389,7 @@ function persistRegistroTechnicianProfile(tecnico) {
   // UX V2 audit fix #81: auto-default tecnico no Profile apos primeiro
   // registro. Se o user nao tem nome no perfil ainda (ex.: pulou
   // onboarding), assumimos o nome do tecnico do registro recem-salvo como
-  // o nome dele. Salva apenas o campo .nome â€” outros campos (empresa,
+  // o nome dele. Salva apenas o campo .nome - outros campos (empresa,
   // CNPJ) ficam pra ele preencher em /conta. Idempotente: nao sobrescreve
   // perfil ja preenchido.
   try {
@@ -1397,7 +1398,7 @@ function persistRegistroTechnicianProfile(tecnico) {
       Profile.save({ ...currentProfile, nome: tecnico });
     }
   } catch (_err) {
-    /* storage off â€” nao bloqueia o save do registro */
+    /* storage off - nao bloqueia o save do registro */
   }
 }
 
@@ -1456,7 +1457,7 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
   const template = QUICK_TEMPLATE_MAP[templateId];
   if (!template) return;
 
-  // â”€â”€â”€ Pre-fill agressivo (UX V2 audit) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // --- Pre-fill agressivo (UX V2 audit) ----------------------------------
   // Antes preenchia tipo, obs, prioridade, data. Agora tambem preenche
   // status=ok (assume que ficou operando), e foca o proximo campo vazio.
   Utils.setVal('r-tipo', template.tipo);
@@ -1464,7 +1465,7 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
   if (!Utils.getVal('r-obs').trim()) Utils.setVal('r-obs', template.descricao);
   Utils.setVal('r-prioridade', template.prioridade);
   Utils.setVal('r-data', Utils.nowDatetime());
-  // Default status "Operando normalmente" â€” 80% dos casos preventivos
+  // Default status "Operando normalmente" - 80% dos casos preventivos
   if (!Utils.getVal('r-status')) Utils.setVal('r-status', 'ok');
   if (!Utils.getVal('r-tecnico')) {
     const def = Profile.getDefaultTecnico();
@@ -1488,9 +1489,9 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
 
   _updateProgressBar();
 
-  // â”€â”€â”€ Smart focus + feedback contextual â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // --- Smart focus + feedback contextual --------------------------------
   // Identifica o proximo required vazio e foca nele. Toast diz exatamente
-  // o que falta â€” em vez do generico "revise e salve".
+  // o que falta - em vez do generico "revise e salve".
   const requiredOrder = [
     { id: 'r-equip', label: 'equipamento' },
     { id: 'r-tecnico', label: 'tecnico' },
@@ -1504,10 +1505,10 @@ export function applyQuickTemplate(templateId, triggerEl = null) {
     }
     Toast.success(`Modelo aplicado. Falta so o ${nextEmpty.label} pra finalizar.`);
   } else {
-    // Tudo pronto pra salvar â€” foca no botao primario
+    // Tudo pronto pra salvar - foca no botao primario
     const saveBtn = document.querySelector('[data-action="save-registro"]');
     if (saveBtn) saveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    Toast.success('Modelo aplicado. Toque em Salvar serviÃ§o pra finalizar.');
+    Toast.success('Modelo aplicado. Toque em Salvar serviço pra finalizar.');
   }
 }
 
@@ -1537,7 +1538,7 @@ export async function saveRegistro() {
 
     persistRegistroTechnicianProfile(tecnico);
 
-    // Modo ediÃ§Ã£o â€” atualiza registro existente
+    // Modo edição - atualiza registro existente
     const editingId = getRegistroEditingId();
     if (editingId) {
       applyRegistroEditStateMutation(editingId, persistedPayload);
@@ -1545,7 +1546,7 @@ export async function saveRegistro() {
       return true;
     }
 
-    // Modo criaÃ§Ã£o â€” continua fluxo normal
+    // Modo criação - continua fluxo normal
     const novoId = resolveRegistroCreateId({ uid: () => Utils.uid() });
     const photoPayload = { fotos: [] };
 
@@ -1637,8 +1638,8 @@ function resetRegistroSaveButtonAfterClear() {
   const saveBtn = document.querySelector('[data-action="save-registro"]');
   if (saveBtn) {
     const saveLabel = saveBtn.querySelector('span');
-    if (saveLabel) saveLabel.textContent = 'Salvar serviÃ§o';
-    else saveBtn.textContent = 'Salvar serviÃ§o';
+    if (saveLabel) saveLabel.textContent = 'Salvar serviço';
+    else saveBtn.textContent = 'Salvar serviço';
     saveBtn.classList.remove('btn--editing');
   }
 }
@@ -1663,28 +1664,28 @@ export function clearRegistro(preserveEquip = false) {
   // Garante que o campo custom volte a ficar oculto junto com o reset do tipo.
   resetRegistroDetailsAfterClear();
 
-  // Reseta o meter do hero pra empty sem remover o markup (ele Ã© estÃ¡tico no
+  // Reseta o meter do hero pra empty sem remover o markup (ele é estático no
   // template agora, diferente da v5 que injetava dinamicamente).
   resetRegistroProgressAfterClear();
 
-  // Reset do estado ativo dos chips de aÃ§Ã£o rÃ¡pida â€” "RecomeÃ§ar" deve zerar
-  // a seleÃ§Ã£o visual pra nÃ£o sugerir um template que jÃ¡ nÃ£o se aplica ao
+  // Reset do estado ativo dos chips de ação rápida - "Recomeçar" deve zerar
+  // a seleção visual pra não sugerir um template que já não se aplica ao
   // novo registro em branco.
   resetRegistroQuickTemplateChipsAfterClear();
 
-  // PMOC Fase 3: reset do state do checklist (impede vazar marcaÃ§Ãµes
-  // de um registro pra outro quando o user clica "RecomeÃ§ar").
+  // PMOC Fase 3: reset do state do checklist (impede vazar marcações
+  // de um registro pra outro quando o user clica "Recomeçar").
   resetRegistroChecklistAfterClearClick();
   resetRegistroTechnicianDefaultAfterClear();
 
-  // Auto-prefill do Ãºltimo cliente â€” tÃ©cnico que atende o mesmo cliente em
-  // sequÃªncia (ex.: manutenÃ§Ã£o de vÃ¡rias unidades no mesmo prÃ©dio) nÃ£o precisa
-  // redigitar. O usuÃ¡rio pode apagar os campos se for para outro cliente.
+  // Auto-prefill do último cliente - técnico que atende o mesmo cliente em
+  // sequência (ex.: manutenção de várias unidades no mesmo prédio) não precisa
+  // redigitar. O usuário pode apagar os campos se for para outro cliente.
   restoreRegistroLastClientAfterClear();
   resetRegistroSaveButtonAfterClear();
 
-  // Hero do redesign v6: pill texto volta pra "Novo registro" quando saÃ­mos
-  // do modo ediÃ§Ã£o. MantÃ©m tambÃ©m o fallback pro legado .section-title.
+  // Hero do redesign v6: pill texto volta pra "Novo registro" quando saímos
+  // do modo edição. Mantém também o fallback pro legado .section-title.
   resetRegistroHeroAfterClear();
   finalizeClearRegistroAfterReset();
 }
@@ -1705,12 +1706,16 @@ function fillRegistroEditBaseFields(r) {
 }
 
 function fillRegistroEditTypeFields(r) {
-  // Se o tipo foi salvo com prefixo "Outro Â· ", separamos de volta em select=Outro
-  // + input custom. Caso contrÃ¡rio, repopulamos normalmente e deixamos o wrap
+  // Se o tipo foi salvo com prefixo "Outro · ", separamos de volta em select=Outro
+  // + input custom. Caso contrário, repopulamos normalmente e deixamos o wrap
   // escondido. O _syncTipoCustomVisibility no initRegistro finaliza o estado.
-  if (typeof r.tipo === 'string' && r.tipo.startsWith(TIPO_OUTRO_PREFIX)) {
+  const outroPrefix =
+    typeof r.tipo === 'string' && r.tipo.startsWith(LEGACY_TIPO_OUTRO_PREFIX)
+      ? LEGACY_TIPO_OUTRO_PREFIX
+      : TIPO_OUTRO_PREFIX;
+  if (typeof r.tipo === 'string' && r.tipo.startsWith(outroPrefix)) {
     Utils.setVal('r-tipo', 'Outro');
-    Utils.setVal('r-tipo-custom', r.tipo.slice(TIPO_OUTRO_PREFIX.length));
+    Utils.setVal('r-tipo-custom', r.tipo.slice(outroPrefix.length));
   } else {
     Utils.setVal('r-tipo', r.tipo);
     Utils.setVal('r-tipo-custom', '');
@@ -1738,7 +1743,7 @@ function fillRegistroEditClientFields(r) {
 }
 
 function restoreRegistroEditChecklist(r) {
-  // PMOC Fase 3: carrega checklist se existe; senÃ£o renderiza vazio
+  // PMOC Fase 3: carrega checklist se existe; senão renderiza vazio
   // baseado no tipo do equip.
   if (r.checklist && typeof r.checklist === 'object') {
     loadChecklistForEdit(r.checklist);
@@ -1750,21 +1755,21 @@ function restoreRegistroEditChecklist(r) {
 function syncRegistroEditActionState() {
   const btn = document.querySelector('[data-action="save-registro"]');
   if (btn) {
-    // MantÃ©m o SVG do Ã­cone intocado â€” sÃ³ troca o rÃ³tulo interno.
+    // Mantém o SVG do ícone intocado - só troca o rótulo interno.
     const label = btn.querySelector('span');
-    if (label) label.textContent = 'Salvar alteraÃ§Ãµes';
-    else btn.textContent = 'Salvar alteraÃ§Ãµes';
+    if (label) label.textContent = 'Salvar alterações';
+    else btn.textContent = 'Salvar alterações';
     btn.classList.add('btn--editing');
   }
 }
 
 function syncRegistroEditHeroContext() {
-  // No redesign v6 o hero tem a pill "Novo registro"; no modo ediÃ§Ã£o trocamos
-  // pra "Editando serviÃ§o". O .section-title legado Ã© mantido como fallback.
+  // No redesign v6 o hero tem a pill "Novo registro"; no modo edição trocamos
+  // pra "Editando serviço". O .section-title legado é mantido como fallback.
   const heroPill = document.getElementById(HERO_PILL_TEXT_ID);
-  if (heroPill) heroPill.textContent = 'Editando serviÃ§o';
+  if (heroPill) heroPill.textContent = 'Editando serviço';
   const title = document.querySelector('#view-registro .section-title');
-  if (title) title.textContent = 'Editar serviÃ§o';
+  if (title) title.textContent = 'Editar serviço';
   _refreshRegistroContext();
 }
 
@@ -1783,7 +1788,7 @@ export function loadRegistroForEdit(id) {
   syncRegistroEditHeroContext();
 }
 
-// Garante que estado de ediÃ§Ã£o nÃ£o persista entre sessoes do app.
+// Garante que estado de edição não persista entre sessoes do app.
 // pagehide cobre tanto fechamento de aba quanto navegacao pra outro
 // site (mais robusto que beforeunload em mobile / Safari).
 if (typeof window !== 'undefined') {
@@ -1791,7 +1796,7 @@ if (typeof window !== 'undefined') {
     try {
       sessionStorage.removeItem(EDITING_KEY);
     } catch (_err) {
-      /* sessionStorage indisponivel â€” ignora */
+      /* sessionStorage indisponivel - ignora */
     }
   });
 }

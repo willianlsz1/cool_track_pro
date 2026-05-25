@@ -129,6 +129,15 @@ decisao, do escopo e do risco remanescente.
 - Mantidos guardrails de 99% de certeza, validacao, areas sensiveis e
   preservacao do favicon.
 
+## Textos e codificacao
+
+- Corrigido mojibake em textos visiveis e comentarios de Registro legado ainda
+  carregados pelo runtime.
+- Mantida compatibilidade de leitura para registros antigos com tipo `Outro`
+  salvo usando separador corrompido.
+- Validacoes focadas devem cobrir lifecycle de Registro e o scan de vestigios
+  legado.
+
 ## PDF/share legado
 
 - Removidas dependencias `jspdf` e `jspdf-autotable` apos confirmar ausencia de
