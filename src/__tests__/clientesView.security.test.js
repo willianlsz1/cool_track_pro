@@ -104,7 +104,7 @@ describe('clientes view adapter', () => {
     );
   });
 
-  it('mantem navegacao legada por data-cli-action para equipamentos e historico', async () => {
+  it('mantem navegacao de compatibilidade por data-cli-action para equipamentos e historico', async () => {
     const { renderClientes } = await import('../ui/views/clientes.js');
     await renderClientes();
 

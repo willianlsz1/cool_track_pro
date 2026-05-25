@@ -102,7 +102,7 @@ describe('bridges/listBridge', () => {
     expect(unmountEquipamentosListDom).toHaveBeenCalledWith(root);
   });
 
-  it('usa renderer DOM da lista em vez da ilha React legada', () => {
+  it('usa renderer DOM da lista em vez da ilha React aposentada', () => {
     const bridgeSource = readFileSync('src/ui/views/equipamentos/bridges/listBridge.js', 'utf8');
 
     expect(bridgeSource).toContain('../ui/listRenderer.js');

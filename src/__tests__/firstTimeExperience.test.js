@@ -114,7 +114,7 @@ describe('FirstTimeExperience > fluxo ativo', () => {
     expect(document.getElementById('ftx-overlay')).toBeTruthy();
   });
 
-  it('migra chave legada global para chave por usuário', async () => {
+  it('migra chave historica global para chave por usuário', async () => {
     const { FirstTimeExperience } = await loadFtx();
     localStorage.setItem('cooltrack-ftx-done', '1');
 

@@ -101,7 +101,7 @@ describe('Tour', () => {
     expect(document.getElementById('tour-modal')).toBeNull();
   });
 
-  it('migra chave legada global para chave por usuário', async () => {
+  it('migra chave historica global para chave por usuário', async () => {
     localStorage.setItem('cooltrack-tour-done', '1');
     const { Tour } = await import('../ui/components/tour.js');
 

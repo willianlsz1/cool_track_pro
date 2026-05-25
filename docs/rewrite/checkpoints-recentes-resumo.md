@@ -370,6 +370,9 @@ decisao, do escopo e do risco remanescente.
   registro, reduzindo `registro.js` abaixo de 1000 linhas sem alterar storage.
 - Neutralizada linguagem residual de legado em descricoes de testes ativos de
   persistencia de Setores, sem alterar asserts, storage ou runtime.
+- Neutralizada linguagem residual de legado em descricoes de testes ativos de
+  clientes, equipamentos, onboarding, navegacao, registro e tour, sem alterar
+  asserts ou runtime.
 
 ## Validacao padrao
 

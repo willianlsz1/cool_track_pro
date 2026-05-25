@@ -321,7 +321,7 @@ describe('registro save handlers with retired signature contracts', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('salva via save-registro lendo campos DOM e checklist sem captura legada de fotos', async () => {
+  it('salva via save-registro lendo campos DOM e checklist sem captura aposentada de fotos', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: false });
@@ -344,7 +344,7 @@ describe('registro save handlers with retired signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('aposenta assinatura no salvamento mesmo com acesso legado habilitado', async () => {
+  it('aposenta assinatura no salvamento mesmo com acesso operacional habilitado', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });

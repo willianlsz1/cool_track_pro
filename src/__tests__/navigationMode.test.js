@@ -36,7 +36,7 @@ describe('navigationMode', () => {
     expect(getNavigationMode()).toBe(NAV_MODE_RAPIDO);
   });
 
-  it('mantem layout principal unico para preferencias legadas', () => {
+  it('mantem layout principal unico para preferencias historicas', () => {
     const expectedLayout = {
       mobilePrimary: ['inicio', 'clientes', 'registro', 'equipamentos', 'historico'],
       mobileSecondary: [],
