@@ -177,6 +177,17 @@ decisao, do escopo e do risco remanescente.
 - Removido chunk manual `vendor-pdf` do Vite.
 - PDF/share novo continua fora do app-v2 ate etapa propria futura.
 
+## Dashboard legado
+
+- Removido cluster runtime `src/ui/views/dashboard*`,
+  `src/ui/viewModels/dashboard*` e `src/ui/components/overflowBanner.js`.
+- `view-inicio` no shell legado ficou como placeholder minimo para preservar
+  contratos de navegacao enquanto o app-v2 e a experiencia principal.
+- Ajustados testes de contratos, equipamentos e historico para nao dependerem
+  de mocks do dashboard removido.
+- Router ainda mantem tratamento antigo de `dash-overflow-modal`; fica para CP
+  proprio por ser area sensivel.
+
 ## Validacao padrao
 
 - Para CPs com codigo: testes focados, `npm run format`, `npm run build`,

@@ -1137,17 +1137,6 @@ function _resetSaveEquipForm(keepOpen) {
  */
 async function _refreshSaveEquipViews() {
   OnboardingBanner.remove();
-  try {
-    const { renderDashboard } = await import('./dashboard.js');
-    renderDashboard();
-  } catch (error) {
-    handleError(error, {
-      code: ErrorCodes.NETWORK_ERROR,
-      message: 'Equipamento salvo, mas houve falha ao atualizar o painel.',
-      context: { action: 'equipamentos.saveEquip.renderDashboard' },
-      severity: 'warning',
-    });
-  }
   renderEquip();
   updateGlobalHeader();
 }

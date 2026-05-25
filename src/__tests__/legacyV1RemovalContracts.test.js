@@ -225,9 +225,7 @@ describe('legacy v1 removal contracts', () => {
     const onboardingBarrelSource = readSource('src/ui/components/onboarding.js');
 
     expect(onboardingBarrelSource).not.toMatch(/export\s+\{\s*Profile\s*\}/);
-    expect(readSource('src/ui/views/dashboard.js')).toContain(
-      "import { Profile } from '../../core/profile.js';",
-    );
+    expect(existsSync('src/ui/views/dashboard.js')).toBe(false);
   });
 
   it('does not keep the legacy relatorio feature helper after moving copy to domain', () => {
@@ -493,13 +491,25 @@ describe('legacy v1 removal contracts', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('does not keep legacy Dashboard PMOC client risk surface', () => {
-    const dashboardSource = readSource('src/ui/views/dashboard.js');
-    const dashboardViewModelSource = readSource('src/ui/viewModels/dashboardViewModel.js');
+  it('does not keep the legacy Dashboard runtime cluster after app-v2 promotion', () => {
+    const retiredDashboardFiles = [
+      'src/ui/views/dashboard.js',
+      'src/ui/views/dashboard/chartsRefresh.js',
+      'src/ui/views/dashboard/onboarding.js',
+      'src/ui/views/dashboard/proDraft.js',
+      'src/ui/views/dashboard/readOnlyBlocks.js',
+      'src/ui/viewModels/dashboardContracts.js',
+      'src/ui/viewModels/dashboardViewModel.js',
+      'src/ui/components/overflowBanner.js',
+    ];
+    const uiSources = listSourceFiles('src/ui');
+    const offenders = findMatches(
+      uiSources,
+      /views\/dashboard|dashboardContracts|dashboardViewModel|renderDashboard|OverflowBanner|overflowBanner|dash-/,
+    );
 
-    expect(dashboardSource).not.toContain('buildClientePmocDetails');
-    expect(dashboardSource).not.toContain('Clientes em risco');
-    expect(dashboardViewModelSource).not.toContain("kind: 'pmoc'");
+    expect(retiredDashboardFiles.filter((path) => existsSync(path))).toEqual([]);
+    expect(offenders).toEqual([]);
   });
 
   it('does not keep legacy Historico PMOC attention surface', () => {
@@ -952,7 +962,6 @@ describe('legacy v1 removal contracts', () => {
       'src/domain/dadosPlacaInsights.js',
       'src/ui/views/registro.js',
       'src/ui/views/registro/save/postSave.js',
-      'src/ui/views/dashboard.js',
       'src/ui/views/historico.js',
       'src/ui/components/onboarding/onboardingBanner.js',
       'src/ui/components/onboarding/firstTimeExperience.css',

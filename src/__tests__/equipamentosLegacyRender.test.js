@@ -175,11 +175,6 @@ vi.mock('../core/plans/subscriptionPlans.js', () => ({
   hasProAccess: vi.fn(() => stateMocks.isPro),
 }));
 
-vi.mock('../ui/views/dashboard.js', () => ({
-  calcHealthScore: vi.fn(() => 82),
-  getHealthClass: vi.fn(() => 'ok'),
-  updateHeader: vi.fn(),
-}));
 vi.mock('../ui/composables/header.js', () => ({
   updateGlobalHeader: vi.fn(),
 }));

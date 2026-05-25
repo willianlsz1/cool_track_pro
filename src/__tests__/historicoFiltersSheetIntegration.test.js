@@ -114,9 +114,6 @@ vi.mock('../ui/components/historicoFiltersSheet.js', () => ({
   HistoricoFiltersSheet: { open: mocks.openFiltersSheet },
 }));
 
-vi.mock('../ui/views/dashboard.js', () => ({
-  updateHeader: mocks.updateHeader,
-}));
 vi.mock('../ui/composables/header.js', () => ({
   updateGlobalHeader: vi.fn(),
 }));

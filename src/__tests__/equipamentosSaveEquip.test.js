@@ -21,7 +21,6 @@ const mocks = vi.hoisted(() => ({
   modalClose: vi.fn(),
   toastSuccess: vi.fn(),
   toastWarning: vi.fn(),
-  renderDashboard: vi.fn(),
   updateGlobalHeader: vi.fn(),
   onboardingRemove: vi.fn(),
   goTo: vi.fn(),
@@ -70,12 +69,6 @@ vi.mock('../core/toast.js', () => ({
 
 vi.mock('../core/modal.js', () => ({
   Modal: { close: mocks.modalClose, open: vi.fn() },
-}));
-
-vi.mock('../ui/views/dashboard.js', () => ({
-  renderDashboard: mocks.renderDashboard,
-  calcHealthScore: vi.fn(() => 90),
-  getHealthClass: vi.fn(() => 'ok'),
 }));
 
 vi.mock('../ui/composables/header.js', () => ({
@@ -388,7 +381,6 @@ describe('saveEquip legacy behavior', () => {
       }),
     ]);
     expect(mocks.modalClose).toHaveBeenCalledWith('modal-add-eq');
-    expect(mocks.renderDashboard).toHaveBeenCalledTimes(1);
     expect(mocks.updateGlobalHeader).toHaveBeenCalledTimes(1);
     expect(mocks.toastSuccess).toHaveBeenCalledWith('Equipamento cadastrado.');
   });

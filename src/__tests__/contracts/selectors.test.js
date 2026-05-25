@@ -19,7 +19,6 @@ function extract(sourceCode, attr) {
 }
 
 describe('contracts/selectors (static)', () => {
-  const dashboard = source('src/ui/views/dashboard.js');
   const equipamentos = [
     source('src/ui/views/equipamentos.js'),
     source('src/ui/views/equipamentos/ui/detail.js'),
@@ -32,11 +31,6 @@ describe('contracts/selectors (static)', () => {
   const historico = source('src/ui/views/historico.js');
   const clientes = source('src/ui/views/clientes.js');
 
-  describe('dashboard', () => {
-    it('data-action', () => expect(extract(dashboard, 'data-action')).toMatchInlineSnapshot(`[]`));
-    it('data-nav', () => expect(extract(dashboard, 'data-nav')).toMatchInlineSnapshot(`[]`));
-    it('data-id', () => expect(extract(dashboard, 'data-id')).toMatchInlineSnapshot(`[]`));
-  });
   describe('equipamentos', () => {
     it('data-action', () =>
       expect(extract(equipamentos, 'data-action')).toMatchInlineSnapshot(`

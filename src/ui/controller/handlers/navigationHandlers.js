@@ -256,7 +256,7 @@ export function bindNavigationHandlers() {
     goTo('equipamentos', { statusFilter: 'preventiva-7d' });
   });
 
-  // Continue draft card no painel: navega pra /registro com o id pra recuperar
+  // Continue draft card: navega para registro com o id para recuperar.
   on('continue-draft', (el) => {
     const id = el?.dataset?.id;
     if (id) {
@@ -266,7 +266,7 @@ export function bindNavigationHandlers() {
     }
   });
 
-  // Descarta o rascunho via clique no X do continue card
+  // Descarta o rascunho via clique no X do continue card.
   on('discard-draft', async () => {
     try {
       sessionStorage.removeItem('cooltrack-editing-id');
@@ -274,9 +274,6 @@ export function bindNavigationHandlers() {
       /* sessionStorage indisponivel */
     }
     Toast.success('Rascunho descartado.');
-    // Re-renderiza o dashboard pra remover o card
-    const { renderDashboard } = await import('../../views/dashboard.js');
-    renderDashboard?.();
   });
 
   // Click num card de alerta de cliente em /alertas → navega pra grade de
@@ -293,11 +290,6 @@ export function bindNavigationHandlers() {
   // Onboarding checklist — dispensar permanentemente o card de "Primeiros passos"
   on('onboarding-dismiss', () => {
     OnboardingChecklist.dismiss();
-    const host = document.getElementById('dash-onboarding');
-    if (host) {
-      const card = host.querySelector('.onb-card');
-      if (card) card.remove();
-    }
   });
 
   // Push: ativar/desativar notificações na tela de Conta

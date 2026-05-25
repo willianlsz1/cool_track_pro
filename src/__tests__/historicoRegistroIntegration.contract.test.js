@@ -142,11 +142,6 @@ vi.mock('../ui/views/equipamentos.js', () => ({
   lockEquipContext: vi.fn(),
 }));
 
-vi.mock('../ui/views/dashboard.js', () => ({
-  renderDashboard: vi.fn(),
-  updateHeader: mocks.updateHeader,
-}));
-
 vi.mock('../ui/composables/header.js', () => ({
   updateGlobalHeader: mocks.updateGlobalHeader,
 }));

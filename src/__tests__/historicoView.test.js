@@ -28,9 +28,6 @@ vi.mock('../ui/components/onboarding.js', () => ({
 vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: (_el, _opts, fn) => fn(),
 }));
-vi.mock('../ui/views/dashboard.js', () => ({
-  updateHeader: vi.fn(),
-}));
 vi.mock('../ui/composables/header.js', () => ({
   updateGlobalHeader: vi.fn(),
 }));
