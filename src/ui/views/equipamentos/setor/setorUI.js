@@ -25,11 +25,11 @@ export function _lockedSetorBtnHtml() {
       class="btn btn--outline btn--sm btn--locked"
       disabled
       aria-disabled="true"
-      title="Setores é uma feature do plano Pro"
+      title="Setores indisponiveis neste perfil"
     >
       <span aria-hidden="true">🔒</span>
       + Novo setor
-      <span class="btn__pro-pill" aria-hidden="true">PRO</span>
+      <span class="btn__pro-pill" aria-hidden="true">Indisponivel</span>
     </button>
   `;
 }

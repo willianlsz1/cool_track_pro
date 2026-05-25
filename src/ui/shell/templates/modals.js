@@ -235,7 +235,7 @@ export function renderShellModals() {
             </div>
 
             <div class="eq-context-group__grid">
-              <!-- Setor (Pro) -->
+              <!-- Setor -->
               <div class="eq-context-card" id="eq-setor-wrapper" style="display:none">
                 <button type="button" class="eq-context-card__trigger"
                   id="eq-setor-trigger" data-eq-context="setor"
@@ -250,7 +250,7 @@ export function renderShellModals() {
                   <span class="eq-context-card__body">
                     <span class="eq-context-card__label">
                       Setor
-                      <span class="pro-badge pro-badge--inline">PRO</span>
+                      <span class="pro-badge pro-badge--inline">Opcional</span>
                     </span>
                     <span class="eq-context-card__value" id="eq-setor-value">Sem setor</span>
                   </span>
@@ -659,7 +659,7 @@ export function renderShellModals() {
           <div class="setor-modal__hero-copy">
             <span class="setor-modal__badge">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 6l3.5-3L12 6l5.5-3L21 6l-2 12H5L3 6z"/></svg>
-              Pro · Setores
+              Setores
             </span>
             <h2 class="setor-modal__title" id="modal-add-setor-title">Novo setor</h2>
             <p class="setor-modal__subtitle">Organize seus equipamentos por local ou área. Leva poucos segundos.</p>

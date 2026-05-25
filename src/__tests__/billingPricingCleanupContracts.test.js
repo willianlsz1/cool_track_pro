@@ -51,6 +51,18 @@ describe('billing/pricing cleanup contracts', () => {
     expect(existsSync('src/ui/components/upgradeNudge.js')).toBe(false);
   });
 
+  it('does not present Setores as a commercial Pro surface in runtime copy', () => {
+    const sources = [
+      readSource('src/ui/views/equipamentos/setor/setorUI.js'),
+      readSource('src/ui/shell/templates/modals.js'),
+    ].join('\n');
+
+    expect(sources).not.toContain('Setores é uma feature do plano Pro');
+    expect(sources).not.toContain('Pro · Setores');
+    expect(sources).not.toContain('Setor (Pro)');
+    expect(sources).not.toContain('>PRO<');
+  });
+
   it('does not keep hidden dashboard upgrade CTA contracts after retiring the dashboard cluster', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
 

@@ -313,6 +313,8 @@ decisao, do escopo e do risco remanescente.
   plano operacional, preservando perfil operacional e sem tocar gates ativos.
 - Neutralizada nomenclatura residual `premium/PRO` em comentarios de Setores e
   renomeado teste do modal, sem alterar gate funcional ou runtime.
+- Neutralizada copy residual `PRO` em badges de Setores, mantendo estado locked
+  e contratos de permissao sem alterar a logica de gate.
 
 ## Validacao padrao
 
