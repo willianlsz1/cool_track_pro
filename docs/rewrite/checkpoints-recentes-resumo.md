@@ -45,6 +45,8 @@ decisao, do escopo e do risco remanescente.
   Cloudflare Pages.
 - Removido backup versionado de icones pre-redesign; favicons e icones publicos
   ativos foram preservados.
+- Removidas imagens raiz da landing antiga (`antes/depois/passos/hero/Perfil`);
+  logos, wordmarks e favicons foram preservados.
 
 ## PMOC legado
 

@@ -630,6 +630,13 @@ describe('legacy v1 removal contracts', () => {
       'public/brand/passo-2-registro.png',
       'public/brand/passo-3-pdf.png',
       'public/brand/Perfil.jpg',
+      'brand/antes.png',
+      'brand/depois.png',
+      'brand/hero-app-equipamentos.png',
+      'brand/passo-1-cadastro.png',
+      'brand/passo-2-registro.png',
+      'brand/passo-3-pdf.png',
+      'brand/Perfil.jpg',
     ].forEach((path) => {
       expect(existsSync(path)).toBe(false);
     });
