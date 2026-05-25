@@ -87,7 +87,7 @@ export function renderShellModals() {
                  aqui (mesma razão do botão-active logo abaixo): o click é
                  amarrado direto em nameplateCapture.bindOnce() via
                  addEventListener, então passar pelo delegator global só
-                 geraria warning "Sem handler para action=nameplate-upsell-cta"
+                 geraria warning "Sem handler" para esse clique
                  toda vez que o user clicasse. -->
             <button type="button"
               class="btn btn--primary btn--sm nameplate-cta__btn nameplate-cta__btn--locked"

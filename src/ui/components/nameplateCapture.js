@@ -275,7 +275,7 @@ function bindOnce() {
   });
 
   // CTA bloqueado: listener direto no botao. Pareava com data-action antes, mas o
-  // delegator global ficava warnando "Sem handler para action=nameplate-upsell-cta"
+  // delegator global ficava warnando "Sem handler" nesse clique
   // a cada click (o handler real vivia aqui, não no mapa do events.js). Agora
   // amarramos só por id — sem data-action, sem warning.
   // Ordem importa: fecha o modal-add-eq antes do aviso local.

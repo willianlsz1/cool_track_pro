@@ -24,6 +24,8 @@ decisao, do escopo e do risco remanescente.
 - Removidos mocks mortos de `planCache` nos testes focados do Historico.
 - Neutralizados comentarios residuais de plano comercial em nameplate e
   Equipamentos, sem renomear aliases/eventos de compatibilidade.
+- Neutralizados comentarios residuais do CTA bloqueado de nameplate, preservando
+  IDs/eventos de compatibilidade.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.
