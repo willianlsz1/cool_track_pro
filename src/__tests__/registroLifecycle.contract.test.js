@@ -286,14 +286,14 @@ describe('registro lifecycle contract', () => {
     ).toBe(true);
   });
 
-  it('loadRegistroForEdit restaura tipo Outro salvo com separador legado', async () => {
-    const legacyOutroPrefix = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
+  it('loadRegistroForEdit restaura tipo Outro salvo com separador anterior', async () => {
+    const previousOutroPrefix = `Outro ${String.fromCharCode(0x00c2, 0x00b7)} `;
     const state = baseState({
       registros: [
         {
           ...baseState().registros[0],
-          id: 'reg-outro-legado',
-          tipo: `${legacyOutroPrefix}Teste de estanqueidade`,
+          id: 'reg-outro-anterior',
+          tipo: `${previousOutroPrefix}Teste de estanqueidade`,
         },
       ],
     });
@@ -301,7 +301,7 @@ describe('registro lifecycle contract', () => {
     const registro = await loadRegistro(state);
 
     await init(registro);
-    registro.loadRegistroForEdit('reg-outro-legado');
+    registro.loadRegistroForEdit('reg-outro-anterior');
 
     expect(document.getElementById('r-tipo')?.value).toBe('Outro');
     expect(document.getElementById('r-tipo-custom')?.value).toBe('Teste de estanqueidade');

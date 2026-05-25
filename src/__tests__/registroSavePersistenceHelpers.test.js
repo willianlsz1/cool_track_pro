@@ -105,7 +105,7 @@ describe('registro save persistence helpers', () => {
     expect(uid).toHaveBeenCalledTimes(1);
   });
 
-  it('monta registro de criacao preservando payload, fotos e checklist sem assinatura legado', () => {
+  it('monta registro de criacao preservando payload, fotos e checklist sem assinatura removida', () => {
     const photoPayload = {
       fotos: [{ id: 'foto-1', src: 'safe' }],
       fotos_pendentes: [{ id: 'pending-1' }],
@@ -191,7 +191,7 @@ describe('registro save persistence helpers', () => {
     });
   });
 
-  it('nao importa o adapter legado de registro', () => {
+  it('nao importa o adapter aposentado de registro', () => {
     const modulePath = path.resolve(process.cwd(), 'src/ui/views/registro/save/persistence.js');
     const source = fs.readFileSync(modulePath, 'utf8');
 

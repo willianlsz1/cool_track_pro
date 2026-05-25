@@ -270,7 +270,9 @@ decisao, do escopo e do risco remanescente.
 - Neutralizada linguagem residual em testes ativos de dados de placa e perfil,
   preservando prioridade de campos e fallback global de compatibilidade.
 - Neutralizada linguagem residual no teste de onboarding, preservando chave
-  antiga de migração e escopo por usuario.
+  antiga de migracao e escopo por usuario.
+- Neutralizada linguagem residual em testes ativos de persistencia e lifecycle
+  de Registro, sem alterar payload, storage, assinatura ou runtime.
 
 ## Validacao padrao
 

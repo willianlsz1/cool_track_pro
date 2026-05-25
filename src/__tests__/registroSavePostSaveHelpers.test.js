@@ -122,7 +122,7 @@ describe('registro save post-save helpers', () => {
     expect(Toast.success).toHaveBeenCalledWith('Serviço registrado com sucesso.');
   });
 
-  it('nao importa o adapter legado nem efeitos concretos diretamente', () => {
+  it('nao importa o adapter aposentado nem efeitos concretos diretamente', () => {
     const source = fs.readFileSync(
       path.resolve(process.cwd(), 'src/ui/views/registro/save/postSave.js'),
       'utf8',
