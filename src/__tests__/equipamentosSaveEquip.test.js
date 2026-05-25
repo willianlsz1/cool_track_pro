@@ -141,15 +141,6 @@ vi.mock('../core/storage/photoRefs.js', () => ({
   normalizePhotoList: mocks.normalizePhotoList,
 }));
 
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => false),
-  setCachedPlan: vi.fn(),
-}));
-
-vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
-  getEffectivePlan: vi.fn(() => 'free'),
-}));
-
 vi.mock('../core/profile.js', () => ({
   Profile: { get: vi.fn(() => ({})) },
 }));

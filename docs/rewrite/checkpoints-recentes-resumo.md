@@ -396,6 +396,8 @@ decisao, do escopo e do risco remanescente.
   renderizacao, fotos, nameplate ou contratos publicos.
 - Removida sincronizacao morta com `planCache` no bridge de render de
   Equipamentos, mantendo o refresh operacional sem billing/pricing.
+- Removidos mocks obsoletos de `planCache`/`getEffectivePlan` em testes DOM de
+  Equipamentos apos a limpeza do bridge de render.
 
 ## Validacao padrao
 

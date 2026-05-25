@@ -164,15 +164,6 @@ vi.mock('../core/storage/photoRefs.js', () => ({
   normalizePhotoList: vi.fn((value) => (Array.isArray(value) ? value : [])),
 }));
 
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => stateMocks.hasOperationalSetorAccess),
-  setCachedPlan: vi.fn(),
-}));
-
-vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
-  getEffectivePlan: vi.fn(() => 'free'),
-}));
-
 vi.mock('../ui/composables/header.js', () => ({
   updateGlobalHeader: vi.fn(),
 }));
