@@ -346,6 +346,8 @@ decisao, do escopo e do risco remanescente.
   historico, assinatura aposentada, cache e limites operacionais.
 - Removidas migrations historicas do ledger `stripe_webhook_events`, mantendo a
   migration de retirada como cobertura do schema comercial aposentado.
+- Neutralizada a palavra `portal` em copy/fixture de canal de chamados do
+  app-v2, reduzindo ruido com gates de limpeza comercial.
 
 ## Validacao padrao
 

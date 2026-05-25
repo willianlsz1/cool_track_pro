@@ -191,7 +191,7 @@ export function ClientForm({ title, initialClient, error, onCancel, onSave }: Cl
                 value={canalChamados}
                 onChange={(event) => setCanalChamados(event.target.value)}
                 className={fieldInputClass}
-                placeholder="Ex.: WhatsApp, portal do cliente, e-mail"
+                placeholder="Ex.: WhatsApp, canal do cliente, e-mail"
               />
               <FieldHelp>Canal usado pelo cliente para solicitar atendimento.</FieldHelp>
             </FieldGroup>
