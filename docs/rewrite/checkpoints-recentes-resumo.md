@@ -360,6 +360,8 @@ decisao, do escopo e do risco remanescente.
   runtime, asserts ou escopo dos gates.
 - Extraido overlay de scan de `nameplateCapture.js` para modulo coeso, reduzindo
   arquivo legado abaixo de 1000 linhas sem alterar IDs, fluxo de IA ou gates.
+- Extraido view model de timeline do historico para modulo coeso, reduzindo
+  `historico.js` abaixo de 1000 linhas sem alterar renderers, filtros ou storage.
 
 ## Validacao padrao
 
