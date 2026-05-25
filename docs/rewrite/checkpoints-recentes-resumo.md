@@ -277,6 +277,8 @@ decisao, do escopo e do risco remanescente.
   Setores, sem alterar mocks, selects, asserts ou runtime Supabase.
 - Neutralizado fixture nominal em teste de configuracao Supabase frontend, sem
   alterar nomes de env vars, rejeicao de fallback ou validacao de service_role.
+- Neutralizada linguagem residual em testes de assinatura aposentada de Registro,
+  sem alterar handlers, payload, PDF/share, WhatsApp, storage ou runtime.
 
 ## Validacao padrao
 

@@ -300,7 +300,7 @@ function expectNoUnsafeMarkup(root = document.body) {
 
 function expectNoExternalPdfOrWhatsapp() {}
 
-describe('registro legacy save handlers with signature contracts', () => {
+describe('registro save handlers with retired signature contracts', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -344,7 +344,7 @@ describe('registro legacy save handlers with signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('aposenta assinatura no salvamento legado mesmo com plano antigo habilitado', async () => {
+  it('aposenta assinatura no salvamento mesmo com plano antigo habilitado', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });
@@ -361,7 +361,7 @@ describe('registro legacy save handlers with signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('nao registra handler legado de salvar e compartilhar', async () => {
+  it('nao registra handler aposentado de salvar e compartilhar', async () => {
     const state = baseState();
     setupDom(state);
     await loadRegistro(state, { plus: true });
@@ -371,7 +371,7 @@ describe('registro legacy save handlers with signature contracts', () => {
     expect(mocks.setState).not.toHaveBeenCalled();
   });
 
-  it('mantem salvamento quando assinatura e cancelada pelo modal legado', async () => {
+  it('mantem salvamento quando assinatura e cancelada pelo modal aposentado', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });
@@ -414,7 +414,7 @@ describe('registro legacy save handlers with signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('mantem salvamento legado sem dependencia direta de React/createRoot no adapter', () => {
+  it('mantem salvamento sem dependencia direta de React/createRoot no adapter', () => {
     const source = readFileSync('src/ui/views/registro.js', 'utf8');
 
     expect(source).not.toMatch(/from ['"]react['"]|react-dom|createRoot/);
