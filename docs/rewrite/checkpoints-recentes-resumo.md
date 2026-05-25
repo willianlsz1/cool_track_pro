@@ -41,6 +41,8 @@ decisao, do escopo e do risco remanescente.
 - O favicon e os assets de marca preservados continuam fora da remocao ampla.
 - Removidas entradas `.gitignore` remanescentes de `twa-build`; o build TWA
   legado nao faz parte do app-v2.
+- Removido `assetlinks.json` Android legado; app-v2 permanece como web/PWA em
+  Cloudflare Pages.
 
 ## PMOC legado
 

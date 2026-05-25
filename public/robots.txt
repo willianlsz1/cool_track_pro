@@ -12,6 +12,5 @@ Disallow: /offline.html
 Disallow: /manifest.json
 Disallow: /icons/
 Disallow: /assets/
-Disallow: /.well-known/
 
 Sitemap: https://cool-track-pro.pages.dev/sitemap.xml
