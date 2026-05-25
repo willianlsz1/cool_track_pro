@@ -190,7 +190,7 @@ describe('historico view model', () => {
     expect(Object.keys(vm)).not.toContain('html');
   });
 
-  it('centraliza contratos publicos da tela legado', () => {
+  it('centraliza contratos publicos da tela atual', () => {
     expect(HISTORICO_PUBLIC_IDS).toMatchObject({
       view: 'view-historico',
       timeline: 'timeline',

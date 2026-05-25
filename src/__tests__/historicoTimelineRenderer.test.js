@@ -226,7 +226,7 @@ describe('historico timeline DOM renderer', () => {
     ).toBeNull();
   });
 
-  it('keeps legacy handlers actionable through data-action and data-hist-action attributes', () => {
+  it('keeps current handlers actionable through data-action and data-hist-action attributes', () => {
     const root = setRoot();
     const view = document.getElementById('view-historico');
     const delegatedHandler = vi.fn();
@@ -292,7 +292,7 @@ describe('historico timeline DOM renderer', () => {
     expect(pageSource).not.toMatch(/dangerouslySetInnerHTML/);
   });
 
-  it('keeps React root creation out of the legacy Historico adapter source', () => {
+  it('keeps React root creation out of the current Historico adapter source', () => {
     const adapterSource = readFileSync('src/ui/views/historico.js', 'utf8');
 
     expect(adapterSource).not.toMatch(/react-dom\/client|createRoot/);

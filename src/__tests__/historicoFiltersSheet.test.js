@@ -62,7 +62,7 @@ function expectNoInjectedMarkup(root) {
   });
 }
 
-describe('HistoricoFiltersSheet legado', () => {
+describe('HistoricoFiltersSheet DOM', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubGlobal('requestAnimationFrame', (callback) => {
@@ -215,7 +215,7 @@ describe('HistoricoFiltersSheet legado', () => {
     expect(overlay.textContent).toContain('javascript:alert(2)');
   });
 
-  it('continua legado sem depender de React ou createRoot', async () => {
+  it('continua sem depender de React ou createRoot', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const source = fs.readFileSync(

@@ -261,7 +261,7 @@ describe('historico mobile filters sheet integration handlers', () => {
     mocks.isCachedPlanPro.mockReturnValue(false);
   });
 
-  it('abre o sheet legado pelo trigger React preservando initial e contratos atuais', async () => {
+  it('abre o sheet DOM pelo trigger React preservando initial e contratos atuais', async () => {
     const state = baseState();
     await renderHistorico({ state, setor: 'setor-1', equip: 'eq-1', tipo: 'preventiva' });
 

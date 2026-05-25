@@ -26,7 +26,7 @@ const tipoOptions = [
 ];
 
 describe('historico filters sheet model', () => {
-  it('centraliza contratos publicos do sheet mobile legado', () => {
+  it('centraliza contratos publicos do sheet mobile atual', () => {
     expect(HISTORICO_FILTERS_SHEET_IDS).toEqual(
       expect.objectContaining({
         overlay: 'hist-filters-sheet-overlay',

@@ -249,6 +249,9 @@ decisao, do escopo e do risco remanescente.
   Clientes, preservando seletores, data attributes e asserts.
 - Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
   Equipamentos ligados a adapters/bridges DOM, sem alterar fixtures ou runtime.
+- Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
+  Historico ligadas a sheet mobile, handlers DOM e view model, sem alterar
+  contratos publicos ou runtime.
 
 ## Validacao padrao
 
