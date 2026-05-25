@@ -109,6 +109,8 @@ decisao, do escopo e do risco remanescente.
   legados, permitindo Supabase direto somente nos entrypoints opt-in.
 - Ampliado contrato agregado para impedir imports do runtime app-v2 para
   `src/ui`, `src/features`, `src/react`, PDF/PMOC legados e orcamentos v1.
+- Reforcado contrato de cutover para manter previews locais isolados do shell e
+  CSS legados.
 - Removidos artefatos JSON antigos de metricas QA dos CPs visuais ja
   consolidados; o historico operacional fica neste resumo.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
