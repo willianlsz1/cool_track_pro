@@ -178,7 +178,7 @@ describe('dadosPlacaInsights — refrigerant phase-out', () => {
     expect(insight?.code).toBe('R-22');
   });
 
-  it('findRefrigerant prioriza fluido > legado > extras', () => {
+  it('findRefrigerant prioriza fluido > campo anterior > extras', () => {
     expect(findRefrigerant({ fluido: 'R-32', refrigerante: 'R-22' })).toBe('R-32');
     expect(findRefrigerant({ refrigerante: 'R-22' })).toBe('R-22');
     expect(findRefrigerant({ camposExtras: [{ key: 'refrigerant', value: 'R-290' }] })).toBe(

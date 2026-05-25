@@ -267,6 +267,8 @@ decisao, do escopo e do risco remanescente.
   preservando o caso de setor sem cliente vinculado.
 - Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
   Equipamentos sem alterar asserts, storage, fotos ou runtime.
+- Neutralizada linguagem residual em testes ativos de dados de placa e perfil,
+  preservando prioridade de campos e fallback global de compatibilidade.
 
 ## Validacao padrao
 
