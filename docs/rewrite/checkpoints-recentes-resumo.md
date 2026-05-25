@@ -243,6 +243,8 @@ decisao, do escopo e do risco remanescente.
   `historico*DomRender`, preservando a cobertura de render DOM atual.
 - Renomeados testes ativos de Registro de `registroLegacy*` para `registroDom*`
   sem alterar fluxos, checklist, assinatura, storage ou PMOC runtime.
+- Neutralizada linguagem `legado` em descricoes de testes ativos dos handlers
+  DOM de checklist de Registro, sem alterar asserts ou runtime.
 
 ## Validacao padrao
 

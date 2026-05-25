@@ -238,7 +238,7 @@ function getChecklistItem(registro, id) {
   return registro.getCurrentChecklist()?.items.find((item) => item.id === id);
 }
 
-describe('registro DOM checklist legacy handlers contract', () => {
+describe('registro DOM checklist current handlers contract', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -257,7 +257,7 @@ describe('registro DOM checklist legacy handlers contract', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('aciona tri-state legado lendo data-item-id, data-status e atualizando resumo', async () => {
+  it('aciona tri-state atual lendo data-item-id, data-status e atualizando resumo', async () => {
     const { registro, body, summary, statusHandler } = await renderRegistroChecklist();
     expect(statusHandler).toBeTypeOf('function');
 
@@ -290,7 +290,7 @@ describe('registro DOM checklist legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('preserva observacao e medicao via handlers legados lendo data-item-id e data-unit', async () => {
+  it('preserva observacao e medicao via handlers atuais lendo data-item-id e data-unit', async () => {
     const { registro, body, statusHandler } = await renderRegistroChecklist();
     const failButton = body.querySelector('[data-item="filtros_limpeza"][data-status="fail"]');
 
@@ -404,7 +404,7 @@ describe('registro DOM checklist legacy handlers contract', () => {
     expectExternalFlowsNotExecuted();
   });
 
-  it('mantem handlers legados e createRoot fora do adapter de Registro', () => {
+  it('mantem handlers atuais e createRoot fora do adapter de Registro', () => {
     const handlersSource = readFileSync('src/ui/controller/handlers/registroHandlers.js', 'utf8');
     const adapterSource = readFileSync('src/ui/views/registro.js', 'utf8');
 
