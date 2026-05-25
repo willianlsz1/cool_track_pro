@@ -143,13 +143,11 @@ vi.mock('../core/storage/photoRefs.js', () => ({
 
 vi.mock('../core/plans/planCache.js', () => ({
   isCachedPlanPlusOrHigher: vi.fn(() => false),
-  isCachedPlanPro: vi.fn(() => false),
   setCachedPlan: vi.fn(),
 }));
 
 vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
   getEffectivePlan: vi.fn(() => 'free'),
-  hasProAccess: vi.fn(() => false),
 }));
 
 vi.mock('../core/profile.js', () => ({

@@ -15,7 +15,7 @@ const stateMocks = vi.hoisted(() => ({
     setores: [],
   },
   routeParams: {},
-  isPro: false,
+  hasOperationalSetorAccess: false,
   getState: vi.fn(),
   findEquip: vi.fn(),
   findSetor: vi.fn(),
@@ -177,14 +177,12 @@ vi.mock('../core/storage/photoRefs.js', () => ({
 }));
 
 vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: vi.fn(() => stateMocks.isPro),
-  isCachedPlanPro: vi.fn(() => stateMocks.isPro),
+  isCachedPlanPlusOrHigher: vi.fn(() => stateMocks.hasOperationalSetorAccess),
   setCachedPlan: vi.fn(),
 }));
 
 vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
-  getEffectivePlan: vi.fn(() => (stateMocks.isPro ? 'pro' : 'free')),
-  hasProAccess: vi.fn(() => stateMocks.isPro),
+  getEffectivePlan: vi.fn(() => 'free'),
 }));
 
 vi.mock('../ui/composables/header.js', () => ({
@@ -264,7 +262,7 @@ describe('equipamentos DOM hero, filters and context contracts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stateMocks.routeParams = {};
-    stateMocks.isPro = false;
+    stateMocks.hasOperationalSetorAccess = false;
     getPreventivaDueEquipmentIds.mockReturnValue([]);
     setupDom();
     setState();
@@ -378,7 +376,7 @@ describe('equipamentos DOM hero, filters and context contracts', () => {
   });
 
   it('preserva contexto cliente/setor e acao para limpar filtro', async () => {
-    stateMocks.isPro = true;
+    stateMocks.hasOperationalSetorAccess = true;
     setState({
       equipamentos: [{ ...baseEquipamento, clienteId: 'cli-1', setorId: 's1' }],
       clientes: [{ id: 'cli-1', nome: 'Cliente Alpha' }],

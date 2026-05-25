@@ -16,10 +16,6 @@ vi.mock('../core/profile.js', () => ({
   Profile: { get: vi.fn(() => ({})) },
 }));
 
-vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
-  hasProAccess: vi.fn(() => false),
-}));
-
 // priorityEngine só importa pra contar "em-atencao" — mock devolve níveis
 // determinísticos baseados em eq.__mockPriority pra test fixtures.
 const evaluateEquipmentPriorityMock = vi.fn((eq) => ({
