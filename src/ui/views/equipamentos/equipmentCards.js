@@ -471,6 +471,6 @@ export function equipCardHtml(eq, { showLocal: _showLocal = true, evalCtx = null
   </div>`;
 }
 
-// ─── Setor (PRO) ──────────────────────────────────────────────────────────────
+// ─── Setor ───────────────────────────────────────────────────────────────────
 
 // Equipment route context lives in ./equipamentos/contextState.js.

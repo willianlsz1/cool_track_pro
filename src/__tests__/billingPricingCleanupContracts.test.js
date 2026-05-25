@@ -63,6 +63,22 @@ describe('billing/pricing cleanup contracts', () => {
     expect(sources).not.toContain('>PRO<');
   });
 
+  it('does not keep Setores runtime comments tied to commercial plan language', () => {
+    const sources = [
+      readSource('src/ui/views/equipamentos/setor/setorPersist.js'),
+      readSource('src/ui/views/equipamentos/ui/renderEquip.js'),
+      readSource('src/ui/controller/handlers/equipmentHandlers.js'),
+      readSource('src/ui/views/equipamentos/equipmentCards.js'),
+      readSource('src/core/inputValidation.js'),
+    ].join('\n');
+
+    expect(sources).not.toContain('feature exclusiva do plano Pro');
+    expect(sources).not.toContain('feature Pro');
+    expect(sources).not.toContain('Setores (PRO)');
+    expect(sources).not.toContain('Setor (PRO)');
+    expect(sources).not.toContain('Vista Pro');
+  });
+
   it('does not keep hidden dashboard upgrade CTA contracts after retiring the dashboard cluster', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
 

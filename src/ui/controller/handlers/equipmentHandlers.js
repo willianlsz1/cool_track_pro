@@ -201,7 +201,7 @@ export function bindEquipmentHandlers() {
     }
   });
 
-  // ── Setores (PRO) ──────────────────────────────────────────────────────────
+  // ── Setores ────────────────────────────────────────────────────────────────
 
   on('open-setor', (el) => {
     setActiveSector(el.dataset.id);

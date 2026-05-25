@@ -278,7 +278,7 @@ const SETOR_RESPONSAVEL_MAX = 120;
 const SETOR_COR_REGEX = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 /**
- * Normaliza e valida um setor (feature Pro). Retorna `null` se inválido.
+ * Normaliza e valida um setor. Retorna `null` se inválido.
  * Campos:
  *   - id (obrigatório)
  *   - nome (obrigatório, até 80 chars)

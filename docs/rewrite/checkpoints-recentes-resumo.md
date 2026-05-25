@@ -315,6 +315,8 @@ decisao, do escopo e do risco remanescente.
   renomeado teste do modal, sem alterar gate funcional ou runtime.
 - Neutralizada copy residual `PRO` em badges de Setores, mantendo estado locked
   e contratos de permissao sem alterar a logica de gate.
+- Neutralizados comentarios runtime de Setores ligados a linguagem comercial,
+  mantendo nomes publicos e guards de compatibilidade.
 
 ## Validacao padrao
 

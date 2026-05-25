@@ -36,9 +36,8 @@ function getSetorPersistValue(name, fallback) {
   return value == null ? fallback : value;
 }
 
-// Setores são feature exclusiva do plano Pro. Todas as mutações devem
-// passar por ensureProForSetores() — defesa em profundidade contra gates
-// de UI que podem ficar stale se o usuário abrir a modal e depois rebaixar
+// Setores ficam liberados no modo operacional. O guard permanece como contrato
+// para chamadas antigas, mas nao aplica gate comercial.
 // Setores ficam liberados no modo operacional. O guard permanece como contrato
 // para chamadas antigas, mas nao aplica gate comercial.
 /** @sliceTarget setor/guard */

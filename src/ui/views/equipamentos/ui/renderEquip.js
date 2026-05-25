@@ -147,9 +147,9 @@ function renderEquipQuickFilterBranch(context, headerRender) {
 function renderEquipSetorGridBranch(context, headerRender, searchBar) {
   if (context.isPro && context.activeSectorId === null && searchBar) searchBar.style.display = '';
 
-  // Vista Pro padrao: grade de setores (global ou filtrada por cliente).
+  // Grade de setores padrao (global ou filtrada por cliente).
   // Regressao pos-revert: esse branch tinha se perdido e caia sempre na lista
-  // flat, ocultando a feature de Setores (cards, Novo setor, Ver/Editar).
+  // flat, ocultando Setores (cards, Novo setor, Ver/Editar).
   if (!(context.isPro && context.activeSectorId === null)) return null;
 
   if (context.activeClienteId) {
