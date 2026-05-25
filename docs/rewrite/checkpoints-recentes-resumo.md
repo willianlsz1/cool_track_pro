@@ -59,6 +59,8 @@ decisao, do escopo e do risco remanescente.
   textual v1.0 fora de contexto historico.
 - Comentarios de constantes de status do dominio neutralizados para nao apontar
   o dashboard legado como referencia arquitetural.
+- Comentarios de dominio de dados de placa neutralizados para tratar payloads
+  antigos sem linguagem de legado.
 
 ## PMOC legado
 

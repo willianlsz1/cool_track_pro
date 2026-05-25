@@ -168,7 +168,7 @@ export const CAMPOS_EXTRAS_DISPLAY_CAP = 10;
 /**
  * Prettifica uma chave de campo extra (snake_case ou camelCase) em rótulo
  * legível em pt-BR. Usada pelo display quando um campo chega sem `label`
- * (ex.: payload legado onde salvamos só `{ key, value }`).
+ * (ex.: payload antigo onde salvamos só `{ key, value }`).
  *
  *   prettifyDadosPlacaKey('pressao_maxima') → 'Pressao maxima'
  *   prettifyDadosPlacaKey('compressorModel') → 'Compressor model'

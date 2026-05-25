@@ -975,6 +975,16 @@ describe('legacy v1 removal contracts', () => {
     expect(statusConstantsSource).not.toMatch(MOJIBAKE_PATTERN);
   });
 
+  it('does not keep legacy wording in pure nameplate domain comments', () => {
+    const joined = [
+      readSource('src/domain/dadosPlacaDisplay.js'),
+      readSource('src/domain/dadosPlacaInsights.js'),
+    ].join('\n');
+
+    expect(joined).not.toMatch(/\blegado\b|legacy/i);
+    expect(joined).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 
