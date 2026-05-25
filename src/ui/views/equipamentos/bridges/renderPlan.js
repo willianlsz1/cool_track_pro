@@ -1,5 +1,3 @@
-import { setCachedPlan } from '../../../../core/plans/planCache.js';
-import { getEffectivePlan } from '../../../../core/plans/operationalAccessPolicy.js';
 import {
   clearRenderEquipPlanRefreshPromise,
   getRenderEquipPlanEventsBound,
@@ -43,8 +41,7 @@ export function refreshRenderEquipPlan({
     try {
       const { fetchOperationalProfileCached } =
         await import('../../../../core/plans/operationalPlan.js');
-      const { profile } = await fetchOperationalProfileCached();
-      setCachedPlan(getEffectivePlan(profile));
+      await fetchOperationalProfileCached();
       setRenderEquipPlanNeedsRefresh(false);
       const nextIsPro = true;
       if (renderToken !== getRenderEquipPlanToken()) return;

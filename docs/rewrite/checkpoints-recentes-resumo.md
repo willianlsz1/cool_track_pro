@@ -394,6 +394,8 @@ decisao, do escopo e do risco remanescente.
   escopo restrito a navegacao local sem billing/pricing.
 - Removida dependencia morta de plano no detalhe de Equipamentos, sem alterar
   renderizacao, fotos, nameplate ou contratos publicos.
+- Removida sincronizacao morta com `planCache` no bridge de render de
+  Equipamentos, mantendo o refresh operacional sem billing/pricing.
 
 ## Validacao padrao
 

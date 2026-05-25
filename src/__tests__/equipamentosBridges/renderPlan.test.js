@@ -19,14 +19,6 @@ vi.mock('../../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfileCached: vi.fn(),
 }));
 
-vi.mock('../../core/plans/planCache.js', () => ({
-  setCachedPlan: vi.fn(),
-}));
-
-vi.mock('../../core/plans/operationalAccessPolicy.js', () => ({
-  getEffectivePlan: vi.fn((profile) => profile?.plan ?? 'free'),
-}));
-
 describe('bridges/renderPlan', () => {
   beforeEach(() => {
     clearRenderPlanState();
