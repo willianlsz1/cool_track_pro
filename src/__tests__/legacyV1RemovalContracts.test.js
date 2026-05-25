@@ -813,11 +813,17 @@ describe('legacy v1 removal contracts', () => {
       readSource('src/ui/views/registro/checklist/pmocChecklist.js'),
     ].join('\n');
 
-    expect(joined).not.toContain('ManutenÃ§Ã£o preventiva agendada');
-    expect(joined).not.toContain('periodicidade nÃ£o definida');
-    expect(joined).not.toContain('ServiÃ§o');
-    expect(joined).not.toContain('itens obrigatÃ³rios pendentes');
-    expect(joined).not.toContain('item obrigatÃ³rio pendente');
+    const forbiddenMojibakeSnippets = [
+      'Manuten\u00c3\u00a7\u00c3\u00a3o preventiva agendada',
+      'periodicidade n\u00c3\u00a3o definida',
+      'Servi\u00c3\u00a7o',
+      'itens obrigat\u00c3\u00b3rios pendentes',
+      'item obrigat\u00c3\u00b3rio pendente',
+    ];
+
+    forbiddenMojibakeSnippets.forEach((snippet) => {
+      expect(joined).not.toContain(snippet);
+    });
   });
 
   it('does not keep legacy assinatura field in Registro create payload', () => {

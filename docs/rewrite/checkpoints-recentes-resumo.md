@@ -259,6 +259,8 @@ decisao, do escopo e do risco remanescente.
   `profileModal`, preservando contrato CSS BEM e asserts.
 - Neutralizada linguagem `legacy/legado` no teste de ownership de Equipamentos,
   preservando o gate contra modulos paralelos obsoletos.
+- Representados snippets proibidos de mojibake por escapes no contrato de
+  remocao v1, mantendo o mesmo gate sem texto corrompido visivel.
 
 ## Validacao padrao
 
