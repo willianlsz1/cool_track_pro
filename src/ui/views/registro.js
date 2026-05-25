@@ -647,7 +647,7 @@ function _syncTipoCustomVisibility({ focusOnShow = false } = {}) {
 // complete - CSS muda a cor do meter e dos indicadores a partir disso.
 function _ensureProgressBar(_formView) {
   // No-op mantido pra compatibilidade com o contrato anterior. O markup já vem
-  // do template; se alguma view legado perder o hero, o _updateProgressBar
+  // do template; se alguma view anterior perder o hero, o _updateProgressBar
   // simplesmente não faz nada (guard clauses abaixo).
 }
 
@@ -1685,7 +1685,7 @@ export function clearRegistro(preserveEquip = false) {
   resetRegistroSaveButtonAfterClear();
 
   // Hero do redesign v6: pill texto volta pra "Novo registro" quando saímos
-  // do modo edição. Mantém também o fallback pro legado .section-title.
+  // do modo edição. Mantém também o fallback para .section-title.
   resetRegistroHeroAfterClear();
   finalizeClearRegistroAfterReset();
 }
@@ -1765,7 +1765,7 @@ function syncRegistroEditActionState() {
 
 function syncRegistroEditHeroContext() {
   // No redesign v6 o hero tem a pill "Novo registro"; no modo edição trocamos
-  // pra "Editando serviço". O .section-title legado é mantido como fallback.
+  // pra "Editando serviço". O .section-title é mantido como fallback.
   const heroPill = document.getElementById(HERO_PILL_TEXT_ID);
   if (heroPill) heroPill.textContent = 'Editando serviço';
   const title = document.querySelector('#view-registro .section-title');

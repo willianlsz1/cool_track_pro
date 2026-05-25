@@ -195,6 +195,8 @@ decisao, do escopo e do risco remanescente.
   evitar confusao com o dashboard legado removido.
 - Neutralizados comentarios genericos de legado em helpers UI nao sensiveis de
   cliente, equipamentos, navegacao e contexto.
+- Neutralizados comentarios residuais de legado em tour, registro e fallback
+  visual de equipamentos sem alterar contratos ou comportamento.
 
 ## Nomenclatura React legada
 

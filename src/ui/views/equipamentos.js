@@ -603,7 +603,7 @@ export function lockEquipContext({
 /**
  * Renderiza o "bloco do ícone" do card de equipamento:
  * - Se houver foto (feature Plus+/Pro), mostra a primeira como thumbnail.
- * - Caso contrário, cai no ícone do tipo (emoji legado).
+ * - Caso contrário, cai no ícone do tipo.
  *
  * A url cacheada na referência de foto tem TTL ~24h. Se estiver expirada,
  * o navegador mostra a img quebrada; uma chamada ao `loadFromSupabase`

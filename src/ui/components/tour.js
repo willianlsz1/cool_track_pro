@@ -92,8 +92,8 @@ export const Tour = {
     const doneKey = resolveTourDoneKey(userId);
     this._doneKey = doneKey;
 
-    // Migração legado: se a flag antiga global existia, carrega para a chave
-    // por usuário no primeiro boot após hardening.
+    // Migra a flag global anterior para a chave por usuário no primeiro boot
+    // após hardening.
     if (doneKey !== TOUR_DONE_KEY && localStorage.getItem(TOUR_DONE_KEY) === '1') {
       localStorage.setItem(doneKey, '1');
       localStorage.removeItem(TOUR_DONE_KEY);
