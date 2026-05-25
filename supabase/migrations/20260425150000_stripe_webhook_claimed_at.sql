@@ -49,7 +49,7 @@ begin
       where claimed_at is null;
 
     -- Default só depois do backfill, pra não causar default-fill em rows
-    -- legadas (queremos received_at, não now()).
+    -- anteriores (queremos received_at, não now()).
     alter table public.stripe_webhook_events
       alter column claimed_at set default timezone('utc', now());
   end if;

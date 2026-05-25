@@ -3,7 +3,7 @@
 -- gravar compras do Plus (erro 23514 violates check constraint).
 --
 -- Cobre tanto profiles_plan_code_check (nova, em plan_code) quanto
--- profiles_plan_check (legada, em plan), já que existem as duas colunas.
+-- profiles_plan_check (anterior, em plan), já que existem as duas colunas.
 
 do $$
 begin
@@ -24,7 +24,7 @@ end $$;
 
 do $$
 begin
-  -- Remove constraint legada de plan se existir
+  -- Remove constraint anterior de plan se existir
   if exists (
     select 1 from pg_constraint
     where conname = 'profiles_plan_check'

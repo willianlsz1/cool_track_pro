@@ -303,6 +303,8 @@ decisao, do escopo e do risco remanescente.
 - Adicionado gate para limitar termos comerciais removidos em migrations ao
   historico conhecido coberto pela migration de retirada, sem reescrever schema
   historico.
+- Neutralizada linguagem residual de legado em comentarios de migrations
+  Supabase, sem alterar SQL executavel, constraints, funcoes, schema ou RLS.
 
 ## Validacao padrao
 

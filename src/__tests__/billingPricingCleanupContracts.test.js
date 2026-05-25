@@ -172,7 +172,6 @@ describe('billing/pricing cleanup contracts', () => {
       'supabase/migrations/20260425150000_stripe_webhook_claimed_at.sql',
       'supabase/migrations/20260509190000_harden_billing_profile_usage.sql',
       'supabase/migrations/20260524010000_remove_stripe_billing_schema.sql',
-      'supabase/migrations/20260524193000_retire_registro_signature_gate.sql',
     ]);
     expect(retirementMigration).toContain('drop column if exists stripe_customer_id');
     expect(retirementMigration).toContain('drop column if exists stripe_subscription_id');

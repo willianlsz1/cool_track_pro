@@ -23,7 +23,7 @@ function listSourceFiles(dir) {
       return listSourceFiles(path);
     }
 
-    if (/\.(?:ts|tsx|js|jsx|html)$/.test(entry)) {
+    if (/\.(?:ts|tsx|js|jsx|html|sql)$/.test(entry)) {
       return [path];
     }
 
@@ -871,6 +871,12 @@ describe('legacy v1 removal contracts', () => {
     expect(storageDependencyMigration).not.toContain(
       'can_write_registro_signature_storage_object(',
     );
+  });
+
+  it('does not keep legacy wording in Supabase migration comments after sensitive retirements', () => {
+    const migrationSources = listSourceFiles('supabase/migrations').map(readSource).join('\n');
+
+    expect(migrationSources).not.toMatch(/\blegada?s?\b|legacy|\bdo v1\b/i);
   });
 
   it('does not keep legacy orcamento digital signature runtime or database surface', () => {

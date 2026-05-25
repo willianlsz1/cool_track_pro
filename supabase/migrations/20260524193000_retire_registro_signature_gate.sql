@@ -1,15 +1,15 @@
 -- ============================================================
--- CP56C - Aposenta assinatura digital legada de Registro
+-- CP56C - Aposenta assinatura digital de Registro
 --
 -- Contexto:
---   O app-v2 nao reutiliza assinatura digital de Registro do v1. A UI,
+--   O app-v2 nao reutiliza assinatura digital de Registro do fluxo anterior. A UI,
 --   storage dedicado, router, Historico, payload local e storage/sync ja foram
 --   removidos em CPs anteriores. Esta migration remove os vestigios server-side
 --   especificos de public.registros.assinatura.
 --
 -- Fora do escopo:
 --   - assinatura de orcamento;
---   - billing/features;
+--   - areas comerciais/features;
 --   - PDF/share, WhatsApp, fotos, PMOC e storage real app-v2-native.
 -- ============================================================
 
