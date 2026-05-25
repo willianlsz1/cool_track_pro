@@ -265,6 +265,8 @@ decisao, do escopo e do risco remanescente.
   escapes Unicode, preservando a correcao de textos exibidos.
 - Neutralizado fixture nominal `Legado` no teste de view model de Equipamentos,
   preservando o caso de setor sem cliente vinculado.
+- Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
+  Equipamentos sem alterar asserts, storage, fotos ou runtime.
 
 ## Validacao padrao
 

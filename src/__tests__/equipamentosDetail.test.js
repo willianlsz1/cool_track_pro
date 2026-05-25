@@ -157,7 +157,7 @@ describe('detail HTML render helpers', () => {
     expect(result.html).not.toContain('Gerenciar fotos');
   });
 
-  it('mantem capa sem CTA de fotos legado', () => {
+  it('mantem capa sem CTA de fotos obsoleto', () => {
     const deps = makeDeps({ isCachedPlanPlusOrHigher: vi.fn(() => false) });
 
     const result = renderViewEquipCoverBlock(makeModel(), deps);

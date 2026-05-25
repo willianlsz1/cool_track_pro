@@ -51,7 +51,7 @@ describe('deleteEquip', () => {
     configureDeleteEquip({});
   });
 
-  it('preserva storage, state, modal, refresh e toast na ordem do fluxo legado', async () => {
+  it('preserva storage, state, modal, refresh e toast na ordem do fluxo atual', async () => {
     const { calls, deps, modalClose, state } = configureDeleteEquipTestDeps();
 
     await deleteEquip('eq-1');

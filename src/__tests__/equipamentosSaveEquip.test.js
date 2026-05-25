@@ -353,7 +353,7 @@ beforeEach(() => {
   mocks.normalizePhotoList.mockImplementation((value) => (Array.isArray(value) ? value : []));
 });
 
-describe('saveEquip legacy behavior', () => {
+describe('saveEquip persisted behavior', () => {
   it('preserva criação de equipamento com payload, reset de UI e feedback', async () => {
     const { saveEquip } = await importSubject();
 

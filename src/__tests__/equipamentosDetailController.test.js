@@ -57,7 +57,7 @@ describe('detailController', () => {
     expect(document.querySelector('.eq-detail-cover__img')).toBeNull();
   });
 
-  it('bindViewEquipDetailCoverActions nao abre lightbox legado ao clicar no cover preview', () => {
+  it('bindViewEquipDetailCoverActions nao abre lightbox obsoleto ao clicar no cover preview', () => {
     document.body.innerHTML = `
       <div class="eq-detail-cover">
         <button type="button" class="eq-detail-cover__preview-hit"></button>
