@@ -34,9 +34,6 @@ vi.mock('../ui/composables/header.js', () => ({
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: vi.fn(() => ({ uiStatus: 'ok', label: 'Em dia' })),
 }));
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPro: vi.fn(() => false),
-}));
 beforeEach(() => {
   vi.clearAllMocks();
 });

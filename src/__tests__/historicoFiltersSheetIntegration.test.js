@@ -12,7 +12,6 @@ const mocks = vi.hoisted(() => ({
   toastWarning: vi.fn(),
   updateHeader: vi.fn(),
   getOperationalStatus: vi.fn(),
-  isCachedPlanPro: vi.fn(),
   openFiltersSheet: vi.fn(),
   mountHistoricoFiltersDom: vi.fn((root, { viewModel } = {}) => {
     const filters = viewModel?.filters || {};
@@ -120,10 +119,6 @@ vi.mock('../ui/composables/header.js', () => ({
 
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: mocks.getOperationalStatus,
-}));
-
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
 vi.mock('../ui/views/historico/filtersRenderer.js', () => ({
@@ -258,7 +253,6 @@ describe('historico mobile filters sheet integration handlers', () => {
     document.body.innerHTML = '';
     mocks.applySavedHighlight.mockReturnValue(false);
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
-    mocks.isCachedPlanPro.mockReturnValue(false);
   });
 
   it('abre o sheet DOM pelo trigger React preservando initial e contratos atuais', async () => {

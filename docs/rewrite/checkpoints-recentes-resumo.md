@@ -21,6 +21,7 @@ decisao, do escopo e do risco remanescente.
   vez do cache antigo de plano comercial.
 - Historico passou a usar a politica operacional de acesso em vez do cache
   antigo de plano comercial.
+- Removidos mocks mortos de `planCache` nos testes focados do Historico.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.

@@ -12,7 +12,6 @@ const mocks = vi.hoisted(() => ({
   toastWarning: vi.fn(),
   updateHeader: vi.fn(),
   getOperationalStatus: vi.fn(),
-  isCachedPlanPro: vi.fn(),
   openFiltersSheet: vi.fn(),
   mountHistoricoTimelineDom: vi.fn((root) => {
     root.dataset.historicoTimelineMounted = 'true';
@@ -61,10 +60,6 @@ vi.mock('../ui/composables/header.js', () => ({
 
 vi.mock('../core/equipmentRules.js', () => ({
   getOperationalStatus: mocks.getOperationalStatus,
-}));
-
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
 vi.mock('../ui/views/historico/timelineRenderer.js', () => ({
@@ -195,7 +190,6 @@ describe('historico DOM filters/search render adapter', () => {
     document.body.innerHTML = '';
     mocks.applySavedHighlight.mockReturnValue(false);
     mocks.getOperationalStatus.mockReturnValue({ uiStatus: 'ok', label: 'Em dia' });
-    mocks.isCachedPlanPro.mockReturnValue(false);
   });
 
   it('renderiza header, busca, filtros e quick filters com ids/classes publicos', async () => {
