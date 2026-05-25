@@ -362,6 +362,8 @@ decisao, do escopo e do risco remanescente.
   arquivo legado abaixo de 1000 linhas sem alterar IDs, fluxo de IA ou gates.
 - Extraido view model de timeline do historico para modulo coeso, reduzindo
   `historico.js` abaixo de 1000 linhas sem alterar renderers, filtros ou storage.
+- Extraido controller do modal de setores de `equipamentos.js`, reduzindo o
+  arquivo abaixo de 1000 linhas sem alterar contratos publicos ou persistencia.
 
 ## Validacao padrao
 
