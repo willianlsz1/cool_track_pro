@@ -388,6 +388,8 @@ decisao, do escopo e do risco remanescente.
   para acesso operacional de Setores, sem mudar comportamento.
 - Removidos mocks comerciais obsoletos em testes de Equipamentos, mantendo os
   cenarios operacionais de setores e renderizacao.
+- Removidos mocks comerciais obsoletos em testes de handlers de Equipamentos,
+  sem alterar runtime, contratos `data-action` ou areas sensiveis.
 
 ## Validacao padrao
 

@@ -26,8 +26,6 @@ const mocks = vi.hoisted(() => ({
   getState: vi.fn(),
   applyNameplateCtaGate: vi.fn(),
   resetNameplateCtaState: vi.fn(),
-  isCachedPlanPlusOrHigher: vi.fn(),
-  isCachedPlanPro: vi.fn(),
 }));
 
 vi.mock('../core/modal.js', () => ({
@@ -119,11 +117,6 @@ vi.mock('../ui/components/onboarding/onboardingChecklist.js', () => ({
 vi.mock('../ui/components/nameplateCapture.js', () => ({
   applyNameplateCtaGate: mocks.applyNameplateCtaGate,
   resetNameplateCtaState: mocks.resetNameplateCtaState,
-}));
-
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
-  isCachedPlanPro: mocks.isCachedPlanPro,
 }));
 
 vi.mock('../ui/components/pushOptInCard.js', () => ({

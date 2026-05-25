@@ -55,13 +55,7 @@ function configureOpenEditEquipTestDeps(overrides = {}) {
     loadOperationalGateDeps: vi.fn(async () => {
       calls.push('loadOperationalGateDeps');
       return {
-        fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
-        hasProAccess: vi.fn(() => true),
-        hasPlusAccess: vi.fn(() => true),
         applyNameplateCtaGate: vi.fn(() => calls.push('applyGate')),
-        getMonthlyUsageSnapshot: vi.fn(),
-        USAGE_RESOURCE_NAMEPLATE_ANALYSIS: 'nameplate_analysis',
-        getMonthlyLimitForPlan: vi.fn(),
       };
     }),
     loadSupabase: vi.fn(),

@@ -30,13 +30,8 @@ const mocks = vi.hoisted(() => ({
   setVal: vi.fn(),
   storageSave: vi.fn(),
   storageLoad: vi.fn(),
-  fetchOperationalProfile: vi.fn(),
-  hasPlusAccess: vi.fn(),
-  getMonthlyUsageSnapshot: vi.fn(),
   applyNameplateCtaGate: vi.fn(),
   resetNameplateCtaState: vi.fn(),
-  isCachedPlanPlusOrHigher: vi.fn(),
-  isCachedPlanPro: vi.fn(),
 }));
 
 vi.mock('../core/modal.js', () => ({
@@ -152,33 +147,6 @@ vi.mock('../ui/components/nameplateCapture.js', () => ({
   resetNameplateCtaState: mocks.resetNameplateCtaState,
 }));
 
-vi.mock('../core/plans/planCache.js', () => ({
-  isCachedPlanPlusOrHigher: mocks.isCachedPlanPlusOrHigher,
-  isCachedPlanPro: mocks.isCachedPlanPro,
-}));
-
-vi.mock('../core/plans/operationalPlan.js', () => ({
-  fetchOperationalProfile: mocks.fetchOperationalProfile,
-}));
-
-vi.mock('../core/plans/operationalAccessPolicy.js', () => ({
-  hasPlusAccess: mocks.hasPlusAccess,
-}));
-
-vi.mock('../core/supabase.js', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'user-1' } } })),
-    },
-  },
-}));
-
-vi.mock('../core/usageLimits.js', () => ({
-  USAGE_RESOURCE_NAMEPLATE_ANALYSIS: 'nameplate_analysis',
-  getMonthlyLimitForPlan: vi.fn(() => 1),
-  getMonthlyUsageSnapshot: mocks.getMonthlyUsageSnapshot,
-}));
-
 vi.mock('../ui/components/pushOptInCard.js', () => ({
   PushOptInCard: {
     enable: vi.fn(),
@@ -290,10 +258,6 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.isCachedPlanPlusOrHigher.mockReturnValue(false);
-  mocks.fetchOperationalProfile.mockResolvedValue({ profile: { plan_code: 'free' } });
-  mocks.hasPlusAccess.mockReturnValue(false);
-  mocks.getMonthlyUsageSnapshot.mockResolvedValue({ nameplate_analysis: 0 });
   window.__setEquipViewMode = vi.fn();
   setShell();
   bindEquipmentHandlers();
