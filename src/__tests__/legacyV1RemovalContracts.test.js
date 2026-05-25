@@ -713,6 +713,12 @@ describe('legacy v1 removal contracts', () => {
     expect(routerSource).not.toMatch(MOJIBAKE_PATTERN);
   });
 
+  it('does not keep retired-app wording in neutralized nameplate comments', () => {
+    const nameplateSource = readSource('src/ui/components/nameplateCapture.js');
+
+    expect(nameplateSource).not.toMatch(/\bbotao legado\b|IE legacy|trialExhausted legado/i);
+  });
+
   it('does not keep v1-era wording in public legal styles or active config comments', () => {
     const joined = [
       readSource('public/legal/_style.css'),

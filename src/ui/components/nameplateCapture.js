@@ -21,7 +21,7 @@
  *          detectado — toque pra preencher" nos que a IA não devolveu.
  *        - Abre o step 2 e faz scroll suave até Detalhes técnicos.
  *
- *   3. Click no botao legado de desbloqueio mostra aviso local de recurso
+ *   3. Click no botao desabilitado mostra aviso local de recurso
  *      indisponivel nesta etapa.
  *
  * Design intencional: o componente é idempotente e defensivo. `bindOnce()`
@@ -152,7 +152,7 @@ const REVIEW_FIELDS = [
  *    grátis" e subtitle contando uso do mês.
  *  - `locked` (quota esgotada OU plano desconhecido): botão bloqueado.
  *
- * Aceita tanto boolean (legado, == isPlusOrPro) quanto objeto
+ * Aceita tanto boolean (compatibilidade com chamada anterior) quanto objeto
  * `{ isPlusOrPro, trialRemaining }` pra o novo fluxo de teste grátis.
  *
  * @param {boolean | {isPlusOrPro?: boolean, trialRemaining?: number | null}} [config]
@@ -244,7 +244,7 @@ export function resetNameplateCtaState() {
     try {
       input.value = '';
     } catch (_) {
-      /* IE legacy */
+      /* Fallback defensivo ao resetar input de arquivo. */
     }
   }
   hideScanOverlay();
@@ -450,7 +450,7 @@ async function handleFile(file) {
         cta.dataset.state = prevState === 'locked' ? 'locked' : 'active';
         trackEvent('nameplate_quota_hit', { source: 'equip_modal', plan: 'plus' });
       } else if (quotaExhausted) {
-        // Free esgotado — usa alias trialExhausted legado
+        // Free esgotado; preserva alias trialExhausted retornado pela API.
         applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: 0 });
         stageMsg = 'Teste grátis do mês esgotado';
         trackEvent('nameplate_trial_exhausted_hit', { source: 'equip_modal' });

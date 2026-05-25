@@ -208,6 +208,8 @@ decisao, do escopo e do risco remanescente.
   shell e reidratacao de registro sem alterar runtime.
 - Neutralizados comentarios e nomes de teste residuais no router sem alterar
   rotas, history state, backbutton ou blocking layers.
+- Neutralizados comentarios residuais em captura de placa sem alterar gate,
+  upload, analise IA, quota ou payloads retornados pela API.
 
 ## Nomenclatura React legada
 
