@@ -47,6 +47,8 @@ decisao, do escopo e do risco remanescente.
   ativos foram preservados.
 - Removidas imagens raiz da landing antiga (`antes/depois/passos/hero/Perfil`);
   logos, wordmarks e favicons foram preservados.
+- Manifesto publico alinhado ao app-v2: rotulo legado `Dashboard` trocado por
+  `Hoje`, sem alterar favicons ou icones publicos ativos.
 
 ## PMOC legado
 

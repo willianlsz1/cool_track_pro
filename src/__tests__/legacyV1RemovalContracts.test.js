@@ -650,6 +650,25 @@ describe('legacy v1 removal contracts', () => {
     ).toEqual([]);
   });
 
+  it('keeps the public manifest aligned with the app-v2 primary experience', () => {
+    const manifestSource = readSource('public/manifest.json');
+    const manifest = JSON.parse(manifestSource);
+    const searchableLabels = [
+      manifest.description,
+      ...(manifest.screenshots || []).map((item) => item.label),
+      ...(manifest.shortcuts || []).flatMap((item) => [
+        item.name,
+        item.short_name,
+        item.description,
+        item.url,
+      ]),
+    ].join('\n');
+
+    expect(searchableLabels).not.toMatch(/Dashboard|shortcut=dashboard/);
+    expect(searchableLabels).not.toMatch(/Ã|Â|�/);
+    expect(manifest.shortcuts.map((item) => item.name)).toContain('Hoje');
+  });
+
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
       readSource('src/ui/components/clienteModal.js'),

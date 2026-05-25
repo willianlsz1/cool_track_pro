@@ -91,7 +91,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "CoolTrack Pro - Dashboard"
+      "label": "CoolTrack Pro - Hoje"
     }
   ],
   "shortcuts": [
@@ -103,10 +103,10 @@
       "icons": [{ "src": "/icons/icon-192x192.png?v=2", "sizes": "192x192" }]
     },
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "Ver painel de controle",
-      "url": "/?shortcut=dashboard",
+      "name": "Hoje",
+      "short_name": "Hoje",
+      "description": "Ver prioridades do dia",
+      "url": "/",
       "icons": [{ "src": "/icons/icon-192x192.png?v=2", "sizes": "192x192" }]
     }
   ]
