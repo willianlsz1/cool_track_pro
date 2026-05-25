@@ -858,21 +858,13 @@ describe('legacy v1 removal contracts', () => {
   });
 
   it('does not keep legacy orcamento digital signature runtime or database surface', () => {
-    const orcamentosSource = readSource('src/core/orcamentos.js');
-    const followUpSource = readSource('src/domain/orcamentoFollowUp.js');
     const retirementMigration = readSource(
       'supabase/migrations/20260524200000_retire_orcamento_signature.sql',
     );
 
-    expect(orcamentosSource).not.toContain('generateShareToken');
-    expect(orcamentosSource).not.toContain('buildShareUrl');
-    expect(orcamentosSource).not.toContain('fetchOrcamentoByToken');
-    expect(orcamentosSource).not.toContain('signOrcamentoByToken');
-    expect(orcamentosSource).not.toContain('share_token');
-    expect(orcamentosSource).not.toContain('assinatura_cliente_dataurl');
-    expect(orcamentosSource).not.toContain('orc-sign');
-    expect(followUpSource).not.toContain('aguardando_assinatura');
-    expect(followUpSource).not.toContain('assinadoEm');
+    expect(existsSync('src/core/orcamentos.js')).toBe(false);
+    expect(existsSync('src/domain/orcamentoFollowUp.js')).toBe(false);
+    expect(existsSync('src/__tests__/orcamentoFollowUp.test.js')).toBe(false);
     expect(retirementMigration).toContain('drop function if exists public.sign_orcamento_by_token');
     expect(retirementMigration).toContain('drop function if exists public.get_orcamento_by_token');
     expect(retirementMigration).toContain('drop column if exists share_token');

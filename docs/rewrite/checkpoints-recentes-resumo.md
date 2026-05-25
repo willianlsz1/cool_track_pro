@@ -377,6 +377,8 @@ decisao, do escopo e do risco remanescente.
   de `checklistTemplates.js` e sem alterar itens, labels, unidades ou regras.
 - Neutralizadas classes visuais residuais `plus-badge`/`pro-badge` em templates
   ativos, preservando copy e comportamento.
+- Removido modulo orfao de orcamento real v1 e helper de follow-up, mantendo
+  apenas o shape local de `orcamentos` para o app-v2.
 
 ## Validacao padrao
 
