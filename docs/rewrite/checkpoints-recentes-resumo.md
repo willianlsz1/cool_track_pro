@@ -185,8 +185,8 @@ decisao, do escopo e do risco remanescente.
   contratos de navegacao enquanto o app-v2 e a experiencia principal.
 - Ajustados testes de contratos, equipamentos e historico para nao dependerem
   de mocks do dashboard removido.
-- Router ainda mantem tratamento antigo de `dash-overflow-modal`; fica para CP
-  proprio por ser area sensivel.
+- Removido em CP proprio o tratamento de router para `dash-overflow-modal`,
+  apos retirada do componente que criava esse modal.
 
 ## Validacao padrao
 

@@ -139,22 +139,6 @@ function closeTopBlockingLayer() {
     candidates.push({ element, close: entry.close });
   });
 
-  // Overflow modal do dashboard (usa class `overflow-modal-overlay`, não
-  // `modal-overlay`, e só existe no DOM enquanto aberto — audit §1.3).
-  // Preferimos clicar no botão dismiss pra preservar a telemetria de close;
-  // fallback pra .remove() se algo quebrou a estrutura interna.
-  const overflowModal = document.getElementById('dash-overflow-modal');
-  if (overflowModal) {
-    candidates.push({
-      element: overflowModal,
-      close: () => {
-        const dismissBtn = overflowModal.querySelector('[data-action="dismiss"]');
-        if (dismissBtn instanceof HTMLElement) dismissBtn.click();
-        else overflowModal.remove();
-      },
-    });
-  }
-
   if (!candidates.length) return false;
 
   // Fecha apenas a camada mais ao topo (última no DOM).
@@ -175,10 +159,7 @@ function countOpenBlockingLayers() {
   const registeredLayerCount = [..._blockingLayerRegistry.values()].filter((entry) =>
     entry.isOpen(),
   ).length;
-  // Overflow modal existe no DOM só enquanto aberto (sem class is-open),
-  // então basta checar presença (audit §1.3).
-  const overflowCount = document.getElementById('dash-overflow-modal') ? 1 : 0;
-  return modalCount + registeredLayerCount + overflowCount;
+  return modalCount + registeredLayerCount;
 }
 
 function syncBlockingLayerHistoryDepth() {
