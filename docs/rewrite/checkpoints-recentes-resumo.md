@@ -57,6 +57,8 @@ decisao, do escopo e do risco remanescente.
   manter linguagem v1/legacy fora dos contratos historicos.
 - Comentarios de utilitarios core ativos neutralizados para nao manter versao
   textual v1.0 fora de contexto historico.
+- Comentarios de constantes de status do dominio neutralizados para nao apontar
+  o dashboard legado como referencia arquitetural.
 
 ## PMOC legado
 

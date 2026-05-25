@@ -967,6 +967,14 @@ describe('legacy v1 removal contracts', () => {
     expect(joined).not.toContain('assinatura');
   });
 
+  it('does not keep domain status constants tied to legacy Dashboard file paths', () => {
+    const statusConstantsSource = readSource('src/domain/constants/statuses.js');
+
+    expect(statusConstantsSource).not.toContain('ui/views/dashboard.js');
+    expect(statusConstantsSource).not.toContain('dashboard/constants');
+    expect(statusConstantsSource).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 
