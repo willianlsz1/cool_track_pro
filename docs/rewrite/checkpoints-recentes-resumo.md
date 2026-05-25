@@ -236,6 +236,9 @@ decisao, do escopo e do risco remanescente.
 - A arvore `src/react` segue removida; o renderer atual de Equipamentos usa DOM.
 - `scripts/css-proof.mjs` deixou de escanear `src/react`, `src/tests` e
   `src/assets/styles`; o helper agora aponta para estilos versionados atuais.
+- Renomeados testes ativos de Equipamentos de `equipamentosLegacy*` para
+  `equipamentosDom*`, mantendo cobertura de contratos DOM sem linguagem de
+  legado.
 
 ## Validacao padrao
 

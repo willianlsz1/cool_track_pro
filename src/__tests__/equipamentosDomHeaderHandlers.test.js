@@ -311,8 +311,8 @@ afterAll(() => {
   delete document.body.dataset.helpMenuBound;
 });
 
-describe('equipamentos DOM header with legacy handlers', () => {
-  it('keeps quick filters delegated to the legacy filter state while the DOM list remains mounted', async () => {
+describe('equipamentos DOM header handlers', () => {
+  it('keeps quick filters delegated to the current filter state while the DOM list remains mounted', async () => {
     await mountHeader();
 
     await click(
@@ -328,7 +328,7 @@ describe('equipamentos DOM header with legacy handlers', () => {
     });
   });
 
-  it('keeps context clearing and view mode delegated to legacy handlers', async () => {
+  it('keeps context clearing and view mode delegated to current handlers', async () => {
     await mountHeader();
 
     await click(
@@ -343,7 +343,7 @@ describe('equipamentos DOM header with legacy handlers', () => {
     expect(window.__setEquipViewMode).toHaveBeenCalledWith('grid');
   });
 
-  it('keeps modal, setor and registration actions compatible with legacy handlers', async () => {
+  it('keeps modal, setor and registration actions compatible with current handlers', async () => {
     await mountHeader();
 
     const modalTrigger = await click(

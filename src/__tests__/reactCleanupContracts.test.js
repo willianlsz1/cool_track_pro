@@ -12,10 +12,32 @@ describe('React cleanup contracts', () => {
     expect(existsSync('src/react')).toBe(false);
   });
 
-  it('does not keep stale React island names on legacy DOM handler tests', () => {
+  it('does not keep stale React island names on current DOM handler tests', () => {
     expect(existsSync('src/__tests__/registroReactFieldHandlers.test.js')).toBe(false);
     expect(existsSync('src/__tests__/equipamentosReactHeaderLegacyHandlers.test.jsx')).toBe(false);
     expect(existsSync('e2e/specs/react-islands-lifecycle.spec.js')).toBe(false);
+  });
+
+  it('keeps active Equipamentos DOM tests out of legacy file names', () => {
+    [
+      'src/__tests__/equipamentosLegacyHeaderHandlers.test.js',
+      'src/__tests__/equipamentosLegacyHeroFiltersContext.test.js',
+      'src/__tests__/equipamentosLegacyPhotosNameplatePaywall.test.js',
+      'src/__tests__/equipamentosLegacyRender.test.js',
+      'src/__tests__/equipamentosLegacySetorDetailHandlers.test.js',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(false);
+    });
+
+    [
+      'src/__tests__/equipamentosDomHeaderHandlers.test.js',
+      'src/__tests__/equipamentosDomHeroFiltersContext.test.js',
+      'src/__tests__/equipamentosDomNameplateGate.test.js',
+      'src/__tests__/equipamentosDomRender.test.js',
+      'src/__tests__/equipamentosDomSetorDetailHandlers.test.js',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(true);
+    });
   });
 
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {

@@ -249,7 +249,7 @@ const activeEquip = {
   __riskFactors: ['preventiva sem agenda'],
 };
 
-describe('equipamentos legacy render adapter', () => {
+describe('equipamentos DOM render adapter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stateMocks.routeParams = {};
@@ -258,7 +258,7 @@ describe('equipamentos legacy render adapter', () => {
     setState();
   });
 
-  it('renderiza empty state legado em #lista-equip sem exigir lista válida', async () => {
+  it('renderiza empty state DOM em #lista-equip sem exigir lista válida', async () => {
     setState({ equipamentos: undefined, clientes: undefined, setores: undefined });
 
     await renderEquip();
@@ -318,7 +318,7 @@ describe('equipamentos legacy render adapter', () => {
     ).toBe('list');
   });
 
-  it('aplica busca e contexto cliente/setor do view model no render legado', async () => {
+  it('aplica busca e contexto cliente/setor do view model no render DOM', async () => {
     setState({
       equipamentos: [
         {
@@ -382,7 +382,7 @@ describe('equipamentos legacy render adapter', () => {
     setState({
       equipamentos: [
         { ...activeEquip, id: 'eq-setor', clienteId: 'cli-1', setorId: 's1' },
-        { ...activeEquip, id: 'eq-legacy', clienteId: '', setorId: 's1' },
+        { ...activeEquip, id: 'eq-sem-cliente', clienteId: '', setorId: 's1' },
         { ...activeEquip, id: 'eq-sem-setor', clienteId: 'cli-1', setorId: '' },
       ],
       clientes: [{ id: 'cli-1', nome: 'Cliente Alpha' }],
@@ -439,7 +439,7 @@ describe('equipamentos legacy render adapter', () => {
     expect(document.querySelector('[data-action="quick-move-equip-batch"]')).not.toBeNull();
   });
 
-  it('mantém escape de HTML malicioso no HTML legado', async () => {
+  it('mantém escape de HTML malicioso no HTML DOM', async () => {
     const malicious = `"><img src=x onerror=alert(1)><script>alert(2)</script>`;
     setState({
       equipamentos: [

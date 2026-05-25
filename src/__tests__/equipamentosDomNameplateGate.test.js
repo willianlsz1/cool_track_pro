@@ -170,8 +170,8 @@ beforeEach(() => {
   bindNavigationHandlers();
 });
 
-describe('equipamentos legacy nameplate/paywall contracts', () => {
-  it('preserva contratos DOM da captura de etiqueta sem editor legado de fotos', () => {
+describe('equipamentos DOM nameplate gate contracts', () => {
+  it('preserva contratos DOM da captura de etiqueta sem editor de fotos removido', () => {
     expect(document.getElementById('modal-eq-photos')).toBeNull();
     expect(document.querySelector('[data-action="save-eq-photos"]')).toBeNull();
     expect(document.querySelector('[data-action="open-eq-photos-editor"]')).toBeNull();
@@ -192,7 +192,7 @@ describe('equipamentos legacy nameplate/paywall contracts', () => {
     expect(lockedNameplate?.classList.contains('nameplate-cta__btn--locked')).toBe(true);
   });
 
-  it('preserva estados do nameplate gate e aciona upsell legado sem analise real', async () => {
+  it('preserva estados do nameplate gate e aciona estado bloqueado sem analise real', async () => {
     const cta = document.getElementById('nameplate-cta');
     const sub = document.getElementById('nameplate-cta-sub');
 

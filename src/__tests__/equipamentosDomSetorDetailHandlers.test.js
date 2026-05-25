@@ -269,7 +269,7 @@ afterAll(() => {
   delete document.body.dataset.helpMenuBound;
 });
 
-describe('equipamentos legacy setor/detail handlers contracts', () => {
+describe('equipamentos DOM setor/detail handlers contracts', () => {
   it('abre e fecha o menu de setor sem disparar drill-down do card', async () => {
     const { menu, toggle } = appendSetorCard('setor-1');
 

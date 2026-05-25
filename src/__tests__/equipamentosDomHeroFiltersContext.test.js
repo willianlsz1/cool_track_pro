@@ -260,7 +260,7 @@ const baseEquipamento = {
   fotos: [],
 };
 
-describe('equipamentos legacy hero, filters and context contracts', () => {
+describe('equipamentos DOM hero, filters and context contracts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stateMocks.routeParams = {};
@@ -270,7 +270,7 @@ describe('equipamentos legacy hero, filters and context contracts', () => {
     setState();
   });
 
-  it('centraliza ids, classes, acoes e data-* publicos do recorte legado', () => {
+  it('centraliza ids, classes, acoes e data-* publicos do recorte DOM atual', () => {
     expect(EQUIPAMENTOS_PUBLIC_IDS).toMatchObject({
       view: 'view-equipamentos',
       list: 'lista-equip',
@@ -419,7 +419,7 @@ describe('equipamentos legacy hero, filters and context contracts', () => {
     expect(document.querySelector('[data-action="delete-equip"]')).toBeNull();
   });
 
-  it('mantem nomes maliciosos inertes no hero, contexto e atributos do adapter legado', async () => {
+  it('mantem nomes maliciosos inertes no hero, contexto e atributos do adapter DOM', async () => {
     const malicious = `"><img src=x onerror=alert(1)><script>alert(2)</script>`;
     setState({
       equipamentos: [
@@ -448,7 +448,7 @@ describe('equipamentos legacy hero, filters and context contracts', () => {
     expect(document.getElementById('equip-hero-kpis')?.textContent).toContain('<script>');
   });
 
-  it('continua sem importar React/createRoot no adapter legado de equipamentos', () => {
+  it('continua sem importar React/createRoot no adapter DOM de equipamentos', () => {
     const source = readFileSync('src/ui/views/equipamentos.js', 'utf-8');
     expect(source).not.toMatch(/from ['"]react['"]/);
     expect(source).not.toMatch(/createRoot/);
