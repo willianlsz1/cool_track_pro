@@ -348,6 +348,8 @@ decisao, do escopo e do risco remanescente.
   migration de retirada como cobertura do schema comercial aposentado.
 - Neutralizada a palavra `portal` em copy/fixture de canal de chamados do
   app-v2, reduzindo ruido com gates de limpeza comercial.
+- Renomeada e neutralizada migration de hardening de profile/usage, preservando
+  RLS de `usage_monthly` e checks de metadados historicos ate a retirada.
 
 ## Validacao padrao
 

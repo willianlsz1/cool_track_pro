@@ -1,22 +1,22 @@
 -- ============================================================
--- Mudanca 17 / CP-B - hardening de billing profile e quotas
+-- Mudanca 17 / CP-B - hardening de profile e contadores
 -- Date: 2026-05-09
 --
 -- Escopo:
 --   1. Completa a protecao de public.profiles no INSERT, bloqueando
---      stripe_customer_id / stripe_subscription_id semeados pelo cliente.
+--      metadados de provedor comercial semeados pelo cliente.
 --   2. Remove policies de escrita direta em public.usage_monthly.
 --
 -- Decisao:
 --   - profiles continua legivel pelo proprio usuario e editavel para campos
 --     comuns via policies existentes + triggers de protecao.
---   - campos monetarios continuam atualizaveis pelo service_role/webhook.
+--   - campos operacionais sensiveis continuam atualizaveis pelo service_role.
 --   - usage_monthly continua legivel pelo proprio usuario.
 --   - contadores devem ser alterados via public.increment_monthly_usage()
 --     (SECURITY DEFINER) ou service_role, nao por insert/update direto.
 --
 -- Fora de escopo:
---   - CP-C Stripe entitlement.
+--   - Recriacao futura de features pagas.
 --   - CP-D env Supabase frontend.
 --   - PDF/share, Storage, React Doctor, Vite warnings.
 -- ============================================================
@@ -41,7 +41,7 @@ begin
   end if;
 
   -- Usuarios autenticados so conseguem inserir profile como free/inactive
-  -- e sem metadados de billing. O profile normal tambem e criado pelo
+  -- e sem metadados comerciais. O profile normal tambem e criado pelo
   -- handle_new_user() com esses defaults.
   if coalesce(new.plan_code, 'free') <> 'free' then
     raise exception 'cannot create profile with non-free plan_code' using errcode = '42501';
@@ -78,7 +78,7 @@ create trigger protect_profile_insert_trigger
   for each row execute function public.protect_profile_insert();
 
 comment on function public.protect_profile_insert() is
-  'Bloqueia INSERT client-side em public.profiles com plano pago, dev flag ou metadados Stripe. service_role/webhook bypassa.';
+  'Bloqueia INSERT client-side em public.profiles com plano nao operacional, dev flag ou metadados comerciais. service_role bypassa.';
 
 -- usage_monthly: leitura propria permanece; escrita direta pelo usuario sai.
 -- O caminho permitido para usuario autenticado e a RPC SECURITY DEFINER
