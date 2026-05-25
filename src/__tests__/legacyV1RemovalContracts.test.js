@@ -1020,6 +1020,8 @@ describe('legacy v1 removal contracts', () => {
       readSource('src/ui/views/equipamentos.js'),
       readSource('src/ui/views/equipamentos/state/editingState.js'),
       readSource('src/ui/views/equipamentos/ui/detailModel.js'),
+      readSource('src/ui/views/historico.js'),
+      readSource('src/ui/shell/templates/modals.js'),
     ].join('\n');
 
     expect(joined).not.toMatch(/\blegado\b|legacy/i);

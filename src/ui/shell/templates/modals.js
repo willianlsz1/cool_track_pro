@@ -449,7 +449,7 @@ export function renderShellModals() {
             pegou. Por default ficam ocultos atrás desse toggle; clicar revela
             todo o bloco. Se a IA detecta qualquer valor nesses campos,
             applyFieldsToForm abre o bloco automaticamente (ver
-            expandEtiquetaMoreIfNeeded via runtime legado restante).
+            expandEtiquetaMoreIfNeeded via runtime ativo).
           -->
           <button type="button" class="eq-etiqueta-more-toggle"
                   id="eq-etiqueta-more-toggle" aria-expanded="false"
@@ -673,8 +673,8 @@ export function renderShellModals() {
       <div class="setor-modal__body">
         <!-- Cliente: select editavel. Pre-selecionado quando vier do contexto
              /clientes -> "Ver equipamentos" -> "+ Novo setor", mas o usuário
-             pode trocar pra outro cliente ou deixar sem (compat com setores
-             legacy). Hidden input mantido pra retro-compat com saveSetor que
+             pode trocar pra outro cliente ou deixar sem setor. Hidden input
+             mantido pra retro-compat com saveSetor que
              le de '#setor-cliente-id'; um change listener sincroniza com o
              select abaixo. -->
         <input type="hidden" id="setor-cliente-id" value="" />

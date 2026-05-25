@@ -1292,7 +1292,7 @@ export function renderHist() {
   });
 
   // Filtros de período, tipo, cliente, setor, equipamento e busca agora ficam
-  // no view model; o adapter segue responsável por DOM, URL, handlers e render legado.
+  // no view model; o adapter segue responsável por DOM, URL, handlers e render.
 
   const timelineRoot = Utils.getEl('timeline');
   if (!timelineRoot) return;
