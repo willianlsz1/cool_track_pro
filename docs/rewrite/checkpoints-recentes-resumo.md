@@ -206,6 +206,8 @@ decisao, do escopo e do risco remanescente.
   sem alterar regra de `clienteId`.
 - Neutralizada nomenclatura residual em testes app-v2 de fronteira, cutover,
   shell e reidratacao de registro sem alterar runtime.
+- Neutralizados comentarios e nomes de teste residuais no router sem alterar
+  rotas, history state, backbutton ou blocking layers.
 
 ## Nomenclatura React legada
 

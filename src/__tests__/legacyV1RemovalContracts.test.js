@@ -706,6 +706,13 @@ describe('legacy v1 removal contracts', () => {
     expect(indexSource).not.toContain('plugins legacy');
   });
 
+  it('does not keep retired-app wording in neutralized router comments', () => {
+    const routerSource = readSource('src/core/router.js');
+
+    expect(routerSource).not.toMatch(/\blegado\b|legacy|\bv1\.1\b/i);
+    expect(routerSource).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep v1-era wording in public legal styles or active config comments', () => {
     const joined = [
       readSource('public/legal/_style.css'),

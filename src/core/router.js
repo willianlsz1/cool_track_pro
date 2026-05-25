@@ -1,7 +1,7 @@
 /**
- * CoolTrack Pro - Router v1.1
+ * CoolTrack Pro - Router
  * Roteamento puro — sem dependências de UI
- * As rotas legadas restantes se registram por adaptadores fora do core.
+ * As rotas registram adaptadores fora do core.
  */
 
 import { Toast } from './toast.js';
@@ -62,7 +62,7 @@ function parseHistoryState(state) {
   if (!state || typeof state !== 'object') return { route: null, params: {} };
   return {
     route: typeof state.route === 'string' ? state.route : null,
-    // Compat legado: state antigo sem params
+    // Compat: history state anterior sem params.
     params: normalizeRouteParams(state.params),
   };
 }
@@ -525,7 +525,7 @@ export function initHistory() {
       return;
     }
 
-    // Fallback defensivo: histórico externo/legado sem route válida pode
+    // Fallback defensivo: historico externo ou anterior sem route valida pode
     // chegar aqui. Se houver rota inicial registrada, volta pra ela em vez
     // de deixar a UI em estado indefinido.
     if (_routes.has('inicio') && _current !== 'inicio') {

@@ -304,7 +304,7 @@ describe('router', () => {
     expect(onEnterInicio).toHaveBeenCalledTimes(2);
   });
 
-  it('mantém compatibilidade com history state legado sem params', async () => {
+  it('mantem compatibilidade com history state anterior sem params', async () => {
     vi.useFakeTimers();
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
@@ -327,8 +327,8 @@ describe('router', () => {
 
     registerRoute('inicio', vi.fn());
     goTo('inicio', { origem: 'teste' });
-    // Simula state legado/externo quebrado após navegação inicial.
-    window.history.replaceState({ route: 'legado', params: {} }, '', window.location.pathname);
+    // Simula state externo quebrado apos navegacao inicial.
+    window.history.replaceState({ route: 'externo', params: {} }, '', window.location.pathname);
 
     initHistory();
 
