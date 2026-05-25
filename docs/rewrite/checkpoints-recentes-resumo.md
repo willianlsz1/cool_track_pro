@@ -309,6 +309,8 @@ decisao, do escopo e do risco remanescente.
   focado sem alterar persistencia, Supabase, RLS ou runtime.
 - Neutralizada ambiguidade de `portal` em copy de canal de chamados do cliente,
   reforcando o gate de termos comerciais sem alterar handlers ou dados.
+- Removida superficie obsoleta `PREMIUM_FEATURE_EQUIPAMENTOS`/premium helpers do
+  plano operacional, preservando perfil operacional e sem tocar gates ativos.
 
 ## Validacao padrao
 

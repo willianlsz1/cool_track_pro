@@ -189,6 +189,7 @@ describe('billing/pricing cleanup contracts', () => {
     expect(sources).not.toContain('USAGE_RESOURCE_PDF_EXPORT');
     expect(sources).not.toContain('USAGE_RESOURCE_WHATSAPP_SHARE');
     expect(sources).not.toContain('FEATURE_PDF_EXPORT');
+    expect(sources).not.toContain('PREMIUM_FEATURE_EQUIPAMENTOS');
     expect(sources).not.toContain('PREMIUM_FEATURE_PDF_EXPORT');
     expect(sources).not.toContain('pdf_export');
     expect(sources).not.toContain('whatsapp_share');

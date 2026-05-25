@@ -13,8 +13,6 @@ import {
   hasProAccess,
 } from './operationalAccessPolicy.js';
 
-export const PREMIUM_FEATURE_EQUIPAMENTOS = 'equipamentos';
-
 let _profileSnapshot = null;
 
 export {
@@ -77,14 +75,6 @@ export async function sanitizeSessionForCurrentProject({ supabaseClient = supaba
 
 export function getPlanCodeFromProfile() {
   return PLAN_CODE_FREE;
-}
-
-export function isProUser() {
-  return true;
-}
-
-export function canUsePremiumFeature(_profile, feature) {
-  return feature === PREMIUM_FEATURE_EQUIPAMENTOS;
 }
 
 export function getCachedOperationalProfileSnapshot() {

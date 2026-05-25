@@ -34,12 +34,12 @@ describe('operational plan compatibility layer', () => {
     });
   });
 
-  it('keeps retired premium helpers open while commercial gates are disabled', async () => {
+  it('does not expose retired premium helper surface after commercial cleanup', async () => {
     const { mod } = await loadOperationalPlan();
 
-    expect(mod.isProUser({ plan_code: 'free' })).toBe(true);
-    expect(mod.canUsePremiumFeature(null, mod.PREMIUM_FEATURE_EQUIPAMENTOS)).toBe(true);
-    expect(mod.canUsePremiumFeature(null, 'pdf_export')).toBe(false);
+    expect(Object.keys(mod)).not.toContain('isProUser');
+    expect(Object.keys(mod)).not.toContain('canUsePremiumFeature');
+    expect(Object.keys(mod)).not.toContain('PREMIUM_FEATURE_EQUIPAMENTOS');
     expect(Object.keys(mod)).not.toContain('PREMIUM_FEATURE_PDF_EXPORT');
     expect(mod.getPlanCodeFromProfile({ plan_code: 'pro' })).toBe('free');
   });
