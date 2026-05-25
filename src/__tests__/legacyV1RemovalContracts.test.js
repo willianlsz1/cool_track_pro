@@ -719,6 +719,16 @@ describe('legacy v1 removal contracts', () => {
     expect(nameplateSource).not.toMatch(/\bbotao legado\b|IE legacy|trialExhausted legado/i);
   });
 
+  it('does not keep retired-app wording in neutralized onboarding helper names', () => {
+    const firstTimeExperienceSource = readSource(
+      'src/ui/components/onboarding/firstTimeExperience.js',
+    );
+    const onboardingBannerSource = readSource('src/ui/components/onboarding/onboardingBanner.js');
+
+    expect(firstTimeExperienceSource).not.toContain('migrateLegacyFtxKeysIfNeeded');
+    expect(onboardingBannerSource).not.toContain('migrateLegacySkipKeyIfNeeded');
+  });
+
   it('does not keep v1-era wording in public legal styles or active config comments', () => {
     const joined = [
       readSource('public/legal/_style.css'),

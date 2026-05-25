@@ -22,7 +22,7 @@ function resolveFtxKeys(userId) {
   };
 }
 
-function migrateLegacyFtxKeysIfNeeded({ doneKey, skipKey }) {
+function migratePreviousFtxKeysIfNeeded({ doneKey, skipKey }) {
   if (doneKey === FTX_KEY && skipKey === FTX_SKIP_KEY) return;
   if (localStorage.getItem(FTX_KEY) === '1') {
     localStorage.setItem(doneKey, '1');
@@ -96,7 +96,7 @@ function buildFirstMaintenanceRegistro({ equipId, data, tipo, tecnico }) {
 export const FirstTimeExperience = {
   show(equipamentos, { userId = null } = {}) {
     const { doneKey, skipKey } = resolveFtxKeys(userId);
-    migrateLegacyFtxKeysIfNeeded({ doneKey, skipKey });
+    migratePreviousFtxKeysIfNeeded({ doneKey, skipKey });
 
     if (equipamentos.length) return;
     if (localStorage.getItem(doneKey)) return;

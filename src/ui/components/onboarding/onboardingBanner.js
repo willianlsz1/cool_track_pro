@@ -12,7 +12,7 @@ function resolveFtxSkipKey(userId) {
   return normalizedUserId ? `${FTX_SKIP_KEY_PREFIX}${normalizedUserId}` : FTX_SKIP_KEY;
 }
 
-function migrateLegacySkipKeyIfNeeded(skipKey) {
+function migratePreviousSkipKeyIfNeeded(skipKey) {
   if (skipKey === FTX_SKIP_KEY) return;
   if (localStorage.getItem(FTX_SKIP_KEY) === '1') {
     localStorage.setItem(skipKey, '1');
@@ -29,7 +29,7 @@ export const OnboardingBanner = {
       return;
     }
     const skipKey = resolveFtxSkipKey(userId);
-    migrateLegacySkipKeyIfNeeded(skipKey);
+    migratePreviousSkipKeyIfNeeded(skipKey);
     const wasSkipped = !!localStorage.getItem(skipKey);
     const bannerState = `${skipKey}:${wasSkipped ? 'skipped' : 'default'}`;
 

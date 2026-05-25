@@ -210,6 +210,8 @@ decisao, do escopo e do risco remanescente.
   rotas, history state, backbutton ou blocking layers.
 - Neutralizados comentarios residuais em captura de placa sem alterar gate,
   upload, analise IA, quota ou payloads retornados pela API.
+- Neutralizados nomes internos de helpers de migracao do onboarding sem alterar
+  storage keys, render, eventos ou escopo por usuario.
 
 ## Nomenclatura React legada
 
