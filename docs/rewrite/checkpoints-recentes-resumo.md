@@ -398,6 +398,8 @@ decisao, do escopo e do risco remanescente.
   Equipamentos, mantendo o refresh operacional sem billing/pricing.
 - Removidos mocks obsoletos de `planCache`/`getEffectivePlan` em testes DOM de
   Equipamentos apos a limpeza do bridge de render.
+- Removida safelist morta de `src/ui/views/pricing` no contrato de limpeza
+  billing/pricing; a tela antiga nao existe mais no runtime.
 
 ## Validacao padrao
 

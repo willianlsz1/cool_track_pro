@@ -161,7 +161,7 @@ describe('billing/pricing cleanup contracts', () => {
       ...collectRuntimeSources('src/domain'),
       ...collectRuntimeSources('src/features'),
       ...collectRuntimeSources('src/ui'),
-    ].filter((path) => !path.startsWith('src/ui/views/pricing'));
+    ];
 
     const forbidden = [
       'billing',
