@@ -690,6 +690,12 @@ describe('legacy v1 removal contracts', () => {
     );
   });
 
+  it('does not keep legacy wording in active public HTML comments', () => {
+    const indexSource = readSource('index.html');
+
+    expect(indexSource).not.toContain('plugins legacy');
+  });
+
   it('does not keep v1-era wording in public legal styles or active config comments', () => {
     const joined = [readSource('public/legal/_style.css'), readSource('eslint.config.js')].join(
       '\n',
