@@ -31,16 +31,16 @@ function buildLookup(items) {
 }
 
 function normalizeValidationMessage(message) {
-  return safeString(message)
-    .replaceAll('Ã³', 'o')
-    .replaceAll('Ã§', 'c')
-    .replaceAll('Ã©', 'e')
-    .replaceAll('Ã£', 'a')
-    .replaceAll('Ã¡', 'a')
-    .replaceAll('Ãª', 'e')
-    .replaceAll('Ã­', 'i')
-    .replaceAll('Ãº', 'u')
-    .replaceAll('Ã‡', 'C');
+  const text = safeString(message);
+  if (!/[\u00c2\u00c3]/.test(text) || typeof TextDecoder === 'undefined') return text;
+
+  try {
+    const bytes = Uint8Array.from(Array.from(text), (char) => char.charCodeAt(0) & 0xff);
+    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+    return decoded.includes('\uFFFD') ? text : decoded;
+  } catch {
+    return text;
+  }
 }
 
 function findById(items, id) {

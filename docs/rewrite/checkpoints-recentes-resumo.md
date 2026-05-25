@@ -26,6 +26,8 @@ decisao, do escopo e do risco remanescente.
   Equipamentos, sem renomear aliases/eventos de compatibilidade.
 - Neutralizados comentarios residuais do CTA bloqueado de nameplate, preservando
   IDs/eventos de compatibilidade.
+- Removidos literais mojibake do view model de Registro, trocando por
+  decodificacao generica de mensagens antigas.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.

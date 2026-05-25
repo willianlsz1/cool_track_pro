@@ -259,4 +259,11 @@ describe('registro view model', () => {
     expect(source).not.toMatch(/document\.|window\.|localStorage|sessionStorage/);
     expect(source).not.toMatch(/router|goTo|storage|pdf|whatsapp|components\/signature|Photos/);
   });
+
+  it('nao mantem literais mojibake para normalizar mensagens de validacao', () => {
+    const source = readFileSync('src/ui/viewModels/registroViewModel.js', 'utf8');
+
+    expect(source).not.toMatch(/Ã|Â|�/);
+    expect(source).toContain('TextDecoder');
+  });
 });
