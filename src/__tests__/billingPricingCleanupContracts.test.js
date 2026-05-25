@@ -61,6 +61,7 @@ describe('billing/pricing cleanup contracts', () => {
     expect(sources).not.toContain('Pro · Setores');
     expect(sources).not.toContain('Setor (Pro)');
     expect(sources).not.toContain('>PRO<');
+    expect(sources).not.toContain('pro-badge');
   });
 
   it('does not keep Setores runtime comments tied to commercial plan language', () => {
@@ -132,6 +133,7 @@ describe('billing/pricing cleanup contracts', () => {
     expect(sources).not.toContain('vira o Plus');
     expect(sources).not.toContain('Upsell CTA');
     expect(sources).not.toContain('>PLUS<');
+    expect(sources).not.toContain('plus-badge');
   });
 
   it('does not keep paid-plan copy in legacy runtime gates', () => {

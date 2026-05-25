@@ -375,6 +375,8 @@ decisao, do escopo e do risco remanescente.
   asserts ou runtime.
 - Dividido catalogo PMOC de checklist em modulos menores, mantendo a API publica
   de `checklistTemplates.js` e sem alterar itens, labels, unidades ou regras.
+- Neutralizadas classes visuais residuais `plus-badge`/`pro-badge` em templates
+  ativos, preservando copy e comportamento.
 
 ## Validacao padrao
 

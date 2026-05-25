@@ -68,7 +68,7 @@ export function renderShellModals() {
           <div class="nameplate-cta__text">
             <div class="nameplate-cta__title">
               Aponta a câmera pra etiqueta
-              <span class="plus-badge plus-badge--inline" aria-hidden="true">IA</span>
+              <span class="nameplate-cta__badge nameplate-cta__badge--inline" aria-hidden="true">IA</span>
             </div>
             <p class="nameplate-cta__sub" id="nameplate-cta-sub">
               A IA tenta preencher os principais dados da etiqueta. Você revisa antes de aplicar.
@@ -250,7 +250,7 @@ export function renderShellModals() {
                   <span class="eq-context-card__body">
                     <span class="eq-context-card__label">
                       Setor
-                      <span class="pro-badge pro-badge--inline">Opcional</span>
+                      <span class="eq-context-card__badge eq-context-card__badge--inline">Opcional</span>
                     </span>
                     <span class="eq-context-card__value" id="eq-setor-value">Sem setor</span>
                   </span>
