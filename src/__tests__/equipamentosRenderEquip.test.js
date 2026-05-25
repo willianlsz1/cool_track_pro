@@ -151,7 +151,7 @@ describe('renderEquip orchestrator', () => {
     expect(deps.renderSetorGrid).not.toHaveBeenCalled();
   });
 
-  it('mantem branch Pro/setores antes da lista final', async () => {
+  it('mantem branch de setores antes da lista final', async () => {
     const { deps } = configureRenderEquipTestDeps({
       isCachedPlanPro: vi.fn(() => true),
     });
@@ -162,7 +162,7 @@ describe('renderEquip orchestrator', () => {
     expect(deps.renderFlatList).not.toHaveBeenCalled();
   });
 
-  it('mantem branch Pro/setores filtrada por cliente', async () => {
+  it('mantem branch de setores filtrada por cliente', async () => {
     const { deps } = configureRenderEquipTestDeps({
       isCachedPlanPro: vi.fn(() => true),
       getState: vi.fn(() => ({
@@ -184,7 +184,7 @@ describe('renderEquip orchestrator', () => {
     expect(deps.renderFlatList).not.toHaveBeenCalled();
   });
 
-  it('renderiza lista direta para cliente Pro sem setores', async () => {
+  it('renderiza lista direta para cliente sem setores', async () => {
     const { deps } = configureRenderEquipTestDeps({
       isCachedPlanPro: vi.fn(() => true),
       getState: vi.fn(() => ({

@@ -323,6 +323,8 @@ decisao, do escopo e do risco remanescente.
   checklist preventivo indisponivel, preservando ids/classes/eventos publicos.
 - Neutralizadas descricoes de testes que ainda apresentavam clientes e setores
   como superficies comerciais Free/Plus/Pro.
+- Neutralizados descricoes e comentarios de testes de equipamentos/setores que
+  ainda tratavam limites operacionais como superficies comerciais.
 
 ## Validacao padrao
 

@@ -54,13 +54,13 @@ vi.mock('../ui/components/skeleton.js', () => ({
   withSkeleton: (_el, _opts, renderFn) => renderFn(),
 }));
 
-// operationalPlan + operationalAccessPolicy — ensureProForSetores precisa passar.
+// operationalPlan + operationalAccessPolicy: libera o guard operacional de setores.
 vi.mock('../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfile: vi.fn(async () => ({ profile: { plan_code: 'pro' } })),
 }));
 vi.mock('../core/plans/operationalAccessPolicy.js', async (importOriginal) => {
-  // Mantém exports reais (PLAN_CATALOG, helpers, etc.) e só força hasProAccess
-  // pra passar o gate do modal nos testes. Sem isso, qualquer import novo
+  // Mantem exports reais (PLAN_CATALOG, helpers, etc.) e so forca hasProAccess
+  // para passar o gate operacional do modal nos testes. Sem isso, qualquer import novo
   // em operationalAccessPolicy (ex.: PLAN_CATALOG) quebra esse arquivo.
   const actual = await importOriginal();
   return {

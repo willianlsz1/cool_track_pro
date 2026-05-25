@@ -44,7 +44,7 @@ describe('utils/viewModels', () => {
   });
 
   describe('buildDomListEmptyState', () => {
-    it('caminho feliz com emptyCopy custom + isPro', () => {
+    it('caminho feliz com emptyCopy custom e setor habilitado', () => {
       const result = buildDomListEmptyState(
         {
           title: 'Sem equipamentos',
@@ -79,12 +79,12 @@ describe('utils/viewModels', () => {
       expect(result.icon).toBe('👥');
     });
 
-    it('proHint=false quando filterClienteId está setado (mesmo com isPro)', () => {
+    it('proHint=false quando filterClienteId esta setado mesmo com setor habilitado', () => {
       const result = buildDomListEmptyState(null, { isPro: true, filterClienteId: 'c-1' });
       expect(result.proHint).toBe(false);
     });
 
-    it('proHint=false quando isPro é false', () => {
+    it('proHint=false quando setor nao esta habilitado', () => {
       const result = buildDomListEmptyState(null, { isPro: false, filterClienteId: null });
       expect(result.proHint).toBe(false);
     });

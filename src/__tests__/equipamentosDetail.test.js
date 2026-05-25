@@ -136,7 +136,7 @@ describe('detail HTML render helpers', () => {
     expect(empty).toContain('Nenhum serviço registrado neste equipamento.');
   });
 
-  it('renderiza cover com foto, fallback e ação de fotos para Plus', () => {
+  it('renderiza cover com foto e fallback sem reativar CTA de fotos obsoleto', () => {
     const deps = makeDeps({
       getEquipmentVisualMeta: vi.fn(() => ({
         initials: 'SL',

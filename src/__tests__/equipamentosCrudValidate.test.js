@@ -89,7 +89,7 @@ describe('crud/validate', () => {
     expect(checkPlanLimit).not.toHaveBeenCalled();
   });
 
-  it('checkSaveEquipPlanLimit mantem toast e telemetria quando Free bloqueia', async () => {
+  it('checkSaveEquipPlanLimit mantem toast e telemetria quando limite operacional bloqueia', async () => {
     const checkPlanLimit = vi.fn(() => ({
       blocked: true,
       current: 3,
