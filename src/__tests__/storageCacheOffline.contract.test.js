@@ -211,7 +211,7 @@ describe('storage/cache/offline cross-area contract', () => {
     });
   });
 
-  it('trava shapes de fotos pendentes, retirada de assinatura legacy e cache de plano escopado', async () => {
+  it('trava shapes de fotos pendentes, retirada de assinatura aposentada e cache de plano escopado', async () => {
     expect(
       normalizePhotoEntry({
         pending: true,

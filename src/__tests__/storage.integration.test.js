@@ -204,8 +204,8 @@ describe('Storage integration (offline-first)', () => {
       },
     });
 
-    const legacy = sampleState();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(legacy));
+    const cachedState = sampleState();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedState));
 
     await Storage.loadFromSupabase();
 

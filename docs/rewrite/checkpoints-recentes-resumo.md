@@ -289,6 +289,8 @@ decisao, do escopo e do risco remanescente.
   aposentados de PDF/WhatsApp, sem alterar asserts ou runtime.
 - Neutralizado gate nominal residual em teste de contratos de Clientes, mantendo
   cobertura contra acoes obsoletas sem alterar valores publicos.
+- Neutralizada nomenclatura residual em testes ativos de storage/cache, sem
+  alterar chaves persistidas, asserts, assinatura, fotos ou runtime.
 
 ## Validacao padrao
 
