@@ -373,6 +373,8 @@ decisao, do escopo e do risco remanescente.
 - Neutralizada linguagem residual de legado em descricoes de testes ativos de
   clientes, equipamentos, onboarding, navegacao, registro e tour, sem alterar
   asserts ou runtime.
+- Dividido catalogo PMOC de checklist em modulos menores, mantendo a API publica
+  de `checklistTemplates.js` e sem alterar itens, labels, unidades ou regras.
 
 ## Validacao padrao
 
