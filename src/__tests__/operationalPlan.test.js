@@ -34,7 +34,7 @@ describe('operational plan compatibility layer', () => {
     });
   });
 
-  it('keeps legacy premium helpers open while commercial gates are disabled', async () => {
+  it('keeps retired premium helpers open while commercial gates are disabled', async () => {
     const { mod } = await loadOperationalPlan();
 
     expect(mod.isProUser({ plan_code: 'free' })).toBe(true);

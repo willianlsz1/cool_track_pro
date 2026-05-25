@@ -291,6 +291,8 @@ decisao, do escopo e do risco remanescente.
   cobertura contra acoes obsoletas sem alterar valores publicos.
 - Neutralizada nomenclatura residual em testes ativos de storage/cache, sem
   alterar chaves persistidas, asserts, assinatura, fotos ou runtime.
+- Neutralizada nomenclatura residual em teste ativo de plano operacional, sem
+  alterar helpers comerciais, asserts, billing, pricing ou runtime.
 
 ## Validacao padrao
 
