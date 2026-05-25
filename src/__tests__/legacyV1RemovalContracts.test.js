@@ -29,6 +29,8 @@ function findMatches(files, pattern) {
   });
 }
 
+const MOJIBAKE_PATTERN = /(?:\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]|\ufffd)/;
+
 describe('legacy v1 removal contracts', () => {
   it('does not keep the skipped legacy core-flow e2e smoke after v2 promotion', () => {
     expect(existsSync('e2e/specs/core-flow-smoke.spec.js')).toBe(false);
@@ -665,7 +667,7 @@ describe('legacy v1 removal contracts', () => {
     ].join('\n');
 
     expect(searchableLabels).not.toMatch(/Dashboard|shortcut=dashboard/);
-    expect(searchableLabels).not.toMatch(/Ã|Â|�/);
+    expect(searchableLabels).not.toMatch(MOJIBAKE_PATTERN);
     expect(manifest.shortcuts.map((item) => item.name)).toContain('Hoje');
   });
 
@@ -673,8 +675,19 @@ describe('legacy v1 removal contracts', () => {
     const robotsSource = readSource('public/robots.txt');
 
     expect(robotsSource).not.toMatch(/dashboard|\/registro|\/equipamentos/i);
-    expect(robotsSource).not.toMatch(/Ã|Â|�/);
+    expect(robotsSource).not.toMatch(MOJIBAKE_PATTERN);
     expect(robotsSource).toContain('Cloudflare Pages');
+  });
+
+  it('keeps public entrypoint metadata readable in UTF-8', () => {
+    const indexSource = readSource('index.html');
+    const metadataSlice = indexSource.slice(0, indexSource.indexOf('<body>'));
+
+    expect(metadataSlice).not.toMatch(MOJIBAKE_PATTERN);
+    expect(metadataSlice).toContain('Gest\u00e3o de manuten\u00e7\u00e3o HVAC para campo');
+    expect(metadataSlice).toContain(
+      'experi\u00eancia web focada na opera\u00e7\u00e3o t\u00e9cnica',
+    );
   });
 
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {

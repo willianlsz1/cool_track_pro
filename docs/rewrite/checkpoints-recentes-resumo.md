@@ -51,6 +51,8 @@ decisao, do escopo e do risco remanescente.
   `Hoje`, sem alterar favicons ou icones publicos ativos.
 - Comentarios publicos do `robots.txt` neutralizados para app-v2/Cloudflare, sem
   alterar regras de indexacao.
+- Contrato de metadados publicos reforcado para detectar mojibake real em
+  UTF-8, independente da exibicao do terminal local.
 
 ## PMOC legado
 
