@@ -47,7 +47,7 @@ describe('operationalAccessPolicy', () => {
     expect(hasProAccess({ plan: 'free' })).toBe(true);
     expect(hasPlusAccess({ plan: 'free' })).toBe(true);
     expect(hasFeature(null, 'setores')).toBe(true);
-    expect(() => assertProAccess(null, 'premium_feature')).not.toThrow();
+    expect(() => assertProAccess(null, 'operational_feature')).not.toThrow();
     expect(assertFeature(null, 'setores')).toMatchObject({ allowed: true, planCode: 'free' });
   });
 

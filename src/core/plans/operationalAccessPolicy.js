@@ -82,7 +82,7 @@ export function canCreateEquipment(_profile, currentEquipmentCount = 0) {
   };
 }
 
-export function assertProAccess(_profile, featureName = 'premium_feature') {
+export function assertProAccess(_profile, featureName = 'operational_feature') {
   return { allowed: true, planCode: PLAN_CODE_FREE, feature: featureName };
 }
 

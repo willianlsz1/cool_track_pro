@@ -400,6 +400,8 @@ decisao, do escopo e do risco remanescente.
   Equipamentos apos a limpeza do bridge de render.
 - Removida safelist morta de `src/ui/views/pricing` no contrato de limpeza
   billing/pricing; a tela antiga nao existe mais no runtime.
+- Neutralizado literal padrao `premium_feature` no helper de compatibilidade
+  `assertProAccess`, preservando export e comportamento liberado.
 
 ## Validacao padrao
 
