@@ -319,6 +319,8 @@ decisao, do escopo e do risco remanescente.
   mantendo nomes publicos e guards de compatibilidade.
 - Neutralizada copy/comentarios runtime de analise de placa ligados a plano
   pago, preservando contratos publicos e funcao Supabase.
+- Neutralizados nomes internos seguros e descricoes de teste do aviso de
+  checklist preventivo indisponivel, preservando ids/classes/eventos publicos.
 
 ## Validacao padrao
 

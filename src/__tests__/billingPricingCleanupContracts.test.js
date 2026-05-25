@@ -148,6 +148,8 @@ describe('billing/pricing cleanup contracts', () => {
       expect(source).not.toContain('diferencial pago');
       expect(source).not.toContain('Desbloquear com Plus');
       expect(source).not.toContain('area comercial removida');
+      expect(source).not.toContain('_showPmocChecklistUpsell');
+      expect(source).not.toContain('_redirectPmocChecklistUpsell');
     }
   });
 

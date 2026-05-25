@@ -802,9 +802,9 @@ function _hasPmocChecklistAccess() {
   return PlanCache.isCachedPlanPro?.() === true;
 }
 
-function _showPmocChecklistUpsell(visible) {
-  const upsell = document.getElementById(REGISTRO_CHECKLIST_UPSELL_ID);
-  if (upsell) upsell.hidden = !visible;
+function _showPmocChecklistUnavailable(visible) {
+  const unavailable = document.getElementById(REGISTRO_CHECKLIST_UPSELL_ID);
+  if (unavailable) unavailable.hidden = !visible;
 }
 
 function _getRegistroChecklistServiceType() {
@@ -840,21 +840,21 @@ function _applyPmocChecklistDiscoveryState() {
   const recommended = _isRegistroChecklistRecommended();
   const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
   const pri = document.getElementById('r-checklist-pri');
-  const upsell = document.getElementById(REGISTRO_CHECKLIST_UPSELL_ID);
-  const upsellContext = document.getElementById('r-checklist-upsell-context');
+  const unavailable = document.getElementById(REGISTRO_CHECKLIST_UPSELL_ID);
+  const unavailableContext = document.getElementById('r-checklist-upsell-context');
 
   if (wrapper) {
     wrapper.dataset.checklistRecommended = recommended ? 'true' : 'false';
     wrapper.open = !wrapper.hidden && recommended;
   }
   if (pri) pri.hidden = !recommended;
-  if (upsell) upsell.dataset.checklistRecommended = recommended ? 'true' : 'false';
-  if (upsellContext) {
-    upsellContext.textContent = recommended ? ' Recomendado para preventiva.' : '';
+  if (unavailable) unavailable.dataset.checklistRecommended = recommended ? 'true' : 'false';
+  if (unavailableContext) {
+    unavailableContext.textContent = recommended ? ' Recomendado para preventiva.' : '';
   }
 }
 
-function _redirectPmocChecklistUpsell() {
+function _redirectPmocChecklistUnavailable() {
   trackEvent('preventive_checklist_upsell_clicked', { source: 'registro_form' });
   Toast.warning('Recurso indisponivel nesta etapa.');
 }
@@ -865,10 +865,10 @@ function _ensurePmocChecklistAccess({ redirect = false } = {}) {
   const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
   if (wrapper) wrapper.hidden = true;
   unmountRegistroChecklist();
-  _showPmocChecklistUpsell(true);
+  _showPmocChecklistUnavailable(true);
   _applyPmocChecklistDiscoveryState();
 
-  if (redirect) _redirectPmocChecklistUpsell();
+  if (redirect) _redirectPmocChecklistUnavailable();
   return false;
 }
 
@@ -938,7 +938,7 @@ export function renderChecklist() {
     delete wrapper.dataset.checklistRecommended;
     clearRegistroChecklistState();
     unmountRegistroChecklist();
-    _showPmocChecklistUpsell(false);
+    _showPmocChecklistUnavailable(false);
     _applyPmocChecklistDiscoveryState();
     _updateChecklistSummary();
     return;
@@ -947,7 +947,7 @@ export function renderChecklist() {
   if (!equip) {
     wrapper.hidden = true;
     unmountRegistroChecklist();
-    _showPmocChecklistUpsell(false);
+    _showPmocChecklistUnavailable(false);
     _applyPmocChecklistDiscoveryState();
     return;
   }
@@ -962,7 +962,7 @@ export function renderChecklist() {
   // Preserva marcações se template é o mesmo (user trocou de equip do mesmo tipo)
   ensureRegistroChecklistStateForTemplate(equip, tpl);
 
-  _showPmocChecklistUpsell(false);
+  _showPmocChecklistUnavailable(false);
   wrapper.hidden = false;
   _refreshChecklistPriBadge();
 
@@ -1050,7 +1050,7 @@ function resetRegistroChecklistAfterClear() {
   if (body) body.textContent = '';
   const wrapper = document.getElementById(REGISTRO_CHECKLIST_DETAILS_ID);
   if (wrapper) wrapper.hidden = true;
-  _showPmocChecklistUpsell(false);
+  _showPmocChecklistUnavailable(false);
   _updateChecklistSummary();
 }
 

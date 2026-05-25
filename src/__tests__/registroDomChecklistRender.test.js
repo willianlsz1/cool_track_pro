@@ -269,26 +269,29 @@ describe('registro DOM checklist render adapter', () => {
     delete document.body.dataset.checklistObsBound;
   });
 
-  it('bloqueia checklist para plano nao-Pro com CTA comercial desativado', async () => {
-    const { wrapper, body, upsell, registro } = await renderChecklistForState(
-      baseState(),
-      { equipId: 'eq-1' },
-      { isPro: false },
-    );
+  it('bloqueia checklist quando o acesso operacional nao esta disponivel', async () => {
+    const {
+      wrapper,
+      body,
+      upsell: unavailable,
+      registro,
+    } = await renderChecklistForState(baseState(), { equipId: 'eq-1' }, { isPro: false });
 
     expect(wrapper?.hidden).toBe(true);
     expect(body?.children).toHaveLength(0);
-    expect(upsell?.hidden).toBe(false);
-    expect(upsell?.querySelector('.registro-sig-hint__ic--pro')).not.toBeNull();
-    expect(upsell?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe(
+    expect(unavailable?.hidden).toBe(false);
+    expect(unavailable?.querySelector('.registro-sig-hint__ic--pro')).not.toBeNull();
+    expect(unavailable?.querySelector('.registro-sig-hint__badge--pro')?.textContent).toBe(
       'Indisponivel',
     );
-    expect(upsell?.textContent).toContain('Checklist preventivo preenchivel (NBR 13971)');
-    expect(upsell?.textContent).toContain(
+    expect(unavailable?.textContent).toContain('Checklist preventivo preenchivel (NBR 13971)');
+    expect(unavailable?.textContent).toContain(
       'Checklist preventivo conforme NBR 13971. Recurso indisponivel nesta etapa.',
     );
 
-    const cta = upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]');
+    const cta = unavailable?.querySelector(
+      '.registro-sig-hint__cta[disabled][aria-disabled="true"]',
+    );
     expect(cta?.textContent).toContain('Recurso indisponivel');
 
     registro.setChecklistItemStatus('filtros_limpeza', 'ok');
@@ -376,7 +379,7 @@ describe('registro DOM checklist render adapter', () => {
     expect(pri?.hidden).toBe(true);
   });
 
-  it('mostra upsell contextual no Free/Plus quando preventiva tem equipamento', async () => {
+  it('mostra aviso contextual quando preventiva tem equipamento sem acesso', async () => {
     setupDom();
     const registro = await loadRegistroView();
     await mountRegistroHeader(registro, { equipId: 'eq-1' });
@@ -389,14 +392,14 @@ describe('registro DOM checklist render adapter', () => {
     });
 
     const wrapper = document.getElementById('r-checklist-details');
-    const upsell = document.getElementById('r-checklist-upsell');
+    const unavailable = document.getElementById('r-checklist-upsell');
 
     expect(wrapper?.hidden).toBe(true);
-    expect(upsell?.hidden).toBe(false);
-    expect(upsell?.dataset.checklistRecommended).toBe('true');
-    expect(upsell?.textContent).toContain('Recomendado para preventiva');
+    expect(unavailable?.hidden).toBe(false);
+    expect(unavailable?.dataset.checklistRecommended).toBe('true');
+    expect(unavailable?.textContent).toContain('Recomendado para preventiva');
     expect(
-      upsell?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]'),
+      unavailable?.querySelector('.registro-sig-hint__cta[disabled][aria-disabled="true"]'),
     ).not.toBeNull();
     expect(registro.getCurrentChecklist()).toBeNull();
   });
