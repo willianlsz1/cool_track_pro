@@ -1,5 +1,4 @@
 import { Utils as defaultUtils } from '../../../../core/utils.js';
-import { isCachedPlanPlusOrHigher as defaultIsCachedPlanPlusOrHigher } from '../../../../core/plans/planCache.js';
 import { formatDadosPlacaRows as defaultFormatDadosPlacaRows } from '../../../../domain/dadosPlacaDisplay.js';
 import { getEquipmentVisualMeta as defaultGetEquipmentVisualMeta } from '../../../components/equipmentVisual.js';
 import { _eqDetailSubtitle, _infoRowValueOrEmpty, _riskFactorChipHtml } from '../utils/detail.js';
@@ -9,7 +8,6 @@ function resolveDetailDeps(deps = {}) {
     Utils: deps.Utils ?? defaultUtils,
     getSetores: deps.getSetores ?? (() => []),
     getEquipmentVisualMeta: deps.getEquipmentVisualMeta ?? defaultGetEquipmentVisualMeta,
-    isCachedPlanPlusOrHigher: deps.isCachedPlanPlusOrHigher ?? defaultIsCachedPlanPlusOrHigher,
     formatDadosPlacaRows: deps.formatDadosPlacaRows ?? defaultFormatDadosPlacaRows,
     eqDetailSubtitle: deps.eqDetailSubtitle ?? _eqDetailSubtitle,
     infoRowValueOrEmpty: deps.infoRowValueOrEmpty ?? _infoRowValueOrEmpty,

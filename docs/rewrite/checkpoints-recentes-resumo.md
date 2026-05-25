@@ -392,6 +392,8 @@ decisao, do escopo e do risco remanescente.
   sem alterar runtime, contratos `data-action` ou areas sensiveis.
 - Removido mock morto de plano no teste de onboarding contextual, mantendo o
   escopo restrito a navegacao local sem billing/pricing.
+- Removida dependencia morta de plano no detalhe de Equipamentos, sem alterar
+  renderizacao, fotos, nameplate ou contratos publicos.
 
 ## Validacao padrao
 

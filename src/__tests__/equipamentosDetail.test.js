@@ -35,7 +35,6 @@ function makeDeps(overrides = {}) {
         tone: 'cyan',
         photoUrl: null,
       })),
-    isCachedPlanPlusOrHigher: overrides.isCachedPlanPlusOrHigher ?? vi.fn(() => true),
     formatDadosPlacaRows: overrides.formatDadosPlacaRows ?? vi.fn(() => []),
     eqDetailSubtitle:
       overrides.eqDetailSubtitle ?? vi.fn((eq) => (eq.local ? utils.escapeHtml(eq.local) : '')),
@@ -143,7 +142,6 @@ describe('detail HTML render helpers', () => {
         tone: 'green',
         photoUrl: 'https://cdn.test/foto.jpg?x=<bad>',
       })),
-      isCachedPlanPlusOrHigher: vi.fn(() => true),
     });
     const model = makeModel({ eq: { fotos: [{ url: 'https://cdn.test/foto.jpg' }] } });
 
@@ -158,7 +156,7 @@ describe('detail HTML render helpers', () => {
   });
 
   it('mantem capa sem CTA de fotos obsoleto', () => {
-    const deps = makeDeps({ isCachedPlanPlusOrHigher: vi.fn(() => false) });
+    const deps = makeDeps();
 
     const result = renderViewEquipCoverBlock(makeModel(), deps);
 
