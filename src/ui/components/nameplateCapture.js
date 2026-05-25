@@ -427,7 +427,7 @@ async function handleFile(file) {
     let stageMsg = message;
     let fallbackMsg = 'Você pode tentar outra foto ou continuar sem foto.';
     if (code === ERR_PLAN_GATE) {
-      // 3 caminhos possiveis para limite mensal, todos sem CTA comercial:
+      // 3 caminhos possiveis para limite mensal, todos sem CTA de cobranca:
       //   - teste operacional esgotado;
       //   - acesso ainda não liberado;
       //   - limite mensal esgotado.

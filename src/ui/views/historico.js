@@ -52,7 +52,7 @@ import {
   unmountHistoricoTimelineDom,
 } from './historico/timelineRenderer.js';
 
-// Historico e parte do core operacional e nao tem corte comercial por data.
+// Historico e parte do core operacional e nao tem corte por data nesta etapa.
 
 // Filtros auxiliares persistem na sessão — desaparecem ao fechar o app (intencional).
 const HIST_PERIOD_KEY = 'cooltrack-hist-period';

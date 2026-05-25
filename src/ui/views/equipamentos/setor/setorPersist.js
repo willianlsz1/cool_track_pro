@@ -37,9 +37,9 @@ function getSetorPersistValue(name, fallback) {
 }
 
 // Setores ficam liberados no modo operacional. O guard permanece como contrato
-// para chamadas antigas, mas nao aplica gate comercial.
+// para chamadas antigas, mas nao aplica gate de cobranca.
 // Setores ficam liberados no modo operacional. O guard permanece como contrato
-// para chamadas antigas, mas nao aplica gate comercial.
+// para chamadas antigas, mas nao aplica gate de cobranca.
 /** @sliceTarget setor/guard */
 export async function ensureProForSetores({ action = 'manage' } = {}) {
   void action;

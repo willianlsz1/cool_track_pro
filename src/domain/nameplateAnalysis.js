@@ -18,7 +18,7 @@ import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
 // mais alguns client-only pra estados que só existem no browser (NO_SESSION,
 // NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE e o "umbrella" para bloqueios de
 // acesso/limite herdados da funcao. O detalhamento fica em `details.currentPlan`
-// para o UI escolher a mensagem sem expor contexto comercial.
+// para o UI escolher a mensagem sem expor contexto de cobranca.
 export const ERR_NO_SESSION = 'NO_SESSION';
 export const ERR_PLAN_GATE = 'PLAN_GATE';
 export const ERR_NETWORK = 'NETWORK';

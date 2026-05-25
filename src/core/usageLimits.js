@@ -5,9 +5,8 @@ export const USAGE_RESOURCE_NAMEPLATE_ANALYSIS = 'nameplate_analysis';
 
 const VALID_RESOURCES = new Set([USAGE_RESOURCE_NAMEPLATE_ANALYSIS]);
 
-// A area comercial foi removida do produto. Mantemos apenas recursos
-// operacionais ainda usados enquanto limites comerciais sao refeitos em etapa
-// propria.
+// A cobranca foi removida do produto. Mantemos apenas recursos operacionais
+// ainda usados enquanto limites reais sao refeitos em etapa propria.
 const MONTHLY_LIMITS = {
   [PLAN_CODE_FREE]: {
     [USAGE_RESOURCE_NAMEPLATE_ANALYSIS]: Number.POSITIVE_INFINITY,

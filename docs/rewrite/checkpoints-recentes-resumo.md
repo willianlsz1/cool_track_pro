@@ -30,6 +30,8 @@ decisao, do escopo e do risco remanescente.
   decodificacao generica de mensagens antigas.
 - Neutralizados comentarios residuais de versoes antigas/dash em Perfil e Auth,
   sem alterar runtime, storage ou contratos publicos.
+- Neutralizada linguagem runtime residual de area comercial em plano operacional,
+  limites, historico, setores e nameplate, preservando APIs/eventos existentes.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.
