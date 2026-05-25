@@ -328,7 +328,7 @@ describe('histórico — acesso completo sem corte por data', () => {
 
   it('historico view não usa mais gate de acesso pago pra filtrar histórico', async () => {
     // Ajuda a detectar regressão se alguém reintroduzir um corte temporal
-    // baseado em acesso comercial. O módulo continua válido pra outras features, mas
+    // baseado em acesso de plano. O módulo continua válido pra outras features, mas
     // historico.js não deve importar ele.
     const fs = await import('node:fs');
     const path = await import('node:path');

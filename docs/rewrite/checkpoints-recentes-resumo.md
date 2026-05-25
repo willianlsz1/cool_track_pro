@@ -402,6 +402,8 @@ decisao, do escopo e do risco remanescente.
   billing/pricing; a tela antiga nao existe mais no runtime.
 - Neutralizado literal padrao `premium_feature` no helper de compatibilidade
   `assertProAccess`, preservando export e comportamento liberado.
+- Neutralizado `source` operacional de Clientes e descricoes residuais de testes
+  que ainda citavam regra comercial antiga, sem alterar fluxos sensiveis.
 
 ## Validacao padrao
 

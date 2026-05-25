@@ -40,7 +40,7 @@ describe('operationalAccessPolicy', () => {
     expect(getEffectivePlan(null)).toBe(PLAN_CODE_FREE);
   });
 
-  it('keeps existing access helpers open while commercial gates are disabled', async () => {
+  it('keeps existing access helpers open under operational access', async () => {
     const { assertProAccess, hasProAccess, hasPlusAccess, assertFeature, hasFeature } =
       await loadOperationalAccessPolicy();
 

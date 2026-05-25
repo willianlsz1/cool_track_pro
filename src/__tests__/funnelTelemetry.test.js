@@ -4,7 +4,7 @@
  * Cobertura:
  * - auth.signUp -> signup_completed / signup_failed
  * - auth.signIn -> login_completed / login_failed
- * - planCache.setCachedPlan nao emite eventos comerciais com recurso comercial desligado
+ * - planCache.setCachedPlan nao emite eventos de plano com acesso operacional
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -118,7 +118,7 @@ describe('auth telemetry (signup/login)', () => {
   });
 });
 
-describe('planCache telemetry (commercial gates disabled)', () => {
+describe('planCache telemetry (operational access)', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.restoreAllMocks();

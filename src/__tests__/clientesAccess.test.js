@@ -10,24 +10,24 @@ describe('clientesAccess', () => {
     vi.restoreAllMocks();
   });
 
-  it('mantem acesso a Clientes resolvido sem depender de recurso comercial', async () => {
+  it('mantem acesso a Clientes resolvido pelo padrao operacional', async () => {
     const { getClientesAccessSnapshot, resolveClientesAccess } = await loadClientesAccess();
 
     expect(getClientesAccessSnapshot()).toMatchObject({
       resolved: true,
-      source: 'commercial_removed',
+      source: 'operational_default',
       errored: false,
       planCode: 'free',
       canAccess: true,
     });
     await expect(resolveClientesAccess()).resolves.toMatchObject({
       resolved: true,
-      source: 'commercial_removed',
+      source: 'operational_default',
       canAccess: true,
     });
   });
 
-  it('remove limite comercial de criacao de clientes', async () => {
+  it('mantem criacao de clientes sem limite nesta etapa', async () => {
     const { canCreateCliente } = await loadClientesAccess();
 
     expect(canCreateCliente({ planCode: 'free', currentClientesCount: 10_000 })).toMatchObject({

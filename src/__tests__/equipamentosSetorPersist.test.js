@@ -90,7 +90,7 @@ describe('setorPersist', () => {
       expect(deps.Toast.warning).not.toHaveBeenCalled();
     });
 
-    it('mantem fluxo liberado sem consultar regra comercial antiga', async () => {
+    it('mantem fluxo liberado sem consultar regra externa antiga', async () => {
       await expect(ensureProForSetores({ action: 'create' })).resolves.toBe(true);
 
       expect(deps.Toast.warning).not.toHaveBeenCalled();
@@ -200,7 +200,7 @@ describe('setorPersist', () => {
   });
 
   describe('saveSetor', () => {
-    it('mantem saveSetor liberado sem regra comercial antiga', async () => {
+    it('mantem saveSetor liberado sem regra externa antiga', async () => {
       await expect(saveSetor()).resolves.toBe(true);
 
       expect(deps.setState).toHaveBeenCalledTimes(1);
@@ -285,7 +285,7 @@ describe('setorPersist', () => {
   });
 
   describe('deleteSetor', () => {
-    it('mantem deleteSetor liberado sem regra comercial antiga', async () => {
+    it('mantem deleteSetor liberado sem regra externa antiga', async () => {
       await deleteSetor('setor-2');
 
       expect(deps.setState).toHaveBeenCalledTimes(1);

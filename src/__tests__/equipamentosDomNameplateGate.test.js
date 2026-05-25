@@ -223,7 +223,7 @@ describe('equipamentos DOM nameplate gate contracts', () => {
     expect(mocks.goTo).not.toHaveBeenCalled();
   });
 
-  it('mantem payloads maliciosos inertes em fotos, paywall e atributos data-*', async () => {
+  it('mantem payloads maliciosos inertes em fotos, bloqueio e atributos data-*', async () => {
     const unsafeEq = {
       fotos: [
         { url: 'javascript:alert(1)' },

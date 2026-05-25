@@ -27,7 +27,7 @@ describe('usageLimits', () => {
     vi.restoreAllMocks();
   });
 
-  it('keeps only the operational nameplate resource while commercial gates are disabled', async () => {
+  it('keeps only the operational nameplate resource while plan gates are disabled', async () => {
     const { getMonthlyLimitForPlan, hasReachedMonthlyLimit, USAGE_RESOURCE_NAMEPLATE_ANALYSIS } =
       await loadUsageLimits();
 

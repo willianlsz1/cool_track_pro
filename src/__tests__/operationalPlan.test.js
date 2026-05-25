@@ -34,7 +34,7 @@ describe('operational plan compatibility layer', () => {
     });
   });
 
-  it('does not expose retired premium helper surface after commercial cleanup', async () => {
+  it('does not expose retired paid-plan helper surface after cleanup', async () => {
     const { mod } = await loadOperationalPlan();
 
     expect(Object.keys(mod)).not.toContain('isProUser');
@@ -44,7 +44,7 @@ describe('operational plan compatibility layer', () => {
     expect(mod.getPlanCodeFromProfile({ plan_code: 'pro' })).toBe('free');
   });
 
-  it('fetchOperationalProfile returns a disabled local profile without querying commercial tables', async () => {
+  it('fetchOperationalProfile returns a disabled local profile without querying plan tables', async () => {
     const { mod, supabaseMock } = await loadOperationalPlan();
 
     const result = await mod.fetchOperationalProfile();
@@ -72,7 +72,7 @@ describe('operational plan compatibility layer', () => {
     expect(supabaseMock.auth.getUser).toHaveBeenCalledTimes(2);
   });
 
-  it('does not expose commercial portal entrypoints', async () => {
+  it('does not expose removed subscription portal entrypoints', async () => {
     const { mod } = await loadOperationalPlan();
 
     expect(Object.keys(mod)).not.toContain(['start', 'Check', 'out'].join(''));
