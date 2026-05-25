@@ -193,6 +193,8 @@ decisao, do escopo e do risco remanescente.
   onboarding checklist e prefill de registro; contrato focado adicionado.
 - Neutralizada mencao a Dashboard do Supabase em comentario de suporte para
   evitar confusao com o dashboard legado removido.
+- Neutralizados comentarios genericos de legado em helpers UI nao sensiveis de
+  cliente, equipamentos, navegacao e contexto.
 
 ## Nomenclatura React legada
 

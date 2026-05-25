@@ -1,7 +1,7 @@
 /**
  * Model puro da detail view de equipamento.
  *
- * Mantém o contrato antes montado no adapter legado, sem tocar DOM/modal/HTML.
+ * Mantém o contrato da detail view, sem tocar DOM/modal/HTML.
  */
 
 function toIsoDate(value) {

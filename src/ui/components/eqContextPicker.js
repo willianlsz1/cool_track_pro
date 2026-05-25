@@ -315,7 +315,7 @@ function _selectValue(kind, value) {
   const select = document.getElementById(kind === 'setor' ? 'eq-setor' : 'eq-cliente');
   if (!select) return;
   select.value = value;
-  // Dispatch change pra qualquer listener legado
+  // Dispatch change para listeners acoplados ao select original.
   select.dispatchEvent(new Event('change', { bubbles: true }));
   syncSelectedLabels();
   _closePanel();

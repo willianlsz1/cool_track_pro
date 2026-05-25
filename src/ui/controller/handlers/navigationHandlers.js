@@ -87,8 +87,8 @@ export function bindNavigationHandlers() {
   if (!document.body.dataset.helpMenuBound) {
     document.body.dataset.helpMenuBound = '1';
     document.addEventListener('click', (event) => {
-      // Considera clique "dentro" quando mira o trigger, o menu em si,
-      // ou qualquer wrapper legado/novo (.header-help / .header-settings)
+      // Considera clique "dentro" quando mira o trigger, o menu em si
+      // ou qualquer wrapper ativo (.header-help / .header-settings).
       const insideHelp = event.target.closest(
         '#header-help-btn, #header-help-menu, .header-help, .header-settings, #sidenav-settings, .app-sidebar__settings',
       );

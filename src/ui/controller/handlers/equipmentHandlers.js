@@ -143,7 +143,7 @@ export function bindEquipmentHandlers() {
   });
 
   // Toggle Lista ⇄ Grade da tela Equip. A lógica de aplicar a classe e
-  // persistir em localStorage vive no runtime legado restante quando exposto
+  // persistir em localStorage vive no runtime da view quando exposto
   // via window.__setEquipViewMode.
   // Aqui só roteamos o click: previne warning "Sem handler" do delegator
   // global e padroniza o caminho data-action.

@@ -389,8 +389,8 @@ export async function populateClienteSelect() {
 
 /**
  * Abre o ClienteModal em modo edição para um cliente especifico (por id).
- * Usado pelos fluxos legados de cliente e pelo card "Editar"
- * dentro da view. Se o cliente não existir mais, mostra Toast e cancela.
+ * Usado pelos fluxos de cliente e pelo card "Editar" dentro da view.
+ * Se o cliente não existir mais, mostra Toast e cancela.
  */
 export function openClienteModalForId(id) {
   const cliente = (getState().clientes || []).find((c) => c.id === id);

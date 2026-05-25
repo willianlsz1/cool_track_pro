@@ -1,5 +1,5 @@
 /**
- * Module-level editing/context state for the equipamentos legacy view.
+ * Module-level editing/context state for the equipamentos view.
  *
  * Extraído de src/ui/views/equipamentos.js no Mudança 11 / CP-B.5.
  * Mantém contrato simples de get/set sem validação nem reatividade.

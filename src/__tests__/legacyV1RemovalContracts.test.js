@@ -1010,6 +1010,20 @@ describe('legacy v1 removal contracts', () => {
     expect(joined).not.toMatch(MOJIBAKE_PATTERN);
   });
 
+  it('does not keep generic legacy wording in neutralized UI comments', () => {
+    const joined = [
+      readSource('src/ui/components/eqContextPicker.js'),
+      readSource('src/ui/controller/handlers/equipmentHandlers.js'),
+      readSource('src/ui/controller/handlers/navigationHandlers.js'),
+      readSource('src/ui/views/clientes.js'),
+      readSource('src/ui/views/equipamentos/state/editingState.js'),
+      readSource('src/ui/views/equipamentos/ui/detailModel.js'),
+    ].join('\n');
+
+    expect(joined).not.toMatch(/\blegado\b|legacy/i);
+    expect(joined).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep orphan legacy top-level stylesheets after v2 promotion', () => {
     const primaryHtml = readSource('index.html');
 
