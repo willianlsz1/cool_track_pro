@@ -34,7 +34,7 @@ BEGIN
   ALTER TABLE public.profiles
     ADD COLUMN IF NOT EXISTS art_rrt text;
 
-  -- crea_cft — registro CREA/CFT separado do campo legado `crea`
+  -- crea_cft — registro CREA/CFT separado do campo antigo `crea`
   -- (mantemos o `crea` antigo intact pra retrocompat com perfis ja salvos)
   ALTER TABLE public.profiles
     ADD COLUMN IF NOT EXISTS crea_cft text;
@@ -48,7 +48,7 @@ BEGIN
   COMMENT ON COLUMN public.profiles.art_rrt IS
     'Anotação de Responsabilidade Técnica (ART para CREA, RRT para CAU/CFT). Obrigatório para PMOC formal.';
   COMMENT ON COLUMN public.profiles.crea_cft IS
-    'Registro CREA ou CFT do Responsável Técnico. Substitui o campo legado `crea` (mantido por retrocompat).';
+    'Registro CREA ou CFT do Responsável Técnico. Substitui o campo antigo `crea` (mantido por retrocompat).';
   COMMENT ON COLUMN public.profiles.cidade IS
     'Cidade do prestador, usada no termo de responsabilidade técnica do PMOC formal.';
 END $$;

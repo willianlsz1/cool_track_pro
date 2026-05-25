@@ -293,6 +293,8 @@ decisao, do escopo e do risco remanescente.
   alterar chaves persistidas, asserts, assinatura, fotos ou runtime.
 - Neutralizada nomenclatura residual em teste ativo de plano operacional, sem
   alterar helpers comerciais, asserts, billing, pricing ou runtime.
+- Neutralizada linguagem residual em comentarios/mensagens internas de
+  Supabase, sem alterar SQL executavel, endpoints, schemas, RLS ou runtime.
 
 ## Validacao padrao
 

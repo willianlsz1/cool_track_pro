@@ -24,7 +24,7 @@
 --
 -- Backfill:
 --   Linhas existentes recebem claimed_at = received_at como aproximação.
---   Sem isso, primeiro retry pós-deploy de um evento legado já passaria
+--   Sem isso, primeiro retry pós-deploy de um evento antigo já passaria
 --   no threshold de 5min e re-reivindicaria — desejável, mas vamos
 --   explicitar pra ficar auditável.
 --
@@ -43,7 +43,7 @@ begin
     alter table public.stripe_webhook_events
       add column claimed_at timestamptz;
 
-    -- Backfill: legacy rows ficam com received_at como melhor aproximação.
+    -- Backfill: linhas antigas ficam com received_at como melhor aproximação.
     update public.stripe_webhook_events
       set claimed_at = received_at
       where claimed_at is null;

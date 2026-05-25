@@ -609,7 +609,7 @@ Deno.serve(async (req: Request) => {
         quota_exhausted: true,
         monthly_limit: monthlyLimit,
         used: usedBefore,
-        // Mantém compat com clients legados que leem trial_*
+        // Mantém compat com clients antigos que leem trial_*
         trial_exhausted: planCode === 'free',
         trial_limit: planCode === 'free' ? monthlyLimit : undefined,
         trial_used: planCode === 'free' ? usedBefore : undefined,

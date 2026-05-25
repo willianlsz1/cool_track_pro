@@ -1,7 +1,7 @@
--- CoolTrack Pro - Retire legacy orcamento digital signature surface.
+-- CoolTrack Pro - Retire orcamento digital signature surface.
 --
 -- The app-v2 quotes flow will be rebuilt natively later. This migration removes
--- the v1 public token/RPC signature path while preserving regular orcamentos.
+-- the previous public token/RPC signature path while preserving regular orcamentos.
 
 drop function if exists public.sign_orcamento_by_token(uuid, text, text, text);
 drop function if exists public.get_orcamento_by_token(uuid);
