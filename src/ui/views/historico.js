@@ -13,7 +13,6 @@ import { withSkeleton } from '../components/skeleton.js';
 import { HistoricoFiltersSheet } from '../components/historicoFiltersSheet.js';
 import { updateGlobalHeader } from '../composables/header.js';
 import { getOperationalStatus } from '../../core/equipmentRules.js';
-import { hasProAccess } from '../../core/plans/operationalAccessPolicy.js';
 import {
   buildHistoricoRenderState,
   buildHistoricoRenderViewModel,
@@ -87,7 +86,7 @@ function getSummaryCollapsedDefault() {
 }
 
 function hasOperationalHistoricoAccess() {
-  return hasProAccess(null);
+  return true;
 }
 
 function isSummaryCollapsed() {

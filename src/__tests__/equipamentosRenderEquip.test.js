@@ -154,6 +154,11 @@ describe('renderEquip orchestrator', () => {
   it('mantem branch de setores antes da lista final', async () => {
     const { deps } = configureRenderEquipTestDeps({
       isCachedPlanPro: vi.fn(() => true),
+      getState: vi.fn(() => ({
+        equipamentos: [],
+        registros: [],
+        setores: [{ id: 'setor-1', nome: 'Sala tecnica' }],
+      })),
     });
 
     await expect(renderEquip()).resolves.toBe('setor-grid');

@@ -92,47 +92,15 @@ function expandOpenEditEquipDetailsPanel() {
 
 async function applyOpenEditEquipOperationalGates() {
   try {
-    const {
-      fetchOperationalProfile,
-      hasProAccess,
-      hasPlusAccess,
-      applyNameplateCtaGate,
-      getMonthlyUsageSnapshot,
-      USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-      getMonthlyLimitForPlan,
-    } = await getRequiredOpenEditEquipDep('loadOperationalGateDeps')();
-    const { profile } = await fetchOperationalProfile();
-    getRequiredOpenEditEquipDep('populateSetorSelect')(hasProAccess(profile));
-
-    const isPlusOrPro = hasPlusAccess(profile);
-    if (isPlusOrPro) {
-      applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
-    } else {
-      try {
-        const { supabase } = await getRequiredOpenEditEquipDep('loadSupabase')();
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        let trialRemaining = null;
-        if (user?.id) {
-          const snap = await getMonthlyUsageSnapshot(user.id);
-          const used = Number(snap?.[USAGE_RESOURCE_NAMEPLATE_ANALYSIS] ?? 0) || 0;
-          const limit = getMonthlyLimitForPlan(
-            profile?.plan_code ?? 'free',
-            USAGE_RESOURCE_NAMEPLATE_ANALYSIS,
-          );
-          trialRemaining = Number.isFinite(limit) ? Math.max(0, limit - used) : 0;
-        }
-        applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining });
-      } catch (_) {
-        applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: null });
-      }
-    }
+    const { applyNameplateCtaGate } =
+      await getRequiredOpenEditEquipDep('loadOperationalGateDeps')();
+    getRequiredOpenEditEquipDep('populateSetorSelect')(true);
+    applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
   } catch {
-    getRequiredOpenEditEquipDep('populateSetorSelect')(false);
+    getRequiredOpenEditEquipDep('populateSetorSelect')(true);
     try {
       const { applyNameplateCtaGate } = await getRequiredOpenEditEquipDep('loadNameplateCapture')();
-      applyNameplateCtaGate({ isPlusOrPro: false, trialRemaining: null });
+      applyNameplateCtaGate({ isPlusOrPro: true, trialRemaining: null });
     } catch (_) {
       /* noop */
     }

@@ -1,5 +1,5 @@
 import { setCachedPlan } from '../../../../core/plans/planCache.js';
-import { getEffectivePlan, hasProAccess } from '../../../../core/plans/operationalAccessPolicy.js';
+import { getEffectivePlan } from '../../../../core/plans/operationalAccessPolicy.js';
 import {
   clearRenderEquipPlanRefreshPromise,
   getRenderEquipPlanEventsBound,
@@ -46,7 +46,7 @@ export function refreshRenderEquipPlan({
       const { profile } = await fetchOperationalProfileCached();
       setCachedPlan(getEffectivePlan(profile));
       setRenderEquipPlanNeedsRefresh(false);
-      const nextIsPro = hasProAccess(profile);
+      const nextIsPro = true;
       if (renderToken !== getRenderEquipPlanToken()) return;
       if (nextIsPro !== isProAtRender) {
         renderEquipHandler?.(filtro, { ...options, __skipPlanRefresh: true });

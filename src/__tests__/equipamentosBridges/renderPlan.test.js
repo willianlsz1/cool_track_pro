@@ -14,7 +14,6 @@ import {
   setRenderEquipPlanRefreshPromise,
 } from '../../ui/views/equipamentos/state/renderPlanState.js';
 import { fetchOperationalProfileCached } from '../../core/plans/operationalPlan.js';
-import { hasProAccess } from '../../core/plans/operationalAccessPolicy.js';
 
 vi.mock('../../core/plans/operationalPlan.js', () => ({
   fetchOperationalProfileCached: vi.fn(),
@@ -26,7 +25,6 @@ vi.mock('../../core/plans/planCache.js', () => ({
 
 vi.mock('../../core/plans/operationalAccessPolicy.js', () => ({
   getEffectivePlan: vi.fn((profile) => profile?.plan ?? 'free'),
-  hasProAccess: vi.fn((profile) => profile?.plan === 'pro'),
 }));
 
 describe('bridges/renderPlan', () => {
@@ -106,7 +104,6 @@ describe('bridges/renderPlan', () => {
     });
     await getRenderEquipPlanRefreshPromise();
 
-    expect(hasProAccess).toHaveBeenCalledWith({ plan: 'pro' });
     expect(renderEquip).toHaveBeenCalledWith('split', {
       clienteId: 'cli-1',
       __skipPlanRefresh: true,

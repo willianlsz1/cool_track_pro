@@ -40,7 +40,7 @@ export function renderSetorGrid() {
   if (!el) return;
   deps.unmountEquipamentosList();
 
-  const { setores, equipamentos } = deps.getState();
+  const { setores = [], equipamentos = [] } = deps.getState() || {};
   const searchBar = deps.Utils.getEl('equip-search-bar');
   if (searchBar) searchBar.style.display = 'none'; // grade não usa busca
 

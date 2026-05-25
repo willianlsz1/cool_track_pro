@@ -108,6 +108,7 @@ describe('openEditEquip orchestrator', () => {
     expect(deps.setEditingEquipId).toHaveBeenCalledWith('eq-1');
     expect(deps.restoreDadosPlaca).toHaveBeenCalledWith({ fabricante: 'ACME' });
     expect(deps.focusEditField).toHaveBeenCalledWith('modelo');
+    expect(deps.loadSupabase).not.toHaveBeenCalled();
     expect(calls).toEqual([
       'setEditing',
       'set:eq-nome:Split',

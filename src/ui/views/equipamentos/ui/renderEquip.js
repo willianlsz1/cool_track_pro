@@ -151,6 +151,7 @@ function renderEquipSetorGridBranch(context, headerRender, searchBar) {
   // Regressao pos-revert: esse branch tinha se perdido e caia sempre na lista
   // flat, ocultando Setores (cards, Novo setor, Ver/Editar).
   if (!(context.isPro && context.activeSectorId === null)) return null;
+  if (String(context.filtro || '').trim()) return null;
 
   if (context.activeClienteId) {
     const { setores = [], equipamentos = [] } = getRequiredRenderEquipDep('getState')();
@@ -169,6 +170,9 @@ function renderEquipSetorGridBranch(context, headerRender, searchBar) {
     );
     return Promise.all([headerRender, setorial]).then(([, result]) => result);
   }
+  const { setores = [] } = getRequiredRenderEquipDep('getState')() || {};
+  if (!setores.length) return null;
+
   const setorial = Promise.resolve(getRequiredRenderEquipDep('renderSetorGrid')());
   return Promise.all([headerRender, setorial]).then(([, result]) => result);
 }

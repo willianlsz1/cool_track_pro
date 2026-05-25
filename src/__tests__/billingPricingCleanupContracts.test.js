@@ -264,6 +264,18 @@ describe('billing/pricing cleanup contracts', () => {
     expect(sources).not.toContain('whatsapp_share');
   });
 
+  it('does not route active Equipamentos and Historico callers through paid-plan helpers', () => {
+    const sources = [
+      readSource('src/ui/views/equipamentos.js'),
+      readSource('src/ui/views/equipamentos/bridges/renderPlan.js'),
+      readSource('src/ui/views/equipamentos/ui/openEditEquip.js'),
+      readSource('src/ui/views/historico.js'),
+    ].join('\n');
+
+    expect(sources).not.toContain('hasProAccess');
+    expect(sources).not.toContain('hasPlusAccess');
+  });
+
   it('does not describe exported account data with removed billing or PDF/share labels', () => {
     const exportUserDataSource = readSource('supabase/functions/export-user-data/index.ts');
 
