@@ -91,6 +91,9 @@ decisao, do escopo e do risco remanescente.
   Cloudflare Pages.
 - Removido checklist HTML local antigo de deploy; fluxo de publicacao atual deve
   ficar em Cloudflare Pages e validacoes automatizadas.
+- Removido script shell antigo de prerelease com checklist Supabase/staging
+  desatualizado; validacao atual deve usar os comandos versionados e smokes
+  app-v2/Cloudflare.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
   assinatura, PMOC e orcamento real seguem como etapas proprias futuras.
 
