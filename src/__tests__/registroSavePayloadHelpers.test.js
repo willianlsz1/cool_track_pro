@@ -142,7 +142,7 @@ describe('registro save payload helpers', () => {
     });
   });
 
-  it('nao importa o adapter legado de Registro', () => {
+  it('nao importa adapter obsoleto de Registro', () => {
     const source = fs.readFileSync(
       path.resolve(process.cwd(), 'src/ui/views/registro/save/payload.js'),
       'utf8',

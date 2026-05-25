@@ -198,7 +198,7 @@ describe('registro checklist DOM renderer', () => {
     expect(root?.innerHTML).toBe('');
   });
 
-  it('renderiza estado inicial e estado sem equipamento sem depender de fluxos legados', () => {
+  it('renderiza estado inicial e estado sem equipamento sem depender de fluxos obsoletos', () => {
     const root = setRoot();
 
     mountRegistroChecklistDom(root, { checklist: createChecklist({ groups: [] }) });
@@ -246,7 +246,7 @@ describe('registro checklist DOM renderer', () => {
     expectNoInjectedMarkup(root);
   });
 
-  it('mantem o renderer isolado e createRoot fora do adapter legado de Registro', () => {
+  it('mantem o renderer isolado e createRoot fora do adapter atual de Registro', () => {
     const componentSource = readFileSync('src/ui/views/registro/checklistRenderer.js', 'utf8');
     const adapterSource = readFileSync('src/ui/views/registro.js', 'utf8');
 

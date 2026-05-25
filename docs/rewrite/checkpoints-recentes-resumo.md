@@ -252,6 +252,9 @@ decisao, do escopo e do risco remanescente.
 - Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
   Historico ligadas a sheet mobile, handlers DOM e view model, sem alterar
   contratos publicos ou runtime.
+- Neutralizada linguagem `legado` em descricoes de testes ativos de Registro
+  ligadas a payload, lifecycle helper e checklist renderer, sem alterar
+  assinatura, persistencia, post-save ou runtime.
 
 ## Validacao padrao
 

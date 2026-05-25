@@ -47,7 +47,7 @@ describe('registro lifecycle helpers', () => {
     expect(resolveRegistroInitEquipId()).toBe('');
   });
 
-  it('mantem modulo de lifecycle sem import do adapter legado', async () => {
+  it('mantem modulo de lifecycle sem import de adapter obsoleto', async () => {
     const moduleText = await import('node:fs/promises').then((fs) =>
       fs.readFile('src/ui/views/registro/lifecycle/helpers.js', 'utf8'),
     );
