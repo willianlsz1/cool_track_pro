@@ -305,6 +305,8 @@ decisao, do escopo e do risco remanescente.
   historico.
 - Neutralizada linguagem residual de legado em comentarios de migrations
   Supabase, sem alterar SQL executavel, constraints, funcoes, schema ou RLS.
+- Neutralizada linguagem residual em comentario do core de Clientes, com gate
+  focado sem alterar persistencia, Supabase, RLS ou runtime.
 
 ## Validacao padrao
 

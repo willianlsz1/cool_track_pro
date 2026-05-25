@@ -14,7 +14,7 @@
  *
  * Estado: state.clientes (Map-friendly array). Hidratado on-demand.
  * Persistência: tabela `public.clientes` no Supabase. RLS já aplicada
- *   pelas migrations de clientes da base legada.
+ *   pelas migrations de clientes existentes.
  */
 
 import { supabase } from './supabase.js';

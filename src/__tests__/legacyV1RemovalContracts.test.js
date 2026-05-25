@@ -1172,6 +1172,13 @@ describe('legacy v1 removal contracts', () => {
     expect(joined).not.toMatch(MOJIBAKE_PATTERN);
   });
 
+  it('does not keep generic legacy wording in neutralized Clientes core comments', () => {
+    const clientesCoreSource = readSource('src/core/clientes.js');
+
+    expect(clientesCoreSource).not.toMatch(/\blegado\b|legacy/i);
+    expect(clientesCoreSource).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep neutralized legacy wording in Registro comments', () => {
     const registroSource = readSource('src/ui/views/registro.js');
 
