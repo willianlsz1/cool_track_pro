@@ -1,12 +1,12 @@
 node_modules/
 /moon-bridge/
-# Saídas do Vite — a única "verdadeira" é `dist/`. Qualquer outra pasta
-# `dist-<qualquer-coisa>/` é artefato de build ou verificação local e
+# Saidas do Vite - a unica "verdadeira" e `dist/`. Qualquer outra pasta
+# `dist-<qualquer-coisa>/` e artefato de build ou verificacao local e
 # nunca deve ser commitada.
 dist/
 dist-*/
-# `dist.stale.<timestamp>` é usado como escape hatch quando um sandbox
-# não consegue executar `rm` na pasta dist/ — o build é renomeado em
+# `dist.stale.<timestamp>` e usado como escape hatch quando um sandbox
+# nao consegue executar `rm` na pasta dist/ - o build e renomeado em
 # vez de apagado. Nunca deve ser commitado.
 dist.stale.*/
 dist.stale.*
@@ -25,18 +25,18 @@ test-results/
 *.cert
 *.p12
 
-# Arquivos temporários de desenvolvimento / preview
+# Arquivos temporarios de desenvolvimento / preview
 *-preview.html
 pdf_validacao.pdf
 
-# Artefatos temporários do Vite (gerados em dev, nunca commitados)
+# Artefatos temporarios do Vite (gerados em dev, nunca commitados)
 vite.config.js.timestamp-*
 
-# Credenciais Android (keystore — NUNCA commitar)
+# Credenciais Android (keystore - NUNCA commitar)
 *.keystore
 *.jks
 
-# Supabase CLI — estado local, não pra versionar
+# Supabase CLI - estado local, nao pra versionar
 supabase/.temp/
 
 # IDE / editor
@@ -47,5 +47,5 @@ supabase/.temp/
 # OS
 Thumbs.db
 .claude/settings.local.json
-# Worktrees locais do Claude Code (não versionar)
+# Worktrees locais do Claude Code (nao versionar)
 .claude/worktrees/

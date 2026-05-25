@@ -144,6 +144,8 @@ decisao, do escopo e do risco remanescente.
   legado.
 - Adicionada guarda de teste para manter Markdown versionado restrito a
   `AGENTS.md`, este resumo e skills do Matt Pocock.
+- Corrigidos comentarios corrompidos no `.gitignore` sem alterar padroes de
+  ignore.
 
 ## PDF/share legado
 
