@@ -112,7 +112,7 @@ describe('clientes DOM renderer', () => {
     ).not.toBeNull();
   });
 
-  it('renders empty and filter-empty states with legacy contracts', () => {
+  it('renders empty and filter-empty states with current DOM contracts', () => {
     document.body.innerHTML = '<div id="clientes-root"></div>';
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);
     mountClientesDom(root, {
@@ -215,7 +215,7 @@ describe('clientes DOM renderer', () => {
     expect(root?.innerHTML).toBe('');
   });
 
-  it('keeps legacy delegated handlers actionable through data attributes', () => {
+  it('keeps current delegated handlers actionable through data attributes', () => {
     document.body.innerHTML = '<div id="view-clientes"><div id="clientes-root"></div></div>';
     const view = document.getElementById(CLIENTES_PUBLIC_IDS.view);
     const root = document.getElementById(CLIENTES_PUBLIC_IDS.root);

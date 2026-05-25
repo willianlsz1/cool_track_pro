@@ -48,7 +48,7 @@ describe('clientes view adapter', () => {
     });
   });
 
-  it('preserva ids, classes e contratos de acoes principais no HTML legado', async () => {
+  it('preserva ids, classes e contratos de acoes principais no HTML atual', async () => {
     const { renderClientes } = await import('../ui/views/clientes.js');
     await renderClientes();
 

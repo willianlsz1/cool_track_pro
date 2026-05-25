@@ -245,6 +245,8 @@ decisao, do escopo e do risco remanescente.
   sem alterar fluxos, checklist, assinatura, storage ou PMOC runtime.
 - Neutralizada linguagem `legado` em descricoes de testes ativos dos handlers
   DOM de checklist de Registro, sem alterar asserts ou runtime.
+- Neutralizada linguagem `legacy/legado` em descricoes de testes ativos de
+  Clientes, preservando seletores, data attributes e asserts.
 
 ## Validacao padrao
 
