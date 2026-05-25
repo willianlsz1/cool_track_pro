@@ -149,15 +149,14 @@ export const ProfileModal = {
     overlay.innerHTML = `
       <div class="modal profile-modal">
 
-        <!-- V10: hero removido inteiramente — usuário reportou que o hero
-             (avatar + close) era redundante porque o footer já tem botoes
-             "Cancelar" e "Salvar perfil" + ESC também fecha. Mantemos apenas
-             o h2 sr-only pra screen readers e preservar aria-labelledby. -->
+        <!-- Header visual removido: footer, ESC e botoes de acao ja cobrem
+             fechamento/salvamento. Mantemos apenas o h2 sr-only para
+             screen readers e para preservar aria-labelledby. -->
         <h2 class="profile-modal__title--sr-only" id="profile-title">Meu Perfil</h2>
 
-        <!-- Body V6: cards de seção com icone + header + hints sob labels.
-             Hierarquia visual: hero -> 3 cards (Identificacao / Empresa /
-             Dados legais) -> footer com seguranca e Salvar. -->
+        <!-- Corpo em cards de secao com icone, header e hints sob labels.
+             Hierarquia visual: cards de Identificacao, Empresa e Dados legais,
+             depois footer com seguranca e Salvar. -->
         <div class="profile-modal__body">
 
           <!-- ── Card 1: Identificação ── -->
@@ -374,8 +373,7 @@ export const ProfileModal = {
     const telInput = overlay.querySelector('#prof-telefone');
 
     // Auto-update avatar preview ao digitar o nome.
-    // V10: avatarEl pode ser null (avatar foi removido do hero). Guard com
-    // optional chaining + early return pra não quebrar.
+    // avatarEl pode ser null quando o header visual fica ausente.
     nomeInput?.addEventListener('input', () => {
       if (!avatarEl) return;
       const v = nomeInput.value.trim();

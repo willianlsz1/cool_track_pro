@@ -1133,6 +1133,8 @@ describe('legacy v1 removal contracts', () => {
 
   it('does not keep legacy Dashboard wording in neutralized runtime comments', () => {
     const joined = [
+      readSource('src/core/auth.js'),
+      readSource('src/ui/components/onboarding/profileModal.js'),
       readSource('src/ui/components/tour.js'),
       readSource('src/ui/components/onboarding/onboardingChecklist.js'),
       readSource('src/ui/components/supportFeedbackModal.js'),
@@ -1140,6 +1142,9 @@ describe('legacy v1 removal contracts', () => {
     ].join('\n');
 
     expect(joined).not.toMatch(/dashboard/i);
+    expect(joined).not.toMatch(/\bdash\b/i);
+    expect(joined).not.toContain('V10:');
+    expect(joined).not.toContain('Body V6:');
     expect(joined).not.toMatch(MOJIBAKE_PATTERN);
   });
 

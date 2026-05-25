@@ -313,7 +313,7 @@ export const Auth = {
       // Troca de contas no mesmo navegador (ex.: dispositivo compartilhado,
       // dev testando várias contas) deixava resquícios no localStorage:
       // `cooltrack-profile`, `cooltrack-last-tecnico`, `cooltrack-cached-plan`
-      // e afins continuavam apontando pro usuário anterior — o hero do dash
+      // e afins continuavam apontando pro usuário anterior — a tela inicial
       // mostrava "Olá, <nome_antigo>" até o novo FTX sobrescrever. Varremos
       // todas as chaves com prefixo `cooltrack` exceto preferências de
       // dispositivo (tema), que fazem sentido persistir entre contas.

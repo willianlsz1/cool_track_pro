@@ -28,6 +28,8 @@ decisao, do escopo e do risco remanescente.
   IDs/eventos de compatibilidade.
 - Removidos literais mojibake do view model de Registro, trocando por
   decodificacao generica de mensagens antigas.
+- Neutralizados comentarios residuais de versoes antigas/dash em Perfil e Auth,
+  sem alterar runtime, storage ou contratos publicos.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.
