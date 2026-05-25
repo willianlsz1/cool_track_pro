@@ -32,7 +32,6 @@
 
 import { getState } from '../../../core/state.js';
 import { trackEvent } from '../../../core/telemetry.js';
-import { isCachedPlanPro } from '../../../core/plans/planCache.js';
 
 const STEPS = [
   {
@@ -40,7 +39,6 @@ const STEPS = [
     label: 'Cadastre seu primeiro cliente',
     sub: 'Pra associar a serviços',
     nav: 'clientes',
-    requiresPro: true,
   },
   {
     id: 'equipamento',
@@ -68,13 +66,8 @@ const STEPS = [
   },
 ];
 
-/**
- * Filtra os STEPS visíveis pro plano atual. Steps com requiresPro: true
- * só aparecem pra usuários Pro (Clientes é uma feature exclusiva Pro hoje).
- */
 function _visibleSteps() {
-  const isPro = isCachedPlanPro();
-  return STEPS.filter((s) => !s.requiresPro || isPro);
+  return STEPS;
 }
 
 const KEY_PREFIX = 'ct:';

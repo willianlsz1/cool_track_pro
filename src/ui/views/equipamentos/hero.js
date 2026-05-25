@@ -66,8 +66,8 @@ export function computeEquipKpis(state = getState()) {
  * eliminando a redundância entre os 4 KPI tiles e os 5 chips que faziam
  * praticamente a mesma coisa.
  *
- * `opts.isPro` bifurca o CTA: Pro vê atalho "Organizar agora" (filtro);
- * Free/Plus vê upsell educacional.
+ * O hero destaca equipamentos críticos ou com preventiva vencida e oferece
+ * uma ação direta para registrar serviço.
  */
 export function renderEquipHero(opts = {}) {
   const { evalCtx = null } = opts || {};
