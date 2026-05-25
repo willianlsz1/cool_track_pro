@@ -77,7 +77,7 @@ describe('OnboardingBanner', () => {
     expect(document.getElementById('onboarding-banner-resume')).toBeFalsy();
   });
 
-  it('migra skip legado para a chave do usuario atual', () => {
+  it('migra skip anterior para a chave do usuario atual', () => {
     localStorage.setItem('cooltrack-ftx-skipped', '1');
 
     OnboardingBanner.render({ userId: 'user-1' });

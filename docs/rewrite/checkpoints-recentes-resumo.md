@@ -269,6 +269,8 @@ decisao, do escopo e do risco remanescente.
   Equipamentos sem alterar asserts, storage, fotos ou runtime.
 - Neutralizada linguagem residual em testes ativos de dados de placa e perfil,
   preservando prioridade de campos e fallback global de compatibilidade.
+- Neutralizada linguagem residual no teste de onboarding, preservando chave
+  antiga de migração e escopo por usuario.
 
 ## Validacao padrao
 
