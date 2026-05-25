@@ -100,7 +100,7 @@ describe('crud/saveEquip', () => {
     vi.clearAllMocks();
   });
 
-  it('retorna false quando o limite de plano bloqueia e não valida nem persiste', async () => {
+  it('retorna false quando o limite operacional bloqueia e não valida nem persiste', async () => {
     const deps = configure({
       checkSaveEquipPlanLimit: vi.fn(async () => {
         deps.calls.push('checkSaveEquipPlanLimit');

@@ -325,6 +325,8 @@ decisao, do escopo e do risco remanescente.
   como superficies comerciais Free/Plus/Pro.
 - Neutralizados descricoes e comentarios de testes de equipamentos/setores que
   ainda tratavam limites operacionais como superficies comerciais.
+- Neutralizado lote adicional de descricoes/comentarios de testes ligados a
+  historico, assinatura aposentada, cache e limites operacionais.
 
 ## Validacao padrao
 

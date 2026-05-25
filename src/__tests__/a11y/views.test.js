@@ -69,7 +69,7 @@ describe('a11y — views internas (templates shell)', () => {
   it.skip('Clientes (#view-clientes) — sem violations serious/critical', async () => {
     // TODO(a11y): view shell é só `<div id="clientes-root"></div>`. Cobertura
     // real depende de renderClientes() em src/ui/views/clientes.js, que
-    // requer state mockado completo (clientes, setores, plano). Endereçar
+    // requer state mockado completo (clientes, setores, acesso operacional). Endereçar
     // numa Mudança dedicada pra views dinâmicas.
     await expectNoSeriousViolations(getView(host, 'view-clientes'));
   });

@@ -344,7 +344,7 @@ describe('registro save handlers with retired signature contracts', () => {
     expectNoExternalPdfOrWhatsapp();
   });
 
-  it('aposenta assinatura no salvamento mesmo com plano antigo habilitado', async () => {
+  it('aposenta assinatura no salvamento mesmo com acesso legado habilitado', async () => {
     const state = baseState();
     setupDom(state);
     const registro = await loadRegistro(state, { plus: true });

@@ -314,14 +314,14 @@ describe('getEquipStatusPill', () => {
   });
 });
 
-describe('histórico — acesso completo para todos os planos (sem corte por data)', () => {
-  it('o plano Free não define `historicoDias` — histórico é ilimitado no tempo', async () => {
+describe('histórico — acesso completo sem corte por data', () => {
+  it('o acesso operacional base não define `historicoDias` — histórico é ilimitado no tempo', async () => {
     const plans = await import('../core/plans/operationalAccessPolicy.js');
     const freeLimits = plans.PLAN_CATALOG[plans.PLAN_CODE_FREE].limits;
     expect(freeLimits.historicoDias).toBeUndefined();
   });
 
-  it('a perk do Free menciona "histórico completo", não mais 15 dias', async () => {
+  it('a descrição do acesso base menciona "histórico completo", não mais 15 dias', async () => {
     const plans = await import('../core/plans/operationalAccessPolicy.js');
     const freePerks = plans.PLAN_CATALOG[plans.PLAN_CODE_FREE].perks;
     const joined = freePerks.join(' ').toLowerCase();
@@ -329,9 +329,9 @@ describe('histórico — acesso completo para todos os planos (sem corte por dat
     expect(joined).not.toContain('15 dias');
   });
 
-  it('historico view não usa mais `isCachedPlanPlusOrHigher` pra filtrar histórico', async () => {
+  it('historico view não usa mais gate de acesso pago pra filtrar histórico', async () => {
     // Ajuda a detectar regressão se alguém reintroduzir um corte temporal
-    // baseado em plano. O módulo continua válido pra outras features, mas
+    // baseado em acesso comercial. O módulo continua válido pra outras features, mas
     // historico.js não deve importar ele.
     const fs = await import('node:fs');
     const path = await import('node:path');

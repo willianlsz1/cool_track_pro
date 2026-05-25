@@ -93,7 +93,7 @@ describe('bridges/renderPlan', () => {
     expect(getRenderEquipPlanRefreshPromise()).toBeNull();
   });
 
-  it('chama renderEquip com __skipPlanRefresh true quando Pro access muda e token ainda é atual', async () => {
+  it('chama renderEquip com __skipPlanRefresh true quando acesso de setores muda e token ainda é atual', async () => {
     const renderEquip = vi.fn();
     configureRenderEquipPlan({ renderEquip });
     fetchOperationalProfileCached.mockResolvedValue({ profile: { plan: 'pro' } });
