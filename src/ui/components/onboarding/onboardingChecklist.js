@@ -308,7 +308,7 @@ export const OnboardingChecklist = {
       }
     }
 
-    // Substitui o card existente (idempotente em re-renders do dashboard).
+    // Substitui o card existente (idempotente em re-renders da tela atual).
     const stale = el.querySelector('.onb-card');
     if (stale) stale.remove();
     el.insertAdjacentHTML('beforeend', _renderHtml(state));

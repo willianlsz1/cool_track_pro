@@ -189,6 +189,8 @@ decisao, do escopo e do risco remanescente.
   apos retirada do componente que criava esse modal.
 - Neutralizadas mencoes arquiteturais remanescentes a Dashboard em comentarios
   de constantes puras de dominio.
+- Neutralizados comentarios runtime restantes que citavam dashboard em tour,
+  onboarding checklist e prefill de registro; contrato focado adicionado.
 
 ## Nomenclatura React legada
 

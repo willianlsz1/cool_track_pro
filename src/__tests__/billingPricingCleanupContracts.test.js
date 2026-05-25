@@ -7,6 +7,7 @@ function readSource(path) {
 
 function collectRuntimeSources(dir) {
   const out = [];
+  if (!existsSync(dir)) return out;
   for (const entry of readdirSync(dir)) {
     const path = `${dir}/${entry}`;
     const stat = statSync(path);

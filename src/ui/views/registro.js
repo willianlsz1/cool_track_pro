@@ -1254,7 +1254,7 @@ function runRegistroInitAfterHeaderMounted({ formView, params, effectiveEquipId 
   bindRegistroInitDatetimeUX();
   applyRegistroInitTechnicianDefault();
 
-  // Pré-preenchimento vindo de fluxo (dashboard/equipamento/alerta)
+  // Pré-preenchimento vindo de fluxo contextual (equipamento/alerta).
   resetRegistroInitEditingIfCreate(params);
   syncRegistroInitRouteContext(params, effectiveEquipId);
   _buildRegistroReadOnlyViewModel(params);

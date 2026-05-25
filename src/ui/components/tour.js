@@ -100,7 +100,7 @@ export const Tour = {
     }
 
     if (localStorage.getItem(doneKey) === '1') return;
-    // Small delay so the dashboard renders first
+    // Small delay so the current view finishes rendering.
     setTimeout(() => this.start(), 600);
   },
 

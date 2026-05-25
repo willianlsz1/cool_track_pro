@@ -988,6 +988,17 @@ describe('legacy v1 removal contracts', () => {
     expect(statusConstantsSource).not.toMatch(MOJIBAKE_PATTERN);
   });
 
+  it('does not keep legacy Dashboard wording in neutralized runtime comments', () => {
+    const joined = [
+      readSource('src/ui/components/tour.js'),
+      readSource('src/ui/components/onboarding/onboardingChecklist.js'),
+      readSource('src/ui/views/registro.js'),
+    ].join('\n');
+
+    expect(joined).not.toMatch(/dashboard/i);
+    expect(joined).not.toMatch(MOJIBAKE_PATTERN);
+  });
+
   it('does not keep legacy wording in pure nameplate domain comments', () => {
     const joined = [
       readSource('src/domain/dadosPlacaDisplay.js'),
