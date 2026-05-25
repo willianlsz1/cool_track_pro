@@ -187,6 +187,8 @@ decisao, do escopo e do risco remanescente.
   de mocks do dashboard removido.
 - Removido em CP proprio o tratamento de router para `dash-overflow-modal`,
   apos retirada do componente que criava esse modal.
+- Neutralizadas mencoes arquiteturais remanescentes a Dashboard em comentarios
+  de constantes puras de dominio.
 
 ## Nomenclatura React legada
 

@@ -976,9 +976,13 @@ describe('legacy v1 removal contracts', () => {
     expect(joined).not.toContain('assinatura');
   });
 
-  it('does not keep domain status constants tied to legacy Dashboard file paths', () => {
+  it('does not keep domain constants tied to legacy Dashboard wording', () => {
     const statusConstantsSource = readSource('src/domain/constants/statuses.js');
+    const alertConstantsSource = readSource('src/domain/constants/alerts.js');
 
+    expect(alertConstantsSource).not.toMatch(/dashboard/i);
+    expect(alertConstantsSource).not.toMatch(MOJIBAKE_PATTERN);
+    expect(statusConstantsSource).not.toMatch(/dashboard/i);
     expect(statusConstantsSource).not.toContain('ui/views/dashboard.js');
     expect(statusConstantsSource).not.toContain('dashboard/constants');
     expect(statusConstantsSource).not.toMatch(MOJIBAKE_PATTERN);

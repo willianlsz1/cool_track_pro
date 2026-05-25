@@ -3,8 +3,7 @@
  *
  * Source of truth para os 3 conjuntos de chaves de status usados em todo
  * o sistema. Antes desta consolidacao, STATUS_OPERACIONAL, PRIORIDADE_LABEL
- * e RISK_CLASS_LABEL viviam duplicados em superficies antigas de Dashboard e
- * Equipamentos.
+ * e RISK_CLASS_LABEL viviam duplicados em superficies operacionais antigas.
  *
  * Regra: NAO criar variantes locais destes 3 maps. Se o contexto pede um
  * label diferente (ex: REL_STATUS_LABEL em relatorio.js usa "Concluido" em
