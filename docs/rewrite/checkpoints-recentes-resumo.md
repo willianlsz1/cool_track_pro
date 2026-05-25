@@ -202,6 +202,8 @@ decisao, do escopo e do risco remanescente.
   modais sem alterar ids, data-actions ou contratos publicos.
 - Neutralizados nomes internos `Legacy` em aliases de contrato de Clientes sem
   alterar valores publicos de acao.
+- Neutralizada mencao residual em comentario de persistencia local de setores
+  sem alterar regra de `clienteId`.
 
 ## Nomenclatura React legada
 

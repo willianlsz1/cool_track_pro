@@ -167,7 +167,7 @@ export async function saveSetor() {
   // clienteId armazenado em hidden input (preenchido quando o modal abre via
   // contexto de cliente). Hierarquia Cliente -> Setor -> Equipamento: setores
   // novos sempre tem cliente, mas mantemos null como valid value pra compat
-  // com setores legacy que ainda não foram vinculados.
+  // com setores ainda não vinculados.
   const clienteIdRaw = Utils.getEl('setor-cliente-id')?.value || '';
   const clienteId = clienteIdRaw ? String(clienteIdRaw) : null;
 

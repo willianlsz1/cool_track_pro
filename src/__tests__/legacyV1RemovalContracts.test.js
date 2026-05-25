@@ -1018,6 +1018,7 @@ describe('legacy v1 removal contracts', () => {
       readSource('src/ui/controller/handlers/navigationHandlers.js'),
       readSource('src/ui/views/clientes.js'),
       readSource('src/ui/views/equipamentos.js'),
+      readSource('src/ui/views/equipamentos/setor/setorPersist.js'),
       readSource('src/ui/views/equipamentos/state/editingState.js'),
       readSource('src/ui/views/equipamentos/ui/detailModel.js'),
       readSource('src/ui/views/historico.js'),
