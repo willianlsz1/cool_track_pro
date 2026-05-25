@@ -12,12 +12,17 @@
 
 import { supabase } from './supabase.js';
 import { STORAGE_KEY } from './utils.js';
+import {
+  STORAGE_CACHE_OWNER_KEY,
+  STORAGE_SYNC_DELETIONS_KEY,
+  STORAGE_SYNC_DIRTY_KEY,
+} from './storage/constants.js';
 
 const LOCAL_KEYS_TO_CLEAR = [
   STORAGE_KEY, // 'cooltrack_v3' — snapshot local principal
-  'cooltrack-sync-dirty-v1',
-  'cooltrack-sync-deletions-v1',
-  'cooltrack-cache-owner-v1',
+  STORAGE_SYNC_DIRTY_KEY,
+  STORAGE_SYNC_DELETIONS_KEY,
+  STORAGE_CACHE_OWNER_KEY,
 ];
 
 async function deleteAllFromTable(table, userId) {

@@ -219,6 +219,8 @@ decisao, do escopo e do risco remanescente.
 - Neutralizados nomes internos de migracao local e compatibilidade do tipo
   `Outro` em registros sem alterar valores persistidos ou leitura de dados
   anteriores.
+- Centralizadas chaves persistidas de sync em `storage/constants.js`, removendo
+  duplicacao em consumidores sem alterar valores de localStorage.
 
 ## Nomenclatura React legada
 

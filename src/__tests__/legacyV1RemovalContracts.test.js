@@ -944,6 +944,16 @@ describe('legacy v1 removal contracts', () => {
     expect(joined).not.toMatch(/\bmigrateLegacyKey\b|\blegacyKey\b|\bLEGACY_TIPO_OUTRO_PREFIX\b/);
   });
 
+  it('keeps sync storage keys centralized instead of duplicated in runtime consumers', () => {
+    const consumers = [readSource('src/core/storage.js'), readSource('src/core/devWipeData.js')];
+
+    for (const source of consumers) {
+      expect(source).not.toMatch(
+        /['"]cooltrack-sync-dirty-v1['"]|['"]cooltrack-sync-deletions-v1['"]|['"]cooltrack-cache-owner-v1['"]/,
+      );
+    }
+  });
+
   it('does not keep registro post-save/share helpers under src/features after co-locating with the v1 view', () => {
     expect(existsSync('src/features/registro/save/postSave.js')).toBe(false);
     expect(existsSync('src/features/registro/save/reportShare.js')).toBe(false);

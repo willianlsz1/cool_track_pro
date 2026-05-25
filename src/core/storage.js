@@ -35,13 +35,15 @@ import {
   pushSetores,
   pushTecnicos,
 } from './storage/storageRemoteSync.js';
+import {
+  STORAGE_CACHE_OWNER_KEY,
+  STORAGE_SYNC_DELETIONS_KEY,
+  STORAGE_SYNC_DIRTY_KEY,
+  SYNC_STATUS_EVENT,
+} from './storage/constants.js';
 
 const STORAGE_WARN_BYTES = 4 * 1024 * 1024;
 const STORAGE_LIMIT_BYTES = 5 * 1024 * 1024;
-const STORAGE_SYNC_DIRTY_KEY = 'cooltrack-sync-dirty-v1';
-const STORAGE_SYNC_DELETIONS_KEY = 'cooltrack-sync-deletions-v1';
-const STORAGE_CACHE_OWNER_KEY = 'cooltrack-cache-owner-v1';
-const SYNC_STATUS_EVENT = 'cooltrack:sync-status';
 
 function _getCacheOwner() {
   return getCacheOwner({ storage: localStorage, cacheOwnerKey: STORAGE_CACHE_OWNER_KEY });
