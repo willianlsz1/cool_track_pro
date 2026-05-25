@@ -263,6 +263,8 @@ decisao, do escopo e do risco remanescente.
   remocao v1, mantendo o mesmo gate sem texto corrompido visivel.
 - Representados padroes de normalizacao de mojibake do relatorio app-v2 por
   escapes Unicode, preservando a correcao de textos exibidos.
+- Neutralizado fixture nominal `Legado` no teste de view model de Equipamentos,
+  preservando o caso de setor sem cliente vinculado.
 
 ## Validacao padrao
 

@@ -52,7 +52,7 @@ function buildState() {
     setores: [
       { id: 'setor-1', nome: 'Area tecnica', clienteId: 'cliente-1' },
       { id: 'setor-2', nome: 'Central', clienteId: 'cliente-2' },
-      { id: 'setor-orfao', nome: 'Legado' },
+      { id: 'setor-orfao', nome: 'Sem cliente vinculado' },
     ],
   };
 }
@@ -185,7 +185,7 @@ describe('equipamentos view model', () => {
     expect(quickMove.quickMove).toMatchObject({
       equipIds: ['eq-warn'],
       setoresDoCliente: [{ id: 'setor-1', nome: 'Area tecnica', clienteId: 'cliente-1' }],
-      setoresOrfaos: [{ id: 'setor-orfao', nome: 'Legado' }],
+      setoresOrfaos: [{ id: 'setor-orfao', nome: 'Sem cliente vinculado' }],
     });
   });
 
