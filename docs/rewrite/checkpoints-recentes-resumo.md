@@ -285,6 +285,8 @@ decisao, do escopo e do risco remanescente.
   sem alterar asserts, preview, rotas ou runtime.
 - Neutralizado fixture nominal residual em teste de persistencia de
   Equipamentos, sem alterar helper runtime ou contratos publicos.
+- Neutralizada linguagem residual em teste de filtros do Historico sobre CTAs
+  aposentados de PDF/WhatsApp, sem alterar asserts ou runtime.
 
 ## Validacao padrao
 

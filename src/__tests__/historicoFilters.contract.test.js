@@ -266,7 +266,7 @@ describe('historico consolidated filters contract', () => {
     mocks.isCachedPlanPro.mockReturnValue(false);
   });
 
-  it('preserva DOM roots e timeline sem CTAs legados de PDF/WhatsApp', async () => {
+  it('preserva DOM roots e timeline sem CTAs aposentados de PDF/WhatsApp', async () => {
     await renderHistorico();
 
     expect(document.querySelector('#hist-busca[type="search"]')).not.toBeNull();
