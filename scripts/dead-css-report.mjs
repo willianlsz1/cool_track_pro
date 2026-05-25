@@ -1,98 +1,108 @@
 #!/usr/bin/env node
 /**
- * Dead CSS report — usa purgecss pra listar classes em `components.css`
- * que não aparecem em nenhum JS/HTML do src/, depois dupla-check com grep
- * direto pra filtrar os falsos positivos óbvios (template strings dinâmicos
- * tipo `class="btn--${variant}"` ficam invisíveis pro purgecss).
+ * Lightweight CSS reference report for the current app.
  *
- * Uso:
- *   node scripts/dead-css-report.mjs            # imprime lista
- *   node scripts/dead-css-report.mjs --full     # inclui dynamic candidates
- *
- * Fluxo recomendado antes de deletar:
- *   1. Rodar esse script.
- *   2. Pra cada bloco candidato, pesquisar o root da classe no src/ (grep -r).
- *   3. Abrir a feature no app (DEV build) em 3 estados: Free, Plus, Pro, pra
- *      validar visualmente que nada quebrou.
- *   4. Remover o bloco em PR separado com screenshot antes/depois.
- *
- * Nota: purgecss precisa ser instalado — `npm install --no-save purgecss`
- *       (já no devDependencies se você quiser permanente).
+ * It scans versioned CSS files and lists simple class selectors whose class
+ * names do not appear in source files. This is only a review aid: dynamic class
+ * names, selectors composed at runtime, and third-party/runtime markup still
+ * require manual confirmation before deleting CSS.
  */
-import { PurgeCSS } from 'purgecss';
-import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
-const CSS_FILE = 'src/assets/styles/components.css';
-const FULL_MODE = process.argv.includes('--full');
+const CSS_FILES = [
+  'src/app-v2/styles/tailwind.css',
+  'src/app-v2/styles/print.css',
+  'src/ui/components/onboarding/firstTimeExperience.css',
+  'public/legal/_style.css',
+];
 
-const config = {
-  content: ['src/**/*.js', 'src/**/*.html', 'index.html'],
-  css: [CSS_FILE],
-  safelist: {
-    standard: [
-      /^toast/,
-      /^modal/,
-      /^skeleton/,
-      /^sr-only/,
-      /^visually-hidden/,
-      /^is-/,
-      /^has-/,
-      /^active$/,
-      /^loading$/,
-      /^hidden$/,
-      /^open$/,
-      /^closed$/,
-    ],
-    deep: [/^animate-/, /^fade-/, /^slide-/],
-    greedy: [
-      /badge/,
-      /chip/,
-      /setor-modal/,
-      /pricing-card/,
-      /registro-sig/,
-      /usage-meter/,
-      /photo/,
-      /swatch/,
-    ],
-  },
-  rejected: true,
-};
+const SOURCE_GLOBS = [
+  'src/app-v2',
+  'src/ui',
+  'src/core',
+  'src/domain',
+  'public',
+  'index.html',
+  'preview.html',
+  'preview',
+];
 
-const [result] = await new PurgeCSS().purge(config);
-const rejected = (result?.rejected || []).map((c) => c.replace(/^\./, '').split(/[:>[ ]/)[0]);
-const unique = [...new Set(rejected)].sort();
+const IGNORED_CLASS_PREFIXES = [
+  'tw-',
+  'fa-',
+  'sr-only',
+  'visually-hidden',
+  'is-',
+  'has-',
+  'no-',
+  'print-',
+];
 
-// Segundo passe: confirmar via grep que o "root" da classe (antes de --modifier)
-// não aparece em nenhum JS/HTML. Isso pega template strings `--${variant}`.
-const confirmedDead = [];
-const probablyDynamic = [];
-for (const cls of unique) {
-  // Root = tudo antes do primeiro "--"
-  const root = cls.split('--')[0];
-  try {
-    const cmd = `grep -rIlE '"[^"]*\\b${root}\\b' src/ --include='*.js' --include='*.html' 2>/dev/null | head -1`;
-    const out = execSync(cmd, { encoding: 'utf8' }).trim();
-    if (!out) {
-      confirmedDead.push(cls);
-    } else if (cls !== root) {
-      probablyDynamic.push(cls);
-    }
-  } catch {
-    confirmedDead.push(cls);
+function gitLsFiles(paths) {
+  return execFileSync('git', ['ls-files', ...paths], { encoding: 'utf8' })
+    .split(/\r?\n/)
+    .filter(Boolean);
+}
+
+function unique(values) {
+  return [...new Set(values)];
+}
+
+function extractClassSelectors(css) {
+  const matches = css.matchAll(/\.([_a-zA-Z][-_a-zA-Z0-9]*)/g);
+  return unique([...matches].map((match) => match[1])).sort();
+}
+
+function shouldIgnoreClassName(className) {
+  return IGNORED_CLASS_PREFIXES.some(
+    (prefix) => className === prefix || className.startsWith(prefix),
+  );
+}
+
+function countSourceReferences(className, sourceFiles) {
+  let count = 0;
+  for (const file of sourceFiles) {
+    const source = readFileSync(file, 'utf8');
+    if (source.includes(className)) count += 1;
+  }
+  return count;
+}
+
+const cssFiles = gitLsFiles(CSS_FILES);
+const sourceFiles = gitLsFiles(SOURCE_GLOBS).filter(
+  (file) => !file.endsWith('.css') && !/\.(png|jpg|jpeg|ico|webp|woff2?|ttf|eot|pdf)$/i.test(file),
+);
+
+const rows = [];
+
+for (const cssFile of cssFiles) {
+  const css = readFileSync(cssFile, 'utf8');
+  const classes = extractClassSelectors(css).filter(
+    (className) => !shouldIgnoreClassName(className),
+  );
+  const unreferenced = classes.filter(
+    (className) => countSourceReferences(className, sourceFiles) === 0,
+  );
+
+  rows.push({
+    cssFile,
+    totalClasses: classes.length,
+    unreferenced,
+  });
+}
+
+console.log('\nCSS reference report');
+console.log(`CSS files scanned: ${cssFiles.length}`);
+console.log(`Source files scanned: ${sourceFiles.length}`);
+
+for (const row of rows) {
+  console.log(`\n${row.cssFile}`);
+  console.log(`Classes scanned: ${row.totalClasses}`);
+  console.log(`No direct source reference: ${row.unreferenced.length}`);
+  if (row.unreferenced.length > 0) {
+    console.log(row.unreferenced.map((className) => `.${className}`).join('\n'));
   }
 }
 
-console.log(`\n— Dead CSS report —`);
-console.log(`File: ${CSS_FILE}`);
-console.log(`Total rejected by purgecss: ${unique.length}`);
-console.log(`Root classes never referenced in src/: ${confirmedDead.length}`);
-console.log(`Modifier variants (likely dynamic template strings): ${probablyDynamic.length}`);
-console.log(`\n--- Confirmed dead (safe to remove after visual QA) ---`);
-console.log(confirmedDead.map((c) => `.${c}`).join('\n'));
-
-if (FULL_MODE) {
-  console.log(`\n--- Probable dynamic variants (review before touching) ---`);
-  console.log(probablyDynamic.map((c) => `.${c}`).join('\n'));
-}
-
-console.log(`\nNext step: grep each entry in src/ to double-check, then delete the block.`);
+console.log('\nReview dynamic classes manually before deleting CSS.');

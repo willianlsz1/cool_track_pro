@@ -94,6 +94,8 @@ decisao, do escopo e do risco remanescente.
 - Removido script shell antigo de prerelease com checklist Supabase/staging
   desatualizado; validacao atual deve usar os comandos versionados e smokes
   app-v2/Cloudflare.
+- Atualizado script de dead CSS para os arquivos CSS atuais, sem dependencia
+  externa e sem safelist antiga de pricing/assinatura/quota.
 - Billing/pricing, Supabase/RLS/migrations reais, storage, PDF/share, WhatsApp,
   assinatura, PMOC e orcamento real seguem como etapas proprias futuras.
 
