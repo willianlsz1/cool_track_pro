@@ -358,6 +358,8 @@ decisao, do escopo e do risco remanescente.
   de Supabase/IA, preservando contratos e regras executaveis.
 - Dividido teste de contratos de remocao v1 acima de 1000 linhas, sem alterar
   runtime, asserts ou escopo dos gates.
+- Extraido overlay de scan de `nameplateCapture.js` para modulo coeso, reduzindo
+  arquivo legado abaixo de 1000 linhas sem alterar IDs, fluxo de IA ou gates.
 
 ## Validacao padrao
 
