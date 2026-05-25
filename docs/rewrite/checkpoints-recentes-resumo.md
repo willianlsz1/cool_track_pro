@@ -257,6 +257,8 @@ decisao, do escopo e do risco remanescente.
   assinatura, persistencia, post-save ou runtime.
 - Neutralizada linguagem `legado` em descricao nominal do teste de
   `profileModal`, preservando contrato CSS BEM e asserts.
+- Neutralizada linguagem `legacy/legado` no teste de ownership de Equipamentos,
+  preservando o gate contra modulos paralelos obsoletos.
 
 ## Validacao padrao
 
