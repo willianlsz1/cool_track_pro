@@ -184,7 +184,7 @@ function expectNoInjectedMarkup(root) {
   });
 }
 
-describe('historico legacy filters/search render adapter', () => {
+describe('historico DOM filters/search render adapter', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -285,7 +285,7 @@ describe('historico legacy filters/search render adapter', () => {
     expect(chipsSlot?.querySelector('[data-hist-action="hist-clear-period"]')).not.toBeNull();
   });
 
-  it('abre o sheet mobile legado com filtros atuais e callbacks do adapter', async () => {
+  it('abre o sheet mobile com filtros atuais e callbacks do adapter', async () => {
     const state = baseState();
     await renderHistoricoFilters(state, {
       setor: 'setor-1',
@@ -416,7 +416,7 @@ describe('historico legacy filters/search render adapter', () => {
     );
   });
 
-  it('mantem filtros/busca legados sem importar React/createRoot no adapter', async () => {
+  it('mantem filtros/busca atuais sem importar React/createRoot no adapter', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const source = fs.readFileSync(path.resolve('./src/ui/views/historico.js'), 'utf-8');

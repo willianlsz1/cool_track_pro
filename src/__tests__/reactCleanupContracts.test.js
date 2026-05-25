@@ -40,6 +40,22 @@ describe('React cleanup contracts', () => {
     });
   });
 
+  it('keeps active Historico DOM render tests out of legacy file names', () => {
+    [
+      'src/__tests__/historicoFiltersLegacyRender.test.js',
+      'src/__tests__/historicoTimelineLegacyRender.test.js',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(false);
+    });
+
+    [
+      'src/__tests__/historicoFiltersDomRender.test.js',
+      'src/__tests__/historicoTimelineDomRender.test.js',
+    ].forEach((path) => {
+      expect(existsSync(path)).toBe(true);
+    });
+  });
+
   it('does not keep the temporary IntegrationProbe artifacts in product code', () => {
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/app.js')).toBe(false);

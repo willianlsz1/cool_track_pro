@@ -239,6 +239,8 @@ decisao, do escopo e do risco remanescente.
 - Renomeados testes ativos de Equipamentos de `equipamentosLegacy*` para
   `equipamentosDom*`, mantendo cobertura de contratos DOM sem linguagem de
   legado.
+- Renomeados testes ativos de Historico de `historico*LegacyRender` para
+  `historico*DomRender`, preservando a cobertura de render DOM atual.
 
 ## Validacao padrao
 

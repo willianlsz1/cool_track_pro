@@ -99,7 +99,7 @@ async function renderTimeline(state, domOptions = {}) {
   return document.getElementById('timeline');
 }
 
-describe('historico legacy #timeline render', () => {
+describe('historico DOM #timeline render', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
@@ -264,7 +264,7 @@ describe('historico legacy #timeline render', () => {
     expect(mocks.markRegistroDeleted).not.toHaveBeenCalled();
   });
 
-  it('mantem o render legado sem React/createRoot', async () => {
+  it('mantem o render DOM sem React/createRoot', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const source = fs.readFileSync(path.resolve('./src/ui/views/historico.js'), 'utf-8');
