@@ -194,7 +194,7 @@ describe('clientes view model', () => {
       verEquipamentos: 'ver-equipamentos',
       verServicos: 'ver-servi\u00e7os',
     });
-    expect(Object.keys(CLIENTES_ACTIONS).some((action) => /legacy/i.test(action))).toBe(false);
+    expect(Object.keys(CLIENTES_ACTIONS).some((action) => /deprecated/i.test(action))).toBe(false);
 
     expect(CLIENTES_STATUS_OPTIONS.map((option) => option.id)).toEqual([
       'todos',

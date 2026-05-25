@@ -287,6 +287,8 @@ decisao, do escopo e do risco remanescente.
   Equipamentos, sem alterar helper runtime ou contratos publicos.
 - Neutralizada linguagem residual em teste de filtros do Historico sobre CTAs
   aposentados de PDF/WhatsApp, sem alterar asserts ou runtime.
+- Neutralizado gate nominal residual em teste de contratos de Clientes, mantendo
+  cobertura contra acoes obsoletas sem alterar valores publicos.
 
 ## Validacao padrao
 
