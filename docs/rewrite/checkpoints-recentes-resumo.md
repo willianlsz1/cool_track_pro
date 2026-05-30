@@ -447,6 +447,15 @@ decisao, do escopo e do risco remanescente.
 - O handoff identificou 4 lacunas de regra de negocio que continuam fora do
   runtime (TAG duplicada, dados_placa estruturado, dados do cliente no registro,
   fotos/anexos); anotadas como backlog para etapas proprias.
+- Substrato morto de core/domain removido: apos a saida de src/ui, a analise de
+  alcancabilidade mostrou que o runtime app-v2 so importa core/supabase.js
+  (+supabaseConfig). Removidos src/domain inteiro, 37 modulos mortos de src/core
+  (infra de runtime v1, camada storage/sync local, dominio HVAC) e ~33 testes
+  associados; a logica de dominio v1 (regras de placa, priorizacao, etc.) fica
+  preservada apenas no historico git como referencia de backlog.
+- Guardas reforcados com asserts de ausencia da superficie removida (src/domain,
+  core/storage e modulos mortos) e leitura tolerante para os checks de conteudo;
+  os unicos modulos compartilhados vivos sao core/supabase.js e supabaseConfig.js.
 
 ## Validacao padrao
 

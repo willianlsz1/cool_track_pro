@@ -130,32 +130,16 @@ describe('legacy v1 removal storage and asset contracts', () => {
   it('limits remaining runtime v1 tokens to endpoint versions and persisted storage keys', () => {
     const runtimeFiles = [
       ...listSourceFiles('src/app-v2'),
-      ...listSourceFiles('src/ui'),
       ...listSourceFiles('src/core'),
-      ...listSourceFiles('src/domain'),
       ...listSourceFiles('scripts'),
       ...listSourceFiles('public'),
       'index.html',
       'preview.html',
     ];
-    const allowedPatternsByFile = new Map([
-      ['src/core/emailNotification.js', [/api\/v1\.0\/email\/send/]],
-      [
-        'src/core/storage/constants.js',
-        [
-          /cooltrack-oauth-pending-v1/,
-          /contextual-onboarding-v1/,
-          /cooltrack-sync-dirty-v1/,
-          /cooltrack-sync-deletions-v1/,
-          /cooltrack-cache-owner-v1/,
-        ],
-      ],
-      ['src/domain/nameplateAnalysis.js', [/functions\/v1\/analyze-nameplate/]],
-      [
-        'src/ui/account/userData.js',
-        [/functions\/v1\/export-user-data/, /functions\/v1\/delete-user-account/],
-      ],
-    ]);
+    // Os modulos compartilhados que carregavam tokens v1 (emailNotification,
+    // storage/constants, nameplateAnalysis, userData) foram removidos junto com
+    // o substrato v1; nenhum allowlist e mais necessario.
+    const allowedPatternsByFile = new Map();
 
     expect(findUnexpectedLineMatches(runtimeFiles, /\bv1\b/i, allowedPatternsByFile)).toEqual([]);
   });
