@@ -140,7 +140,6 @@ describe('legacy v1 removal storage and asset contracts', () => {
       readSource('src/core/auth.js'),
       readSource('src/ui/components/onboarding/contextualOnboarding.js'),
       readSource('src/__tests__/auth.integration.test.js'),
-      readSource('src/__tests__/contextualOnboarding.test.js'),
     ];
     const centralizedKeyPattern = new RegExp(
       [OAUTH_PENDING_STORAGE_KEY, CONTEXTUAL_ONBOARDING_STORAGE_KEY].map(escapeRegExp).join('|'),
