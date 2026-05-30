@@ -138,7 +138,6 @@ describe('legacy v1 removal storage and asset contracts', () => {
   it('keeps app-owned persisted storage keys centralized', () => {
     const consumers = [
       readSource('src/core/auth.js'),
-      readSource('src/ui/components/onboarding/contextualOnboarding.js'),
       readSource('src/__tests__/auth.integration.test.js'),
     ];
     const centralizedKeyPattern = new RegExp(
@@ -227,13 +226,9 @@ describe('legacy v1 removal storage and asset contracts', () => {
   });
 
   it('does not keep visible legacy PDF promises in onboarding and profile copy', () => {
-    const copySources = [
-      'src/ui/components/onboarding/onboardingChecklist.js',
-      'src/ui/components/onboarding/profileModal.js',
-      'src/ui/components/clienteModal.js',
-      'src/ui/shell/templates/views.js',
-      'src/core/inputValidation.js',
-    ].map(readSource);
+    const copySources = ['src/ui/shell/templates/views.js', 'src/core/inputValidation.js'].map(
+      readSource,
+    );
 
     const joined = copySources.join('\n');
 
@@ -252,10 +247,7 @@ describe('legacy v1 removal storage and asset contracts', () => {
       'src/ui/views/registro.js',
       'src/ui/views/registro/save/postSave.js',
       'src/ui/views/historico.js',
-      'src/ui/components/onboarding/onboardingBanner.js',
-      'src/ui/components/onboarding/firstTimeExperience.css',
       'src/ui/views/equipamentos/placaData.js',
-      'src/ui/components/pushOptInCard.js',
     ].map(readSource);
 
     const joined = neutralizedSources.join('\n');
@@ -278,14 +270,9 @@ describe('legacy v1 removal storage and asset contracts', () => {
   });
 
   it('does not keep legacy Dashboard wording in neutralized runtime comments', () => {
-    const joined = [
-      readSource('src/core/auth.js'),
-      readSource('src/ui/components/onboarding/profileModal.js'),
-      readSource('src/ui/components/tour.js'),
-      readSource('src/ui/components/onboarding/onboardingChecklist.js'),
-      readSource('src/ui/components/supportFeedbackModal.js'),
-      readSource('src/ui/views/registro.js'),
-    ].join('\n');
+    const joined = [readSource('src/core/auth.js'), readSource('src/ui/views/registro.js')].join(
+      '\n',
+    );
 
     expect(joined).not.toMatch(/dashboard/i);
     expect(joined).not.toMatch(/\bdash\b/i);
@@ -306,8 +293,6 @@ describe('legacy v1 removal storage and asset contracts', () => {
 
   it('does not keep generic legacy wording in neutralized UI comments', () => {
     const joined = [
-      readSource('src/ui/components/tour.js'),
-      readSource('src/ui/components/eqContextPicker.js'),
       readSource('src/ui/controller/handlers/equipmentHandlers.js'),
       readSource('src/ui/controller/handlers/navigationHandlers.js'),
       readSource('src/ui/views/clientes.js'),
@@ -412,20 +397,18 @@ describe('legacy v1 removal storage and asset contracts', () => {
 
   it('does not keep the legacy alertas standalone route, view or shell shortcuts', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
-    const headerComposableSource = readSource('src/ui/composables/header.js');
     const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
 
     expect(existsSync('src/ui/controller/routes.js')).toBe(false);
     expect(existsSync('src/ui/views/alertas.js')).toBe(false);
     expect(existsSync('src/ui/viewModels/alertasViewModel.js')).toBe(false);
+    expect(existsSync('src/ui/composables/header.js')).toBe(false);
     expect(shellViewsSource).not.toContain('view-alertas');
     expect(shellViewsSource).not.toContain('alertas-contextual');
     expect(shellViewsSource).not.toContain('lista-alertas');
     expect(existsSync('src/ui/shell/templates/sidebar.js')).toBe(false);
     expect(existsSync('src/ui/shell/templates/header.js')).toBe(false);
-    expect(headerComposableSource).not.toContain('header-alert-pill');
-    expect(headerComposableSource).not.toContain('header-help-menu-alert-badge');
     expect(navigationHandlersSource).not.toContain("on('go-alertas'");
     expect(navigationModeSource).not.toContain("'alertas'");
   });

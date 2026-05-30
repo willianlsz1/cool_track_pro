@@ -160,4 +160,10 @@ describe('legacy shell retirement gate', () => {
 
     expect(missingReplacementCoverage).toEqual([]);
   });
+
+  it('does not keep retired src/ui component/account/composable directories after v1 source removal', () => {
+    expect(existsSync('src/ui/components')).toBe(false);
+    expect(existsSync('src/ui/account')).toBe(false);
+    expect(existsSync('src/ui/composables')).toBe(false);
+  });
 });

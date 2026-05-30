@@ -221,10 +221,8 @@ describe('legacy v1 removal contracts', () => {
     expect(existsSync('src/features/profile.js')).toBe(false);
   });
 
-  it('does not keep Profile re-exported by the legacy onboarding barrel', () => {
-    const onboardingBarrelSource = readSource('src/ui/components/onboarding.js');
-
-    expect(onboardingBarrelSource).not.toMatch(/export\s+\{\s*Profile\s*\}/);
+  it('does not keep the legacy onboarding barrel or dashboard view', () => {
+    expect(existsSync('src/ui/components/onboarding.js')).toBe(false);
     expect(existsSync('src/ui/views/dashboard.js')).toBe(false);
   });
 
@@ -460,18 +458,10 @@ describe('legacy v1 removal contracts', () => {
     expect(historicoViewModelSource).not.toContain('hasSignature');
   });
 
-  it('does not keep legacy signature promises in onboarding copy', () => {
-    const tourSource = readSource('src/ui/components/tour.js');
-    const onboardingChecklistSource = readSource(
-      'src/ui/components/onboarding/onboardingChecklist.js',
-    );
-    const firstTimeExperienceCss = readSource(
-      'src/ui/components/onboarding/firstTimeExperience.css',
-    );
-
-    expect(tourSource).not.toContain('assinatura');
-    expect(onboardingChecklistSource).not.toContain('assinatura');
-    expect(firstTimeExperienceCss).not.toContain('ftx-signature');
+  it('does not keep legacy onboarding/tour copy surfaces after v1 removal', () => {
+    expect(existsSync('src/ui/components/tour.js')).toBe(false);
+    expect(existsSync('src/ui/components/onboarding/onboardingChecklist.js')).toBe(false);
+    expect(existsSync('src/ui/components/onboarding/firstTimeExperience.css')).toBe(false);
   });
 
   it('does not keep the legacy PMOC formal modal surface', () => {
@@ -713,20 +703,13 @@ describe('legacy v1 removal contracts', () => {
     expect(routerSource).not.toMatch(MOJIBAKE_PATTERN);
   });
 
-  it('does not keep retired-app wording in neutralized nameplate comments', () => {
-    const nameplateSource = readSource('src/ui/components/nameplateCapture.js');
-
-    expect(nameplateSource).not.toMatch(/\bbotao legado\b|IE legacy|trialExhausted legado/i);
+  it('does not keep the legacy nameplate capture component', () => {
+    expect(existsSync('src/ui/components/nameplateCapture.js')).toBe(false);
   });
 
-  it('does not keep retired-app wording in neutralized onboarding helper names', () => {
-    const firstTimeExperienceSource = readSource(
-      'src/ui/components/onboarding/firstTimeExperience.js',
-    );
-    const onboardingBannerSource = readSource('src/ui/components/onboarding/onboardingBanner.js');
-
-    expect(firstTimeExperienceSource).not.toContain('migrateLegacyFtxKeysIfNeeded');
-    expect(onboardingBannerSource).not.toContain('migrateLegacySkipKeyIfNeeded');
+  it('does not keep legacy onboarding helper components', () => {
+    expect(existsSync('src/ui/components/onboarding/firstTimeExperience.js')).toBe(false);
+    expect(existsSync('src/ui/components/onboarding/onboardingBanner.js')).toBe(false);
   });
 
   it('does not keep retired-app wording in neutralized profile local names', () => {
@@ -750,8 +733,6 @@ describe('legacy v1 removal contracts', () => {
 
   it('does not keep legacy PMOC copy in client, profile and equipment helper surfaces', () => {
     const checkedSources = [
-      readSource('src/ui/components/clienteModal.js'),
-      readSource('src/ui/components/onboarding/profileModal.js'),
       readSource('src/ui/views/equipamentos.js'),
       readSource('src/ui/views/equipamentos/setor/setorUI.js'),
       readSource('src/ui/views/equipamentos/crud/payload.js'),
