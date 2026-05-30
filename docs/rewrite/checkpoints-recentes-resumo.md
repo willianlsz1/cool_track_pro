@@ -33,6 +33,11 @@ decisao, do escopo e do risco remanescente.
 - Neutralizada linguagem runtime residual de area comercial em plano operacional,
   limites, historico, setores e nameplate, preservando APIs/eventos existentes.
 - Mantido apenas o uso operacional ainda ativo: `nameplate_analysis`.
+- Removidos os testes SQL historicos de gate de plano em `supabase/tests/`
+  (`01_user_has_plus_plan`, `02_photo_plan_gate`, `03_setores_pro_gate`,
+  `04_equipamentos_limit`, `05_registros_monthly_limit`), com gate de contrato
+  garantindo que nao voltem; os RLS/contratos operacionais ativos foram
+  preservados.
 - Mantidos fora do escopo: Supabase/RLS/migrations reais, storage, PDF/share,
   WhatsApp, assinatura, PMOC, favicon e assets publicos.
 
@@ -414,8 +419,4 @@ decisao, do escopo e do risco remanescente.
 
 ## Validacao padrao
 
-- Para CPs com codigo: testes focados, `npm run format`, `npm run build`,
-  `npm run check`, `git diff --check`.
-- Para CPs documentais: `npm run format:check`, `git diff --check`,
-  `git diff --cached --check` e busca por referencias quebradas.
-- Para CPs futuros: registrar aqui apenas resumo curto da frente de trabalho.
+- Para CPs

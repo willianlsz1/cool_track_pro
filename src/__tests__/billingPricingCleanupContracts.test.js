@@ -237,6 +237,14 @@ describe('billing/pricing cleanup contracts', () => {
     expect(retirementMigration).toContain('drop table if exists public.stripe_webhook_events');
   });
 
+  it('does not keep historical Supabase plan-gate tests after commercial cleanup', () => {
+    expect(existsSync('supabase/tests/01_user_has_plus_plan.test.sql')).toBe(false);
+    expect(existsSync('supabase/tests/02_photo_plan_gate.test.sql')).toBe(false);
+    expect(existsSync('supabase/tests/03_setores_pro_gate.test.sql')).toBe(false);
+    expect(existsSync('supabase/tests/04_equipamentos_limit.test.sql')).toBe(false);
+    expect(existsSync('supabase/tests/05_registros_monthly_limit.test.sql')).toBe(false);
+  });
+
   it('does not keep removed commercial wording in historical Supabase comments', () => {
     const sources = [
       readSource('supabase/functions/analyze-nameplate/index.ts'),
