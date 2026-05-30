@@ -1,11 +1,5 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-
-import { CLIENTES_PUBLIC_IDS } from '../ui/viewModels/clientesContracts.js';
-
-function readSource(path) {
-  return readFileSync(path, 'utf8');
-}
 
 describe('React cleanup contracts', () => {
   it('does not keep the legacy src/react runtime tree after DOM renderer migration', () => {
@@ -66,11 +60,7 @@ describe('React cleanup contracts', () => {
     expect(existsSync('src/react/entrypoints/integrationProbe.jsx')).toBe(false);
   });
 
-  it('keeps clientes search on the current DOM contract instead of #clientes-busca', () => {
-    const clientesPage = readSource('src/ui/views/clientes/pageRenderer.js');
-
-    expect(CLIENTES_PUBLIC_IDS.searchInput).toBe('cli-search-input');
-    expect(clientesPage).toContain('id="${CLIENTES_PUBLIC_IDS.searchInput}"');
-    expect(clientesPage).not.toContain('clientes-busca');
+  it('does not keep the legacy clientes viewModel contract module', () => {
+    expect(existsSync('src/ui/viewModels/clientesContracts.js')).toBe(false);
   });
 });

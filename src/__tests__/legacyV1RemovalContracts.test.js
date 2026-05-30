@@ -60,7 +60,6 @@ describe('legacy v1 removal contracts', () => {
     const shellViewsSource = readSource('src/ui/shell/templates/views.js');
     const navigationModeSource = readSource('src/ui/shell/navigationMode.js');
     const navigationHandlersSource = readSource('src/ui/controller/handlers/navigationHandlers.js');
-    const clientesContractsSource = readSource('src/ui/viewModels/clientesContracts.js');
     const clientesPageSource = readSource('src/ui/views/clientes/pageRenderer.js');
 
     expect(existsSync('src/ui/views/orcamentos.js')).toBe(false);
@@ -70,7 +69,6 @@ describe('legacy v1 removal contracts', () => {
     expect(shellViewsSource).not.toContain('view-orcamentos');
     expect(navigationModeSource).not.toContain("'orcamentos'");
     expect(navigationHandlersSource).not.toContain('go-orcamentos');
-    expect(clientesContractsSource).not.toContain('novo-orcamento');
     expect(clientesPageSource).not.toContain('Novo orçamento');
   });
 
@@ -316,7 +314,6 @@ describe('legacy v1 removal contracts', () => {
   it('does not keep registro v1 photo capture/upload surface', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const registroTemplateSource = readSource('src/ui/shell/templates/views.js');
-    const registroContractsSource = readSource('src/ui/viewModels/registroContracts.js');
     expect(existsSync('src/ui/components/photos.js')).toBe(false);
     expect(existsSync('src/ui/views/registro/save/photos.js')).toBe(false);
     expect(existsSync('src/__tests__/registroSavePhotosHelpers.test.js')).toBe(false);
@@ -330,8 +327,6 @@ describe('legacy v1 removal contracts', () => {
     expect(registroTemplateSource).not.toContain('input-fotos');
     expect(registroTemplateSource).not.toContain('registro-photos-root');
     expect(registroTemplateSource).not.toContain('photo-drop-zone');
-    expect(registroContractsSource).not.toContain('inputFotos');
-    expect(registroContractsSource).not.toContain('photosRoot');
   });
 
   it('does not keep legacy photo lightbox runtime surface', () => {
@@ -368,7 +363,6 @@ describe('legacy v1 removal contracts', () => {
     const equipmentCardsSource = readSource('src/ui/views/equipamentos/equipmentCards.js');
     const shellModalsSource = readSource('src/ui/shell/templates/modals.js');
     const equipmentHandlersSource = readSource('src/ui/controller/handlers/equipmentHandlers.js');
-    const equipamentosContractsSource = readSource('src/ui/viewModels/equipamentosContracts.js');
 
     expect(existsSync('src/ui/views/equipamentos/fotos.js')).toBe(false);
     expect(existsSync('src/ui/components/equipmentPhotos.js')).toBe(false);
@@ -380,7 +374,6 @@ describe('legacy v1 removal contracts', () => {
       equipmentCardsSource,
       shellModalsSource,
       equipmentHandlersSource,
-      equipamentosContractsSource,
     ]) {
       expect(source).not.toContain('open-eq-photos-editor');
       expect(source).not.toContain('save-eq-photos');
@@ -427,8 +420,6 @@ describe('legacy v1 removal contracts', () => {
     const registroSource = readSource('src/ui/views/registro.js');
     const registroHandlersSource = readSource('src/ui/controller/handlers/registroHandlers.js');
     const registroTemplateSource = readSource('src/ui/shell/templates/views.js');
-    const registroContractsSource = readSource('src/ui/viewModels/registroContracts.js');
-    const registroViewModelSource = readSource('src/ui/viewModels/registroViewModel.js');
 
     expect(existsSync('src/ui/views/registro/save/signature.js')).toBe(false);
     expect(existsSync('src/ui/views/registro/signatureHint.js')).toBe(false);
@@ -441,21 +432,13 @@ describe('legacy v1 removal contracts', () => {
     expect(registroHandlersSource).not.toContain('REGISTRO_SIGNATURE_ACTIONS');
     expect(registroTemplateSource).not.toContain('registro-signature-hint');
     expect(registroTemplateSource).not.toContain('tour-signature-anchor');
-    expect(registroContractsSource).not.toContain('registro-signature-capture');
-    expect(registroContractsSource).not.toContain('registro-signature-open');
-    expect(registroContractsSource).not.toContain('registro-signature-remove');
-    expect(registroContractsSource).not.toContain('tour-signature-anchor');
-    expect(registroViewModelSource).not.toContain('signature:');
-    expect(registroViewModelSource).not.toContain('isPlusOrHigher');
   });
 
   it('does not keep legacy historico signature runtime after retiring signature flows', () => {
     const historicoSource = readSource('src/ui/views/historico.js');
-    const historicoViewModelSource = readSource('src/ui/viewModels/historicoViewModel.js');
 
     expect(historicoSource).not.toContain('cooltrack-sig-');
     expect(historicoSource).not.toContain('signature:');
-    expect(historicoViewModelSource).not.toContain('hasSignature');
   });
 
   it('does not keep legacy onboarding/tour copy surfaces after v1 removal', () => {
@@ -504,15 +487,12 @@ describe('legacy v1 removal contracts', () => {
 
   it('does not keep legacy Historico PMOC attention surface', () => {
     const historicoSource = readSource('src/ui/views/historico.js');
-    const historicoViewModelSource = readSource('src/ui/viewModels/historicoViewModel.js');
     const historicoRenderHelpersSource = readSource(
       'src/ui/views/historico/helpers/render/renderHelpers.js',
     );
 
     expect(historicoSource).not.toContain('buildClientePmocDetails');
     expect(historicoSource).not.toContain('pmoc-');
-    expect(historicoViewModelSource).not.toContain('buildClientePmocDetails');
-    expect(historicoViewModelSource).not.toContain('pmoc-');
     expect(historicoRenderHelpersSource).not.toContain('buildClientePmocDetails');
   });
 
