@@ -172,4 +172,29 @@ describe('legacy shell retirement gate', () => {
     expect(existsSync('src/ui/helpers')).toBe(false);
     expect(existsSync('src/ui')).toBe(false);
   });
+
+  it('does not keep the dead v1 core/domain substrate after app-v2 became self-contained', () => {
+    // App-v2 runtime so depende de core/supabase.js (+supabaseConfig). Todo o
+    // restante de core/domain era alcancado apenas pelo src/ui removido.
+    expect(existsSync('src/domain')).toBe(false);
+    expect(existsSync('src/core/storage')).toBe(false);
+    for (const dead of [
+      'src/core/auth.js',
+      'src/core/clientes.js',
+      'src/core/state.js',
+      'src/core/storage.js',
+      'src/core/router.js',
+      'src/core/modal.js',
+      'src/core/events.js',
+      'src/core/profile.js',
+      'src/core/telemetry.js',
+      'src/core/equipmentRules.js',
+      'src/core/userStorage.js',
+    ]) {
+      expect(existsSync(dead)).toBe(false);
+    }
+    // Os unicos modulos compartilhados que sobrevivem.
+    expect(existsSync('src/core/supabase.js')).toBe(true);
+    expect(existsSync('src/core/supabaseConfig.js')).toBe(true);
+  });
 });

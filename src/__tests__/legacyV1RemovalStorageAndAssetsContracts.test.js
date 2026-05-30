@@ -1,17 +1,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-import {
-  CONTEXTUAL_ONBOARDING_STORAGE_KEY,
-  OAUTH_PENDING_STORAGE_KEY,
-} from '../core/storage/constants.js';
-
 function readSource(path) {
   return existsSync(path) ? readFileSync(path, 'utf8') : '';
-}
-
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function listSourceFiles(dir) {
@@ -136,49 +127,19 @@ describe('legacy v1 removal storage and asset contracts', () => {
     }
   });
 
-  it('keeps app-owned persisted storage keys centralized', () => {
-    const consumers = [
-      readSource('src/core/auth.js'),
-      readSource('src/__tests__/auth.integration.test.js'),
-    ];
-    const centralizedKeyPattern = new RegExp(
-      [OAUTH_PENDING_STORAGE_KEY, CONTEXTUAL_ONBOARDING_STORAGE_KEY].map(escapeRegExp).join('|'),
-    );
-
-    for (const source of consumers) {
-      expect(source).not.toMatch(centralizedKeyPattern);
-    }
-  });
-
   it('limits remaining runtime v1 tokens to endpoint versions and persisted storage keys', () => {
     const runtimeFiles = [
       ...listSourceFiles('src/app-v2'),
-      ...listSourceFiles('src/ui'),
       ...listSourceFiles('src/core'),
-      ...listSourceFiles('src/domain'),
       ...listSourceFiles('scripts'),
       ...listSourceFiles('public'),
       'index.html',
       'preview.html',
     ];
-    const allowedPatternsByFile = new Map([
-      ['src/core/emailNotification.js', [/api\/v1\.0\/email\/send/]],
-      [
-        'src/core/storage/constants.js',
-        [
-          /cooltrack-oauth-pending-v1/,
-          /contextual-onboarding-v1/,
-          /cooltrack-sync-dirty-v1/,
-          /cooltrack-sync-deletions-v1/,
-          /cooltrack-cache-owner-v1/,
-        ],
-      ],
-      ['src/domain/nameplateAnalysis.js', [/functions\/v1\/analyze-nameplate/]],
-      [
-        'src/ui/account/userData.js',
-        [/functions\/v1\/export-user-data/, /functions\/v1\/delete-user-account/],
-      ],
-    ]);
+    // Os modulos compartilhados que carregavam tokens v1 (emailNotification,
+    // storage/constants, nameplateAnalysis, userData) foram removidos junto com
+    // o substrato v1; nenhum allowlist e mais necessario.
+    const allowedPatternsByFile = new Map();
 
     expect(findUnexpectedLineMatches(runtimeFiles, /\bv1\b/i, allowedPatternsByFile)).toEqual([]);
   });
