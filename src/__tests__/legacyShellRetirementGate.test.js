@@ -94,7 +94,7 @@ const retiredLegacyViewModelFiles = [
   'src/ui/viewModels/relatorioViewModel.js',
 ];
 
-const legacyRuntimeKeptForLaterCheckpoints = [
+const retiredShellRuntimeFiles = [
   'src/ui/shell/navigationMode.js',
   'src/ui/shell/templates/modals.js',
   'src/ui/shell/templates/views.js',
@@ -136,8 +136,8 @@ describe('legacy shell retirement gate', () => {
     const stillPresentLegacyViewModels = retiredLegacyViewModelFiles.filter((path) =>
       existsSync(path),
     );
-    const missingLaterCheckpointFiles = legacyRuntimeKeptForLaterCheckpoints.filter(
-      (path) => !existsSync(path),
+    const stillPresentShellRuntimeFiles = retiredShellRuntimeFiles.filter((path) =>
+      existsSync(path),
     );
 
     expect(stillPresentShellFiles).toEqual([]);
@@ -152,7 +152,7 @@ describe('legacy shell retirement gate', () => {
     expect(stillPresentLegacyBarrels).toEqual([]);
     expect(stillPresentLegacyHelpers).toEqual([]);
     expect(stillPresentLegacyViewModels).toEqual([]);
-    expect(missingLaterCheckpointFiles).toEqual([]);
+    expect(stillPresentShellRuntimeFiles).toEqual([]);
   });
 
   it('keeps app-v2 replacement coverage present before retiring shell/router legacy tests', () => {
@@ -167,5 +167,9 @@ describe('legacy shell retirement gate', () => {
     expect(existsSync('src/ui/composables')).toBe(false);
     expect(existsSync('src/ui/viewModels')).toBe(false);
     expect(existsSync('src/ui/views')).toBe(false);
+    expect(existsSync('src/ui/controller')).toBe(false);
+    expect(existsSync('src/ui/shell')).toBe(false);
+    expect(existsSync('src/ui/helpers')).toBe(false);
+    expect(existsSync('src/ui')).toBe(false);
   });
 });
