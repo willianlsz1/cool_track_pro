@@ -198,6 +198,43 @@ describe('createAppV2DataSource', () => {
     ]);
   });
 
+  it('sobrepoe leitura real de equipamentos quando equipamentosReader existe', async () => {
+    const snapshot = createAppV2MockSnapshot();
+    const equipamentosReader = vi
+      .fn()
+      .mockResolvedValue([
+        { id: 'equip-real-1', nome: 'Equipamento real', local: 'Sala tecnica', status: 'ok' },
+      ]);
+
+    const dataSource = createAppV2DataSource({
+      initialSnapshot: snapshot,
+      session: { userId: ' user-1 ' },
+      clientesReader: vi.fn().mockResolvedValue([]),
+      equipamentosReader,
+    });
+
+    await expect(dataSource.dataPort.loadSnapshot()).resolves.toMatchObject({
+      equipamentos: [
+        { id: 'equip-real-1', nome: 'Equipamento real', local: 'Sala tecnica', status: 'ok' },
+      ],
+    });
+    expect(equipamentosReader).toHaveBeenCalledWith('user-1');
+  });
+
+  it('mantem equipamentos locais quando a leitura real de equipamentos falha', async () => {
+    const snapshot = createAppV2MockSnapshot();
+    const dataSource = createAppV2DataSource({
+      initialSnapshot: snapshot,
+      session: { userId: 'user-1' },
+      clientesReader: vi.fn().mockResolvedValue([]),
+      equipamentosReader: vi.fn().mockRejectedValue(new Error('auth expired')),
+    });
+
+    await expect(dataSource.dataPort.loadSnapshot()).resolves.toMatchObject({
+      equipamentos: snapshot.equipamentos,
+    });
+  });
+
   it('nao importa Supabase, auth ou storage diretamente na factory', () => {
     const source = readFileSync(resolve(__dirname, 'appV2DataSourceFactory.ts'), 'utf8');
 

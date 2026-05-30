@@ -63,6 +63,47 @@ export async function loadAppV2EquipamentosByClienteFromSupabase({
   return (data ?? []).map(mapSupabaseEquipamentoRowToAppV2Equipamento).filter(isEquipamento);
 }
 
+interface SupabaseEquipamentosByUserEqQuery {
+  eq(column: 'user_id', value: string): Promise<SupabaseEquipamentosReadResult>;
+}
+
+interface SupabaseEquipamentosByUserSelectQuery {
+  select(columns: typeof APP_V2_EQUIPAMENTOS_SELECT): SupabaseEquipamentosByUserEqQuery;
+}
+
+export interface AppV2EquipamentosByUserSupabaseClient {
+  from(table: 'equipamentos'): SupabaseEquipamentosByUserSelectQuery;
+}
+
+export interface LoadAppV2EquipamentosFromSupabaseInput {
+  client: AppV2EquipamentosByUserSupabaseClient;
+  userId: string;
+}
+
+export async function loadAppV2EquipamentosFromSupabase({
+  client,
+  userId,
+}: LoadAppV2EquipamentosFromSupabaseInput): Promise<Equipamento[]> {
+  const normalizedUserId = userId.trim();
+
+  if (!normalizedUserId) {
+    throw new Error('Usuario autenticado e obrigatorio para ler equipamentos do app-v2.');
+  }
+
+  const { data, error } = await client
+    .from('equipamentos')
+    .select(APP_V2_EQUIPAMENTOS_SELECT)
+    .eq('user_id', normalizedUserId);
+
+  if (error) {
+    throw new Error(
+      `Nao foi possivel carregar equipamentos do app-v2: ${error.message || 'erro desconhecido'}`,
+    );
+  }
+
+  return (data ?? []).map(mapSupabaseEquipamentoRowToAppV2Equipamento).filter(isEquipamento);
+}
+
 function isEquipamento(value: Equipamento | null): value is Equipamento {
   return value !== null;
 }
