@@ -4,7 +4,10 @@ import {
   APP_V2_EQUIPAMENTOS_SELECT,
   type SupabaseEquipamentoRow,
 } from './appV2SupabaseEquipmentMappers';
-import { loadAppV2EquipamentosByClienteFromSupabase } from './supabaseAppV2EquipmentsReader';
+import {
+  loadAppV2EquipamentosByClienteFromSupabase,
+  loadAppV2EquipamentosFromSupabase,
+} from './supabaseAppV2EquipmentsReader';
 
 describe('loadAppV2EquipamentosByClienteFromSupabase', () => {
   it('carrega equipamentos por user_id e cliente_id reais', async () => {
@@ -104,5 +107,61 @@ describe('loadAppV2EquipamentosByClienteFromSupabase', () => {
         clienteId: '8e3b08ce-5b33-42fd-9cbf-5a73e81d41e0',
       }),
     ).resolves.toHaveLength(1);
+  });
+});
+
+describe('loadAppV2EquipamentosFromSupabase', () => {
+  it('carrega todos os equipamentos do usuario por user_id', async () => {
+    const eqUser = vi.fn().mockResolvedValue({
+      data: [
+        { id: 'eq-1', nome: 'Split', local: 'Recepcao', status: 'ok' },
+        {
+          id: 'eq-2',
+          cliente_id: '8e3b08ce-5b33-42fd-9cbf-5a73e81d41e0',
+          nome: 'VRF',
+          local: 'Sala',
+          status: 'warn',
+        },
+      ] satisfies SupabaseEquipamentoRow[],
+      error: null,
+    });
+    const select = vi.fn().mockReturnValue({ eq: eqUser });
+    const from = vi.fn().mockReturnValue({ select });
+
+    const equipamentos = await loadAppV2EquipamentosFromSupabase({
+      client: { from },
+      userId: ' user-1 ',
+    });
+
+    expect(from).toHaveBeenCalledWith('equipamentos');
+    expect(select).toHaveBeenCalledWith(APP_V2_EQUIPAMENTOS_SELECT);
+    expect(eqUser).toHaveBeenCalledWith('user_id', 'user-1');
+    expect(equipamentos).toHaveLength(2);
+    expect(equipamentos[0]).toMatchObject({
+      id: 'eq-1',
+      nome: 'Split',
+      local: 'Recepcao',
+      status: 'ok',
+    });
+  });
+
+  it('exige usuario autenticado antes de consultar', async () => {
+    const from = vi.fn();
+
+    await expect(
+      loadAppV2EquipamentosFromSupabase({ client: { from }, userId: '  ' }),
+    ).rejects.toThrow('Usuario autenticado e obrigatorio para ler equipamentos do app-v2.');
+
+    expect(from).not.toHaveBeenCalled();
+  });
+
+  it('propaga erro de leitura real', async () => {
+    const eqUser = vi.fn().mockResolvedValue({ data: null, error: { message: 'RLS denied' } });
+    const select = vi.fn().mockReturnValue({ eq: eqUser });
+    const from = vi.fn().mockReturnValue({ select });
+
+    await expect(
+      loadAppV2EquipamentosFromSupabase({ client: { from }, userId: 'user-1' }),
+    ).rejects.toThrow('Nao foi possivel carregar equipamentos do app-v2: RLS denied');
   });
 });

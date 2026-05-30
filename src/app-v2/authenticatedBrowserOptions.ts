@@ -7,11 +7,14 @@ import { saveAppV2ClienteToSupabase } from './data/supabaseAppV2ClientsWriter';
 import type { SupabaseAppV2ClientsWriteClient } from './data/supabaseAppV2ClientsWriter';
 import { saveAppV2EquipamentoToSupabase } from './data/supabaseAppV2EquipmentsWriter';
 import type { SupabaseAppV2EquipmentsWriteClient } from './data/supabaseAppV2EquipmentsWriter';
+import { loadAppV2EquipamentosFromSupabase } from './data/supabaseAppV2EquipmentsReader';
+import type { AppV2EquipamentosByUserSupabaseClient } from './data/supabaseAppV2EquipmentsReader';
 
 export type AppV2AuthenticatedBrowserClient = SupabaseAppV2AuthClient &
   AppV2ClientesSupabaseClient &
   SupabaseAppV2ClientsWriteClient &
-  SupabaseAppV2EquipmentsWriteClient;
+  SupabaseAppV2EquipmentsWriteClient &
+  AppV2EquipamentosByUserSupabaseClient;
 
 export function createAuthenticatedAppV2BrowserOptions(
   client: AppV2AuthenticatedBrowserClient,
@@ -25,6 +28,7 @@ export function createAuthenticatedAppV2BrowserOptions(
         userId,
         draft,
       }),
+    equipamentosReader: (userId) => loadAppV2EquipamentosFromSupabase({ client, userId }),
     equipamentosWriter: ({ userId, draft }) =>
       saveAppV2EquipamentoToSupabase({
         client,
