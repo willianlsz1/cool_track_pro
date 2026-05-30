@@ -83,6 +83,19 @@ decisao, do escopo e do risco remanescente.
   o dashboard legado como referencia arquitetural.
 - Comentarios de dominio de dados de placa neutralizados para tratar payloads
   antigos sem linguagem de legado.
+- CP de inventario: confirmado que `src/ui` esta isolado do runtime; fora de
+  testes nada importa o bloco, pois os imports `../ui/` do app-v2 resolvem para
+  `src/app-v2/ui`, nao para `src/ui`.
+- Auditoria de paridade `src/ui` vs `src/app-v2/domain`: regras de negocio
+  essenciais ja reimplementadas no app-v2; gate de plano confirmado neutralizado
+  de proposito (plano fixo FREE, camada comercial aposentada).
+- Backlog de regras nao reimplementadas no app-v2, fora do runtime atual, para
+  etapas proprias futuras: validacao de TAG duplicada e captura estruturada de
+  `dados_placa` (com ranges) em equipamentos; dados do cliente
+  (nome/documento/local/contato) e fotos/anexos no registro.
+- Os guardas de remocao v1 que leem conteudo de `src/ui` por `readSource`
+  precisam migrar de asserts de conteudo para asserts de ausencia de caminho
+  quando os arquivos forem removidos.
 
 ## PMOC legado
 

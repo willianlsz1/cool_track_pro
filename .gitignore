@@ -46,6 +46,7 @@ supabase/.temp/
 
 # OS
 Thumbs.db
-.claude/settings.local.json
-# Worktrees locais do Claude Code (nao versionar)
-.claude/worktrees/
+# Diretorios locais de agentes/ferramentas (skills vendorizadas localmente,
+# config local do Claude Code) - nao versionar.
+.agents/
+.claude/
