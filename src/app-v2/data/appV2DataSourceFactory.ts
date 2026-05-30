@@ -7,6 +7,14 @@ import {
   createAppV2EquipamentosReadOnlyDataAdapter,
   type AppV2EquipamentosReader,
 } from './appV2EquipamentosReadOnlyDataAdapter';
+import {
+  createAppV2RegistrosReadOnlyDataAdapter,
+  type AppV2RegistrosReader,
+} from './appV2RegistrosReadOnlyDataAdapter';
+import {
+  createAppV2RegistrosWriteDataAdapter,
+  type AppV2RegistrosWriter,
+} from './appV2RegistrosWriteDataAdapter';
 import { createAppV2ClientesWriteDataAdapter } from './appV2ClientesWriteDataAdapter';
 import type { AppV2ClientesWriter } from './appV2ClientesWriteDataAdapter';
 import { createAppV2EquipamentosWriteDataAdapter } from './appV2EquipamentosWriteDataAdapter';
@@ -28,6 +36,8 @@ export interface CreateAppV2DataSourceInput {
   clientesWriter?: AppV2ClientesWriter;
   equipamentosReader?: AppV2EquipamentosReader;
   equipamentosWriter?: AppV2EquipamentosWriter;
+  registrosReader?: AppV2RegistrosReader;
+  registrosWriter?: AppV2RegistrosWriter;
 }
 
 export interface AppV2DataSource {
@@ -43,6 +53,8 @@ export function createAppV2DataSource({
   clientesWriter,
   equipamentosReader,
   equipamentosWriter,
+  registrosReader,
+  registrosWriter,
 }: CreateAppV2DataSourceInput = {}): AppV2DataSource {
   const basePort = createMemoryAppV2DataAdapter(initialSnapshot);
   const userId = String(session?.userId ?? '').trim();
@@ -69,13 +81,21 @@ export function createAppV2DataSource({
     clientesReader,
   });
 
-  const readOnlyPort = equipamentosReader
+  const equipamentosReadPort = equipamentosReader
     ? createAppV2EquipamentosReadOnlyDataAdapter({
         basePort: clientesReadPort,
         userId,
         equipamentosReader,
       })
     : clientesReadPort;
+
+  const readOnlyPort = registrosReader
+    ? createAppV2RegistrosReadOnlyDataAdapter({
+        basePort: equipamentosReadPort,
+        userId,
+        registrosReader,
+      })
+    : equipamentosReadPort;
 
   if (!clientesWriter) {
     return {
@@ -84,18 +104,28 @@ export function createAppV2DataSource({
     };
   }
 
-  const readWritePort = createAppV2ClientesWriteDataAdapter({
+  const clientesWritePort = createAppV2ClientesWriteDataAdapter({
     basePort: readOnlyPort,
     userId,
     clientesWriter,
   });
 
+  const equipamentosWritePort = createAppV2EquipamentosWriteDataAdapter({
+    basePort: clientesWritePort,
+    userId,
+    equipamentosWriter,
+  });
+
+  const dataPort = registrosWriter
+    ? createAppV2RegistrosWriteDataAdapter({
+        basePort: equipamentosWritePort,
+        userId,
+        registrosWriter,
+      })
+    : equipamentosWritePort;
+
   return {
-    dataPort: createAppV2EquipamentosWriteDataAdapter({
-      basePort: readWritePort,
-      userId,
-      equipamentosWriter,
-    }),
+    dataPort,
     mode: 'clientes-readwrite',
   };
 }

@@ -3,6 +3,8 @@ import type { AppV2ClientesWriter } from './appV2ClientesWriteDataAdapter';
 import { createAppV2DataSource, type AppV2DataSource } from './appV2DataSourceFactory';
 import type { AppV2EquipamentosReader } from './appV2EquipamentosReadOnlyDataAdapter';
 import type { AppV2EquipamentosWriter } from './appV2EquipamentosWriteDataAdapter';
+import type { AppV2RegistrosReader } from './appV2RegistrosReadOnlyDataAdapter';
+import type { AppV2RegistrosWriter } from './appV2RegistrosWriteDataAdapter';
 import type { AppV2MockSnapshot } from './appV2MockStore';
 import type { AppV2SessionReader } from './appV2SessionReader';
 
@@ -13,6 +15,8 @@ export interface CreateAuthenticatedAppV2DataSourceInput {
   clientesWriter?: AppV2ClientesWriter;
   equipamentosReader?: AppV2EquipamentosReader;
   equipamentosWriter?: AppV2EquipamentosWriter;
+  registrosReader?: AppV2RegistrosReader;
+  registrosWriter?: AppV2RegistrosWriter;
 }
 
 export async function createAuthenticatedAppV2DataSource({
@@ -22,6 +26,8 @@ export async function createAuthenticatedAppV2DataSource({
   clientesWriter,
   equipamentosReader,
   equipamentosWriter,
+  registrosReader,
+  registrosWriter,
 }: CreateAuthenticatedAppV2DataSourceInput): Promise<AppV2DataSource> {
   const user = await getUserOrNull(sessionReader);
   const userId = String(user?.id ?? '').trim();
@@ -33,6 +39,8 @@ export async function createAuthenticatedAppV2DataSource({
     clientesWriter,
     equipamentosReader,
     equipamentosWriter,
+    registrosReader,
+    registrosWriter,
   });
 }
 

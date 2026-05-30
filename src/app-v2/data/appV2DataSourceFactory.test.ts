@@ -235,6 +235,41 @@ describe('createAppV2DataSource', () => {
     });
   });
 
+  it('sobrepoe leitura real de registros quando registrosReader existe', async () => {
+    const snapshot = createAppV2MockSnapshot();
+    const registrosReader = vi.fn().mockResolvedValue([
+      {
+        id: 'reg-real-1',
+        equipamentoId: 'eq-1',
+        data: '2026-05-01',
+        tipo: 'preventiva',
+        status: 'ok',
+        tecnico: 'Ana',
+      },
+    ]);
+
+    const dataSource = createAppV2DataSource({
+      initialSnapshot: snapshot,
+      session: { userId: ' user-1 ' },
+      clientesReader: vi.fn().mockResolvedValue([]),
+      registrosReader,
+    });
+
+    await expect(dataSource.dataPort.loadSnapshot()).resolves.toMatchObject({
+      registros: [
+        {
+          id: 'reg-real-1',
+          equipamentoId: 'eq-1',
+          data: '2026-05-01',
+          tipo: 'preventiva',
+          status: 'ok',
+          tecnico: 'Ana',
+        },
+      ],
+    });
+    expect(registrosReader).toHaveBeenCalledWith('user-1');
+  });
+
   it('nao importa Supabase, auth ou storage diretamente na factory', () => {
     const source = readFileSync(resolve(__dirname, 'appV2DataSourceFactory.ts'), 'utf8');
 

@@ -9,12 +9,18 @@ import { saveAppV2EquipamentoToSupabase } from './data/supabaseAppV2EquipmentsWr
 import type { SupabaseAppV2EquipmentsWriteClient } from './data/supabaseAppV2EquipmentsWriter';
 import { loadAppV2EquipamentosFromSupabase } from './data/supabaseAppV2EquipmentsReader';
 import type { AppV2EquipamentosByUserSupabaseClient } from './data/supabaseAppV2EquipmentsReader';
+import { loadAppV2RegistrosFromSupabase } from './data/supabaseAppV2RegistrosReader';
+import type { AppV2RegistrosSupabaseClient } from './data/supabaseAppV2RegistrosReader';
+import { saveAppV2RegistroToSupabase } from './data/supabaseAppV2RegistrosWriter';
+import type { SupabaseAppV2RegistrosWriteClient } from './data/supabaseAppV2RegistrosWriter';
 
 export type AppV2AuthenticatedBrowserClient = SupabaseAppV2AuthClient &
   AppV2ClientesSupabaseClient &
   SupabaseAppV2ClientsWriteClient &
   SupabaseAppV2EquipmentsWriteClient &
-  AppV2EquipamentosByUserSupabaseClient;
+  AppV2EquipamentosByUserSupabaseClient &
+  AppV2RegistrosSupabaseClient &
+  SupabaseAppV2RegistrosWriteClient;
 
 export function createAuthenticatedAppV2BrowserOptions(
   client: AppV2AuthenticatedBrowserClient,
@@ -34,6 +40,13 @@ export function createAuthenticatedAppV2BrowserOptions(
         client,
         userId,
         draft,
+      }),
+    registrosReader: (userId) => loadAppV2RegistrosFromSupabase({ client, userId }),
+    registrosWriter: ({ userId, registro }) =>
+      saveAppV2RegistroToSupabase({
+        client,
+        userId,
+        registro,
       }),
   };
 }
