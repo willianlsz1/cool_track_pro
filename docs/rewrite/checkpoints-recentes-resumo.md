@@ -430,6 +430,24 @@ decisao, do escopo e do risco remanescente.
   dedicado, mantendo runtime intacto e reduzindo o teste principal abaixo de
   1000 linhas.
 
+## Remocao v1 - src/ui e orfaos (CPs 2-5)
+
+- CP2: removidos 111 testes que exercitavam src/ui, core/plans e domain/pmoc;
+  guardas ajustados; validados com npm run check (762 testes).
+- CP3: removidos todos os 113 arquivos de src/ui em 4 fatias (components,
+  viewModels, views, controller/shell/helpers). Guardas migrados para leitores
+  tolerantes (readSource retorna vazio se caminho ausente) com locks de
+  diretorio afirmando a ausencia; src/ui eliminado por completo.
+- CP4: removidos orfaos restantes: core/plans/ (4 arq), domain/pmoc/ (4 arq),
+  core/planLimits.js, core/usageLimits.js e usageLimits.test.js. Camada
+  comercial e PMOC legado confirmados totalmente fora do runtime.
+- CP5: limpeza dos scripts css-proof e dead-css-report (referencias mortas a
+  src/ui/components/onboarding removidas); guard de css-proof atualizado para
+  proibir src/ui. Todos os CPs validados com npm run check.
+- O handoff identificou 4 lacunas de regra de negocio que continuam fora do
+  runtime (TAG duplicada, dados_placa estruturado, dados do cliente no registro,
+  fotos/anexos); anotadas como backlog para etapas proprias.
+
 ## Validacao padrao
 
 - Para CPs

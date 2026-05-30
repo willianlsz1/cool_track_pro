@@ -381,8 +381,8 @@ describe('legacy v1 removal storage and asset contracts', () => {
     expect(cssProofSource).not.toContain('src/react');
     expect(cssProofSource).not.toContain('src/tests');
     expect(cssProofSource).not.toContain('src/assets/styles');
+    expect(cssProofSource).not.toContain('src/ui');
     expect(cssProofSource).toContain('src/app-v2/styles');
-    expect(cssProofSource).toContain('src/ui/components/onboarding');
     expect(cssProofSource).toContain('public/legal');
   });
 

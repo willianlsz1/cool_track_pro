@@ -13,20 +13,10 @@ import { execFileSync } from 'node:child_process';
 const CSS_FILES = [
   'src/app-v2/styles/tailwind.css',
   'src/app-v2/styles/print.css',
-  'src/ui/components/onboarding/firstTimeExperience.css',
   'public/legal/_style.css',
 ];
 
-const SOURCE_GLOBS = [
-  'src/app-v2',
-  'src/ui',
-  'src/core',
-  'src/domain',
-  'public',
-  'index.html',
-  'preview.html',
-  'preview',
-];
+const SOURCE_GLOBS = ['src/app-v2', 'src/core', 'src/domain', 'public', 'index.html'];
 
 const IGNORED_CLASS_PREFIXES = [
   'tw-',

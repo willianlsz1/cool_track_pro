@@ -18,8 +18,8 @@ function usage() {
   ].join('\n');
 }
 
-const CODE_PATHS = ['src/app-v2', 'src/ui', 'src/core', 'src/domain', 'e2e', 'src/__tests__'];
-const CSS_PATHS = ['src/app-v2/styles', 'src/ui/components/onboarding', 'public/legal'];
+const CODE_PATHS = ['src/app-v2', 'src/core', 'src/domain', 'e2e', 'src/__tests__'];
+const CSS_PATHS = ['src/app-v2/styles', 'public/legal'];
 const DOC_PATHS = ['docs'];
 
 function normalizeName(value) {
