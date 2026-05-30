@@ -1,5 +1,5 @@
 /**
- * CoolTrack Pro - Service Worker Update Flow v1.0
+ * CoolTrack Pro - Service Worker Update Flow
  * Detecta quando uma nova versão do SW está "waiting" e mostra um banner
  * oferecendo recarregar. Ao confirmar, posta SKIP_WAITING pro SW, aguarda
  * controllerchange e recarrega a página.

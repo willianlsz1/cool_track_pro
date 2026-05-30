@@ -134,7 +134,6 @@ describe('Storage integration (offline-first)', () => {
             tipo: 'Inspeção',
             status: 'bad',
             fotos: [1, 'ok'],
-            assinatura: 'yes',
           },
         ],
         tecnicos: ['Carlos', 10],
@@ -154,8 +153,8 @@ describe('Storage integration (offline-first)', () => {
       equipId: '101',
       status: 'ok',
       fotos: ['ok'],
-      assinatura: true,
     });
+    expect(loaded.registros[0]).not.toHaveProperty('assinatura');
     expect(loaded.tecnicos).toEqual(['Carlos']);
   });
 
@@ -205,8 +204,8 @@ describe('Storage integration (offline-first)', () => {
       },
     });
 
-    const legacy = sampleState();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(legacy));
+    const cachedState = sampleState();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedState));
 
     await Storage.loadFromSupabase();
 

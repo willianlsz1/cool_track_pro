@@ -43,16 +43,16 @@ describe('buildEquipmentClientsListViewModel', () => {
             ? {
                 ...cliente,
                 documento: '12.345.678/0001-90',
-                canalChamados: 'Portal do cliente',
+                canalChamados: 'Canal do cliente',
                 finalidadeAmbiente: 'Comercial',
               }
             : cliente,
         ),
       },
-      { query: 'portal do cliente' },
+      { query: 'canal do cliente' },
     );
 
-    expect(viewModel.query).toBe('portal do cliente');
+    expect(viewModel.query).toBe('canal do cliente');
     expect(viewModel.totalLabel).toBe('1 cliente');
     expect(viewModel.items.map((item) => item.id)).toEqual(['cliente-1']);
     expect(viewModel.items[0]).toMatchObject({

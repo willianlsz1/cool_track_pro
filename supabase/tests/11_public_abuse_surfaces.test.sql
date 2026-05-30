@@ -156,6 +156,18 @@ begin
     raise exception 'FAIL: usuario dono deveria poder escrever foto normal de registro';
   end if;
 
+  if to_regprocedure('public.can_write_registro_signature_storage_object(text,text,uuid)') is not null then
+    raise exception 'FAIL: helper antigo de assinatura de registro deveria estar aposentado';
+  end if;
+
+  if not public.can_write_registro_fotos_storage_object(
+    'registro-fotos',
+    v_user_id::text || '/registros/reg-1/assinatura.png',
+    v_user_id
+  ) then
+    raise exception 'FAIL: path antigo assinatura.png deve seguir contrato geral de foto de registro';
+  end if;
+
   if public.can_write_registro_fotos_storage_object(
     'registro-fotos',
     v_other_id::text || '/registros/reg-1/foto-1.jpg',

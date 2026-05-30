@@ -1,26 +1,26 @@
 /**
- * Testes do fallback de schema legacy em setores.
+ * Testes do fallback de schema anterior em setores.
  *
  * Contexto: P1 (migration 20260420120000) adiciona as colunas descricao +
- * responsavel. Enquanto a migration não rodar no Supabase remoto, upserts
+ * responsavel. Enquanto a migration nao rodar no Supabase remoto, upserts
  * e selects com essas colunas falham com 400. O storage.js detecta isso e
- * refaz a operação com o shape legacy (id, nome, cor) pra que o setor ainda
- * persista e os equipamentos com setor_id não quebrem no FK.
+ * refaz a operacao com o shape anterior (id, nome, cor) para que o setor ainda
+ * persista e os equipamentos com setor_id nao quebrem no FK.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// ─── Mock do cliente Supabase com controle fino por chamada ─────────────
+// Mock do cliente Supabase com controle fino por chamada.
 /**
  * createSupabaseMock permite simular:
  *   - Sucesso no upsert de uma tabela
  *   - Erro "column descricao/responsavel does not exist" no primeiro upsert
  *     seguido de sucesso no segundo (fallback)
  *   - Erro de schema na primeira SELECT (descricao/responsavel) com fallback
- *     pro SELECT legacy bem-sucedido
+ *     para o SELECT anterior bem-sucedido
  */
 function createSupabaseMock({ userId = 'u1', setoresUpsertQueue, setoresSelectQueue } = {}) {
   // Queue-based mocks: cada chamada consome o primeiro item. Permite
-  // sequenciar "falha com colunas novas" → "sucesso com legacy".
+  // sequenciar "falha com colunas novas" -> "sucesso com shape anterior".
   const upsertQueues = {
     equipamentos: [{ data: null, error: null }],
     registros: [{ data: null, error: null }],
@@ -77,19 +77,18 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-// ─────────────────────────────────────────────────────────────────────────
-describe('pushSetores fallback (schema não migrado)', () => {
-  it('retry com shape legacy quando Supabase retorna "column responsavel does not exist"', async () => {
+describe('pushSetores fallback (schema nao migrado)', () => {
+  it('retry com shape anterior quando Supabase retorna "column responsavel does not exist"', async () => {
     const supabaseMock = createSupabaseMock({
       setoresUpsertQueue: [
-        // 1ª tentativa: PostgREST rejeita colunas novas
+        // Primeira tentativa: PostgREST rejeita colunas novas
         {
           data: null,
           error: {
             message: `Could not find the 'responsavel' column of 'setores' in the schema cache`,
           },
         },
-        // 2ª tentativa: legacy shape funciona
+        // Segunda tentativa: shape anterior funciona
         { data: null, error: null },
       ],
     });
@@ -126,7 +125,7 @@ describe('pushSetores fallback (schema não migrado)', () => {
     const secondCall = supabaseMock.upsertCalls.setores[1].rows[0];
     expect(secondCall).not.toHaveProperty('descricao');
     expect(secondCall).not.toHaveProperty('responsavel');
-    // Legacy ainda preserva nome e cor (e id + user_id)
+    // O shape anterior ainda preserva nome e cor (e id + user_id)
     expect(secondCall).toMatchObject({
       id: 's1',
       nome: 'Cozinha',
@@ -134,14 +133,14 @@ describe('pushSetores fallback (schema não migrado)', () => {
     });
   });
 
-  it('não retry em erro não relacionado ao schema (propaga pro AppError)', async () => {
+  it('nao retry em erro nao relacionado ao schema (propaga para AppError)', async () => {
     const supabaseMock = createSupabaseMock({
       setoresUpsertQueue: [{ data: null, error: { message: 'network timeout' } }],
     });
     const Storage = await loadStorage(supabaseMock);
 
-    // Silent=true não suprime o throw; _syncToSupabase absorve erros mas
-    // registra via handleError. Aqui só validamos que não houve retry.
+    // Silent=true nao suprime o throw; _syncToSupabase absorve erros mas
+    // registra via handleError. Aqui so validamos que nao houve retry.
     await Storage._syncToSupabase(
       {
         equipamentos: [],
@@ -157,9 +156,8 @@ describe('pushSetores fallback (schema não migrado)', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────
 describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
-  it('refaz SELECT sem descricao/responsavel quando schema ainda não migrou', async () => {
+  it('refaz SELECT sem descricao/responsavel quando schema ainda nao migrou', async () => {
     const supabaseMock = createSupabaseMock({
       setoresSelectQueue: [
         {
@@ -168,7 +166,7 @@ describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
             message: `column setores.responsavel does not exist`,
           },
         },
-        // Retry com select legacy
+        // Retry com select anterior
         {
           data: [{ id: 's1', nome: 'Cozinha', cor: '#00c8e8', cliente_id: 'c1' }],
           error: null,
@@ -179,7 +177,7 @@ describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
     const Storage = await loadStorage(supabaseMock);
     const result = await Storage.loadFromSupabase();
 
-    // Setor foi trazido via legacy select (sem descricao/responsavel)
+    // Setor foi trazido via select anterior (sem descricao/responsavel)
     expect(result.setores).toHaveLength(1);
     expect(result.setores[0]).toMatchObject({
       id: 's1',
@@ -188,7 +186,7 @@ describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
       clienteId: 'c1',
     });
 
-    // Confirma que 2 SELECTs foram feitos: primeiro full, segundo legacy
+    // Confirma que 2 SELECTs foram feitos: primeiro full, segundo anterior
     expect(supabaseMock.selectCalls.setores).toHaveLength(2);
     expect(supabaseMock.selectCalls.setores[0]).toContain('descricao');
     expect(supabaseMock.selectCalls.setores[0]).toContain('responsavel');
@@ -198,7 +196,7 @@ describe('pullFromSupabase fallback (SELECT com colunas novas)', () => {
     expect(supabaseMock.selectCalls.setores[1]).toContain('cliente_id');
   });
 
-  it('faz fallback sem cliente_id quando o schema remoto ainda não tem essa coluna', async () => {
+  it('faz fallback sem cliente_id quando o schema remoto ainda nao tem essa coluna', async () => {
     const supabaseMock = createSupabaseMock({
       setoresSelectQueue: [
         { data: null, error: { message: `column setores.cliente_id does not exist` } },

@@ -2,219 +2,203 @@
 
 Regras obrigatorias para agentes trabalhando no CoolTrack Pro.
 
-O objetivo atual e manter o app legado/v1 congelado, usar sua experiencia apenas
-como referencia funcional e concentrar evolucao no app-v2 em `src/app-v2/`.
+O objetivo atual e consolidar o app-v2 como experiencia principal, remover
+vestigios do v1 quando houver evidencia suficiente e recriar areas sensiveis em
+etapas proprias. O v1 pode ser lido apenas como referencia historica do fluxo do
+tecnico; nao deve ser evoluido nem usado como arquitetura nova.
 
-## 1. Regras globais
+## 0. Prioridade das instrucoes
+
+Em caso de conflito, siga esta ordem:
+
+1. Instrucao explicita do usuario na tarefa atual.
+2. Este `AGENTS.md`.
+3. Documentos versionados permitidos, especialmente
+   `docs/rewrite/checkpoints-recentes-resumo.md`.
+4. Padroes existentes no codigo.
+5. Preferencias gerais do agente/modelo.
+
+Se ainda houver conflito, pare e reporte a ambiguidade antes de editar.
+
+## 1. Fluxo padrao
 
 Antes de editar qualquer arquivo:
 
 1. Revise o escopo.
-2. Mapeie os arquivos afetados.
-3. Identifique contratos publicos envolvidos.
-4. Avalie risco de ciclo, mudanca funcional, regressao visual, quebra de teste
+2. Rode `git status --short --branch`.
+3. Mapeie os arquivos afetados.
+4. Identifique contratos publicos envolvidos.
+5. Avalie risco de ciclo, mudanca funcional, regressao visual, quebra de teste
    ou quebra de seguranca.
-5. So altere codigo se houver pelo menos 99% de certeza.
+6. Identifique validacoes necessarias.
+7. So altere codigo quando houver evidencia suficiente e o impacto estiver claro.
 
-100% de certeza e impossivel na pratica. O limite minimo aceitavel para mudancas
-de codigo, arquitetura, contratos publicos, seguranca, storage, permissoes,
-PDF/share ou fluxos criticos e 99%.
+Para tarefas grandes, comece com:
 
-Se houver menos de 99% de certeza, nao implemente por tentativa. Documente:
+- diagnostico;
+- plano em etapas;
+- riscos;
+- arquivos afetados;
+- contratos publicos envolvidos;
+- validacoes esperadas.
 
-- o que foi analisado;
-- o risco encontrado;
-- o motivo da incerteza;
-- o plano recomendado;
-- quais dados ou validacoes faltam para continuar.
+Depois execute em mudancas pequenas, seguras e revisaveis.
 
-Para mudancas puramente documentais, siga evidencia clara e preserve o historico
-tecnico.
+Antes de editar, o agente deve conseguir responder objetivamente:
 
-## 2. Arquitetura e fronteiras
+- qual arquivo sera alterado;
+- por que esse arquivo precisa ser alterado;
+- qual contrato publico pode ser afetado;
+- qual comportamento deve permanecer igual;
+- qual teste ou validacao confirma a mudanca;
+- qual risco permanece.
+
+Se algum item estiver incerto, nao implemente ainda; registre a duvida.
+
+## 2. Markdown e documentacao
+
+Markdown versionado permitido:
+
+- `AGENTS.md`;
+- `docs/rewrite/checkpoints-recentes-resumo.md`;
+- skills do Matt Pocock em `matt-pocock-skills/skills/`.
+
+Nao crie novos arquivos `.md` para CPs, planos, auditorias, inventarios,
+READMEs, relatorios longos ou resumos de execucao.
+
+Relatorios finais devem ser enviados no chat, nao salvos como arquivo.
+
+Quando for necessario registrar um checkpoint no repositorio, adicione apenas um
+resumo curto e objetivo em:
+
+- `docs/rewrite/checkpoints-recentes-resumo.md`
+
+Esse resumo deve conter no maximo:
+
+- identificador do checkpoint;
+- data;
+- escopo;
+- arquivos principais;
+- validacoes executadas;
+- riscos remanescentes.
+
+Nao duplique no markdown informacoes que ja estao no Git, em commits, diffs ou
+logs de validacao.
+
+Se a tarefa pedir "crie um plano", "registre auditoria" ou "documente o CP",
+primeiro confirme se o destino e `docs/rewrite/checkpoints-recentes-resumo.md`
+ou resposta no chat. Nao crie arquivo novo por iniciativa propria.
+
+## 3. Arquitetura e fronteiras
 
 Camadas existentes:
 
-- `src/core/`: infraestrutura, estado base, storage, router e utilidades centrais.
-- `src/domain/`: regras de negocio puras e logica compartilhavel.
-- `src/ui/`: shell legado/v1, views, controllers, handlers e integracao visual.
-- `src/features/`: modulos funcionais extraidos por dominio.
-- `src/react/`: componentes React do ciclo anterior.
 - `src/app-v2/`: foco atual do novo app.
-- `docs/`: documentacao de migracao, rewrite, inventarios e decisoes tecnicas.
+- `src/core/`: infraestrutura, estado base, storage, router e utilidades
+  centrais ainda existentes.
+- `src/domain/`: regras puras e logica compartilhavel ainda existentes.
+- `src/ui/`, `src/features/`, `src/react/`: areas legadas ou de transicao; devem
+  ser removidas ou neutralizadas por CPs pequenos, quando houver evidencia.
+- `supabase/`: migrations e functions existentes; sera refeito depois das
+  migrations do v1, por etapa propria.
 
 Regras:
 
 - `core/` e `domain/` nao devem depender de `ui/`.
-- Evite imports cruzados entre camadas sem justificativa forte.
-- Nao duplique logica entre legado/v1 e app-v2.
-- Quando logica for compartilhada, prefira helper puro em `domain/`, `core/` ou
-  adaptador planejado.
-- Nao mova arquivos apenas por estetica.
-- Nao faca refatoracao ampla junto com correcao pontual.
-- Nao misture redesign, seguranca, arquitetura e limpeza de imports no mesmo
-  checkpoint.
+- Nao duplicar logica entre legado e app-v2.
+- Nao copiar shell, templates, CSS ou navegacao legada para o app-v2.
+- Nao mover arquivos apenas por estetica.
+- Nao misturar redesign, seguranca, storage, Supabase, PDF/share, billing e
+  limpeza de imports no mesmo checkpoint.
+- Nao remover codigo supostamente morto sem confirmar usos diretos e indiretos.
 
-## 3. App legado/v1 congelado
-
-O app legado/v1 esta congelado. Ele deve ser tratado como baseline operacional e
-referencia funcional, nao como area de evolucao.
-
-Permitido:
-
-- ler codigo legado para entender contratos, regras e comportamento;
-- usar o legado como referencia de fluxo do tecnico;
-- corrigir bug no legado apenas quando o usuario pedir explicitamente;
-- preservar compatibilidade quando uma mudanca autorizada tocar contratos
-  publicos existentes.
-
-Nao permitido sem pedido explicito:
-
-- redesign do legado;
-- ajustes cosmeticos em CSS legado;
-- refatoracao ampla em `src/ui`, `src/core`, `src/domain`, `src/features` ou
-  `src/react`;
-- converter legado para TypeScript;
-- copiar shell, templates, componentes, CSS ou navegacao legada para o app-v2;
-- resolver warnings legados de Vite/chunk, React Doctor ou PDF/share durante
-  tarefas do app-v2.
-
-## 4. Foco atual: app-v2
-
-O foco atual do projeto e `src/app-v2/`.
-
-Antes de qualquer tarefa do app-v2, leia quando relevante:
-
-- `CONTEXT.md`
-- `docs/rewrite/etapa-0-plano-mestre.md`
-- `docs/rewrite/etapa-0-inventario-fluxo-tecnico.md`
-- `docs/rewrite/etapa-0-stack-e-regras-agentes.md`
-- relatorios recentes em `docs/rewrite/`
+## 4. App-v2
 
 Regras especificas:
 
 - Stack planejada: React, TypeScript, Tailwind CSS com prefixo `tw-`, Vite.
-- TypeScript entra apenas no app-v2 e adaptadores novos; nao converter legado.
+- TypeScript entra apenas no app-v2 e adaptadores novos; nao converter legado por
+  atacado.
 - Manter o app-v2 isolado do shell legado.
 - Nao importar CSS legado no app-v2.
 - Nao recriar mocks divergentes por tela quando ja existir store mockada unica.
-- Reaproveitar somente regras puras, contratos mapeados e adaptadores
-  planejados.
+- Reaproveitar somente regras puras quando isso for melhor que reescrever.
 - Nao conectar storage real, Supabase/RLS, billing, PDF/share, WhatsApp,
   upload/storage, assinatura, PMOC ou orcamento real sem etapa propria.
-- Nao editar `package.json`, `package-lock.json`, Vite, ESLint ou TypeScript sem
-  autorizacao explicita da etapa tecnica.
 
-## 5. UI/UX do app-v2
-
-Guardrails obrigatorios para UI/UX do app-v2:
-
-- Nao criar CSS global solto.
-- Nao reutilizar padroes problematicos de `redesign.css`.
-- Nao empilhar overrides para corrigir decisao visual fraca.
-- Nao usar `!important` como solucao padrao.
-- Escopar estilos ao app-v2, componente, token ou layout.
-- Preferir tokens e constantes de design quando isso reduzir duplicacao.
-- Nao iniciar redesign amplo sem documento de regras em `docs/rewrite`.
-- Validar mobile, desktop, rolagem, texto longo e estado vazio.
-- Nao sacrificar legibilidade por densidade visual.
-- Nao misturar refinamento visual com mudanca de arquitetura, storage,
-  seguranca ou integracao real.
-
-O documento detalhado de Design System/UI deve ficar em `docs/rewrite/`, nao
-dentro deste arquivo.
-
-## 6. Contratos publicos e compatibilidade
-
-Nao altere sem etapa dedicada e testes:
-
-- `data-action`
-- `data-nav`
-- IDs usados por handlers
-- selectors usados por testes ou fluxos legados
-- storage keys
-- nomes de rotas
-- schemas
-- payloads persistidos
-- contratos de PDF/relatorio
-- permissoes e regras de acesso
-
-Mudancas nesses pontos podem quebrar fluxo silenciosamente.
-
-## 7. Areas sensiveis
+## 5. Areas sensiveis
 
 As areas abaixo exigem etapa propria:
 
-- PDF/share
-- `src/domain/pdf/shareReport.js`
-- `vendor-pdf`
-- `manualChunks`
-- router
-- storage
-- estado global
-- permissoes
-- autenticacao
-- Supabase/RLS
-- features pagas
-- billing
-- upload/storage de arquivos
-- WhatsApp com quota
-- assinatura
-- PMOC real
-- orcamento real
+- PDF/share;
+- router;
+- storage e estado global;
+- autenticacao, permissoes e Supabase/RLS;
+- migrations e schema real;
+- billing, pricing e features pagas;
+- upload/storage de arquivos;
+- WhatsApp;
+- assinatura;
+- PMOC real;
+- orcamento real.
 
 Nao misture essas areas com refatoracao visual, limpeza de imports ou
-reorganizacao de pastas.
+reorganizacao ampla.
 
-## 8. Seguranca
+Se uma tarefa tocar acidentalmente uma area sensivel, pare, registre o risco e
+peca confirmacao antes de continuar.
 
-Security hardening deve ser tratado de forma isolada.
+## 6. UI/UX do app-v2
 
-Para achados de seguranca:
+- Nao criar CSS global solto.
+- Nao reutilizar padroes problematicos do CSS legado.
+- Nao usar `!important` como solucao padrao.
+- Escopar estilos ao app-v2, componente, token ou layout.
+- Validar mobile, desktop, rolagem, texto longo e estado vazio quando houver
+  mudanca visual.
+- Nao sacrificar legibilidade por densidade visual.
+- Nao alterar comportamento funcional junto com ajuste visual, salvo quando for
+  inevitavel e explicitamente documentado.
 
-- analisar evidencia antes de alterar;
-- classificar severidade;
-- priorizar achados high;
-- nao misturar com redesign;
-- nao misturar com React Doctor;
-- nao misturar com refatoracao ampla;
-- criar testes ou validacao objetiva quando possivel;
-- documentar risco antes/depois.
+## 7. Contratos publicos
 
-Mudancas em RLS, storage, permissoes, dados sensiveis ou feature paga exigem
-analise dedicada.
+Nao altere sem etapa dedicada e testes:
 
-## 9. Imports, chunks e bundle
+- `data-action`;
+- `data-nav`;
+- IDs usados por handlers;
+- selectors usados por testes;
+- storage keys;
+- nomes de rotas;
+- schemas;
+- payloads persistidos;
+- contratos de relatorio/exportacao;
+- permissoes e regras de acesso.
 
-Evite misturar import estatico e dinamico do mesmo modulo sem necessidade.
+Ao remover legado, confirme usos com busca textual e entendimento do fluxo. Nao
+confie apenas em ausencia de import direto.
 
-Ao tratar warnings Vite static+dynamic:
+## 8. Git e working tree
 
-- escolha apenas um grupo pequeno por etapa;
-- confirme que o import estatico ja e inevitavel no grafo;
-- confirme que nao ha risco provavel de ciclo;
-- preserve comportamento assincrono quando necessario com `Promise.resolve(...)`;
-- rode build/check/testes focados;
-- documente warnings antes/depois.
+Antes de editar:
 
-Nao mexa em `manualChunks`, vendor pesado ou PDF sem etapa dedicada.
-Nao otimize bundle por palpite.
+- rode `git status --short --branch`;
+- identifique mudancas preexistentes;
+- nao reverta mudancas que nao foram feitas pelo agente;
+- nao use `git reset --hard`;
+- nao use force push;
+- nao faca commit/push sem pedido explicito.
 
-## 10. React Doctor
+Se houver mudancas preexistentes no mesmo arquivo, trabalhe com elas sem
+reverter. Se elas impedirem a tarefa, reporte o bloqueio.
 
-React Doctor fica em backlog futuro.
+Se `git add`, commit ou push falhar:
 
-Nao aplicar sugestoes automaticamente.
+- diagnostique permissao, lock, credencial e rede separadamente;
+- nao misture correcao de Git com mudanca de codigo;
+- registre o erro exato e o estado final.
 
-Antes de remover exports, arquivos, props ou componentes:
-
-- verificar uso real;
-- verificar imports dinamicos;
-- verificar testes;
-- verificar falsos positivos;
-- documentar decisao.
-
-## 11. Validacao minima
+## 9. Validacao
 
 Para mudancas de codigo, rode:
 
@@ -226,77 +210,99 @@ npm run check
 
 Alem disso, rode testes focados da area alterada.
 
-Para mudancas documentais, rode pelo menos a validacao pedida na etapa. Quando a
-etapa nao especificar, use:
+Para mudancas documentais, rode:
 
 ```bash
 npm run format:check
 git diff --check
+git diff --cached --check
 ```
 
-Se algum comando falhar, nao esconda a falha. Registre o erro, o comando
-executado e o estado final.
+Para mudancas visuais, valide tambem:
 
-## 12. Restricoes para agentes
+- desktop;
+- mobile;
+- rolagem;
+- texto longo;
+- estado vazio;
+- ausencia de overflow horizontal.
+
+Para remocao de codigo legado, valide tambem:
+
+- `rg` para usos diretos;
+- `rg` para referencias indiretas relevantes;
+- testes focados;
+- build/check completos.
+
+Se algum comando falhar, registre:
+
+- comando executado;
+- erro relevante;
+- causa provavel, se conhecida;
+- estado final;
+- risco remanescente.
+
+Nao afirme que validou algo que nao foi executado.
+
+## 10. Restricoes
 
 Nao faca:
 
 - mudancas fora do escopo;
 - dependencias novas sem solicitacao explicita;
 - edicao de `package.json` ou `package-lock.json` sem autorizacao;
-- criacao de `test.skip`;
+- `test.skip`;
 - relaxamento de lint para mascarar problema;
-- criacao de barrel `index.js` sem necessidade comprovada;
+- barrel `index.js` sem necessidade comprovada;
 - alteracao visual junto com alteracao arquitetural;
 - alteracao de schema junto com refatoracao;
 - remocao de codigo supostamente morto sem confirmar uso indireto;
 - mudancas em seguranca junto com mudancas cosmeticas;
-- mudancas em PDF/share junto com limpeza de imports.
+- criacao de arquivos markdown novos para planos/checkpoints/relatorios.
 
-No fluxo local, siga a branch indicada pelo usuario. No Codex Cloud, trabalhar na
-branch `work` e aceitavel quando esse for o fluxo ativo.
+Preservar o favicon.
 
-## 13. Estado atual da base
+## 11. Modo de trabalho esperado
 
-Estado conhecido:
+O agente deve trabalhar em ciclos pequenos:
 
-- app legado/v1 congelado como baseline operacional;
-- app-v2 e o foco atual em `src/app-v2/`;
-- fundacao tecnica do app-v2 registrada em `docs/rewrite` como 100% no criterio
-  de contratos, store mockada unica, acoes puras, seletores operacionais e
-  testes de fluxo;
-- QA manual ampliado da navegacao app-v2 registrado em `docs/rewrite`;
-- warnings Vite static+dynamic restantes tratados como backlog tecnico
-  controlado;
-- `src/domain/pdf/shareReport.js` mantem warning ESLint arquitetural conhecido
-  para etapa dedicada futura.
+1. diagnosticar;
+2. declarar plano curto;
+3. editar o menor conjunto de arquivos;
+4. validar;
+5. reportar resultado e risco.
 
-Proximo foco recomendado:
+Prefira remover ambiguidade antes de aumentar escopo.
 
-- continuar o app-v2 por etapas pequenas, documentadas e validadas;
-- antes de refinamento visual amplo, criar ou atualizar documento de regras de
-  Design System/UI em `docs/rewrite`.
+Nao transforme checkpoints pequenos em refatoracoes amplas.
 
-Backlogs futuros:
+Nao avance para area sensivel apenas porque encontrou codigo relacionado.
 
-- warnings Vite remanescentes;
-- etapa dedicada de PDF/share;
-- React Doctor;
-- security hardening isolado;
-- integracoes reais do app-v2 somente por etapa propria.
+## 12. Estados finais permitidos
 
-## 14. Relatorio final obrigatorio
+Ao final, classifique o trabalho como:
 
-Toda mudanca deve terminar com relatorio contendo:
+- `concluido`: escopo implementado e validado;
+- `parcial`: parte concluida, com pendencias explicitas;
+- `bloqueado`: falta permissao, contexto, credencial, ambiente ou decisao;
+- `somente diagnostico`: nenhuma edicao feita.
 
-1. Branch.
-2. HEAD inicial.
-3. HEAD final/commit.
-4. Working tree antes/depois.
-5. Arquivos alterados.
-6. O que foi alterado.
-7. O que nao foi alterado.
-8. Validacao executada.
-9. Testes executados.
-10. Riscos remanescentes.
-11. Proximo passo recomendado.
+Nunca use `concluido` se validacoes obrigatorias nao foram executadas.
+
+## 13. Relatorio final
+
+Toda mudanca deve terminar com relatorio no chat contendo:
+
+1. Estado final: `concluido`, `parcial`, `bloqueado` ou `somente diagnostico`.
+2. Branch.
+3. HEAD inicial.
+4. HEAD final/commit.
+5. Working tree antes/depois.
+6. Arquivos alterados.
+7. O que foi alterado.
+8. O que nao foi alterado.
+9. Validacao executada.
+10. Testes executados.
+11. Warnings conhecidos.
+12. Riscos remanescentes.
+13. Proximo passo recomendado.

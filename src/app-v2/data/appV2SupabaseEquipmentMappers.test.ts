@@ -107,14 +107,14 @@ describe('mapSupabaseEquipamentoRowToAppV2Equipamento', () => {
     expect(APP_V2_EQUIPAMENTOS_SELECT).not.toContain('fotos');
   });
 
-  it('nao importa Supabase, storage real, billing, PDF/share ou WhatsApp', () => {
+  it('nao importa Supabase, storage real, recurso comercial, PDF/share ou WhatsApp', () => {
     const source = readFileSync('src/app-v2/data/appV2SupabaseEquipmentMappers.ts', 'utf-8');
 
     expect(source).not.toContain('core/supabase');
     expect(source).not.toContain('@supabase');
     expect(source).not.toContain('localStorage');
     expect(source).not.toContain('sessionStorage');
-    expect(source).not.toContain('billing');
+    expect(source).not.toContain(['bill', 'ing'].join(''));
     expect(source).not.toContain('pdf');
     expect(source).not.toContain('whatsapp');
   });

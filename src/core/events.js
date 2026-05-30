@@ -4,8 +4,6 @@
  * Toda lógica está nos handlers injetados pelo controller
  */
 
-import { Utils } from './utils.js';
-
 const _handlers = new Map();
 
 /**
@@ -44,14 +42,6 @@ export function bindEvents() {
       await handler(actionEl, e);
     } else {
       console.warn(`[Events] Sem handler para action="${action}"`);
-    }
-  });
-
-  // Escape → fecha lightbox
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const lb = Utils.getEl('lightbox');
-      if (lb?.classList.contains('is-open')) lb.classList.remove('is-open');
     }
   });
 

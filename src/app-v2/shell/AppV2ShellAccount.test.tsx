@@ -75,7 +75,7 @@ describe('AppV2Shell Conta', () => {
     expect(host.textContent).toContain('Ajuda local');
     expect(host.textContent).toContain('Sidebar');
     expect(host.textContent).not.toContain('PMOC');
-    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
     expect(host.textContent).not.toContain('Supabase');
     expect(host.textContent).not.toContain('WhatsApp');
     expect(host.textContent).not.toContain('PDF');

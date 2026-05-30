@@ -1,17 +1,4 @@
-const closeSignatureCaptureIfOpen = vi.fn(() => true);
-const closeSignatureViewerIfOpen = vi.fn(() => true);
-
-vi.mock('../ui/components/signature/signature-modal.js', () => ({
-  SignatureModal: {
-    closeIfOpen: closeSignatureCaptureIfOpen,
-  },
-}));
-
-vi.mock('../ui/components/signature/signature-viewer-modal.js', () => ({
-  SignatureViewerModal: {
-    closeIfOpen: closeSignatureViewerIfOpen,
-  },
-}));
+const closeCustomBlockingLayer = vi.fn(() => true);
 
 function mountRouterDom() {
   document.body.innerHTML = `
@@ -33,24 +20,12 @@ async function loadRouterModule() {
   vi.resetModules();
   const mod = await import('../core/router.js');
   routerModule = mod;
-  // Refactor pos-PR: router nao importa mais de ui/* — quem registra os
-  // blocking layers e o controller. Nos testes, simulamos isso aqui pra
-  // manter cobertura do comportamento (popstate fechar signature modals).
   mod.registerBlockingLayer({
-    id: 'signature-capture',
+    id: 'custom-blocking-layer',
     isOpen: () =>
-      Boolean(document.getElementById('modal-signature-overlay')?.classList.contains('is-open')),
-    close: () => closeSignatureCaptureIfOpen(),
-    getElement: () => document.getElementById('modal-signature-overlay'),
-  });
-  mod.registerBlockingLayer({
-    id: 'signature-viewer',
-    isOpen: () =>
-      Boolean(
-        document.getElementById('modal-signature-viewer-overlay')?.classList.contains('is-open'),
-      ),
-    close: () => closeSignatureViewerIfOpen(),
-    getElement: () => document.getElementById('modal-signature-viewer-overlay'),
+      Boolean(document.getElementById('custom-blocking-overlay')?.classList.contains('is-open')),
+    close: () => closeCustomBlockingLayer(),
+    getElement: () => document.getElementById('custom-blocking-overlay'),
   });
   return mod;
 }
@@ -59,8 +34,7 @@ describe('router', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.useRealTimers();
-    closeSignatureCaptureIfOpen.mockClear();
-    closeSignatureViewerIfOpen.mockClear();
+    closeCustomBlockingLayer.mockClear();
     mountRouterDom();
   });
 
@@ -272,40 +246,11 @@ describe('router', () => {
 
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
-
-    registerRoute('inicio', onEnterInicio);
-    registerRoute('registros', onEnterRegistros);
-
-    goTo('inicio');
-    initHistory();
-
-    window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
-
-    expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(false);
-    expect(onEnterRegistros).not.toHaveBeenCalled();
-    expect(pushSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('consome popstate para fechar dash-overflow-modal (audit §1.3)', async () => {
-    const { registerRoute, goTo, initHistory } = await loadRouterModule();
-    const onEnterInicio = vi.fn();
-    const onEnterRegistros = vi.fn();
-
-    // O overflow modal é criado dinamicamente via appendChild e só existe
-    // no DOM enquanto aberto — NÃO usa class `is-open`, só presença. Simulamos
-    // aqui o comportamento real do overflowBanner.js: dismiss button remove
-    // o overlay do DOM.
-    document.body.insertAdjacentHTML(
-      'beforeend',
-      `<div id="dash-overflow-modal" role="dialog" class="overflow-modal-overlay">
-         <button data-action="dismiss">Continuar assim</button>
-       </div>`,
-    );
-    const overflow = document.getElementById('dash-overflow-modal');
-    overflow.querySelector('[data-action="dismiss"]').addEventListener('click', () => {
-      overflow.remove();
+    closeCustomBlockingLayer.mockImplementationOnce(() => {
+      document.getElementById('custom-blocking-overlay')?.classList.remove('is-open');
+      return true;
     });
 
     registerRoute('inicio', onEnterInicio);
@@ -316,13 +261,14 @@ describe('router', () => {
 
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
 
-    // Overflow modal foi fechado (via click no dismiss) e o popstate NÃO
-    // propagou pra trocar de rota.
-    expect(document.getElementById('dash-overflow-modal')).toBeNull();
+    expect(document.getElementById('custom-blocking-overlay').classList.contains('is-open')).toBe(
+      false,
+    );
     expect(onEnterRegistros).not.toHaveBeenCalled();
+    expect(pushSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('sequência de back: fecha foto e no back seguinte navega sem loop', async () => {
+  it('sequência de back: fecha camada bloqueante e no back seguinte navega sem loop', async () => {
     vi.useFakeTimers();
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterInicio = vi.fn();
@@ -336,15 +282,19 @@ describe('router', () => {
     vi.advanceTimersByTime(150);
     initHistory();
 
-    // Foto/lightbox aberta após history bind: cria um nível de camada no histórico.
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
+    closeCustomBlockingLayer.mockImplementationOnce(() => {
+      document.getElementById('custom-blocking-overlay')?.classList.remove('is-open');
+      return true;
+    });
 
-    // 1º back: fecha foto, não navega rota.
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
-    expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(false);
+    expect(document.getElementById('custom-blocking-overlay').classList.contains('is-open')).toBe(
+      false,
+    );
     expect(onEnterInicio).toHaveBeenCalledTimes(1);
     expect(onEnterRegistros).toHaveBeenCalledTimes(1);
 
@@ -354,7 +304,7 @@ describe('router', () => {
     expect(onEnterInicio).toHaveBeenCalledTimes(2);
   });
 
-  it('mantém compatibilidade com history state legado sem params', async () => {
+  it('mantem compatibilidade com history state anterior sem params', async () => {
     vi.useFakeTimers();
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
@@ -377,8 +327,8 @@ describe('router', () => {
 
     registerRoute('inicio', vi.fn());
     goTo('inicio', { origem: 'teste' });
-    // Simula state legado/externo quebrado após navegação inicial.
-    window.history.replaceState({ route: 'legado', params: {} }, '', window.location.pathname);
+    // Simula state externo quebrado apos navegacao inicial.
+    window.history.replaceState({ route: 'externo', params: {} }, '', window.location.pathname);
 
     initHistory();
 
@@ -414,14 +364,14 @@ describe('router', () => {
     expect(pushSpy).toHaveBeenCalledTimes(pushesAntes);
   });
 
-  it('consome popstate para fechar assinatura (capture) sem trocar rota', async () => {
+  it('consome popstate para fechar camada bloqueante customizada sem trocar rota', async () => {
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
     const pushSpy = vi.spyOn(window.history, 'pushState');
 
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="modal-signature-overlay" class="sig-capture-modal is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
 
     registerRoute('inicio', vi.fn());
@@ -432,30 +382,7 @@ describe('router', () => {
 
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
 
-    expect(closeSignatureCaptureIfOpen).toHaveBeenCalled();
-    expect(onEnterRegistros).not.toHaveBeenCalled();
-    expect(pushSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('consome popstate para fechar assinatura (viewer) sem trocar rota', async () => {
-    const { registerRoute, goTo, initHistory } = await loadRouterModule();
-    const onEnterRegistros = vi.fn();
-    const pushSpy = vi.spyOn(window.history, 'pushState');
-
-    document.body.insertAdjacentHTML(
-      'beforeend',
-      `<div id="modal-signature-viewer-overlay" class="hist-signature-modal is-open"></div>`,
-    );
-
-    registerRoute('inicio', vi.fn());
-    registerRoute('registros', onEnterRegistros);
-
-    goTo('inicio');
-    initHistory();
-
-    window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
-
-    expect(closeSignatureViewerIfOpen).toHaveBeenCalled();
+    expect(closeCustomBlockingLayer).toHaveBeenCalled();
     expect(onEnterRegistros).not.toHaveBeenCalled();
     expect(pushSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
   });
@@ -464,18 +391,14 @@ describe('router', () => {
     const { registerRoute, goTo, initHistory } = await loadRouterModule();
     const onEnterRegistros = vi.fn();
 
-    // Ordem no DOM define topo: modal padrão -> lightbox -> assinatura viewer (topo).
+    // Ordem no DOM define topo: modal padrão -> camada customizada.
     document.body.insertAdjacentHTML(
       'beforeend',
       `<div id="modal-add-eq" class="modal-overlay is-open"></div>`,
     );
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
-    );
-    document.body.insertAdjacentHTML(
-      'beforeend',
-      `<div id="modal-signature-viewer-overlay" class="hist-signature-modal is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
 
     registerRoute('inicio', vi.fn());
@@ -486,9 +409,8 @@ describe('router', () => {
 
     window.dispatchEvent(new PopStateEvent('popstate', { state: { route: 'registros' } }));
 
-    expect(closeSignatureViewerIfOpen).toHaveBeenCalled();
+    expect(closeCustomBlockingLayer).toHaveBeenCalled();
     expect(document.getElementById('modal-add-eq').classList.contains('is-open')).toBe(true);
-    expect(document.getElementById('lightbox').classList.contains('is-open')).toBe(true);
     expect(onEnterRegistros).not.toHaveBeenCalled();
   });
 
@@ -510,14 +432,14 @@ describe('router', () => {
 
     document.body.insertAdjacentHTML(
       'beforeend',
-      `<div id="lightbox" class="lightbox is-open"></div>`,
+      `<div id="custom-blocking-overlay" class="custom-blocking-layer is-open"></div>`,
     );
     await Promise.resolve();
 
     const syntheticState = pushSpy.mock.calls.at(-1)?.[0];
     expect(syntheticState).toMatchObject({ route: 'registros', blockingLayer: true });
 
-    document.getElementById('lightbox').classList.remove('is-open');
+    document.getElementById('custom-blocking-overlay').classList.remove('is-open');
     await Promise.resolve();
 
     expect(goSpy).toHaveBeenCalledWith(-1);

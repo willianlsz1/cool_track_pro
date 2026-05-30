@@ -10,7 +10,7 @@
 --   o schema precisa suportar pra sincronizar entre dispositivos.
 --
 -- Idempotente: ADD COLUMN IF NOT EXISTS. Pode rodar varias vezes.
--- Seguro: NULL permitido (clientes legados ficam sem finalidade —
+-- Seguro: NULL permitido (clientes antigos ficam sem finalidade —
 -- aparece como "—" no PMOC ate o user editar e selecionar).
 -- ============================================================
 

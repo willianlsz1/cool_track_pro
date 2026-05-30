@@ -14,7 +14,7 @@
  *
  * Nota: o fluido principal pode vir em `dadosPlaca.fluido` (coluna fixa
  * do equipamento), `dadosPlaca.camposExtras[].key==='refrigerant'` ou
- * legado em `dadosPlaca.refrigerante`. Tratamos os 3 paths.
+ * payload antigo em `dadosPlaca.refrigerante`. Tratamos os 3 paths.
  */
 
 import { prettifyDadosPlacaKey } from './dadosPlacaDisplay.js';
@@ -177,7 +177,7 @@ export function normalizeRefrigerantCode(raw) {
 /**
  * Tenta encontrar o refrigerante em múltiplas locações:
  *   1. dadosPlaca.fluido (coluna fixa do equipamento)
- *   2. dadosPlaca.refrigerante (legado)
+ *   2. dadosPlaca.refrigerante (payload antigo)
  *   3. camposExtras com key ~ /refrigerant|fluido/
  */
 export function findRefrigerant(dadosPlaca) {
@@ -289,10 +289,10 @@ export function buildTechnicalInsights(dadosPlaca) {
   };
 }
 
-// Exposição do mapa de tones/copies pra o PDF reutilizar texto/cor.
+// Exposicao do mapa de tones/copies para renderizadores reutilizarem texto/cor.
 export const INSIGHT_CATEGORY_ORDER = CATEGORY_ORDER;
 export const INSIGHT_CATEGORY_LABELS = { ...CATEGORY_LABELS };
 
-// Re-export do prettify pra o PDF não precisar importar dois módulos
-// quando quer só "label humanizado + categoria".
+// Re-export do prettify para consumidores que precisam apenas de
+// "label humanizado + categoria".
 export { prettifyDadosPlacaKey };

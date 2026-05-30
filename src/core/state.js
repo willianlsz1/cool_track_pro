@@ -10,12 +10,12 @@ const INITIAL_STATE = {
   registros: [],
   tecnicos: [],
   setores: [],
-  // V2 PMOC (abr/2026): clientes (carteira do técnico). Também entra no
+  // Clientes (carteira do tecnico). Tambem entra no
   // snapshot offline-first para preservar vínculos temporários com setores e
   // equipamentos quando a criação ocorre sem conectividade.
   clientes: [],
-  // V3 Instalação (abr/2026): orçamentos de instalação. Mesmo padrão dos
-  // clientes — hidratado on-demand via core/orcamentos.js#loadOrcamentos.
+  // Orçamentos locais ainda usam este shape no snapshot enquanto o fluxo real
+  // sera redesenhado no app-v2 em etapa propria.
   orcamentos: [],
 };
 

@@ -62,7 +62,7 @@ describe('app-v2 production bootstrap', () => {
     expect(mountAppV2).toHaveBeenCalledWith(root);
   });
 
-  it('mantem bootstrap de producao separado dos previews e do app legado', () => {
+  it('mantem bootstrap de producao separado dos previews e do app anterior', () => {
     const source = readFileSync(resolve(__dirname, 'main.tsx'), 'utf8');
 
     expect(source).toContain("document.getElementById('app-v2-root')");

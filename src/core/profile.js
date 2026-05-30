@@ -17,11 +17,11 @@ export const Profile = {
     const scoped = safeParseJSON(userStorage.get(PROFILE_KEY));
     if (scoped) return scoped;
 
-    const legacyRaw = localStorage.getItem(PROFILE_KEY);
-    if (legacyRaw == null) return null;
+    const previousRaw = localStorage.getItem(PROFILE_KEY);
+    if (previousRaw == null) return null;
 
-    const legacy = safeParseJSON(legacyRaw);
-    if (legacy === null) {
+    const previousProfile = safeParseJSON(previousRaw);
+    if (previousProfile === null) {
       try {
         localStorage.removeItem(PROFILE_KEY);
       } catch {
@@ -29,7 +29,7 @@ export const Profile = {
       }
       return null;
     }
-    return legacy;
+    return previousProfile;
   },
 
   save(data) {

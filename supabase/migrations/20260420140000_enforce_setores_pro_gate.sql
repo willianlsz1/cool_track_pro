@@ -1,34 +1,33 @@
 -- ============================================================
--- DB-level enforcement: setores são feature exclusiva do plano Pro
+-- DB-level enforcement: setores com gate operacional historico
 -- Date: 2026-04-20
 --
 -- Contexto:
---   Hoje o gate "setores" é 100% client-side (hasProAccess em setorModal e
+--   O gate antigo de "setores" era 100% client-side (hasProAccess em setorModal e
 --   equipamentos.js:1709). A RLS `setores_insert_own` só valida ownership
---   (auth.uid() = user_id), permitindo que qualquer usuário Free faça:
+--   (auth.uid() = user_id), permitindo que qualquer usuario fora do codigo esperado faca:
 --     supabase.from('setores').insert({ user_id, nome: 'X', cor: '#fff' })
---   …e use a feature premium sem pagar.
+--   e use o recurso sem autorizacao operacional.
 --
 --   Esta migration fecha o bypass com trigger BEFORE INSERT/UPDATE em
---   public.setores que exige plano Pro (ou dev/service_role).
+--   public.setores que exige codigo operacional elevado (ou dev/service_role).
 --
 -- Escopo:
---   - INSERT em setores → precisa Pro
---   - UPDATE em setores (editar nome/cor) → precisa Pro
---   - service_role → bypassa (para backfills e admin)
---   - is_dev=true → bypassa (coerente com getEffectivePlan client-side)
+--   - INSERT em setores: exige codigo operacional elevado.
+--   - UPDATE em setores (editar nome/cor): exige codigo operacional elevado.
+--   - service_role: bypassa para backfills e admin.
+--   - is_dev=true: bypassa, coerente com getEffectivePlan client-side.
 --
 -- Nota sobre equipamentos.setor_id:
---   Não precisa de trigger extra porque a FK só aceita setor_id que exista
---   em public.setores. Se o user Free não consegue criar setores, não
---   consegue assignar setor_id a um equipamento. Grandfathered users
---   (downgraded de Pro) mantêm seus setores antigos — a RLS de delete
---   continua owner-scoped, então podem limpar se quiserem.
+--   Nao precisa de trigger extra porque a FK so aceita setor_id que exista
+--   em public.setores. Se o user sem acesso nao consegue criar setores, nao
+--   consegue assignar setor_id a um equipamento. Usuarios que perderam acesso
+--   mantem seus setores antigos; a RLS de delete continua owner-scoped.
 --
 -- Idempotente: CREATE OR REPLACE + DROP trigger antes de CREATE.
 -- ============================================================
 
--- Helper: retorna true se o user_id tem plano Pro ativo.
+-- Helper: retorna true se o user_id tem codigo operacional elevado ativo.
 -- Paralelo a user_has_plus_plan() (migration 20260420130000), mas mais estrito.
 -- Usa SECURITY DEFINER pra ler profiles sem passar pelas RLS daquela tabela.
 create or replace function public.user_has_pro_plan(p_user_id uuid)
@@ -57,7 +56,7 @@ begin
     return true;
   end if;
 
-  -- Apenas Pro com assinatura ativa/trialing (diferente de Plus).
+  -- Apenas codigo mais alto com status ativo/trialing.
   if v_plan_code = 'pro'
      and v_status in ('active', 'trialing') then
     return true;
@@ -68,7 +67,7 @@ end;
 $$;
 
 comment on function public.user_has_pro_plan(uuid) is
-  'True se o usuário tem plano Pro com assinatura ativa (ou é dev). Usado por triggers de gate de features Pro-exclusivas (setores, suporte prioritário, etc).';
+  'True se o usuario tem codigo operacional elevado ativo (ou e dev). Usado por triggers de gate operacional historico.';
 
 -- ── Trigger em public.setores ───────────────────────────────────────────
 create or replace function public.enforce_setores_pro_gate()
@@ -80,7 +79,7 @@ as $$
 declare
   v_role text;
 begin
-  -- service_role (webhooks, admin) bypassa.
+  -- service_role/admin bypassa.
   begin
     v_role := coalesce(auth.role(), '');
   exception when others then
@@ -100,7 +99,7 @@ end;
 $$;
 
 comment on function public.enforce_setores_pro_gate() is
-  'Bloqueia INSERT/UPDATE em public.setores para usuários fora do plano Pro.';
+  'Bloqueia INSERT/UPDATE em public.setores para usuarios fora do codigo operacional elevado.';
 
 -- Só cria o trigger se a tabela existe (evita quebrar shadow DB do CI).
 do $$

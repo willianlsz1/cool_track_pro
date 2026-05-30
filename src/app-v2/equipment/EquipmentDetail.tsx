@@ -89,7 +89,7 @@ export function EquipmentDetail({
 
     const result = await resolveArchiveResult(
       onArchiveEquipment(equipmentId),
-      'NÃ£o foi possÃ­vel arquivar o equipamento.',
+      'Não foi possível arquivar o equipamento.',
     );
 
     if (result) {
@@ -108,7 +108,7 @@ export function EquipmentDetail({
 
     const result = await resolveArchiveResult(
       onUnarchiveEquipment(equipmentId),
-      'NÃ£o foi possÃ­vel desarquivar o equipamento.',
+      'Não foi possível desarquivar o equipamento.',
     );
 
     if (result) {

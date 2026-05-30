@@ -1,7 +1,7 @@
 /**
- * CoolTrack Pro - Router v1.1
+ * CoolTrack Pro - Router
  * Roteamento puro — sem dependências de UI
- * Orquestrado pelo ui/controller.js que injeta os handlers de cada view
+ * As rotas registram adaptadores fora do core.
  */
 
 import { Toast } from './toast.js';
@@ -62,7 +62,7 @@ function parseHistoryState(state) {
   if (!state || typeof state !== 'object') return { route: null, params: {} };
   return {
     route: typeof state.route === 'string' ? state.route : null,
-    // Compat legado: state antigo sem params
+    // Compat: history state anterior sem params.
     params: normalizeRouteParams(state.params),
   };
 }
@@ -131,38 +131,13 @@ function closeTopBlockingLayer() {
     });
   }
 
-  // Camadas registradas via registerBlockingLayer (signature modals etc.).
+  // Camadas registradas via registerBlockingLayer.
   // Inversao de dependencia — core não importa de ui/* mais.
   _blockingLayerRegistry.forEach((entry) => {
     if (!entry.isOpen()) return;
     const element = entry.getElement?.() || null;
     candidates.push({ element, close: entry.close });
   });
-
-  // Lightbox de fotos (não usa .modal-overlay).
-  const lightbox = document.getElementById('lightbox');
-  if (lightbox?.classList.contains('is-open')) {
-    candidates.push({
-      element: lightbox,
-      close: () => lightbox.classList.remove('is-open'),
-    });
-  }
-
-  // Overflow modal do dashboard (usa class `overflow-modal-overlay`, não
-  // `modal-overlay`, e só existe no DOM enquanto aberto — audit §1.3).
-  // Preferimos clicar no botão dismiss pra preservar a telemetria de close;
-  // fallback pra .remove() se algo quebrou a estrutura interna.
-  const overflowModal = document.getElementById('dash-overflow-modal');
-  if (overflowModal) {
-    candidates.push({
-      element: overflowModal,
-      close: () => {
-        const dismissBtn = overflowModal.querySelector('[data-action="dismiss"]');
-        if (dismissBtn instanceof HTMLElement) dismissBtn.click();
-        else overflowModal.remove();
-      },
-    });
-  }
 
   if (!candidates.length) return false;
 
@@ -181,21 +156,10 @@ function closeTopBlockingLayer() {
 function countOpenBlockingLayers() {
   if (typeof document === 'undefined') return 0;
   const modalCount = document.querySelectorAll('.modal-overlay.is-open').length;
-  const lightboxCount = document.getElementById('lightbox')?.classList.contains('is-open') ? 1 : 0;
-  const sigCaptureCount = document
-    .getElementById('modal-signature-overlay')
-    ?.classList.contains('is-open')
-    ? 1
-    : 0;
-  const sigViewerCount = document
-    .getElementById('modal-signature-viewer-overlay')
-    ?.classList.contains('is-open')
-    ? 1
-    : 0;
-  // Overflow modal existe no DOM só enquanto aberto (sem class is-open),
-  // então basta checar presença (audit §1.3).
-  const overflowCount = document.getElementById('dash-overflow-modal') ? 1 : 0;
-  return modalCount + lightboxCount + sigCaptureCount + sigViewerCount + overflowCount;
+  const registeredLayerCount = [..._blockingLayerRegistry.values()].filter((entry) =>
+    entry.isOpen(),
+  ).length;
+  return modalCount + registeredLayerCount;
 }
 
 function syncBlockingLayerHistoryDepth() {
@@ -239,7 +203,7 @@ function bindBlockingLayerHistoryObserver() {
 
   // Sinal explícito do Modal.open/close — torna o sync determinístico quando
   // o usuário fecha via UI. MutationObserver acima continua como safety net
-  // pra overlays que não passam pelo módulo Modal (lightbox, signature).
+  // pra overlays que não passam pelo módulo Modal.
   document.addEventListener('modal:opened', syncBlockingLayerHistoryDepth);
   document.addEventListener('modal:closed', syncBlockingLayerHistoryDepth);
 }
@@ -561,7 +525,7 @@ export function initHistory() {
       return;
     }
 
-    // Fallback defensivo: histórico externo/legado sem route válida pode
+    // Fallback defensivo: historico externo ou anterior sem route valida pode
     // chegar aqui. Se houver rota inicial registrada, volta pra ela em vez
     // de deixar a UI em estado indefinido.
     if (_routes.has('inicio') && _current !== 'inicio') {

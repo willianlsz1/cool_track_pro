@@ -20,15 +20,15 @@ describe('Profile — user-scoped storage (audit §1.2)', () => {
     expect(localStorage.getItem('cooltrack-profile')).toBeNull();
   });
 
-  it('get() prefere chave escopada sobre a global legada', () => {
-    localStorage.setItem('cooltrack-profile', JSON.stringify({ nome: 'Legacy' }));
+  it('get() prefere chave escopada sobre a global anterior', () => {
+    localStorage.setItem('cooltrack-profile', JSON.stringify({ nome: 'Global' }));
     userStorage.set('cooltrack-profile', JSON.stringify({ nome: 'Novo' }));
     expect(Profile.get()?.nome).toBe('Novo');
   });
 
   it('get() cai no fallback global quando não há escopada (backward compat)', () => {
-    localStorage.setItem('cooltrack-profile', JSON.stringify({ nome: 'Legacy' }));
-    expect(Profile.get()?.nome).toBe('Legacy');
+    localStorage.setItem('cooltrack-profile', JSON.stringify({ nome: 'Global' }));
+    expect(Profile.get()?.nome).toBe('Global');
   });
 
   it('get() retorna null e limpa a chave global quando o JSON está corrompido', () => {

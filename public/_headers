@@ -1,4 +1,4 @@
-# Headers de segurança — formato compatível com Netlify e Cloudflare Pages.
+# Headers de segurança para Cloudflare Pages.
 # Aplicados a TODAS as respostas do app.
 
 /*

@@ -1,9 +1,0 @@
-# Configuração mínima para Netlify.
-#
-# Headers de segurança e redirect SPA ficam em `public/_headers` e
-# `public/_redirects` — o mesmo formato funciona também no Cloudflare Pages.
-# Manter a fonte única evita divergência entre as duas plataformas.
-
-[build]
-  command = "npm run build"
-  publish = "dist"

@@ -1,21 +1,3 @@
-[functions.create-checkout-session]
-enabled = true
-verify_jwt = false
-import_map = "./functions/create-checkout-session/deno.json"
-entrypoint = "./functions/create-checkout-session/index.ts"
-
-[functions.create-portal-session]
-enabled = true
-verify_jwt = false
-import_map = "./functions/create-portal-session/deno.json"
-entrypoint = "./functions/create-portal-session/index.ts"
-
-[functions.stripe-webhook]
-enabled = true
-verify_jwt = false
-import_map = "./functions/stripe-webhook/deno.json"
-entrypoint = "./functions/stripe-webhook/index.ts"
-
 [functions.analyze-nameplate]
 enabled = true
 verify_jwt = false

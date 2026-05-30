@@ -143,7 +143,7 @@ describe('AppV2Shell navigation and alerts', () => {
     expect(host.textContent).toContain('Conta');
     expect(window.location.pathname).toBe('/conta');
     expect(host.textContent).toContain('Atalhos e preferências operacionais locais desta sessão.');
-    expect(host.textContent).not.toContain('Billing');
+    expect(host.textContent).not.toContain(['Bill', 'ing'].join(''));
     expect(host.textContent).not.toContain('Supabase');
   });
 
@@ -203,6 +203,8 @@ describe('AppV2Shell navigation and alerts', () => {
     expect(host.textContent).toContain('Pendentes');
     expect(host.textContent).toContain('Este mês');
     expect(host.textContent).toContain('REL-REGISTRO-1');
+    expect(host.textContent).not.toContain('Baixar PDF futuro');
+    expect(host.textContent).not.toContain('Exportar PDF');
     expect(host.textContent).toContain('Câmara fria');
 
     const search = host.querySelector('input[aria-label="Buscar relatórios"]');

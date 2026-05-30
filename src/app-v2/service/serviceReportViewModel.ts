@@ -352,17 +352,17 @@ function normalizeCurrencyText(value: string | undefined, fallback: string): str
 
 function normalizeDisplayText(value: string): string {
   return value
-    .replace(/Ã§/g, 'ç')
-    .replace(/Ã£/g, 'ã')
-    .replace(/Ã¡/g, 'á')
-    .replace(/Ã©/g, 'é')
-    .replace(/Ãª/g, 'ê')
-    .replace(/Ã³/g, 'ó')
-    .replace(/Ãº/g, 'ú')
-    .replace(/Ã­/g, 'í')
-    .replace(/Ã¢/g, 'â')
-    .replace(/Ã‡/g, 'Ç')
-    .replace(/Ã‰/g, 'É')
-    .replace(/Ãš/g, 'Ú')
-    .replace(/Â·/g, '·');
+    .replace(/\u00c3\u00a7/g, 'ç')
+    .replace(/\u00c3\u00a3/g, 'ã')
+    .replace(/\u00c3\u00a1/g, 'á')
+    .replace(/\u00c3\u00a9/g, 'é')
+    .replace(/\u00c3\u00aa/g, 'ê')
+    .replace(/\u00c3\u00b3/g, 'ó')
+    .replace(/\u00c3\u00ba/g, 'ú')
+    .replace(/\u00c3\u00ad/g, 'í')
+    .replace(/\u00c3\u00a2/g, 'â')
+    .replace(/\u00c3\u0087/g, 'Ç')
+    .replace(/\u00c3\u0089/g, 'É')
+    .replace(/\u00c3\u009a/g, 'Ú')
+    .replace(/\u00c2\u00b7/g, '·');
 }

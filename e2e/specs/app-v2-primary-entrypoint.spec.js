@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('App-v2 primary entrypoint', () => {
-  test('renderiza a raiz principal sem voltar para o shell legado', async ({ page }) => {
+  test('renderiza a raiz principal sem voltar para o shell antigo', async ({ page }) => {
     const errors = collectBlockingErrors(page);
 
     await page.goto('/');
@@ -54,11 +54,7 @@ function collectBlockingErrors(page) {
 
   page.on('console', (message) => {
     if (message.type() === 'error') {
-      const text = message.text();
-
-      if (!isKnownProviderNoise(text)) {
-        errors.push(text);
-      }
+      errors.push(message.text());
     }
   });
 
@@ -67,8 +63,4 @@ function collectBlockingErrors(page) {
   });
 
   return () => errors;
-}
-
-function isKnownProviderNoise(message) {
-  return message.includes("Framing 'https://app.netlify.com/' violates");
 }

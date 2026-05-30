@@ -18,8 +18,8 @@ function usage() {
   ].join('\n');
 }
 
-const CODE_PATHS = ['src/react', 'src/ui', 'e2e', 'src/__tests__', 'src/tests'];
-const CSS_PATHS = ['src/assets/styles'];
+const CODE_PATHS = ['src/app-v2', 'src/core', 'src/domain', 'e2e', 'src/__tests__'];
+const CSS_PATHS = ['src/app-v2/styles', 'public/legal'];
 const DOC_PATHS = ['docs'];
 
 function normalizeName(value) {
@@ -129,7 +129,7 @@ function buildMarkdown({ family, shortTerm, slug, results }) {
     '## Checklist de preservacoes',
     '',
     '- [ ] Nenhum CSS removido neste PR de prova.',
-    '- [ ] Nenhum JSX/React alterado.',
+    '- [ ] Nenhum componente ou handler alterado.',
     '- [ ] Nenhum handler alterado.',
     '- [ ] Nenhuma rota alterada.',
     '- [ ] Nenhum view model alterado.',
@@ -177,7 +177,7 @@ if (!slug) {
 }
 
 const outputDir = path.join('docs', 'migration');
-const outputPath = path.join(outputDir, `css-${slug}-proof.md`);
+const outputPath = path.join(outputDir, `css-${slug}-proof.txt`);
 
 if (existsSync(outputPath) && !FORCE) {
   console.error(`Erro: ${outputPath} ja existe. Use --force para sobrescrever.`);

@@ -6,14 +6,14 @@
  */
 
 import { supabase } from '../supabase.js';
-import { normalizePhotoList } from '../photoStorage.js';
+import { normalizePhotoList } from './photoRefs.js';
 import { AppError, ErrorCodes, handleError } from '../errors.js';
 import {
   normalizeCriticidade,
   normalizePrioridadeOperacional,
   normalizePeriodicidadePreventivaDias,
 } from '../maintenanceNormalization.js';
-import { isLegacyEquipmentSchemaError, mapEquipamentoRow } from './normalizers.js';
+import { isMissingEquipmentExtensionSchemaError, mapEquipamentoRow } from './normalizers.js';
 import { parseDeletionQueue, saveDeletionQueue } from './syncState.js';
 
 function splitIntoChunks(values, chunkSize = 100) {
@@ -47,11 +47,13 @@ export async function pushEquipamentos(equipamentos, userId) {
   try {
     const rows = equipamentos.map((equipamento) => mapEquipamentoRow(equipamento, userId));
     let { error } = await supabase.from('equipamentos').upsert(rows, { onConflict: 'id' });
-    if (error && isLegacyEquipmentSchemaError(error)) {
-      const legacyRows = equipamentos.map((equipamento) =>
-        mapEquipamentoRow(equipamento, userId, { legacy: true }),
+    if (error && isMissingEquipmentExtensionSchemaError(error)) {
+      const baseSchemaRows = equipamentos.map((equipamento) =>
+        mapEquipamentoRow(equipamento, userId, { baseSchema: true }),
       );
-      ({ error } = await supabase.from('equipamentos').upsert(legacyRows, { onConflict: 'id' }));
+      ({ error } = await supabase
+        .from('equipamentos')
+        .upsert(baseSchemaRows, { onConflict: 'id' }));
     }
     if (error) throw error;
   } catch (error) {
@@ -80,7 +82,6 @@ export async function pushRegistros(registros, userId) {
       tecnico: r.tecnico,
       custo_pecas: r.custoPecas,
       custo_mao_obra: r.custoMaoObra,
-      assinatura: r.assinatura,
       fotos: normalizePhotoList(r.fotos),
     }));
     const { error } = await supabase.from('registros').upsert(rows, { onConflict: 'id' });
@@ -221,7 +222,6 @@ export async function pullFromSupabase(userId) {
       tecnico: r.tecnico || '',
       custoPecas: parseFloat(r.custo_pecas || 0),
       custoMaoObra: parseFloat(r.custo_mao_obra || 0),
-      assinatura: Boolean(r.assinatura),
       fotos: normalizePhotoList(r.fotos),
     }))
     .filter((r) => equipIds.has(r.equipId));

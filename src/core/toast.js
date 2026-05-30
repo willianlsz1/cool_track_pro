@@ -1,5 +1,5 @@
 /**
- * CoolTrack Pro - Toast Notification System v1.0
+ * CoolTrack Pro - Toast Notification System
  */
 
 const TOAST_CONFIG = {

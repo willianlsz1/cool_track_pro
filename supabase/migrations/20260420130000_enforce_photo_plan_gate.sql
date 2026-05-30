@@ -1,29 +1,29 @@
 -- ============================================================
--- DB-level enforcement: fotos de equipamento são feature Plus+
+-- DB-level enforcement: fotos de equipamento com gate operacional historico
 -- Date: 2026-04-20
 --
 -- Contexto:
---   Hoje o gate "fotos de equipamento" é 100% client-side: UI esconde o
---   wrapper via display:none pra quem não é Plus+. Usuário com dev tools
+--   O gate antigo de "fotos de equipamento" era 100% client-side: UI escondia o
+--   wrapper via display:none. Usuario com dev tools
 --   consegue bypass trivial. As RLS de `equipamentos` só validam ownership
 --   (auth.uid() = user_id), permitindo UPDATE na coluna `fotos` em qualquer
 --   plano.
 --
 -- Fix: trigger BEFORE INSERT/UPDATE em public.equipamentos que valida o
--- plano quando a coluna `fotos` muda. Usuários Free que tentem gravar
--- `fotos` não-vazio levam 42501 (insufficient_privilege).
+-- codigo operacional quando a coluna `fotos` muda. Usuarios fora do codigo
+-- esperado que tentem gravar `fotos` nao-vazio levam 42501.
 --
 -- Escopo:
---   - INSERT com fotos não-vazio → precisa Plus+
---   - UPDATE que mude `fotos` → precisa Plus+
---   - Fotos iguais ao old (noop) → passa (evita quebrar edits não relacionados)
---   - service_role → bypassa (para backfills e admin)
---   - is_dev=true → bypassa (coerente com getEffectivePlan client-side)
+--   - INSERT com fotos nao-vazio: exige codigo operacional elevado.
+--   - UPDATE que mude `fotos`: exige codigo operacional elevado.
+--   - Fotos iguais ao old (noop): passa sem quebrar edits nao relacionados.
+--   - service_role: bypassa para backfills e admin.
+--   - is_dev=true: bypassa, coerente com getEffectivePlan client-side.
 --
 -- Idempotente: CREATE OR REPLACE + DROP trigger antes de CREATE.
 -- ============================================================
 
--- Helper: retorna true se o user_id tem plano Plus ou Pro ativo.
+-- Helper: retorna true se o user_id tem codigo operacional elevado ativo.
 -- Usa SECURITY DEFINER pra ler profiles sem precisar passar pelas RLS
 -- daquela tabela (o trigger chama em nome do próprio user).
 create or replace function public.user_has_plus_plan(p_user_id uuid)
@@ -52,7 +52,7 @@ begin
     return true;
   end if;
 
-  -- Plus ou Pro com assinatura ativa/trialing.
+  -- Codigos elevados com status ativo/trialing.
   if v_plan_code in ('plus', 'pro')
      and v_status in ('active', 'trialing') then
     return true;
@@ -63,7 +63,7 @@ end;
 $$;
 
 comment on function public.user_has_plus_plan(uuid) is
-  'True se o usuário tem plano Plus ou Pro com assinatura ativa (ou é dev). Usado por triggers de gate de features premium.';
+  'True se o usuario tem codigo operacional elevado ativo (ou e dev). Usado por triggers de gates historicos.';
 
 -- ── Trigger em public.equipamentos ──────────────────────────────────────
 create or replace function public.enforce_photo_plan_gate()
@@ -77,7 +77,7 @@ declare
   v_old_fotos jsonb;
   v_new_fotos jsonb;
 begin
-  -- service_role (webhooks, admin) bypassa.
+  -- service_role/admin bypassa.
   begin
     v_role := coalesce(auth.role(), '');
   exception when others then
@@ -91,19 +91,18 @@ begin
   v_new_fotos := coalesce(new.fotos, '[]'::jsonb);
   v_old_fotos := case when tg_op = 'UPDATE' then coalesce(old.fotos, '[]'::jsonb) else '[]'::jsonb end;
 
-  -- Se não houve mudança em `fotos`, passa sem checar plano.
-  -- Importante em UPDATEs que só mexem em outras colunas.
+  -- Se nao houve mudanca em `fotos`, passa sem checar codigo operacional.
+  -- Importante em UPDATEs que so mexem em outras colunas.
   if v_new_fotos = v_old_fotos then
     return new;
   end if;
 
-  -- Se a nova lista é vazia, sempre permite (usuário limpando fotos de um
-  -- plano antigo que fez downgrade, por exemplo).
+  -- Se a nova lista e vazia, sempre permite (usuario limpando fotos antigas).
   if jsonb_array_length(v_new_fotos) = 0 then
     return new;
   end if;
 
-  -- Mudança que adiciona/altera fotos: requer Plus+.
+  -- Mudanca que adiciona/altera fotos: requer codigo operacional elevado.
   if not public.user_has_plus_plan(auth.uid()) then
     raise exception 'equipamento photos require Plus plan' using errcode = '42501';
   end if;
@@ -113,7 +112,7 @@ end;
 $$;
 
 comment on function public.enforce_photo_plan_gate() is
-  'Bloqueia INSERT/UPDATE de equipamentos.fotos não-vazio para usuários fora do plano Plus/Pro.';
+  'Bloqueia INSERT/UPDATE de equipamentos.fotos nao-vazio para usuarios fora do codigo operacional elevado.';
 
 -- Só cria o trigger se a tabela existe (evita quebrar shadow DB do CI).
 do $$
@@ -137,14 +136,14 @@ end $$;
 
 -- ── Storage: policy no bucket que hospeda as fotos ──────────────────────
 -- Path esperado: {user_id}/equipamentos/{equipId}/{uuid}.jpg
--- (o bucket é compartilhado com registros de serviço, cujo path é
---  {user_id}/registros/{registroId}/{uuid}.jpg — sem gate de plano).
+-- (o bucket e compartilhado com registros de servico, cujo path e
+--  {user_id}/registros/{registroId}/{uuid}.jpg, sem gate operacional).
 --
--- A policy INSERT já existente (se houver) valida owner; essa adicional
--- exige Plus+ quando o path começa com 'equipamentos/'. Escopo mínimo.
+-- A policy INSERT ja existente (se houver) valida owner; essa adicional
+-- exige codigo operacional elevado quando o path comeca com 'equipamentos/'.
 --
 -- Nota: se o bucket foi criado via Dashboard sem policies SQL, esse bloco
--- apenas adiciona a policy nova — não derruba as existentes.
+-- apenas adiciona a policy nova; nao derruba as existentes.
 do $$
 begin
   if not exists (

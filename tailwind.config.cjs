@@ -1,13 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./index.html', './src/react/**/*.{js,jsx,ts,tsx}', './src/app-v2/**/*.{ts,tsx}'],
+  content: ['./index.html', './src/app-v2/**/*.{ts,tsx}'],
   prefix: 'tw-',
   corePlugins: {
     preflight: false,
   },
   theme: {
     extend: {
-      // Paleta da nova landing page React (PR 1 do landing-page-plan.md).
+      // Paleta da landing page React antiga preservada no runtime.
       // Aditivo: namespace `landing.*` evita conflito com cores existentes.
       // Valores extraidos do mockup aprovado em cooltrackpro.html.
       colors: {

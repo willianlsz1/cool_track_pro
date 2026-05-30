@@ -54,16 +54,6 @@ function manualChunks(id) {
   if (!id.includes('node_modules')) return undefined;
   if (id.includes('@sentry')) return 'vendor-sentry';
   if (id.includes('@supabase') || id.includes('phoenix')) return 'vendor-supabase';
-  if (
-    id.includes('jspdf') ||
-    id.includes('html2canvas') ||
-    id.includes('canvg') ||
-    id.includes('svg-pathdata') ||
-    id.includes('stackblur') ||
-    id.includes('rgbcolor')
-  ) {
-    return 'vendor-pdf';
-  }
   if (id.includes('chart.js') || id.includes('@kurkle/color')) return 'vendor-charts';
   return undefined;
 }

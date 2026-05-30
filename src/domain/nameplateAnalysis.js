@@ -8,7 +8,7 @@
  * Fonte de verdade do schema de resposta: supabase/functions/analyze-nameplate
  *
  * Padrão de erro: lança NameplateAnalysisError com `.code` canônico — o
- * handler do UI decide o que mostrar (toast, upsell, retry) baseado no code.
+ * handler do UI decide o que mostrar (toast, bloqueio local, retry) baseado no code.
  */
 import { supabase } from '../core/supabase.js';
 import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
@@ -16,9 +16,9 @@ import { getSupabaseBrowserConfig } from '../core/supabaseConfig.js';
 // ── Erros canônicos ────────────────────────────────────────────────────────
 // Os mesmos codes vêm da função (PLAN_GATE_FREE/PLUS/PRO, AUTH_REQUIRED, etc),
 // mais alguns client-only pra estados que só existem no browser (NO_SESSION,
-// NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE é o "umbrella" pra qualquer gate de
-// plano (Free trial esgotado, Plus atingiu 30/mês, Pro atingiu 200/mês). O
-// detalhamento fica em `details.currentPlan` pra o UI escolher a mensagem.
+// NETWORK, FILE_TOO_LARGE). ERR_PLAN_GATE e o "umbrella" para bloqueios de
+// acesso/limite herdados da funcao. O detalhamento fica em `details.currentPlan`
+// para o UI escolher a mensagem sem expor contexto de cobranca.
 export const ERR_NO_SESSION = 'NO_SESSION';
 export const ERR_PLAN_GATE = 'PLAN_GATE';
 export const ERR_NETWORK = 'NETWORK';
@@ -39,8 +39,7 @@ export class NameplateAnalysisError extends Error {
     this.cause = cause ?? null;
     // `details` carrega metadados específicos do código. Pra ERR_PLAN_GATE:
     // { currentPlan, monthlyLimit, used, quotaExhausted, trialExhausted,
-    // trialLimit, trialUsed } — o UI escolhe a mensagem/CTA de upgrade com
-    // base em currentPlan ('free' | 'plus' | 'pro').
+    // trialLimit, trialUsed } para a UI montar a mensagem operacional.
     this.details = details ?? null;
   }
 }
@@ -308,7 +307,7 @@ function normalizeMediaType(type) {
 }
 
 /**
- * Obtém token Supabase fresco. Mesma estratégia da monetization.js:
+ * Obtém token Supabase fresco. Mesma estratégia da operationalPlan.js:
  * tenta refresh via rede, cai pra storage se o refresh falhar mas o token
  * no storage ainda não expirou.
  */
@@ -438,7 +437,7 @@ export async function analyzeNameplate(file, { supabaseClient = supabase } = {})
         monthlyLimit,
         used,
         quotaExhausted: Boolean(payload?.quota_exhausted ?? payload?.trial_exhausted),
-        // Aliases Free-only mantidos pra UI existente (nameplateCapture.js)
+        // Aliases de compatibilidade mantidos para a UI existente.
         trialExhausted: Boolean(payload?.trial_exhausted),
         trialLimit: Number.isFinite(Number(payload?.trial_limit))
           ? Number(payload.trial_limit)
@@ -467,9 +466,8 @@ export async function analyzeNameplate(file, { supabaseClient = supabase } = {})
         'Não deu pra ler a etiqueta. Tenta uma foto mais nítida, com a etiqueta preenchendo o quadro.',
     );
   }
-  // Propaga metadata do teste grátis vindo da edge function — quando o user é
-  // Free e acabou de gastar um uso do mês, o client usa pra atualizar o CTA
-  // (ex: mudar pra estado 'locked' porque a próxima tentativa vai falhar).
+  // Propaga metadata de consumo vindo da edge function. Quando um uso mensal é
+  // consumido, o client atualiza o CTA local para refletir o limite restante.
   if (payload && payload.trial && typeof payload.trial === 'object') {
     mapped._trial = {
       consumed: Boolean(payload.trial.consumed),

@@ -2,7 +2,7 @@
  * emailNotification.js
  * Envia e-mail de notificação usando a API REST do EmailJS (sem biblioteca extra).
  *
- * Configuração necessária (cole no .env.local ou no painel do Netlify):
+ * Configuração necessária (cole no .env.local ou no painel do Cloudflare Pages):
  *   VITE_EMAILJS_SERVICE_ID   → ID do serviço Gmail no EmailJS
  *   VITE_EMAILJS_TEMPLATE_ID  → ID do template de feedback no EmailJS
  *   VITE_EMAILJS_PUBLIC_KEY   → Chave pública do EmailJS (aba "Account")

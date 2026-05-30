@@ -17,7 +17,7 @@ const CRON_SECRET = Deno.env.get('CRON_SECRET') ?? '';
 // Se setado, exige:
 //   x-cron-ts: unix epoch seconds
 //   x-cron-signature: hex(HMAC_SHA256(CRON_SIGNING_SECRET, `${ts}.${CRON_SECRET}`))
-// Mantém retrocompat: sem env setada, segue no modo legado (apenas x-cron-secret).
+// Mantém retrocompat: sem env setada, segue no modo anterior (apenas x-cron-secret).
 const CRON_SIGNING_SECRET = Deno.env.get('CRON_SIGNING_SECRET') ?? '';
 const MAX_CLOCK_SKEW_SECONDS = 300;
 

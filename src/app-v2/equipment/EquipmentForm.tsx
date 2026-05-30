@@ -133,7 +133,7 @@ export function EquipmentForm({
       setLocalError(saveError);
     } catch (error) {
       setLocalError(
-        error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel salvar o equipamento.',
+        error instanceof Error ? error.message : 'Não foi possível salvar o equipamento.',
       );
     }
   }
