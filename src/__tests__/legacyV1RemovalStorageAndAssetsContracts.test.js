@@ -7,7 +7,7 @@ import {
 } from '../core/storage/constants.js';
 
 function readSource(path) {
-  return readFileSync(path, 'utf8');
+  return existsSync(path) ? readFileSync(path, 'utf8') : '';
 }
 
 function escapeRegExp(value) {
@@ -15,6 +15,7 @@ function escapeRegExp(value) {
 }
 
 function listSourceFiles(dir) {
+  if (!existsSync(dir)) return [];
   return readdirSync(dir).flatMap((entry) => {
     const path = `${dir}/${entry}`;
     const stats = statSync(path);

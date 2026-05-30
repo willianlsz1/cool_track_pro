@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 function readSource(path) {
-  return readFileSync(path, 'utf8');
+  return existsSync(path) ? readFileSync(path, 'utf8') : '';
 }
 
 function collectRuntimeSources(dir) {

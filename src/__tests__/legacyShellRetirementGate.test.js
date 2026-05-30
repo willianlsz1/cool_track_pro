@@ -166,5 +166,6 @@ describe('legacy shell retirement gate', () => {
     expect(existsSync('src/ui/account')).toBe(false);
     expect(existsSync('src/ui/composables')).toBe(false);
     expect(existsSync('src/ui/viewModels')).toBe(false);
+    expect(existsSync('src/ui/views')).toBe(false);
   });
 });

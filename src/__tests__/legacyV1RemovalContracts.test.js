@@ -2,10 +2,11 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 function readSource(path) {
-  return readFileSync(path, 'utf8');
+  return existsSync(path) ? readFileSync(path, 'utf8') : '';
 }
 
 function listSourceFiles(dir) {
+  if (!existsSync(dir)) return [];
   return readdirSync(dir).flatMap((entry) => {
     const path = `${dir}/${entry}`;
     const stats = statSync(path);
